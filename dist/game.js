@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.77";
+const GAME_VERSION = "0.79";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -18466,6 +18466,7 @@ Object.assign(Game.prototype, {
     for (const [k, v] of Object.entries(rc.mul)) it[k] = Math.round(base[k] * v);
     it.name = "[".concat(RANKS[tier].key, "] ").concat(rc.name);
     it.crafted = true;
+    if (it.slot === "weapon") it.fam = void 0;
     it.value = Math.round(it.value * 1.2);
     p.inventory.push(it);
     p.smith = Math.min(100, p.smith + 3);
@@ -26046,3 +26047,517 @@ S({
     }
   };
 })();
+{
+  const GP = Game.prototype;
+  const wrap = (name, fn) => {
+    const base = GP[name];
+    if (!base) return;
+    GP[name] = function(...a) {
+      return fn.call(this, base, ...a);
+    };
+  };
+  wrap("initSandbox", function(base) {
+    var _a, _b, _c;
+    base.call(this);
+    const p = this.player;
+    (_a = p.contract) != null ? _a : p.contract = null;
+    if (p.guild && !p.contract) p.contract = this.makeContract(p.guild, 1, 1, false, true);
+    (_c = (_b = this.world).transferRecord) != null ? _c : _b.transferRecord = 0;
+  });
+  GP.marketValue = function() {
+    var _a;
+    const p = this.player;
+    const off = (_a = p.official) != null ? _a : p.rankIdx;
+    let pos = 50;
+    try {
+      pos = this.ranking ? this.ranking().pos : 50;
+    } catch (e) {
+    }
+    return Math.round(60 * RANKS[off].mult * (1 + Math.min(p.fame, 600) / 300) * (pos <= 3 ? 1.6 : pos <= 10 ? 1.3 : 1));
+  };
+  GP.makeContract = function(gid, years, mul = 1, oath = false, basic = false) {
+    var _a, _b;
+    const mk = this.monthKey();
+    const v = this.marketValue();
+    const salary = basic ? 0 : Math.round(v * mul * (oath ? 1.3 : 1));
+    return { guild: gid, start: mk, until: mk + 12 * years, years, salary, sign: basic ? 0 : Math.round(salary * 6 * mul), buyout: Math.round((salary + 50 * RANKS[(_a = this.player.official) != null ? _a : 0].mult) * 12 * years * 0.6), duty: Math.min(4, 1 + Math.floor(((_b = this.player.official) != null ? _b : 0) / 2)), qStart: mk, qDone: 0, warn: 0, oath };
+  };
+  GP.makeOffers = function(n = 3) {
+    const p = this.player;
+    const ids = Object.keys(GUILDS).filter((id) => id !== p.guild || p.contract && p.contract.guild === id).sort(() => RNG.next() - 0.5);
+    const out = [];
+    for (const id of ids) {
+      if (out.length >= n) break;
+      const F = this.world.factions && this.world.factions[id];
+      if (F && (F.rel && p.guild && (F.rel[p.guild] || 0) > 40) && RNG.chance(0.5)) continue;
+      if ((p.wanted || 0) >= 1 && id === "kama") continue;
+      if (p.fame < GUILDS[id].fameReq) continue;
+      const years = RNG.int(1, 3);
+      const mul = RNG.range(0.85, 1.35) * (id === p.guild ? 1.05 : 1);
+      out.push(__spreadProps(__spreadValues({}, this.makeContract(id, years, mul, false)), { renew: id === p.guild }));
+    }
+    return out;
+  };
+  wrap("joinGuild", function(base) {
+    const r = base.call(this);
+    const p = this.player;
+    if (p.guild && (!p.contract || p.contract.guild !== p.guild)) {
+      p.contract = this.makeContract(p.guild, 1, 1, false, true);
+    }
+    return r && p.contract ? "".concat(r, " 수습 계약 1년, 분기당 게이트 ").concat(p.contract.duty, "회.") : r;
+  });
+  GP.contractLeft = function() {
+    const c = this.player.contract;
+    return c ? Math.max(0, c.until - this.monthKey()) : 0;
+  };
+  GP.currentBuyout = function() {
+    const c = this.player.contract;
+    if (!c) return 0;
+    return Math.round(c.buyout * this.contractLeft() / Math.max(1, c.until - c.start));
+  };
+  GP.breakContract = function(why, cover = 0) {
+    const p = this.player;
+    const c = p.contract;
+    if (!c) return { ok: true, text: "" };
+    const left = this.contractLeft();
+    if (!left) {
+      p.contract = null;
+      return { ok: true, text: "" };
+    }
+    const fee = Math.round(this.currentBuyout() * (1 - cover));
+    if (p.money < fee) return { ok: false, text: "위약금 ".concat(fmt(fee), " 크레딧이 없다.") };
+    p.money -= fee;
+    p.fame = Math.max(0, p.fame - 10);
+    let t = "위약금 ".concat(fmt(fee), " 크레딧을 물었다. (명성 -10)");
+    if (c.oath) {
+      p.lifePenalty += 1;
+      p.injured = Math.max(p.injured, 4);
+      this.recalc();
+      if (this.noteLifeLoss) this.noteLifeLoss(1, "마나 서약 파기");
+      t += " 마나 서약이 깨지며 에테르 회로가 뒤틀렸다. 수명 -1, 부상 4개월.";
+    }
+    this.rumor("".concat(p.name, "이(가) ").concat(GUILDS[c.guild].name, "과(와)의 계약을 깼다.").concat(why ? " ".concat(why) : ""), { kind: "transfer", score: 2 });
+    if (this.factionRel && this.factionPrestige) this.factionPrestige(c.guild, -3);
+    p.contract = null;
+    return { ok: true, text: t };
+  };
+  wrap("leaveGuild", function(base) {
+    const r = this.breakContract("");
+    if (!r.ok) return r.text;
+    const out = base.call(this);
+    return [out, r.text].filter(Boolean).join(" ");
+  });
+  GP.signOffer = function(o, oath) {
+    var _a;
+    const p = this.player;
+    if (p.guild && p.guild !== o.guild) {
+      const r = this.breakContract("".concat(GUILDS[o.guild].name, "의 영입 제안"), 0.5);
+      if (!r.ok) return r.text + " (새 길드가 절반을 부담해도 모자란다)";
+      p.guild = null;
+      p.guildRank = 0;
+      p.contrib = 0;
+    }
+    const c = oath ? __spreadProps(__spreadValues({}, o), { salary: Math.round(o.salary * 1.3), oath: true }) : o;
+    if (p.guild !== c.guild) {
+      p.guild = c.guild;
+      p.guildRank = Math.max(0, Math.min(2, ((_a = p.official) != null ? _a : 0) - 2));
+      p.contrib = 0;
+    }
+    p.contract = __spreadProps(__spreadValues({}, c), { start: this.monthKey(), until: this.monthKey() + 12 * c.years, qStart: this.monthKey(), qDone: 0, warn: 0 });
+    p.money += c.sign;
+    const big = c.sign >= (this.world.transferRecord || 0) && c.sign > 0;
+    if (big) this.world.transferRecord = c.sign;
+    this.rumor("".concat(p.name, ", ").concat(GUILDS[c.guild].name, "과(와) ").concat(c.years, "년 ").concat(o.renew ? "재계약" : "전속 계약", ". 계약금 ").concat(fmt(c.sign), " 크레딧").concat(big ? " · 역대 최고" : "", ".").concat(c.oath ? " 마나 서약까지 걸었다." : ""), { kind: "transfer", score: big ? 5 : 2 });
+    this.lifeEvent("".concat(GUILDS[c.guild].name, "과(와) ").concat(c.years, "년 계약을 맺었다."));
+    return "".concat(GUILDS[c.guild].name, "과(와) ").concat(c.years, "년 계약. 계약금 ").concat(fmt(c.sign), " 크레딧, 월 보너스 ").concat(fmt(c.salary), " 크레딧, 분기당 게이트 ").concat(c.duty, "회.");
+  };
+  wrap("finishGate", function(base, gate, result, ...rest) {
+    const lines = base.call(this, gate, result, ...rest);
+    const c = this.player.contract;
+    if (c && result === "clear" && this.player.guild === c.guild) c.qDone++;
+    return lines;
+  });
+  GP.contractMonthly = function() {
+    var _a, _b;
+    const p0 = this.player;
+    if (p0.guild && (!p0.contract || p0.contract.guild !== p0.guild)) p0.contract = this.makeContract(p0.guild, 1, 1, false, true);
+    const p = this.player;
+    const c = p.contract;
+    const mk = this.monthKey();
+    if (c && p.guild === c.guild) {
+      if (c.salary) p.money += c.salary;
+      if (mk - c.qStart >= 3) {
+        if (c.qDone < c.duty) {
+          c.warn++;
+          this.log("".concat(GUILDS[c.guild].name, ": 이번 분기 의무 게이트 ").concat(c.qDone, "/").concat(c.duty, ". ").concat(c.warn >= 2 ? "계약 해지 통보를 받았다." : "경고를 받았다."), "bad");
+          if (c.warn >= 2) {
+            p.contract = null;
+            const g = GUILDS[p.guild];
+            p.guild = null;
+            p.guildRank = 0;
+            p.contrib = 0;
+            p.fame = Math.max(0, p.fame - 8);
+            this.rumor("".concat(g.name, ", 의무 불이행으로 ").concat(p.name, "과(와)의 계약 해지."), { kind: "transfer", score: 2 });
+          }
+        } else if (c.warn) c.warn = 0;
+        if (p.contract) {
+          c.qStart = mk;
+          c.qDone = 0;
+        }
+      }
+      if (p.contract && mk >= c.until) {
+        this.queue.push({ type: "offers", reason: "end" });
+      } else if (p.contract && ((_a = p.official) != null ? _a : 0) >= 4 && RNG.chance(0.03)) this.queue.push({ type: "offers", reason: "scout" });
+    } else if (!p.guild && ((_b = p.official) != null ? _b : 0) >= 2 && p.fame >= 20 && RNG.chance(0.05)) this.queue.push({ type: "offers", reason: "free" });
+    if (c && !p.guild) p.contract = null;
+  };
+  GP.npcTransferMarket = function() {
+    const cand = this.adults().filter((n) => n.guild && n.guild !== "kama" && n.rankIdx >= 3 && !n.isCompanion && !n.retired && (n.amb === "wealth" || n.amb === "power" || (n.cash || 0) < 0 || RNG.chance(0.1)));
+    const moves = cand.sort(() => RNG.next() - 0.5).slice(0, RNG.int(1, 3));
+    for (const n of moves) {
+      const to = RNG.pick(Object.keys(GUILDS).filter((g) => g !== n.guild && g !== "kama"));
+      const fee = Math.round(1500 * RANKS[n.rankIdx].mult * RNG.range(0.7, 1.5));
+      const from = n.guild;
+      n.guild = to;
+      n.cash = (n.cash || 0) + Math.round(fee * 0.3);
+      const big = fee > (this.world.transferRecord || 0);
+      if (big) this.world.transferRecord = fee;
+      if (this.factionRel) this.factionRel(from, to, -6);
+      if (n.rankIdx >= 4 || n.met || big) this.rumor("이적시장: ".concat(RANKS[n.rankIdx].key, "급 ").concat(n.name, ", ").concat(GUILDS[from].name, " → ").concat(GUILDS[to].name, ". 이적료 ").concat(fmt(fee), " 크레딧").concat(big ? ", 역대 최고" : "", "."), { kind: "transfer", score: big ? 4 : 1 });
+      if (n.met && this.npcRemember) this.npcRemember(n, "".concat(GUILDS[to].name, "(으)로 이적했다"));
+    }
+  };
+  wrap("worldMonthly", function(base) {
+    base.call(this);
+    this.contractMonthly();
+    if (this.month === 1) this.npcTransferMarket();
+  });
+}
+if (typeof UI !== "undefined") {
+  UI.showOffers = function(reason) {
+    const offers = G.makeOffers(3);
+    this.curOffers = offers;
+    const p = G.player;
+    const c = p.contract;
+    const head = reason === "end" ? "".concat(GUILDS[c.guild].name, "과(와)의 계약이 끝났다. 제안서가 쌓였다.") : reason === "scout" ? "몸값이 올랐다. 다른 길드에서 스카우트 제의가 왔다. 지금 옮기면 위약금 ".concat(fmt(G.currentBuyout()), " 크레딧 중 절반을 새 길드가 부담한다.") : "자유 계약 신분인 당신에게 길드들이 연락해 왔다.";
+    const row = (o, i) => '<div class="item-row"><div class="grow"><b style="color:'.concat(GUILDS[o.guild].color, '">').concat(GUILDS[o.guild].name, '</b> <span class="small">').concat(o.renew ? "재계약" : "영입", " · ").concat(o.years, '년</span>\n      <div class="small dim">계약금 ').concat(fmt(o.sign), " · 월 보너스 ").concat(fmt(o.salary), " · 분기당 게이트 ").concat(o.duty, "회 · 위약금 ").concat(fmt(o.buyout), '</div>\n      <div class="row"><button class="sm primary" data-act="offer-sign" data-v="').concat(i, ':0">계약</button><button class="sm" data-act="offer-sign" data-v="').concat(i, ':1">마나 서약까지 (연봉 +30%, 깨면 수명)</button></div></div></div>');
+    if (!offers.length) return this.processQueue();
+    this.modal('<div class="eyebrow">이적시장</div><h3>계약 제안</h3><p class="event-text">'.concat(head, '</p>\n      <div class="cards">').concat(offers.map(row).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="offer-skip">').concat(reason === "end" ? "자유 계약으로 남는다" : "거절한다", "</button></div>"), "event-box");
+  };
+  const baseQueue = UI.processQueue;
+  UI.processQueue = function() {
+    if (this.modalOpen()) return;
+    const q = G.queue[0];
+    if (q && q.type === "offers") {
+      G.queue.shift();
+      if (G.queue.some((x) => x.type === "offers")) G.queue = G.queue.filter((x) => x.type !== "offers");
+      return this.showOffers(q.reason);
+    }
+    return baseQueue.call(this);
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function(act, v) {
+    if (act === "offer-sign") {
+      const [i, oath] = String(v).split(":");
+      const o = this.curOffers && this.curOffers[+i];
+      this.closeModal();
+      return this.after(o ? G.signOffer(o, oath === "1") : "");
+    }
+    if (act === "offer-skip") {
+      this.closeModal();
+      const p = G.player;
+      if (p.contract && G.contractLeft() === 0) {
+        const g = GUILDS[p.guild];
+        p.contract = null;
+        p.guild = null;
+        p.guildRank = 0;
+        p.contrib = 0;
+        return this.after("".concat(g.name, "을(를) 떠나 자유 계약 신분이 됐다."));
+      }
+      return this.after("제안을 거절했다.");
+    }
+    return baseHandle.call(this, act, v);
+  };
+  const baseGuild = UI.guildHtml;
+  UI.guildHtml = function() {
+    const html = baseGuild.call(this);
+    const c = G.player.contract;
+    if (!c || G.player.guild !== c.guild) return html;
+    const card = '<div class="panel sec"><h3>전속 계약</h3><div class="small">남은 기간 <b>'.concat(G.contractLeft(), "개월</b> · 월 보너스 ").concat(fmt(c.salary), " · 이번 분기 게이트 <b>").concat(c.qDone, "/").concat(c.duty, "</b>").concat(c.warn ? ' <span class="bad">경고 1회</span>' : "").concat(c.oath ? ' · <span class="bad">마나 서약</span>' : "", '</div>\n      <div class="small dim">중간에 나가면 위약금 ').concat(fmt(G.currentBuyout()), " 크레딧. 몸값(월) ").concat(fmt(G.marketValue()), ".</div></div>");
+    return html + card;
+  };
+}
+const WEAPON_FAMS = {
+  sword: { name: "검", names: ["진동 블레이드", "플라즈마 세이버", "합금 장검", "유물 검"] },
+  spear: { name: "창", names: ["합금 창", "전술 할버드", "고주파 글레이브"] },
+  fist: { name: "건틀릿", names: ["마나 건틀릿", "충격 너클", "파쇄 건틀릿"] },
+  gun: { name: "총", names: ["전자기 라이플", "레일 권총", "에테르 샷건"] },
+  bow: { name: "활", names: ["복합 활", "에테르 석궁", "광자 장궁"] },
+  dagger: { name: "단검", names: ["단분자 단검", "쌍날 나이프", "그림자 비수"] },
+  staff: { name: "지팡이", names: ["에테르 지팡이", "공명 로드", "수정 완드"] },
+  instr: { name: "악기", names: ["공명 하프", "전술 확성기", "에테르 바이올린"] },
+  shield: { name: "방패", names: ["카이트 방패", "에너지 방패", "타워 실드"] },
+  drone: { name: "드론", names: ["공격 드론", "전술 드론", "정찰 드론 편대"] }
+};
+const GROUP_FAMS = {
+  fighter: ["sword", "spear", "fist"],
+  guard: ["shield", "spear", "sword"],
+  shadow: ["dagger", "bow"],
+  shooter: ["gun", "bow"],
+  mage: ["staff"],
+  summon: ["staff", "drone"],
+  support: ["staff", "instr"],
+  esper: ["drone", "staff"],
+  east: ["sword", "fist", "staff"]
+};
+const FAM_FIT = 0.15;
+const famOfName = (name) => {
+  for (const [k, f] of Object.entries(WEAPON_FAMS)) if (f.names.some((n) => name.includes(n))) return k;
+  if (/단검|비수|나이프/.test(name)) return "dagger";
+  if (/창|글레이브/.test(name)) return "spear";
+  if (/검|블레이드|세이버/.test(name)) return "sword";
+  return null;
+};
+const BAG_ITEMS = [
+  { id: "antidote", name: "해독제", price: 90, desc: "전투용 · 중독·기절 등 상태 이상 해제", effect: "combat" },
+  { id: "amp", name: "강화 앰플", price: 260, desc: "전투용 · 3턴 공격 +40%, 오염 +3", effect: "combat" },
+  { id: "flash", name: "섬광탄", price: 200, desc: "전투용 · 적 전체 소량 피해, 35% 기절", effect: "combat" },
+  { id: "recall", name: "귀환석", price: 450, desc: "전투용 · 즉시 이탈(레드·원초 게이트 제외)", effect: "combat" },
+  { id: "guardcharm", name: "결계 부적", price: 220, desc: "전투용 · 다음 피해 한 번 무효", effect: "combat" },
+  { id: "decoy", name: "미끼 드론", price: 180, desc: "전투용 · 적의 공격을 끌어가는 드론 배치", effect: "combat" }
+];
+CONSUMABLES.push(...BAG_ITEMS);
+Object.assign(Game.prototype, {
+  weaponFam(it) {
+    if (!it || it.slot !== "weapon" || it.soul) return null;
+    if (it.fam === void 0) it.fam = famOfName(it.name || "");
+    return it.fam;
+  },
+  famFit(it) {
+    const fam = this.weaponFam(it);
+    const p = this.player;
+    if (!fam || !p || !p.cls) return 0;
+    const c = classById(p.cls);
+    if (!c || c.g === "hidden") return 0;
+    const ok = GROUP_FAMS[c.g] || [];
+    return ok.includes(fam) ? FAM_FIT : -FAM_FIT;
+  }
+});
+{
+  const GP = Game.prototype;
+  const wrap = (name, fn) => {
+    const base = GP[name];
+    GP[name] = function(...a) {
+      return fn.call(this, base, ...a);
+    };
+  };
+  wrap("makeEquipment", function(base, slot, tier, rarityIdx) {
+    const it = base.call(this, slot, tier, rarityIdx);
+    if (slot === "weapon") {
+      const p = this.player;
+      const c = p && p.cls && classById(p.cls);
+      const mine = c && GROUP_FAMS[c.g] || [];
+      const fam = mine.length && RNG.chance(0.4) ? RNG.pick(mine) : RNG.pick(Object.keys(WEAPON_FAMS));
+      it.fam = fam;
+      it.name = "[".concat(RANKS[tier].key, "] ").concat(RNG.pick(WEAPON_FAMS[fam].names));
+      if (fam === "shield") {
+        it.def = Math.round((it.atk || 0) * 0.35);
+        it.atk = Math.round(it.atk * 0.8);
+      }
+      if (fam === "instr" || fam === "staff") it.mp = Math.round((it.atk || 0) * 1.2);
+      if (fam === "dagger" || fam === "bow") it.spd = Math.max(it.spd || 0, Math.round((it.atk || 0) * 0.2));
+    }
+    return it;
+  });
+  wrap("recalc", function(base) {
+    base.call(this);
+    const p = this.player;
+    const w = p && p.equip && p.equip.weapon;
+    const f = w ? this.famFit(w) : 0;
+    if (!f) return;
+    const inj = p.injured > 0 ? 0.8 : 1;
+    p.atk = Math.max(1, Math.round(p.atk + (w.atk || 0) * f * inj));
+    p.def = Math.max(0, Math.round(p.def + (w.def || 0) * f * inj));
+    p.maxMp = Math.max(1, Math.round(p.maxMp + (w.mp || 0) * f));
+    p.mp = Math.min(p.mp, p.maxMp);
+    p.spd = Math.max(1, Math.round(p.spd + (w.spd || 0) * f));
+  });
+  wrap("useItem", function(base, id) {
+    const c = CONSUMABLES.find((x) => x.id === id);
+    if (c && c.effect === "combat") return "".concat(c.name, "은(는) 전투 중에 가방에서 쓴다.");
+    return base.call(this, id);
+  });
+  const CP = Combat.prototype;
+  const baseDeal = CP.dealDamage;
+  CP.dealDamage = function(att, def, skill, opt) {
+    if (def && def.shieldOnce && att.side !== def.side) {
+      def.shieldOnce = false;
+      this.push("결계 부적이 ".concat(att.name, "의 ").concat(skill.name, "을(를) 막아 냈다!"), "heal", { k: "miss", dst: def.id });
+      return 0;
+    }
+    return baseDeal.call(this, att, def, skill, opt);
+  };
+  CP.useBag = function(id, ctxInfo) {
+    const g = this.game;
+    const gp = g.player;
+    if (!this.waiting || this.result || !gp.items[id]) return false;
+    const u = this.player;
+    switch (id) {
+      case "antidote":
+        u.poison = null;
+        u.stun = 0;
+        if (u.status) u.status = null;
+        if (u.statuses) u.statuses = [];
+        this.push("".concat(u.name, ": 해독제로 몸을 추슬렀다."), "heal", { k: "buff", dst: u.id, mp: u.mp });
+        break;
+      case "amp":
+        u.buffs.atk = Math.max(u.buffs.atk, 0.4);
+        u.buffs.atkT = Math.max(u.buffs.atkT, 3);
+        this.taintGain = (this.taintGain || 0) + 3;
+        this.push("".concat(u.name, ": 강화 앰플 투여! 공격 상승."), "heal", { k: "buff", dst: u.id, mp: u.mp });
+        break;
+      case "flash": {
+        const sk = { id: "flash", name: "섬광탄", type: "aoe", power: 0.45, mp: 0, elem: null };
+        this.push("".concat(u.name, "이(가) 섬광탄을 던졌다!"), "hit", { k: "aoe", src: u.id, side: u.side, elem: null });
+        for (const f of this.foesOf(u)) {
+          if (baseDeal.call(this, u, f, sk) && f.alive && Math.random() < (f.boss ? 0.15 : 0.35)) {
+            f.stun = 1;
+            this.push("".concat(f.name, "이(가) 눈이 멀어 비틀거린다!"), "hit", { k: "note", dst: f.id });
+          }
+        }
+        break;
+      }
+      case "recall":
+        if (ctxInfo && ctxInfo.noRecall) {
+          this.push("이곳에서는 귀환석이 작동하지 않는다!", "bad");
+          return false;
+        }
+        gp.items[id]--;
+        this.result = "flee";
+        this.waiting = false;
+        this.push("귀환석이 빛났다. 순식간에 바깥으로 빠져나왔다.", "");
+        return true;
+      case "guardcharm":
+        u.shieldOnce = true;
+        this.push("".concat(u.name, ": 결계 부적을 둘렀다."), "heal", { k: "buff", dst: u.id, mp: u.mp });
+        break;
+      case "decoy": {
+        const s = {
+          id: "decoy_".concat(Math.random().toString(36).slice(2, 6)),
+          name: "미끼 드론",
+          side: "ally",
+          summon: true,
+          summonOf: u.id,
+          hp: Math.round(u.maxHp * 0.45),
+          maxHp: Math.round(u.maxHp * 0.45),
+          mp: 0,
+          maxMp: 1,
+          atk: 1,
+          def: Math.round(u.def * 1.2),
+          spd: u.spd,
+          luck: 5,
+          elem: null,
+          skills: ["strike"],
+          shape: "drone",
+          tier: 0
+        };
+        const su = this.prep(s);
+        su.tauntT = 3;
+        su.atb = 0;
+        this.units.push(su);
+        this.push("".concat(u.name, "이(가) 미끼 드론을 띄웠다! 적의 시선이 쏠린다."), "heal", { k: "summon", dst: su.id, src: u.id });
+        break;
+      }
+      default:
+        return false;
+    }
+    gp.items[id]--;
+    this.endPlayerTurn();
+    return true;
+  };
+}
+{
+  const baseStats = UI.equipStats;
+  UI.equipStats = function(it) {
+    let s = baseStats.call(this, it);
+    const fam = G.weaponFam(it);
+    if (fam) {
+      const f = G.famFit(it);
+      s += " · ".concat(WEAPON_FAMS[fam].name, " 계열").concat(f > 0 ? ' <span class="good">적합 +15%</span>' : f < 0 ? ' <span class="bad">부적합 −15%</span>' : "");
+    }
+    return s;
+  };
+  const baseCtrl = UI.renderControls;
+  UI.renderControls = function() {
+    baseCtrl.call(this);
+    const c = this.ctx;
+    if (!c || !c.combat || c.combat.result) return;
+    const p = G.player;
+    const have = BAG_ITEMS.filter((b) => p.items[b.id] > 0);
+    const row = document.querySelector("#cb-ctrl .ctrl-row");
+    if (!row) return;
+    const ready = c.combat.waiting && !c.playing && !c.combat.auto;
+    if (!have.length) return;
+    row.insertAdjacentHTML("afterbegin", '<button class="sm '.concat(c.bagOpen ? "primary" : "", '" data-act="c-bag">가방 <span class="num">').concat(have.reduce((a, b) => a + p.items[b.id], 0), "</span></button>"));
+    if (c.bagOpen) row.insertAdjacentHTML("beforebegin", '<div class="row bag-row" style="flex-wrap:wrap;gap:6px;margin-bottom:6px">'.concat(have.map((b) => '<button class="sm" data-act="c-bag-use" data-v="'.concat(b.id, '" ').concat(ready ? "" : "disabled", ' title="').concat(b.desc, '">').concat(b.name, ' <span class="num">×').concat(p.items[b.id], "</span></button>")).join(""), "</div>"));
+  };
+  const arrow = (a, b) => {
+    const d = (a || 0) - (b || 0);
+    return d > 0 ? '<span class="good">▲'.concat(d, "</span>") : d < 0 ? '<span class="bad">▼'.concat(-d, "</span>") : '<span class="dim">=</span>';
+  };
+  UI.compareHtml = function(items) {
+    const p = G.player;
+    if (!items.length) return "";
+    return '<div class="sec-title sec">얻은 장비</div><div class="cards">'.concat(items.map((it) => {
+      const cur = p.equip[it.slot];
+      const keys = ["atk", "def", "hp", "mp", "spd", "luck"].filter((k) => it[k] || cur && cur[k]);
+      const cmp = keys.map((k) => "".concat(MOD_NAME[k] || k, " ").concat(it[k] || 0, " ").concat(cur ? arrow(it[k], cur[k]) : "")).join(" · ");
+      return '<div class="item-row">'.concat(this.slotIcon(it.slot, RARITY[it.rarity].color), '<div class="grow">').concat(this.equipName(it), '<div class="small">').concat(cmp, "</div>").concat(G.weaponFam(it) ? '<div class="small dim">'.concat(WEAPON_FAMS[G.weaponFam(it)].name, " 계열").concat(G.famFit(it) > 0 ? " · 적합" : G.famFit(it) < 0 ? " · 부적합" : "", "</div>") : "", '</div>\n        <button class="sm primary" data-act="quick-equip" data-v="').concat(it.uid, '" ').concat(cur && cur.cursed ? "disabled" : "", ">바로 장착</button></div>");
+    }).join(""), "</div>");
+  };
+  const baseFinishGate = UI.finishGate;
+  UI.finishGate = function(result) {
+    const before = new Set(G.player.inventory.map((e) => e.uid));
+    baseFinishGate.call(this, result);
+    const got = G.player.inventory.filter((e) => !before.has(e.uid));
+    if (!got.length) return;
+    const row = $box.querySelector(".row.end");
+    if (row) row.insertAdjacentHTML("beforebegin", this.compareHtml(got));
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function(act, v) {
+    switch (act) {
+      case "c-bag": {
+        const c = this.ctx;
+        if (!c) return;
+        c.bagOpen = !c.bagOpen;
+        return this.renderControls();
+      }
+      case "c-bag-use": {
+        const c = this.ctx;
+        if (!c || c.playing) return;
+        const g = c.gate;
+        const noRecall = !!(c.spec && c.spec.lethal) || !!(g && (g.variant === "red" || g.final)) || c.kind === "tower";
+        c.bagOpen = false;
+        return this.combatAction((cb) => cb.useBag(v, { noRecall }));
+      }
+      case "quick-equip": {
+        const it = G.player.inventory.find((e) => e.uid === v);
+        if (!it) return;
+        const cur = G.player.equip[it.slot];
+        if (cur && cur.cursed) return this.toast("저주받은 장비가 떨어지지 않는다.");
+        G.equipItem(v);
+        G.save();
+        const btn = $box.querySelector('[data-act="quick-equip"][data-v="'.concat(v, '"]'));
+        if (btn) {
+          btn.textContent = "장착함";
+          btn.disabled = true;
+        }
+        this.renderGame();
+        return this.toast("".concat(it.name, " 장착."));
+      }
+      default:
+        return baseHandle.call(this, act, v);
+    }
+  };
+}

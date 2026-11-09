@@ -111,7 +111,7 @@ Object.assign(Game.prototype, {
     const base = { atk: 8 * m, def: 5 * m, hp: 30 * m, mp: 20 * m, spd: 2 * m, luck: 3 * RARITY[it.rarity].mult };
     for (const k of ['atk', 'def', 'hp', 'mp', 'spd', 'luck']) delete it[k];
     for (const [k, v] of Object.entries(rc.mul)) it[k] = Math.round(base[k] * v);
-    it.name = `[${RANKS[tier].key}] ${rc.name}`; it.crafted = true;
+    it.name = `[${RANKS[tier].key}] ${rc.name}`; it.crafted = true; if (it.slot === 'weapon') it.fam = undefined;
     it.value = Math.round(it.value * 1.2);
     p.inventory.push(it);
     p.smith = Math.min(100, p.smith + 3);
