@@ -165,7 +165,7 @@ if (typeof UI !== 'undefined') {
       if (G.addMemory) G.addMemory(L, '시험이 끝나고 내 파티로 들어왔다');
       for (const n of mates) G.changeRel(n, 5, '시험 파티 그대로 함께하게 됐다');
       const g = kind === 'party' ? null : GUILDS[L.guild];
-      G.flags.story.affPath = 'leader'; f.done = true;
+      G.flags.story.affPath = 'leader'; f.done = true; p.onboard = null;
       G.lifeEvent(`시험 리더 ${L.name}의 권유로 ${g ? `${g.name}에 들어가 ` : ''}${listing.name}의 정식 파티원이 되었다.`);
       G.nbStart(); G.save();
       const party = G.party().filter((n) => n !== L);

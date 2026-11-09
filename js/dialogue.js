@@ -28,6 +28,13 @@ Object.assign(UI, {
     if (!el) { el = document.createElement('div'); el.id = 'dlg'; document.body.appendChild(el); requestAnimationFrame(() => el.classList.add('on')); }
     const line = d.lines[d.i];
     if (!line) return this.dlgEnd();
+    // 여러 사람이 한 화면에서 차례로 한마디씩 (동기 소개 등): { group: [{ who, text }], narr? }
+    if (line.group) {
+      d.lastKey = null; clearInterval(d.typing); d.typing = null;
+      el.innerHTML = `<div class="dlg-box narr done dlg-group" data-act="dlg-next"><div class="dlg-body">${line.narr ? `<div class="dlg-text">${fixJosa(line.narr)}</div>` : ''}
+        ${line.group.map((g, k) => { const sp = this.dlgSpeaker(g.who); const face = g.who && g.who.id != null && this.npcAvatar ? this.npcAvatar(g.who, 40) : ''; return `<div class="dlg-gl" style="--d:${k * 140}ms;--ac:${sp ? sp.color : '#9fb3c8'}">${face}<div><b>${sp ? sp.name : ''}</b>${sp && sp.sub ? ` <span class="small dim">${sp.sub}</span>` : ''}<div>${fixJosa(g.text)}</div></div></div>`; }).join('')}</div></div>`;
+      return;
+    }
     // 선택지는 직전 대사를 그대로 둔 채 그 위에 띄운다
     if (line.choices) {
       const prev = d.lines[d.i - 1]; const sp = prev && !prev.narr && !prev.sys && !prev.choices ? this.dlgSpeaker(prev.who) : null;

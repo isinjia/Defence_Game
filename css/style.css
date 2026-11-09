@@ -765,3 +765,7 @@ html body .idc-info .small { font-size: 10.5px; }
 .sk-tag.kind { color: #e6d29a; background: #e6c27a14; border-color: #e6c27a66; }
 html body .skill-btn > .sk-tags { display: flex !important; flex: 0 0 auto !important; width: auto !important; min-width: 0 !important; margin-left: auto !important; }
 html body .skill-btn > .sk-tags > .sk-tag { display: inline-block !important; width: auto !important; min-width: 0 !important; text-align: center; }
+/* 대화: 여러 사람 한마디씩 한 화면 (D) */
+.dlg-group .dlg-gl { display: flex; gap: 10px; align-items: flex-start; margin-top: 8px; padding-left: 8px; border-left: 3px solid var(--ac); opacity: 0; animation: dlgGl .3s ease forwards; animation-delay: var(--d); }
+.dlg-group .dlg-gl b { color: var(--ac); }
+@keyframes dlgGl { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

@@ -128,10 +128,9 @@ Object.assign(UI, {
     const intro = { kind: (n) => `${yo(n.name)}. ${yo(className(n.cls))}. 잘 부탁해요.`, just: (n) => `${n.name}. ${da(className(n.cls))}. 등 맡길 수 있게 해 줘.`, warlike: (n) => `${n.name}. ${className(n.cls)}. 괴수는 내가 먼저 친다.`, cold: (n) => `…${n.name}. ${className(n.cls)}.` };
     this.talk([
       { narr: `${G.region().name}, 헌터 협회 시험장. 로비엔 오늘 처음 각성한 사람들이 긴장한 얼굴로 앉아 있다. 전광판에 ${p.name}의 이름이 뜬다.` },
-      { who: examiner, text: '실기는 임시 파티 단위로 본다. 협회 훈련용 게이트를 끝까지 통과하면 합격이다.' },
-      { who: examiner, text: `각 파티엔 협회가 위촉한 현역 헌터가 리더로 붙는다. ${p.name}, 네 파티 리더는 ${L.name}. ${L.guild && GUILDS[L.guild] ? `${GUILDS[L.guild].name} 소속이다.` : `${L.crewName || '자기 파티'}를 꾸리는 파티장이다.`}` },
+      { who: examiner, text: `실기는 임시 파티 단위로 본다. 훈련용 게이트를 끝까지 통과하면 합격이다. 각 파티엔 협회가 위촉한 현역 헌터가 리더로 붙는다. ${p.name}, 네 파티 리더는 ${L.name}. ${L.guild && GUILDS[L.guild] ? `${GUILDS[L.guild].name} 소속이다.` : `${L.crewName || '자기 파티'}를 꾸리는 파티장이다.`}` },
       { who: L, text: this.leadSay('brief') },
-      ...mates.map((n) => ({ who: n, text: (intro[n.personality] || intro.kind)(n) })),
+      { narr: '임시 파티원들이 차례로 인사한다.', group: mates.map((n) => ({ who: n, text: (intro[n.personality] || intro.kind)(n) })) },
       { who: L, text: { just: '인사는 됐다. 들어간다. 내 뒤에 붙어.', kind: '자, 그럼 들어가 볼까요? 제 뒤로 따라오세요.', cold: '간다.' }[L.personality] || '간다.' },
       { choices: [{ text: '리더를 따라 게이트로 들어간다', go: () => this.handle('exam-go') }, { text: '(튜토리얼 건너뛰기)', go: () => this.handle('exam-skip') }] },
     ]);
@@ -284,7 +283,7 @@ Object.assign(UI, {
         return r;
       }
       case 'exam-go': this.closeModal(); return this.examExplore(0);
-      case 'exam-skip': this.exam.pick = new Set(this.exam.ids); this.exam.text = '실기 시험은 무난히 끝났다. 시험관이 기록판에 합격 도장을 찍었다.'; G.lifeEvent('헌터 자격 시험에 합격했다.'); this.exam.reveal = G.revealAwakenRank(); return this.renderExamEnd();
+      case 'exam-skip': this.exam.pick = new Set(); this.exam.skipped = true; this.exam.text = '실기 시험은 무난히 끝났다. 시험관이 기록판에 합격 도장을 찍었다.'; G.lifeEvent('헌터 자격 시험에 합격했다.'); this.exam.reveal = G.revealAwakenRank(); return this.renderExamEnd();
       case 'exam-pick': { const ex = this.exam; const id = +v; if (ex.pick.has(id)) ex.pick.delete(id); else ex.pick.add(id); return this.renderExamEnd(); }
       case 'exam-party': return this.endExam([...this.exam.pick]);
       case 'exam-solo': return this.endExam([]);
