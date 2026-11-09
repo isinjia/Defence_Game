@@ -10,6 +10,7 @@ const UNID_EQUIP = 0.25;   // 게이트 보스 드롭 장비가 미감정일 확
 const CURSE_CHANCE = 0.22; // 감정 결과 저주일 확률
 const CURSE_MODS = { luck: -0.2, social: -0.15, life: -3 };
 const LIMIT_TAINT = 20;
+const stripTags = (s) => String(s || '').replace(/<[^>]+>/g, '');
 
 FACILITIES.push({ id: 'clinic', name: '감정·치료소', desc: '미감정 물건 감정, 저주 해제, 에테르 오염 정화, 상처 치료.' });
 FAC_ICON.clinic = '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M11 8v6M8 11h6"/>';
@@ -241,8 +242,8 @@ Object.assign(Game.prototype, {
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
     switch (act) {
-      case 'appraise': { const r = G.appraise(v); G.save(); return this.afterCity(r); }
-      case 'uncurse': { const r = G.uncurse(v); G.save(); return this.afterCity(r); }
+      case 'appraise': { const r = G.appraise(v); G.save(); return this.afterCity(stripTags(r)); }
+      case 'uncurse': { const r = G.uncurse(v); G.save(); return this.afterCity(stripTags(r)); }
       case 'purify': return this.afterCity(G.purify());
       case 'c-limit': { const cx = this.ctx; if (!cx || !cx.combat.limitBreak()) return; this.refreshUnits(); return this.renderControls(); }
       case 'equip': case 'unequip': {
