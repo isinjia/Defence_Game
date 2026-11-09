@@ -667,3 +667,12 @@ svg.order-lines line { stroke: #8cc4ff; stroke-width: 2; stroke-dasharray: 5 4; 
 
 /* 전장 안의 표식(오더 선·말풍선)은 전장 층 안에서만 쌓인다: 아래 조작 영역·스킬 창보다 항상 낮게 */
 .combat-box .stage { isolation: isolate; z-index: 0; }
+
+/* ---------- 적 행동 예고 ---------- */
+.foe .fx-host { position: relative; }
+.intent { position: absolute; top: 0; right: 0; z-index: 3; display: inline-flex; align-items: center; gap: 2px; padding: 2px 4px 2px 3px; border-radius: 12px; background: rgba(8, 12, 20, .88); border: 1px solid var(--ic, #ff6b5a); color: var(--ic, #ff6b5a); font-size: 10px; line-height: 1; pointer-events: none; animation: intentin .2s ease-out; box-shadow: 0 0 8px color-mix(in srgb, var(--ic, #ff6b5a) 45%, transparent); }
+.intent b { font-size: 10px; }
+.intent-face { line-height: 0; }
+.intent-face .avatar, .intent-face svg { width: 18px !important; height: 18px !important; border-radius: 50%; }
+@keyframes intentin { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
+.ally.threatened .fx-host::before { content: "!"; position: absolute; top: -2px; right: 6px; z-index: 3; width: 15px; height: 15px; border-radius: 50%; background: #ff5a6e; color: #fff; font-size: 11px; font-weight: 800; line-height: 15px; text-align: center; box-shadow: 0 0 8px #ff5a6eaa; }
