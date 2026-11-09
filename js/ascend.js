@@ -90,12 +90,12 @@ Object.assign(Game.prototype, {
     }
     p.items[this.catalystKey()] = Math.max(0, (p.items[this.catalystKey()] || 0) - 1);
     p.ether = Math.floor(p.ether * 0.5);
-    p.lifePenalty += 1; p.btBonus = 5; p.record.fails++;
+    p.btBonus = 5; p.record.fails++; // 돌파 실패와 같은 대가(수명 손상 없음, js/balance.js)
     this.recalc();
     p.hp = Math.max(1, Math.floor(p.maxHp * 0.3));
-    this.log('에테르 역류 시련에서 무너졌다. 돌파 실패와 같은 대가를 치렀다. (촉매 소실, 에테르 절반, 수명 −1)', 'bad');
+    this.log('에테르 역류 시련에서 무너졌다. 돌파 실패와 같은 대가를 치렀다. (촉매 소실, 에테르 절반)', 'bad');
     this.advanceMonth(1, { eventChance: 0 });
-    return '그림자에게 삼켜졌다. 에테르가 역류해 촉매가 타 버렸다. (에테르 절반 손실, 수명 −1, 다음 돌파 +5%)';
+    return '그림자에게 삼켜졌다. 에테르가 역류해 촉매가 타 버렸다. (에테르 절반 손실, 다음 돌파 +5%)';
   },
 
   // 운명 카드 후보 3장
