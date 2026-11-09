@@ -8,21 +8,28 @@ if (typeof UI !== 'undefined' && UI.coachPop) {
   const baseCoach = UI.coachPop;
   UI.coachPop = function (node, target, key) {
     const r = baseCoach.call(this, node, target, key);
-    try {
+    // onboarding.js 가 0.12초 뒤 위치를 다시 잡으므로 그 뒤에도 한 번 더 맞춘다
+    const fit = () => { try {
       const pop = document.getElementById('coach-pop');
       const rows = [...document.querySelectorAll('.modal-box .allies, .modal-box .allies-front, .modal-box .allies-back')].map((e) => e.getBoundingClientRect()).filter((b) => b.height > 0);
       if (pop && target && rows.length && pop.classList.contains('arrow-down')) {
         const pr = pop.getBoundingClientRect(); const ar = { top: Math.min(...rows.map((b) => b.top)), bottom: Math.max(...rows.map((b) => b.bottom)) };
         const overlap = pr.bottom > ar.top + 4 && pr.top < ar.bottom - 4;
         const top = ar.top - pr.height - 10;
-        if (overlap && top >= 56) pop.style.top = top + 'px';
+        // 적을 가리면 안 된다: 살아 있는 적의 아래 끝보다 위로는 올리지 않는다
+        const foes = [...document.querySelectorAll('#foes .foe:not(.dead)')].map((e) => e.getBoundingClientRect()).filter((b) => b.height > 0);
+        const foeBottom = foes.length ? Math.max(...foes.map((b) => b.bottom)) : 0;
+        if (overlap && top >= Math.max(56, foeBottom - 4)) pop.style.top = top + 'px';
         else if (overlap) {
-          // 작은 화면: 아군 줄 위에 자리가 없으면 머리말 바로 아래로 올리고 화살표는 숨긴다(대상은 빛나는 테두리로 보인다)
-          const head = document.querySelector('.modal-box .cb-head'); const hb = head ? head.getBoundingClientRect().bottom : 48;
-          pop.style.top = Math.max(8, hb + 6) + 'px'; pop.classList.add('no-arrow');
+          // 자리가 없으면 아군 줄 위에 두되 작게(얼굴·여백 축소, 반투명) — 적 줄은 늘 보이게
+          pop.classList.add('compact');
+          const ph = pop.getBoundingClientRect().height; const ctl = document.getElementById('cb-ctrl');
+          const cb = ctl ? ctl.getBoundingClientRect().top : window.innerHeight;
+          pop.style.top = Math.max(foeBottom + 4, cb - ph - 10) + 'px';
         }
       }
-    } catch (e) { /* 무시 */ }
+    } catch (e) { /* 무시 */ } };
+    fit(); for (const t of this._coachFitT || []) clearTimeout(t); this._coachFitT = [180, 450, 900].map((ms) => setTimeout(fit, ms));
     return r;
   };
 }
