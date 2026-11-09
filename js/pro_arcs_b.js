@@ -9,7 +9,7 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '시키는 대로 엎드려서 그들의 숫자와 위치를 센다', e: { water: 1 }, g: { shadow: 1, shooter: 1 }, t: { quick: 1 }, next: 'crime_2' },
       { text: '옆에서 떨고 있는 할머니를 몸으로 가린다', e: { wood: 1 }, g: { guard: 2 }, t: { iron_body: 1 }, next: 'crime_2' },
-      { text: '{friend}에게 몰래 "은행. 인질극. 신고해."라고 보낸다', e: { bolt: 1 }, g: { support: 1, esper: 1 }, t: { lucky: 1 }, friend: 10, next: 'crime_2' },
+      { text: '엎드린 채 몰래 112에 문자 신고를 보낸다. {friend}에게도 한 줄. "나 은행인데, 괜찮아."', e: { bolt: 1 }, g: { support: 1, esper: 1 }, t: { lucky: 1 }, friend: 10, next: 'crime_2' },
       { text: '"돈이 목적이면 금고 쪽으로 가세요." 리더에게 말을 건다', e: { fire: 1 }, g: { support: 1, fighter: 1 }, t: { charisma: 1 }, next: 'crime_2' },
     ] },
   crime_2: { title: '셔터 안쪽', text: '금고가 열리지 않는다. 리더의 손바닥이 점점 붉게 달아오른다. "진압팀이 셔터 앞에 서면, 인질을 하나씩 셔터 밖으로 세운다. 살아 있는 방패로."\n\n강도 하나가 당신의 팔을 잡아끈다. 첫 번째 방패로 고른 모양이다. 창구 너머로 은행원이 떨리는 손으로 비상벨 덮개를 연다. 깨진 유리에 베인 인질 하나가 바닥에 피를 흘리고 있다.',
