@@ -30,6 +30,13 @@
     return baseHandle.call(this, act, v);
   };
 
+  UI.coachTarget = function (label) {
+    const c = this.ctx; const box = document.getElementById('cb-ctrl'); if (!box || !c) return null;
+    if (/1\/3/.test(label)) return document.getElementById('foes');
+    if (/2\/3/.test(label)) return c.sel ? document.getElementById('foes') : (box.querySelector('.cmd-main') || box.querySelector('.skill-btns'));
+    if (/3\/3/.test(label)) return document.querySelector('#modal-box .cb-tools') || box.querySelector('.ctrl-row');
+    return null;
+  };
   // 조작 안내는 레이아웃에 박지 않고 떠 있는 말풍선으로 (분담표 4-2). 실제 그리기는 아래 coachPop.
   UI.liftCoach = function () {
     const box = document.getElementById('cb-ctrl'); if (!box) return;
@@ -41,10 +48,8 @@
     const myTurn = cb.waiting && !c.playing && !cb.auto;
     // 1/3(게이지 설명)은 시간이 흐를 때도, 나머지는 내 차례(시간 정지)에만
     if (!myTurn && !/1\/3/.test(label)) return this.coachPop(null);
-    let target = null;
-    if (/1\/3/.test(label)) target = document.getElementById('foes');
-    else if (/2\/3/.test(label)) target = c.sel ? document.getElementById('foes') : box.querySelector('.skill-btns');
-    else if (/3\/3/.test(label)) target = box.querySelector('.ctrl-row');
+    this._coachLabel = label;
+    const target = this.coachTarget(label);
     this.coachPop(coach, target, label + '|' + (c.sel || ''));
   };
 

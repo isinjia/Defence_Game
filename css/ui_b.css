@@ -230,3 +230,32 @@
 /* 진형: 전열·후열 두 줄 (글자 없이 줄 색으로만 구분) */
 .combat-box.fit #allies.ally-rows { flex-direction: column; align-items: stretch; gap: 3px; }
 .combat-box.fit .ally-rows .allies { justify-content: center; padding-top: 3px; border-top-width: 1px; }
+
+/* ===== 전투: 화면 전체 + 커맨드 메뉴 ===== */
+.modal.full { padding: 0; }
+.modal.full .modal-box.combat-box.fit { width: 100%; max-width: none; height: 100%; max-height: none; clip-path: none; border: 0; padding: max(8px, env(safe-area-inset-top, 0px)) max(8px, env(safe-area-inset-right, 0px)) 0 max(8px, env(safe-area-inset-left, 0px)); }
+.modal.full .combat-box.fit #cb-ctrl { margin: 6px -8px 0; padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px)); }
+.combat-box .cb-head { position: relative; }
+.combat-box.fit .cb-head h3 { flex: 1 1 auto; min-width: 0; }
+.cb-tools { display: flex; gap: 4px; flex: none; margin-left: auto; }
+.cb-tools .icon-btn { width: 40px; height: 40px; min-height: 40px; position: relative; color: var(--text); }
+.cb-tools .icon-btn.on { border-color: var(--amber); color: var(--amber); background: #261c0c; }
+.cb-tools .icon-btn.danger { color: #ffb3bc; }
+.cb-tools .icon-btn i { position: absolute; right: 3px; bottom: 1px; font-style: normal; font-size: 9px; font-weight: 700; }
+@media (max-width: 640px) { .combat-box.fit .cb-head h3 { flex: 1 1 auto; font-size: 14px; } }
+.cmd-wrap { display: grid; grid-template-columns: 96px 1fr; gap: 6px; }
+.cmd-main { display: grid; gap: 4px; align-content: start; }
+.cmd-main .cmd { min-height: 44px; justify-content: flex-start; padding: 6px 12px; font-weight: 700; font-size: 14px; background: #0e1520; border-color: var(--line-hi); position: relative; }
+.cmd-main .cmd::before { content: ""; width: 0; height: 0; border-left: 7px solid transparent; margin-right: 4px; }
+.cmd-main .cmd.sel { border-color: var(--amber); color: var(--amber); background: #261c0c; }
+.cmd-main .cmd.sel::before, .cmd-main .cmd:focus-visible::before { border-left-color: var(--amber); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+.cmd-main .cmd.ordered { box-shadow: inset 0 0 0 2px #8cc4ff; }
+.cmd-list { display: grid; gap: 4px; align-content: start; max-height: calc(44px * 4 + 12px); overflow-y: auto; border: 1px solid var(--line); background: #070b12; padding: 4px; border-radius: 4px; }
+.cmd-list .skill-btn { min-height: 44px; height: auto; width: 100%; }
+.cmd-list .skill-btn b { white-space: normal; }
+.cmd-list .cmd-item { width: 100%; min-height: 44px; justify-content: space-between; }
+.cmd-idle { padding: 10px 8px; }
+.combat-box.fit .cmd-list .skill-btn b { font-size: 13px; white-space: normal; overflow: visible; }
+.combat-box.fit .cmd-list .skill-btn .small { white-space: normal; }
+@media (max-height: 600px) { .cmd-main .cmd, .cmd-list .skill-btn, .cmd-list .cmd-item { min-height: 40px; } .cmd-list { max-height: calc(40px * 4 + 12px); } }
+.combat-box.fit .ally-rows .allies:empty { display: none; }
