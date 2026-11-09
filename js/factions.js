@@ -85,7 +85,7 @@ const FACTION_AGENDA = {
   const MOVES = {
     recruit(g, id) {
       const f = g.world.factions[id];
-      const pool = g.adults().filter((n) => !n.isCompanion && !n.retired && n.rankIdx >= 2 && n.guild !== id && !n.faction && !(n.merc && n.merc.job))
+      const pool = g.adults().filter((n) => !n.isCompanion && !n.retired && n.rankIdx >= 2 && n.guild !== id && !n.faction && !(n.merc && n.merc.job) && (!n.ogMember || (n.relation < 50 && RNG.chance(0.3))))
         .filter((n) => !n.guild || (g.guildPower ? g.guildPower(n.guild) < g.guildPower(id) : true));
       const t = pool.sort((a, b) => (b.rankIdx * 3 + b.talent) - (a.rankIdx * 3 + a.talent))[RNG.int(0, 2)];
       if (!t) return;
