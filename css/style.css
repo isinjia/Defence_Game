@@ -504,3 +504,10 @@ button.item-row { width: 100%; text-align: left; }
   .foe { width: 78px; }
   .foe.boss { width: 104px; }
 }
+
+/* 헌터물 확장: 랭킹 순위, 미획득 칭호, 회귀 선택 */
+.rank-pos { min-width: 2.2em; text-align: center; color: var(--amber); }
+.item-row.locked { opacity: .55; }
+.regress-box { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 12px; border-left: 3px solid #ff4f6a; }
+.regress-box.on { background: #2a0f16; }
+.regress-box .grow { flex: 1 1 220px; }

@@ -255,7 +255,7 @@ Object.assign(Game.prototype, {
   transitCost(regionId) { return Math.round(60 * regionDist(this.player.region, regionId) * RANKS[this.player.rankIdx].mult ** 0.5); },
   transit(regionId) {
     const p = this.player;
-    if (regionId === 'jeju' && !this.canJeju()) return '제주는 S급 이상만 출입할 수 있다.';
+    if (regionId === 'jeju' && !this.canJeju()) return '제주는 관리국 공인 S급만 출입할 수 있다. 협회 의뢰소에서 재측정을 받자.';
     if (!p.visited.includes(regionId)) return '가 본 적 없는 도시다.';
     const c = this.transitCost(regionId);
     if (p.money < c) return '크레딧이 부족하다.';
@@ -281,7 +281,7 @@ Object.assign(Game.prototype, {
   makeBounties(regionId) {
     const key = this.monthKey();
     const reg = regionById(regionId); const [lo, hi] = GATE_RANGES[reg.danger];
-    const pr = this.player.rankIdx;
+    const pr = this.player.official ?? this.player.rankIdx;
     const out = [];
     const types = ['hunt', 'gate', 'deliver', 'courier', 'wanted'];
     for (let i = 0; i < 4; i++) {

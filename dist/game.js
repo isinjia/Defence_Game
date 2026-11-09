@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.13";
+const GAME_VERSION = "0.14";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -2821,6 +2821,7 @@ class Game {
   }
   // ---------- 시간 ----------
   advanceMonth(n = 1, opts = {}) {
+    var _a;
     const p = this.player;
     for (let i = 0; i < n && !this.over; i++) {
       this.month++;
@@ -2841,7 +2842,7 @@ class Game {
         p.mp = Math.min(p.maxMp, p.mp + Math.floor(p.maxMp * 0.3));
       }
       if (p.guild) {
-        const sal = Math.floor(40 * RANKS[p.rankIdx].mult * (1 + p.guildRank));
+        const sal = Math.floor(40 * RANKS[(_a = p.official) != null ? _a : p.rankIdx].mult * (1 + p.guildRank));
         p.money += sal;
       }
       this.simulateNpcs();
@@ -4182,7 +4183,7 @@ Object.assign(Game.prototype, {
   },
   transit(regionId) {
     const p = this.player;
-    if (regionId === "jeju" && !this.canJeju()) return "제주는 S급 이상만 출입할 수 있다.";
+    if (regionId === "jeju" && !this.canJeju()) return "제주는 관리국 공인 S급만 출입할 수 있다. 협회 의뢰소에서 재측정을 받자.";
     if (!p.visited.includes(regionId)) return "가 본 적 없는 도시다.";
     const c = this.transitCost(regionId);
     if (p.money < c) return "크레딧이 부족하다.";
@@ -4211,10 +4212,11 @@ Object.assign(Game.prototype, {
     return b.list;
   },
   makeBounties(regionId) {
+    var _a;
     const key = this.monthKey();
     const reg = regionById(regionId);
     const [lo, hi] = GATE_RANGES[reg.danger];
-    const pr = this.player.rankIdx;
+    const pr = (_a = this.player.official) != null ? _a : this.player.rankIdx;
     const out = [];
     const types = ["hunt", "gate", "deliver", "courier", "wanted"];
     for (let i = 0; i < 4; i++) {
@@ -4626,6 +4628,7 @@ Object.assign(Game.prototype, {
       if (!this.storyEligible(ev2, c2)) continue;
       let w = (_a = ev2.weight) != null ? _a : 1;
       if (ev2.chain) w *= 2.2;
+      if (ev2.chain && this.player.regress && (this.player.regress.chains || []).includes(ev2.chain)) w *= 2;
       const seen = this.flags.seen[ev2.id];
       if (seen && mk - seen < 36) w *= 0.15;
       cands.push({ ev: ev2, c: c2 });
@@ -7093,7 +7096,7 @@ class Combat {
   playerSkill(id) {
     if (!this.waiting || this.result) return;
     const p = this.player;
-    const skill = skillById(id);
+    const skill = this.game.skillEff ? this.game.skillEff(skillById(id)) : skillById(id);
     if (skill.mp > p.mp) {
       this.push("정신력이 부족하다.", "bad");
       return;
@@ -8220,7 +8223,7 @@ class MapView {
       if (!vis(g.x, g.y)) continue;
       const [px, py] = this.toScreen(g.x + 0.5, g.y + 0.5);
       if (px < -s * 2 || py < -s * 2 || px > this.w + s * 2 || py > this.hgt + s * 2) continue;
-      const col = g.final ? "#ff4f6a" : RANKS[g.tier].color;
+      const col = g.final || g.variant === "red" ? "#ff4f6a" : RANKS[g.tier].color;
       const sc = g.final ? 1.6 : 1;
       const glow = c.createRadialGradient(px, py, 1, px, py, s * 0.8 * sc);
       glow.addColorStop(0, g.final ? "rgba(255,79,106,.55)" : "rgba(214,92,255,.5)");
@@ -8246,7 +8249,7 @@ class MapView {
       c.beginPath();
       c.ellipse(px, py, s * 0.06 * sc, s * 0.16 * sc, 0, 0, Math.PI * 2);
       c.fill();
-      this.chip(px, py + s * 0.5 * sc + 4, g.final ? "원초" : g.mission ? "임무·".concat(RANKS[g.tier].key) : "".concat(RANKS[g.tier].key, "급"), g.mission ? "#ffb547" : col);
+      this.chip(px, py + s * 0.5 * sc + 4, g.final ? "원초" : g.mission ? "임무·".concat(RANKS[g.tier].key) : g.bid ? "낙찰·".concat(RANKS[g.tier].key) : g.variant === "red" ? "레드·".concat(RANKS[g.tier].key) : "".concat(RANKS[g.tier].key, "급"), g.mission || g.bid ? "#ffb547" : col);
     }
   }
   drawCities() {
@@ -8543,6 +8546,7 @@ const UI = {
       item("people", "인물", ic('<circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c1-3.5 3.5-5 7-5s6 1.5 7 5M15 15c3 0 5 1.5 6 4"/>')),
       item("guild", "길드", ic('<path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6z"/>')),
       item("quest", "의뢰", ic('<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/>')),
+      item("hunter", "헌터", ic('<path d="M12 2l2.6 6.3 6.8.5-5.2 4.4 1.6 6.6L12 16.3 6.2 19.8l1.6-6.6L2.6 8.8l6.8-.5z"/>')),
       item("log", "연대기", ic('<path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h4"/>'))
     ].join("");
   },
@@ -8585,7 +8589,7 @@ const UI = {
     const est = Math.floor(15 * RANKS[p.rankIdx].mult * reg.ether * (1 + p.talent * 0.08) * (1 + G.mod("train")) * (p.guild === "cheongryong" ? 1.15 : 1) * (p.injured > 0 ? 0.5 : 1) * (G.onEther() ? 1.4 : 1));
     const obj = G.objAt(p.x, p.y);
     const maxed = p.rankIdx === RANKS.length - 1 && p.stage === 2;
-    return '<div class="act-where"><b>'.concat(city ? city.name : reg.name, '</b> <span class="dim small">').concat(city ? "도시" : terrain, " · 위험 ").concat("◆".repeat(reg.danger)).concat(G.onEther() ? " · 수련 효율 +40%" : "", '</span></div>\n      <div class="act-btns">\n        ').concat(obj ? obj.kind === "gate" ? '<button class="danger" data-act="gate" data-v="'.concat(obj.id, '">').concat(FX.icon("gate"), " 게이트 진입</button>") : '<button class="danger" data-act="mob" data-v="'.concat(obj.id, '">토벌</button>') : "", "\n        ").concat(city ? '<button class="primary" data-act="city">'.concat(FX.icon("pin"), " ").concat(city.name, " 들어가기</button>") : "", "\n        ").concat(!maxed && G.canBreakthrough() ? '<button class="'.concat(G.hasCatalyst() ? "primary" : "", ' bt-btn" data-act="breakthrough">').concat(RANKS[p.rankIdx + 1].key, "급 돌파 ").concat(G.hasCatalyst() ? '<span class="num">'.concat(G.btChance(), "%</span>") : '<span class="dim-in">촉매 필요</span>', "</button>") : "", '\n        <button data-act="train">').concat(FX.icon("train"), ' 수련 <span class="dim-in">1개월 +').concat(fmt(est), '</span></button>\n        <button data-act="rest">').concat(FX.icon("rest"), ' 휴식 <span class="dim-in">1개월</span></button>\n\n      </div>\n      <div class="act-hint small dim">빛나는 칸을 눌러 이동 · 한 칸 ').concat(WORLD.DAYS_PER_COST, "일 · 이동력 ").concat(G.moveRange(), "</div>");
+    return '<div class="act-where"><b>'.concat(city ? city.name : reg.name, '</b> <span class="dim small">').concat(city ? "도시" : terrain, " · 위험 ").concat("◆".repeat(reg.danger)).concat(G.onEther() ? " · 수련 효율 +40%" : "", '</span></div>\n      <div class="act-btns">\n        ').concat(obj ? obj.kind === "gate" ? '<button class="danger" data-act="gate-info" data-v="'.concat(obj.id, '">').concat(FX.icon("gate"), " 게이트 진입</button>") : '<button class="danger" data-act="mob" data-v="'.concat(obj.id, '">토벌</button>') : "", "\n        ").concat(city ? '<button class="primary" data-act="city">'.concat(FX.icon("pin"), " ").concat(city.name, " 들어가기</button>") : "", "\n        ").concat(!maxed && G.canBreakthrough() ? '<button class="'.concat(G.hasCatalyst() ? "primary" : "", ' bt-btn" data-act="breakthrough">').concat(RANKS[p.rankIdx + 1].key, "급 돌파 ").concat(G.hasCatalyst() ? '<span class="num">'.concat(G.btChance(), "%</span>") : '<span class="dim-in">촉매 필요</span>', "</button>") : "", '\n        <button data-act="train">').concat(FX.icon("train"), ' 수련 <span class="dim-in">1개월 +').concat(fmt(est), '</span></button>\n        <button data-act="rest">').concat(FX.icon("rest"), ' 휴식 <span class="dim-in">1개월</span></button>\n\n      </div>\n      <div class="act-hint small dim">빛나는 칸을 눌러 이동 · 한 칸 ').concat(WORLD.DAYS_PER_COST, "일 · 이동력 ").concat(G.moveRange(), "</div>");
   },
   // NPC의 지도 위치 (매달 도시 근처에서 바뀜)
   npcPos(n) {
@@ -8634,7 +8638,7 @@ const UI = {
       if (x === p.x && y === p.y && !body) body = '<div class="dim small">현재 위치</div>';
     }
     const title = city ? city.name : reg ? "".concat(reg.name, " · ").concat(WORLD.T_NAME[ty]) : WORLD.T_NAME[ty];
-    tip.innerHTML = fixJosa('<div class="row between"><b>'.concat(known ? title : "미탐색 지역", '</b><button class="icon-btn sm" data-act="tip-close" aria-label="닫기">×</button></div>\n      ').concat(d ? '<div class="small dim">현재 위치에서 '.concat(d, "칸").concat(ty === WORLD.T.SEA || ty === WORLD.T.NORTH ? " · 진입 불가" : !G.canJeju() && reg && reg.id === "jeju" ? " · S급 이상 출입 가능" : "", "</div>") : "").concat(body));
+    tip.innerHTML = fixJosa('<div class="row between"><b>'.concat(known ? title : "미탐색 지역", '</b><button class="icon-btn sm" data-act="tip-close" aria-label="닫기">×</button></div>\n      ').concat(d ? '<div class="small dim">현재 위치에서 '.concat(d, "칸").concat(ty === WORLD.T.SEA || ty === WORLD.T.NORTH ? " · 진입 불가" : !G.canJeju() && reg && reg.id === "jeju" ? " · 관리국 공인 S급만 출입 가능" : "", "</div>") : "").concat(body));
     tip.classList.remove("hidden");
   },
   onTap(x, y) {
@@ -8718,7 +8722,7 @@ const UI = {
   },
   encounter(obj) {
     if (obj.kind === "gate") {
-      return this.modal('<div class="enc">'.concat(FX.eventArt("gate_surge"), '<div class="eyebrow">게이트 감지 · ').concat(G.fullDate(), "</div><h3>").concat(G.gateName(obj), '</h3>\n        <div class="row">').concat(this.rankTag(obj.tier), " ").concat(this.elemTag(obj.elem), " ").concat(obj.mission ? '<span class="tag amber">길드 임무</span>' : "", ' <span class="small">난이도 ').concat(this.gateRisk(obj.tier), '</span></div>\n        <p class="dim">').concat(obj.final ? "4개 구역. 도주할 수 없다." : "3개 구역 · 공략에 약 10일 소요. 구역 사이에 철수할 수 있다.", '</p></div>\n        <div class="row end"><button class="ghost" data-act="modal-close">나중에</button><button class="primary" data-act="gate" data-v="').concat(obj.id, '">진입한다</button></div>'));
+      return this.modal('<div class="enc">'.concat(FX.eventArt("gate_surge"), '<div class="eyebrow">게이트 감지 · ').concat(G.fullDate(), "</div><h3>").concat(G.gateName(obj), '</h3>\n        <div class="row">').concat(this.rankTag(obj.tier), " ").concat(this.elemTag(obj.elem), " ").concat(obj.mission ? '<span class="tag amber">길드 임무</span>' : "").concat(obj.bid ? '<span class="tag amber">길드 낙찰</span>' : "").concat(obj.variant === "red" ? '<span class="tag bad">레드 게이트</span>' : "", ' <span class="small">난이도 ').concat(this.gateRisk(obj.tier), '</span></div>\n        <p class="dim">').concat(obj.final ? "4개 구역. 도주할 수 없다." : obj.variant === "red" ? '<span class="bad">붉게 물든 게이트. 들어가면 공략 전까지 나올 수 없다. 4개 구역, 철수·도주 불가. 패배하면 구조대도 들어올 수 없다.</span> 대신 보상이 크다.' : "3개 구역 · 공략에 약 10일 소요. 구역 사이에 철수할 수 있다.", '</p>\n        <p class="small dim">중계하며 들어가면 성공 시 구독자와 후원금이 늘지만, 철수나 패배도 그대로 송출된다.</p></div>\n        <div class="row end"><button class="ghost" data-act="modal-close">나중에</button><button data-act="gate" data-v="').concat(obj.id, '|live">').concat(FX.icon("star", 14), ' 중계하며 진입</button><button class="').concat(obj.variant === "red" ? "danger" : "primary", '" data-act="gate" data-v="').concat(obj.id, '">진입한다</button></div>'));
     }
     const sample = { name: obj.name, elem: obj.elem, shape: obj.shape };
     return this.modal('<div class="enc mob-enc"><div class="mob-portrait" style="--c:'.concat(ELEMENTS[obj.elem].color, '">').concat(FX.monster(sample, 130), '</div>\n      <div><div class="eyebrow bad">괴수 조우</div><h3>').concat(obj.name, " 무리 ×").concat(obj.count, '</h3><div class="row">').concat(this.rankTag(obj.tier), " ").concat(this.elemTag(obj.elem), ' <span class="small">난이도 ').concat(this.gateRisk(obj.tier), '</span></div></div></div>\n      <div class="row end"><button class="ghost" data-act="modal-close">물러난다</button><button class="danger" data-act="mob" data-v="').concat(obj.id, '">토벌한다</button></div>'));
@@ -8735,7 +8739,7 @@ const UI = {
       const n = G.npcById(+name.slice(4));
       return '<div class="sheet-head"><h3>교류</h3><button class="icon-btn" data-act="modal-close" aria-label="닫기">×</button></div>'.concat(n ? '<div class="npc-sheet">'.concat(UI.npcPortrait(n, 180)).concat(this.npcCard(n, n.alive && n.region === G.player.region), "</div>") : "");
     }
-    const tabs = [["char", "정보"], ["skills", "스킬"], ["party", "파티"], ["people", "인물"], ["quest", "의뢰"], ["guild", "길드"], ["log", "연대기"]];
+    const tabs = [["char", "정보"], ["skills", "스킬"], ["party", "파티"], ["people", "인물"], ["quest", "의뢰"], ["guild", "길드"], ["hunter", "헌터"], ["log", "연대기"]];
     let body = "";
     switch (name) {
       case "quest":
@@ -8752,6 +8756,9 @@ const UI = {
         break;
       case "guild":
         body = this.guildHtml();
+        break;
+      case "hunter":
+        body = this.hunterHtml();
         break;
       case "log":
         body = '<div class="panel">'.concat(this.rightHtml(), "</div>");
@@ -8899,7 +8906,7 @@ const UI = {
       const g = GUILDS[p.guild];
       const next = GUILD_RANKS[p.guildRank + 1];
       const home = REGIONS.find((r) => r.guild === p.guild);
-      cur = '<div class="guild-card" style="--c:'.concat(g.color, '"><div class="guild-crest">').concat(FX.elemIcon(g.elem, 34), '</div><div class="grow"><h3>').concat(g.name, '</h3><p class="dim">').concat(g.desc, "</p>\n        <div>직위 <b>").concat(GUILD_RANKS[p.guildRank].name, '</b> · 공헌도 <span class="num">').concat(p.contrib).concat(next ? " / ".concat(next.req) : "", "</span>").concat(next ? ' <span class="dim">다음: '.concat(next.name, "</span>") : "", "</div>\n        ").concat(next ? this.bar("ether", p.contrib, next.req) : "", '\n        <div class="dim small">월급 ').concat(fmt(40 * RANKS[p.rankIdx].mult * (1 + p.guildRank)), " 크레딧 · 본부(").concat(home.name, ") 상점 20% 할인 · 본부에서 길드 임무 게이트가 열립니다.").concat(p.guild === "cheongryong" ? " · 수련 효율 +15%" : "", '</div>\n        <div class="row sec"><button class="danger sm" data-act="guild-leave">탈퇴</button></div></div></div>');
+      cur = '<div class="guild-card" style="--c:'.concat(g.color, '"><div class="guild-crest">').concat(FX.elemIcon(g.elem, 34), '</div><div class="grow"><h3>').concat(g.name, '</h3><p class="dim">').concat(g.desc, "</p>\n        <div>직위 <b>").concat(GUILD_RANKS[p.guildRank].name, '</b> · 공헌도 <span class="num">').concat(p.contrib).concat(next ? " / ".concat(next.req) : "", "</span>").concat(next ? ' <span class="dim">다음: '.concat(next.name, "</span>") : "", "</div>\n        ").concat(next ? this.bar("ether", p.contrib, next.req) : "", '\n        <div class="dim small">월급 ').concat(fmt(40 * RANKS[p.official].mult * (1 + p.guildRank)), " 크레딧 (공식 등급 기준) · 본부(").concat(home.name, ") 상점 20% 할인 · 본부에서 길드 임무 게이트가 열립니다.").concat(p.guild === "cheongryong" ? " · 수련 효율 +15%" : "", '</div>\n        <div class="row sec"><button class="danger sm" data-act="guild-leave">탈퇴</button></div></div></div>');
     } else if (reg.guild) {
       const g = GUILDS[reg.guild];
       cur = '<div class="guild-card" style="--c:'.concat(g.color, '"><div class="guild-crest">').concat(FX.elemIcon(g.elem, 34), '</div><div class="grow"><h3>').concat(g.name, '</h3><p class="dim">').concat(g.desc, '</p>\n        <div>가입 조건: 명성 <span class="num">').concat(g.fameReq, '</span> · 현재 <span class="num">').concat(p.fame, '</span></div>\n        <div class="row sec"><button class="primary" data-act="guild-join" ').concat(p.fame < g.fameReq ? "disabled" : "", ">가입 신청</button></div></div></div>");
@@ -8948,11 +8955,14 @@ const UI = {
     return [G.playerUnit(), ...G.party().map((n) => G.npcUnit(n, "ally"))];
   },
   startGate(id) {
-    const gate = G.mapGates.find((g) => g.id === +id);
+    const [gid, mode] = String(id).split("|");
+    const gate = G.mapGates.find((g) => g.id === +gid);
     if (!gate || gate.cleared) return;
     this.hideTip();
-    this.ctx = { kind: "gate", gate, rooms: G.gateRooms(gate), roomIdx: 0, loot: { money: 0, ether: 0, kills: 0 } };
+    const wasMis = gate.variant === "misrank" && !gate.revealedMis;
+    this.ctx = { kind: "gate", gate, rooms: G.gateRooms(gate), roomIdx: 0, loot: { money: 0, ether: 0, kills: 0, live: mode === "live" }, hidden: gate.variant === "double" && RNG.chance(0.7) };
     this.startRoom();
+    if (wasMis) this.toast("공지보다 훨씬 짙은 에테르! 등급 오판 게이트다. 실제 ".concat(RANKS[gate.realTier].key, "급."));
   },
   startRoom() {
     const c = this.ctx;
@@ -8960,7 +8970,7 @@ const UI = {
     c.combat = new Combat(G, {
       allies: this.allyUnits(),
       enemies: c.rooms[c.roomIdx],
-      canFlee: !c.gate.final,
+      canFlee: !c.gate.final && c.gate.variant !== "red",
       title: "".concat(G.gateName(c.gate), " · ").concat(last ? "보스 구역" : "구역 ".concat(c.roomIdx + 1))
     });
     c.elem = c.gate.elem;
@@ -9265,7 +9275,7 @@ const UI = {
     const lock = c.playing || cb.auto || !cb.waiting;
     const hint = cb.auto ? "자동 전투 중" : cb.waiting && !c.playing ? '<b class="amber">내 차례!</b> 시간이 멈췄다. 적을 눌러 대상을 고르고 커맨드를 입력하세요.' : "게이지가 차는 중… 내 게이지가 가득 차면 시간이 멈춥니다.";
     box.innerHTML = fixJosa('<div class="skill-btns">'.concat(p.skills.map((id) => {
-      const sk = skillById(id);
+      const sk = G.skillEff(skillById(id));
       return '<button class="skill-btn" style="--c:'.concat(sk.elem ? ELEMENTS[sk.elem].color : "#9aa6b8", '" data-act="c-skill" data-v="').concat(id, '" ').concat(sk.mp > p.mp || lock ? "disabled" : "", ">\n        ").concat(FX.elemIcon(sk.elem, 18), "<span><b>").concat(sk.name, '</b><span class="small dim">MP ').concat(sk.mp, " · ").concat(TYPE_NAME[sk.type], "</span></span></button>");
     }).join(""), '</div>\n      <div class="row ctrl-row">\n        ').concat(["potion", "mana"].map((id) => '<button class="sm" data-act="c-item" data-v="'.concat(id, '" ').concat(!G.player.items[id] || lock ? "disabled" : "", ">").concat(CONSUMABLES.find((x) => x.id === id).name, ' <span class="num">×').concat(G.player.items[id] || 0, "</span></button>")).join(""), '\n        <span class="grow"></span>\n        <button class="sm" data-act="c-speed">').concat((c.speed || 1) === 1 ? "1배속" : "2배속", '</button>\n        <button class="sm ').concat(cb.auto ? "primary" : "", '" data-act="c-auto">').concat(cb.auto ? "자동 중지" : "자동 전투", "</button>\n        ").concat(cb.canFlee ? '<button class="sm danger" data-act="c-flee" '.concat(lock ? "disabled" : "", ">도주</button>") : "", '\n      </div>\n      <div class="small dim cb-hint">').concat(hint, "</div>"));
   },
@@ -9286,7 +9296,8 @@ const UI = {
           }
         }
         const last = c.roomIdx === c.rooms.length - 1;
-        return '<div class="result win"><b>구역 제압</b> <span class="small">누적 보상 <span class="num">'.concat(fmt(c.loot.money), '</span> 크레딧 · 에테르 <span class="num">').concat(fmt(c.loot.ether), '</span></span></div>\n          <div class="row end">').concat(last ? '<button class="primary" data-act="g-finish" data-v="clear">게이트 클리어</button>' : "".concat(c.gate.final ? "" : '<button class="ghost" data-act="g-finish" data-v="retreat">철수 · 보상 챙기기</button>', '<button class="primary" data-act="g-next">다음 구역으로</button>'), "</div>");
+        const hiddenNow = last && c.hidden && !c.inHidden;
+        return '<div class="result win"><b>구역 제압</b> <span class="small">누적 보상 <span class="num">'.concat(fmt(c.loot.money), '</span> 크레딧 · 에테르 <span class="num">').concat(fmt(c.loot.ether), "</span></span></div>\n          ").concat(hiddenNow ? '<p class="small amber">보스가 쓰러진 자리 뒤로 숨겨진 통로가 열렸다. 이중 던전이다. 더 강한 기척이 느껴진다.</p>' : "", '\n          <div class="row end">').concat(last ? '<button class="'.concat(hiddenNow ? "ghost" : "primary", '" data-act="g-finish" data-v="clear">게이트 클리어</button>').concat(hiddenNow ? '<button class="primary" data-act="g-hidden">숨겨진 구역으로</button>' : "") : "".concat(c.gate.final || c.gate.variant === "red" ? "" : '<button class="ghost" data-act="g-finish" data-v="retreat">철수 · 보상 챙기기</button>', '<button class="primary" data-act="g-next">다음 구역으로</button>'), "</div>");
       }
       if (cb.result === "flee") return '<div class="row end"><button data-act="g-finish" data-v="retreat">게이트 밖으로</button></div>';
       return '<div class="result lose"><b>쓰러졌다</b></div><div class="row end"><button class="danger" data-act="g-finish" data-v="lose">의식이 멀어진다…</button></div>';
@@ -9617,7 +9628,7 @@ Object.assign(UI, {
   cityHtml() {
     const reg = G.onCity() || G.region();
     const p = G.player;
-    const facs = FACILITIES.filter((f2) => (!f2.big || BIG_CITIES.includes(reg.id)) && (!f2.guildOnly || reg.guild));
+    const facs = FACILITIES.filter((f2) => (!f2.big || BIG_CITIES.includes(reg.id)) && (!f2.guildOnly || reg.guild) && (!f2.only || f2.only.includes(reg.id)));
     const brk = G.cityBreak(reg.id);
     const rep = G.rep(reg.id);
     const head = '<div class="city-hero">'.concat(this.citySkyline(reg), '\n      <div class="city-title"><div class="eyebrow">').concat("◆".repeat(reg.danger), " 위험도 · ").concat(reg.guild ? GUILDS[reg.guild].name + " 본부" : "독립 도시", "</div><h2>").concat(reg.name, '</h2>\n        <div class="small">').concat(G.repLabel(rep), ' · 평판 <b class="num">').concat(rep, '</b> · 협회 공적 <b class="num">').concat(p.merit, "</b> · ").concat(FX.icon("coin", 13), ' <b class="num">').concat(fmt(p.money), '</b></div></div>\n      <button class="icon-btn city-close" data-act="modal-close" aria-label="도시에서 나가기">×</button></div>\n      ').concat(brk ? '<div class="break-banner"><b>게이트 브레이크 발생</b> · 괴수가 시내로 쏟아지고 있다. <button class="danger sm" data-act="break-fight">방어전 참가</button></div>' : "");
@@ -9638,7 +9649,11 @@ Object.assign(UI, {
       case "market": {
         const s = G.getShop();
         const coresOwned = Object.keys(p.mats).filter((k) => p.mats[k] > 0).map((k) => +k.slice(1)).sort((a, b) => a - b);
-        return '<div class="cards">\n          '.concat(BIG_CITIES.includes(reg.id) ? '<div class="item-row hl"><span class="slot-ico" style="--c:var(--amber)">'.concat(facIcon("workshop", 20), '</span><div class="grow"><b>').concat(RANKS[p.rankIdx].key, '급 각성 촉매</b> <span class="small dim">보유 ').concat(p.items[G.catalystKey()] || 0, '</span><div class="small dim">돌파에 반드시 필요하다. 공방에서 직접 만들면 더 싸다.</div></div><button class="sm" data-act="buy-catalyst">').concat(FX.icon("coin", 13), " ").concat(price(G.catalystPrice() * pm), "</button></div>") : "", "\n          ").concat(CONSUMABLES.map((c) => '<div class="item-row"><div class="grow"><b>'.concat(c.name, '</b> <span class="dim small">보유 ').concat(p.items[c.id] || 0, " · ").concat(c.desc, '</span></div><button class="sm" data-act="buy-item" data-v="').concat(c.id, '">').concat(FX.icon("coin", 13), " ").concat(price(c.price * pm), "</button></div>")).join(""), '\n          <div class="sec-title sec">장비 · 매달 입고</div>\n          ').concat(s.equips.map((it) => this.equipRow(it, '<button class="sm" data-act="buy-equip" data-v="'.concat(it.uid, '">').concat(FX.icon("coin", 13), " ").concat(price(it.value * pm), "</button>"))).join("") || '<div class="dim">매진</div>', '\n          <div class="sec-title sec">괴수 코어 매입</div>\n          ').concat(coresOwned.map((t) => '<div class="item-row"><div class="grow"><b>'.concat(coreName(t), "</b> ×").concat(p.mats["c" + t], '</div><button class="sm ghost" data-act="sell-cores" data-v="').concat(t, '">전부 판매 · ').concat(price(Math.round(18 * RANKS[t].mult ** 1.6) * p.mats["c" + t]), "</button></div>")).join("") || '<div class="dim small">팔 코어가 없다.</div>', '\n          <div class="sec-title sec">보유 장비 판매 · 40%</div>\n          ').concat(p.inventory.map((it) => this.equipRow(it, '<button class="sm ghost" data-act="sell" data-v="'.concat(it.uid, '">').concat(price(it.value * 0.4), " 판매</button>"))).join("") || '<div class="dim small">판매할 장비가 없다.</div>', "\n        </div>");
+        return '<div class="cards">\n          '.concat(BIG_CITIES.includes(reg.id) ? '<div class="item-row hl"><span class="slot-ico" style="--c:var(--amber)">'.concat(facIcon("workshop", 20), '</span><div class="grow"><b>').concat(RANKS[p.rankIdx].key, '급 각성 촉매</b> <span class="small dim">보유 ').concat(p.items[G.catalystKey()] || 0, '</span><div class="small dim">돌파에 반드시 필요하다. 공방에서 직접 만들면 더 싸다.</div></div><button class="sm" data-act="buy-catalyst">').concat(FX.icon("coin", 13), " ").concat(price(G.catalystPrice() * pm), "</button></div>") : "", "\n          ").concat(CONSUMABLES.map((c) => '<div class="item-row"><div class="grow"><b>'.concat(c.name, '</b> <span class="dim small">보유 ').concat(p.items[c.id] || 0, " · ").concat(c.desc, '</span></div><button class="sm" data-act="buy-item" data-v="').concat(c.id, '">').concat(FX.icon("coin", 13), " ").concat(price(c.price * pm), "</button></div>")).join(""), '\n          <div class="sec-title sec">장비 · 매달 입고</div>\n          ').concat(s.equips.map((it) => this.equipRow(it, '<button class="sm" data-act="buy-equip" data-v="'.concat(it.uid, '">').concat(FX.icon("coin", 13), " ").concat(price(it.value * pm), "</button>"))).join("") || '<div class="dim">매진</div>', '\n          <div class="sec-title sec">괴수 코어 매입</div>\n          <div class="small dim">코어 시세는 매달 바뀐다. 브레이크가 터지면 공급이 늘어 떨어지고, 발전소 수요가 몰리면 뛴다.</div>\n          ').concat(coresOwned.map((t) => {
+          const tr = G.coreTrend(t);
+          const idx = Math.round(G.world.coreIdx[t] * 100);
+          return '<div class="item-row"><div class="grow"><b>'.concat(coreName(t), "</b> ×").concat(p.mats["c" + t], ' <span class="small ').concat(tr > 0 ? "good" : tr < 0 ? "bad" : "dim", '">').concat(tr > 0 ? "▲" : tr < 0 ? "▼" : "–", " 시세 ").concat(idx, '%</span><div class="small dim">개당 ').concat(fmt(G.corePrice(t)), '</div></div><button class="sm ghost" data-act="sell-cores" data-v="').concat(t, '">전부 판매 · ').concat(price(G.corePrice(t) * p.mats["c" + t]), "</button></div>");
+        }).join("") || '<div class="dim small">팔 코어가 없다.</div>', '\n          <div class="sec-title sec">보유 장비 판매 · 40%</div>\n          ').concat(p.inventory.map((it) => this.equipRow(it, '<button class="sm ghost" data-act="sell" data-v="'.concat(it.uid, '">').concat(price(it.value * 0.4), " 판매</button>"))).join("") || '<div class="dim small">판매할 장비가 없다.</div>', "\n        </div>");
       }
       case "board": {
         const list = G.board(reg.id);
@@ -9670,7 +9685,7 @@ Object.assign(UI, {
         const dests = p.visited.filter((id2) => id2 !== reg.id);
         return '<p class="small dim">한 번이라도 가 본 도시로 이틀 만에 이동한다.</p><div class="cards">'.concat(dests.map((id2) => {
           const r = regionById(id2);
-          return '<div class="item-row"><div class="grow"><b>'.concat(r.name, '</b> <span class="small dim">').concat("◆".repeat(r.danger)).concat(G.cityBreak(id2) ? ' · <span class="bad">게이트 브레이크</span>' : "", '</span></div>\n            <button class="sm" data-act="transit" data-v="').concat(id2, '" ').concat(id2 === "jeju" && !G.canJeju() ? "disabled" : "", ">").concat(price(G.transitCost(id2)), " 크레딧</button></div>");
+          return '<div class="item-row"><div class="grow"><b>'.concat(r.name, '</b> <span class="small dim">').concat("◆".repeat(r.danger)).concat(G.cityBreak(id2) ? ' · <span class="bad">게이트 브레이크</span>' : "", '</span></div>\n            <button class="sm" data-act="transit" data-v="').concat(id2, '" ').concat(id2 === "jeju" && !G.canJeju() ? 'disabled title="관리국 공인 S급만"' : "", ">").concat(price(G.transitCost(id2)), " 크레딧</button></div>");
         }).join("") || '<div class="dim">아직 가 본 다른 도시가 없다.</div>', "</div>");
       }
       case "auction": {
@@ -11430,6 +11445,998 @@ Object.assign(UI, {
       case "c-item":
         if (c && c.tutorial && !c.playing && c.combat.waiting) c.tutorial.acted++;
         return baseHandle.call(this, act, v);
+      default:
+        return baseHandle.call(this, act, v);
+    }
+  };
+}
+const REGRESS_KEY = "gate_chronicle_regress";
+const TITLES = [
+  { id: "first_gate", name: "첫 균열", how: "게이트 1회 공략", mods: { train: 0.03 }, cond: (g, p) => p.record.gates >= 1 },
+  { id: "gate_hunter", name: "게이트 사냥꾼", how: "게이트 15회 공략", mods: { atk: 0.04 }, cond: (g, p) => p.record.gates >= 15 },
+  { id: "gate_sweeper", name: "게이트 청소부", how: "게이트 60회 공략", mods: { atk: 0.07, def: 0.03 }, cond: (g, p) => p.record.gates >= 60 },
+  { id: "slayer", name: "백귀 사냥", how: "괴수 150마리 처치", mods: { atk: 0.04 }, cond: (g, p) => p.record.kills >= 150 },
+  { id: "massacre", name: "괴수 학살자", how: "괴수 600마리 처치", mods: { atk: 0.08 }, cond: (g, p) => p.record.kills >= 600 },
+  { id: "unyielding", name: "불굴", how: "돌파 실패 3회", mods: { breakthrough: 6 }, cond: (g, p) => p.record.fails >= 3 },
+  { id: "red_survivor", name: "붉은 문의 생환자", how: "레드 게이트 공략", mods: { hp: 0.06 }, cond: (g, p) => (p.record.red || 0) >= 1 },
+  { id: "hidden_finder", name: "숨은 층의 발견자", how: "이중 던전의 숨겨진 구역 공략", mods: { luck: 0.15 }, cond: (g, p) => (p.record.hidden || 0) >= 1 },
+  { id: "misjudged", name: "오판 게이트 생존자", how: "등급 오판 게이트 2회 공략", mods: { def: 0.05 }, cond: (g, p) => (p.record.misrank || 0) >= 2 },
+  { id: "city_shield", name: "도시의 방패", how: "게이트 브레이크 2회 저지", mods: { def: 0.05, hp: 0.04 }, cond: (g, p) => (p.record.breaks || 0) >= 2 },
+  { id: "duelist", name: "피의 결투가", how: "생사결 5회 승리", mods: { atk: 0.06, social: -0.1 }, cond: (g, p) => p.record.npcKills >= 5 },
+  { id: "national", name: "국민 헌터", how: "명성 400", mods: { social: 0.15 }, cond: (g, p) => p.fame >= 400 },
+  { id: "streamer", name: "인기 스트리머", how: "방송 구독자 10만 명", mods: { social: 0.08, price: -0.05 }, cond: (g, p) => (p.followers || 0) >= 1e5 },
+  { id: "climber", name: "탑 등반자", how: "시련의 탑 10층", mods: { spd: 0.04 }, cond: (g, p) => (p.tower.best || 0) >= 10 },
+  { id: "summit", name: "정상을 보는 자", how: "시련의 탑 30층", mods: { atk: 0.05, def: 0.05, spd: 0.03 }, cond: (g, p) => (p.tower.best || 0) >= 30 },
+  { id: "measure_error", name: "측정 오류", how: "재측정에서 두 등급 이상 상승", mods: { atk: 0.05, luck: 0.1 }, cond: (g) => !!g.flags.measureError },
+  { id: "regressor", name: "회귀자", how: "죽음 뒤 처음으로 돌아오기", mods: { train: 0.06 }, cond: (g, p) => !!(p.regress && p.regress.count) },
+  { id: "mastery", name: "기술의 극의", how: "스킬 하나를 각성", mods: { mp: 0.1 }, cond: (g, p) => Object.keys(p.skillXp || {}).some((id) => g.skillLv(id) >= 5) },
+  { id: "core_baron", name: "마석 재벌", how: "코어 판매 누적 10만 크레딧", mods: { price: -0.06 }, cond: (g, p) => (p.coreSales || 0) >= 1e5 },
+  { id: "top_ranker", name: "랭킹 1위", how: "국내 헌터 랭킹 1위", mods: { atk: 0.04, social: 0.1 }, cond: (g, p) => p.bestRankPos === 1 },
+  { id: "chosen", name: "선택받은 자", how: "후원자 호감 100", mods: { hp: 0.05, atk: 0.05 }, cond: (g, p) => !!(p.sponsor && p.sponsor.chosen) },
+  { id: "s_rank", name: "공인 S급", how: "관리국 공식 S급 등록", mods: { hp: 0.05, def: 0.03 }, cond: (g, p) => p.official >= 6 },
+  { id: "guild_ace", name: "길드의 에이스", how: "낙찰 게이트 3회 공략", mods: { atk: 0.03, def: 0.03 }, cond: (g, p) => (p.record.bidGates || 0) >= 3 }
+];
+const titleById = (id) => TITLES.find((t) => t.id === id);
+const MOD_NAME = { hp: "체력", mp: "정신력", atk: "공격", def: "방어", spd: "속도", luck: "운", train: "수련", social: "친화", price: "물가", breakthrough: "돌파", heal: "회복", life: "수명" };
+function modsText(mods, mul = 1) {
+  return Object.entries(mods).map(([k, v]) => {
+    const x = v * mul;
+    if (k === "breakthrough") return "돌파 성공률 ".concat(x > 0 ? "+" : "").concat(Math.round(x), "%");
+    if (k === "price") return "물가 ".concat(Math.round(x * 100), "%");
+    return "".concat(MOD_NAME[k] || k, " ").concat(x > 0 ? "+" : "").concat(Math.round(x * 100), "%");
+  }).join(", ");
+}
+const SKILL_LV_REQ = [0, 8, 24, 50, 90];
+const SPONSORS = {
+  ash: {
+    name: "잿빛 군주",
+    like: "carnage",
+    hate: "retreat",
+    likeText: "학살과 정면 승부",
+    hateText: "등을 보이는 것",
+    bless: { atk: 0.04 },
+    color: "#ff6b6b",
+    up: ["잿빛 군주가 피 냄새에 웃는다.", "잿빛 군주가 당신의 칼끝을 지켜본다.", '잿빛 군주: "더."'],
+    down: ["잿빛 군주가 등을 돌린다.", '잿빛 군주: "겁쟁이에게 줄 것은 없다."']
+  },
+  star: {
+    name: "별을 세는 노파",
+    like: "explore",
+    hate: "idle",
+    likeText: "낯선 곳과 숨은 길",
+    hateText: "한자리에 머무는 것",
+    bless: { spd: 0.03, luck: 0.1 },
+    color: "#9fd8ff",
+    up: ["별을 세는 노파가 지도에 점 하나를 찍었다.", '별을 세는 노파: "그래, 그 길이야."'],
+    down: ["별을 세는 노파가 하품을 했다.", '별을 세는 노파: "지루하구나."']
+  },
+  warden: {
+    name: "침묵하는 파수꾼",
+    like: "protect",
+    hate: "murder",
+    likeText: "사람을 지키는 일",
+    hateText: "무고한 피",
+    bless: { def: 0.04, hp: 0.04 },
+    color: "#7cd992",
+    up: ["침묵하는 파수꾼이 고개를 끄덕인다.", "침묵하는 파수꾼의 시선이 따뜻해졌다."],
+    down: ["침묵하는 파수꾼이 눈을 감았다.", "침묵하는 파수꾼에게서 차가운 기운이 흐른다."]
+  },
+  gold: {
+    name: "황금 눈의 상인",
+    like: "wealth",
+    hate: "loss",
+    likeText: "돈이 도는 일",
+    hateText: "손해 보는 것",
+    bless: { luck: 0.08, price: -0.04 },
+    color: "#ffd84d",
+    up: ["황금 눈의 상인이 주판을 튕긴다.", '황금 눈의 상인: "남는 장사로군."'],
+    down: ["황금 눈의 상인이 혀를 찬다.", '황금 눈의 상인: "적자는 용서 못 하네."']
+  }
+};
+const SPONSOR_TIERS = [[100, 3, "선택"], [60, 2, "총애"], [30, 1, "관심"]];
+const CHAIN_NAMES = { cult: "균열교", family: "잃어버린 가족", voice: "제주의 목소리", subject: "피험자 7번", pocha: "포차 사장님", nuri: "고철 드론 누리", smuggle: "부산 암시장", baekho: "백호 가문의 후계" };
+FAC_ICON.tower = '<path d="M9 21V8l3-5 3 5v13M7 21h10M9 12h6M9 16h6"/>';
+FACILITIES.splice(FACILITIES.findIndex((f) => f.id === "auction"), 0, { id: "tower", name: "시련의 탑", desc: "층마다 다른 시험. 한 달에 한 번 오를 수 있다.", only: ["daejeon"] });
+Object.assign(Game.prototype, {
+  // ---------- 초기화 ----------
+  hunterInit() {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
+    const p = this.player;
+    (_a = p.titles) != null ? _a : p.titles = [];
+    (_b = p.title) != null ? _b : p.title = null;
+    (_c = p.official) != null ? _c : p.official = p.rankIdx;
+    (_d = p.skillXp) != null ? _d : p.skillXp = {};
+    (_e = p.followers) != null ? _e : p.followers = 0;
+    (_f = p.streams) != null ? _f : p.streams = 0;
+    (_g = p.tower) != null ? _g : p.tower = { best: 0, month: -1 };
+    (_h = p.coreSales) != null ? _h : p.coreSales = 0;
+    (_i = p.sponsor) != null ? _i : p.sponsor = null;
+    (_j = p.bestRankPos) != null ? _j : p.bestRankPos = null;
+    for (const k of ["red", "hidden", "misrank", "breaks", "bidGates"]) (_l = (_k = p.record)[k]) != null ? _l : _k[k] = 0;
+    const w = this.world;
+    (_m = w.coreIdx) != null ? _m : w.coreIdx = RANKS.map(() => 1);
+    (_n = w.corePrev) != null ? _n : w.corePrev = w.coreIdx.slice();
+    (_o = w.guildPrestige) != null ? _o : w.guildPrestige = Object.fromEntries(Object.keys(GUILDS).map((id) => [id, 40 + RNG.int(0, 20)]));
+    (_p = w.bid) != null ? _p : w.bid = null;
+  },
+  // ---------- 칭호 ----------
+  checkTitles() {
+    const p = this.player;
+    if (!p || !p.titles) return;
+    for (const t of TITLES) {
+      if (p.titles.includes(t.id)) continue;
+      let ok = false;
+      try {
+        ok = t.cond(this, p);
+      } catch (e) {
+        ok = false;
+      }
+      if (!ok) continue;
+      p.titles.push(t.id);
+      if (!p.title) p.title = t.id;
+      this.lifeEvent("칭호 「".concat(t.name, "」을(를) 얻었다."));
+      this.queue.push({ type: "toast", text: "칭호 획득 · 「".concat(t.name, "」 (").concat(modsText(t.mods), ")") });
+    }
+  },
+  equipTitle(id) {
+    const p = this.player;
+    if (id && !p.titles.includes(id)) return "";
+    p.title = p.title === id ? null : id;
+    this.recalc();
+    return p.title ? "칭호 「".concat(titleById(id).name, "」을(를) 달았다.") : "칭호를 뗐다.";
+  },
+  // ---------- 공식 등급 ----------
+  remeasureCost() {
+    return Math.round(150 * RANKS[this.player.rankIdx].mult ** 1.5);
+  },
+  remeasure() {
+    const p = this.player;
+    if (!this.onCity()) return "관리국 측정은 도시의 협회 의뢰소에서 받을 수 있다.";
+    const cost = this.remeasureCost();
+    if (p.money < cost) return "크레딧이 부족하다.";
+    p.money -= cost;
+    const gap = p.rankIdx - p.official;
+    const prev = p.official;
+    p.official = p.rankIdx;
+    const surge = this.flags.story.reawakened && !this.flags.reawakenMeasured;
+    if (surge) this.flags.reawakenMeasured = true;
+    if (gap <= 0 && !surge) return "측정 결과는 그대로다. 관리국 등록 등급 ".concat(RANKS[p.official].key, "급.");
+    let msg = "측정기의 수치가 치솟았다. 관리국 등록 등급 ".concat(RANKS[prev].key, "급 → ").concat(RANKS[p.official].key, "급.");
+    const fame = Math.max(0, gap) * 12 + (surge ? 15 : 0);
+    p.fame += fame;
+    if (surge) msg += " 측정기가 과부하로 불꽃을 튀겼다. 재각성의 흔적이다.";
+    if (gap >= 2 || surge) {
+      this.flags.measureError = true;
+      this.lifeEvent("재측정에서 ".concat(RANKS[prev].key, "급이 ").concat(RANKS[p.official].key, "급으로 뒤집혔다."));
+      this.rumor("관리국 재측정 이변! ".concat(RANKS[prev].key, "급으로 등록돼 있던 ").concat(p.name, "이(가) ").concat(RANKS[p.official].key, "급 판정을 받았다."));
+    }
+    this.sponsorAct("explore", gap >= 2 ? 4 : 0);
+    this.save();
+    return msg + (fame ? " 명성 +".concat(fame) : "");
+  },
+  // ---------- 스킬 숙련 ----------
+  skillLv(id) {
+    const xp = (this.player.skillXp || {})[id] || 0;
+    let lv = 1;
+    for (let i = 1; i < SKILL_LV_REQ.length; i++) if (xp >= SKILL_LV_REQ[i]) lv = i + 1;
+    return lv;
+  },
+  skillEff(sk) {
+    if (!sk || sk.id === "strike" || sk._eff || !this.player) return sk;
+    const lv = this.skillLv(sk.id);
+    if (lv <= 1) return sk;
+    return __spreadProps(__spreadValues({}, sk), {
+      _eff: true,
+      lv,
+      awakened: lv >= 5,
+      name: lv >= 5 ? "".concat(sk.name, "·각성") : sk.name,
+      power: Math.round(sk.power * (1 + 0.06 * (lv - 1) + (lv >= 5 ? 0.12 : 0)) * 1e3) / 1e3,
+      mp: Math.max(0, Math.round(sk.mp * (1 - 0.05 * (lv - 1))))
+    });
+  },
+  skillUse(id) {
+    const p = this.player;
+    if (!p || id === "strike") return "";
+    const before = this.skillLv(id);
+    p.skillXp[id] = (p.skillXp[id] || 0) + 1;
+    const after = this.skillLv(id);
+    if (after === before) return "";
+    const sk = skillById(id);
+    if (after >= 5) {
+      this.lifeEvent("스킬 [".concat(sk.name, "]이(가) 각성했다."));
+      return "[스킬 각성] ".concat(sk.name, "이(가) 한계를 넘어섰다!");
+    }
+    return "[스킬 숙련] ".concat(sk.name, " Lv").concat(after);
+  },
+  // ---------- 게이트 변이 ----------
+  rollGateVariant(g) {
+    if (g.variant !== void 0) return;
+    if (g.final || g.mission || g.bid || g.breakCity) {
+      g.variant = "normal";
+      return;
+    }
+    const r = RNG.next();
+    if (g.tier >= 2 && r < 0.07) g.variant = "red";
+    else if (r < 0.18) g.variant = "double";
+    else if (r < 0.27 && g.tier < 7) {
+      g.variant = "misrank";
+      g.realTier = Math.min(7, g.tier + RNG.int(1, 2));
+    } else g.variant = "normal";
+  },
+  // ---------- 방송 ----------
+  streamResult(gate, result) {
+    var _a;
+    const p = this.player;
+    const red = gate.variant === "red";
+    if (result === "clear") {
+      const t = (_a = gate.realTier) != null ? _a : gate.tier;
+      const gain = Math.round((t + 1) ** 1.7 * 140 * RNG.range(0.7, 1.3) * (red ? 2 : 1) * (gate.variant === "misrank" ? 1.5 : 1) * (1 + Math.min(p.fame, 1e3) / 400));
+      const money = Math.round(25 * (t + 1) * RANKS[t].mult * (red ? 2 : 1));
+      p.followers += gain;
+      p.streams++;
+      p.money += money;
+      p.fame += 1;
+      this.sponsorAct("wealth", 3);
+      return ["방송 성공! 동시 접속이 폭발했다. 구독자 +".concat(fmt(gain), ", 후원금 ").concat(fmt(money), " 크레딧, 명성 +1")];
+    }
+    if (result === "retreat") {
+      const l2 = Math.floor(p.followers * 0.04);
+      p.followers -= l2;
+      p.fame = Math.max(0, p.fame - 1);
+      return ["철수 장면에 채팅창이 싸늘해졌다. 구독자 -".concat(fmt(l2), ", 명성 -1")];
+    }
+    const l = Math.floor(p.followers * 0.1);
+    p.followers -= l;
+    p.fame = Math.max(0, p.fame - 3);
+    return ["방송 사고. 쓰러지는 장면이 그대로 송출됐다. 구독자 -".concat(fmt(l), ", 명성 -3")];
+  },
+  adIncome() {
+    return Math.floor((this.player.followers || 0) / 40);
+  },
+  // ---------- 랭킹 ----------
+  rankScore(n) {
+    return n.rankIdx * 1e3 + n.stage * 300 + n.talent * 15 + n.id % 37;
+  },
+  playerRankScore() {
+    const p = this.player;
+    return p.official * 1e3 + (p.official === p.rankIdx ? p.stage * 300 : 0) + Math.min(p.fame, 2e3) * 0.6 + p.record.gates * 4;
+  },
+  ranking() {
+    const p = this.player;
+    const list = this.adults().filter((n) => n.region !== "jeju" || n.rankIdx >= 6).map((n) => ({ npc: n, name: n.name, rank: n.rankIdx, score: this.rankScore(n) }));
+    list.push({ me: true, name: p.name, rank: p.official, score: this.playerRankScore() });
+    list.sort((a, b) => b.score - a.score);
+    return { list, pos: list.findIndex((x) => x.me) + 1 };
+  },
+  checkRanking() {
+    const p = this.player;
+    const { pos } = this.ranking();
+    const best = p.bestRankPos;
+    if (best != null && pos >= best) return;
+    p.bestRankPos = pos;
+    for (const th of [1, 3, 10, 30]) {
+      if (pos <= th && (best == null || best > th)) {
+        const txt = th === 1 ? "".concat(p.name, ", 국내 헌터 랭킹 1위 등극!") : "".concat(p.name, "이(가) 국내 헌터 랭킹 ").concat(th, "위 안에 진입했다.");
+        this.rumor(txt);
+        this.log(txt, "good");
+        if (th <= 3) this.lifeEvent("국내 헌터 랭킹 ".concat(pos, "위에 올랐다."));
+        break;
+      }
+    }
+  },
+  // ---------- 코어 시세 ----------
+  corePrice(t) {
+    return Math.max(1, Math.round(18 * RANKS[t].mult ** 1.6 * (this.world.coreIdx[t] || 1)));
+  },
+  coreTrend(t) {
+    const w = this.world;
+    const d = (w.coreIdx[t] || 1) - (w.corePrev[t] || 1);
+    return Math.abs(d) < 0.02 ? 0 : d > 0 ? 1 : -1;
+  },
+  coreMarketMonthly() {
+    const w = this.world;
+    w.corePrev = w.coreIdx.slice();
+    const breakPush = this.world.breaks.length ? -0.04 : 0;
+    w.coreIdx = w.coreIdx.map((v) => Math.max(0.45, Math.min(2.2, v + (1 - v) * 0.15 + RNG.range(-0.08, 0.08) + breakPush)));
+    if (RNG.chance(0.07)) {
+      const t = RNG.int(0, 7);
+      if (RNG.chance(0.55)) {
+        w.coreIdx[t] = Math.min(2.2, w.coreIdx[t] + 0.5);
+        this.rumor("에테르 발전소 수요 폭증으로 ".concat(coreName(t), " 시세가 급등했다."));
+      } else {
+        w.coreIdx[t] = Math.max(0.45, w.coreIdx[t] - 0.35);
+        this.rumor("대형 길드가 ".concat(coreName(t), " 재고를 풀었다. 시세 급락."));
+      }
+    }
+  },
+  // ---------- 길드 공략권 입찰 ----------
+  guildPower(id) {
+    const p = this.player;
+    let v = this.world.guildPrestige[id] || 0;
+    for (const n of this.adults()) if (n.guild === id) v += RANKS[n.rankIdx].mult * 3;
+    if (p.guild === id) v += RANKS[p.rankIdx].mult * 4 + p.guildRank * 3;
+    return Math.round(v);
+  },
+  bidUnit() {
+    const b = this.world.bid;
+    return b ? Math.round(300 * RANKS[b.tier].mult) : 0;
+  },
+  bidContribute() {
+    const p = this.player;
+    const b = this.world.bid;
+    if (!b || !p.guild) return "";
+    if (b.mine >= 3) return "이번 입찰에는 더 보탤 수 없다.";
+    const c = this.bidUnit();
+    if (p.money < c) return "크레딧이 부족하다.";
+    p.money -= c;
+    b.mine = (b.mine || 0) + 1;
+    b.paid = (b.paid || 0) + c;
+    p.contrib += Math.round(c / 40);
+    const lines = [];
+    this.checkGuildRank(lines);
+    return "길드 입찰 자금에 ".concat(fmt(c), " 크레딧을 보탰다. 공헌도 +").concat(Math.round(c / 40)).concat(lines.length ? " · " + lines.join(" · ") : "");
+  },
+  guildBidMonthly() {
+    const w = this.world;
+    const p = this.player;
+    const mk = this.monthKey();
+    if (w.bid && mk >= w.bid.until) {
+      const b = w.bid;
+      w.bid = null;
+      const scores = Object.keys(GUILDS).map((id) => ({ id, s: this.guildPower(id) * RNG.range(0.75, 1.25) + (id === b.guild ? (b.mine || 0) * 18 : 0) }));
+      scores.sort((a, x) => x.s - a.s);
+      const win = scores[0].id;
+      for (const id of Object.keys(GUILDS)) w.guildPrestige[id] = Math.max(10, (w.guildPrestige[id] || 0) + (id === win ? 6 : -1));
+      const reg = regionById(b.region);
+      this.rumor("".concat(GUILDS[win].name, "이(가) ").concat(scores[1] ? GUILDS[scores[1].id].name + "을(를) 제치고 " : "").concat(reg.name, " ").concat(RANKS[b.tier].key, "급 게이트 공략권을 따냈다."));
+      if (p.guild && win === p.guild) {
+        const pos = this.randomFreeTile(b.region);
+        if (pos) {
+          const g = { id: this.nextObjId++, kind: "gate", x: pos[0], y: pos[1], region: b.region, tier: b.tier, theme: "길드 낙찰 게이트", elem: RNG.pick(ELEMENT_KEYS), born: mk, bid: true, variant: "normal" };
+          this.mapGates.push(g);
+          this.log("".concat(GUILDS[win].name, "이(가) ").concat(reg.name, " ").concat(RANKS[b.tier].key, "급 게이트 공략권을 따냈다. 길드가 당신에게 공략을 맡겼다."), "good");
+          this.queue.push({ type: "toast", text: "길드 낙찰! ".concat(reg.name, "에 ").concat(RANKS[b.tier].key, "급 낙찰 게이트가 열렸다.") });
+        }
+      } else if (b.paid && b.guild === p.guild) {
+        const back = Math.round(b.paid * 0.5);
+        p.money += back;
+        this.log("입찰에서 밀렸다. 보탠 자금의 절반 ".concat(fmt(back), " 크레딧이 돌아왔다."), "bad");
+      }
+    }
+    if (!w.bid && RNG.chance(0.3)) {
+      const reg = RNG.pick(REGIONS.filter((r) => r.danger >= 2 && r.id !== "jeju"));
+      const tier = Math.max(3, Math.min(7, GATE_RANGES[reg.danger][1] + RNG.int(0, 1)));
+      w.bid = { region: reg.id, tier, until: mk + 1, guild: p.guild || null, mine: 0, paid: 0 };
+      this.rumor("관리국이 ".concat(reg.name, " ").concat(RANKS[tier].key, "급 게이트 공략권 입찰을 공고했다. 5대 길드가 움직인다."));
+    } else if (w.bid && p.guild && !w.bid.mine) w.bid.guild = p.guild;
+  },
+  // ---------- 후원자 ----------
+  sponsor() {
+    const p = this.player;
+    return p && p.sponsor ? SPONSORS[p.sponsor.id] : null;
+  },
+  sponsorTier() {
+    const p = this.player;
+    if (!p.sponsor) return 0;
+    if (p.sponsor.chosen) return 3;
+    const t = SPONSOR_TIERS.find(([v]) => p.sponsor.favor >= v);
+    return t ? t[1] : 0;
+  },
+  sponsorAct(kind, amt) {
+    const p = this.player;
+    const s = this.sponsor();
+    if (!s || !amt) return;
+    let d = 0;
+    if (s.like === kind) d = amt;
+    else if (s.hate === kind) d = -amt;
+    else return;
+    const tier0 = this.sponsorTier();
+    p.sponsor.favor = Math.max(0, Math.min(100, p.sponsor.favor + d));
+    if (p.sponsor.favor >= 100 && !p.sponsor.chosen) {
+      p.sponsor.chosen = true;
+      this.lifeEvent("후원자 ".concat(s.name, "에게 선택받았다."));
+    }
+    const tier1 = this.sponsorTier();
+    const mk = this.monthKey();
+    if (tier1 !== tier0) {
+      this.recalc();
+      this.queue.push({ type: "toast", text: tier1 > tier0 ? "[후원자] ".concat(s.name, "의 ").concat(["", "관심", "총애", "선택"][tier1], "을 받는다. (").concat(modsText(s.bless, tier1), ")") : "[후원자] ".concat(s.name, "의 관심이 식었다.") });
+      p.sponsor.msgAt = mk;
+    } else if (Math.abs(d) >= 3 && p.sponsor.msgAt !== mk && RNG.chance(0.45)) {
+      p.sponsor.msgAt = mk;
+      this.queue.push({ type: "toast", text: "[후원자] ".concat(RNG.pick(d > 0 ? s.up : s.down)) });
+    }
+  },
+  sponsorMonthly() {
+    const p = this.player;
+    const s = this.sponsor();
+    if (!s) return;
+    if (!p.sponsor.chosen) p.sponsor.favor = Math.max(0, p.sponsor.favor - 1);
+    if (this.sponsorTier() >= 2 && RNG.chance(0.12)) {
+      const gift = { ash: { ether: 30 }, star: RNG.chance(0.3) ? { relic: true } : { ether: 20 }, warden: { item: ["potion", 3] }, gold: { money: 400 } }[p.sponsor.id];
+      const txt = this.gain(gift);
+      this.log("[후원자] ".concat(s.name, "이(가) 선물을 내렸다.").concat(txt), "good");
+    }
+  },
+  takeSponsor(id) {
+    this.player.sponsor = { id, favor: 10, chosen: false, since: this.dateStr() };
+    this.lifeEvent("후원자 ".concat(SPONSORS[id].name, "와(과) 계약했다."));
+  },
+  // ---------- 시련의 탑 ----------
+  towerSpec(n) {
+    const tier = Math.min(7, Math.floor((n - 1) / 6));
+    const rule = n % 10 === 0 ? "boss2" : n % 5 === 0 ? "boss" : n % 4 === 0 ? "solo" : n % 7 === 0 ? "elite" : n % 3 === 0 ? "elem" : "normal";
+    const label = { boss2: "쌍두 수문장", boss: "수문장", solo: "단독 시험 · 동료 없이", elite: "정예 시험", elem: "속성 시험", normal: "일반 시험" }[rule];
+    return { n, tier, rule, label };
+  },
+  towerEnemies(spec) {
+    const { tier, rule, n } = spec;
+    const list = [];
+    const elem = rule === "elem" ? RNG.pick(ELEMENT_KEYS) : null;
+    if (rule === "boss" || rule === "boss2") {
+      list.push(this.makeMonster(tier, true, elem));
+      if (rule === "boss2") list.push(this.makeMonster(tier, true, elem));
+      else list.push(this.makeMonster(tier, false, elem));
+    } else {
+      const cnt = rule === "solo" ? RNG.int(1, 2) : RNG.int(2, 3);
+      for (let k = 0; k < cnt; k++) list.push(this.makeMonster(tier, false, elem));
+    }
+    const step = 1 + (n - 1) % 6 * 0.06;
+    for (const e of list) {
+      if (elem) e.elem = elem;
+      const em = rule === "elite" ? 1.4 : 1;
+      e.hp = e.maxHp = Math.round(e.hp * step * em);
+      e.atk = Math.round(e.atk * (rule === "elite" ? 1.15 : 1) * (1 + (step - 1) / 2));
+    }
+    return rule === "solo" ? list : this.scaleForParty(list, tier);
+  },
+  towerReward(spec) {
+    const p = this.player;
+    const first = spec.n > p.tower.best;
+    const m = RANKS[spec.tier].mult;
+    const money = Math.round(50 * m * (1 + spec.n % 6 * 0.2) * (first ? 1 : 0.3));
+    const ether = Math.round(4 * m ** 1.2 * (first ? 1 : 0.3));
+    p.money += money;
+    this.addEther(ether);
+    const out = ["".concat(fmt(money), " 크레딧"), "에테르 ".concat(fmt(ether))];
+    if (first) {
+      p.tower.best = spec.n;
+      if (spec.n % 10 === 0) {
+        const k = this.catalystKey();
+        p.items[k] = (p.items[k] || 0) + 1;
+        out.push("".concat(RANKS[p.rankIdx].key, "급 각성 촉매"));
+      } else if (spec.n % 5 === 0) out.push(this.addRelic(null, spec.n >= 20 ? 1 : void 0));
+      if (spec.n % 10 === 0) this.rumor("".concat(p.name, "이(가) 시련의 탑 ").concat(spec.n, "층을 돌파했다."));
+      this.sponsorAct("explore", 2);
+    }
+    return (first ? "첫 돌파 보상: " : "반복 보상: ") + out.join(", ");
+  },
+  canTower() {
+    return this.player.tower.month !== this.monthKey();
+  }
+});
+{
+  const GP = Game.prototype;
+  const wrap = (name, fn) => {
+    const base = GP[name];
+    GP[name] = function(...a) {
+      return fn.call(this, base, ...a);
+    };
+  };
+  wrap("initSandbox", function(base) {
+    base.call(this);
+    this.hunterInit();
+  });
+  wrap("save", function(base) {
+    if (!this.over && this.player && this.player.titles) this.checkTitles();
+    return base.call(this);
+  });
+  wrap("extraMod", function(base, key) {
+    let v = base.call(this, key);
+    const p = this.player;
+    const t = p.title && titleById(p.title);
+    if (t && t.mods[key]) v += t.mods[key];
+    const s = this.sponsor();
+    if (s && s.bless[key]) v += s.bless[key] * this.sponsorTier();
+    return v;
+  });
+  if (GP.revealAwakenRank) wrap("revealAwakenRank", function(base) {
+    const r = base.call(this);
+    const p = this.player;
+    if (p.official == null || p.official < p.rankIdx) p.official = p.rankIdx;
+    return r;
+  });
+  wrap("canJeju", function() {
+    var _a;
+    const p = this.player;
+    return p.rankIdx >= 6 && ((_a = p.official) != null ? _a : p.rankIdx) >= 6;
+  });
+  wrap("worldMonthly", function(base) {
+    base.call(this);
+    const p = this.player;
+    this.coreMarketMonthly();
+    this.guildBidMonthly();
+    this.sponsorMonthly();
+    if (p.followers > 0) {
+      p.money += this.adIncome();
+      p.followers = Math.floor(p.followers * 0.985);
+    }
+    this.checkRanking();
+  });
+  wrap("spawnMonthly", function(base) {
+    base.call(this);
+    for (const g of this.mapGates) this.rollGateVariant(g);
+  });
+  wrap("gateName", function(base, g) {
+    const n = base.call(this, g);
+    if (g.variant === "red") return "[레드] ".concat(n);
+    if (g.bid) return "낙찰 · ".concat(n);
+    if (g.variant === "misrank" && g.revealedMis) return "".concat(n, " (실제 ").concat(RANKS[g.realTier].key, "급)");
+    return n;
+  });
+  wrap("gateRooms", function(base, g) {
+    if (g.variant === "misrank") {
+      g.revealedMis = true;
+      return base.call(this, __spreadProps(__spreadValues({}, g), { tier: g.realTier }));
+    }
+    const rooms = base.call(this, g);
+    if (g.variant === "red") {
+      const extra = [];
+      for (let k = RNG.int(2, 3); k > 0; k--) extra.push(this.makeMonster(g.tier, false, g.elem));
+      rooms.splice(rooms.length - 1, 0, this.scaleForParty(extra, g.tier));
+      for (const e of rooms[rooms.length - 1]) if (e.boss) {
+        e.hp = e.maxHp = Math.round(e.maxHp * 1.25);
+        e.atk = Math.round(e.atk * 1.1);
+        e.name = e.name.replace("[보스]", "[붉은 보스]");
+      }
+    }
+    return rooms;
+  });
+  wrap("finishGate", function(base, gate, result, loot, hpLeft, mpLeft) {
+    var _a;
+    const p = this.player;
+    const lines = base.call(this, gate, result, loot, hpLeft, mpLeft);
+    if (result === "clear") {
+      if (gate.variant === "red") {
+        p.record.red++;
+        const bonus = Math.round(loot.money * 0.5);
+        p.money += bonus;
+        p.fame += 6;
+        lines.push("레드 게이트를 깨뜨렸다! 추가 보상 ".concat(fmt(bonus), " 크레딧, 명성 +6"));
+        if (RNG.chance(0.6)) lines.push("붉은 핵에서: ".concat(this.addRelic()));
+        this.lifeEvent("".concat(RANKS[gate.tier].key, "급 레드 게이트에서 살아 돌아왔다."));
+      }
+      if (gate.variant === "misrank") {
+        p.record.misrank++;
+        const comp = Math.round(200 * RANKS[gate.realTier].mult);
+        p.money += comp;
+        p.fame += 4;
+        lines.push("등급 오판 게이트였다. 실제 ".concat(RANKS[gate.realTier].key, "급. 관리국 보상금 ").concat(fmt(comp), " 크레딧, 명성 +4"));
+        this.rumor("관리국의 등급 오판! ".concat(RANKS[gate.tier].key, "급으로 공지된 게이트가 실제 ").concat(RANKS[gate.realTier].key, "급이었다. ").concat(p.name, "이(가) 공략."));
+      }
+      if (loot.hidden) {
+        p.record.hidden++;
+        lines.push("숨겨진 구역의 보물: ".concat(this.addRelic(null, RNG.weighted([1, 2, 3], [60, 30, 10]))));
+        this.sponsorAct("explore", 8);
+      }
+      if (gate.bid) {
+        p.record.bidGates++;
+        const c = 50 * (gate.tier + 1);
+        p.contrib += c;
+        if (p.guild) this.world.guildPrestige[p.guild] = (this.world.guildPrestige[p.guild] || 0) + 8;
+        lines.push("낙찰 게이트 공략: 공헌도 +".concat(c, ", 길드 위세 상승"));
+        this.checkGuildRank(lines);
+      }
+      const realT = (_a = gate.realTier) != null ? _a : gate.tier;
+      if (!gate.breakCity && realT > p.official) {
+        const f = (realT - p.official) * 2;
+        p.fame += f;
+        lines.push("공식 등급(".concat(RANKS[p.official].key, "급)보다 높은 게이트를 깼다. 명성 +").concat(f));
+      }
+      if (gate.breakCity) {
+        p.record.breaks++;
+        this.sponsorAct("protect", 10);
+      }
+      this.sponsorAct("carnage", Math.min(8, Math.round((loot.kills || 0) * 0.6)));
+    } else if (result === "retreat") this.sponsorAct("retreat", 4);
+    else if (result === "lose") {
+      this.sponsorAct("loss", 5);
+      if (gate.variant === "red") {
+        p.lifePenalty += 3;
+        p.injured = Math.max(p.injured, 6);
+        this.recalc();
+        lines.push('<span class="bad">레드 게이트는 구조대도 들어올 수 없었다. 게이트가 저절로 닫히며 바깥으로 내던져졌다. 수명 -3년, 부상 6개월.</span>');
+      }
+    }
+    if (loot.live) lines.push(...this.streamResult(gate, result));
+    this.checkTitles();
+    this.save();
+    return lines;
+  });
+  wrap("finishMob", function(base, mob, result, kills, hpLeft, mpLeft) {
+    const lines = base.call(this, mob, result, kills, hpLeft, mpLeft);
+    if (result === "win") this.sponsorAct("carnage", Math.min(5, Math.round(kills.length * 0.6)));
+    if (result === "lose") this.sponsorAct("loss", 4);
+    if (result === "flee") this.sponsorAct("retreat", 2);
+    return lines;
+  });
+  wrap("finishDuel", function(base, n, won, hp, mp) {
+    const villain = n.relation <= -20 || persById(n.personality).id === "warlike";
+    const r = base.call(this, n, won, hp, mp);
+    if (won) {
+      this.sponsorAct("carnage", 6);
+      if (!villain) this.sponsorAct("murder", 12);
+    }
+    return r;
+  });
+  wrap("payBounty", function(base, q) {
+    const r = base.call(this, q);
+    this.sponsorAct("protect", 3);
+    return r;
+  });
+  wrap("visitCity", function(base, regionId) {
+    const first = !this.player.visited.includes(regionId);
+    base.call(this, regionId);
+    if (first) this.sponsorAct("explore", 5);
+  });
+  wrap("rest", function(base) {
+    this.sponsorAct("idle", 2);
+    return base.call(this);
+  });
+  wrap("sellCores", function(base, tier) {
+    const n = this.coreCount(tier);
+    if (!n) return "";
+    const v = this.corePrice(tier) * n;
+    this.player.mats["c" + tier] = 0;
+    this.player.money += v;
+    this.player.coreSales += v;
+    this.sponsorAct("wealth", Math.min(8, Math.round(v / (120 * RANKS[this.player.rankIdx].mult))));
+    return "".concat(coreName(tier), " ").concat(n, "개를 ").concat(fmt(v), " 크레딧에 넘겼다.");
+  });
+  wrap("gameOver", function(base, reason) {
+    base.call(this, reason);
+    try {
+      const p = this.player;
+      const prev = JSON.parse(localStorage.getItem(REGRESS_KEY) || "null") || {};
+      const chains = Object.keys(this.flags.chains || {}).filter((k) => this.flags.chains[k] > 0 && CHAIN_NAMES[k]);
+      const data = {
+        lives: (prev.lives || 0) + 1,
+        bestRank: Math.max(prev.bestRank || 0, p.rankIdx),
+        titles: [.../* @__PURE__ */ new Set([...prev.titles || [], ...p.titles || []])],
+        chains: [.../* @__PURE__ */ new Set([...prev.chains || [], ...chains])],
+        lastName: p.name,
+        lastAge: this.ageYears(),
+        lastDate: this.dateStr(),
+        lastRank: p.rankIdx
+      };
+      localStorage.setItem(REGRESS_KEY, JSON.stringify(data));
+    } catch (e) {
+    }
+  });
+  wrap("newGame", function(base, opts) {
+    base.call(this, opts);
+    if (!Game.regressNext) return;
+    Game.regressNext = false;
+    const d = Game.regressData();
+    if (!d) return;
+    const p = this.player;
+    const lives = d.lives || 1;
+    p.regress = { count: lives, bestRank: d.bestRank || 0, chains: d.chains || [], lastName: d.lastName, lastDate: d.lastDate, lastAge: d.lastAge };
+    p.titles = [.../* @__PURE__ */ new Set([...p.titles, ...(d.titles || []).filter((id) => titleById(id))])];
+    p.talent += Math.min(3, lives);
+    p.money += 800 * Math.min(5, lives);
+    p.items.potion = (p.items.potion || 0) + 3;
+    this.flags.story.regressor = true;
+    this.recalc();
+    this.lifeEvent("".concat(lives + 1, "번째 삶. ").concat(d.lastName ? "".concat(d.lastName, "(으)로 살다 ").concat(d.lastAge, "세에 죽은 기억") : "죽음의 기억", "을 안고 ").concat(this.year, "년 ").concat(this.month, "월로 돌아왔다."));
+    this.checkTitles();
+    this.save();
+  });
+  Game.regressData = () => {
+    try {
+      return JSON.parse(localStorage.getItem(REGRESS_KEY) || "null");
+    } catch (e) {
+      return null;
+    }
+  };
+  const baseUse = Combat.prototype.useSkill;
+  Combat.prototype.useSkill = function(u, skill, target) {
+    const g = this.game;
+    if (!u.isPlayer || !skill || skill.id === "strike" || !g.skillEff) return baseUse.call(this, u, skill, target);
+    skill = g.skillEff(skill);
+    const up = g.skillUse(skill.id);
+    baseUse.call(this, u, skill, target);
+    if (up) this.push(up, "good", { k: "note", dst: u.id });
+    if (skill.awakened && ["dmg", "crit", "pierce", "drain", "stun"].includes(skill.type) && !this.result) {
+      const others = this.foesOf(u).filter((f) => f !== target);
+      if (others.length && Math.random() < 0.4) {
+        this.push("각성의 여운이 옆으로 번진다!", "hit");
+        this.dealDamage(u, others[Math.floor(Math.random() * others.length)], __spreadProps(__spreadValues({}, skill), { power: skill.power * 0.5 }));
+        this.checkEnd();
+      }
+    }
+  };
+}
+S({
+  id: "sponsor_offer",
+  at: ["city", "field"],
+  minRank: 1,
+  once: true,
+  weight: 0.7,
+  when: (g) => !g.player.sponsor,
+  text: "잠들기 직전, 시야 한구석에 글자가 떠올랐다. [당신을 지켜보는 존재들이 있습니다.] 넷의 그림자가 어른거린다. 하나는 피를, 하나는 길을, 하나는 사람을, 하나는 돈을 원한다. [후원 계약을 맺으시겠습니까?]",
+  choices: [
+    ...Object.entries(SPONSORS).map(([id, s]) => ({ text: "".concat(s.name, " — ").concat(s.likeText), do: (g) => {
+      g.takeSponsor(id);
+      return "[".concat(s.name, "와(과) 계약했습니다.] ").concat(s.likeText, "을(를) 보이면 기뻐하고, ").concat(s.hateText, "을(를) 싫어한다. 호감이 쌓이면 축복이 내린다. (").concat(modsText(s.bless), "부터)");
+    } })),
+    { text: "거절한다", do: (g) => {
+      g.flags.story.sponsorRefused = true;
+      return "글자가 흩어졌다. 그림자들이 아쉬운 듯 물러났다. 언젠가 다시 올지도 모른다.";
+    } }
+  ]
+});
+S({
+  id: "sponsor_offer2",
+  at: ["city", "field"],
+  minRank: 4,
+  once: true,
+  weight: 0.5,
+  when: (g) => !g.player.sponsor && g.flags.story.sponsorRefused,
+  text: "[당신의 이름이 저편에서 다시 거론되고 있습니다.] 예전의 그림자들이 돌아왔다. 이번엔 더 가까이.",
+  choices: [
+    ...Object.entries(SPONSORS).map(([id, s]) => ({ text: "".concat(s.name, " — ").concat(s.likeText), do: (g) => {
+      g.takeSponsor(id);
+      g.player.sponsor.favor = 25;
+      return "[".concat(s.name, "와(과) 계약했습니다.] 오래 기다렸다는 듯 호감이 높다.");
+    } })),
+    { text: "끝까지 거절한다", do: () => "그림자들이 완전히 떠났다. 당신의 길은 당신 혼자 간다." }
+  ]
+});
+S({
+  id: "reawaken",
+  at: ["city", "field"],
+  minRank: 0,
+  maxRank: 3,
+  once: true,
+  weight: 0.35,
+  when: (g) => g.ageYears() >= 20,
+  text: "새벽, 온몸의 혈관이 타는 듯 뜨거워졌다. 이미 각성한 몸에서 에테르가 다시 끓어오른다. 드물게 일어난다는 재각성이다.",
+  choices: [
+    { text: "흐름에 몸을 맡긴다", do: (g) => {
+      g.flags.story.reawakened = true;
+      g.lifeEvent("재각성을 겪었다.");
+      return "눈을 떴을 때 세상이 달라 보였다. 관리국에서 재측정을 받으면 놀랄 것이다." + g.gain({ talent: 2, ether: 40, skill: true });
+    } },
+    { text: "억누른다", do: (g) => "이를 악물고 버텼다. 열기가 서서히 가라앉았다." + g.gain({ hp: -0.3, ether: 15 }) }
+  ]
+});
+S({
+  id: "stream_offer",
+  minRank: 1,
+  once: true,
+  weight: 0.6,
+  when: (g) => !g.player.streams,
+  city: true,
+  text: '헌터 전문 방송 플랫폼의 PD가 명함을 내민다. "게이트 공략을 생중계해 보시죠. 요즘 시청자들은 진짜를 원해요. 장비는 저희가 드릴게요."',
+  choices: [
+    { text: "해 보겠다", do: (g) => {
+      g.player.followers += 500;
+      return '드론 카메라를 받았다. 게이트에 들어갈 때 "중계하며 진입"을 고르면 방송이 켜진다. (구독자 +500)';
+    } },
+    { text: "관심 없다", do: () => "PD가 아쉬운 얼굴로 명함을 거뒀다. 그래도 드론 카메라는 두고 갔다. 게이트 앞에서 중계를 켤 수 있다." }
+  ]
+});
+Object.assign(UI, {
+  hunterHtml() {
+    const p = G.player;
+    const t = p.title && titleById(p.title);
+    const { list, pos } = G.ranking();
+    const s = G.sponsor();
+    const off = p.official;
+    const titleRows = TITLES.map((x) => {
+      const own = p.titles.includes(x.id);
+      const on = p.title === x.id;
+      return '<div class="item-row '.concat(on ? "equipped" : "", " ").concat(own ? "" : "locked", '"><div class="grow"><b class="').concat(own ? "amber" : "dim", '">「').concat(x.name, '」</b> <span class="small dim">').concat(x.how, '</span><div class="small ').concat(own ? "" : "dim", '">').concat(modsText(x.mods), "</div></div>\n        ").concat(own ? '<button class="sm '.concat(on ? "primary" : "", '" data-act="title" data-v="').concat(x.id, '">').concat(on ? "장착 중" : "달기", "</button>") : '<span class="small dim">미획득</span>', "</div>");
+    }).join("");
+    const top = list.slice(0, 10).map((x, i) => '<div class="item-row '.concat(x.me ? "hl" : "", '"><b class="num rank-pos">').concat(i + 1, '</b><div class="grow"><b>').concat(x.name, "</b>").concat(x.me ? ' <span class="tag amber">나</span>' : "", "</div>").concat(this.rankTag(x.rank), "</div>")).join("");
+    const tierName = ["", "관심", "총애", "선택"][G.sponsorTier()];
+    return '<div class="panel"><h3>헌터 기록</h3>\n      <div class="sec"><div class="sec-title">관리국 등록</div>\n        <div class="item-row '.concat(off < p.rankIdx ? "hl" : "", '"><div class="grow"><b>공식 등급 ').concat(RANKS[off].key, '급</b> <span class="small dim">실제 ').concat(rankLabel(p.rankIdx, p.stage), '</span>\n          <div class="small dim">').concat(off < p.rankIdx ? "실력이 등록 등급보다 높다. 도시의 협회 의뢰소에서 재측정을 받으면 공식 등급이 오르고, 차이가 클수록 화제가 된다." : "등록 등급이 실력과 같다.", ' 의뢰 난이도, 길드 월급, 랭킹, 제주 출입은 공식 등급을 따른다.</div></div></div></div>\n      <div class="sec"><div class="sec-title">국내 헌터 랭킹 · 내 순위 ').concat(pos, "위 / ").concat(list.length, '명</div>\n        <p class="small dim">공식 등급, 명성, 공략 횟수로 매달 집계된다.').concat(p.bestRankPos ? " 최고 ".concat(p.bestRankPos, "위.") : "", '</p>\n        <div class="cards">').concat(top, '</div></div>\n      <div class="sec"><div class="sec-title">방송</div>\n        <div class="stat-grid"><div><span class="dim">구독자</span><b class="num">').concat(fmt(p.followers), '</b></div><div><span class="dim">중계한 공략</span><b class="num">').concat(p.streams, '</b></div>\n          <div><span class="dim">월 광고 수익</span><b class="num">').concat(fmt(G.adIncome()), '</b></div></div>\n        <p class="small dim">게이트 앞에서 "중계하며 진입"을 고르면 방송이 켜진다. 클리어하면 구독자와 후원금이 늘고, 철수나 패배는 그대로 송출된다.</p></div>\n      <div class="sec"><div class="sec-title">후원자</div>\n        ').concat(s ? '<div class="item-row" style="border-left:3px solid '.concat(s.color, '"><div class="grow"><b style="color:').concat(s.color, '">').concat(s.name, "</b> ").concat(tierName ? '<span class="tag">'.concat(tierName, "</span>") : "", '\n          <div class="small dim">좋아함: ').concat(s.likeText, " · 싫어함: ").concat(s.hateText, "</div>").concat(this.bar("ether", p.sponsor.favor, 100), '\n          <div class="small">호감 ').concat(p.sponsor.favor, "/100 · 축복 ").concat(G.sponsorTier() ? modsText(s.bless, G.sponsorTier()) : "없음 (30부터)", "</div></div></div>") : '<p class="small dim">아직 후원 계약이 없다. 언젠가 저편의 존재들이 당신을 찾아올지도 모른다.</p>', '</div>\n      <div class="sec"><div class="sec-title">시련의 탑</div><p class="small">최고 기록 <b class="num">').concat(p.tower.best, '</b>층 <span class="dim small">· 대전의 탑에서 한 달에 한 번 도전</span></p></div>\n      <div class="sec"><div class="sec-title">칭호 · ').concat(p.titles.length, "/").concat(TITLES.length, '</div>\n        <p class="small dim">칭호 하나를 달면 효과가 붙는다. ').concat(t ? '지금: <b class="amber">「'.concat(t.name, "」</b> ").concat(modsText(t.mods)) : "아직 단 칭호가 없다.", '</p>\n        <div class="cards">').concat(titleRows, "</div></div>\n      ").concat(p.regress ? '<div class="sec"><div class="sec-title">회귀자의 기억 · '.concat(p.regress.count + 1, '번째 삶</div>\n        <p class="small">지난 생: ').concat(p.regress.lastName || "?", " · ").concat(p.regress.lastAge || "?", "세에 죽음 · 최고 ").concat(RANKS[p.regress.bestRank || 0].key, '급</p>\n        <p class="small dim">기억 속 기연: ').concat((p.regress.chains || []).map((c) => CHAIN_NAMES[c]).join(", ") || "없음", " — 이 기연들은 더 쉽게 찾아온다.</p></div>") : "", "\n    </div>");
+  },
+  remeasureHtml() {
+    const p = G.player;
+    return '<div class="item-row hl"><div class="grow"><b>관리국 등급 재측정</b> <span class="small">공식 '.concat(RANKS[p.official].key, '급</span>\n      <div class="small dim">의뢰 난이도, 길드 월급, 랭킹, 제주 출입은 공식 등급을 따른다. 실력이 등록보다 높으면 재측정 때 화제가 된다.</div></div>\n      <button class="sm" data-act="remeasure">').concat(FX.icon("coin", 13), ' <span class="num">').concat(fmt(G.remeasureCost()), "</span></button></div>");
+  },
+  towerHtml() {
+    const p = G.player;
+    const next = p.tower.best + 1;
+    const spec = G.towerSpec(next);
+    const can = G.canTower();
+    const preview = [0, 1, 2, 3, 4].map((i) => G.towerSpec(next + i)).map((s) => '<div class="item-row '.concat(s.n === next ? "hl" : "", '"><b class="num rank-pos">').concat(s.n, '층</b><div class="grow small">').concat(s.label, "</div>").concat(this.rankTag(s.tier), "</div>")).join("");
+    return '<p>구름을 뚫고 솟은 검은 탑. 층마다 다른 시험이 기다린다. 쓰러져도 탑이 밖으로 내뱉을 뿐 목숨은 잃지 않는다. 이긴 뒤 다음 층으로 오르거나 내려올 수 있고, 체력은 이어진다.</p>\n      <p class="small dim">최고 기록 '.concat(p.tower.best, '층 · 5층마다 유물, 10층마다 각성 촉매 · 4층마다 동료 없이 혼자 치르는 시험</p>\n      <div class="cards">').concat(preview, '</div>\n      <div class="row end sec"><button class="primary" data-act="tower-go" ').concat(can ? "" : "disabled", ">").concat(can ? "".concat(next, "층 도전 · ").concat(spec.label) : "이번 달은 이미 올랐다", "</button></div>");
+  },
+  startTowerFloor(n) {
+    const spec = G.towerSpec(n);
+    const allies = spec.rule === "solo" ? [G.playerUnit()] : this.allyUnits();
+    this.ctx = { kind: "tower", spec, elem: G.player.element, combat: new Combat(G, { allies, enemies: G.towerEnemies(spec), canFlee: false, title: "시련의 탑 ".concat(n, "층 · ").concat(spec.label) }) };
+    this.openCombat();
+  },
+  towerResultHtml() {
+    const c = this.ctx;
+    const cb = c.combat;
+    if (cb.result === "win") {
+      if (!c.counted) {
+        c.counted = true;
+        c.reward = G.towerReward(c.spec);
+        G.player.record.kills += cb.kills.length;
+      }
+      return '<div class="result win"><b>'.concat(c.spec.n, '층 통과</b> <span class="small">').concat(c.reward, '</span></div>\n        <div class="row end"><button class="ghost" data-act="tower-leave">내려간다</button><button class="primary" data-act="tower-next">').concat(c.spec.n + 1, "층으로</button></div>");
+    }
+    return '<div class="result lose"><b>쓰러졌다</b> <span class="small">탑이 당신을 밖으로 내뱉는다.</span></div><div class="row end"><button class="primary" data-act="tower-leave">탑 밖으로</button></div>';
+  },
+  towerLeave() {
+    const c = this.ctx;
+    const cb = c.combat;
+    const p = G.player;
+    p.hp = Math.max(1, cb.result === "win" ? cb.player.hp : Math.round(p.maxHp * 0.2));
+    p.mp = Math.max(0, cb.player.mp);
+    p.tower.month = G.monthKey();
+    const floor = cb.result === "win" ? c.spec.n : c.spec.n - 1;
+    G.log("시련의 탑에 올랐다. ".concat(cb.result === "win" ? "".concat(floor, "층까지 통과.") : "".concat(c.spec.n, "층에서 쓰러졌다."), " (최고 ").concat(p.tower.best, "층)"), cb.result === "win" ? "good" : "");
+    this.ctx = null;
+    G.advanceDays(5, { eventChance: 0.05 });
+    this.closeModal();
+    this.renderGame();
+    this.toast("탑에서 내려왔다. 최고 기록 ".concat(p.tower.best, "층."));
+    this.processQueue();
+  }
+});
+{
+  const baseFac = UI.facilityHtml;
+  UI.facilityHtml = function(id, reg) {
+    if (id === "tower") return this.towerHtml();
+    const html = baseFac.call(this, id, reg);
+    if (id === "board") return '<div class="cards">'.concat(this.remeasureHtml(), "</div>") + html;
+    return html;
+  };
+  const baseGuild = UI.guildHtml;
+  UI.guildHtml = function() {
+    const p = G.player;
+    const b = G.world.bid;
+    const ids = Object.keys(GUILDS).sort((a, x) => G.guildPower(x) - G.guildPower(a));
+    const max = Math.max(...ids.map((id) => G.guildPower(id)));
+    const power = ids.map((id, i) => {
+      const g = GUILDS[id];
+      const v = G.guildPower(id);
+      return '<div class="item-row '.concat(id === p.guild ? "hl" : "", '"><b class="num rank-pos">').concat(i + 1, '</b><div class="grow"><b style="color:').concat(g.color, '">').concat(g.name, '</b> <span class="small dim">세력 ').concat(v, "</span>").concat(this.bar("ether", v, max), "</div></div>");
+    }).join("");
+    const bid = b ? '<div class="item-row hl"><div class="grow"><b>'.concat(regionById(b.region).name, " ").concat(RANKS[b.tier].key, '급 게이트 공략권</b> <span class="small dim">다음 달 낙찰</span>\n        <div class="small dim">').concat(p.guild ? "소속 길드가 따내면 그 게이트가 당신 몫이 된다. 자금을 보태면 낙찰 확률이 오른다. (보탠 횟수 ".concat(b.mine || 0, "/3, 실패하면 절반 환급)") : "길드에 소속돼 있으면 입찰에 자금을 보탤 수 있다.", "</div></div>\n        ").concat(p.guild ? '<button class="sm" data-act="guild-bid" '.concat((b.mine || 0) >= 3 ? "disabled" : "", ">").concat(FX.icon("coin", 13), ' <span class="num">').concat(fmt(G.bidUnit()), "</span></button>") : "", "</div>") : '<div class="dim small">지금 공고된 입찰이 없다. 관리국이 고등급 게이트 공략권을 수시로 입찰에 부친다.</div>';
+    return baseGuild.call(this) + '<div class="panel sec"><h3>세력 판도</h3><p class="small dim">길드원들의 실력과 위세로 매달 바뀐다. 입찰에서 이기고 낙찰 게이트를 깨면 위세가 오른다.</p><div class="cards">'.concat(power, '</div>\n      <div class="sec-title sec">공략권 입찰</div><div class="cards">').concat(bid, "</div></div>");
+  };
+  const baseSkills = UI.skillsHtml;
+  UI.skillsHtml = function() {
+    let html = baseSkills.call(this);
+    for (const id of G.player.skills) {
+      if (id === "strike") continue;
+      const sk = skillById(id);
+      const lv = G.skillLv(id);
+      const xp = G.player.skillXp[id] || 0;
+      const nextReq = SKILL_LV_REQ[lv];
+      const tag = '<span class="tag '.concat(lv >= 5 ? "amber" : "", '">').concat(lv >= 5 ? "각성" : "Lv".concat(lv), '</span> <span class="small dim">').concat(nextReq ? "숙련 ".concat(xp, "/").concat(nextReq) : "최대", "</span>");
+      html = html.replace("<b>".concat(sk.name, "</b>"), "<b>".concat(sk.name, "</b> ").concat(tag));
+    }
+    return html.replace("같은 속성 스킬은 위력 +20%.", "같은 속성 스킬은 위력 +20%. 전투에서 쓸수록 숙련도가 올라 위력이 세지고 소모가 줄며, Lv5에서 각성한다.");
+  };
+  const baseChar = UI.charHtml;
+  UI.charHtml = function() {
+    const p = G.player;
+    const t = p.title && titleById(p.title);
+    const tag = '<div class="small"><span class="amber">'.concat(t ? "「".concat(t.name, "」") : "", '</span> <span class="dim">공식 ').concat(RANKS[p.official].key, "급").concat(p.sponsor ? " · 후원자 ".concat(SPONSORS[p.sponsor.id].name) : "", "</span></div>");
+    return baseChar.call(this).replace("<h3>".concat(p.name, "</h3>"), "<h3>".concat(p.name, "</h3>").concat(tag));
+  };
+  const baseResult = UI.combatResultHtml;
+  UI.combatResultHtml = function() {
+    return this.ctx && this.ctx.kind === "tower" ? this.towerResultHtml() : baseResult.call(this);
+  };
+  const baseOver = UI.showGameOver;
+  UI.showGameOver = function() {
+    baseOver.call(this);
+    const row = $box.querySelector(".row.end");
+    if (row && Game.regressData()) row.insertAdjacentHTML("afterbegin", '<button class="danger" data-act="regress-now">회귀한다</button>');
+  };
+  const baseMode = UI.renderMode;
+  UI.renderMode = function() {
+    baseMode.call(this);
+    const d = Game.regressData();
+    if (!d) return;
+    const on = !!this.regressOn;
+    const grid = $app.querySelector(".mode-grid");
+    if (grid) grid.insertAdjacentHTML("afterend", '<div class="panel regress-box '.concat(on ? "on" : "", '"><div class="grow"><div class="eyebrow">지난 생의 기억 · ').concat(d.lives, "번 죽었다</div>\n      <b>").concat(d.lastName ? "".concat(d.lastName, ", ").concat(d.lastAge, "세 · ").concat(RANKS[d.lastRank || 0].key, "급에서 끝난 삶") : "끝난 삶", '</b>\n      <div class="small dim">회귀하면 재능·자금·칭호와 기연의 기억을 안고 2087년 3월로 돌아간다.</div></div>\n      <button class="').concat(on ? "primary" : "ghost", '" data-act="regress-toggle">').concat(on ? "회귀자로 시작 ✔" : "회귀자로 시작", "</button></div>"));
+  };
+  const baseNew = Game.prototype.newGame;
+  Game.prototype.newGame = function(opts) {
+    if (UI.regressOn) {
+      Game.regressNext = true;
+      UI.regressOn = false;
+    }
+    return baseNew.call(this, opts);
+  };
+  const baseSucceed = UI.succeed;
+  UI.succeed = function(id) {
+    baseSucceed.call(this, id);
+    const p = G.player;
+    p.official = p.rankIdx;
+    p.titles = [];
+    p.title = null;
+    p.skillXp = {};
+    p.tower = { best: 0, month: -1 };
+    p.followers = Math.floor((p.followers || 0) * 0.5);
+    p.streams = 0;
+    p.sponsor = null;
+    p.bestRankPos = null;
+    p.coreSales = 0;
+    p.regress = null;
+    p.record = { gates: 0, kills: 0, npcKills: 0, breakthroughs: 0, fails: 0, red: 0, hidden: 0, misrank: 0, breaks: 0, bidGates: 0 };
+    G.recalc();
+    G.save();
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function(act, v) {
+    var _a;
+    switch (act) {
+      case "title":
+        return this.after(G.equipTitle(v));
+      case "remeasure":
+        return this.afterCity(G.remeasure());
+      case "guild-bid":
+        return this.sheet === "city" ? this.afterCity(G.bidContribute()) : this.after(G.bidContribute());
+      case "gate-info": {
+        const g = G.mapGates.find((x) => x.id === +v);
+        if (g) return this.encounter(g);
+        return;
+      }
+      case "g-hidden": {
+        const c = this.ctx;
+        const cb = c.combat;
+        const g = c.gate;
+        G.player.hp = cb.player.hp;
+        G.player.mp = cb.player.mp;
+        const t = Math.min(7, ((_a = g.realTier) != null ? _a : g.tier) + 1);
+        const boss = G.makeMonster(t, true, g.elem);
+        boss.name = boss.name.replace("[보스]", "[숨은 보스]");
+        c.rooms.push(G.scaleForParty([boss, G.makeMonster(t, false, g.elem)], t));
+        c.inHidden = true;
+        c.loot.hidden = true;
+        c.roomIdx++;
+        c.counted = false;
+        return this.startRoom();
+      }
+      case "tower-go": {
+        if (!G.canTower()) return;
+        G.player.tower.month = G.monthKey();
+        G.save();
+        this.closeModal();
+        return this.startTowerFloor(G.player.tower.best + 1);
+      }
+      case "tower-next": {
+        const c = this.ctx;
+        const cb = c.combat;
+        const p = G.player;
+        p.hp = Math.min(p.maxHp, cb.player.hp + Math.floor(p.maxHp * 0.15));
+        p.mp = cb.player.mp;
+        return this.startTowerFloor(c.spec.n + 1);
+      }
+      case "tower-leave":
+        return this.towerLeave();
+      case "regress-toggle":
+        this.regressOn = !this.regressOn;
+        return this.render();
+      case "regress-now":
+        this.regressOn = true;
+        this.closeModal();
+        this.screen = "mode";
+        this.ctx = null;
+        return this.render();
       default:
         return baseHandle.call(this, act, v);
     }

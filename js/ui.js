@@ -231,6 +231,7 @@ const UI = {
       item('people', '인물', ic('<circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c1-3.5 3.5-5 7-5s6 1.5 7 5M15 15c3 0 5 1.5 6 4"/>')),
       item('guild', '길드', ic('<path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6z"/>')),
       item('quest', '의뢰', ic('<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/>')),
+      item('hunter', '헌터', ic('<path d="M12 2l2.6 6.3 6.8.5-5.2 4.4 1.6 6.6L12 16.3 6.2 19.8l1.6-6.6L2.6 8.8l6.8-.5z"/>')),
       item('log', '연대기', ic('<path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h4"/>')),
     ].join('');
   },
@@ -291,7 +292,7 @@ const UI = {
     const maxed = p.rankIdx === RANKS.length - 1 && p.stage === 2;
     return `<div class="act-where"><b>${city ? city.name : reg.name}</b> <span class="dim small">${city ? '도시' : terrain} · 위험 ${'◆'.repeat(reg.danger)}${G.onEther() ? ' · 수련 효율 +40%' : ''}</span></div>
       <div class="act-btns">
-        ${obj ? (obj.kind === 'gate' ? `<button class="danger" data-act="gate" data-v="${obj.id}">${FX.icon('gate')} 게이트 진입</button>` : `<button class="danger" data-act="mob" data-v="${obj.id}">토벌</button>`) : ''}
+        ${obj ? (obj.kind === 'gate' ? `<button class="danger" data-act="gate-info" data-v="${obj.id}">${FX.icon('gate')} 게이트 진입</button>` : `<button class="danger" data-act="mob" data-v="${obj.id}">토벌</button>`) : ''}
         ${city ? `<button class="primary" data-act="city">${FX.icon('pin')} ${city.name} 들어가기</button>` : ''}
         ${!maxed && G.canBreakthrough() ? `<button class="${G.hasCatalyst() ? 'primary' : ''} bt-btn" data-act="breakthrough">${RANKS[p.rankIdx + 1].key}급 돌파 ${G.hasCatalyst() ? `<span class="num">${G.btChance()}%</span>` : '<span class="dim-in">촉매 필요</span>'}</button>` : ''}
         <button data-act="train">${FX.icon('train')} 수련 <span class="dim-in">1개월 +${fmt(est)}</span></button>
@@ -339,7 +340,7 @@ const UI = {
     }
     const title = city ? city.name : reg ? `${reg.name} · ${WORLD.T_NAME[ty]}` : WORLD.T_NAME[ty];
     tip.innerHTML = fixJosa(`<div class="row between"><b>${known ? title : '미탐색 지역'}</b><button class="icon-btn sm" data-act="tip-close" aria-label="닫기">×</button></div>
-      ${d ? `<div class="small dim">현재 위치에서 ${d}칸${ty === WORLD.T.SEA || ty === WORLD.T.NORTH ? ' · 진입 불가' : !G.canJeju() && reg && reg.id === 'jeju' ? ' · S급 이상 출입 가능' : ''}</div>` : ''}${body}`);
+      ${d ? `<div class="small dim">현재 위치에서 ${d}칸${ty === WORLD.T.SEA || ty === WORLD.T.NORTH ? ' · 진입 불가' : !G.canJeju() && reg && reg.id === 'jeju' ? ' · 관리국 공인 S급만 출입 가능' : ''}</div>` : ''}${body}`);
     tip.classList.remove('hidden');
   },
 
@@ -414,9 +415,10 @@ const UI = {
   encounter(obj) {
     if (obj.kind === 'gate') {
       return this.modal(`<div class="enc">${FX.eventArt('gate_surge')}<div class="eyebrow">게이트 감지 · ${G.fullDate()}</div><h3>${G.gateName(obj)}</h3>
-        <div class="row">${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)} ${obj.mission ? '<span class="tag amber">길드 임무</span>' : ''} <span class="small">난이도 ${this.gateRisk(obj.tier)}</span></div>
-        <p class="dim">${obj.final ? '4개 구역. 도주할 수 없다.' : '3개 구역 · 공략에 약 10일 소요. 구역 사이에 철수할 수 있다.'}</p></div>
-        <div class="row end"><button class="ghost" data-act="modal-close">나중에</button><button class="primary" data-act="gate" data-v="${obj.id}">진입한다</button></div>`);
+        <div class="row">${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)} ${obj.mission ? '<span class="tag amber">길드 임무</span>' : ''}${obj.bid ? '<span class="tag amber">길드 낙찰</span>' : ''}${obj.variant === 'red' ? '<span class="tag bad">레드 게이트</span>' : ''} <span class="small">난이도 ${this.gateRisk(obj.tier)}</span></div>
+        <p class="dim">${obj.final ? '4개 구역. 도주할 수 없다.' : obj.variant === 'red' ? '<span class="bad">붉게 물든 게이트. 들어가면 공략 전까지 나올 수 없다. 4개 구역, 철수·도주 불가. 패배하면 구조대도 들어올 수 없다.</span> 대신 보상이 크다.' : '3개 구역 · 공략에 약 10일 소요. 구역 사이에 철수할 수 있다.'}</p>
+        <p class="small dim">중계하며 들어가면 성공 시 구독자와 후원금이 늘지만, 철수나 패배도 그대로 송출된다.</p></div>
+        <div class="row end"><button class="ghost" data-act="modal-close">나중에</button><button data-act="gate" data-v="${obj.id}|live">${FX.icon('star', 14)} 중계하며 진입</button><button class="${obj.variant === 'red' ? 'danger' : 'primary'}" data-act="gate" data-v="${obj.id}">진입한다</button></div>`);
     }
     const sample = { name: obj.name, elem: obj.elem, shape: obj.shape };
     return this.modal(`<div class="enc mob-enc"><div class="mob-portrait" style="--c:${ELEMENTS[obj.elem].color}">${FX.monster(sample, 130)}</div>
@@ -436,7 +438,7 @@ const UI = {
       const n = G.npcById(+name.slice(4));
       return `<div class="sheet-head"><h3>교류</h3><button class="icon-btn" data-act="modal-close" aria-label="닫기">×</button></div>${n ? `<div class="npc-sheet">${UI.npcPortrait(n, 180)}${this.npcCard(n, n.alive && n.region === G.player.region)}</div>` : ''}`;
     }
-    const tabs = [['char', '정보'], ['skills', '스킬'], ['party', '파티'], ['people', '인물'], ['quest', '의뢰'], ['guild', '길드'], ['log', '연대기']];
+    const tabs = [['char', '정보'], ['skills', '스킬'], ['party', '파티'], ['people', '인물'], ['quest', '의뢰'], ['guild', '길드'], ['hunter', '헌터'], ['log', '연대기']];
     let body = '';
     switch (name) {
       case 'quest': body = this.questsHtml(); break;
@@ -444,6 +446,7 @@ const UI = {
       case 'people': body = this.peopleHtml(); break;
       case 'skills': body = this.skillsHtml(); break;
       case 'guild': body = this.guildHtml(); break;
+      case 'hunter': body = this.hunterHtml(); break;
       case 'log': body = `<div class="panel">${this.rightHtml()}</div>`; break;
       default: body = this.charHtml();
     }
@@ -627,7 +630,7 @@ const UI = {
       cur = `<div class="guild-card" style="--c:${g.color}"><div class="guild-crest">${FX.elemIcon(g.elem, 34)}</div><div class="grow"><h3>${g.name}</h3><p class="dim">${g.desc}</p>
         <div>직위 <b>${GUILD_RANKS[p.guildRank].name}</b> · 공헌도 <span class="num">${p.contrib}${next ? ` / ${next.req}` : ''}</span>${next ? ` <span class="dim">다음: ${next.name}</span>` : ''}</div>
         ${next ? this.bar('ether', p.contrib, next.req) : ''}
-        <div class="dim small">월급 ${fmt(40 * RANKS[p.rankIdx].mult * (1 + p.guildRank))} 크레딧 · 본부(${home.name}) 상점 20% 할인 · 본부에서 길드 임무 게이트가 열립니다.${p.guild === 'cheongryong' ? ' · 수련 효율 +15%' : ''}</div>
+        <div class="dim small">월급 ${fmt(40 * RANKS[p.official].mult * (1 + p.guildRank))} 크레딧 (공식 등급 기준) · 본부(${home.name}) 상점 20% 할인 · 본부에서 길드 임무 게이트가 열립니다.${p.guild === 'cheongryong' ? ' · 수련 효율 +15%' : ''}</div>
         <div class="row sec"><button class="danger sm" data-act="guild-leave">탈퇴</button></div></div></div>`;
     } else if (reg.guild) {
       const g = GUILDS[reg.guild];
@@ -691,17 +694,20 @@ const UI = {
   allyUnits() { return [G.playerUnit(), ...G.party().map((n) => G.npcUnit(n, 'ally'))]; },
 
   startGate(id) {
-    const gate = G.mapGates.find((g) => g.id === +id);
+    const [gid, mode] = String(id).split('|');
+    const gate = G.mapGates.find((g) => g.id === +gid);
     if (!gate || gate.cleared) return;
     this.hideTip();
-    this.ctx = { kind: 'gate', gate, rooms: G.gateRooms(gate), roomIdx: 0, loot: { money: 0, ether: 0, kills: 0 } };
+    const wasMis = gate.variant === 'misrank' && !gate.revealedMis;
+    this.ctx = { kind: 'gate', gate, rooms: G.gateRooms(gate), roomIdx: 0, loot: { money: 0, ether: 0, kills: 0, live: mode === 'live' }, hidden: gate.variant === 'double' && RNG.chance(0.7) };
     this.startRoom();
+    if (wasMis) this.toast(`공지보다 훨씬 짙은 에테르! 등급 오판 게이트다. 실제 ${RANKS[gate.realTier].key}급.`);
   },
   startRoom() {
     const c = this.ctx;
     const last = c.roomIdx === c.rooms.length - 1;
     c.combat = new Combat(G, {
-      allies: this.allyUnits(), enemies: c.rooms[c.roomIdx], canFlee: !c.gate.final,
+      allies: this.allyUnits(), enemies: c.rooms[c.roomIdx], canFlee: !c.gate.final && c.gate.variant !== 'red',
       title: `${G.gateName(c.gate)} · ${last ? '보스 구역' : `구역 ${c.roomIdx + 1}`}`,
     });
     c.elem = c.gate.elem;
@@ -926,7 +932,7 @@ const UI = {
     const p = cb.player;
     const lock = c.playing || cb.auto || !cb.waiting;
     const hint = cb.auto ? '자동 전투 중' : cb.waiting && !c.playing ? '<b class="amber">내 차례!</b> 시간이 멈췄다. 적을 눌러 대상을 고르고 커맨드를 입력하세요.' : '게이지가 차는 중… 내 게이지가 가득 차면 시간이 멈춥니다.';
-    box.innerHTML = fixJosa(`<div class="skill-btns">${p.skills.map((id) => { const sk = skillById(id); return `<button class="skill-btn" style="--c:${sk.elem ? ELEMENTS[sk.elem].color : '#9aa6b8'}" data-act="c-skill" data-v="${id}" ${sk.mp > p.mp || lock ? 'disabled' : ''}>
+    box.innerHTML = fixJosa(`<div class="skill-btns">${p.skills.map((id) => { const sk = G.skillEff(skillById(id)); return `<button class="skill-btn" style="--c:${sk.elem ? ELEMENTS[sk.elem].color : '#9aa6b8'}" data-act="c-skill" data-v="${id}" ${sk.mp > p.mp || lock ? 'disabled' : ''}>
         ${FX.elemIcon(sk.elem, 18)}<span><b>${sk.name}</b><span class="small dim">MP ${sk.mp} · ${TYPE_NAME[sk.type]}</span></span></button>`; }).join('')}</div>
       <div class="row ctrl-row">
         ${['potion', 'mana'].map((id) => `<button class="sm" data-act="c-item" data-v="${id}" ${!G.player.items[id] || lock ? 'disabled' : ''}>${CONSUMABLES.find((x) => x.id === id).name} <span class="num">×${G.player.items[id] || 0}</span></button>`).join('')}
@@ -947,9 +953,11 @@ const UI = {
           for (const k of cb.kills) { const r = G.monsterReward(k); c.loot.money += r.money; c.loot.ether += r.ether; c.loot.kills++; (c.loot.list ||= []).push(k); }
         }
         const last = c.roomIdx === c.rooms.length - 1;
+        const hiddenNow = last && c.hidden && !c.inHidden;
         return `<div class="result win"><b>구역 제압</b> <span class="small">누적 보상 <span class="num">${fmt(c.loot.money)}</span> 크레딧 · 에테르 <span class="num">${fmt(c.loot.ether)}</span></span></div>
-          <div class="row end">${last ? '<button class="primary" data-act="g-finish" data-v="clear">게이트 클리어</button>'
-            : `${c.gate.final ? '' : '<button class="ghost" data-act="g-finish" data-v="retreat">철수 · 보상 챙기기</button>'}<button class="primary" data-act="g-next">다음 구역으로</button>`}</div>`;
+          ${hiddenNow ? '<p class="small amber">보스가 쓰러진 자리 뒤로 숨겨진 통로가 열렸다. 이중 던전이다. 더 강한 기척이 느껴진다.</p>' : ''}
+          <div class="row end">${last ? `<button class="${hiddenNow ? 'ghost' : 'primary'}" data-act="g-finish" data-v="clear">게이트 클리어</button>${hiddenNow ? '<button class="primary" data-act="g-hidden">숨겨진 구역으로</button>' : ''}`
+            : `${c.gate.final || c.gate.variant === 'red' ? '' : '<button class="ghost" data-act="g-finish" data-v="retreat">철수 · 보상 챙기기</button>'}<button class="primary" data-act="g-next">다음 구역으로</button>`}</div>`;
       }
       if (cb.result === 'flee') return '<div class="row end"><button data-act="g-finish" data-v="retreat">게이트 밖으로</button></div>';
       return '<div class="result lose"><b>쓰러졌다</b></div><div class="row end"><button class="danger" data-act="g-finish" data-v="lose">의식이 멀어진다…</button></div>';

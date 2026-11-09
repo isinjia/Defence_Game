@@ -2475,3 +2475,25 @@ button.item-row {
     width: 104px;
   }
 }
+.rank-pos {
+  min-width: 2.2em;
+  text-align: center;
+  color: var(--amber);
+}
+.item-row.locked {
+  opacity: .55;
+}
+.regress-box {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  border-left: 3px solid #ff4f6a;
+}
+.regress-box.on {
+  background: #2a0f16;
+}
+.regress-box .grow {
+  flex: 1 1 220px;
+}

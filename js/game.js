@@ -477,7 +477,7 @@ class Game {
         p.mp = Math.min(p.maxMp, p.mp + Math.floor(p.maxMp * 0.3));
       }
       if (p.guild) {
-        const sal = Math.floor(40 * RANKS[p.rankIdx].mult * (1 + p.guildRank));
+        const sal = Math.floor(40 * RANKS[p.official ?? p.rankIdx].mult * (1 + p.guildRank));
         p.money += sal;
       }
       this.simulateNpcs();

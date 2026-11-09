@@ -44,7 +44,7 @@ Object.assign(UI, {
   },
   cityHtml() {
     const reg = G.onCity() || G.region(); const p = G.player;
-    const facs = FACILITIES.filter((f) => (!f.big || BIG_CITIES.includes(reg.id)) && (!f.guildOnly || reg.guild));
+    const facs = FACILITIES.filter((f) => (!f.big || BIG_CITIES.includes(reg.id)) && (!f.guildOnly || reg.guild) && (!f.only || f.only.includes(reg.id)));
     const brk = G.cityBreak(reg.id);
     const rep = G.rep(reg.id);
     const head = `<div class="city-hero">${this.citySkyline(reg)}
@@ -79,7 +79,8 @@ Object.assign(UI, {
           <div class="sec-title sec">장비 · 매달 입고</div>
           ${s.equips.map((it) => this.equipRow(it, `<button class="sm" data-act="buy-equip" data-v="${it.uid}">${FX.icon('coin', 13)} ${price(it.value * pm)}</button>`)).join('') || '<div class="dim">매진</div>'}
           <div class="sec-title sec">괴수 코어 매입</div>
-          ${coresOwned.map((t) => `<div class="item-row"><div class="grow"><b>${coreName(t)}</b> ×${p.mats['c' + t]}</div><button class="sm ghost" data-act="sell-cores" data-v="${t}">전부 판매 · ${price(Math.round(18 * RANKS[t].mult ** 1.6) * p.mats['c' + t])}</button></div>`).join('') || '<div class="dim small">팔 코어가 없다.</div>'}
+          <div class="small dim">코어 시세는 매달 바뀐다. 브레이크가 터지면 공급이 늘어 떨어지고, 발전소 수요가 몰리면 뛴다.</div>
+          ${coresOwned.map((t) => { const tr = G.coreTrend(t); const idx = Math.round(G.world.coreIdx[t] * 100); return `<div class="item-row"><div class="grow"><b>${coreName(t)}</b> ×${p.mats['c' + t]} <span class="small ${tr > 0 ? 'good' : tr < 0 ? 'bad' : 'dim'}">${tr > 0 ? '▲' : tr < 0 ? '▼' : '–'} 시세 ${idx}%</span><div class="small dim">개당 ${fmt(G.corePrice(t))}</div></div><button class="sm ghost" data-act="sell-cores" data-v="${t}">전부 판매 · ${price(G.corePrice(t) * p.mats['c' + t])}</button></div>`; }).join('') || '<div class="dim small">팔 코어가 없다.</div>'}
           <div class="sec-title sec">보유 장비 판매 · 40%</div>
           ${p.inventory.map((it) => this.equipRow(it, `<button class="sm ghost" data-act="sell" data-v="${it.uid}">${price(it.value * 0.4)} 판매</button>`)).join('') || '<div class="dim small">판매할 장비가 없다.</div>'}
         </div>`;
@@ -120,7 +121,7 @@ Object.assign(UI, {
       case 'transit': {
         const dests = p.visited.filter((id) => id !== reg.id);
         return `<p class="small dim">한 번이라도 가 본 도시로 이틀 만에 이동한다.</p><div class="cards">${dests.map((id) => { const r = regionById(id); return `<div class="item-row"><div class="grow"><b>${r.name}</b> <span class="small dim">${'◆'.repeat(r.danger)}${G.cityBreak(id) ? ' · <span class="bad">게이트 브레이크</span>' : ''}</span></div>
-            <button class="sm" data-act="transit" data-v="${id}" ${id === 'jeju' && !G.canJeju() ? 'disabled' : ''}>${price(G.transitCost(id))} 크레딧</button></div>`; }).join('') || '<div class="dim">아직 가 본 다른 도시가 없다.</div>'}</div>`;
+            <button class="sm" data-act="transit" data-v="${id}" ${id === 'jeju' && !G.canJeju() ? 'disabled title="관리국 공인 S급만"' : ''}>${price(G.transitCost(id))} 크레딧</button></div>`; }).join('') || '<div class="dim">아직 가 본 다른 도시가 없다.</div>'}</div>`;
       }
       case 'auction': {
         if (!G.auctionOpen()) return `<p>정기 경매는 매년 ${SAGA.auctionMonth}월에 열린다. 유물과 전설 장비가 오른다.</p>`;

@@ -300,7 +300,7 @@ class Combat {
   // ----- 플레이어 입력 (내 차례일 때만) -----
   playerSkill(id) {
     if (!this.waiting || this.result) return;
-    const p = this.player; const skill = skillById(id);
+    const p = this.player; const skill = this.game.skillEff ? this.game.skillEff(skillById(id)) : skillById(id);
     if (skill.mp > p.mp) { this.push('정신력이 부족하다.', 'bad'); return; }
     const target = this.target && this.target.alive ? this.target : this.enemies()[0];
     this.useSkill(p, skill, target);

@@ -67,6 +67,7 @@ Object.assign(Game.prototype, {
       if (!this.storyEligible(ev, c)) continue;
       let w = ev.weight ?? 1;
       if (ev.chain) w *= 2.2;
+      if (ev.chain && this.player.regress && (this.player.regress.chains || []).includes(ev.chain)) w *= 2;
       const seen = this.flags.seen[ev.id];
       if (seen && mk - seen < 36) w *= 0.15;
       cands.push({ ev, c }); weights.push(w);

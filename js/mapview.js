@@ -338,7 +338,7 @@ class MapView {
       if (!vis(g.x, g.y)) continue;
       const [px, py] = this.toScreen(g.x + 0.5, g.y + 0.5);
       if (px < -s * 2 || py < -s * 2 || px > this.w + s * 2 || py > this.hgt + s * 2) continue;
-      const col = g.final ? '#ff4f6a' : RANKS[g.tier].color;
+      const col = g.final || g.variant === 'red' ? '#ff4f6a' : RANKS[g.tier].color;
       const sc = g.final ? 1.6 : 1;
       const glow = c.createRadialGradient(px, py, 1, px, py, s * 0.8 * sc);
       glow.addColorStop(0, g.final ? 'rgba(255,79,106,.55)' : 'rgba(214,92,255,.5)'); glow.addColorStop(1, 'rgba(214,92,255,0)');
@@ -350,7 +350,7 @@ class MapView {
       }
       c.setLineDash([]);
       c.fillStyle = '#fff'; c.beginPath(); c.ellipse(px, py, s * 0.06 * sc, s * 0.16 * sc, 0, 0, Math.PI * 2); c.fill();
-      this.chip(px, py + s * 0.5 * sc + 4, g.final ? '원초' : g.mission ? `임무·${RANKS[g.tier].key}` : `${RANKS[g.tier].key}급`, g.mission ? '#ffb547' : col);
+      this.chip(px, py + s * 0.5 * sc + 4, g.final ? '원초' : g.mission ? `임무·${RANKS[g.tier].key}` : g.bid ? `낙찰·${RANKS[g.tier].key}` : g.variant === 'red' ? `레드·${RANKS[g.tier].key}` : `${RANKS[g.tier].key}급`, g.mission || g.bid ? '#ffb547' : col);
     }
   }
 
