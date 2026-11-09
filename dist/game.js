@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.26";
+const GAME_VERSION = "0.27";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -14231,5 +14231,70 @@ Object.assign(UI, {
         return this.openSheet("party");
     }
     return baseHandle.call(this, act, v);
+  };
+}
+{
+  UI.rememberedFoe = function() {
+    const c = this.ctx;
+    if (!c || !c.combat) return null;
+    const cb = c.combat;
+    if (cb.target && cb.target.alive && cb.target.side === "enemy") return cb.target;
+    const foes = cb.units.filter((u) => u.side === "enemy" && u.alive && !u.fled);
+    return foes.length === 1 ? foes[0] : null;
+  };
+  UI.quickFireOk = function() {
+    const c = this.ctx;
+    if (!c || !c.combat) return false;
+    const cb = c.combat;
+    if (c.tutorial && !c.tutorial.boss && c.tutorial.acted < 1) return false;
+    return cb.waiting && !c.playing && !cb.auto && !cb.result;
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function(act, v) {
+    if (act === "c-skill" && this.quickFireOk()) {
+      const c = this.ctx;
+      const p = c.combat.player;
+      const sk = G.skillEff ? G.skillEff(skillById(v)) : skillById(v);
+      const aim = SKILL_AIM[sk.type] || "none";
+      if (sk.mp <= p.mp) {
+        if (aim === "enemy") {
+          const t = this.rememberedFoe();
+          if (t) {
+            c.sel = v;
+            return this.fireSkill(t.id);
+          }
+        } else if (aim === "none") {
+          c.sel = v;
+          return this.fireSkill(null);
+        }
+      }
+    }
+    return baseHandle.call(this, act, v);
+  };
+  UI.liftCoach = function() {
+    const box = document.getElementById("cb-ctrl");
+    const stage = document.getElementById("stage");
+    if (!box || !stage) return;
+    let host = document.getElementById("cb-coach");
+    if (!host) {
+      host = document.createElement("div");
+      host.id = "cb-coach";
+      stage.parentNode.insertBefore(host, stage);
+    }
+    const coach = box.querySelector(".coach");
+    host.innerHTML = "";
+    if (coach) host.appendChild(coach);
+  };
+  const baseControls = UI.renderControls;
+  UI.renderControls = function() {
+    baseControls.call(this);
+    this.liftCoach();
+    const c = this.ctx;
+    const box = document.getElementById("cb-ctrl");
+    if (box && c && c.combat) box.classList.toggle("cb-done", !!c.combat.result && !c.playing);
+    const hint = document.querySelector("#cb-ctrl .cb-hint");
+    if (!hint) return;
+    const t = this.rememberedFoe();
+    hint.innerHTML = t ? fixJosa('<b class="amber">내 차례!</b> 스킬을 누르면 <b>'.concat(t.name, "</b>에게 바로 발동. 대상을 바꾸려면 적을 먼저 누르세요.")) : '<b class="amber">내 차례!</b> 적을 눌러 대상을 정한 뒤 스킬을 누르세요. (스킬 먼저 눌러도 됩니다)';
   };
 }
