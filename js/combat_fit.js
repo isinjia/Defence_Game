@@ -79,8 +79,8 @@
     const main = `<div class="cmd-main">
       <button class="cmd ${atkSel ? 'sel' : ''}" data-act="c-skill" data-v="strike" ${dis(!cb.auto && !c.playing)}>공격</button>
       <button class="cmd ${cmd === 'skill' ? 'sel' : ''}" data-act="c-cmd" data-v="skill" ${dis(!cb.auto && !c.playing)}>스킬</button>
-      <button class="cmd" data-act="c-defend" ${dis(ready)}>방어</button>
-      <button class="cmd ${cmd === 'item' ? 'sel' : ''}" data-act="c-cmd" data-v="item" ${dis(!cb.auto && !c.playing)}>아이템</button></div>`;
+      <button class="cmd ${cmd === 'item' ? 'sel' : ''}" data-act="c-cmd" data-v="item" ${dis(!cb.auto && !c.playing)}>아이템</button>
+      <button class="cmd" data-act="c-defend" ${dis(ready)}>방어</button></div>`;
     const wrap = document.createElement('div'); wrap.className = 'cmd-wrap'; wrap.innerHTML = main;
     // 스킬·아이템 목록은 명령 줄 위에 뜨는 팝업
     if (cmd) { list.classList.add('cmd-pop'); wrap.appendChild(list); }
