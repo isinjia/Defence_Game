@@ -49,7 +49,7 @@ const PORTRAIT = (() => {
     const pick = (a) => a[Math.floor(r() * a.length)];
     const id = FX.uid();
     const pal = FX.PAL[element] || FX.PAL.none;
-    const ec = element && ELEMENTS[element] ? ELEMENTS[element].color : '#46e0d0';
+    const ec = element && ELEMENTS[element] ? elemColor(element) : '#46e0d0';
     const rank = rankIdx == null ? 0 : rankIdx;
     const F = gender === 'F';
     const years = opts.age == null ? 25 : opts.age;

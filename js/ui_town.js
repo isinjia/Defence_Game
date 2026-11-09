@@ -114,7 +114,7 @@ Object.assign(UI, {
       case 'archive': {
         const sks = G.archiveSkills();
         return `<p class="small dim">스킬 데이터는 크레딧과 협회 공적으로 교환한다. 상위 스킬은 이 도시의 평판이 있어야 열람할 수 있다. 목록은 매년 바뀐다.</p>
-          <div class="cards">${sks.map((id) => { const sk = skillById(id); const own = p.skills.includes(id); const rq = G.skillRepReq(sk); return `<div class="item-row"><span class="slot-ico" style="--c:${sk.elem ? ELEMENTS[sk.elem].color : '#9aa6b8'}">${FX.elemIcon(sk.elem, 20)}</span>
+          <div class="cards">${sks.map((id) => { const sk = skillById(id); const own = p.skills.includes(id); const rq = G.skillRepReq(sk); return `<div class="item-row"><span class="slot-ico" style="--c:${sk.elem ? elemColor(sk.elem) : '#9aa6b8'}">${FX.elemIcon(sk.elem, 20)}</span>
             <div class="grow"><b>${sk.name}</b> ${this.rankTag(sk.rankReq)} <span class="tag">${TYPE_NAME[sk.type]}</span><div class="small dim">${sk.desc} · 정신력 ${sk.mp}${rq ? ` · 평판 ${rq} 필요` : ''}</div></div>
             ${own ? '<span class="small dim">습득함</span>' : `<button class="sm" data-act="learn" data-v="${id}" ${sk.rankReq > p.rankIdx ? 'disabled' : ''}>${price(sk.price * pm * G.cityPriceMul(reg.id))} · 공적 ${G.skillMerit(sk)}</button>`}</div>`; }).join('')}</div>`;
       }
@@ -341,7 +341,7 @@ Object.assign(UI, {
     if (q.type === 'mobAmbush') {
       const mob = G.mobs.find((m) => m.id === q.mobId);
       if (!mob) return this.processQueue();
-      return this.modal(`<div class="enc mob-enc"><div class="mob-portrait" style="--c:${ELEMENTS[mob.elem].color}">${FX.monster({ name: mob.name, elem: mob.elem, shape: mob.shape }, 130)}</div>
+      return this.modal(`<div class="enc mob-enc"><div class="mob-portrait" style="--c:${elemColor(mob.elem)}">${FX.monster({ name: mob.name, elem: mob.elem, shape: mob.shape }, 130)}</div>
         <div><div class="eyebrow bad">기습 · ${G.fullDate()}</div><h3>${mob.name} 무리 ×${mob.count}</h3><div class="row">${this.rankTag(mob.tier)} ${this.elemTag(mob.elem)} <span class="small">난이도 ${this.gateRisk(mob.tier)}</span></div>
         <p class="dim">길을 가던 중 근처를 배회하던 무리가 냄새를 맡고 덮쳐 왔다.</p></div></div>
         <div class="row end"><button class="ghost" data-act="mob-flee" data-v="${mob.id}">달아난다</button><button class="danger" data-act="mob" data-v="${mob.id}">맞서 싸운다</button></div>`);

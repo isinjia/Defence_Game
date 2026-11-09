@@ -1,5 +1,5 @@
 // 게임 버전 (화면 오른쪽 아래에 표시)
-const GAME_VERSION = '0.15';
+const GAME_VERSION = '0.16';
 
 // ===== 게이트 크로니클: 데이터 정의 =====
 // 귀곡팔황의 "경지"를 각성 등급으로, "오행"을 에테르 속성으로 옮겼다.
@@ -333,3 +333,7 @@ function rollRace(rng = Math.random) {
 // 나이대: 초상화와 상호작용에 쓰인다
 function ageStage(years) { return years < 4 ? 'baby' : years < 13 ? 'child' : years < 18 ? 'teen' : years < 50 ? 'adult' : years < 65 ? 'middle' : 'elder'; }
 const AGE_NAME = { baby: '아기', child: '어린이', teen: '청소년', adult: '성인', middle: '중년', elder: '노인' };
+
+// 색상 조회 (알 수 없는 속성·계열이어도 멈추지 않게)
+function elemColor(e) { return (ELEMENTS[e] && ELEMENTS[e].color) || '#9aa6b8'; }
+function groupColor(g) { return (typeof CLASS_GROUPS !== 'undefined' && CLASS_GROUPS[g] && CLASS_GROUPS[g].color) || '#9aa6b8'; }

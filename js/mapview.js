@@ -312,7 +312,7 @@ class MapView {
       if (!vis(x, y) || G.objAt(x, y)) continue;
       const [px, py] = this.toScreen(x + 0.5, y + 0.5);
       if (px < -s || py < -s || px > this.w + s || py > this.hgt + s) continue;
-      const col = ELEMENTS[n.element].color;
+      const col = elemColor(n.element);
       c.save(); c.translate(px + s * 0.22, py - s * 0.18); c.rotate(Math.PI / 4);
       c.fillStyle = '#0a0f16'; c.fillRect(-s * 0.11, -s * 0.11, s * 0.22, s * 0.22);
       c.strokeStyle = col; c.lineWidth = n.met ? 2 : 1.2; c.strokeRect(-s * 0.11, -s * 0.11, s * 0.22, s * 0.22);
@@ -324,7 +324,7 @@ class MapView {
       if (!vis(m.x, m.y)) continue;
       const [px, py] = this.toScreen(m.x + 0.5, m.y + 0.5);
       if (px < -s || py < -s || px > this.w + s || py > this.hgt + s) continue;
-      const col = ELEMENTS[m.elem].color, bob = Math.sin(t / 18 + m.id) * 1.5;
+      const col = elemColor(m.elem), bob = Math.sin(t / 18 + m.id) * 1.5;
       c.fillStyle = 'rgba(0,0,0,.45)'; c.beginPath(); c.ellipse(px, py + s * 0.32, s * 0.28, s * 0.08, 0, 0, Math.PI * 2); c.fill();
       c.fillStyle = '#1d0e12'; c.beginPath(); c.arc(px, py + bob, s * 0.3, 0, Math.PI * 2); c.fill();
       c.strokeStyle = col; c.lineWidth = 2; c.stroke();
@@ -398,7 +398,7 @@ class MapView {
     // 동료
     const comp = G.companion();
     if (comp) {
-      c.fillStyle = ELEMENTS[comp.element].color; c.beginPath(); c.arc(px + R * 0.9, py + R * 0.75, R * 0.28, 0, Math.PI * 2); c.fill();
+      c.fillStyle = elemColor(comp.element); c.beginPath(); c.arc(px + R * 0.9, py + R * 0.75, R * 0.28, 0, Math.PI * 2); c.fill();
       c.strokeStyle = '#05080d'; c.lineWidth = 2; c.stroke();
     }
   }

@@ -25,7 +25,7 @@ const FX = {
 
   // ---------- 아이콘 ----------
   elemIcon(e, size = 14) {
-    const c = e ? ELEMENTS[e].color : '#9aa6b8';
+    const c = e ? elemColor(e) : '#9aa6b8';
     const s = `width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true" class="ico"`;
     switch (e) {
       case 'fire': return `<svg ${s}><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="${c}"/></svg>`;

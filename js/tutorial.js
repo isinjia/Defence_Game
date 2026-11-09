@@ -68,7 +68,7 @@ Object.assign(UI, {
       <p class="event-text">시험관: "실기는 임시 파티 단위로 본다. 훈련용 게이트 안의 괴수를 정리하면 합격이다. 서로 처음 보는 사이겠지만, 안에서는 등을 맡겨야 한다."</p>
       <div class="sec-title sec">배정된 임시 파티</div>
       <div class="cards">${mates.map((n) => `<div class="item-row">${this.npcAvatar(n, 40)}<div class="grow"><b>${n.name}</b> ${this.raceTag(n)}
-        <div><span class="tag cls tiny" style="--c:${CLASS_GROUPS[classById(n.cls).g].color}">${className(n.cls)}</span> <span class="small dim">${persById(n.personality).name}한 성격</span></div></div></div>`).join('')}</div>
+        <div><span class="tag cls tiny" style="--c:${groupColor(classById(n.cls).g)}">${className(n.cls)}</span> <span class="small dim">${persById(n.personality).name}한 성격</span></div></div></div>`).join('')}</div>
       <div class="row end"><button class="ghost" data-act="exam-skip">튜토리얼 건너뛰기</button><button class="primary" data-act="exam-go">시험장으로</button></div>`, 'event-box');
   },
 
@@ -97,12 +97,13 @@ Object.assign(UI, {
     } else if (!cb.waiting) {
       step = '조작 안내 1/3';
       text = '각 캐릭터 아래의 <b>파란 게이지</b>가 속도에 따라 찹니다. 가득 차면 그 캐릭터가 행동합니다. 동료는 각자의 <b>성격대로 AI</b>가 싸웁니다. 내 게이지가 차기를 기다리세요.';
-    } else if (!t.targeted) {
+    } else if (!c.sel) {
       step = '조작 안내 2/3';
-      text = '<b>내 차례!</b> 시간이 멈췄습니다. 먼저 위쪽의 <b>적을 눌러</b> 공격할 대상을 고르세요.';
+      text = '<b>내 차례!</b> 시간이 멈췄습니다. 아래 <b>스킬 버튼</b>을 누르면 어떤 스킬인지 설명이 뜹니다.';
     } else {
       step = '조작 안내 2/3';
-      text = '대상이 정해졌습니다. 아래 <b>스킬 버튼</b>을 눌러 행동하세요. 스킬마다 MP가 듭니다.';
+      const aim = SKILL_AIM[skillById(c.sel).type] || 'none';
+      text = aim === 'enemy' ? '설명을 확인했으면 위쪽의 <b>적을 눌러</b> 발동하세요. 대상을 누르는 순간 스킬이 나갑니다.' : aim === 'ally' ? '회복할 <b>아군 카드를 눌러</b> 발동하세요.' : '대상이 필요 없는 스킬입니다. <b>[사용]</b>을 누르면 발동합니다.';
     }
     return `<div class="coach"><span class="eyebrow">${step}</span><div>${text}</div></div>`;
   },
@@ -131,7 +132,7 @@ Object.assign(UI, {
       <p class="event-text">시험장을 나서자 임시 파티원들이 당신을 바라본다. "…우리, 이대로 같이 다녀 볼래?"</p>
       <div class="sec-title sec">함께할 동료를 고르세요 <span class="small dim">(눌러서 선택·해제)</span></div>
       <div class="cards">${mates.map((n) => `<button class="item-row choice-btn ${ex.pick.has(n.id) ? 'on' : ''}" data-act="exam-pick" data-v="${n.id}">${this.npcAvatar(n, 40)}<div class="grow"><b>${n.name}</b>
-        <div><span class="tag cls tiny" style="--c:${CLASS_GROUPS[classById(n.cls).g].color}">${className(n.cls)}</span> <span class="small dim">${persById(n.personality).name}</span></div></div><b class="${ex.pick.has(n.id) ? 'amber' : 'dim'}">${ex.pick.has(n.id) ? '함께' : '각자'}</b></button>`).join('')}</div>
+        <div><span class="tag cls tiny" style="--c:${groupColor(classById(n.cls).g)}">${className(n.cls)}</span> <span class="small dim">${persById(n.personality).name}</span></div></div><b class="${ex.pick.has(n.id) ? 'amber' : 'dim'}">${ex.pick.has(n.id) ? '함께' : '각자'}</b></button>`).join('')}</div>
       <div class="row end"><button class="ghost" data-act="exam-solo">혼자 시작한다</button><button class="primary" data-act="exam-party" ${ex.pick.size ? '' : 'disabled'}>${ex.pick.size === mates.length ? '이 파티로 시작한다' : `${ex.pick.size}명과 시작한다`}</button></div>`, 'event-box');
   },
   endExam(ids) {
@@ -161,9 +162,7 @@ Object.assign(UI, {
     const box = document.getElementById('cb-ctrl'); if (!box) return;
     const html = this.coachHtml();
     if (html) box.insertAdjacentHTML('afterbegin', fixJosa(html));
-    const cb = c.combat; const t = c.tutorial;
-    const foes = document.getElementById('foes'); if (foes) foes.classList.toggle('tut-glow', cb.waiting && !c.playing && !t.targeted && t.acted < 1);
-    const sk = box.querySelector('.skill-btns'); if (sk) sk.classList.toggle('tut-glow', cb.waiting && !c.playing && !!t.targeted && t.acted < 1);
+    const sk = box.querySelector('.skill-btns'); if (sk) sk.classList.toggle('tut-glow', c.combat.waiting && !c.playing && !c.sel && c.tutorial.acted < 1);
   };
   const baseFinish = UI.finishPersonalCombat;
   UI.finishPersonalCombat = function () {
@@ -185,12 +184,7 @@ Object.assign(UI, {
       case 'exam-pick': { const ex = this.exam; const id = +v; if (ex.pick.has(id)) ex.pick.delete(id); else ex.pick.add(id); return this.renderExamEnd(); }
       case 'exam-party': return this.endExam([...this.exam.pick]);
       case 'exam-solo': return this.endExam([]);
-      case 'c-target': {
-        const r = baseHandle.call(this, act, v);
-        if (c && c.tutorial && !c.tutorial.targeted) { c.tutorial.targeted = true; this.renderControls(); }
-        return r;
-      }
-      case 'c-skill': case 'c-item':
+      case 'c-item':
         if (c && c.tutorial && !c.playing && c.combat.waiting) c.tutorial.acted++;
         return baseHandle.call(this, act, v);
       default: return baseHandle.call(this, act, v);

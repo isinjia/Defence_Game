@@ -267,7 +267,7 @@ class Combat {
       case 'taunt': u.tauntT = 2; u.buffs.def = Math.max(u.buffs.def, P); u.buffs.defT = 2; this.buffEvent(u, `${skill.name}! 적의 시선이 쏠린다.`); break;
       case 'shield_all': for (const f of friends) { f.buffs.def = Math.max(f.buffs.def, P); f.buffs.defT = 3; } this.buffEvent(u, `${skill.name} · 파티 방어 상승`); break;
       case 'buff_all': for (const f of friends) { f.buffs.atk = Math.max(f.buffs.atk, P); f.buffs.atkT = 3; } this.buffEvent(u, `${skill.name} · 파티 공격 상승`); break;
-      case 'heal_ally': { const t = friends.filter((f) => !f.summon).reduce((a, b) => (b.hp / b.maxHp < a.hp / a.maxHp ? b : a), u); this.healUnit(t, t.maxHp * P, u); break; }
+      case 'heal_ally': { const t = target && target.side === u.side && target.alive && !target.summon ? target : friends.filter((f) => !f.summon).reduce((a, b) => (b.hp / b.maxHp < a.hp / a.maxHp ? b : a), u); this.healUnit(t, t.maxHp * P, u); break; }
       case 'heal_all': for (const f of friends) this.healUnit(f, f.maxHp * P * (friends.length === 1 ? 0.55 : 1), null); break;
       case 'heal': this.healUnit(u, u.maxHp * P); break;
       case 'revive': {
@@ -298,11 +298,13 @@ class Combat {
   }
 
   // ----- 플레이어 입력 (내 차례일 때만) -----
-  playerSkill(id) {
+  playerSkill(id, targetId) {
     if (!this.waiting || this.result) return;
     const p = this.player; const skill = this.game.skillEff ? this.game.skillEff(skillById(id)) : skillById(id);
     if (skill.mp > p.mp) { this.push('정신력이 부족하다.', 'bad'); return; }
-    const target = this.target && this.target.alive ? this.target : this.enemies()[0];
+    const picked = targetId != null ? this.units.find((u) => u.id === targetId && u.alive) : null;
+    if (picked && picked.side === 'enemy') this.target = picked;
+    const target = picked || (this.target && this.target.alive ? this.target : this.enemies()[0]);
     this.useSkill(p, skill, target);
     this.endPlayerTurn();
   }

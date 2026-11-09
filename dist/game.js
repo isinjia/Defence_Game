@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.15";
+const GAME_VERSION = "0.16";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -390,6 +390,12 @@ function ageStage(years) {
   return years < 4 ? "baby" : years < 13 ? "child" : years < 18 ? "teen" : years < 50 ? "adult" : years < 65 ? "middle" : "elder";
 }
 const AGE_NAME = { baby: "아기", child: "어린이", teen: "청소년", adult: "성인", middle: "중년", elder: "노인" };
+function elemColor(e) {
+  return ELEMENTS[e] && ELEMENTS[e].color || "#9aa6b8";
+}
+function groupColor(g) {
+  return typeof CLASS_GROUPS !== "undefined" && CLASS_GROUPS[g] && CLASS_GROUPS[g].color || "#9aa6b8";
+}
 const CLASS_GROUPS = {
   fighter: { name: "전투계", color: "#ff8a4c" },
   guard: { name: "수호계", color: "#b8c0cc" },
@@ -7022,7 +7028,7 @@ class Combat {
         this.buffEvent(u, "".concat(skill.name, " · 파티 공격 상승"));
         break;
       case "heal_ally": {
-        const t = friends.filter((f) => !f.summon).reduce((a, b) => b.hp / b.maxHp < a.hp / a.maxHp ? b : a, u);
+        const t = target && target.side === u.side && target.alive && !target.summon ? target : friends.filter((f) => !f.summon).reduce((a, b) => b.hp / b.maxHp < a.hp / a.maxHp ? b : a, u);
         this.healUnit(t, t.maxHp * P, u);
         break;
       }
@@ -7093,7 +7099,7 @@ class Combat {
     this.checkEnd();
   }
   // ----- 플레이어 입력 (내 차례일 때만) -----
-  playerSkill(id) {
+  playerSkill(id, targetId) {
     if (!this.waiting || this.result) return;
     const p = this.player;
     const skill = this.game.skillEff ? this.game.skillEff(skillById(id)) : skillById(id);
@@ -7101,7 +7107,9 @@ class Combat {
       this.push("정신력이 부족하다.", "bad");
       return;
     }
-    const target = this.target && this.target.alive ? this.target : this.enemies()[0];
+    const picked = targetId != null ? this.units.find((u) => u.id === targetId && u.alive) : null;
+    if (picked && picked.side === "enemy") this.target = picked;
+    const target = picked || (this.target && this.target.alive ? this.target : this.enemies()[0]);
     this.useSkill(p, skill, target);
     this.endPlayerTurn();
   }
@@ -7190,7 +7198,7 @@ const FX = {
   },
   // ---------- 아이콘 ----------
   elemIcon(e, size = 14) {
-    const c = e ? ELEMENTS[e].color : "#9aa6b8";
+    const c = e ? elemColor(e) : "#9aa6b8";
     const s = 'width="'.concat(size, '" height="').concat(size, '" viewBox="0 0 24 24" aria-hidden="true" class="ico"');
     switch (e) {
       case "fire":
@@ -7531,7 +7539,7 @@ const PORTRAIT = /* @__PURE__ */ (() => {
     const pick = (a) => a[Math.floor(r() * a.length)];
     const id = FX.uid();
     const pal = FX.PAL[element] || FX.PAL.none;
-    const ec = element && ELEMENTS[element] ? ELEMENTS[element].color : "#46e0d0";
+    const ec = element && ELEMENTS[element] ? elemColor(element) : "#46e0d0";
     const rank = rankIdx == null ? 0 : rankIdx;
     const F = gender === "F";
     const years = opts.age == null ? 25 : opts.age;
@@ -8176,7 +8184,7 @@ class MapView {
       if (!vis(x, y) || G.objAt(x, y)) continue;
       const [px, py] = this.toScreen(x + 0.5, y + 0.5);
       if (px < -s || py < -s || px > this.w + s || py > this.hgt + s) continue;
-      const col = ELEMENTS[n.element].color;
+      const col = elemColor(n.element);
       c.save();
       c.translate(px + s * 0.22, py - s * 0.18);
       c.rotate(Math.PI / 4);
@@ -8195,7 +8203,7 @@ class MapView {
       if (!vis(m.x, m.y)) continue;
       const [px, py] = this.toScreen(m.x + 0.5, m.y + 0.5);
       if (px < -s || py < -s || px > this.w + s || py > this.hgt + s) continue;
-      const col = ELEMENTS[m.elem].color, bob = Math.sin(t / 18 + m.id) * 1.5;
+      const col = elemColor(m.elem), bob = Math.sin(t / 18 + m.id) * 1.5;
       c.fillStyle = "rgba(0,0,0,.45)";
       c.beginPath();
       c.ellipse(px, py + s * 0.32, s * 0.28, s * 0.08, 0, 0, Math.PI * 2);
@@ -8320,7 +8328,7 @@ class MapView {
     c.stroke();
     const comp = G.companion();
     if (comp) {
-      c.fillStyle = ELEMENTS[comp.element].color;
+      c.fillStyle = elemColor(comp.element);
       c.beginPath();
       c.arc(px + R * 0.9, py + R * 0.75, R * 0.28, 0, Math.PI * 2);
       c.fill();
@@ -8360,6 +8368,29 @@ const $modal = document.getElementById("modal");
 const $box = document.getElementById("modal-box");
 const $toast = document.getElementById("toast");
 const TYPE_NAME = { dmg: "단일", aoe: "전체", heal: "회복", buff: "강화", shield: "방어", crit: "치명", pierce: "관통", multi: "연타", dot: "중독", stun: "기절", drain: "흡혈", debuff: "약화", taunt: "도발", shield_all: "파티 방어", buff_all: "파티 강화", heal_ally: "아군 치유", heal_all: "전체 치유", revive: "부활", summon: "소환", evade: "회피" };
+const SKILL_AIM = { dmg: "enemy", crit: "enemy", pierce: "enemy", dot: "enemy", stun: "enemy", drain: "enemy", heal_ally: "ally" };
+const SKILL_EFFECT = {
+  dmg: "적 하나에게 피해",
+  crit: "적 하나에게 피해, 치명타 확률이 높다",
+  pierce: "적 하나에게 방어를 무시하는 피해",
+  multi: "무작위 적에게 3번 연속 공격",
+  dot: "적 하나에게 피해를 주고 3턴간 중독",
+  stun: "적 하나에게 피해를 주고 확률로 기절",
+  drain: "적 하나에게 피해, 준 피해의 절반을 회복",
+  aoe: "적 전체에게 피해",
+  debuff: "적 전체의 방어를 3턴간 낮춘다",
+  taunt: "2턴간 적의 공격을 끌어들이고 방어 상승",
+  shield_all: "파티 전체 방어 3턴 상승",
+  buff_all: "파티 전체 공격 3턴 상승",
+  heal_ally: "아군 하나의 체력 회복",
+  heal_all: "파티 전체 체력 회복",
+  heal: "자신의 체력 회복",
+  revive: "쓰러진 동료 하나를 일으킨다",
+  summon: "소환수를 불러낸다 (최대 2)",
+  evade: "2턴간 공격을 높은 확률로 피한다",
+  buff: "자신의 공격 3턴 상승",
+  shield: "자신의 방어 3턴 크게 상승"
+};
 const UI = {
   screen: "title",
   create: null,
@@ -8632,7 +8663,7 @@ const UI = {
     else {
       const obj = G.objAt(x, y);
       if (obj && obj.kind === "gate") body += '<div class="tip-obj">'.concat(this.rift(obj.tier), "<div><b>").concat(G.gateName(obj), '</b><div class="small">').concat(this.rankTag(obj.tier), " ").concat(this.elemTag(obj.elem), " 난이도 ").concat(this.gateRisk(obj.tier), "</div></div></div>");
-      if (obj && obj.kind === "mob") body += '<div class="tip-obj"><span class="mob-dot big" style="--c:'.concat(ELEMENTS[obj.elem].color, '"></span><div><b>').concat(obj.name, " 무리 ×").concat(obj.count, '</b><div class="small">').concat(this.rankTag(obj.tier), " ").concat(this.elemTag(obj.elem), " 난이도 ").concat(this.gateRisk(obj.tier), "</div></div></div>");
+      if (obj && obj.kind === "mob") body += '<div class="tip-obj"><span class="mob-dot big" style="--c:'.concat(elemColor(obj.elem), '"></span><div><b>').concat(obj.name, " 무리 ×").concat(obj.count, '</b><div class="small">').concat(this.rankTag(obj.tier), " ").concat(this.elemTag(obj.elem), " 난이도 ").concat(this.gateRisk(obj.tier), "</div></div></div>");
       const ns = this.npcsAt(x, y);
       for (const n of ns) body += '<div class="tip-obj">'.concat(this.npcAvatar(n, 34), '<div class="grow"><b>').concat(n.name, '</b> <span class="small dim">').concat(n.met ? relationLabel(n.relation) : "처음 보는 각성자", '</span><div class="small">').concat(this.rankTag(n.rankIdx, n.stage), " ").concat(this.elemTag(n.element), "</div></div>\n        ").concat(n.region === p.region ? '<button class="sm" data-act="sheet" data-v="npc:'.concat(n.id, '">교류</button>') : "", "</div>");
       if (x === p.x && y === p.y && !body) body = '<div class="dim small">현재 위치</div>';
@@ -8725,7 +8756,7 @@ const UI = {
       return this.modal('<div class="enc">'.concat(FX.eventArt("gate_surge"), '<div class="eyebrow">게이트 감지 · ').concat(G.fullDate(), "</div><h3>").concat(G.gateName(obj), '</h3>\n        <div class="row">').concat(this.rankTag(obj.tier), " ").concat(this.elemTag(obj.elem), " ").concat(obj.mission ? '<span class="tag amber">길드 임무</span>' : "").concat(obj.bid ? '<span class="tag amber">길드 낙찰</span>' : "").concat(obj.variant === "red" ? '<span class="tag bad">레드 게이트</span>' : "", ' <span class="small">난이도 ').concat(this.gateRisk(obj.tier), '</span></div>\n        <p class="dim">').concat(obj.final ? "4개 구역. 도주할 수 없다." : obj.variant === "red" ? '<span class="bad">붉게 물든 게이트. 들어가면 공략 전까지 나올 수 없다. 4개 구역, 철수·도주 불가. 패배하면 구조대도 들어올 수 없다.</span> 대신 보상이 크다.' : "3개 구역 · 공략에 약 10일 소요. 구역 사이에 철수할 수 있다.", '</p>\n        <p class="small dim">중계하며 들어가면 성공 시 구독자와 후원금이 늘지만, 철수나 패배도 그대로 송출된다.</p></div>\n        <div class="row end"><button class="ghost" data-act="modal-close">나중에</button><button data-act="gate" data-v="').concat(obj.id, '|live">').concat(FX.icon("star", 14), ' 중계하며 진입</button><button class="').concat(obj.variant === "red" ? "danger" : "primary", '" data-act="gate" data-v="').concat(obj.id, '">진입한다</button></div>'));
     }
     const sample = { name: obj.name, elem: obj.elem, shape: obj.shape };
-    return this.modal('<div class="enc mob-enc"><div class="mob-portrait" style="--c:'.concat(ELEMENTS[obj.elem].color, '">').concat(FX.monster(sample, 130), '</div>\n      <div><div class="eyebrow bad">괴수 조우</div><h3>').concat(obj.name, " 무리 ×").concat(obj.count, '</h3><div class="row">').concat(this.rankTag(obj.tier), " ").concat(this.elemTag(obj.elem), ' <span class="small">난이도 ').concat(this.gateRisk(obj.tier), '</span></div></div></div>\n      <div class="row end"><button class="ghost" data-act="modal-close">물러난다</button><button class="danger" data-act="mob" data-v="').concat(obj.id, '">토벌한다</button></div>'));
+    return this.modal('<div class="enc mob-enc"><div class="mob-portrait" style="--c:'.concat(elemColor(obj.elem), '">').concat(FX.monster(sample, 130), '</div>\n      <div><div class="eyebrow bad">괴수 조우</div><h3>').concat(obj.name, " 무리 ×").concat(obj.count, '</h3><div class="row">').concat(this.rankTag(obj.tier), " ").concat(this.elemTag(obj.elem), ' <span class="small">난이도 ').concat(this.gateRisk(obj.tier), '</span></div></div></div>\n      <div class="row end"><button class="ghost" data-act="modal-close">물러난다</button><button class="danger" data-act="mob" data-v="').concat(obj.id, '">토벌한다</button></div>'));
   },
   // ---------- 메뉴 창 ----------
   openSheet(name) {
@@ -8819,7 +8850,7 @@ const UI = {
     return '<div class="panel">\n      <h3>'.concat(G.region().name, ' 상점가</h3>\n      <p class="dim">상품은 매달 바뀝니다.').concat(pm < 1 ? " 할인 적용 중 ×".concat(pm.toFixed(2), ".") : "").concat(G.region().id === "busan" ? " 암시장이라 가격이 들쭉날쭉하다." : "", '</p>\n      <div class="sec"><div class="sec-title">소모품</div><div class="cards">').concat(CONSUMABLES.map((c) => '\n        <div class="item-row"><span class="slot-ico" style="--c:var(--ether)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 3h6M10 3v5L5 18a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-10V3"/><path d="M7 15h10"/></svg></span>\n        <div class="grow"><b>'.concat(c.name, '</b> <span class="dim small">보유 ').concat(p.items[c.id] || 0, '</span><div class="small dim">').concat(c.desc, '</div></div>\n        <button class="sm" data-act="buy-item" data-v="').concat(c.id, '">').concat(FX.icon("coin", 13), " ").concat(price(c.price * pm), "</button></div>")).join(""), '</div></div>\n      <div class="sec"><div class="sec-title">장비</div><div class="cards">').concat(s.equips.map((it) => this.equipRow(it, '<button class="sm" data-act="buy-equip" data-v="'.concat(it.uid, '">').concat(FX.icon("coin", 13), " ").concat(price(it.value * pm), "</button>"))).join("") || '<div class="dim">매진</div>', '</div></div>\n      <div class="sec"><div class="sec-title">스킬 데이터</div><div class="cards">').concat(s.skills.map((id) => {
       const sk = skillById(id);
       const own = p.skills.includes(id);
-      return '\n        <div class="item-row"><span class="slot-ico" style="--c:'.concat(sk.elem ? ELEMENTS[sk.elem].color : "#9aa6b8", '">').concat(FX.elemIcon(sk.elem, 20), '</span>\n        <div class="grow"><b>').concat(sk.name, "</b> ").concat(this.rankTag(sk.rankReq), ' <span class="tag">').concat(TYPE_NAME[sk.type], '</span><div class="small dim">').concat(sk.desc, " · 정신력 ").concat(sk.mp, "</div></div>\n        ").concat(own ? '<span class="dim small">습득함</span>' : '<button class="sm" data-act="buy-skill" data-v="'.concat(id, '" ').concat(sk.rankReq > p.rankIdx ? "disabled" : "", ">").concat(FX.icon("coin", 13), " ").concat(price(sk.price * pm), "</button>"), "</div>");
+      return '\n        <div class="item-row"><span class="slot-ico" style="--c:'.concat(sk.elem ? elemColor(sk.elem) : "#9aa6b8", '">').concat(FX.elemIcon(sk.elem, 20), '</span>\n        <div class="grow"><b>').concat(sk.name, "</b> ").concat(this.rankTag(sk.rankReq), ' <span class="tag">').concat(TYPE_NAME[sk.type], '</span><div class="small dim">').concat(sk.desc, " · 정신력 ").concat(sk.mp, "</div></div>\n        ").concat(own ? '<span class="dim small">습득함</span>' : '<button class="sm" data-act="buy-skill" data-v="'.concat(id, '" ').concat(sk.rankReq > p.rankIdx ? "disabled" : "", ">").concat(FX.icon("coin", 13), " ").concat(price(sk.price * pm), "</button>"), "</div>");
     }).join(""), '</div></div>\n      <div class="sec"><div class="sec-title">보유 장비 판매 · 40%</div><div class="cards">').concat(p.inventory.map((it) => this.equipRow(it, '<button class="sm ghost" data-act="sell" data-v="'.concat(it.uid, '">').concat(price(it.value * 0.4), " 판매</button>"))).join("") || '<div class="dim">판매할 장비가 없다.</div>', "</div></div>\n    </div>");
   },
   npcCard(n, here) {
@@ -8895,7 +8926,7 @@ const UI = {
     return '<div class="panel"><h3>스킬</h3><p class="dim">전투에 가져갈 스킬을 최대 5개까지 장착합니다. 직업 스킬은 등급이 오르면 자동으로 익힙니다. 같은 속성 스킬은 위력 +20%.</p>\n      <div class="cards">'.concat(p.skills.map((id) => {
       const sk = skillById(id);
       const on = p.equipSkills.includes(id);
-      return '\n        <div class="item-row '.concat(on ? "equipped" : "", '"><span class="slot-ico" style="--c:').concat(ELEMENTS[sk.elem === "self" ? p.element : sk.elem] ? ELEMENTS[sk.elem === "self" ? p.element : sk.elem].color : "#9aa6b8", '">').concat(FX.elemIcon(sk.elem === "self" ? p.element : sk.elem, 20), '</span>\n          <div class="grow"><b>').concat(sk.name, '</b> <span class="tag">').concat(TYPE_NAME[sk.type] || "특수", "</span>").concat(sk.cls ? " ".concat(this.clsTag(sk.cls)) : "", '<div class="small dim">').concat(sk.desc, " · 위력 ").concat(sk.power, " · 정신력 ").concat(sk.mp, "</div></div>\n          ").concat(id === "strike" ? '<span class="dim small">기본</span>' : '<button class="sm '.concat(on ? "primary" : "", '" data-act="toggle-skill" data-v="').concat(id, '" ').concat(!on && p.equipSkills.length >= 5 ? "disabled" : "", ">").concat(on ? "장착 중" : "장착", "</button>"), "</div>");
+      return '\n        <div class="item-row '.concat(on ? "equipped" : "", '"><span class="slot-ico" style="--c:').concat(ELEMENTS[sk.elem === "self" ? p.element : sk.elem] ? elemColor(sk.elem === "self" ? p.element : sk.elem) : "#9aa6b8", '">').concat(FX.elemIcon(sk.elem === "self" ? p.element : sk.elem, 20), '</span>\n          <div class="grow"><b>').concat(sk.name, '</b> <span class="tag">').concat(TYPE_NAME[sk.type] || "특수", "</span>").concat(sk.cls ? " ".concat(this.clsTag(sk.cls)) : "", '<div class="small dim">').concat(sk.desc, " · 위력 ").concat(sk.power, " · 정신력 ").concat(sk.mp, "</div></div>\n          ").concat(id === "strike" ? '<span class="dim small">기본</span>' : '<button class="sm '.concat(on ? "primary" : "", '" data-act="toggle-skill" data-v="').concat(id, '" ').concat(!on && p.equipSkills.length >= 5 ? "disabled" : "", ">").concat(on ? "장착 중" : "장착", "</button>"), "</div>");
     }).join(""), "</div></div>");
   },
   guildHtml() {
@@ -9009,10 +9040,10 @@ const UI = {
     const c = this.ctx;
     const foes = c.combat.units.filter((x) => x.side === "enemy" && !x.summon);
     const foeSize = foes.length >= 4 ? 78 : foes.length >= 3 ? 92 : 120;
-    const cls = u.cls ? '<span class="tag cls tiny" style="--c:'.concat(CLASS_GROUPS[classById(u.cls).g].color, '">').concat(className(u.cls, u.clsAdv || 0)).concat(u.pers ? " · " + persById(u.pers).name : "", "</span>") : "";
+    const cls = u.cls ? '<span class="tag cls tiny" style="--c:'.concat(groupColor(classById(u.cls).g), '">').concat(className(u.cls, u.clsAdv || 0)).concat(u.pers ? " · " + persById(u.pers).name : "", "</span>") : "";
     if (u.side === "enemy") return '<div class="foe '.concat(u.boss ? "boss" : "", " ").concat(u.summon ? "summoned" : "", '" id="u-').concat(u.id, '" data-act="c-target" data-v="').concat(u.id, '">\n        <div class="fx-host"><div class="sprite">').concat(this.unitSprite(u, u.summon ? 70 : u.boss ? Math.round(foeSize * 1.35) : foeSize), '</div><div class="reticle"></div></div>\n        <div class="foe-name">').concat(u.name, " ").concat(FX.elemIcon(u.elem, 12), '</div>\n        <div class="bar hp"><i></i></div><div class="bar atb mini"><i></i></div><div class="foe-hp num small"></div><div class="status small"></div></div>');
-    if (u.summon) return '<div class="ally summon" id="u-'.concat(u.id, '"><div class="fx-host">').concat(FX.monster({ name: u.name, elem: u.elem, shape: u.shape }, 40), '</div>\n        <div class="grow"><div class="row between"><b class="small">').concat(u.name, '</b><span class="status small"></span></div><div class="bar hp"><i></i></div><div class="small num hp-t"></div><div class="bar atb mini"><i></i></div></div></div>');
-    return '<div class="ally '.concat(u.isPlayer ? "me" : "", '" id="u-').concat(u.id, '">\n        <div class="fx-host">').concat(this.unitSprite(u, 44), '</div>\n        <div class="grow"><div class="row between"><b>').concat(u.name, '</b><span class="status small"></span></div>').concat(cls, '\n          <div class="bar hp"><i></i></div><div class="bar mp"><i></i></div>\n          <div class="row between small num"><span class="hp-t"></span><span class="mp-t dim"></span></div>\n          <div class="bar atb"><i></i></div></div></div>');
+    if (u.summon) return '<div class="ally summon" id="u-'.concat(u.id, '"><div class="fx-host">').concat(FX.monster({ name: u.name, elem: u.elem, shape: u.shape }, 40), '</div>\n        <div class="grow"><div class="row between"><b class="small">').concat(u.name, '</b><span class="status small"></span></div><div class="bar-row"><div class="bar hp"><i></i></div><span class="hp-t num"></span></div><div class="bar atb mini"><i></i></div></div></div>');
+    return '<div class="ally '.concat(u.isPlayer ? "me" : "", '" id="u-').concat(u.id, '" data-act="c-ally" data-v="').concat(u.id, '">\n        <div class="fx-host">').concat(this.unitSprite(u, 44), '</div>\n        <div class="grow"><div class="row between"><b>').concat(u.name, '</b><span class="status small"></span></div>').concat(cls, '\n          <div class="bar-row"><div class="bar hp"><i></i></div><span class="hp-t num"></span></div>\n          <div class="bar-row"><div class="bar mp"><i></i></div><span class="mp-t num"></span></div>\n          <div class="bar atb"><i></i></div></div></div>');
   },
   openCombat() {
     const c = this.ctx;
@@ -9020,7 +9051,7 @@ const UI = {
     c.disp = JSON.parse(JSON.stringify(cb.initial));
     c.played = 0;
     c.playing = false;
-    const ec = ELEMENTS[c.elem] ? ELEMENTS[c.elem].color : "#46e0d0";
+    const ec = ELEMENTS[c.elem] ? elemColor(c.elem) : "#46e0d0";
     const rooms = c.kind === "gate" ? '<div class="room-dots">'.concat(c.rooms.map((_, i) => '<i class="'.concat(i < c.roomIdx ? "done" : i === c.roomIdx ? "now" : "", " ").concat(i === c.rooms.length - 1 ? "boss" : "", '"></i>')).join(""), "</div>") : "";
     this.modal('<div class="cb-head"><h3>'.concat(cb.title, "</h3>").concat(rooms, '<span class="dim small num" id="cb-round"></span></div>\n      <div class="stage" id="stage" style="--ec:').concat(ec, '">\n        <div class="foes" id="foes"></div>\n        <div class="allies" id="allies"></div>\n      </div>\n      <div class="clog" id="clog"></div>\n      <div id="cb-ctrl"></div>'), "combat-box");
     c.speed = this.combatSpeed || 1;
@@ -9046,9 +9077,9 @@ const UI = {
       if (hb) hb.style.width = Math.max(0, Math.min(100, d.hp / u.maxHp * 100)) + "%";
       if (mb) mb.style.width = Math.max(0, Math.min(100, d.mp / u.maxMp * 100)) + "%";
       const hpT = el.querySelector(".hp-t");
-      if (hpT) hpT.textContent = "HP ".concat(Math.max(0, Math.round(d.hp)), "/").concat(u.maxHp);
+      if (hpT) hpT.textContent = "".concat(Math.max(0, Math.round(d.hp)), "/").concat(u.maxHp);
       const mpT = el.querySelector(".mp-t");
-      if (mpT) mpT.textContent = "MP ".concat(Math.round(d.mp));
+      if (mpT) mpT.textContent = "".concat(Math.round(d.mp), "/").concat(u.maxMp);
       const fh = el.querySelector(".foe-hp");
       if (fh) fh.textContent = "".concat(Math.max(0, Math.round(d.hp)), " / ").concat(u.maxHp);
       const st = el.querySelector(".status");
@@ -9078,7 +9109,7 @@ const UI = {
     this.appendLog(l);
     if (!ev) return l.t ? 260 : 0;
     const el = (id) => document.getElementById("u-" + id);
-    const color = (e) => e && ELEMENTS[e] ? ELEMENTS[e].color : "#e3e8f1";
+    const color = (e) => e && ELEMENTS[e] ? elemColor(e) : "#e3e8f1";
     switch (ev.k) {
       case "cast": {
         if (c.disp[ev.src]) c.disp[ev.src].mp = ev.mp;
@@ -9257,8 +9288,8 @@ const UI = {
       if (!el) continue;
       const g = el.querySelector(".atb > i");
       if (g) g.style.width = Math.min(100, u.atb) + "%";
-      el.classList.toggle("ready", u.isPlayer && cb.waiting);
-      el.classList.toggle("acting", cb.active === u && c.playing);
+      el.classList.toggle("ready", !!(u.isPlayer && cb.waiting));
+      el.classList.toggle("acting", !!(cb.active === u && c.playing));
     }
   },
   renderControls() {
@@ -9269,15 +9300,52 @@ const UI = {
     if (!box) return;
     if (cb.result && !c.playing) {
       box.innerHTML = fixJosa(this.combatResultHtml());
+      this.aimGlow();
       return;
     }
     const p = cb.player;
-    const lock = c.playing || cb.auto || !cb.waiting;
-    const hint = cb.auto ? "자동 전투 중" : cb.waiting && !c.playing ? '<b class="amber">내 차례!</b> 시간이 멈췄다. 적을 눌러 대상을 고르고 커맨드를 입력하세요.' : "게이지가 차는 중… 내 게이지가 가득 차면 시간이 멈춥니다.";
-    box.innerHTML = fixJosa('<div class="skill-btns">'.concat(p.skills.map((id) => {
-      const sk = G.skillEff(skillById(id));
-      return '<button class="skill-btn" style="--c:'.concat(sk.elem ? ELEMENTS[sk.elem].color : "#9aa6b8", '" data-act="c-skill" data-v="').concat(id, '" ').concat(sk.mp > p.mp || lock ? "disabled" : "", ">\n        ").concat(FX.elemIcon(sk.elem, 18), "<span><b>").concat(sk.name, '</b><span class="small dim">MP ').concat(sk.mp, " · ").concat(TYPE_NAME[sk.type], "</span></span></button>");
+    const ready = cb.waiting && !c.playing && !cb.auto;
+    const lock = !ready;
+    const eff = (id) => G.skillEff ? G.skillEff(skillById(id)) : skillById(id);
+    const sel = c.sel && p.skills.includes(c.sel) ? eff(c.sel) : null;
+    if (!sel) c.sel = null;
+    const aim = sel ? SKILL_AIM[sel.type] || "none" : null;
+    let hint;
+    if (cb.auto) hint = "자동 전투 중";
+    else if (sel && sel.mp > p.mp) hint = '<b class="bad">MP가 부족합니다.</b>';
+    else if (sel && ready) hint = aim === "enemy" ? '<b class="amber">대상 적을 누르면 발동합니다.</b>' : aim === "ally" ? '<b class="amber">회복할 아군을 누르면 발동합니다.</b>' : '<b class="amber">[사용]을 누르면 발동합니다.</b>';
+    else if (sel) hint = "내 차례가 오면 대상을 눌러 발동합니다.";
+    else hint = ready ? '<b class="amber">내 차례!</b> 시간이 멈췄다. 스킬을 고르고 대상을 누르세요.' : "게이지가 차는 중… 미리 스킬을 눌러 설명을 볼 수 있습니다.";
+    const info = sel ? '<div class="skill-info" style="--c:'.concat(sel.elem ? elemColor(sel.elem) : "#9aa6b8", '">\n        <div class="row between"><b>').concat(FX.elemIcon(sel.elem, 16), " ").concat(sel.name, '</b><span class="row"><span class="small num ').concat(sel.mp > p.mp ? "bad" : "dim", '">MP ').concat(sel.mp, " / ").concat(Math.round(p.mp), '</span><button class="sm ghost" data-act="c-cancel">취소</button></span></div>\n        <div class="small"><span class="tag tiny">').concat(TYPE_NAME[sel.type] || sel.type, "</span> ").concat(SKILL_EFFECT[sel.type] || "").concat(sel.power && !["taunt", "evade", "summon"].includes(sel.type) ? " · 위력 ".concat(Math.round(sel.power * 100), "%") : "").concat(sel.elem && ELEMENTS[sel.elem] ? " · ".concat(ELEMENTS[sel.elem].name, " 속성") : "", "</div>\n        ").concat(sel.desc ? '<div class="small dim">'.concat(sel.desc, "</div>") : "", "\n        ").concat(aim === "none" ? '<button class="primary use-btn" data-act="c-use" '.concat(lock || sel.mp > p.mp ? "disabled" : "", ">사용</button>") : "", "</div>") : "";
+    box.innerHTML = fixJosa("".concat(info, '<div class="skill-btns">').concat(p.skills.map((id) => {
+      const sk = eff(id);
+      return '<button class="skill-btn '.concat(c.sel === id ? "sel" : "", " ").concat(sk.mp > p.mp ? "nomp" : "", '" style="--c:').concat(sk.elem ? elemColor(sk.elem) : "#9aa6b8", '" data-act="c-skill" data-v="').concat(id, '" ').concat(cb.auto || c.playing ? "disabled" : "", ">\n        ").concat(FX.elemIcon(sk.elem, 18), "<span><b>").concat(sk.name, '</b><span class="small dim">MP ').concat(sk.mp, " · ").concat(TYPE_NAME[sk.type], "</span></span></button>");
     }).join(""), '</div>\n      <div class="row ctrl-row">\n        ').concat(["potion", "mana"].map((id) => '<button class="sm" data-act="c-item" data-v="'.concat(id, '" ').concat(!G.player.items[id] || lock ? "disabled" : "", ">").concat(CONSUMABLES.find((x) => x.id === id).name, ' <span class="num">×').concat(G.player.items[id] || 0, "</span></button>")).join(""), '\n        <span class="grow"></span>\n        <button class="sm" data-act="c-speed">').concat((c.speed || 1) === 1 ? "1배속" : "2배속", '</button>\n        <button class="sm ').concat(cb.auto ? "primary" : "", '" data-act="c-auto">').concat(cb.auto ? "자동 중지" : "자동 전투", "</button>\n        ").concat(cb.canFlee ? '<button class="sm danger" data-act="c-flee" '.concat(lock ? "disabled" : "", ">도주</button>") : "", '\n      </div>\n      <div class="small dim cb-hint">').concat(hint, "</div>"));
+    this.aimGlow();
+  },
+  // 고른 스킬의 대상 쪽을 깜빡여 알려 준다
+  aimGlow() {
+    const c = this.ctx;
+    if (!c) return;
+    const cb = c.combat;
+    const sel = c.sel && !cb.result ? G.skillEff ? G.skillEff(skillById(c.sel)) : skillById(c.sel) : null;
+    const on = sel && cb.waiting && !c.playing && !cb.auto && sel.mp <= cb.player.mp;
+    const aim = sel ? SKILL_AIM[sel.type] || "none" : null;
+    const foes = document.getElementById("foes"), allies = document.getElementById("allies");
+    if (foes) foes.classList.toggle("aim", !!(on && aim === "enemy"));
+    if (allies) allies.classList.toggle("aim", !!(on && aim === "ally"));
+  },
+  // 스킬 발동 (대상이 정해졌을 때)
+  fireSkill(targetId) {
+    const c = this.ctx;
+    if (!c || c.playing) return;
+    const cb = c.combat;
+    const id = c.sel;
+    if (!id || !cb.waiting || cb.auto) return;
+    if ((G.skillEff ? G.skillEff(skillById(id)) : skillById(id)).mp > cb.player.mp) return this.renderControls();
+    c.sel = null;
+    if (c.tutorial) c.tutorial.acted++;
+    this.combatAction((x) => x.playerSkill(id, targetId));
   },
   combatResultHtml() {
     var _a;
@@ -9525,17 +9593,44 @@ const UI = {
         return this.modal("".concat(FX.eventArt(this.curEvent.id), '<p class="event-text">').concat(res, '</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>'), "event-box");
       }
       // 전투
-      case "c-skill":
-        return this.combatAction((cb) => cb.playerSkill(v));
-      case "c-item":
+      case "c-skill": {
+        const cx = this.ctx;
+        if (!cx || cx.playing || cx.combat.result) return;
+        cx.sel = cx.sel === v && !cx.combat.waiting ? null : v;
+        return this.renderControls();
+      }
+      case "c-cancel": {
+        const cx = this.ctx;
+        if (cx) cx.sel = null;
+        return this.renderControls();
+      }
+      case "c-use":
+        return this.fireSkill(null);
+      case "c-item": {
+        const cx = this.ctx;
+        if (cx) cx.sel = null;
         return this.combatAction((cb) => cb.playerItem(v));
-      case "c-flee":
+      }
+      case "c-flee": {
+        const cx = this.ctx;
+        if (cx) cx.sel = null;
         return this.combatAction((cb) => cb.playerFlee());
+      }
       case "c-target": {
         const cx = this.ctx;
         if (!cx || cx.combat.result) return;
+        const sk = cx.sel && skillById(cx.sel);
+        if (sk && (SKILL_AIM[sk.type] || "none") === "enemy" && cx.combat.waiting && !cx.playing) return this.fireSkill(v);
         cx.combat.setTarget(v);
-        return this.refreshUnits();
+        this.refreshUnits();
+        return this.renderControls();
+      }
+      case "c-ally": {
+        const cx = this.ctx;
+        if (!cx || cx.combat.result) return;
+        const sk = cx.sel && skillById(cx.sel);
+        if (sk && SKILL_AIM[sk.type] === "ally" && cx.combat.waiting && !cx.playing) return this.fireSkill(v);
+        return;
       }
       case "c-auto": {
         const cx = this.ctx;
@@ -9678,7 +9773,7 @@ Object.assign(UI, {
           const sk = skillById(id2);
           const own = p.skills.includes(id2);
           const rq = G.skillRepReq(sk);
-          return '<div class="item-row"><span class="slot-ico" style="--c:'.concat(sk.elem ? ELEMENTS[sk.elem].color : "#9aa6b8", '">').concat(FX.elemIcon(sk.elem, 20), '</span>\n            <div class="grow"><b>').concat(sk.name, "</b> ").concat(this.rankTag(sk.rankReq), ' <span class="tag">').concat(TYPE_NAME[sk.type], '</span><div class="small dim">').concat(sk.desc, " · 정신력 ").concat(sk.mp).concat(rq ? " · 평판 ".concat(rq, " 필요") : "", "</div></div>\n            ").concat(own ? '<span class="small dim">습득함</span>' : '<button class="sm" data-act="learn" data-v="'.concat(id2, '" ').concat(sk.rankReq > p.rankIdx ? "disabled" : "", ">").concat(price(sk.price * pm * G.cityPriceMul(reg.id)), " · 공적 ").concat(G.skillMerit(sk), "</button>"), "</div>");
+          return '<div class="item-row"><span class="slot-ico" style="--c:'.concat(sk.elem ? elemColor(sk.elem) : "#9aa6b8", '">').concat(FX.elemIcon(sk.elem, 20), '</span>\n            <div class="grow"><b>').concat(sk.name, "</b> ").concat(this.rankTag(sk.rankReq), ' <span class="tag">').concat(TYPE_NAME[sk.type], '</span><div class="small dim">').concat(sk.desc, " · 정신력 ").concat(sk.mp).concat(rq ? " · 평판 ".concat(rq, " 필요") : "", "</div></div>\n            ").concat(own ? '<span class="small dim">습득함</span>' : '<button class="sm" data-act="learn" data-v="'.concat(id2, '" ').concat(sk.rankReq > p.rankIdx ? "disabled" : "", ">").concat(price(sk.price * pm * G.cityPriceMul(reg.id)), " · 공적 ").concat(G.skillMerit(sk), "</button>"), "</div>");
         }).join(""), "</div>");
       }
       case "transit": {
@@ -9963,7 +10058,7 @@ Object.assign(UI, {
     if (q.type === "mobAmbush") {
       const mob = G.mobs.find((m) => m.id === q.mobId);
       if (!mob) return this.processQueue();
-      return this.modal('<div class="enc mob-enc"><div class="mob-portrait" style="--c:'.concat(ELEMENTS[mob.elem].color, '">').concat(FX.monster({ name: mob.name, elem: mob.elem, shape: mob.shape }, 130), '</div>\n        <div><div class="eyebrow bad">기습 · ').concat(G.fullDate(), "</div><h3>").concat(mob.name, " 무리 ×").concat(mob.count, '</h3><div class="row">').concat(this.rankTag(mob.tier), " ").concat(this.elemTag(mob.elem), ' <span class="small">난이도 ').concat(this.gateRisk(mob.tier), '</span></div>\n        <p class="dim">길을 가던 중 근처를 배회하던 무리가 냄새를 맡고 덮쳐 왔다.</p></div></div>\n        <div class="row end"><button class="ghost" data-act="mob-flee" data-v="').concat(mob.id, '">달아난다</button><button class="danger" data-act="mob" data-v="').concat(mob.id, '">맞서 싸운다</button></div>'));
+      return this.modal('<div class="enc mob-enc"><div class="mob-portrait" style="--c:'.concat(elemColor(mob.elem), '">').concat(FX.monster({ name: mob.name, elem: mob.elem, shape: mob.shape }, 130), '</div>\n        <div><div class="eyebrow bad">기습 · ').concat(G.fullDate(), "</div><h3>").concat(mob.name, " 무리 ×").concat(mob.count, '</h3><div class="row">').concat(this.rankTag(mob.tier), " ").concat(this.elemTag(mob.elem), ' <span class="small">난이도 ').concat(this.gateRisk(mob.tier), '</span></div>\n        <p class="dim">길을 가던 중 근처를 배회하던 무리가 냄새를 맡고 덮쳐 왔다.</p></div></div>\n        <div class="row end"><button class="ghost" data-act="mob-flee" data-v="').concat(mob.id, '">달아난다</button><button class="danger" data-act="mob" data-v="').concat(mob.id, '">맞서 싸운다</button></div>'));
     }
   };
   const baseHandle = UI.handle;
@@ -11289,7 +11384,7 @@ Object.assign(UI, {
     const mates = ids.map((id) => G.npcById(id));
     this.screen = "game";
     this.render();
-    this.modal('<div class="eyebrow">'.concat(G.dateStr(), " · ").concat(G.region().name, ' · 헌터 협회 시험장</div><h3>헌터 자격 시험</h3>\n      <p class="event-text">각성자 등록을 마친 ').concat(p.name, '에게 협회가 실기 시험 통지서를 보냈다. 시험장 로비에는 오늘 처음 각성한 사람들이 긴장한 얼굴로 앉아 있다.</p>\n      <p class="event-text">시험관: "실기는 임시 파티 단위로 본다. 훈련용 게이트 안의 괴수를 정리하면 합격이다. 서로 처음 보는 사이겠지만, 안에서는 등을 맡겨야 한다."</p>\n      <div class="sec-title sec">배정된 임시 파티</div>\n      <div class="cards">').concat(mates.map((n) => '<div class="item-row">'.concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, "</b> ").concat(this.raceTag(n), '\n        <div><span class="tag cls tiny" style="--c:').concat(CLASS_GROUPS[classById(n.cls).g].color, '">').concat(className(n.cls), '</span> <span class="small dim">').concat(persById(n.personality).name, "한 성격</span></div></div></div>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="exam-skip">튜토리얼 건너뛰기</button><button class="primary" data-act="exam-go">시험장으로</button></div>'), "event-box");
+    this.modal('<div class="eyebrow">'.concat(G.dateStr(), " · ").concat(G.region().name, ' · 헌터 협회 시험장</div><h3>헌터 자격 시험</h3>\n      <p class="event-text">각성자 등록을 마친 ').concat(p.name, '에게 협회가 실기 시험 통지서를 보냈다. 시험장 로비에는 오늘 처음 각성한 사람들이 긴장한 얼굴로 앉아 있다.</p>\n      <p class="event-text">시험관: "실기는 임시 파티 단위로 본다. 훈련용 게이트 안의 괴수를 정리하면 합격이다. 서로 처음 보는 사이겠지만, 안에서는 등을 맡겨야 한다."</p>\n      <div class="sec-title sec">배정된 임시 파티</div>\n      <div class="cards">').concat(mates.map((n) => '<div class="item-row">'.concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, "</b> ").concat(this.raceTag(n), '\n        <div><span class="tag cls tiny" style="--c:').concat(groupColor(classById(n.cls).g), '">').concat(className(n.cls), '</span> <span class="small dim">').concat(persById(n.personality).name, "한 성격</span></div></div></div>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="exam-skip">튜토리얼 건너뛰기</button><button class="primary" data-act="exam-go">시험장으로</button></div>'), "event-box");
   },
   examEnemies() {
     const list = [G.makeMonster(0, true), G.makeMonster(0, false), G.makeMonster(0, false)];
@@ -11320,12 +11415,13 @@ Object.assign(UI, {
     } else if (!cb.waiting) {
       step = "조작 안내 1/3";
       text = "각 캐릭터 아래의 <b>파란 게이지</b>가 속도에 따라 찹니다. 가득 차면 그 캐릭터가 행동합니다. 동료는 각자의 <b>성격대로 AI</b>가 싸웁니다. 내 게이지가 차기를 기다리세요.";
-    } else if (!t.targeted) {
+    } else if (!c.sel) {
       step = "조작 안내 2/3";
-      text = "<b>내 차례!</b> 시간이 멈췄습니다. 먼저 위쪽의 <b>적을 눌러</b> 공격할 대상을 고르세요.";
+      text = "<b>내 차례!</b> 시간이 멈췄습니다. 아래 <b>스킬 버튼</b>을 누르면 어떤 스킬인지 설명이 뜹니다.";
     } else {
       step = "조작 안내 2/3";
-      text = "대상이 정해졌습니다. 아래 <b>스킬 버튼</b>을 눌러 행동하세요. 스킬마다 MP가 듭니다.";
+      const aim = SKILL_AIM[skillById(c.sel).type] || "none";
+      text = aim === "enemy" ? "설명을 확인했으면 위쪽의 <b>적을 눌러</b> 발동하세요. 대상을 누르는 순간 스킬이 나갑니다." : aim === "ally" ? "회복할 <b>아군 카드를 눌러</b> 발동하세요." : "대상이 필요 없는 스킬입니다. <b>[사용]</b>을 누르면 발동합니다.";
     }
     return '<div class="coach"><span class="eyebrow">'.concat(step, "</span><div>").concat(text, "</div></div>");
   },
@@ -11350,7 +11446,7 @@ Object.assign(UI, {
     const ex = this.exam;
     const mates = ex.ids.map((id) => G.npcById(id)).filter(Boolean);
     const R = RANKS[G.player.rankIdx];
-    this.modal('<div class="eyebrow">헌터 자격 시험 · 결과</div><h3><span class="tag rank" style="--c:'.concat(R.color, '">').concat(R.key, '급</span> 헌터 자격증 발급</h3>\n      <p class="event-text">').concat(fixJosa(ex.text), "</p>\n      ").concat(ex.reveal ? '<div class="sec-title sec">협회 등급 측정</div><p class="event-text">'.concat(fixJosa(ex.reveal.text), "</p>") : "", '\n      <p class="event-text">시험장을 나서자 임시 파티원들이 당신을 바라본다. "…우리, 이대로 같이 다녀 볼래?"</p>\n      <div class="sec-title sec">함께할 동료를 고르세요 <span class="small dim">(눌러서 선택·해제)</span></div>\n      <div class="cards">').concat(mates.map((n) => '<button class="item-row choice-btn '.concat(ex.pick.has(n.id) ? "on" : "", '" data-act="exam-pick" data-v="').concat(n.id, '">').concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, '</b>\n        <div><span class="tag cls tiny" style="--c:').concat(CLASS_GROUPS[classById(n.cls).g].color, '">').concat(className(n.cls), '</span> <span class="small dim">').concat(persById(n.personality).name, '</span></div></div><b class="').concat(ex.pick.has(n.id) ? "amber" : "dim", '">').concat(ex.pick.has(n.id) ? "함께" : "각자", "</b></button>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="exam-solo">혼자 시작한다</button><button class="primary" data-act="exam-party" ').concat(ex.pick.size ? "" : "disabled", ">").concat(ex.pick.size === mates.length ? "이 파티로 시작한다" : "".concat(ex.pick.size, "명과 시작한다"), "</button></div>"), "event-box");
+    this.modal('<div class="eyebrow">헌터 자격 시험 · 결과</div><h3><span class="tag rank" style="--c:'.concat(R.color, '">').concat(R.key, '급</span> 헌터 자격증 발급</h3>\n      <p class="event-text">').concat(fixJosa(ex.text), "</p>\n      ").concat(ex.reveal ? '<div class="sec-title sec">협회 등급 측정</div><p class="event-text">'.concat(fixJosa(ex.reveal.text), "</p>") : "", '\n      <p class="event-text">시험장을 나서자 임시 파티원들이 당신을 바라본다. "…우리, 이대로 같이 다녀 볼래?"</p>\n      <div class="sec-title sec">함께할 동료를 고르세요 <span class="small dim">(눌러서 선택·해제)</span></div>\n      <div class="cards">').concat(mates.map((n) => '<button class="item-row choice-btn '.concat(ex.pick.has(n.id) ? "on" : "", '" data-act="exam-pick" data-v="').concat(n.id, '">').concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, '</b>\n        <div><span class="tag cls tiny" style="--c:').concat(groupColor(classById(n.cls).g), '">').concat(className(n.cls), '</span> <span class="small dim">').concat(persById(n.personality).name, '</span></div></div><b class="').concat(ex.pick.has(n.id) ? "amber" : "dim", '">').concat(ex.pick.has(n.id) ? "함께" : "각자", "</b></button>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="exam-solo">혼자 시작한다</button><button class="primary" data-act="exam-party" ').concat(ex.pick.size ? "" : "disabled", ">").concat(ex.pick.size === mates.length ? "이 파티로 시작한다" : "".concat(ex.pick.size, "명과 시작한다"), "</button></div>"), "event-box");
   },
   endExam(ids) {
     const p = G.player;
@@ -11386,12 +11482,8 @@ Object.assign(UI, {
     if (!box) return;
     const html = this.coachHtml();
     if (html) box.insertAdjacentHTML("afterbegin", fixJosa(html));
-    const cb = c.combat;
-    const t = c.tutorial;
-    const foes = document.getElementById("foes");
-    if (foes) foes.classList.toggle("tut-glow", cb.waiting && !c.playing && !t.targeted && t.acted < 1);
     const sk = box.querySelector(".skill-btns");
-    if (sk) sk.classList.toggle("tut-glow", cb.waiting && !c.playing && !!t.targeted && t.acted < 1);
+    if (sk) sk.classList.toggle("tut-glow", c.combat.waiting && !c.playing && !c.sel && c.tutorial.acted < 1);
   };
   const baseFinish = UI.finishPersonalCombat;
   UI.finishPersonalCombat = function() {
@@ -11433,15 +11525,6 @@ Object.assign(UI, {
         return this.endExam([...this.exam.pick]);
       case "exam-solo":
         return this.endExam([]);
-      case "c-target": {
-        const r = baseHandle.call(this, act, v);
-        if (c && c.tutorial && !c.tutorial.targeted) {
-          c.tutorial.targeted = true;
-          this.renderControls();
-        }
-        return r;
-      }
-      case "c-skill":
       case "c-item":
         if (c && c.tutorial && !c.playing && c.combat.waiting) c.tutorial.acted++;
         return baseHandle.call(this, act, v);

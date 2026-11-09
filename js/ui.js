@@ -8,6 +8,15 @@ const $toast = document.getElementById('toast');
 
 const TYPE_NAME = { dmg: '단일', aoe: '전체', heal: '회복', buff: '강화', shield: '방어', crit: '치명', pierce: '관통', multi: '연타', dot: '중독', stun: '기절', drain: '흡혈', debuff: '약화', taunt: '도발', shield_all: '파티 방어', buff_all: '파티 강화', heal_ally: '아군 치유', heal_all: '전체 치유', revive: '부활', summon: '소환', evade: '회피' };
 
+// 스킬 대상 방식: 적 하나를 고름 / 아군 하나를 고름 / 대상 없이 바로 사용
+const SKILL_AIM = { dmg: 'enemy', crit: 'enemy', pierce: 'enemy', dot: 'enemy', stun: 'enemy', drain: 'enemy', heal_ally: 'ally' };
+const SKILL_EFFECT = {
+  dmg: '적 하나에게 피해', crit: '적 하나에게 피해, 치명타 확률이 높다', pierce: '적 하나에게 방어를 무시하는 피해', multi: '무작위 적에게 3번 연속 공격',
+  dot: '적 하나에게 피해를 주고 3턴간 중독', stun: '적 하나에게 피해를 주고 확률로 기절', drain: '적 하나에게 피해, 준 피해의 절반을 회복', aoe: '적 전체에게 피해',
+  debuff: '적 전체의 방어를 3턴간 낮춘다', taunt: '2턴간 적의 공격을 끌어들이고 방어 상승', shield_all: '파티 전체 방어 3턴 상승', buff_all: '파티 전체 공격 3턴 상승',
+  heal_ally: '아군 하나의 체력 회복', heal_all: '파티 전체 체력 회복', heal: '자신의 체력 회복', revive: '쓰러진 동료 하나를 일으킨다', summon: '소환수를 불러낸다 (최대 2)',
+  evade: '2턴간 공격을 높은 확률로 피한다', buff: '자신의 공격 3턴 상승', shield: '자신의 방어 3턴 크게 상승',
+};
 const UI = {
   screen: 'title',
   create: null,
@@ -332,7 +341,7 @@ const UI = {
     else {
       const obj = G.objAt(x, y);
       if (obj && obj.kind === 'gate') body += `<div class="tip-obj">${this.rift(obj.tier)}<div><b>${G.gateName(obj)}</b><div class="small">${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)} 난이도 ${this.gateRisk(obj.tier)}</div></div></div>`;
-      if (obj && obj.kind === 'mob') body += `<div class="tip-obj"><span class="mob-dot big" style="--c:${ELEMENTS[obj.elem].color}"></span><div><b>${obj.name} 무리 ×${obj.count}</b><div class="small">${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)} 난이도 ${this.gateRisk(obj.tier)}</div></div></div>`;
+      if (obj && obj.kind === 'mob') body += `<div class="tip-obj"><span class="mob-dot big" style="--c:${elemColor(obj.elem)}"></span><div><b>${obj.name} 무리 ×${obj.count}</b><div class="small">${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)} 난이도 ${this.gateRisk(obj.tier)}</div></div></div>`;
       const ns = this.npcsAt(x, y);
       for (const n of ns) body += `<div class="tip-obj">${this.npcAvatar(n, 34)}<div class="grow"><b>${n.name}</b> <span class="small dim">${n.met ? relationLabel(n.relation) : '처음 보는 각성자'}</span><div class="small">${this.rankTag(n.rankIdx, n.stage)} ${this.elemTag(n.element)}</div></div>
         ${n.region === p.region ? `<button class="sm" data-act="sheet" data-v="npc:${n.id}">교류</button>` : ''}</div>`;
@@ -421,7 +430,7 @@ const UI = {
         <div class="row end"><button class="ghost" data-act="modal-close">나중에</button><button data-act="gate" data-v="${obj.id}|live">${FX.icon('star', 14)} 중계하며 진입</button><button class="${obj.variant === 'red' ? 'danger' : 'primary'}" data-act="gate" data-v="${obj.id}">진입한다</button></div>`);
     }
     const sample = { name: obj.name, elem: obj.elem, shape: obj.shape };
-    return this.modal(`<div class="enc mob-enc"><div class="mob-portrait" style="--c:${ELEMENTS[obj.elem].color}">${FX.monster(sample, 130)}</div>
+    return this.modal(`<div class="enc mob-enc"><div class="mob-portrait" style="--c:${elemColor(obj.elem)}">${FX.monster(sample, 130)}</div>
       <div><div class="eyebrow bad">괴수 조우</div><h3>${obj.name} 무리 ×${obj.count}</h3><div class="row">${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)} <span class="small">난이도 ${this.gateRisk(obj.tier)}</span></div></div></div>
       <div class="row end"><button class="ghost" data-act="modal-close">물러난다</button><button class="danger" data-act="mob" data-v="${obj.id}">토벌한다</button></div>`);
   },
@@ -511,7 +520,7 @@ const UI = {
         <button class="sm" data-act="buy-item" data-v="${c.id}">${FX.icon('coin', 13)} ${price(c.price * pm)}</button></div>`).join('')}</div></div>
       <div class="sec"><div class="sec-title">장비</div><div class="cards">${s.equips.map((it) => this.equipRow(it, `<button class="sm" data-act="buy-equip" data-v="${it.uid}">${FX.icon('coin', 13)} ${price(it.value * pm)}</button>`)).join('') || '<div class="dim">매진</div>'}</div></div>
       <div class="sec"><div class="sec-title">스킬 데이터</div><div class="cards">${s.skills.map((id) => { const sk = skillById(id); const own = p.skills.includes(id); return `
-        <div class="item-row"><span class="slot-ico" style="--c:${sk.elem ? ELEMENTS[sk.elem].color : '#9aa6b8'}">${FX.elemIcon(sk.elem, 20)}</span>
+        <div class="item-row"><span class="slot-ico" style="--c:${sk.elem ? elemColor(sk.elem) : '#9aa6b8'}">${FX.elemIcon(sk.elem, 20)}</span>
         <div class="grow"><b>${sk.name}</b> ${this.rankTag(sk.rankReq)} <span class="tag">${TYPE_NAME[sk.type]}</span><div class="small dim">${sk.desc} · 정신력 ${sk.mp}</div></div>
         ${own ? '<span class="dim small">습득함</span>' : `<button class="sm" data-act="buy-skill" data-v="${id}" ${sk.rankReq > p.rankIdx ? 'disabled' : ''}>${FX.icon('coin', 13)} ${price(sk.price * pm)}</button>`}</div>`; }).join('')}</div></div>
       <div class="sec"><div class="sec-title">보유 장비 판매 · 40%</div><div class="cards">${p.inventory.map((it) => this.equipRow(it, `<button class="sm ghost" data-act="sell" data-v="${it.uid}">${price(it.value * 0.4)} 판매</button>`)).join('') || '<div class="dim">판매할 장비가 없다.</div>'}</div></div>
@@ -616,7 +625,7 @@ const UI = {
     const p = G.player;
     return `<div class="panel"><h3>스킬</h3><p class="dim">전투에 가져갈 스킬을 최대 5개까지 장착합니다. 직업 스킬은 등급이 오르면 자동으로 익힙니다. 같은 속성 스킬은 위력 +20%.</p>
       <div class="cards">${p.skills.map((id) => { const sk = skillById(id); const on = p.equipSkills.includes(id); return `
-        <div class="item-row ${on ? 'equipped' : ''}"><span class="slot-ico" style="--c:${ELEMENTS[sk.elem === 'self' ? p.element : sk.elem] ? ELEMENTS[sk.elem === 'self' ? p.element : sk.elem].color : '#9aa6b8'}">${FX.elemIcon(sk.elem === 'self' ? p.element : sk.elem, 20)}</span>
+        <div class="item-row ${on ? 'equipped' : ''}"><span class="slot-ico" style="--c:${ELEMENTS[sk.elem === 'self' ? p.element : sk.elem] ? elemColor(sk.elem === 'self' ? p.element : sk.elem) : '#9aa6b8'}">${FX.elemIcon(sk.elem === 'self' ? p.element : sk.elem, 20)}</span>
           <div class="grow"><b>${sk.name}</b> <span class="tag">${TYPE_NAME[sk.type] || '특수'}</span>${sk.cls ? ` ${this.clsTag(sk.cls)}` : ''}<div class="small dim">${sk.desc} · 위력 ${sk.power} · 정신력 ${sk.mp}</div></div>
           ${id === 'strike' ? '<span class="dim small">기본</span>' : `<button class="sm ${on ? 'primary' : ''}" data-act="toggle-skill" data-v="${id}" ${!on && p.equipSkills.length >= 5 ? 'disabled' : ''}>${on ? '장착 중' : '장착'}</button>`}</div>`; }).join('')}</div></div>`;
   },
@@ -741,18 +750,18 @@ const UI = {
   unitEl(u) {
     const c = this.ctx; const foes = c.combat.units.filter((x) => x.side === 'enemy' && !x.summon);
     const foeSize = foes.length >= 4 ? 78 : foes.length >= 3 ? 92 : 120;
-    const cls = u.cls ? `<span class="tag cls tiny" style="--c:${CLASS_GROUPS[classById(u.cls).g].color}">${className(u.cls, u.clsAdv || 0)}${u.pers ? ' · ' + persById(u.pers).name : ''}</span>` : '';
+    const cls = u.cls ? `<span class="tag cls tiny" style="--c:${groupColor(classById(u.cls).g)}">${className(u.cls, u.clsAdv || 0)}${u.pers ? ' · ' + persById(u.pers).name : ''}</span>` : '';
     if (u.side === 'enemy') return `<div class="foe ${u.boss ? 'boss' : ''} ${u.summon ? 'summoned' : ''}" id="u-${u.id}" data-act="c-target" data-v="${u.id}">
         <div class="fx-host"><div class="sprite">${this.unitSprite(u, u.summon ? 70 : u.boss ? Math.round(foeSize * 1.35) : foeSize)}</div><div class="reticle"></div></div>
         <div class="foe-name">${u.name} ${FX.elemIcon(u.elem, 12)}</div>
         <div class="bar hp"><i></i></div><div class="bar atb mini"><i></i></div><div class="foe-hp num small"></div><div class="status small"></div></div>`;
     if (u.summon) return `<div class="ally summon" id="u-${u.id}"><div class="fx-host">${FX.monster({ name: u.name, elem: u.elem, shape: u.shape }, 40)}</div>
-        <div class="grow"><div class="row between"><b class="small">${u.name}</b><span class="status small"></span></div><div class="bar hp"><i></i></div><div class="small num hp-t"></div><div class="bar atb mini"><i></i></div></div></div>`;
-    return `<div class="ally ${u.isPlayer ? 'me' : ''}" id="u-${u.id}">
+        <div class="grow"><div class="row between"><b class="small">${u.name}</b><span class="status small"></span></div><div class="bar-row"><div class="bar hp"><i></i></div><span class="hp-t num"></span></div><div class="bar atb mini"><i></i></div></div></div>`;
+    return `<div class="ally ${u.isPlayer ? 'me' : ''}" id="u-${u.id}" data-act="c-ally" data-v="${u.id}">
         <div class="fx-host">${this.unitSprite(u, 44)}</div>
         <div class="grow"><div class="row between"><b>${u.name}</b><span class="status small"></span></div>${cls}
-          <div class="bar hp"><i></i></div><div class="bar mp"><i></i></div>
-          <div class="row between small num"><span class="hp-t"></span><span class="mp-t dim"></span></div>
+          <div class="bar-row"><div class="bar hp"><i></i></div><span class="hp-t num"></span></div>
+          <div class="bar-row"><div class="bar mp"><i></i></div><span class="mp-t num"></span></div>
           <div class="bar atb"><i></i></div></div></div>`;
   },
 
@@ -760,7 +769,7 @@ const UI = {
     const c = this.ctx; const cb = c.combat;
     c.disp = JSON.parse(JSON.stringify(cb.initial));
     c.played = 0; c.playing = false;
-    const ec = ELEMENTS[c.elem] ? ELEMENTS[c.elem].color : '#46e0d0';
+    const ec = ELEMENTS[c.elem] ? elemColor(c.elem) : '#46e0d0';
     const rooms = c.kind === 'gate' ? `<div class="room-dots">${c.rooms.map((_, i) => `<i class="${i < c.roomIdx ? 'done' : i === c.roomIdx ? 'now' : ''} ${i === c.rooms.length - 1 ? 'boss' : ''}"></i>`).join('')}</div>` : '';
     this.modal(`<div class="cb-head"><h3>${cb.title}</h3>${rooms}<span class="dim small num" id="cb-round"></span></div>
       <div class="stage" id="stage" style="--ec:${ec}">
@@ -789,8 +798,8 @@ const UI = {
       const hb = el.querySelector('.bar.hp > i'), mb = el.querySelector('.bar.mp > i');
       if (hb) hb.style.width = Math.max(0, Math.min(100, (d.hp / u.maxHp) * 100)) + '%';
       if (mb) mb.style.width = Math.max(0, Math.min(100, (d.mp / u.maxMp) * 100)) + '%';
-      const hpT = el.querySelector('.hp-t'); if (hpT) hpT.textContent = `HP ${Math.max(0, Math.round(d.hp))}/${u.maxHp}`;
-      const mpT = el.querySelector('.mp-t'); if (mpT) mpT.textContent = `MP ${Math.round(d.mp)}`;
+      const hpT = el.querySelector('.hp-t'); if (hpT) hpT.textContent = `${Math.max(0, Math.round(d.hp))}/${u.maxHp}`;
+      const mpT = el.querySelector('.mp-t'); if (mpT) mpT.textContent = `${Math.round(d.mp)}/${u.maxMp}`;
       const fh = el.querySelector('.foe-hp'); if (fh) fh.textContent = `${Math.max(0, Math.round(d.hp))} / ${u.maxHp}`;
       const st = el.querySelector('.status');
       if (st) st.innerHTML = [u.fled ? '<span class="tag tiny bad">도주</span>' : '', u.tauntT ? '<span class="tag tiny amber">도발</span>' : '', u.stun ? '<span class="tag tiny bad">기절</span>' : '', u.poison ? '<span class="tag tiny" style="color:#9be36b">중독</span>' : '', u.evadeT ? '<span class="tag tiny">회피</span>' : '', u.buffs.atkT ? '<span class="tag tiny good">공↑</span>' : '', u.buffs.defT && u.buffs.def > 0 ? '<span class="tag tiny good">방↑</span>' : '', u.buffs.def < 0 ? '<span class="tag tiny bad">방↓</span>' : ''].join('');
@@ -816,7 +825,7 @@ const UI = {
     this.appendLog(l);
     if (!ev) return l.t ? 260 : 0;
     const el = (id) => document.getElementById('u-' + id);
-    const color = (e) => (e && ELEMENTS[e] ? ELEMENTS[e].color : '#e3e8f1');
+    const color = (e) => (e && ELEMENTS[e] ? elemColor(e) : '#e3e8f1');
     switch (ev.k) {
       case 'cast': {
         if (c.disp[ev.src]) c.disp[ev.src].mp = ev.mp;
@@ -920,19 +929,34 @@ const UI = {
     for (const u of cb.units) {
       const el = document.getElementById('u-' + u.id); if (!el) continue;
       const g = el.querySelector('.atb > i'); if (g) g.style.width = Math.min(100, u.atb) + '%';
-      el.classList.toggle('ready', u.isPlayer && cb.waiting);
-      el.classList.toggle('acting', cb.active === u && c.playing);
+      el.classList.toggle('ready', !!(u.isPlayer && cb.waiting));
+      el.classList.toggle('acting', !!(cb.active === u && c.playing));
     }
   },
 
   renderControls() {
     const c = this.ctx; if (!c) return; const cb = c.combat;
     const box = document.getElementById('cb-ctrl'); if (!box) return;
-    if (cb.result && !c.playing) { box.innerHTML = fixJosa(this.combatResultHtml()); return; }
+    if (cb.result && !c.playing) { box.innerHTML = fixJosa(this.combatResultHtml()); this.aimGlow(); return; }
     const p = cb.player;
-    const lock = c.playing || cb.auto || !cb.waiting;
-    const hint = cb.auto ? '자동 전투 중' : cb.waiting && !c.playing ? '<b class="amber">내 차례!</b> 시간이 멈췄다. 적을 눌러 대상을 고르고 커맨드를 입력하세요.' : '게이지가 차는 중… 내 게이지가 가득 차면 시간이 멈춥니다.';
-    box.innerHTML = fixJosa(`<div class="skill-btns">${p.skills.map((id) => { const sk = G.skillEff(skillById(id)); return `<button class="skill-btn" style="--c:${sk.elem ? ELEMENTS[sk.elem].color : '#9aa6b8'}" data-act="c-skill" data-v="${id}" ${sk.mp > p.mp || lock ? 'disabled' : ''}>
+    const ready = cb.waiting && !c.playing && !cb.auto;
+    const lock = !ready;
+    const eff = (id) => (G.skillEff ? G.skillEff(skillById(id)) : skillById(id));
+    const sel = c.sel && p.skills.includes(c.sel) ? eff(c.sel) : null;
+    if (!sel) c.sel = null;
+    const aim = sel ? (SKILL_AIM[sel.type] || 'none') : null;
+    let hint;
+    if (cb.auto) hint = '자동 전투 중';
+    else if (sel && sel.mp > p.mp) hint = '<b class="bad">MP가 부족합니다.</b>';
+    else if (sel && ready) hint = aim === 'enemy' ? '<b class="amber">대상 적을 누르면 발동합니다.</b>' : aim === 'ally' ? '<b class="amber">회복할 아군을 누르면 발동합니다.</b>' : '<b class="amber">[사용]을 누르면 발동합니다.</b>';
+    else if (sel) hint = '내 차례가 오면 대상을 눌러 발동합니다.';
+    else hint = ready ? '<b class="amber">내 차례!</b> 시간이 멈췄다. 스킬을 고르고 대상을 누르세요.' : '게이지가 차는 중… 미리 스킬을 눌러 설명을 볼 수 있습니다.';
+    const info = sel ? `<div class="skill-info" style="--c:${sel.elem ? elemColor(sel.elem) : '#9aa6b8'}">
+        <div class="row between"><b>${FX.elemIcon(sel.elem, 16)} ${sel.name}</b><span class="row"><span class="small num ${sel.mp > p.mp ? 'bad' : 'dim'}">MP ${sel.mp} / ${Math.round(p.mp)}</span><button class="sm ghost" data-act="c-cancel">취소</button></span></div>
+        <div class="small"><span class="tag tiny">${TYPE_NAME[sel.type] || sel.type}</span> ${SKILL_EFFECT[sel.type] || ''}${sel.power && !['taunt', 'evade', 'summon'].includes(sel.type) ? ` · 위력 ${Math.round(sel.power * 100)}%` : ''}${sel.elem && ELEMENTS[sel.elem] ? ` · ${ELEMENTS[sel.elem].name} 속성` : ''}</div>
+        ${sel.desc ? `<div class="small dim">${sel.desc}</div>` : ''}
+        ${aim === 'none' ? `<button class="primary use-btn" data-act="c-use" ${lock || sel.mp > p.mp ? 'disabled' : ''}>사용</button>` : ''}</div>` : '';
+    box.innerHTML = fixJosa(`${info}<div class="skill-btns">${p.skills.map((id) => { const sk = eff(id); return `<button class="skill-btn ${c.sel === id ? 'sel' : ''} ${sk.mp > p.mp ? 'nomp' : ''}" style="--c:${sk.elem ? elemColor(sk.elem) : '#9aa6b8'}" data-act="c-skill" data-v="${id}" ${cb.auto || c.playing ? 'disabled' : ''}>
         ${FX.elemIcon(sk.elem, 18)}<span><b>${sk.name}</b><span class="small dim">MP ${sk.mp} · ${TYPE_NAME[sk.type]}</span></span></button>`; }).join('')}</div>
       <div class="row ctrl-row">
         ${['potion', 'mana'].map((id) => `<button class="sm" data-act="c-item" data-v="${id}" ${!G.player.items[id] || lock ? 'disabled' : ''}>${CONSUMABLES.find((x) => x.id === id).name} <span class="num">×${G.player.items[id] || 0}</span></button>`).join('')}
@@ -942,6 +966,26 @@ const UI = {
         ${cb.canFlee ? `<button class="sm danger" data-act="c-flee" ${lock ? 'disabled' : ''}>도주</button>` : ''}
       </div>
       <div class="small dim cb-hint">${hint}</div>`);
+    this.aimGlow();
+  },
+  // 고른 스킬의 대상 쪽을 깜빡여 알려 준다
+  aimGlow() {
+    const c = this.ctx; if (!c) return; const cb = c.combat;
+    const sel = c.sel && !cb.result ? (G.skillEff ? G.skillEff(skillById(c.sel)) : skillById(c.sel)) : null;
+    const on = sel && cb.waiting && !c.playing && !cb.auto && sel.mp <= cb.player.mp;
+    const aim = sel ? (SKILL_AIM[sel.type] || 'none') : null;
+    const foes = document.getElementById('foes'), allies = document.getElementById('allies');
+    if (foes) foes.classList.toggle('aim', !!(on && aim === 'enemy'));
+    if (allies) allies.classList.toggle('aim', !!(on && aim === 'ally'));
+  },
+  // 스킬 발동 (대상이 정해졌을 때)
+  fireSkill(targetId) {
+    const c = this.ctx; if (!c || c.playing) return;
+    const cb = c.combat; const id = c.sel; if (!id || !cb.waiting || cb.auto) return;
+    if ((G.skillEff ? G.skillEff(skillById(id)) : skillById(id)).mp > cb.player.mp) return this.renderControls();
+    c.sel = null;
+    if (c.tutorial) c.tutorial.acted++;
+    this.combatAction((x) => x.playerSkill(id, targetId));
   },
 
   combatResultHtml() {
@@ -1102,12 +1146,26 @@ const UI = {
         return this.modal(`${FX.eventArt(this.curEvent.id)}<p class="event-text">${res}</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>`, 'event-box');
       }
       // 전투
-      case 'c-skill': return this.combatAction((cb) => cb.playerSkill(v));
-      case 'c-item': return this.combatAction((cb) => cb.playerItem(v));
-      case 'c-flee': return this.combatAction((cb) => cb.playerFlee());
+      case 'c-skill': {
+        const cx = this.ctx; if (!cx || cx.playing || cx.combat.result) return;
+        cx.sel = cx.sel === v && !cx.combat.waiting ? null : v;
+        return this.renderControls();
+      }
+      case 'c-cancel': { const cx = this.ctx; if (cx) cx.sel = null; return this.renderControls(); }
+      case 'c-use': return this.fireSkill(null);
+      case 'c-item': { const cx = this.ctx; if (cx) cx.sel = null; return this.combatAction((cb) => cb.playerItem(v)); }
+      case 'c-flee': { const cx = this.ctx; if (cx) cx.sel = null; return this.combatAction((cb) => cb.playerFlee()); }
       case 'c-target': {
         const cx = this.ctx; if (!cx || cx.combat.result) return;
-        cx.combat.setTarget(v); return this.refreshUnits();
+        const sk = cx.sel && skillById(cx.sel);
+        if (sk && (SKILL_AIM[sk.type] || 'none') === 'enemy' && cx.combat.waiting && !cx.playing) return this.fireSkill(v);
+        cx.combat.setTarget(v); this.refreshUnits(); return this.renderControls();
+      }
+      case 'c-ally': {
+        const cx = this.ctx; if (!cx || cx.combat.result) return;
+        const sk = cx.sel && skillById(cx.sel);
+        if (sk && SKILL_AIM[sk.type] === 'ally' && cx.combat.waiting && !cx.playing) return this.fireSkill(v);
+        return;
       }
       case 'c-auto': {
         const cx = this.ctx; if (!cx) return;
