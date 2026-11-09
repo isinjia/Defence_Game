@@ -659,3 +659,8 @@ svg.order-lines line { stroke: #8cc4ff; stroke-width: 2; stroke-dasharray: 5 4; 
 .cn-say { display: grid; font-size: 13px; line-height: 1.35; } .cn-say span { color: var(--dim, #9aa6b8); }
 .cn-btns { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
 .cn-btns button { min-height: 40px; }
+.cn-block { border-color: #ff6f7f; }
+.cn-blocker { display: flex; gap: 10px; align-items: flex-start; }
+.cn-blocker .event-text { margin: 4px 0 0; }
+@keyframes gm-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 50% { transform: translateX(3px); } 75% { transform: translateX(-2px); } }
+.gm-shake { animation: gm-shake 0.5s ease; }
