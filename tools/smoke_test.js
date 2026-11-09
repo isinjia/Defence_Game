@@ -136,6 +136,31 @@ const { chromium, devices } = require('playwright');
   const fails = results.filter((r) => !r.ok).length;
   console.log(`\n${results.length - fails}/${results.length} 통과${pageErrors.length ? `, 페이지 오류 ${pageErrors.length}건` : ''}`);
   if (pageErrors.length) console.log([...new Set(pageErrors)].slice(0, 8).map((e) => '  · ' + e.slice(0, 200)).join('\n'));
+  // 전투 한 화면 검사: 파티 5명 + 적 여러 마리로 내 차례 화면이 스크롤 없이 들어가는지 (docs/구현_대기목록.md 4-0)
+  // 지금은 경고만 낸다. STRICT_COMBAT_FIT=1 이면 실패로 친다.
+  let fitFails = 0;
+  console.log('\n전투 한 화면 검사 (내용 높이 / 보이는 높이)');
+  for (const D of ['iPhone SE', 'Galaxy S9+', 'Galaxy Z Fold 7 Cover', 'Pixel 7']) {
+    const c2 = await browser.newContext({ ...devices[D] }); const pg = await c2.newPage();
+    try {
+      await pg.goto(url); await pg.evaluate(() => localStorage.clear()); await pg.reload(); await pg.waitForTimeout(400);
+      await pg.evaluate(() => {
+        UI.handle('new'); UI.handle('mode-manual'); UI.create.name = '화면'; UI.handle('c-start');
+        for (let i = 0; i < 12 && UI.modalOpen(); i++) UI.closeModal(); G.queue = []; G.player.examDone = true;
+        for (let i = 0; i < 4; i++) { const n = G.makeNpc(true); n.isCompanion = true; n.relation = 60; G.npcs.push(n); G.player.party.push(n.id); }
+        UI.renderGame();
+        const p = G.player; const m = { id: 88001, kind: 'mob', x: p.x, y: p.y, region: p.region, tier: 0, elem: 'fire', name: '불꽃 쥐', shape: 'beast', count: 3, born: G.monthKey() };
+        G.mobs.push(m); UI.startMob(m.id);
+      });
+      await pg.waitForFunction(() => UI.ctx && UI.ctx.combat && UI.ctx.combat.waiting && !UI.ctx.playing, null, { timeout: 30000 });
+      const r = await pg.evaluate(() => { const b = document.getElementById('modal-box'); return { c: b.scrollHeight, v: b.clientHeight, f: document.querySelectorAll('#foes .foe').length }; });
+      const ok = r.c <= r.v + 2;
+      if (!ok) fitFails++;
+      console.log(`${ok ? '통과' : '경고'}  ${D.padEnd(22)} ${r.c} / ${r.v}  (적 ${r.f})`);
+    } catch (e) { console.log(`확인 못 함  ${D}: ${String(e.message || e).split('\n')[0]}`); }
+    await c2.close();
+  }
+  const strict = process.env.STRICT_COMBAT_FIT === '1';
   await browser.close();
-  process.exit(fails ? 1 : 0);
+  process.exit(fails || (strict && fitFails) ? 1 : 0);
 })();
