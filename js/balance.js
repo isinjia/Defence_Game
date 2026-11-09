@@ -1,7 +1,7 @@
 // ===== 게이트 크로니클: 밸런스 조정 (영역 C) =====
 // docs/성장_밸런스_분석.md 추천 1·3·6·7.
 // 1. 일반 게이트·토벌 패배는 수명 대신 부상과 돈. 수명은 치명상·레드 게이트 같은 극적인 순간에만 깎인다.
-// 3. 자유 동료와 함께 가면 전리품을 1/N로 똑같이 나눈다. 혼자 가면 조금 더 얻는다.
+// 3. 무소속 파티는 전리품을 능력(전투력)에 비례해 나눈다. 혼자 가면 조금 더 얻는다. 길드·보호국은 월급제 + 인센티브.
 // 6. 돌파 직후 재측정 안내.
 // 7. 돌파 실패는 에테르와 시간만 잃는다(수명 손상 없음).
 // 수명이 줄면 크게 알리고, 정보 창에 잃은 이유를 남긴다(p.lifeLog).
@@ -44,13 +44,18 @@ const BAL = {
         loot.money = Math.round(loot.money * BAL.soloMoney); loot.ether = Math.round(loot.ether * BAL.soloEther);
         note.push('홀로 공략한 덕에 전리품을 독차지했다. (크레딧 +10%, 에테르 +15%)');
       } else if (mates.length) {
-        // 사용자 지적: 둘이 가서 92:8은 말이 안 된다 → 헌터 관례대로 1/N 똑같이 나눈다 (크레딧·코어 에테르)
-        const keep = 1 / (mates.length + 1);
+        // 무소속(자유) 파티는 능력에 비례해 나눈다 (사용자 설계). 길드·보호국은 월급제 + 인센티브라 여기와 별개.
+        const pow = (u) => Math.max(1, u.atk * 1.2 + u.def + u.maxHp / 8);
+        let mine = 1, theirs = [];
+        try { mine = pow(this.playerUnit()); theirs = mates.map((n) => pow(this.npcUnit(n, 'ally'))); } catch (e) { theirs = mates.map(() => mine); }
+        const total = mine + theirs.reduce((x, y) => x + y, 0);
+        const keep = mine / total;
         const each = Math.round(loot.money * keep);
-        const given = loot.money - each;
+        const total$ = loot.money;
         loot.money = each; loot.ether = Math.round(loot.ether * keep);
-        note.push(`전리품을 ${mates.length + 1}명이 똑같이 나눴다. (1/${mates.length + 1}: 내 몫 ${fmt(each)} 크레딧 · ${mates.map((n) => n.name).join(', ')}도 ${fmt(Math.round(given / mates.length))} 크레딧씩)`);
-        for (const n of mates) { this.changeRel(n, 2); if (typeof n.money === 'number') n.money += Math.round(given / mates.length); }
+        const parts = mates.map((n, i) => `${n.name} ${Math.round(theirs[i] / total * 100)}% (${fmt(Math.round(total$ * theirs[i] / total))})`);
+        note.push(`무소속 파티 분배: 능력에 비례해 나눴다. 내 몫 ${Math.round(keep * 100)}% (${fmt(each)} 크레딧) · ${parts.join(', ')}`);
+        mates.forEach((n, i) => { this.changeRel(n, 2); if (typeof n.money === 'number') n.money += Math.round(total$ * theirs[i] / total); });
       }
     }
     const before = p.lifePenalty;
