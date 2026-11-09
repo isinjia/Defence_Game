@@ -3,3 +3,5 @@
   .sheet-head .tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; overflow: visible; }
   .sheet-head .tabs button { padding: 6px 2px; min-height: 36px; white-space: nowrap; font-size: 13px; text-align: center; justify-content: center; }
 }
+/* 지도 '탐사 %' 칩: 28px → 손가락으로 누를 수 있는 높이 */
+.explore-chip { min-height: 34px; padding-top: 6px; padding-bottom: 6px; }
