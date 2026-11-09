@@ -68,8 +68,9 @@ Object.assign(Combat.prototype, {
   },
   comboReady() { return this.comboPairs().filter((x) => !this.comboBlock(x)); },
   // 합동기 발동 (내 차례에만)
-  playerCombo(pid, targetId) {
-    if (!this.waiting || this.result) return false;
+  // ai: 자동 전투에서 aiAct 경로로 부를 때(내 차례 대기 없이)
+  playerCombo(pid, targetId, ai) {
+    if ((!this.waiting && !ai) || this.result) return false;
     const pair = this.comboPairs().find((x) => x.id === pid); if (!pair || this.comboBlock(pair)) return false;
     const p = this.player; const u = this.units.find((x) => x.id === pid);
     (this.comboUsed ||= {})[pid] = true;
@@ -108,13 +109,21 @@ Object.assign(Combat.prototype, {
       if (this.game.addMemory && !(n.memories || []).some((m) => m.text && m.text.includes('합동기'))) this.game.addMemory(n, `처음으로 함께 합동기 [${pair.name}]를 펼쳤다`);
       const gp = this.game.player; if (gp) gp.comboCount = (gp.comboCount || 0) + 1;
     }
-    this.endPlayerTurn();
+    if (!ai) this.endPlayerTurn();
     return true;
   },
 });
 
 {
-  // 자동 전투: 쓸 수 있으면 가끔 합동기를 쓴다
+  // 자동 전투: 쓸 수 있으면 가끔 합동기를 쓴다 (자동이면 플레이어 차례도 aiAct로 온다)
+  const baseAi = Combat.prototype.aiAct;
+  Combat.prototype.aiAct = function (u) {
+    if (u && u.isPlayer && this.auto && !this.result) {
+      const r = this.comboReady();
+      if (r.length && Math.random() < 0.5 && this.playerCombo(r[0].id, null, true)) return;
+    }
+    return baseAi.call(this, u);
+  };
   const baseAuto = Combat.prototype.autoStep;
   Combat.prototype.autoStep = function () {
     if (this.waiting && !this.result) {
@@ -126,6 +135,13 @@ Object.assign(Combat.prototype, {
 }
 
 Object.assign(UI, {
+  // 명령 버튼 위 작은 표시(合·必)
+  cmdBadge(btn, key, on, text) {
+    if (!btn) return;
+    let s = btn.querySelector(`.cmd-badge[data-k="${key}"]`);
+    if (!on) { if (s) s.remove(); return; }
+    if (!s) { btn.insertAdjacentHTML('beforeend', `<span class="cmd-badge ${key}" data-k="${key}">${text}</span>`); }
+  },
   // 스킬 목록 맨 위에 들어갈 합동기 버튼들
   comboBtns() {
     const c = this.ctx; const cb = c && c.combat; if (!cb || !cb.comboPairs) return '';
@@ -149,7 +165,7 @@ Object.assign(UI, {
     const r = baseMenu.apply(this, a);
     if (cb && !cb.result && cb.comboPairs) {
       const on = cb.waiting && !c.playing && !cb.auto && cb.comboReady().length > 0;
-      const b = document.querySelector('#cb-ctrl .cmd-main [data-v=skill]'); if (b) b.classList.toggle('combo-on', on);
+      this.cmdBadge(document.querySelector('#cb-ctrl .cmd-main [data-v=skill]'), 'combo', on, '合');
     }
     return r;
   };

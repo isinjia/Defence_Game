@@ -121,7 +121,7 @@ const { chromium, devices } = require('playwright');
     await closeAll(); await ev(() => { UI.ctx = null; });
     if (r) throw new Error(r);
   });
-  await step('전투 A-γ: 유대 합동기 (메뉴 → 발동)', async () => {
+  await step('전투 A-γ: 유대 합동기·필살 게이지 (메뉴 → 발동)', async () => {
     await closeAll(); await ev(() => { UI.ctx = null; });
     await ev(() => {
       const p = G.player; p.hp = p.maxHp; p.mp = p.maxMp;
@@ -136,7 +136,12 @@ const { chromium, devices } = require('playwright');
       const cb = UI.ctx.combat; const pair = cb.comboPairs()[0]; if (!pair) return '합동기가 열리지 않음';
       cb.units.find((u) => u.id === pair.id).atb = 90; UI.renderControls(); UI.handle('c-cmd', 'skill');
       const b = document.querySelector('.cmd-pop .combo-btn'); if (!b) return '스킬 목록에 합동기 버튼 없음';
+      cb.player.ult = 100; UI.renderControls();
+      if (!document.querySelector('.cmd-pop .ult-btn')) return '스킬 목록에 필살 버튼 없음';
+      if (!document.querySelector('#allies .ult-bar')) return '필살 게이지 줄 없음';
       UI.handle('c-combo', pair.id); if (!(cb.comboUsed || {})[pair.id]) return '합동기가 발동하지 않음';
+      if (cb.result) return '';
+      cb.waiting = true; cb.player.ult = 100; if (!cb.playerUlt(null)) return '필살기가 발동하지 않음';
       return '';
     });
     await page.waitForFunction(() => !UI.ctx || !UI.ctx.playing, null, { timeout: 30000 });
