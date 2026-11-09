@@ -8,6 +8,8 @@ if (typeof Game !== 'undefined') {
     const p = this.player;
     if (p) p.onboard ??= null;
     // 큐는 저장되지 않으니, 불러온 직후 '큐에 올렸음' 표시가 남아 있으면 데뷔 이야기가 영영 멈춘다
+    // 인연 장면도 같은 문제: bondPending === true 인데 큐에 장면이 없으면 'wait'로 되돌려 다음 달 다시 띄운다
+    for (const n of this.npcs || []) if (n.bondPending === true && !(this.queue || []).some((q) => q && q.npc === n.id && /^bond_/.test(q.id || ''))) n.bondPending = 'wait';
     if (p && p.debut && p.debut.queued && !(this.queue || []).some((q) => q && /^debut_/.test(q.id || ''))) p.debut.queued = false;
     return r;
   };
