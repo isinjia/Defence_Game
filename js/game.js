@@ -86,7 +86,7 @@ class Game {
   }
 
   save() {
-    if (this.over) { localStorage.removeItem(SAVE_KEY); return; }
+    if (this.over) { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* 무시 */ } return; }
     const data = {
       year: this.year, month: this.month, player: this.player, npcs: this.npcs, nextNpcId: this.nextNpcId,
       logs: this.logs, rumors: this.rumors, shops: this.shops, gates: this.gates, flags: this.flags,
@@ -95,10 +95,13 @@ class Game {
   }
   static hasSave() { try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; } }
   load() {
-    const data = JSON.parse(localStorage.getItem(SAVE_KEY));
+    let data = null;
+    try { data = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) { data = null; }
+    if (!data) return false;
     Object.assign(this, data);
     this.over = null; this.queue = [];
     this.recalc();
+    return true;
   }
 
   // ---------- 기본 계산 ----------

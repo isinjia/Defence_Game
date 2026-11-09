@@ -518,7 +518,7 @@ const UI = {
     const c = this.create;
     switch (act) {
       case 'new': return this.startCreate();
-      case 'continue': G.load(); this.screen = 'game'; this.tab = 'region'; this.render(); return;
+      case 'continue': if (!G.load()) { this.toast('저장 데이터를 불러오지 못했다.'); return this.render(); } this.screen = 'game'; this.tab = 'region'; this.render(); return;
       case 'help': return this.modal(this.helpHtml());
       case 'to-title': this.closeModal(); this.screen = 'title'; this.ctx = null; return this.render();
       case 'to-title-confirm':
