@@ -102,29 +102,29 @@ const GUILDS = {
 
 const MONSTERS = [
   // tier 0~1
-  { name: '변이 들개',     elem: 'steel',  tier: 0, hp: 0.8, atk: 0.9 },
-  { name: '산성 슬라임',   elem: 'ice',    tier: 0, hp: 1.1, atk: 0.7 },
-  { name: '전기 날벌레떼', elem: 'bolt',   tier: 0, hp: 0.6, atk: 1.1 },
-  { name: '망령 드론',     elem: 'spirit', tier: 1, hp: 0.9, atk: 1.0 },
-  { name: '불꽃 쥐',       elem: 'fire',   tier: 1, hp: 0.8, atk: 1.2 },
+  { name: '변이 들개',     elem: 'steel',  tier: 0, hp: 0.8, atk: 0.9, shape: 'beast' },
+  { name: '산성 슬라임',   elem: 'ice',    tier: 0, hp: 1.1, atk: 0.7, shape: 'slime' },
+  { name: '전기 날벌레떼', elem: 'bolt',   tier: 0, hp: 0.6, atk: 1.1, shape: 'swarm' },
+  { name: '망령 드론',     elem: 'spirit', tier: 1, hp: 0.9, atk: 1.0, shape: 'drone' },
+  { name: '불꽃 쥐',       elem: 'fire',   tier: 1, hp: 0.8, atk: 1.2, shape: 'beast' },
   // tier 2~3
-  { name: '골렘 잔해병',   elem: 'steel',  tier: 2, hp: 1.6, atk: 0.9 },
-  { name: '서리 늑대',     elem: 'ice',    tier: 2, hp: 1.1, atk: 1.2 },
-  { name: '뇌격 비행체',   elem: 'bolt',   tier: 3, hp: 0.9, atk: 1.5 },
-  { name: '망자의 합창단', elem: 'spirit', tier: 3, hp: 1.3, atk: 1.2 },
-  { name: '용암 두꺼비',   elem: 'fire',   tier: 3, hp: 1.7, atk: 1.1 },
+  { name: '골렘 잔해병',   elem: 'steel',  tier: 2, hp: 1.6, atk: 0.9, shape: 'golem' },
+  { name: '서리 늑대',     elem: 'ice',    tier: 2, hp: 1.1, atk: 1.2, shape: 'beast' },
+  { name: '뇌격 비행체',   elem: 'bolt',   tier: 3, hp: 0.9, atk: 1.5, shape: 'drone' },
+  { name: '망자의 합창단', elem: 'spirit', tier: 3, hp: 1.3, atk: 1.2, shape: 'choir' },
+  { name: '용암 두꺼비',   elem: 'fire',   tier: 3, hp: 1.7, atk: 1.1, shape: 'slime' },
   // tier 4~5
-  { name: '철갑 거미 여왕', elem: 'steel', tier: 4, hp: 2.2, atk: 1.3 },
-  { name: '빙설 세이렌',   elem: 'ice',    tier: 4, hp: 1.5, atk: 1.6 },
-  { name: '천둥 기수',     elem: 'bolt',   tier: 5, hp: 1.6, atk: 1.9 },
-  { name: '차원 포식자',   elem: 'spirit', tier: 5, hp: 2.0, atk: 1.7 },
+  { name: '철갑 거미 여왕', elem: 'steel', tier: 4, hp: 2.2, atk: 1.3, shape: 'spider' },
+  { name: '빙설 세이렌',   elem: 'ice',    tier: 4, hp: 1.5, atk: 1.6, shape: 'ghost' },
+  { name: '천둥 기수',     elem: 'bolt',   tier: 5, hp: 1.6, atk: 1.9, shape: 'flyer' },
+  { name: '차원 포식자',   elem: 'spirit', tier: 5, hp: 2.0, atk: 1.7, shape: 'eye' },
   // tier 6~7
-  { name: '적룡 파편체',   elem: 'fire',   tier: 6, hp: 2.6, atk: 2.0 },
-  { name: '폭풍 와이번',   elem: 'bolt',   tier: 6, hp: 2.2, atk: 2.2 },
-  { name: '강철 거신',     elem: 'steel',  tier: 6, hp: 3.0, atk: 1.8 },
-  { name: '빙결 고룡',     elem: 'ice',    tier: 7, hp: 2.8, atk: 2.1 },
-  { name: '심연 감시자',   elem: 'spirit', tier: 7, hp: 2.6, atk: 2.2 },
-  { name: '태양의 잔해',   elem: 'fire',   tier: 7, hp: 2.4, atk: 2.4 },
+  { name: '적룡 파편체',   elem: 'fire',   tier: 6, hp: 2.6, atk: 2.0, shape: 'dragon' },
+  { name: '폭풍 와이번',   elem: 'bolt',   tier: 6, hp: 2.2, atk: 2.2, shape: 'dragon' },
+  { name: '강철 거신',     elem: 'steel',  tier: 6, hp: 3.0, atk: 1.8, shape: 'golem' },
+  { name: '빙결 고룡',     elem: 'ice',    tier: 7, hp: 2.8, atk: 2.1, shape: 'dragon' },
+  { name: '심연 감시자',   elem: 'spirit', tier: 7, hp: 2.6, atk: 2.2, shape: 'eye' },
+  { name: '태양의 잔해',   elem: 'fire',   tier: 7, hp: 2.4, atk: 2.4, shape: 'core' },
 ];
 
 const SURNAMES = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임', '한', '오', '서', '신', '권', '황', '안', '송', '류', '홍', '전', '고', '문', '양', '손', '배', '백', '허', '남', '심'];

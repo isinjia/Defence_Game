@@ -17,6 +17,7 @@ class Combat {
     this.auto = false;
     this.target = null;
     this.kills = [];
+    this.initial = Object.fromEntries(this.units.map((u) => [u.id, { hp: u.hp, mp: u.mp }]));
     this.nextRound();
     this.advance();
   }
@@ -24,7 +25,7 @@ class Combat {
   get player() { return this.units.find((u) => u.isPlayer); }
   allies() { return this.units.filter((u) => u.side === 'ally' && u.alive); }
   enemies() { return this.units.filter((u) => u.side === 'enemy' && u.alive); }
-  push(t, cls = '') { this.log.push({ t: fixJosa(t), cls }); if (this.log.length > 60) this.log.shift(); }
+  push(t, cls = '', ev = null) { this.log.push({ t: fixJosa(t), cls, ev }); }
 
   nextRound() {
     this.round++;
@@ -41,7 +42,7 @@ class Combat {
       if (this.turnIdx >= this.order.length) { this.tickBuffs(); this.nextRound(); }
       const u = this.current();
       if (!u || !u.alive) { this.turnIdx++; continue; }
-      if (u.isPlayer && !this.auto) { this.waiting = true; return; }
+      if (u.isPlayer) { this.waiting = true; return; }
       this.aiAct(u);
       this.turnIdx++;
       this.checkEnd();
@@ -81,7 +82,7 @@ class Combat {
       this.game.player.items.potion--;
       const v = Math.round(u.maxHp * 0.4 * (1 + this.game.mod('heal')));
       u.hp = Math.min(u.maxHp, u.hp + v);
-      this.push(`${u.name}이(가) 응급 회복제를 사용했다: 체력 +${v}`, 'heal');
+      this.push(`${u.name}이(가) 응급 회복제를 사용했다: 체력 +${v}`, 'heal', { k: 'heal', dst: u.id, amt: v, hp: u.hp });
       return;
     }
     const usable = u.skills.map(skillById).filter((s) => s.mp <= u.mp);
@@ -120,34 +121,39 @@ class Combat {
   dealDamage(att, def, skill) {
     const { dmg, note } = this.calcDamage(att, def, skill);
     def.hp -= dmg;
-    const cls = att.side === 'ally' ? 'hit' : 'hurt';
-    this.push(`${att.name}의 ${skill.name} → ${def.name}에게 ${dmg} 피해${note}`, cls);
+    let killed = false;
     if (def.hp <= 0) {
       // 대련에서는 플레이어가 죽지 않고 체력 1로 패배 처리
       def.hp = this.spar && def.isPlayer ? 1 : 0;
-      def.alive = false;
-      this.push(`${def.name}이(가) 쓰러졌다.`, def.side === 'enemy' ? 'good' : 'bad');
+      def.alive = false; killed = true;
+    }
+    const cls = att.side === 'ally' ? 'hit' : 'hurt';
+    this.push(`${att.name}의 ${skill.name} → ${def.name}에게 ${dmg} 피해${note}`, cls,
+      { k: 'dmg', src: att.id, dst: def.id, amt: dmg, elem: skill.elem, crit: note.includes('치명타'), eff: note.includes('효과적'), hp: def.hp, killed });
+    if (killed) {
+      this.push(`${def.name}이(가) 쓰러졌다.`, def.side === 'enemy' ? 'good' : 'bad', { k: 'down', dst: def.id });
       if (def.side === 'enemy') this.kills.push(def);
     }
   }
 
   useSkill(u, skill, target, friends) {
     u.mp -= skill.mp;
+    this.log.push({ t: '', cls: 'cast', ev: { k: 'cast', src: u.id, mp: u.mp, elem: skill.elem, side: u.side } });
     if (skill.type === 'dmg') { if (target) this.dealDamage(u, target, skill); }
     else if (skill.type === 'aoe') {
       const foes = u.side === 'ally' ? this.enemies() : this.allies();
-      this.push(`${u.name}이(가) ${skill.name}을(를) 펼쳤다!`, u.side === 'ally' ? 'hit' : 'hurt');
+      this.push(`${u.name}이(가) ${skill.name}을(를) 펼쳤다!`, u.side === 'ally' ? 'hit' : 'hurt', { k: 'aoe', src: u.id, side: u.side, elem: skill.elem });
       for (const f of foes) this.dealDamage(u, f, skill);
     } else if (skill.type === 'heal') {
       const v = Math.round(u.maxHp * skill.power);
       u.hp = Math.min(u.maxHp, u.hp + v);
-      this.push(`${u.name}의 ${skill.name}: 체력 +${v}`, 'heal');
+      this.push(`${u.name}의 ${skill.name}: 체력 +${v}`, 'heal', { k: 'heal', dst: u.id, amt: v, hp: u.hp, mp: u.mp });
     } else if (skill.type === 'buff') {
       u.buffs.atk = skill.power; u.buffs.atkT = 3;
-      this.push(`${u.name}의 ${skill.name}: 공격력 상승!`, 'heal');
+      this.push(`${u.name}의 ${skill.name}: 공격력 상승!`, 'heal', { k: 'buff', dst: u.id, mp: u.mp });
     } else if (skill.type === 'shield') {
       u.buffs.def = skill.power * 2; u.buffs.defT = 3;
-      this.push(`${u.name}의 ${skill.name}: 방어력 상승!`, 'heal');
+      this.push(`${u.name}의 ${skill.name}: 방어력 상승!`, 'heal', { k: 'buff', dst: u.id, mp: u.mp });
     }
   }
 
@@ -168,8 +174,8 @@ class Combat {
     if (c.effect !== 'hp' && c.effect !== 'mp') return;
     g.player.items[id]--;
     const mul = 1 + g.mod('heal');
-    if (c.effect === 'hp') { const v = Math.round(p.maxHp * c.val * mul); p.hp = Math.min(p.maxHp, p.hp + v); this.push(`${c.name} 사용: 체력 +${v}`, 'heal'); }
-    else { const v = Math.round(p.maxMp * c.val * mul); p.mp = Math.min(p.maxMp, p.mp + v); this.push(`${c.name} 사용: 정신력 +${v}`, 'heal'); }
+    if (c.effect === 'hp') { const v = Math.round(p.maxHp * c.val * mul); p.hp = Math.min(p.maxHp, p.hp + v); this.push(`${c.name} 사용: 체력 +${v}`, 'heal', { k: 'heal', dst: p.id, amt: v, hp: p.hp }); }
+    else { const v = Math.round(p.maxMp * c.val * mul); p.mp = Math.min(p.maxMp, p.mp + v); this.push(`${c.name} 사용: 정신력 +${v}`, 'heal', { k: 'mp', dst: p.id, mp: p.mp }); }
     this.endPlayerTurn();
   }
   playerFlee() {
@@ -183,7 +189,15 @@ class Combat {
     this.endPlayerTurn();
   }
   setTarget(id) { const t = this.units.find((u) => u.id === id && u.alive && u.side === 'enemy'); if (t) this.target = t; }
-  toggleAuto() { this.auto = !this.auto; if (this.auto && this.waiting) { this.waiting = false; this.advance(); } }
+  toggleAuto() { this.auto = !this.auto; }
+  // 자동 전투: 플레이어 한 턴을 AI가 대신 행동
+  autoStep() {
+    if (!this.waiting || this.result) return;
+    this.aiAct(this.player);
+    this.endPlayerTurn();
+  }
+  // 연출 없이 끝까지 진행 (시뮬레이션용)
+  runAll() { this.auto = true; let g = 0; while (!this.result && this.waiting && g++ < 500) this.autoStep(); }
 
   endPlayerTurn() {
     this.waiting = false;

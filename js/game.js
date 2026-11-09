@@ -14,7 +14,7 @@ const RNG = {
   },
 };
 
-const SAVE_KEY = 'gate_chronicle_save_v1';
+const SAVE_KEY = 'gate_chronicle_save_v2';
 
 function rankLabel(r, s) { return `${RANKS[r].key}급 ${STAGE_NAMES[s]}`; }
 function stageReq(r, s) { return Math.floor(60 * RANKS[r].mult ** 2.5 * (1 + s * 0.25)); }
@@ -49,7 +49,9 @@ class Game {
   // ---------- 시작 / 저장 ----------
   newGame(opts) {
     const bg = BACKGROUNDS.find((b) => b.id === opts.bg);
-    this.year = 2087; this.month = 3;
+    this.year = 2087; this.month = 3; this.day = 1;
+    this.mobs = []; this.mapGates = []; this.nextObjId = 1;
+    this.fog = new Uint8Array(WORLD.COLS * WORLD.ROWS);
     this.logs = []; this.rumors = [];
     this.shops = {}; this.gates = {};
     this.flags = { won: false };
@@ -62,7 +64,8 @@ class Game {
     const startSkill = SKILLS.find((s) => s.elem === opts.element && s.rankReq === 0);
 
     this.player = {
-      name: opts.name, gender: opts.gender, bg: bg.id, element: opts.element,
+      name: opts.name, gender: opts.gender, bg: bg.id, element: opts.element, look: opts.look || opts.name,
+      license: `${this.year}-${String(Math.floor(Math.random() * 9000) + 1000)}`,
       traits: opts.traits.slice(), talent: Math.max(1, talent),
       rankIdx: 0, stage: 0, ether: 0,
       ageMonths: 19 * 12, lifePenalty: 0, lifeBonus: 0,
@@ -75,12 +78,15 @@ class Game {
       record: { gates: 0, kills: 0, npcKills: 0, breakthroughs: 0, fails: 0 },
       hp: 1, mp: 1,
     };
+    [this.player.x, this.player.y] = WORLD.cityPos[this.player.region];
+    this.reveal(this.player.x, this.player.y, 6);
     this.player.equip.weapon = this.makeEquipment('weapon', 0, 0);
     this.player.equip.armor = this.makeEquipment('armor', 0, 0);
     this.recalc();
     this.player.hp = this.player.maxHp; this.player.mp = this.player.maxMp;
 
     for (let i = 0; i < 55; i++) this.npcs.push(this.makeNpc(false));
+    for (let i = 0; i < 3; i++) this.spawnMonthly();
     this.log(`${this.dateStr()}, ${this.player.name}은(는) ${regionById(this.player.region).name}에서 각성했다.`, 'major');
     this.log('20년 전 "대붕괴" 이후 한반도 곳곳에 게이트가 열렸다. 살아남아, 강해져라.');
   }
@@ -89,7 +95,9 @@ class Game {
     if (this.over) { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* 무시 */ } return; }
     const data = {
       year: this.year, month: this.month, player: this.player, npcs: this.npcs, nextNpcId: this.nextNpcId,
-      logs: this.logs, rumors: this.rumors, shops: this.shops, gates: this.gates, flags: this.flags,
+      logs: this.logs, rumors: this.rumors, shops: this.shops, flags: this.flags,
+      day: this.day, mobs: this.mobs, mapGates: this.mapGates, nextObjId: this.nextObjId,
+      fog: Array.from(this.fog).join(''),
     };
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (e) { /* 저장 실패 무시 */ }
   }
@@ -98,7 +106,10 @@ class Game {
     let data = null;
     try { data = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) { data = null; }
     if (!data) return false;
+    if (data.player.x == null) return false; // 지도 도입 전 저장 데이터
     Object.assign(this, data);
+    this.fog = Uint8Array.from(String(data.fog || ''), (c) => (c === '1' ? 1 : 0));
+    if (this.fog.length !== WORLD.COLS * WORLD.ROWS) this.fog = new Uint8Array(WORLD.COLS * WORLD.ROWS);
     this.over = null; this.queue = [];
     this.recalc();
     return true;
@@ -142,6 +153,7 @@ class Game {
   }
   ageYears() { return Math.floor(this.player.ageMonths / 12); }
   dateStr() { return `${this.year}년 ${this.month}월`; }
+  fullDate() { return `${this.year}년 ${this.month}월 ${this.day}일`; }
   monthKey() { return this.year * 12 + this.month; }
   region() { return regionById(this.player.region); }
 
@@ -160,6 +172,7 @@ class Game {
     let g = 15 * RANKS[p.rankIdx].mult * this.region().ether * (1 + p.talent * 0.08) * (1 + this.mod('train'));
     if (p.guild === 'cheongryong') g *= 1.15;
     if (p.injured > 0) g *= 0.5;
+    if (this.onEther()) g *= 1.4;
     return Math.max(1, Math.floor(g * mult * RNG.range(0.85, 1.15)));
   }
 
@@ -198,7 +211,7 @@ class Game {
     if (!this.canAct()) return;
     const g = this.trainGain();
     this.addEther(g);
-    this.log(`${this.region().name}에서 한 달간 수련했다. 에테르 +${fmt(g)}`);
+    this.log(`${this.region().name}${this.onEther() ? '의 에테르 농축 지대' : ''}에서 한 달간 수련했다. 에테르 +${fmt(g)}`);
     this.advanceMonth(1, { eventChance: 0.22 });
   }
 
@@ -242,20 +255,125 @@ class Game {
 
   canAct() { return !this.over; }
 
-  // ---------- 이동 ----------
-  travel(regionId) {
-    if (!this.canAct() || regionId === this.player.region) return;
-    const d = regionDist(this.player.region, regionId);
-    const dest = regionById(regionId);
-    if (dest.id === 'jeju' && this.player.rankIdx < 6) {
-      this.log('제주 격리 섬은 S급 이상만 출입이 허가된다.', 'bad');
-      return;
+  // ---------- 지도 이동 ----------
+  onEther() { return WORLD.type(this.player.x, this.player.y) === WORLD.T.ETHER; }
+  onCity() { return WORLD.cityAt(this.player.x, this.player.y); }
+  canJeju() { return this.player.rankIdx >= 6; }
+  moveRange() { return Math.min(9, 5 + Math.floor(this.player.spd / 12)); }
+  reveal(x, y, r) {
+    for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+      if (dx * dx + dy * dy > r * r + r || !WORLD.inb(x + dx, y + dy)) continue;
+      this.fog[WORLD.idx(x + dx, y + dy)] = 1;
     }
-    this.player.region = regionId;
+  }
+  revealed(x, y) { return this.fog[WORLD.idx(x, y)] === 1; }
+  objAt(x, y) {
+    return this.mapGates.find((g) => g.x === x && g.y === y) || this.mobs.find((m) => m.x === x && m.y === y) || null;
+  }
+  // path: 타일 인덱스 배열 (시작 포함), cost: 이동 비용
+  moveAlong(path, cost) {
+    if (!this.canAct() || !path || path.length < 2) return 0;
+    const p = this.player;
+    for (const i of path) { const [x, y] = WORLD.xy(i); this.reveal(x, y, 3); }
+    [p.x, p.y] = WORLD.xy(path[path.length - 1]);
+    const reg = WORLD.regionAt(p.x, p.y);
+    if (reg && reg.id !== p.region) {
+      p.region = reg.id;
+      this.log(`${reg.name}에 들어섰다.`);
+    }
+    const city = this.onCity();
+    if (city) this.reveal(p.x, p.y, 5);
     const comp = this.companion();
-    if (comp) comp.region = regionId;
-    this.log(`${d}개월에 걸쳐 ${dest.name}(으)로 이동했다.`);
-    this.advanceMonth(d, { eventChance: 0.3 });
+    if (comp) comp.region = p.region;
+    const days = WORLD.daysFor(cost);
+    this.advanceDays(days, { eventChance: 0.3 });
+    return days;
+  }
+  advanceDays(n, opts = {}) {
+    this.day += n;
+    while (this.day > 30 && !this.over) {
+      this.day -= 30;
+      this.advanceMonth(1, opts);
+    }
+    this.save();
+  }
+
+  // 매달 지도 위 게이트와 괴수 무리 갱신
+  randomFreeTile(regionId) {
+    const pool = WORLD.regionTiles[regionId];
+    if (!pool || !pool.length) return null;
+    for (let k = 0; k < 20; k++) {
+      const [x, y] = WORLD.xy(RNG.pick(pool));
+      if (this.objAt(x, y) || (this.player && this.player.x === x && this.player.y === y)) continue;
+      return [x, y];
+    }
+    return null;
+  }
+  spawnMonthly() {
+    const key = this.monthKey();
+    this.mapGates = this.mapGates.filter((g) => g.final || g.mission || key - g.born < 4);
+    this.mobs = this.mobs.filter((m) => key - m.born < 5);
+    for (const reg of REGIONS) {
+      const [lo, hi] = GATE_RANGES[reg.danger];
+      const gCount = this.mapGates.filter((g) => g.region === reg.id && !g.final && !g.mission).length;
+      if (gCount < 2 && RNG.chance(0.35 + reg.danger * 0.1)) {
+        const pos = this.randomFreeTile(reg.id);
+        if (pos) this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: reg.id, tier: RNG.int(lo, hi), theme: RNG.pick(GATE_THEMES), elem: RNG.pick(ELEMENT_KEYS), born: key });
+      }
+      const cap = 2 + Math.floor(reg.danger / 2);
+      const mCount = this.mobs.filter((m) => m.region === reg.id).length;
+      for (let k = mCount; k < cap; k++) {
+        if (!RNG.chance(0.55)) continue;
+        const pos = this.randomFreeTile(reg.id); if (!pos) continue;
+        const tier = Math.max(0, RNG.int(lo - 1, hi - 1));
+        const tpl = RNG.pick(MONSTERS.filter((m) => Math.abs(m.tier - tier) <= 1));
+        this.mobs.push({ id: this.nextObjId++, kind: 'mob', x: pos[0], y: pos[1], region: reg.id, tier, elem: tpl.elem, name: tpl.name, shape: tpl.shape, count: RNG.int(1, 3), born: key });
+      }
+    }
+    // 길드 임무 게이트
+    const p = this.player;
+    if (p && p.guild && !this.mapGates.some((g) => g.mission)) {
+      const home = REGIONS.find((r) => r.guild === p.guild);
+      const pos = this.randomFreeTile(home.id);
+      if (pos) this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: home.id, tier: Math.max(0, Math.min(7, p.rankIdx + RNG.int(-1, 0))), theme: '길드 지정 게이트', elem: GUILDS[p.guild].elem, born: key, mission: true });
+    }
+    if (p && !p.guild) this.mapGates = this.mapGates.filter((g) => !g.mission);
+    // 원초의 게이트 (한라산)
+    if (!this.flags.won && !this.mapGates.some((g) => g.final)) {
+      const jt = WORLD.regionTiles.jeju.map(WORLD.xy).find(([x, y]) => WORLD.type(x, y) === WORLD.T.MOUNTAIN) || WORLD.xy(WORLD.regionTiles.jeju[0]);
+      this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: jt[0], y: jt[1], region: 'jeju', tier: 7, theme: '원초의 게이트', elem: 'spirit', born: key, final: true });
+    }
+  }
+  mobRoom(mob) {
+    const list = [];
+    for (let k = 0; k < mob.count; k++) {
+      const m = this.makeMonster(mob.tier, false, mob.elem);
+      if (k === 0) { const tpl = MONSTERS.find((t) => t.name === mob.name); if (tpl) { m.name = tpl.name; m.shape = tpl.shape; m.elem = tpl.elem; } }
+      list.push(m);
+    }
+    return list;
+  }
+  finishMob(mob, result, kills, hpLeft, mpLeft) {
+    const p = this.player;
+    p.hp = Math.max(1, hpLeft); p.mp = Math.max(0, mpLeft);
+    if (result === 'lose') {
+      const lost = Math.floor(p.money * 0.15);
+      p.money -= lost; p.lifePenalty += 1; p.injured = 2;
+      this.recalc(); p.hp = Math.max(1, Math.floor(p.maxHp * 0.3));
+      this.log(`${mob.name} 무리에게 패배했다.`, 'bad');
+      this.advanceDays(20, { noRegen: true });
+      return [`간신히 목숨을 건졌다. 치료비 ${fmt(lost)} 크레딧, 수명 -1년, 부상 2개월.`];
+    }
+    if (result !== 'win') return ['무리에게서 물러났다.'];
+    let money = 0, ether = 0;
+    for (const k of kills) { const r = this.monsterReward(k); money += r.money; ether += r.ether; }
+    p.money += money; this.addEther(ether); p.record.kills += kills.length;
+    this.mobs = this.mobs.filter((m) => m !== mob && m.id !== mob.id);
+    const lines = [`토벌 보상: ${fmt(money)} 크레딧, 에테르 ${fmt(ether)}`];
+    if (RNG.chance(0.15)) { const it = this.makeEquipment(RNG.pick(['weapon', 'armor', 'acc']), mob.tier); p.inventory.push(it); lines.push(`전리품: ${it.name}`); }
+    this.log(`${mob.name} 무리를 토벌했다.`, 'good');
+    this.save();
+    return lines;
   }
 
   // ---------- 시간 ----------
@@ -275,6 +393,7 @@ class Game {
         p.money += sal;
       }
       this.simulateNpcs();
+      this.spawnMonthly();
       if (this.ageYears() >= this.maxLife()) {
         this.gameOver(`${this.ageYears()}세, 수명이 다해 눈을 감았다.`);
         return;
@@ -494,34 +613,12 @@ class Game {
       id: 'm' + Math.random().toString(36).slice(2, 8), name: (boss ? '[보스] ' : '') + t.name, side: 'enemy', boss,
       hp, maxHp: hp, mp: Math.round(40 * m), maxMp: Math.round(40 * m),
       atk: Math.round(10.5 * m * t.atk * atkMul), def: Math.round(4 * m * (boss ? 1.3 : 1)), spd: Math.round(9 * Math.sqrt(m) * RNG.range(0.9, 1.1)), luck: 5,
-      elem: t.elem, skills, tier,
+      elem: t.elem, skills, tier, shape: t.shape,
     };
   }
 
   // ---------- 게이트 ----------
-  getGates() {
-    const reg = this.region();
-    const key = this.monthKey();
-    let g = this.gates[reg.id];
-    if (!g || g.key !== key) {
-      const [lo, hi] = GATE_RANGES[reg.danger];
-      const list = [];
-      const count = RNG.int(2, 3);
-      for (let i = 0; i < count; i++) {
-        const tier = RNG.int(lo, hi);
-        list.push({ id: `${key}-${i}`, tier, theme: RNG.pick(GATE_THEMES), elem: RNG.pick(ELEMENT_KEYS), cleared: false });
-      }
-      if (reg.id === 'jeju' && !this.flags.won) list.push({ id: `${key}-f`, tier: 7, theme: '원초의 게이트', elem: 'spirit', cleared: false, final: true });
-      list.sort((a, b) => a.tier - b.tier);
-      g = this.gates[reg.id] = { key, list };
-    }
-    // 길드 본부에서는 매달 임무 게이트 1개 (가입 직후에도 바로 생성)
-    if (reg.guild && reg.guild === this.player.guild && !g.list.some((x) => x.mission)) {
-      const tier = Math.max(0, Math.min(7, this.player.rankIdx + RNG.int(-1, 0)));
-      g.list.unshift({ id: `${key}-m`, tier, theme: '길드 지정 게이트', elem: GUILDS[reg.guild].elem, cleared: false, mission: true });
-    }
-    return g.list;
-  }
+  getGates() { return this.mapGates; }
 
   gateName(gate) { return gate.final ? '원초의 게이트' : `${RANKS[gate.tier].key}급 게이트 · ${gate.theme}`; }
   gateRooms(gate) {
@@ -533,7 +630,7 @@ class Game {
       if (last) {
         if (gate.final) {
           const boss = this.makeMonster(7, true, 'spirit');
-          boss.name = '[최종] 심연의 군주'; boss.hp = boss.maxHp = Math.round(boss.maxHp * 2.2); boss.atk = Math.round(boss.atk * 1.2);
+          boss.name = '[최종] 심연의 군주'; boss.shape = 'lord'; boss.hp = boss.maxHp = Math.round(boss.maxHp * 2.2); boss.atk = Math.round(boss.atk * 1.2);
           enemies.push(boss);
         } else {
           enemies.push(this.makeMonster(gate.tier, true, gate.elem));
@@ -568,7 +665,7 @@ class Game {
       p.hp = Math.max(1, Math.floor(p.maxHp * 0.3));
       lines.push(`쓰러진 당신을 관리국 구조대가 끌어냈다. 치료비로 ${fmt(lost)} 크레딧을 잃었고, 치명상으로 수명이 2년 줄었다. (부상 3개월)`);
       this.log(`${this.gateName(gate)}에서 패배했다.`, 'bad');
-      this.advanceMonth(2, { noRegen: true });
+      this.advanceDays(45, { noRegen: true });
       return lines;
     }
     p.money += loot.money; p.record.kills += loot.kills;
@@ -576,6 +673,7 @@ class Game {
     lines.push(`획득: ${fmt(loot.money)} 크레딧, 에테르 ${fmt(loot.ether)}`);
     if (result === 'clear') {
       gate.cleared = true; p.record.gates++;
+      this.mapGates = this.mapGates.filter((g) => g.id !== gate.id);
       const fame = gate.tier + 1;
       p.fame += fame;
       lines.push(`게이트 클리어! 명성 +${fame}`);
@@ -604,7 +702,7 @@ class Game {
     } else {
       this.log(`${this.gateName(gate)}에서 철수했다.`);
     }
-    this.advanceMonth(1, { eventChance: 0.1 });
+    this.advanceDays(10, { eventChance: 0.1 });
     return lines;
   }
 
@@ -734,6 +832,7 @@ class Game {
   joinGuild() {
     const reg = this.region(); const p = this.player;
     if (!reg.guild || p.guild) return '';
+    if (!this.onCity()) return '길드 본부가 있는 도시 안에서 신청할 수 있다.';
     const g = GUILDS[reg.guild];
     if (p.fame < g.fameReq) return `명성이 부족하다. (필요 ${g.fameReq})`;
     p.guild = reg.guild; p.guildRank = 0; p.contrib = 0;
