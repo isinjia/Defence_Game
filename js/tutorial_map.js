@@ -46,7 +46,7 @@ Object.assign(UI, {
     const step = m.step;
     const playerTurn = step === 'your1' || step === 'your2' || step === 'boss';
     const reach = playerTurn ? this.examReach().map(([r, i]) => r + ':' + i) : [];
-    const ROWH = 78, H = m.rows.length * ROWH + 30;
+    const ROWH = 66, H = m.rows.length * ROWH + 30;
     const y = (r) => H - 30 - (r + 0.5) * ROWH;
     const pt = (pos) => (pos ? { x: m.rows[pos[0]][pos[1]].x * 100, y: y(pos[0]) } : { x: 50, y: H - 14 });
     const lines = [];
@@ -71,18 +71,18 @@ Object.assign(UI, {
     const say = opts.say || this.examMapSay(step === 'pick1' ? 'pick1' : step);
     const stepNo = { intro: 1, pick1: 1, your1: 2, your2: 3, boss: 4 }[step] || 1;
     this.modal(`<div class="cb-head"><h3>헌터 자격 시험 · 훈련용 게이트</h3><span class="tag">탐색 안내 ${stepNo}/4</span></div>
-      <div class="coach lead-say"><span class="eyebrow">${this.examMapLeadName()}</span><div>${say}</div></div>
+      ${opts.move ? '' : `<div class="coach lead-say"><span class="eyebrow">${this.examMapLeadName()}</span><div>${say}</div></div>`}
       <div class="gmap-stat row between small"><span>체력 <b class="num">${Math.round(p.hp)}/${p.maxHp}</b> · 정신력 <b class="num">${Math.round(p.mp)}/${p.maxMp}</b></span></div>
       <div class="gmap-legend">${legend}</div>
       <div class="gmap exam-gmap" style="height:${H}px"><svg class="gmap-lines" viewBox="0 0 100 ${H}" preserveAspectRatio="none">${lines.join('')}</svg>${nodes.join('')}${token}</div>
       ${step === 'intro' && !opts.leaderPick && !opts.move ? '<div class="row end"><button class="primary" data-act="exm-watch">리더를 따라간다</button></div>' : ''}
-      ${playerTurn && !opts.move ? '<div class="small amber">빛나는 칸을 눌러 이동하세요.</div>' : ''}`, 'combat-box gmap-box');
+      ${playerTurn && !opts.move ? '<div class="small amber">빛나는 칸을 눌러 이동하세요.</div>' : ''}`, 'gmap-box exam-map-box');
     if (opts.move) {
       const to = pt(opts.move[1]);
       const tk = document.getElementById('gtoken');
       requestAnimationFrame(() => requestAnimationFrame(() => { if (tk) { tk.style.left = to.x + '%'; tk.style.top = to.y + 'px'; } }));
     }
-    const box = document.querySelector('#modal .gmap'); if (box) box.scrollIntoView({ block: 'nearest' });
+    // 리더의 말(.lead-say)은 화면 공용 말풍선(UI.coachPop)이 창 밖으로 띄운다
   },
 
   // 리더가 첫 칸을 고르는 장면 → 이동 → 사건
@@ -100,7 +100,7 @@ Object.assign(UI, {
   examMove(to) {
     const m = this.exam.map; const from = m.pos;
     const k = to[0] + ':' + to[1];
-    this.renderExamMap({ move: [from, to], say: '이동 중…', leaderPick: m.step === 'pick1' ? k : null });
+    this.renderExamMap({ move: [from, to], leaderPick: m.step === 'pick1' ? k : null });
     m.pos = to; m.done.push(k);
     const ctx = this.ctx;
     this.examTimer(1000, ctx, () => this.examOpen(to));
@@ -145,5 +145,20 @@ Object.assign(UI, {
       }
     }
     return baseHandle.call(this, act, v);
+  };
+}
+
+// 리더의 말은 상자가 아니라 얼굴이 달린 둥근 말풍선으로 (화면 공용 떠 있는 안내 UI.coachPop 을 꾸민다)
+{
+  const basePop = UI.coachPop;
+  if (basePop) UI.coachPop = function (node, target, key) {
+    const r = basePop.call(this, node, target, key);
+    const pop = document.getElementById('coach-pop');
+    const who = node && node.querySelector && node.querySelector('.eyebrow');
+    const L = this.examLeader && this.examLeader();
+    const leaderTalk = pop && who && (/리더|선임/.test(who.textContent) || node.classList.contains('lead-say'));
+    if (pop) pop.classList.toggle('speech', !!leaderTalk);
+    if (leaderTalk && L && !pop.querySelector('.sb-face')) pop.insertAdjacentHTML('afterbegin', `<span class="sb-face">${this.npcAvatar(L, 36)}</span>`);
+    return r;
   };
 }

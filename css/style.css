@@ -624,3 +624,13 @@ button.item-row { width: 100%; text-align: left; }
 .gnode.lead { color: var(--amber); border-color: var(--amber); box-shadow: 0 0 0 4px rgba(255, 181, 71, .3), 0 0 20px rgba(255, 181, 71, .6); animation: gpulse 1s ease-in-out infinite; }
 .gnode.lead .gnode-name { color: var(--amber); }
 .exam-gmap { margin-top: 6px; }
+
+/* 리더의 말: 떠 있는 안내를 둥근 말풍선으로 */
+#coach-pop.speech { grid-template-columns: auto 1fr; align-items: start; gap: 0; background: #f4efe4; border-radius: 18px; padding: 10px 14px 10px 10px; box-shadow: 0 10px 28px #000b; }
+#coach-pop.speech .coach-card { background: transparent !important; border: 0 !important; padding: 0 4px 0 8px !important; color: #1b1712; box-shadow: none; font-size: 14px; line-height: 1.5; }
+#coach-pop.speech .coach-card .eyebrow { color: #8a5a12; letter-spacing: 0; font-size: 12px; }
+#coach-pop.speech .coach-card b { color: #a2400f; }
+#coach-pop.speech .sb-face { line-height: 0; grid-row: 1 / span 2; }
+#coach-pop.speech .sb-face .avatar, #coach-pop.speech .sb-face svg { width: 36px; height: 36px; border-radius: 50%; }
+#coach-pop.speech .coach-close { color: #8a7a62; }
+#coach-pop.speech .coach-arrow { background: #f4efe4; border-color: #f4efe4; }
