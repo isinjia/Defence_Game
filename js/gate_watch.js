@@ -23,7 +23,7 @@ Object.assign(UI, {
     G.player.items.recall--;
     const ov = document.getElementById('council-ov'); if (ov) ov.remove();
     this.toast('귀환석이 빛났다. 순식간에 바깥으로 빠져나왔다.');
-    return this.handle('g-leave');
+    return this.retreatBase ? this.retreatBase() : this.handle('g-leave');
   },
   // 탐색 중 변이: 칸에 들어갈 때마다 진행
   mutTick() {
@@ -208,4 +208,129 @@ Object.assign(UI, {
     if (act === 'g-recall') return this.useRecall();
     return baseHandle.call(this, act, v);
   };
+})();
+
+// ===== 4-7. 귀환석은 매우 매우 귀하다 =====
+// - 상점에서 팔지 않는다. 보스 극소 드롭, 경매장 최고가 품목, 후원자 '선택'·대형 길드 정예의 특별 지급으로만.
+// - 일반 게이트 "철수"는 즉시 나가지 않는다. 지나온 칸을 거꾸로 걸어 나가며 칸마다 매복이 날 수 있다(깊을수록 위험).
+// - 변이 게이트는 철수 불가. 귀환석은 마지막 패: 쓰면 팀원 반응·기록·뉴스.
+Object.assign(Game.prototype, {
+  giveRecall(why) { const p = this.player; p.items.recall = (p.items.recall || 0) + 1; this.lifeEvent(`귀환석을 손에 넣었다. (${why})`); this.log(`매우 귀한 귀환석을 얻었다. (${why})`, 'major'); },
+});
+(() => {
+  const P = Game.prototype;
+  // 상점: 사지 못한다
+  const baseBuy = P.buyItem;
+  P.buyItem = function (id) { const c = CONSUMABLES.find((x) => x.id === id); if (c && c.noShop) return '귀환석은 상점에서 구할 수 없다.'; return baseBuy.call(this, id); };
+  const strip = (html) => {
+    if (!html || !html.includes('data-v="recall"')) return html;
+    const t = document.createElement('template'); t.innerHTML = html;
+    for (const b of t.content.querySelectorAll('[data-act="buy-item"][data-v="recall"]')) { const row = b.closest('.item-row'); (row || b).remove(); }
+    return t.innerHTML;
+  };
+  for (const fn of ['shopHtml', 'facilityHtml']) { const base = UI[fn]; if (base) UI[fn] = function (...a) { return strip(base.apply(this, a)); }; }
+  // 보스 극소 드롭
+  const baseFinish = P.finishGate;
+  P.finishGate = function (gate, result, ...a) {
+    const r = baseFinish.call(this, gate, result, ...a);
+    if (result === 'clear' && RNG.chance(0.012 + (gate.tier || 0) * 0.003 + (gate.variant && gate.variant !== 'normal' ? 0.01 : 0))) { this.giveRecall(`${this.gateName ? this.gateName(gate) : '게이트'} 보스의 잔해에서`); if (Array.isArray(r)) r.push('보스의 잔해 속에서 희미하게 빛나는 돌 — 귀환석이다!'); }
+    return r;
+  };
+  // 경매장 최고가 품목
+  const baseLots = P.auctionLots;
+  if (baseLots) P.auctionLots = function () {
+    const lots = baseLots.call(this);
+    const a = this.world.auctions[this.region().id];
+    if (a && !a.recallChecked) {
+      a.recallChecked = true;
+      if (RNG.chance(0.35)) { const base = Math.round(9000 * RANKS[Math.max(2, this.player.rankIdx)].mult ** 0.8); lots.push({ kind: 'recall', base, max: Math.round(base * RNG.range(1.2, 2.2)), done: false, uid: `${a.key}-${this.region().id}-recall` }); }
+    }
+    return lots;
+  };
+  const baseBid = P.bid;
+  if (baseBid) P.bid = function (uid, mult) {
+    const lot = this.auctionLots().find((l) => l.uid === uid);
+    if (!lot || lot.kind !== 'recall') return baseBid.call(this, uid, mult);
+    if (lot.done) return '';
+    const p = this.player; const amount = Math.round(lot.base * mult);
+    if (p.money < amount) return '크레딧이 부족하다.';
+    lot.done = true;
+    if (amount >= lot.max) { p.money -= amount; this.giveRecall(`경매장에서 ${fmt(amount)} 크레딧에 낙찰`); this.rumor(`올해 경매 최고가 품목 귀환석, ${p.name}에게 ${fmt(amount)} 크레딧에 낙찰.`); return `낙찰! 귀환석을 ${fmt(amount)} 크레딧에 손에 넣었다.`; }
+    const rival = RNG.pick(this.npcs.filter((n) => n.alive && !n.child && n.rankIdx >= 5)) || { name: '익명의 대형 길드' };
+    return `${rival.name}이(가) ${fmt(lot.max)} 크레딧을 불러 귀환석을 가져갔다.`;
+  };
+  // 특별 지급
+  const baseMonthly = P.storyMonthly;
+  P.storyMonthly = function () {
+    baseMonthly.call(this);
+    const p = this.player; p.recallGift ??= {};
+    if (p.sponsor && p.sponsor.chosen && !p.recallGift.sponsor) { p.recallGift.sponsor = true; this.giveRecall('후원자가 "선택받은 자"에게 보낸 선물'); }
+    if (p.guild && p.guild !== 'kama' && p.guildRank >= 2 && !p.recallGift.guild) { p.recallGift.guild = true; this.giveRecall(`${GUILDS[p.guild].name}이(가) 정예 단원에게 지급`); }
+    if (p.civil && p.civil.grade >= 2 && !p.recallGift.civil) { p.recallGift.civil = true; this.giveRecall('관리국 간부 비상 지급품'); }
+  };
+})();
+
+// 걸어서 철수
+Object.assign(UI, {
+  retreatStart() {
+    const c = this.ctx; const run = c.run;
+    if (this.gateMutated(c) || !this.canLeaveGate()) return this.toast('이 게이트는 걸어서 나갈 수 없다. 출구가 닫혔다.');
+    const steps = Math.max(1, run.map.done.length + run.floor * 2);
+    c.retreat = { left: steps, total: steps };
+    return this.retreatPanel();
+  },
+  retreatPanel(note) {
+    const c = this.ctx; const rt = c.retreat; const p = G.player;
+    const risk = Math.round(this.retreatRisk() * 100);
+    this.modal(`<div class="eyebrow">철수 · 지나온 길을 거꾸로</div><h3>출구까지 ${rt.left}칸</h3>
+      ${note ? `<p class="event-text">${fixJosa(note)}</p>` : '<p class="event-text">왔던 길을 되짚어 나간다. 치운 줄 알았던 괴수가 다시 모여 있을 수도 있다.</p>'}
+      <p class="small dim">체력 <b class="num">${Math.round(p.hp)}/${p.maxHp}</b> · 칸마다 매복 확률 약 ${risk}% · 깊이 들어왔을수록 위험하다.</p>
+      <div class="row end">${(p.items.recall || 0) > 0 && !this.gateMutated(c) ? `<button class="ghost" data-act="g-recall">귀환석 ×${p.items.recall}</button>` : ''}<button class="ghost" data-act="rt-back">다시 안으로</button><button class="primary" data-act="rt-step">한 칸 걸어 나간다</button></div>`, 'event-box');
+  },
+  retreatRisk() { const run = this.ctx.run; return Math.min(0.55, 0.1 + run.floor * 0.07 + GateRun.tier(this.ctx.gate) * 0.02); },
+  retreatStep() {
+    const c = this.ctx; const rt = c.retreat; if (!rt) return;
+    rt.left--;
+    if (RNG.chance(this.retreatRisk())) { this.toast('되돌아온 괴수들이 길을 막았다!'); return this.gateFight(RNG.chance(0.6) ? 'ambush1' : 'ambush2'); }
+    if (rt.left <= 0) { c.retreat = null; this.gateStub(); return this.retreatBase(); }
+    return this.retreatPanel(RNG.pick(['발소리를 죽이고 지나왔다.', '무너진 통로를 돌아 나왔다.', '벽에 남긴 표식을 따라 한 칸 더.', '멀리서 괴수 울음이 들렸지만 다가오진 않았다.']));
+  },
+});
+(() => {
+  const baseMap = UI.renderGateMap;
+  UI.renderGateMap = function (note) {
+    const c = this.ctx;
+    if (c && c.retreat) { this.gateStub(); return this.retreatPanel('매복을 뚫었다. 다시 출구 쪽으로.'); }
+    const r = baseMap.call(this, note);
+    if (c && c.run && this.gateMutated(c)) { const b = document.querySelector('#modal-box [data-act="g-leave"]'); if (b) b.outerHTML = '<span class="small bad">변이 게이트 · 철수 불가</span>'; }
+    else { const b = document.querySelector('#modal-box [data-act="g-leave"]'); if (b) b.textContent = '철수 · 걸어서 되돌아가기'; }
+    return r;
+  };
+  // 귀환석 사용: 팀원 반응·기록·뉴스
+  const baseRecall = UI.useRecall;
+  UI.useRecall = function () {
+    const c = this.ctx; const ok = this.canRecall();
+    if (ok) {
+      const mates = G.party(); const run = c.run; const deep = run.floor >= 1 || run.mut;
+      const m = mates.length ? RNG.pick(mates) : null;
+      const line = m ? (deep ? `${m.name}: "…살았다. 진짜 살았어."` : `${m.name}: "그 귀한 걸 여기서 쓴다고?"`) : '';
+      for (const n of mates) G.addMemory && G.addMemory(n, deep ? '귀환석으로 함께 살아 나왔다' : '귀환석을 쓰는 걸 봤다');
+      G.lifeEvent(`${G.gateName(c.gate)}에서 귀환석을 써 빠져나왔다.`);
+      if (deep) G.rumor(`${G.player.name} 파티, ${G.gateName(c.gate)}에서 귀환석으로 생환.`);
+      c.retreat = null;
+      const r = baseRecall.call(this);
+      if (line) setTimeout(() => this.toast(fixJosa(line)), 900);
+      return r;
+    }
+    return baseRecall.call(this);
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function (act, v) {
+    const c = this.ctx;
+    if (act === 'g-leave' && c && c.run && !this._retreatOut) return this.retreatStart();
+    if (act === 'rt-step') return this.retreatStep();
+    if (act === 'rt-back') { if (c) c.retreat = null; return this.renderGateMap('발길을 돌렸다. 다시 안으로.'); }
+    return baseHandle.call(this, act, v);
+  };
+  UI.retreatBase = function () { this._retreatOut = true; try { return this.handle('g-leave'); } finally { this._retreatOut = false; } };
 })();

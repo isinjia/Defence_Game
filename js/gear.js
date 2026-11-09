@@ -33,7 +33,7 @@ const BAG_ITEMS = [
   { id: 'antidote', name: '해독제', price: 90, desc: '전투용 · 중독·기절 등 상태 이상 해제', effect: 'combat' },
   { id: 'amp', name: '강화 앰플', price: 260, desc: '전투용 · 3턴 공격 +40%, 오염 +3', effect: 'combat' },
   { id: 'flash', name: '섬광탄', price: 200, desc: '전투용 · 적 전체 소량 피해, 35% 기절', effect: 'combat' },
-  { id: 'recall', name: '귀환석', price: 450, desc: '탐색 중(층 지도) 게이트 즉시 이탈 · 전투 중·변이 게이트 불가', effect: 'map' },
+  { id: 'recall', name: '귀환석', price: 0, noShop: true, desc: '매우 귀함 · 탐색 중(층 지도) 게이트 즉시 이탈 · 전투 중·변이 게이트 불가 · 상점에서 팔지 않음', effect: 'map' },
   { id: 'guardcharm', name: '결계 부적', price: 220, desc: '전투용 · 다음 피해 한 번 무효', effect: 'combat' },
   { id: 'decoy', name: '미끼 드론', price: 180, desc: '전투용 · 적의 공격을 끌어가는 드론 배치', effect: 'combat' },
 ];
