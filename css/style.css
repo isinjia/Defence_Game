@@ -477,3 +477,6 @@ p { margin: 6px 0; }
   .pro-text { font-size: 15px; }
   .result-grid { grid-template-columns: 1fr; }
 }
+
+/* 버전 표시 */
+.ver { position: fixed; right: max(4px, env(safe-area-inset-right, 0px)); bottom: max(1px, env(safe-area-inset-bottom, 0px)); z-index: 50; font-family: var(--font-num); font-size: 10px; letter-spacing: .06em; color: var(--dim); opacity: .75; pointer-events: none; }

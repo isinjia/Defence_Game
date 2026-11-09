@@ -1128,4 +1128,11 @@ document.addEventListener('keydown', (e) => {
   UI.handle(el.dataset.act, el.dataset.v);
 });
 
+// 버전 표시
+{
+  const v = document.createElement('div');
+  v.className = 'ver'; v.textContent = 'v' + GAME_VERSION; v.setAttribute('aria-label', '게임 버전 ' + GAME_VERSION);
+  document.body.appendChild(v);
+}
+
 UI.render();
