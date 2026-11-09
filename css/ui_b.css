@@ -162,3 +162,71 @@
 @keyframes coachin { from { opacity: 0; transform: translate(-50%, 6px); } to { opacity: 1; transform: translate(-50%, 0); } }
 .coach-spot { position: relative; z-index: 2; outline: 2px solid var(--amber); outline-offset: 3px; box-shadow: 0 0 0 4px #ffb54733, 0 0 26px #ffb54766; animation: tutglow 1.2s ease-in-out infinite; }
 @media (max-width: 640px) { #coach-pop .coach { font-size: 12.5px; padding: 8px 10px; } }
+
+/* ===== 전투 한 화면 (4-0): 머리말 · 전장(적·아군) · 조작을 화면 높이 안에 ===== */
+.modal-box.combat-box.fit { display: flex; flex-direction: column; height: min(100%, 900px); overflow: hidden; padding: 10px; }
+.combat-box.fit .cb-head { flex: none; margin-bottom: 6px; }
+.combat-box.fit .stage { flex: 1 1 auto; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; padding: 6px; }
+.combat-box.fit #cb-ctrl { position: static; flex: none; margin: 6px -10px -10px; padding: 6px 10px calc(8px + env(safe-area-inset-bottom, 0px)); max-height: 55%; overflow-y: auto; box-shadow: none; }
+.combat-box.fit #cb-ctrl.cb-done { flex: 0 1 auto; max-height: 75%; }
+/* 적: 크기는 --fs, 한 줄에 들어가는 만큼 */
+.combat-box.fit .foes { flex: 1 1 auto; min-height: 0; display: flex; flex-wrap: wrap; justify-content: center; align-content: center; align-items: flex-end; gap: 4px 6px; }
+.combat-box.fit .foe { width: calc(var(--fs, 92px) + 22px); min-width: 64px; gap: 1px; }
+.combat-box.fit .foe.boss { width: calc(var(--fs, 92px) * 1.35 + 22px); }
+.combat-box.fit .foe.summoned { width: calc(var(--fs, 92px) * .75 + 22px); }
+.combat-box.fit .foe .sprite svg, .combat-box.fit .foe .sprite .avatar, .combat-box.fit .foe .sprite img { width: var(--fs, 92px) !important; height: var(--fs, 92px) !important; }
+.combat-box.fit .foe.boss .sprite svg, .combat-box.fit .foe.boss .sprite .avatar, .combat-box.fit .foe.boss .sprite img { width: calc(var(--fs, 92px) * 1.35) !important; height: calc(var(--fs, 92px) * 1.35) !important; }
+.combat-box.fit .foe.summoned .sprite svg { width: calc(var(--fs, 92px) * .75) !important; height: calc(var(--fs, 92px) * .75) !important; }
+.combat-box.fit .foe-name { font-size: 11.5px; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: block; text-align: center; line-height: 1.25; }
+.combat-box.fit .foe .bar.hp { height: 5px; }
+.combat-box.fit .foe .bar.atb.mini { height: 2px; margin-top: 0; border: 0; }
+.combat-box.fit .foe-hp { font-size: 10.5px; line-height: 1.2; }
+.combat-box.fit .foe .status:empty { display: none; }
+.combat-box.fit-tight .foe-name { display: none; }
+.combat-box.fit-tiny .foe-hp, .combat-box.fit-tiny .foe .status { display: none; }
+.combat-box.fit-tiny .foe.target .foe-hp { display: block; }
+/* 아군: 가로 한 줄 작은 카드 (전열 | 후열) */
+.combat-box.fit #allies, .combat-box.fit .ally-rows { flex: none; display: flex; justify-content: center; align-items: flex-end; gap: 4px; margin-top: 0; }
+.combat-box.fit .ally-rows .row-tag { display: none !important; }
+.combat-box.fit .ally-rows .allies { display: flex; flex-wrap: nowrap; gap: 4px; margin: 0; padding-top: 4px; border-top: 2px solid #ffb54788; }
+.combat-box.fit .ally-rows .allies + .row-tag + .allies { border-top-color: #8cc4ff88; }
+.combat-box.fit .ally.fig { width: min(60px, calc((100vw - 66px) / 5)); max-width: none; min-width: 0; padding: 2px 2px 3px; gap: 1px; }
+.combat-box.fit .ally.fig .sprite .avatar, .combat-box.fit .ally.fig .sprite svg, .combat-box.fit .ally.fig .sprite img { width: 34px !important; height: 34px !important; }
+.combat-box.fit .ally.fig .sprite { animation: none; }
+.combat-box.fit .ally.fig .fig-name { font-size: 10.5px; line-height: 1.2; width: 100%; }
+.combat-box.fit .ally.fig .tag.cls, .combat-box.fit .ally .hp-t, .combat-box.fit .ally .mp-t { display: none; }
+.combat-box.fit .ally .bar-row { display: block; margin-top: 1px; }
+.combat-box.fit .ally .bar.hp, .combat-box.fit .ally .bar.mp { height: 4px; }
+.combat-box.fit .ally .bar.atb.mini { height: 2px; border: 0; margin-top: 1px; }
+.combat-box.fit .ally .status:empty { display: none; }
+.combat-box.fit .ally .status { font-size: 9px; }
+.combat-box.fit .ally.fig .lead-tag, .combat-box.fit .ally.fig .order-tag { font-size: 9px; padding: 0 3px; top: -2px; }
+.combat-box.fit .ally.fig .order-tag { max-width: 90%; top: auto; bottom: 100%; right: 0; }
+.combat-box.fit .ally.fig.ready { animation: meready 1s ease-in-out infinite alternate; }
+@keyframes meready { from { box-shadow: 0 0 6px rgba(255, 181, 71, .3); } to { box-shadow: 0 0 18px rgba(255, 181, 71, .8); } }
+/* 조작: 스킬은 44px 한 줄 버튼 3개씩, 아이템·배속·자동은 한 줄 */
+.combat-box.fit .skill-btns { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.combat-box.fit .skill-btn { min-height: 44px; height: 44px; padding: 3px 6px; gap: 4px; overflow: hidden; }
+.combat-box.fit .skill-btn > span { min-width: 0; line-height: 1.15; }
+.combat-box.fit .skill-btn b { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.combat-box.fit .skill-btn .small { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.combat-box.fit .skill-btn svg { flex: none; width: 14px; height: 14px; }
+.combat-box.fit .ctrl-row { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 4px; margin: 4px 0 0; }
+.combat-box.fit .ctrl-row::-webkit-scrollbar { display: none; }
+.combat-box.fit .ctrl-row .grow { display: none; }
+.combat-box.fit .ctrl-row button { flex: 0 0 auto; min-height: 36px; padding: 4px 8px; font-size: 11.5px; white-space: nowrap; }
+.combat-box.fit .cb-hint { display: none; }
+.combat-box.fit .skill-info { padding: 4px 8px; margin-bottom: 4px; gap: 2px; }
+.combat-box.fit .skill-info > .small, .combat-box.fit .skill-info > .small.dim { display: none; }
+.combat-box.fit .skill-info .row b { font-size: 12.5px; }
+.combat-box.fit .skill-info button.sm { min-height: 30px; }
+.combat-box.fit .skill-info .use-btn { min-height: 36px; }
+.combat-box.fit .lead-order { font-size: 11.5px; padding: 3px 8px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.combat-box.fit .lead-order .small { display: none; }
+.combat-box.fit .bag-row { flex-wrap: nowrap !important; overflow-x: auto; }
+.combat-box.fit .status { display: flex; flex-wrap: nowrap; gap: 1px; justify-content: center; max-width: 100%; overflow: hidden; }
+.combat-box.fit .status .tag { font-size: 9px; padding: 0 2px; line-height: 1.3; }
+.combat-box.fit #allies, .combat-box.fit .ally-rows { align-items: flex-start; }
+/* 진형: 전열·후열 두 줄 (글자 없이 줄 색으로만 구분) */
+.combat-box.fit #allies.ally-rows { flex-direction: column; align-items: stretch; gap: 3px; }
+.combat-box.fit .ally-rows .allies { justify-content: center; padding-top: 3px; border-top-width: 1px; }
