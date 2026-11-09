@@ -152,11 +152,11 @@ const PORTRAIT = (() => {
     const CAP = 'M66 92C63 56 80 35 100 35C120 35 137 56 134 92C129 72 117 63 100 63C83 63 71 72 66 92Z';
     const LOCK = (back === 'none' || back === 'tail') ? 'M70 80C64 96 65 112 69 122L72 110L75 118C75 104 75 92 77 84Z' : 'M70 76C62 100 64 126 71 146L73 128L77 140C77 116 76 96 78 84Z';
     const bangD = bangs(r, bangStyle);
-    const hairFront = `<path d="${CAP}" fill="${hair}"/>
-      <path d="${bangD}" fill="${hair}" stroke="${line}" stroke-width=".9" stroke-linejoin="round"/>
-      <path d="${shine(r)}" stroke="${hairHi}" stroke-width="2.4" fill="none" opacity="${light ? 0.55 : 0.4}" stroke-linecap="round"/>
-      <path d="M68 70C76 54 90 46 100 45" stroke="${hairHi}" stroke-width="1.2" fill="none" opacity=".35"/>
+    // 앞머리·옆머리를 먼저 그리고 윗머리로 뿌리를 덮어, 앞머리와 윗머리 사이에 선이 생기지 않게 한다
+    const hairFront = `<path d="${bangD}" fill="${hair}" stroke="${line}" stroke-width=".9" stroke-linejoin="round"/>
       <path d="${LOCK}" fill="${hair}" stroke="${line}" stroke-width=".9"/><path d="${LOCK}" transform="translate(200 0) scale(-1 1)" fill="${hair}" stroke="${line}" stroke-width=".9"/>
+      <path d="${CAP}" fill="${hair}"/>
+      <path d="${shine(r)}" stroke="${hairHi}" stroke-width="2.4" fill="none" opacity="${light ? 0.55 : 0.4}" stroke-linecap="round"/>
       <path d="M131 76C138 96 137 118 132 132" stroke="${ec}" stroke-width="1.6" fill="none" opacity=".7"/>`;
     const massSvg = `<path d="${MASS}" fill="${hair}"/><path d="${MASS}" fill="none" stroke="${line}" stroke-width="1"/>
       <path d="M72 82C80 68 90 64 100 64C110 64 120 68 128 82L128 104L72 104Z" fill="${hairSh}" opacity=".55"/>
