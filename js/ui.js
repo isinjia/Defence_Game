@@ -426,8 +426,8 @@ const UI = {
       return this.modal(`<div class="enc">${FX.eventArt('gate_surge')}<div class="eyebrow">게이트 감지 · ${G.fullDate()}</div><h3>${G.gateName(obj)}</h3>
         <div class="row">${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)} ${obj.mission ? '<span class="tag amber">길드 임무</span>' : ''}${obj.bid ? '<span class="tag amber">길드 낙찰</span>' : ''}${obj.variant === 'red' ? '<span class="tag bad">레드 게이트</span>' : ''} <span class="small">난이도 ${this.gateRisk(obj.tier)}</span></div>
         <p class="dim">${obj.final ? '4개 구역. 도주할 수 없다.' : obj.variant === 'red' ? '<span class="bad">붉게 물든 게이트. 들어가면 공략 전까지 나올 수 없다. 4개 구역, 철수·도주 불가. 패배하면 구조대도 들어올 수 없다.</span> 대신 보상이 크다.' : '3개 구역 · 공략에 약 10일 소요. 구역 사이에 철수할 수 있다.'}</p>
-        <p class="small dim">중계하며 들어가면 성공 시 구독자와 후원금이 늘지만, 철수나 패배도 그대로 송출된다.</p></div>
-        <div class="row end"><button class="ghost" data-act="modal-close">나중에</button><button data-act="gate" data-v="${obj.id}|live">${FX.icon('star', 14)} 중계하며 진입</button><button class="${obj.variant === 'red' ? 'danger' : 'primary'}" data-act="gate" data-v="${obj.id}">진입한다</button></div>`);
+</div>
+        <div class="row end"><button class="ghost" data-act="modal-close">나중에</button><button class="${obj.variant === 'red' ? 'danger' : 'primary'}" data-act="gate" data-v="${obj.id}">진입한다</button></div>`);
     }
     const sample = { name: obj.name, elem: obj.elem, shape: obj.shape };
     return this.modal(`<div class="enc mob-enc"><div class="mob-portrait" style="--c:${elemColor(obj.elem)}">${FX.monster(sample, 130)}</div>

@@ -150,13 +150,13 @@ Object.assign(UI, {
         ${st === 'can' ? `<span class="gnode-name">${N.name}</span>` : ''}</button>`);
     }));
     const legend = ['fight', 'elite', 'event', 'rest', 'treasure', 'boss'].map((t) => `<span class="gl" style="--c:${GNODE[t].color}"><i></i>${GNODE[t].name}</span>`).join('');
-    this.modal(`<div class="cb-head"><h3>${G.gateName(g)}</h3><span class="tag">${run.floor + 1}층 / ${run.floors}층</span></div>
+    this.modal(`<div class="cb-head gmap-head"><h3>${G.gateName(g)}</h3><span class="tag">${run.floor + 1}층 / ${run.floors}층</span>${this.canLeaveGate() ? '<button class="leave-btn" data-act="g-leave">철수</button>' : '<span class="tag bad no-leave">철수 불가</span>'}</div>
       <div class="gmap-stat row between small"><span>체력 <b class="num">${Math.round(p.hp)}/${p.maxHp}</b> · 정신력 <b class="num">${Math.round(p.mp)}/${p.maxMp}</b></span><span class="dim">전리품 <span class="num">${fmt(c.loot.money)}</span> 크레딧 · 에테르 <span class="num">${fmt(c.loot.ether)}</span></span></div>
       ${note ? `<div class="gmap-note">${fixJosa(note)}</div>` : ''}
       <div class="gmap-legend">${legend}</div>
       <div class="gmap gmap-fit" style="--rows:${m.rows.length}"><svg class="gmap-lines" viewBox="0 0 100 ${H}" preserveAspectRatio="none">${lines.join('')}</svg>${nodes.join('')}</div>
       <div class="small dim">맨 아래 입구에서 위로 나아갑니다. 빛나는 칸을 눌러 다음 길을 고르세요. 맨 위의 층 보스를 쓰러뜨리면 ${run.floor + 1 < run.floors ? '다음 층으로 내려갑니다' : '게이트가 닫힙니다'}.</div>
-      <div class="row end">${this.canLeaveGate() ? '<button class="ghost" data-act="g-leave">철수 · 보상 챙기기</button>' : '<span class="small bad">이 게이트는 빠져나갈 수 없다</span>'}</div>`, 'combat-box gmap-box');
+      <div class="row end"></div>`, 'combat-box gmap-box');
     const box = document.querySelector('#modal .gmap'); const cur = box && box.querySelector('.gnode.can');
     if (cur) cur.scrollIntoView({ block: 'center' });
   },

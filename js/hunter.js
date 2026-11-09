@@ -1,6 +1,6 @@
 // ===== 게이트 크로니클: 헌터물 확장 =====
 // 칭호, 공식 등급 재측정, 게이트 변이(레드·이중·오판), 코어 시세, 스킬 숙련과 각성,
-// 회귀, 길드 공략권 입찰, 헌터 랭킹과 방송, 후원자, 시련의 탑.
+// 회귀, 길드 공략권 입찰, 헌터 랭킹, 후원자, 시련의 탑. (방송: 사용자 요청으로 삭제 — 중계 진입·제안 사건·헌터 창 칸·스트리머 칭호·광고 수익)
 
 const REGRESS_KEY = 'gate_chronicle_regress';
 
@@ -18,7 +18,6 @@ const TITLES = [
   { id: 'city_shield', name: '도시의 방패', how: '게이트 브레이크 2회 저지', mods: { def: 0.05, hp: 0.04 }, cond: (g, p) => (p.record.breaks || 0) >= 2 },
   { id: 'duelist', name: '피의 결투가', how: '생사결 5회 승리', mods: { atk: 0.06, social: -0.1 }, cond: (g, p) => p.record.npcKills >= 5 },
   { id: 'national', name: '국민 헌터', how: '명성 400', mods: { social: 0.15 }, cond: (g, p) => p.fame >= 400 },
-  { id: 'streamer', name: '인기 스트리머', how: '방송 구독자 10만 명', mods: { social: 0.08, price: -0.05 }, cond: (g, p) => (p.followers || 0) >= 100000 },
   { id: 'climber', name: '탑 등반자', how: '시련의 탑 10층', mods: { spd: 0.04 }, cond: (g, p) => (p.tower.best || 0) >= 10 },
   { id: 'summit', name: '정상을 보는 자', how: '시련의 탑 30층', mods: { atk: 0.05, def: 0.05, spd: 0.03 }, cond: (g, p) => (p.tower.best || 0) >= 30 },
   { id: 'measure_error', name: '측정 오류', how: '재측정에서 두 등급 이상 상승', mods: { atk: 0.05, luck: 0.1 }, cond: (g) => !!g.flags.measureError },
@@ -69,6 +68,8 @@ Object.assign(Game.prototype, {
   hunterInit() {
     const p = this.player;
     p.titles ??= []; p.title ??= null;
+    // 삭제된 칭호(인기 스트리머 등)는 옛 저장에서 걸러 낸다
+    p.titles = p.titles.filter((id) => titleById(id)); if (p.title && !titleById(p.title)) p.title = null;
     p.official ??= p.rankIdx;
     p.skillXp ??= {};
     p.followers ??= 0; p.streams ??= 0;
@@ -375,7 +376,7 @@ Object.assign(Game.prototype, {
     this.coreMarketMonthly();
     this.guildBidMonthly();
     this.sponsorMonthly();
-    if (p.followers > 0) { p.money += this.adIncome(); p.followers = Math.floor(p.followers * 0.985); }
+    if (p.followers > 0) p.followers = Math.floor(p.followers * 0.985);
     this.checkRanking();
   });
   wrap('spawnMonthly', function (base) { base.call(this); for (const g of this.mapGates) this.rollGateVariant(g); });
@@ -437,7 +438,6 @@ Object.assign(Game.prototype, {
         lines.push('<span class="bad">레드 게이트는 구조대도 들어올 수 없었다. 게이트가 저절로 닫히며 바깥으로 내던져졌다. 수명 -3년, 부상 6개월.</span>');
       }
     }
-    if (loot.live) lines.push(...this.streamResult(gate, result));
     this.checkTitles(); this.save();
     return lines;
   });
@@ -533,11 +533,7 @@ S({ id: 'reawaken', at: ['city', 'field'], minRank: 0, maxRank: 3, once: true, w
     { text: '흐름에 몸을 맡긴다', do: (g) => { g.flags.story.reawakened = true; g.lifeEvent('재각성을 겪었다.'); return '눈을 떴을 때 세상이 달라 보였다. 관리국에서 재측정을 받으면 놀랄 것이다.' + g.gain({ talent: 2, ether: 40, skill: true }); } },
     { text: '억누른다', do: (g) => '이를 악물고 버텼다. 열기가 서서히 가라앉았다.' + g.gain({ hp: -0.3, ether: 15 }) },
   ] });
-S({ id: 'stream_offer', minRank: 1, once: true, weight: 0.6, when: (g) => !g.player.streams, city: true, text: '헌터 전문 방송 플랫폼의 PD가 명함을 내민다. "게이트 공략을 생중계해 보시죠. 요즘 시청자들은 진짜를 원해요. 장비는 저희가 드릴게요."',
-  choices: [
-    { text: '해 보겠다', do: (g) => { g.player.followers += 500; return '드론 카메라를 받았다. 게이트에 들어갈 때 "중계하며 진입"을 고르면 방송이 켜진다. (구독자 +500)'; } },
-    { text: '관심 없다', do: () => 'PD가 아쉬운 얼굴로 명함을 거뒀다. 그래도 드론 카메라는 두고 갔다. 게이트 앞에서 중계를 켤 수 있다.' },
-  ] });
+// (방송 제안 사건은 사용자 요청으로 삭제)
 
 // ---------- 화면 ----------
 Object.assign(UI, {
@@ -561,10 +557,6 @@ Object.assign(UI, {
       <div class="sec"><div class="sec-title">국내 헌터 랭킹 · 내 순위 ${pos}위 / ${list.length}명</div>
         <p class="small dim">공식 등급, 명성, 공략 횟수로 매달 집계된다.${p.bestRankPos ? ` 최고 ${p.bestRankPos}위.` : ''}</p>
         <div class="cards">${top}</div></div>
-      <div class="sec"><div class="sec-title">방송</div>
-        <div class="stat-grid"><div><span class="dim">구독자</span><b class="num">${fmt(p.followers)}</b></div><div><span class="dim">중계한 공략</span><b class="num">${p.streams}</b></div>
-          <div><span class="dim">월 광고 수익</span><b class="num">${fmt(G.adIncome())}</b></div></div>
-        <p class="small dim">게이트 앞에서 "중계하며 진입"을 고르면 방송이 켜진다. 클리어하면 구독자와 후원금이 늘고, 철수나 패배는 그대로 송출된다.</p></div>
       <div class="sec"><div class="sec-title">후원자</div>
         ${s ? `<div class="item-row" style="border-left:3px solid ${s.color}"><div class="grow"><b style="color:${s.color}">${s.name}</b> ${tierName ? `<span class="tag">${tierName}</span>` : ''}
           <div class="small dim">좋아함: ${s.likeText} · 싫어함: ${s.hateText}</div>${this.bar('ether', p.sponsor.favor, 100)}

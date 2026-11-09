@@ -4,6 +4,9 @@
 // 동료는 성격과 관계에 따라 오더를 따르거나 무시하고, 오더의 질과 순종 여부가 관계를 바꾼다.
 // 플레이어가 리더일 때는 동료를 눌러 스킬과 대상을 정해 오더를 내린다.
 
+// 오더로 아군 하나를 지정할 수 있는 자기 대상 기술 (지정하면 그 아군에게 쓴다)
+const ORDER_ALLY_SELF = ['heal', 'buff', 'shield', 'evade'];
+const orderAimOf = (sk) => (sk ? (ORDER_ALLY_SELF.includes(sk.type) ? 'ally' : (SKILL_AIM[sk.type] || 'none')) : null);
 const ATK_TYPES = ['dmg', 'crit', 'pierce', 'multi', 'dot', 'drain', 'stun', 'aoe', 'debuff'];
 const HEAL_TYPES = ['heal_ally', 'heal_all', 'heal', 'revive'];
 
@@ -19,6 +22,20 @@ function npcLead(n) {
 function leadLabel(v) { return v >= 75 ? '정확한 지휘' : v >= 55 ? '무난한 지휘' : v >= 35 ? '어설픈 지휘' : '엉망인 지휘'; }
 
 Object.assign(Combat.prototype, {
+  // 치유·강화·방어·회피를 지정한 아군에게
+  useSkillOn(u, sk, t) {
+    u.mp -= sk.mp;
+    this.log.push({ t: '', cls: 'cast', ev: { k: 'cast', src: u.id, mp: u.mp, elem: sk.elem === 'self' ? u.elem : sk.elem, side: u.side, name: sk.name } });
+    const P = sk.power;
+    const prev = this._actor; this._actor = u;
+    try {
+      if (sk.type === 'heal') this.healUnit(t, t.maxHp * P, u);
+      else if (sk.type === 'buff') { t.buffs.atk = Math.max(t.buffs.atk, P); t.buffs.atkT = 3; this.buffEvent(t, `${u.name}의 ${sk.name} · 공격력 상승`); }
+      else if (sk.type === 'shield') { t.buffs.def = Math.max(t.buffs.def, P * 2); t.buffs.defT = 3; this.buffEvent(t, `${u.name}의 ${sk.name} · 방어력 상승`); }
+      else if (sk.type === 'evade') { t.evadeT = 2; this.buffEvent(t, `${u.name}의 ${sk.name} · 회피 태세`); }
+    } finally { this._actor = prev; }
+    this.checkEnd();
+  },
   leader() { return this.units.find((u) => u.id === this.leaderId && u.alive) || null; },
   shortName(u) { return u.isPlayer ? u.name : u.name.replace(/\(.*\)$/, '').slice(-2); },
 
@@ -29,7 +46,7 @@ Object.assign(Combat.prototype, {
     const role = roleOf(u.cls);
     if (sk.type === 'heal_ally') return t && t.side === u.side ? (t.hp < t.maxHp * 0.7 ? 1 : t.hp > t.maxHp * 0.92 ? -1 : 0) : 0;
     if (sk.type === 'heal_all') { const h = this.friendsOf(u).filter((f) => f.hp < f.maxHp * 0.7).length; return h >= 2 ? 1 : h === 0 ? -1 : 0; }
-    if (sk.type === 'heal') return u.hp < u.maxHp * 0.5 ? 1 : u.hp > u.maxHp * 0.9 ? -1 : 0;
+    if (sk.type === 'heal') { const w = t && t.side === u.side ? t : u; return w.hp < w.maxHp * 0.5 ? 1 : w.hp > w.maxHp * 0.9 ? -1 : 0; }
     if (sk.type === 'revive') return this.units.some((f) => f.side === u.side && !f.alive && !f.summon) ? 1 : -1;
     if (sk.type === 'taunt') return role === 'tank' ? (u.tauntT ? 0 : 1) : -1;
     if (sk.type === 'aoe' || sk.type === 'debuff') return this.foesOf(u).length >= 2 ? 1 : -1;
@@ -132,6 +149,8 @@ Object.assign(Combat.prototype, {
           if (!t && SKILL_AIM[sk.type] !== 'none') t = SKILL_AIM[sk.type] === 'ally' ? null : this.pickTarget(u);
           if (Math.random() < 0.3) { const pn = this.game.npcById(u.npcId); const line = (pn && this.game.personaOrderLine && this.game.personaOrderLine(pn, true)) || RNG.pick(['알겠어!', '맡겨 줘.', '오케이!', '바로 갑니다!']); this.push(`${u.name}: "${line}"`, '', { k: 'say', src: u.id, text: line }); }
           this.noteOrder('obey', u, o);
+          // 자기 대상 기술을 다른 아군에게: 효과를 그 아군에게 준다
+          if (t && t !== u && t.side === u.side && ORDER_ALLY_SELF.includes(sk.type)) return this.useSkillOn(u, sk, t);
           return this.useSkill(u, sk, t);
         }
         const pn = this.game.npcById(u.npcId); const line = (pn && this.game.personaOrderLine && Math.random() < 0.7 && this.game.personaOrderLine(pn, false)) || (o.rate < 0 ? RNG.pick(['그건 아니지.', '지금 그걸 하라고?', '내 판단대로 할게.']) : RNG.pick(['잠깐, 내가 알아서 해.', '싫은데?', '…']));
@@ -283,7 +302,7 @@ Object.assign(UI, {
     const c = this.ctx; const cb = c.combat; const u = cb.units.find((x) => x.id === c.orderFor); if (!u) return '';
     const skills = cb.skillsOf(u);
     const sel = c.orderSel ? skills.find((s) => s.id === c.orderSel) : null;
-    const aim = sel ? (SKILL_AIM[sel.type] || 'none') : null;
+    const aim = sel ? orderAimOf(sel) : null;
     const n = G.npcById(u.npcId);
     const info = sel ? `<div class="small"><span class="tag tiny">${TYPE_NAME[sel.type] || sel.type}</span> ${SKILL_EFFECT[sel.type] || ''} · 소모 MP ${sel.mp} (남은 ${Math.round(u.mp)})${sel.mp > u.mp ? ' <b class="bad">MP 부족</b>' : ''}</div>` : '';
     return `<div class="skill-info order-panel" style="--c:var(--amber)">
@@ -305,7 +324,7 @@ Object.assign(UI, {
   orderAim() {
     const c = this.ctx; if (!c || !c.orderFor || !c.orderSel) return null;
     const u = c.combat.units.find((x) => x.id === c.orderFor); const sk = u && c.combat.skillsOf(u).find((s) => s.id === c.orderSel);
-    return sk ? (SKILL_AIM[sk.type] || 'none') : null;
+    return sk ? orderAimOf(sk) : null;
   },
 });
 

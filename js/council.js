@@ -5,7 +5,8 @@
 // - 리더가 NPC(파티 리더)면: 리더가 고른 칸이 제안으로 뜨고, 플레이어도 O/X를 낸다. 리더는 성격대로 강행/상의.
 // - 관계: 의견이 받아들여지면 +, 무시당하면 −(성격별). 강행 뒤 결과가 나쁘면 추가 −, 좋으면 일부 회복.
 //   계속 무시당한 팀원은 불만이 쌓여 파티를 떠나겠다고 할 수 있다.
-// - 전원 O가 확실한 칸은 의견만 잠깐 보여 주고 자동 진행("매번 묻기"로 끌 수 있다).
+// - 전원 O가 확실한 칸은 의견만 잠깐 보여 주고 자동 진행("매번 묻기" 체크박스는 사용자 요청으로 삭제).
+// - 갈 수 있는 길이 하나뿐이면 상의 없이 바로 들어간다(사용자 요청).
 // - 시험 게이트 튜토리얼: 처음 고르는 칸에서 한 번, 상의 과정을 보여 준다.
 // gate_run.js(영역 A)는 고치지 않고 UI.enterNode 를 감싼다.
 
@@ -66,7 +67,7 @@ Object.assign(UI, {
     const used = new Set(); for (const v of votes) { if (v.line && used.has(v.line)) v.line = null; else if (v.line) used.add(v.line); }
     c.council = { key, clicked, leader: L ? L.id : null, votes, mine: null, stage: 'vote' };
     const allO = votes.every((v) => v.vote === 'O') && !votes.some((v) => v.line);
-    if (!L && allO && !G.player.councilAsk) { this.toast(`팀원 전원 O · ${GNODE[t].name}`); return this.councilGo(false); }
+    if (!L && allO) { this.toast(`팀원 전원 O · ${GNODE[t].name}`); return this.councilGo(false); }
     this.renderCouncil();
   },
   councilPanel(inner) {
@@ -95,7 +96,7 @@ Object.assign(UI, {
       foot = `<p class="small">${L.name}(리더)이(가) 이 길을 골랐다.${cn.clicked && cn.clicked !== cn.key ? ` 당신이 가리킨 곳은 ${GNODE[this.nodeOf(cn.clicked).t].name} 칸이었다.` : ''} 당신의 의견은?</p>
         <div class="cn-btns"><button class="primary" data-act="cn-vote" data-v="O">O 찬성</button><button class="danger" data-act="cn-vote" data-v="X">X 반대</button><button class="sm ghost" data-act="cn-vote" data-v="X!">X · "${cn.clicked && cn.clicked !== cn.key ? '저쪽이 낫지 않아?' : '좀 더 생각해 보자'}"</button></div>`;
     }
-    this.councilPanel(`<div class="cn-card"><div class="row between"><b>팀 상의 · <span style="color:${N.color}">${N.name}</span></b><label class="small dim"><input type="checkbox" data-act="cn-ask" ${G.player.councilAsk ? 'checked' : ''}> 매번 묻기</label></div>
+    this.councilPanel(`<div class="cn-card"><div class="row between"><b>팀 상의 · <span style="color:${N.color}">${N.name}</span></b></div>
       ${L ? `<div class="small dim">제안: ${L.name}(리더)</div>` : '<div class="small dim">제안: 나(리더)</div>'}
       <div class="cn-mems">${this.councilVotesHtml(cn) || '<div class="small dim">의견을 낼 팀원이 없다.</div>'}</div>${foot}</div>`);
   },
@@ -185,6 +186,8 @@ S({ id: 'council_quit', trigger: 'system', npc: 'here', text: '{npc}이(가) 짐
     const c = this.ctx;
     if (this.councilPass || !c || !c.run || !this.councilMembers().length) return baseEnter.call(this, key);
     if (!this.reachable().some(([r, i]) => r + ':' + i === key)) return;
+    // 갈 수 있는 길이 하나뿐이면 상의할 것이 없다 (사용자 요청)
+    if (this.reachable().length <= 1) return baseEnter.call(this, key);
     const L = this.councilLeader();
     return this.councilStart(L ? (this.councilLeaderPick(L) || key) : key, key);
   };
