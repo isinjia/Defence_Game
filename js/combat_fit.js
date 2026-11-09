@@ -73,7 +73,7 @@
     const list = document.createElement('div'); list.className = 'cmd-list';
     if (cmd === 'skill') { if (others.length) others.forEach((b) => list.appendChild(b)); else list.innerHTML = '<div class="dim small">쓸 수 있는 스킬이 없다.</div>'; }
     else if (cmd === 'item') { itemBtns.forEach((b) => { b.classList.remove('sm'); b.classList.add('cmd-item'); list.appendChild(b); }); if (bagRow) [...bagRow.querySelectorAll('button')].forEach((b) => { b.classList.remove('sm'); b.classList.add('cmd-item'); list.appendChild(b); }); if (!list.children.length) list.innerHTML = '<div class="dim small">쓸 아이템이 없다.</div>'; }
-    else list.innerHTML = `<div class="cmd-idle small ${ready ? 'amber' : 'dim'}">${ready ? '<b>내 차례.</b> 명령을 고르세요.' : cb.auto ? '자동 전투 중' : '게이지가 차는 중…'}</div>`;
+    if (cmd) list.insertAdjacentHTML('afterbegin', `<div class="cmd-pop-head"><b>${cmd === 'skill' ? '스킬' : '아이템'}</b><button class="sm ghost" data-act="c-cmd" data-v="${cmd}" aria-label="닫기">닫기</button></div>`);
     const dis = (x) => (x ? '' : 'disabled');
     const atkSel = c.sel === 'strike';
     const main = `<div class="cmd-main">
@@ -82,7 +82,8 @@
       <button class="cmd" data-act="c-defend" ${dis(ready)}>방어</button>
       <button class="cmd ${cmd === 'item' ? 'sel' : ''}" data-act="c-cmd" data-v="item" ${dis(!cb.auto && !c.playing)}>아이템</button></div>`;
     const wrap = document.createElement('div'); wrap.className = 'cmd-wrap'; wrap.innerHTML = main;
-    wrap.appendChild(list);
+    // 스킬·아이템 목록은 명령 줄 위에 뜨는 팝업
+    if (cmd) { list.classList.add('cmd-pop'); wrap.appendChild(list); }
     if (others.some((b) => b.classList.contains('ordered'))) { const sb = wrap.querySelector('[data-v=skill]'); if (sb) sb.classList.add('ordered'); }
     skillBox.replaceWith(wrap);
     if (row) row.remove(); if (bagRow) bagRow.remove();
@@ -108,7 +109,7 @@
     const c = this.ctx;
     if (act === 'c-cmd' && c && c.combat) { c.cmd = c.cmd === v ? null : v; if (c.cmd !== 'skill') c.sel = c.sel === 'strike' ? 'strike' : null; return this.renderControls(); }
     if (act === 'c-defend' && c && c.combat) { c.sel = null; c.cmd = null; return this.combatAction((x) => x.playerDefend()); }
-    if (act === 'c-skill' && c && c.combat && v !== 'strike') c.cmd = 'skill';
+    if ((act === 'c-skill' || act === 'c-target' || act === 'c-ally') && c && c.combat) c.cmd = null; // 고르면 팝업 닫기
     if (act === 'c-item' && c) c.cmd = null;
     return baseHandle.call(this, act, v);
   };

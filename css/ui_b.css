@@ -259,3 +259,14 @@
 .combat-box.fit .cmd-list .skill-btn .small { white-space: normal; }
 @media (max-height: 600px) { .cmd-main .cmd, .cmd-list .skill-btn, .cmd-list .cmd-item { min-height: 40px; } .cmd-list { max-height: calc(40px * 4 + 12px); } }
 .combat-box.fit .ally-rows .allies:empty { display: none; }
+/* 커맨드: 아래 가로 한 줄, 스킬·아이템 목록은 그 위에 뜨는 팝업 */
+.combat-box.fit #cb-ctrl:not(.cb-done) { overflow: visible; max-height: none; position: relative; bottom: auto; }
+.cmd-wrap { display: block; position: relative; }
+.cmd-main { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.cmd-main .cmd { justify-content: center; padding: 6px 4px; min-height: 48px; }
+.cmd-main .cmd::before { display: none; }
+.cmd-list.cmd-pop { position: absolute; left: 0; right: 0; bottom: calc(100% + 6px); z-index: 6; max-height: min(60vh, calc(48px * 5 + 50px)); background: #0b111b; border: 1px solid var(--amber); box-shadow: 0 -10px 30px #000c; padding: 6px; animation: coachin .15s ease-out; }
+.cmd-pop-head { display: flex; justify-content: space-between; align-items: center; padding: 0 2px 4px; border-bottom: 1px solid var(--line); margin-bottom: 2px; }
+.cmd-pop-head b { color: var(--amber); }
+.cmd-pop-head button { min-height: 32px; }
+@media (max-height: 600px) { .cmd-main .cmd { min-height: 44px; } }
