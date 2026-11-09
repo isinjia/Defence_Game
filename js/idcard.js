@@ -32,7 +32,7 @@
     const bg = BACKGROUNDS.find((b) => b.id === p.bg) || {}; const born = (G.year || 2087) - G.ageYears();
     const docNo = `관리국-판정-${G.year || 2087}-${pad(hash(p.name) % 1000000, 6)}`;
     const L = G.npcs.filter((n) => n.examLeader).pop();
-    const judge = L ? L.name : '정은수';
+    const judge = L && L.guild === 'kama' ? L.name : '정은수'; // 관리국 문서라, 시험 리더가 길드원이면 관리국 심사관 이름으로
     const traits = (p.traits || []).map((id) => traitById(id).name).join(', ') || '없음';
     return `<div class="gc-doc" id="gc-doc">
       <div class="doc-head"><svg class="doc-logo" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 6 30 20 20 34 10 20z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="20" cy="20" r="4" fill="currentColor"/></svg>

@@ -121,3 +121,18 @@ if (typeof Game !== 'undefined' && Game.prototype.nbCheck) {
     return r;
   };
 }
+
+// 7) 부탁 의뢰: C급 베테랑이 F급 신입에게 "혼자 들어가기 불안해서" 부탁하던 어긋남 → 나보다 한 등급 넘게 높은 사람은 빼고.
+if (typeof REQUESTS !== 'undefined' && REQUESTS.help_gate) {
+  const baseWho = REQUESTS.help_gate.who;
+  REQUESTS.help_gate.who = (g) => baseWho(g).filter((n) => n.rankIdx <= g.player.rankIdx + 1);
+}
+
+// 8) 시험 뒤 '일주일 뒤', '첫 주 수입' 같은 서술이 나와도 날짜가 3월 1일에 머물던 문제: 소속·첫 파티가 정해지면 일주일이 흐른다.
+if (typeof UI !== 'undefined' && UI.firstPartyDone) {
+  const baseFpd = UI.firstPartyDone;
+  UI.firstPartyDone = function (...a) {
+    try { if (G.player && !G.over && (G.day || 1) <= 7 && !G.player.fpWeek) { G.player.fpWeek = true; G.advanceDays(7, { noSave: true }); } } catch (e) { /* 무시 */ }
+    return baseFpd.apply(this, a);
+  };
+}
