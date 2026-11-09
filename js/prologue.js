@@ -30,12 +30,12 @@ const PROLOGUE = {
       { text: '벽 너머로 몸이 미끄러졌던 기억', e: { bolt: 1 }, g: { esper: 1, shadow: 1 }, c: { teleporter: 2 }, next: 'gate_break' },
       { text: '아무 기억도 없는 척, 힘을 숨기며 산다', e: { dark: 1 }, g: { shadow: 2 }, c: { telekinetic: 1 }, t: { loner: 1 }, next: 'gate_break' },
     ] },
-  student_1: { title: '편의점 야간', text: '대학 2학년. 조별 과제는 혼자 떠안았고, 새벽에는 편의점 야간 근무다. 취한 손님이 계산대를 내리치며 소리친다. "나 D급 헌터야!"\n\n손님이 나가고 나서야 {friend}의 문자를 본다. "살아 있냐? 내일 밥 먹자."',
+  student_1: { title: '편의점 야간', text: '대학 2학년. 조별 과제는 혼자 떠안았고, 새벽에는 편의점 야간 근무다. 주머니 속 휴대폰에 {friend}의 문자가 떠 있다. "살아 있냐? 내일 밥 먹자."\n\n답장을 쓰려는데, 취한 손님이 계산대를 내리치며 소리친다. "나 D급 헌터야! 이거 공짜로 안 돼?"',
     choices: [
-      { text: '눈을 똑바로 보며 "나가 주세요"라고 했었다', e: { fire: 1 }, g: { fighter: 2 }, t: { reckless: 1 }, next: 'gate_break' },
-      { text: '과제를 하며 게이트 논문을 뒤적이던 참이다', e: { water: 1 }, g: { mage: 2 }, t: { genius: 1, mana_sense: 1 }, next: 'gate_break' },
-      { text: '몰래 휴대폰으로 녹화해 신고해 두었다', e: { bolt: 1 }, g: { shooter: 1, shadow: 1 }, t: { quick: 1 }, next: 'gate_break' },
-      { text: '{friend}에게 바로 전화를 건다', e: { holy: 1 }, g: { support: 1, summon: 1 }, t: { charisma: 1 }, friend: 5, next: 'gate_break' },
+      { text: '눈을 똑바로 보며 말한다. "계산하시든지, 나가 주세요."', e: { fire: 1 }, g: { fighter: 2 }, t: { reckless: 1 }, next: 'gate_break' },
+      { text: '못 들은 척, 펼쳐 둔 게이트 논문을 계속 읽는다', e: { water: 1 }, g: { mage: 2 }, t: { genius: 1, mana_sense: 1 }, next: 'gate_break' },
+      { text: '계산대 아래로 몰래 휴대폰 녹화를 켜고 신고한다', e: { bolt: 1 }, g: { shooter: 1, shadow: 1 }, t: { quick: 1 }, next: 'gate_break' },
+      { text: '손님 몰래 {friend}에게 전화를 건다', e: { holy: 1 }, g: { support: 1, summon: 1 }, t: { charisma: 1 }, friend: 5, next: 'gate_break' },
     ] },
 
   // ---------- 2. 게이트 브레이크 ----------
