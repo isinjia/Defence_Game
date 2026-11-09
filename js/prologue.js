@@ -506,6 +506,13 @@ for (const [bg, pool] of Object.entries(PRO_ARC_POOL)) {
     });
   }
 }
+// 도입과 갈래를 하나하나 읽어 보고 어색한 조합을 바로잡은 목록 ("도입:선택지 번호" → 갈래 또는 장면 id)
+const PRO_ROUTE_FIX = {
+};
+for (const [key, arc] of Object.entries(PRO_ROUTE_FIX)) {
+  const [id, i] = key.split(':'); const ch = PROLOGUE[id] && PROLOGUE[id].choices[+i];
+  if (ch) ch.next = PROLOGUE[arc] ? arc : `${arc}_1`;
+}
 
 const PROLOGUE_START = Object.fromEntries(['chaebol', 'orphan', 'soldier', 'subject', 'student'].map((bg) => [bg, Array.from({ length: 10 }, (_, i) => `${bg}_${i + 1}`)]));
 
