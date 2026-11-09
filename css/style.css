@@ -714,3 +714,10 @@ svg.order-lines line { stroke: #8cc4ff; stroke-width: 2; stroke-dasharray: 5 4; 
 .gmap-head .leave-btn:active { filter: brightness(.9); }
 .gmap-head .no-leave { flex: none; }
 .gmap-box > .row.end:empty { display: none; }
+
+/* ---------- 수련·휴식 장소 고르기 ---------- */
+.choice-btn.tp-btn { display: grid; gap: 3px; text-align: left; }
+.tp-btn .tp-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.tp-btn .tp-info { font-size: 12.5px; color: var(--amber); white-space: nowrap; }
+.tp-btn .tp-desc { font-size: 12px; color: var(--dim, #9aa6b8); line-height: 1.45; }
+.choice-btn.tp-btn::before { display: none; }
