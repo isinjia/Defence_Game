@@ -728,14 +728,15 @@ const UI = {
     if (u.side === 'enemy') return `<div class="foe ${u.boss ? 'boss' : ''} ${u.summon ? 'summoned' : ''}" id="u-${u.id}" data-act="c-target" data-v="${u.id}">
         <div class="fx-host"><div class="sprite">${this.unitSprite(u, u.summon ? 70 : u.boss ? Math.round(foeSize * 1.35) : foeSize)}</div><div class="reticle"></div></div>
         <div class="foe-name">${u.name} ${FX.elemIcon(u.elem, 12)}</div>
-        <div class="bar hp"><i></i></div><div class="foe-hp num small"></div><div class="status small"></div></div>`;
+        <div class="bar hp"><i></i></div><div class="bar atb mini"><i></i></div><div class="foe-hp num small"></div><div class="status small"></div></div>`;
     if (u.summon) return `<div class="ally summon" id="u-${u.id}"><div class="fx-host">${FX.monster({ name: u.name, elem: u.elem, shape: u.shape }, 40)}</div>
-        <div class="grow"><div class="row between"><b class="small">${u.name}</b><span class="status small"></span></div><div class="bar hp"><i></i></div><div class="small num hp-t"></div></div></div>`;
+        <div class="grow"><div class="row between"><b class="small">${u.name}</b><span class="status small"></span></div><div class="bar hp"><i></i></div><div class="small num hp-t"></div><div class="bar atb mini"><i></i></div></div></div>`;
     return `<div class="ally ${u.isPlayer ? 'me' : ''}" id="u-${u.id}">
         <div class="fx-host">${this.unitSprite(u, 44)}</div>
         <div class="grow"><div class="row between"><b>${u.name}</b><span class="status small"></span></div>${cls}
           <div class="bar hp"><i></i></div><div class="bar mp"><i></i></div>
-          <div class="row between small num"><span class="hp-t"></span><span class="mp-t dim"></span></div></div></div>`;
+          <div class="row between small num"><span class="hp-t"></span><span class="mp-t dim"></span></div>
+          <div class="bar atb"><i></i></div></div></div>`;
   },
 
   openCombat() {
@@ -751,8 +752,10 @@ const UI = {
       </div>
       <div class="clog" id="clog"></div>
       <div id="cb-ctrl"></div>`, 'combat-box');
+    c.speed = this.combatSpeed || 1;
     this.refreshUnits();
-    this.play();
+    this.renderControls();
+    this.combatLoop();
   },
 
   refreshUnits() {
@@ -766,9 +769,9 @@ const UI = {
         if (!c.disp[u.id]) c.disp[u.id] = { hp: u.hp, mp: u.mp };
       }
       const d = c.disp[u.id] || { hp: u.hp, mp: u.mp };
-      const bars = el.querySelectorAll('.bar > i');
-      if (bars[0]) bars[0].style.width = Math.max(0, Math.min(100, (d.hp / u.maxHp) * 100)) + '%';
-      if (bars[1]) bars[1].style.width = Math.max(0, Math.min(100, (d.mp / u.maxMp) * 100)) + '%';
+      const hb = el.querySelector('.bar.hp > i'), mb = el.querySelector('.bar.mp > i');
+      if (hb) hb.style.width = Math.max(0, Math.min(100, (d.hp / u.maxHp) * 100)) + '%';
+      if (mb) mb.style.width = Math.max(0, Math.min(100, (d.mp / u.maxMp) * 100)) + '%';
       const hpT = el.querySelector('.hp-t'); if (hpT) hpT.textContent = `HP ${Math.max(0, Math.round(d.hp))}/${u.maxHp}`;
       const mpT = el.querySelector('.mp-t'); if (mpT) mpT.textContent = `MP ${Math.round(d.mp)}`;
       const fh = el.querySelector('.foe-hp'); if (fh) fh.textContent = `${Math.max(0, Math.round(d.hp))} / ${u.maxHp}`;
@@ -777,7 +780,8 @@ const UI = {
       el.classList.toggle('dead', (d.hp <= 0 && !u.alive) || !!u.fled);
       el.classList.toggle('target', cb.target === u && u.alive);
     }
-    const r = document.getElementById('cb-round'); if (r) r.textContent = `${cb.round}라운드`;
+    const r = document.getElementById('cb-round'); if (r) r.textContent = `${cb.actions}번째 행동`;
+    this.drawGauges();
   },
 
   appendLog(l) {
@@ -865,10 +869,42 @@ const UI = {
     const c = this.ctx; if (!c) return; const cb = c.combat;
     for (const u of cb.units) c.disp[u.id] = { hp: u.hp, mp: u.mp };
     this.refreshUnits();
-    if (!cb.result && cb.auto && cb.waiting) {
-      setTimeout(() => { if (this.ctx === c && cb.auto && !c.playing) { cb.autoStep(); this.play(); } }, FX.reduced ? 0 : 160);
-    }
     this.renderControls();
+  },
+
+  // ATB 루프: 연출 중이거나 내 차례면 시간이 멈춘다
+  combatLoop() {
+    const c = this.ctx; if (!c) return; const cb = c.combat;
+    let last = performance.now();
+    const frame = (now) => {
+      if (this.ctx !== c || !document.getElementById('stage')) return;
+      const dt = Math.min(0.1, (now - last) / 1000) * (c.speed || 1); last = now;
+      if (!c.playing && !cb.result) {
+        if (cb.waiting) {
+          if (cb.auto) { cb.autoStep(); this.play(); }
+        } else {
+          const ready = cb.tick(FX.reduced ? 1 : dt);
+          this.drawGauges();
+          if (ready) {
+            const r = cb.takeTurn(ready);
+            this.drawGauges();
+            if (r === 'wait') this.renderControls();
+            else this.play();
+          }
+        }
+      }
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  },
+  drawGauges() {
+    const c = this.ctx; if (!c) return; const cb = c.combat;
+    for (const u of cb.units) {
+      const el = document.getElementById('u-' + u.id); if (!el) continue;
+      const g = el.querySelector('.atb > i'); if (g) g.style.width = Math.min(100, u.atb) + '%';
+      el.classList.toggle('ready', u.isPlayer && cb.waiting);
+      el.classList.toggle('acting', cb.active === u && c.playing);
+    }
   },
 
   renderControls() {
@@ -877,15 +913,17 @@ const UI = {
     if (cb.result && !c.playing) { box.innerHTML = fixJosa(this.combatResultHtml()); return; }
     const p = cb.player;
     const lock = c.playing || cb.auto || !cb.waiting;
+    const hint = cb.auto ? '자동 전투 중' : cb.waiting && !c.playing ? '<b class="amber">내 차례!</b> 시간이 멈췄다. 적을 눌러 대상을 고르고 커맨드를 입력하세요.' : '게이지가 차는 중… 내 게이지가 가득 차면 시간이 멈춥니다.';
     box.innerHTML = fixJosa(`<div class="skill-btns">${p.skills.map((id) => { const sk = skillById(id); return `<button class="skill-btn" style="--c:${sk.elem ? ELEMENTS[sk.elem].color : '#9aa6b8'}" data-act="c-skill" data-v="${id}" ${sk.mp > p.mp || lock ? 'disabled' : ''}>
         ${FX.elemIcon(sk.elem, 18)}<span><b>${sk.name}</b><span class="small dim">MP ${sk.mp} · ${TYPE_NAME[sk.type]}</span></span></button>`; }).join('')}</div>
       <div class="row ctrl-row">
         ${['potion', 'mana'].map((id) => `<button class="sm" data-act="c-item" data-v="${id}" ${!G.player.items[id] || lock ? 'disabled' : ''}>${CONSUMABLES.find((x) => x.id === id).name} <span class="num">×${G.player.items[id] || 0}</span></button>`).join('')}
         <span class="grow"></span>
+        <button class="sm" data-act="c-speed">${(c.speed || 1) === 1 ? '1배속' : '2배속'}</button>
         <button class="sm ${cb.auto ? 'primary' : ''}" data-act="c-auto">${cb.auto ? '자동 중지' : '자동 전투'}</button>
         ${cb.canFlee ? `<button class="sm danger" data-act="c-flee" ${lock ? 'disabled' : ''}>도주</button>` : ''}
       </div>
-      <div class="small dim">${c.playing ? '진행 중…' : cb.auto ? '자동 전투 중' : '적을 눌러 대상을 고른 뒤 스킬을 쓰세요.'}</div>`);
+      <div class="small dim cb-hint">${hint}</div>`);
   },
 
   combatResultHtml() {
@@ -1054,8 +1092,13 @@ const UI = {
       case 'c-auto': {
         const cx = this.ctx; if (!cx) return;
         cx.combat.toggleAuto();
-        if (cx.combat.auto && !cx.playing && cx.combat.waiting) { cx.combat.autoStep(); this.play(); } else this.renderControls();
+        this.renderControls();
         return;
+      }
+      case 'c-speed': {
+        const cx = this.ctx; if (!cx) return;
+        cx.speed = this.combatSpeed = (cx.speed || 1) === 1 ? 2 : 1;
+        return this.renderControls();
       }
       case 'c-done': return this.finishPersonalCombat();
       case 'g-next': {

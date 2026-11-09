@@ -23,14 +23,15 @@ class Combat {
     this.spar = !!opts.spar;
     this.units = [...opts.allies, ...opts.enemies].map((u) => this.prep(u));
     this.log = [];
-    this.round = 0; this.order = []; this.turnIdx = 0;
-    this.result = null; this.waiting = false; this.auto = false; this.target = null;
+    this.round = 1; this.actions = 0;
+    this.result = null; this.waiting = false; this.auto = false; this.target = null; this.active = null;
     this.kills = [];
+    // 평균 속도의 캐릭터가 약 2.4초에 한 번 행동하도록
+    const sp = this.units.map((u) => u.spd); this.meanSpd = sp.reduce((a, b) => a + b, 0) / sp.length || 10;
+    for (const u of this.units) u.atb = Math.random() * 35 + (u.spd / this.meanSpd) * 15;
     this.initial = Object.fromEntries(this.units.map((u) => [u.id, { hp: u.hp, mp: u.mp }]));
-    this.nextRound();
-    this.advance();
   }
-  prep(u) { return { ...u, alive: u.hp > 0, buffs: { atk: 0, atkT: 0, def: 0, defT: 0 }, stun: 0, poison: null, evadeT: 0, tauntT: 0 }; }
+  prep(u) { return { ...u, alive: u.hp > 0, atb: 0, buffs: { atk: 0, atkT: 0, def: 0, defT: 0 }, stun: 0, poison: null, evadeT: 0, tauntT: 0 }; }
 
   get player() { return this.units.find((u) => u.isPlayer); }
   side(s) { return this.units.filter((u) => u.side === s && u.alive); }
@@ -39,46 +40,57 @@ class Combat {
   friendsOf(u) { return this.side(u.side); }
   foesOf(u) { return this.side(u.side === 'ally' ? 'enemy' : 'ally'); }
   push(t, cls = '', ev = null) { this.log.push({ t: t ? fixJosa(t) : '', cls, ev }); }
+  fillRate(u) { return (u.spd / this.meanSpd) * (100 / 2.4); } // 초당 게이지 증가량
 
-  nextRound() {
-    this.round++;
-    this.order = this.units.filter((u) => u.alive).sort((a, b) => b.spd * (0.9 + Math.random() * 0.2) - a.spd * (0.9 + Math.random() * 0.2));
-    this.turnIdx = 0;
-  }
-  current() { return this.order[this.turnIdx]; }
-
-  // 플레이어 차례가 올 때까지 진행
-  advance() {
-    let guard = 0;
-    while (!this.result && guard++ < 400) {
-      if (this.turnIdx >= this.order.length) { this.tickRound(); if (this.result) break; this.nextRound(); }
-      const u = this.current();
-      if (!u || !u.alive) { this.turnIdx++; continue; }
-      if (u.stun > 0) { u.stun--; this.push(`${u.name}은(는) 기절해 움직이지 못한다.`, '', { k: 'note', dst: u.id }); this.turnIdx++; continue; }
-      if (u.isPlayer) { this.waiting = true; return; }
-      this.aiAct(u);
-      this.turnIdx++;
-      this.checkEnd();
-    }
-    this.waiting = false;
-  }
-
-  tickRound() {
+  // ---------- ATB: 시간이 흐르며 게이지가 찬다 ----------
+  // dt초만큼 게이지를 채우고, 가득 찬 캐릭터가 있으면 돌려준다
+  tick(dt) {
+    if (this.result || this.waiting) return null;
+    let ready = null;
     for (const u of this.units) {
       if (!u.alive) continue;
-      if (u.buffs.atkT > 0 && --u.buffs.atkT === 0) u.buffs.atk = 0;
-      if (u.buffs.defT > 0 && --u.buffs.defT === 0) u.buffs.def = 0;
-      if (u.evadeT > 0) u.evadeT--;
-      if (u.tauntT > 0) u.tauntT--;
-      if (u.poison) {
-        u.hp -= u.poison.dmg; u.poison.t--;
-        this.push(`${u.name}이(가) 중독으로 ${u.poison.dmg} 피해`, u.side === 'enemy' ? 'hit' : 'hurt', { k: 'dmg', dst: u.id, amt: u.poison.dmg, elem: null, hp: Math.max(0, u.hp), killed: u.hp <= 0, dot: true });
-        if (u.poison.t <= 0) u.poison = null;
-        if (u.hp <= 0) this.down(u);
-      }
-      u.mp = Math.min(u.maxMp, u.mp + Math.round(u.maxMp * 0.05));
+      u.atb = Math.min(100, u.atb + this.fillRate(u) * dt);
+      if (u.atb >= 100 && (!ready || u.spd > ready.spd)) ready = u;
     }
+    return ready;
+  }
+  // 다음 캐릭터가 준비될 때까지 시간을 건너뛴다 (시뮬레이션용)
+  skipToNext() {
+    let best = Infinity;
+    for (const u of this.units) if (u.alive) best = Math.min(best, (100 - u.atb) / this.fillRate(u));
+    return this.tick(Math.max(0, best) + 1e-6);
+  }
+  // 차례가 된 캐릭터의 행동 시작. 플레이어면 입력을 기다린다.
+  takeTurn(u) {
+    this.actions++;
+    this.round = 1 + Math.floor(this.actions / Math.max(1, this.units.filter((x) => x.alive).length));
+    this.active = u;
+    // 자기 차례가 올 때 지속 효과가 줄어든다
+    if (u.buffs.atkT > 0 && --u.buffs.atkT === 0) u.buffs.atk = 0;
+    if (u.buffs.defT > 0 && --u.buffs.defT === 0) u.buffs.def = 0;
+    if (u.evadeT > 0) u.evadeT--;
+    if (u.tauntT > 0) u.tauntT--;
+    u.mp = Math.min(u.maxMp, u.mp + Math.round(u.maxMp * 0.05));
+    if (u.poison) {
+      u.hp -= u.poison.dmg; u.poison.t--;
+      this.push(`${u.name}이(가) 중독으로 ${u.poison.dmg} 피해`, u.side === 'enemy' ? 'hit' : 'hurt', { k: 'dmg', dst: u.id, amt: u.poison.dmg, elem: null, hp: Math.max(0, u.hp), killed: u.hp <= 0, dot: true });
+      if (u.poison.t <= 0) u.poison = null;
+      if (u.hp <= 0) { this.down(u); this.checkEnd(); u.atb = 0; return 'done'; }
+    }
+    if (u.stun > 0) { u.stun--; u.atb = 0; this.push(`${u.name}은(는) 기절해 움직이지 못한다.`, '', { k: 'note', dst: u.id }); return 'done'; }
+    if (u.isPlayer && !this.auto) { this.waiting = true; return 'wait'; }
+    this.aiAct(u);
+    u.atb = 0;
     this.checkEnd();
+    return 'done';
+  }
+  // 연출 없이 끝까지 진행 (시뮬레이션용)
+  runAll() {
+    this.auto = true; let g = 0;
+    while (!this.result && g++ < 3000) {
+      const u = this.skipToNext();
+      if (u) this.takeTurn(u);
+    }
   }
 
   down(u) {
@@ -260,7 +272,7 @@ class Combat {
       case 'heal': this.healUnit(u, u.maxHp * P); break;
       case 'revive': {
         const t = this.units.find((f) => f.side === u.side && !f.alive && !f.summon);
-        if (t) { t.alive = true; t.hp = Math.round(t.maxHp * P); this.push(`${u.name}의 ${skill.name}! ${t.name}이(가) 다시 일어섰다.`, 'heal', { k: 'heal', dst: t.id, amt: t.hp, hp: t.hp, revive: true }); this.order.push(t); }
+        if (t) { t.alive = true; t.hp = Math.round(t.maxHp * P); this.push(`${u.name}의 ${skill.name}! ${t.name}이(가) 다시 일어섰다.`, 'heal', { k: 'heal', dst: t.id, amt: t.hp, hp: t.hp, revive: true }); t.atb = 30; }
         else this.healUnit(u, u.maxHp * 0.2);
         break;
       }
@@ -276,7 +288,7 @@ class Combat {
           atk: Math.round(u.atk * (0.45 + P * 0.5)), def: Math.round(u.def * 0.7), spd: u.spd, luck: 5, elem: u.elem, skills: ['strike'],
           shape: { summoner: 'ghost', necromancer: 'ghost', tamer: 'beast', apostle: 'eye', machinist: 'drone' }[u.cls] || 'slime', tier: 0,
         };
-        const su = this.prep(s); this.units.push(su); this.order.push(su);
+        const su = this.prep(s); su.atb = Math.random() * 40; this.units.push(su);
         this.push(`${u.name}이(가) ${s.name}을(를) 불러냈다!`, 'heal', { k: 'summon', dst: su.id, src: u.id });
         break;
       }
@@ -285,7 +297,7 @@ class Combat {
     this.checkEnd();
   }
 
-  // ----- 플레이어 입력 -----
+  // ----- 플레이어 입력 (내 차례일 때만) -----
   playerSkill(id) {
     if (!this.waiting || this.result) return;
     const p = this.player; const skill = skillById(id);
@@ -319,14 +331,14 @@ class Combat {
   toggleAuto() { this.auto = !this.auto; }
   autoStep() {
     if (!this.waiting || this.result) return;
+    this.waiting = false;
     this.aiAct(this.player);
-    this.endPlayerTurn();
+    this.player.atb = 0;
+    this.checkEnd();
   }
-  runAll() { this.auto = true; let g = 0; while (!this.result && g++ < 800) { if (this.waiting) this.autoStep(); else break; } }
   endPlayerTurn() {
     this.waiting = false;
-    this.turnIdx++;
+    this.player.atb = 0;
     this.checkEnd();
-    this.advance();
   }
 }

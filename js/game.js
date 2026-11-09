@@ -725,7 +725,7 @@ class Game {
     return {
       id: 'm' + Math.random().toString(36).slice(2, 8), name: (boss ? '[보스] ' : '') + t.name, side: 'enemy', boss,
       hp, maxHp: hp, mp: Math.round(40 * m), maxMp: Math.round(40 * m),
-      atk: Math.round(10.5 * m * t.atk * atkMul), def: Math.round(4 * m * (boss ? 1.3 : 1)), spd: Math.round(9 * Math.sqrt(m) * RNG.range(0.9, 1.1)), luck: 5,
+      atk: Math.round(10.5 * m * t.atk * atkMul), def: Math.round(4 * m * (boss ? 1.3 : 1)), spd: Math.round(10.5 * Math.sqrt(m) * RNG.range(0.92, 1.15) * (boss ? 1.1 : 1)), luck: 5,
       elem: t.elem, skills, tier, shape: t.shape,
     };
   }

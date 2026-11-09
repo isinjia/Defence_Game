@@ -422,3 +422,15 @@ p { margin: 6px 0; }
   .clog { height: 64px; }
   .skill-btns { grid-template-columns: 1fr 1fr; }
 }
+
+/* ---------- ATB 게이지 ---------- */
+.bar.atb { height: 5px; margin-top: 4px; border-color: #2a2410; background: #0b0a06; }
+.bar.atb > i { background: linear-gradient(90deg, #8a6a1a, var(--amber)); transition: none; }
+.bar.atb.mini { height: 3px; margin-top: 2px; }
+.ally.ready { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber), 0 0 18px rgba(255, 181, 71, .35); }
+.ally.ready .bar.atb > i { background: #fff3c4; animation: atb-full .8s ease-in-out infinite alternate; }
+@keyframes atb-full { from { opacity: .6; } to { opacity: 1; } }
+.ally.acting, .foe.acting { filter: brightness(1.25); }
+.cb-hint { margin-top: 4px; min-height: 1.4em; }
+.ally .mp-t { display: none; }
+.ally .hp-t { font-size: 11px; }
