@@ -1,0 +1,800 @@
+// ===== 게이트 크로니클: 게임 로직 =====
+
+const RNG = {
+  next: () => Math.random(),
+  int: (a, b) => a + Math.floor(Math.random() * (b - a + 1)),
+  range: (a, b) => a + Math.random() * (b - a),
+  pick: (arr) => arr[Math.floor(Math.random() * arr.length)],
+  chance: (p) => Math.random() < p,
+  weighted(items, weights) {
+    const total = weights.reduce((a, b) => a + b, 0);
+    let r = Math.random() * total;
+    for (let i = 0; i < items.length; i++) { r -= weights[i]; if (r < 0) return items[i]; }
+    return items[items.length - 1];
+  },
+};
+
+const SAVE_KEY = 'gate_chronicle_save_v1';
+
+function rankLabel(r, s) { return `${RANKS[r].key}급 ${STAGE_NAMES[s]}`; }
+function stageReq(r, s) { return Math.floor(60 * RANKS[r].mult ** 2.5 * (1 + s * 0.25)); }
+function statMult(r, s) { return RANKS[r].mult * (1 + 0.15 * s); }
+function regionById(id) { return REGIONS.find((r) => r.id === id); }
+function regionDist(a, b) { const A = regionById(a), B = regionById(b); return Math.abs(A.x - B.x) + Math.abs(A.y - B.y); }
+function skillById(id) { return SKILLS.find((s) => s.id === id); }
+function traitById(id) { return TRAITS.find((t) => t.id === id); }
+function persById(id) { return PERSONALITIES.find((p) => p.id === id); }
+function relationLabel(v) {
+  if (v <= -50) return '원수';
+  if (v <= -20) return '적대';
+  if (v < 10) return '무관심';
+  if (v < 30) return '지인';
+  if (v < 60) return '친구';
+  return '절친';
+}
+// 한국어 조사 자동 보정: "이(가)" → 받침에 따라 "이"/"가"
+function fixJosa(text) {
+  return String(text).replace(/([가-힣])(이\(가\)|은\(는\)|을\(를\)|와\(과\)|\(으\)로)/g, (m, ch, j) => {
+    const jong = (ch.charCodeAt(0) - 0xac00) % 28;
+    const has = jong !== 0;
+    const map = { '이(가)': has ? '이' : '가', '은(는)': has ? '은' : '는', '을(를)': has ? '을' : '를', '와(과)': has ? '과' : '와', '(으)로': has && jong !== 8 ? '으로' : '로' };
+    return ch + map[j];
+  });
+}
+function fmt(n) { return Math.floor(n).toLocaleString('ko-KR'); }
+
+class Game {
+  constructor() { this.rng = RNG; this.queue = []; }
+
+  // ---------- 시작 / 저장 ----------
+  newGame(opts) {
+    const bg = BACKGROUNDS.find((b) => b.id === opts.bg);
+    this.year = 2087; this.month = 3;
+    this.logs = []; this.rumors = [];
+    this.shops = {}; this.gates = {};
+    this.flags = { won: false };
+    this.over = null;
+    this.queue = [];
+    this.npcs = []; this.nextNpcId = 1;
+
+    let talent = opts.talent + (bg.talent || 0);
+    for (const t of opts.traits) talent += traitById(t).mods.talent || 0;
+    const startSkill = SKILLS.find((s) => s.elem === opts.element && s.rankReq === 0);
+
+    this.player = {
+      name: opts.name, gender: opts.gender, bg: bg.id, element: opts.element,
+      traits: opts.traits.slice(), talent: Math.max(1, talent),
+      rankIdx: 0, stage: 0, ether: 0,
+      ageMonths: 19 * 12, lifePenalty: 0, lifeBonus: 0,
+      money: bg.money, fame: bg.fame || 0, region: bg.region,
+      guild: null, guildRank: 0, contrib: 0,
+      skills: ['strike', startSkill.id], equipSkills: [startSkill.id],
+      equip: { weapon: null, armor: null, acc: null },
+      inventory: [], items: { potion: 3, mana: 2 },
+      btBonus: 0, companion: null, injured: 0,
+      record: { gates: 0, kills: 0, npcKills: 0, breakthroughs: 0, fails: 0 },
+      hp: 1, mp: 1,
+    };
+    this.player.equip.weapon = this.makeEquipment('weapon', 0, 0);
+    this.player.equip.armor = this.makeEquipment('armor', 0, 0);
+    this.recalc();
+    this.player.hp = this.player.maxHp; this.player.mp = this.player.maxMp;
+
+    for (let i = 0; i < 55; i++) this.npcs.push(this.makeNpc(false));
+    this.log(`${this.dateStr()}, ${this.player.name}은(는) ${regionById(this.player.region).name}에서 각성했다.`, 'major');
+    this.log('20년 전 "대붕괴" 이후 한반도 곳곳에 게이트가 열렸다. 살아남아, 강해져라.');
+  }
+
+  save() {
+    if (this.over) { localStorage.removeItem(SAVE_KEY); return; }
+    const data = {
+      year: this.year, month: this.month, player: this.player, npcs: this.npcs, nextNpcId: this.nextNpcId,
+      logs: this.logs, rumors: this.rumors, shops: this.shops, gates: this.gates, flags: this.flags,
+    };
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (e) { /* 저장 실패 무시 */ }
+  }
+  static hasSave() { try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; } }
+  load() {
+    const data = JSON.parse(localStorage.getItem(SAVE_KEY));
+    Object.assign(this, data);
+    this.over = null; this.queue = [];
+    this.recalc();
+  }
+
+  // ---------- 기본 계산 ----------
+  mod(key) {
+    const p = this.player;
+    let v = 0;
+    for (const t of p.traits) v += traitById(t).mods[key] || 0;
+    const bg = BACKGROUNDS.find((b) => b.id === p.bg);
+    v += bg.mods[key] || 0;
+    return v;
+  }
+
+  recalc() {
+    const p = this.player;
+    const m = statMult(p.rankIdx, p.stage);
+    let hp = 100 * m * (1 + this.mod('hp'));
+    let mp = 50 * m * (1 + this.mod('mp'));
+    let atk = 20 * m * (1 + this.mod('atk'));
+    let def = 8 * m * (1 + this.mod('def'));
+    let spd = 10 * Math.sqrt(m) * (1 + this.mod('spd'));
+    let luck = 10 * (1 + this.mod('luck'));
+    for (const slot of ['weapon', 'armor', 'acc']) {
+      const e = p.equip[slot];
+      if (!e) continue;
+      hp += e.hp || 0; mp += e.mp || 0; atk += e.atk || 0; def += e.def || 0; spd += e.spd || 0; luck += e.luck || 0;
+    }
+    if (p.injured > 0) { atk *= 0.8; def *= 0.8; }
+    Object.assign(p, {
+      maxHp: Math.round(hp), maxMp: Math.round(mp), atk: Math.round(atk), def: Math.round(def),
+      spd: Math.round(spd), luck: Math.round(luck),
+    });
+    p.hp = Math.min(p.hp, p.maxHp); p.mp = Math.min(p.mp, p.maxMp);
+  }
+
+  maxLife() {
+    const p = this.player;
+    return BASE_LIFESPAN + RANKS[p.rankIdx].life + this.mod('life') + p.lifeBonus - p.lifePenalty;
+  }
+  ageYears() { return Math.floor(this.player.ageMonths / 12); }
+  dateStr() { return `${this.year}년 ${this.month}월`; }
+  monthKey() { return this.year * 12 + this.month; }
+  region() { return regionById(this.player.region); }
+
+  log(text, type = '') {
+    this.logs.unshift({ date: this.dateStr(), text: fixJosa(text), type });
+    if (this.logs.length > 120) this.logs.length = 120;
+  }
+  rumor(text) {
+    this.rumors.unshift({ date: this.dateStr(), text: fixJosa(text) });
+    if (this.rumors.length > 80) this.rumors.length = 80;
+  }
+
+  // ---------- 수련 / 돌파 ----------
+  trainGain(mult = 1) {
+    const p = this.player;
+    let g = 15 * RANKS[p.rankIdx].mult * this.region().ether * (1 + p.talent * 0.08) * (1 + this.mod('train'));
+    if (p.guild === 'cheongryong') g *= 1.15;
+    if (p.injured > 0) g *= 0.5;
+    return Math.max(1, Math.floor(g * mult * RNG.range(0.85, 1.15)));
+  }
+
+  addEther(n) {
+    const p = this.player;
+    p.ether += n;
+    while (p.stage < 2 && p.ether >= stageReq(p.rankIdx, p.stage)) {
+      p.ether -= stageReq(p.rankIdx, p.stage);
+      p.stage++;
+      this.recalc();
+      p.hp = p.maxHp; p.mp = p.maxMp;
+      this.log(`경지가 올랐다: ${rankLabel(p.rankIdx, p.stage)}`, 'good');
+    }
+    if (p.stage === 2) p.ether = Math.min(p.ether, stageReq(p.rankIdx, 2));
+  }
+
+  // 이벤트·아이템용: 등급에 비례한 에테르 지급
+  etherGift(base) {
+    const v = Math.round(base * RANKS[this.player.rankIdx].mult ** 1.5);
+    this.addEther(v);
+    return v;
+  }
+
+  canBreakthrough() {
+    const p = this.player;
+    return p.rankIdx < RANKS.length - 1 && p.stage === 2 && p.ether >= stageReq(p.rankIdx, 2);
+  }
+  btChance() {
+    const p = this.player;
+    let c = 75 - p.rankIdx * 8 + (p.luck - 10) * 0.5 + this.mod('breakthrough') + p.btBonus;
+    if (p.injured > 0) c -= 20;
+    return Math.max(5, Math.min(95, Math.round(c)));
+  }
+
+  train() {
+    if (!this.canAct()) return;
+    const g = this.trainGain();
+    this.addEther(g);
+    this.log(`${this.region().name}에서 한 달간 수련했다. 에테르 +${fmt(g)}`);
+    this.advanceMonth(1, { eventChance: 0.22 });
+  }
+
+  rest() {
+    if (!this.canAct()) return;
+    const p = this.player;
+    p.hp = p.maxHp; p.mp = p.maxMp;
+    if (p.injured > 0) p.injured = Math.max(0, p.injured - 2);
+    this.recalc();
+    this.log('한 달간 휴식하며 몸을 회복했다.');
+    this.advanceMonth(1, { eventChance: 0.15, noRegen: true });
+  }
+
+  breakthrough() {
+    if (!this.canBreakthrough() || !this.canAct()) return null;
+    const p = this.player;
+    const chance = this.btChance();
+    const ok = RNG.int(1, 100) <= chance;
+    let msg;
+    if (ok) {
+      p.rankIdx++; p.stage = 0; p.ether = 0; p.btBonus = 0;
+      p.record.breakthroughs++;
+      p.fame += 5 * p.rankIdx;
+      this.recalc();
+      p.hp = p.maxHp; p.mp = p.maxMp;
+      msg = `돌파 성공! ${RANKS[p.rankIdx].name}이 되었다. 수명이 늘어났다.`;
+      this.log(msg, 'major');
+      if (p.rankIdx >= 4) this.rumor(`신예 ${p.name}이(가) ${RANKS[p.rankIdx].name}에 올랐다는 소식에 업계가 술렁인다.`);
+    } else {
+      p.ether = Math.floor(p.ether * 0.5);
+      p.hp = Math.max(1, Math.floor(p.maxHp * 0.3));
+      p.lifePenalty += 1;
+      p.btBonus = 5;
+      p.record.fails++;
+      msg = '돌파 실패... 에테르가 역류해 내상을 입었다. (에테르 절반 손실, 수명 -1) 하지만 깨달음을 얻었다. (다음 돌파 +5%)';
+      this.log(msg, 'bad');
+    }
+    this.advanceMonth(1, { eventChance: 0 });
+    return { ok, msg, chance };
+  }
+
+  canAct() { return !this.over; }
+
+  // ---------- 이동 ----------
+  travel(regionId) {
+    if (!this.canAct() || regionId === this.player.region) return;
+    const d = regionDist(this.player.region, regionId);
+    const dest = regionById(regionId);
+    if (dest.id === 'jeju' && this.player.rankIdx < 6) {
+      this.log('제주 격리 섬은 S급 이상만 출입이 허가된다.', 'bad');
+      return;
+    }
+    this.player.region = regionId;
+    const comp = this.companion();
+    if (comp) comp.region = regionId;
+    this.log(`${d}개월에 걸쳐 ${dest.name}(으)로 이동했다.`);
+    this.advanceMonth(d, { eventChance: 0.3 });
+  }
+
+  // ---------- 시간 ----------
+  advanceMonth(n = 1, opts = {}) {
+    const p = this.player;
+    for (let i = 0; i < n && !this.over; i++) {
+      this.month++;
+      if (this.month > 12) { this.month = 1; this.year++; }
+      p.ageMonths++;
+      if (p.injured > 0) { p.injured--; if (p.injured === 0) { this.recalc(); this.log('부상이 완치되었다.', 'good'); } }
+      if (!opts.noRegen) {
+        p.hp = Math.min(p.maxHp, p.hp + Math.floor(p.maxHp * 0.2));
+        p.mp = Math.min(p.maxMp, p.mp + Math.floor(p.maxMp * 0.3));
+      }
+      if (p.guild) {
+        const sal = Math.floor(40 * RANKS[p.rankIdx].mult * (1 + p.guildRank));
+        p.money += sal;
+      }
+      this.simulateNpcs();
+      if (this.ageYears() >= this.maxLife()) {
+        this.gameOver(`${this.ageYears()}세, 수명이 다해 눈을 감았다.`);
+        return;
+      }
+      if (this.month === 1) this.log(`${this.year}년이 밝았다. ${this.ageYears()}세.`, 'major');
+    }
+    if (this.over) return;
+    // 매복 체크
+    const enemies = this.npcsHere().filter((n) => n.relation <= -30 && !n.isCompanion);
+    for (const e of enemies) {
+      if (RNG.chance(0.12 + persById(e.personality).hostile)) { this.queue.push({ type: 'ambush', npcId: e.id }); break; }
+    }
+    if (opts.eventChance && RNG.chance(opts.eventChance)) {
+      const pool = EVENTS.filter((ev) => !ev.when || ev.when(this));
+      this.queue.push({ type: 'event', id: RNG.pick(pool).id });
+    }
+    this.save();
+  }
+
+  gameOver(reason) {
+    reason = fixJosa(reason);
+    this.over = { reason, date: this.dateStr() };
+    this.log(reason, 'bad');
+    this.queue = [{ type: 'gameover' }];
+    try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* 무시 */ }
+  }
+
+  // ---------- NPC ----------
+  makeNpc(young) {
+    const gender = RNG.chance(0.5) ? 'M' : 'F';
+    const name = RNG.pick(SURNAMES) + RNG.pick(gender === 'M' ? GIVEN_M : GIVEN_F);
+    const rankIdx = young ? RNG.weighted([0, 1], [80, 20]) : RNG.weighted([0, 1, 2, 3, 4, 5, 6], [26, 24, 18, 13, 10, 6, 3]);
+    const lifespan = BASE_LIFESPAN + RANKS[rankIdx].life + RNG.int(-8, 8);
+    let ageYears = young ? RNG.int(18, 22) : Math.min(lifespan - 3, 19 + rankIdx * 5 + RNG.int(0, 15));
+    const guildIds = Object.keys(GUILDS);
+    return {
+      id: this.nextNpcId++, name, gender, ageMonths: ageYears * 12 + RNG.int(0, 11), lifespan,
+      rankIdx, stage: RNG.int(0, 2), progress: RNG.next(),
+      element: RNG.pick(ELEMENT_KEYS), personality: RNG.pick(PERSONALITIES).id,
+      region: RNG.pick(REGIONS.filter((r) => r.id !== 'jeju' || rankIdx >= 6)).id,
+      relation: 0, alive: true, talent: RNG.int(2, 9),
+      guild: rankIdx >= 1 && RNG.chance(0.35) ? RNG.pick(guildIds) : null,
+      lastTalk: -1, lastSpar: -1, met: false, isCompanion: false, death: null,
+    };
+  }
+
+  npcById(id) { return this.npcs.find((n) => n.id === id); }
+  npcsHere() { return this.npcs.filter((n) => n.alive && n.region === this.player.region); }
+  companion() { const id = this.player.companion; return id ? this.npcById(id) : null; }
+  npcRankLabel(n) { return rankLabel(n.rankIdx, n.stage); }
+
+  killNpc(n, cause) {
+    n.alive = false; n.death = { date: this.dateStr(), cause };
+    if (n.isCompanion) { n.isCompanion = false; this.player.companion = null; }
+  }
+
+  simulateNpcs() {
+    for (const n of this.npcs) {
+      if (!n.alive) continue;
+      n.ageMonths++;
+      if (n.ageMonths / 12 >= n.lifespan) {
+        this.killNpc(n, '수명');
+        if (n.met || n.rankIdx >= 4) this.rumor(`${RANKS[n.rankIdx].key}급 각성자 ${n.name}이(가) ${Math.floor(n.ageMonths / 12)}세로 세상을 떠났다.`);
+        if (n.met) this.log(`${n.name}이(가) 수명을 다해 세상을 떠났다는 소식을 들었다.`, 'bad');
+        continue;
+      }
+      // 수련
+      const reg = regionById(n.region);
+      n.progress += (1 + n.talent * 0.08) * reg.ether * 0.3 / (4 * RANKS[n.rankIdx].mult ** 1.5) * RNG.range(0.5, 1.5);
+      if (n.progress >= 1) {
+        if (n.stage < 2) { n.stage++; n.progress = 0; }
+        else if (n.rankIdx < RANKS.length - 1) {
+          if (RNG.chance((60 - n.rankIdx * 9) / 100)) {
+            n.rankIdx++; n.stage = 0; n.progress = 0;
+            n.lifespan += RANKS[n.rankIdx].life - RANKS[n.rankIdx - 1].life;
+            if (n.met || n.rankIdx >= 3) this.rumor(RUMOR_TEMPLATES[0]({ name: n.name, rankName: RANKS[n.rankIdx].name }));
+          } else {
+            n.progress = 0.3;
+          }
+        } else n.progress = 1;
+      }
+      // 게이트 사망
+      if (!n.isCompanion && RNG.chance(0.0015 * reg.danger)) {
+        this.killNpc(n, '게이트');
+        if (n.met || n.rankIdx >= 4) this.rumor(`${n.name}이(가) ${reg.name}의 게이트에서 돌아오지 못했다.`);
+        if (n.met) this.log(`${n.name}이(가) 게이트에서 전사했다는 비보가 들려왔다.`, 'bad');
+        continue;
+      }
+      // 활약 소문
+      if (RNG.chance(0.006)) this.rumor(RNG.pick(RUMOR_TEMPLATES.slice(1))({ name: n.name }));
+      // 이동
+      if (!n.isCompanion && RNG.chance(0.04)) {
+        const opts = REGIONS.filter((r) => regionDist(r.id, n.region) === 1 && (r.id !== 'jeju' || n.rankIdx >= 6));
+        if (opts.length) n.region = RNG.pick(opts).id;
+      }
+      // 길드 가입
+      if (!n.guild && n.rankIdx >= 1 && RNG.chance(0.01)) n.guild = RNG.pick(Object.keys(GUILDS));
+      // NPC끼리의 결투
+      if (persById(n.personality).id === 'warlike' && RNG.chance(0.002)) {
+        const victims = this.npcs.filter((o) => o.alive && o !== n && o.region === n.region && o.rankIdx < n.rankIdx && !o.isCompanion);
+        if (victims.length) {
+          const v = RNG.pick(victims);
+          this.killNpc(v, `${n.name}에게 살해`);
+          this.rumor(`${n.name}이(가) 결투 끝에 ${v.name}을(를) 쓰러뜨렸다.`);
+          if (v.met) this.log(`${v.name}이(가) ${n.name}에게 살해당했다.`, 'bad');
+          if (v.met && v.relation >= 30) { n.relation -= 20; }
+        }
+      }
+    }
+    // 인구 유지
+    const alive = this.npcs.filter((n) => n.alive).length;
+    for (let i = alive; i < 50; i++) this.npcs.push(this.makeNpc(true));
+    // 오래된 사망자 정리 (만난 적 없는 사람)
+    if (this.npcs.length > 160) this.npcs = this.npcs.filter((n) => n.alive || n.met);
+  }
+
+  relGain(n, base) {
+    let g = base * persById(n.personality).relGain * (1 + this.mod('social')) * (1 + Math.min(this.player.fame, 200) / 400);
+    if (n.guild && n.guild === this.player.guild) g *= 1.5;
+    return Math.round(g);
+  }
+  changeRel(n, d) { n.relation = Math.max(-100, Math.min(100, n.relation + d)); }
+
+  talk(id) {
+    const n = this.npcById(id); if (!n || !n.alive) return '';
+    if (n.lastTalk === this.monthKey()) return `${n.name}은(는) 이미 이번 달에 충분히 이야기를 나눴다.`;
+    n.lastTalk = this.monthKey(); n.met = true;
+    const pers = persById(n.personality);
+    if ((pers.id === 'warlike' || pers.id === 'cold') && RNG.chance(0.2)) {
+      this.changeRel(n, -6);
+      return pers.id === 'warlike' ? `${n.name}: "시비 거는 거냐? 꺼져." (관계 -6)` : `${n.name}은(는) 당신을 무시했다. (관계 -6)`;
+    }
+    const g = this.relGain(n, RNG.int(3, 7));
+    this.changeRel(n, g);
+    const lines = {
+      kind: ['"오늘도 무사해서 다행이에요."', '"요즘 게이트가 부쩍 늘었대요. 조심하세요."'],
+      warlike: ['"강한 놈이랑 붙고 싶어 몸이 근질근질해."', '"네 실력, 언젠가 확인해보겠어."'],
+      greedy: ['"좋은 결정 시세가 오르고 있어. 정보 하나 줄까?"', '"돈 되는 게이트 알면 나한테도 알려줘."'],
+      just: ['"힘은 약한 자를 지키기 위해 쓰는 거다."', '"관리국은 너무 느려. 우리가 움직여야 해."'],
+      cold: ['"...용건만 말해."', '"..."'],
+    };
+    return `${n.name}: ${RNG.pick(lines[pers.id])} (관계 +${g})`;
+  }
+
+  giftCost(n) { return Math.round(100 * RANKS[n.rankIdx].mult); }
+  gift(id) {
+    const n = this.npcById(id); if (!n) return '';
+    const cost = this.giftCost(n);
+    if (this.player.money < cost) return '크레딧이 부족하다.';
+    this.player.money -= cost; n.met = true;
+    const g = this.relGain(n, persById(n.personality).id === 'greedy' ? 18 : 12);
+    this.changeRel(n, g);
+    return `${n.name}에게 ${fmt(cost)} 크레딧 상당의 선물을 건넸다. (관계 +${g})`;
+  }
+
+  canTeach(n) { return n.rankIdx >= this.player.rankIdx + 1 && n.relation >= 40; }
+  teach(id) {
+    const n = this.npcById(id);
+    if (!n || !this.canTeach(n) || !this.canAct()) return '';
+    const g = this.trainGain(2.2);
+    this.addEther(g);
+    this.changeRel(n, 2);
+    this.log(`${n.name}에게 한 달간 가르침을 받았다. 에테르 +${fmt(g)}`, 'good');
+    this.advanceMonth(1, { eventChance: 0.1 });
+    return `${n.name}의 지도 아래 수련했다. 에테르 +${fmt(g)}`;
+  }
+
+  canRecruit(n) { return !n.isCompanion && n.relation >= 60 && !this.player.companion; }
+  recruit(id) {
+    const n = this.npcById(id);
+    if (!n || !this.canRecruit(n)) return '';
+    const p = this.player;
+    if (n.rankIdx > p.rankIdx + 1 && !RNG.chance(0.25)) {
+      this.changeRel(n, -3);
+      return `${n.name}: "아직은 네가 날 따라올 실력이 아닌 것 같아." (거절)`;
+    }
+    n.isCompanion = true; p.companion = n.id; n.region = p.region;
+    this.log(`${n.name}이(가) 동료가 되었다.`, 'good');
+    return `${n.name}: "좋아, 함께 가자." 동료가 되었다!`;
+  }
+  dismiss() {
+    const c = this.companion(); if (!c) return '';
+    c.isCompanion = false; this.player.companion = null;
+    this.log(`${c.name}와(과) 각자의 길을 가기로 했다.`);
+    return `${c.name}와(과) 헤어졌다.`;
+  }
+
+  // 전투 유닛 생성
+  playerUnit() {
+    const p = this.player;
+    return {
+      id: 'player', name: p.name, side: 'ally', isPlayer: true,
+      hp: p.hp, maxHp: p.maxHp, mp: p.mp, maxMp: p.maxMp, atk: p.atk, def: p.def, spd: p.spd, luck: p.luck,
+      elem: p.element, skills: ['strike', ...p.equipSkills], affinity: p.element,
+    };
+  }
+  npcUnit(n, side) {
+    const m = statMult(n.rankIdx, n.stage) * 1.15;
+    const skills = ['strike', ...SKILLS.filter((s) => s.elem === n.element && s.rankReq <= n.rankIdx).map((s) => s.id).slice(-3)];
+    return {
+      id: 'npc' + n.id, npcId: n.id, name: n.name, side,
+      hp: Math.round(100 * m), maxHp: Math.round(100 * m), mp: Math.round(50 * m), maxMp: Math.round(50 * m),
+      atk: Math.round(20 * m), def: Math.round(8 * m), spd: Math.round(10 * Math.sqrt(m)), luck: 10,
+      elem: n.element, skills, affinity: n.element, rankText: this.npcRankLabel(n),
+    };
+  }
+  makeMonster(tier, boss, prefElem) {
+    let pool = MONSTERS.filter((m) => Math.abs(m.tier - tier) <= 1);
+    if (!pool.length) pool = MONSTERS;
+    if (prefElem && RNG.chance(0.6)) { const ep = pool.filter((m) => m.elem === prefElem); if (ep.length) pool = ep; }
+    const t = RNG.pick(pool);
+    const m = RANKS[tier].mult * RNG.range(0.95, 1.1) * (boss ? 1 : 1);
+    const hpMul = boss ? 3.2 : 1, atkMul = boss ? 1.35 : 1;
+    const skills = ['strike', ...SKILLS.filter((s) => s.elem === t.elem && (s.type === 'dmg' || s.type === 'aoe') && s.rankReq <= Math.floor(tier / 1.5)).map((s) => s.id).slice(-2)];
+    const hp = Math.round(60 * m * t.hp * hpMul);
+    return {
+      id: 'm' + Math.random().toString(36).slice(2, 8), name: (boss ? '[보스] ' : '') + t.name, side: 'enemy', boss,
+      hp, maxHp: hp, mp: Math.round(40 * m), maxMp: Math.round(40 * m),
+      atk: Math.round(10.5 * m * t.atk * atkMul), def: Math.round(4 * m * (boss ? 1.3 : 1)), spd: Math.round(9 * Math.sqrt(m) * RNG.range(0.9, 1.1)), luck: 5,
+      elem: t.elem, skills, tier,
+    };
+  }
+
+  // ---------- 게이트 ----------
+  getGates() {
+    const reg = this.region();
+    const key = this.monthKey();
+    let g = this.gates[reg.id];
+    if (!g || g.key !== key) {
+      const [lo, hi] = GATE_RANGES[reg.danger];
+      const list = [];
+      const count = RNG.int(2, 3);
+      for (let i = 0; i < count; i++) {
+        const tier = RNG.int(lo, hi);
+        list.push({ id: `${key}-${i}`, tier, theme: RNG.pick(GATE_THEMES), elem: RNG.pick(ELEMENT_KEYS), cleared: false });
+      }
+      if (reg.id === 'jeju' && !this.flags.won) list.push({ id: `${key}-f`, tier: 7, theme: '원초의 게이트', elem: 'spirit', cleared: false, final: true });
+      list.sort((a, b) => a.tier - b.tier);
+      g = this.gates[reg.id] = { key, list };
+    }
+    // 길드 본부에서는 매달 임무 게이트 1개 (가입 직후에도 바로 생성)
+    if (reg.guild && reg.guild === this.player.guild && !g.list.some((x) => x.mission)) {
+      const tier = Math.max(0, Math.min(7, this.player.rankIdx + RNG.int(-1, 0)));
+      g.list.unshift({ id: `${key}-m`, tier, theme: '길드 지정 게이트', elem: GUILDS[reg.guild].elem, cleared: false, mission: true });
+    }
+    return g.list;
+  }
+
+  gateName(gate) { return gate.final ? '원초의 게이트' : `${RANKS[gate.tier].key}급 게이트 · ${gate.theme}`; }
+  gateRooms(gate) {
+    const rooms = [];
+    const n = gate.final ? 4 : 3;
+    for (let i = 0; i < n; i++) {
+      const last = i === n - 1;
+      const enemies = [];
+      if (last) {
+        if (gate.final) {
+          const boss = this.makeMonster(7, true, 'spirit');
+          boss.name = '[최종] 심연의 군주'; boss.hp = boss.maxHp = Math.round(boss.maxHp * 2.2); boss.atk = Math.round(boss.atk * 1.2);
+          enemies.push(boss);
+        } else {
+          enemies.push(this.makeMonster(gate.tier, true, gate.elem));
+          if (RNG.chance(0.4)) enemies.push(this.makeMonster(gate.tier, false, gate.elem));
+        }
+      } else {
+        const cnt = i === 0 ? RNG.int(1, 2) : RNG.int(2, 3);
+        for (let k = 0; k < cnt; k++) enemies.push(this.makeMonster(gate.tier, false, gate.elem));
+      }
+      rooms.push(enemies);
+    }
+    return rooms;
+  }
+  monsterReward(mon) {
+    const m = RANKS[mon.tier].mult;
+    const mul = mon.boss ? 5 : 1;
+    return {
+      money: Math.round(40 * m * mul * RNG.range(0.8, 1.2)),
+      ether: Math.round(3 * m ** 1.2 * mul * RNG.range(0.85, 1.15)),
+    };
+  }
+
+  // 게이트 종료 처리. result: 'clear' | 'retreat' | 'lose'
+  finishGate(gate, result, loot, hpLeft, mpLeft) {
+    const p = this.player;
+    p.hp = Math.max(1, hpLeft); p.mp = Math.max(0, mpLeft);
+    const lines = [];
+    if (result === 'lose') {
+      const lost = Math.floor(p.money * 0.3);
+      p.money -= lost; p.lifePenalty += 2; p.injured = 3;
+      this.recalc();
+      p.hp = Math.max(1, Math.floor(p.maxHp * 0.3));
+      lines.push(`쓰러진 당신을 관리국 구조대가 끌어냈다. 치료비로 ${fmt(lost)} 크레딧을 잃었고, 치명상으로 수명이 2년 줄었다. (부상 3개월)`);
+      this.log(`${this.gateName(gate)}에서 패배했다.`, 'bad');
+      this.advanceMonth(2, { noRegen: true });
+      return lines;
+    }
+    p.money += loot.money; p.record.kills += loot.kills;
+    this.addEther(loot.ether);
+    lines.push(`획득: ${fmt(loot.money)} 크레딧, 에테르 ${fmt(loot.ether)}`);
+    if (result === 'clear') {
+      gate.cleared = true; p.record.gates++;
+      const fame = gate.tier + 1;
+      p.fame += fame;
+      lines.push(`게이트 클리어! 명성 +${fame}`);
+      if (RNG.chance(0.7)) {
+        const it = this.makeEquipment(RNG.pick(['weapon', 'armor', 'acc']), gate.tier);
+        p.inventory.push(it);
+        lines.push(`보스 드롭: ${it.name}`);
+      }
+      if (RNG.chance(0.3)) { p.items.crystal = (p.items.crystal || 0) + 1; lines.push('에테르 결정 1개를 주웠다.'); }
+      if (gate.mission) {
+        const c = 30 * (gate.tier + 1);
+        p.contrib += c; p.money += Math.round(loot.money * 0.3);
+        lines.push(`길드 임무 완료: 공헌도 +${c}, 보너스 보수 지급`);
+        this.checkGuildRank(lines);
+      }
+      const comp = this.companion();
+      if (comp) this.changeRel(comp, 2);
+      this.log(`${this.gateName(gate)} 공략 완료.`, 'good');
+      if (gate.final) {
+        this.flags.won = true;
+        p.fame += 500;
+        this.log('원초의 게이트를 닫았다. 한반도에 새벽이 찾아왔다.', 'major');
+        this.rumor(`${p.name}이(가) 원초의 게이트를 닫았다! 전설이 탄생했다.`);
+        this.queue.push({ type: 'victory' });
+      }
+    } else {
+      this.log(`${this.gateName(gate)}에서 철수했다.`);
+    }
+    this.advanceMonth(1, { eventChance: 0.1 });
+    return lines;
+  }
+
+  // ---------- 장비 / 상점 ----------
+  makeEquipment(slot, tier, rarityIdx) {
+    if (rarityIdx == null) {
+      const luckBonus = Math.max(0, (this.player ? this.player.luck : 10) - 10) * 0.6;
+      rarityIdx = RNG.weighted([0, 1, 2, 3], [55, 30 + luckBonus, 12 + luckBonus / 2, 3 + luckBonus / 4]);
+    }
+    const r = RARITY[rarityIdx];
+    const m = RANKS[tier].mult * r.mult;
+    const base = RNG.pick(EQUIP_TEMPLATES[slot]);
+    const it = { uid: Math.random().toString(36).slice(2, 10), slot, tier, rarity: rarityIdx, name: `[${RANKS[tier].key}] ${base}` };
+    if (slot === 'weapon') { it.atk = Math.round(8 * m); if (RNG.chance(0.3)) it.spd = Math.round(2 * m); }
+    if (slot === 'armor') { it.def = Math.round(5 * m); it.hp = Math.round(30 * m); }
+    if (slot === 'acc') { it.mp = Math.round(20 * m); it.luck = Math.round(3 * r.mult); if (RNG.chance(0.5)) it.spd = Math.round(1.5 * m); }
+    it.value = Math.round(150 * RANKS[tier].mult ** 2 * r.mult);
+    return it;
+  }
+
+  priceMul() {
+    let m = 1 + this.mod('price');
+    const reg = this.region();
+    if (reg.guild && reg.guild === this.player.guild) m *= 0.8;
+    return m;
+  }
+
+  getShop() {
+    const reg = this.region();
+    const key = this.monthKey();
+    let s = this.shops[reg.id];
+    if (!s || s.key !== key) {
+      const [lo, hi] = GATE_RANGES[reg.danger];
+      const eqCount = reg.id === 'suwon' ? 6 : reg.id === 'busan' ? 5 : 3;
+      const equips = [];
+      for (let i = 0; i < eqCount; i++) {
+        const rar = reg.id === 'busan' ? RNG.weighted([0, 1, 2, 3], [30, 35, 25, 10]) : RNG.weighted([0, 1, 2], [60, 30, 10]);
+        const it = this.makeEquipment(RNG.pick(['weapon', 'armor', 'acc']), RNG.int(lo, Math.min(7, hi + (reg.id === 'suwon' ? 1 : 0))), rar);
+        if (reg.id === 'busan') it.value = Math.round(it.value * RNG.range(0.6, 1.5));
+        equips.push(it);
+      }
+      const skCount = reg.id === 'daejeon' ? 5 : 2;
+      let skPool = SKILLS.filter((sk) => sk.price > 0 && sk.rankReq <= hi);
+      const guildElem = reg.guild ? GUILDS[reg.guild].elem : null;
+      const skills = [];
+      for (let i = 0; i < skCount && skPool.length; i++) {
+        let pick = guildElem && RNG.chance(0.5) ? skPool.find((sk) => sk.elem === guildElem && !skills.includes(sk.id)) : null;
+        if (!pick) pick = RNG.pick(skPool);
+        skills.push(pick.id);
+        skPool = skPool.filter((sk) => sk.id !== pick.id);
+      }
+      s = this.shops[reg.id] = { key, equips, skills };
+    }
+    return s;
+  }
+
+  buyEquip(uid) {
+    const s = this.getShop(); const it = s.equips.find((e) => e.uid === uid);
+    if (!it) return '';
+    const price = Math.round(it.value * this.priceMul());
+    if (this.player.money < price) return '크레딧이 부족하다.';
+    this.player.money -= price;
+    s.equips = s.equips.filter((e) => e.uid !== uid);
+    this.player.inventory.push(it);
+    return `${it.name}을(를) 구매했다.`;
+  }
+  buySkill(id) {
+    const sk = skillById(id); const p = this.player;
+    if (p.skills.includes(id)) return '이미 습득한 스킬이다.';
+    if (sk.rankReq > p.rankIdx) return `${RANKS[sk.rankReq].key}급 이상만 익힐 수 있다.`;
+    const price = Math.round(sk.price * this.priceMul());
+    if (p.money < price) return '크레딧이 부족하다.';
+    p.money -= price; p.skills.push(id);
+    if (p.equipSkills.length < 4) p.equipSkills.push(id);
+    this.log(`스킬 데이터 [${sk.name}]을(를) 습득했다.`, 'good');
+    return `[${sk.name}] 습득 완료.`;
+  }
+  buyItem(id) {
+    const c = CONSUMABLES.find((x) => x.id === id);
+    const price = Math.round(c.price * this.priceMul());
+    if (this.player.money < price) return '크레딧이 부족하다.';
+    this.player.money -= price;
+    this.player.items[id] = (this.player.items[id] || 0) + 1;
+    return `${c.name}을(를) 구매했다.`;
+  }
+  sellEquip(uid) {
+    const p = this.player; const it = p.inventory.find((e) => e.uid === uid);
+    if (!it) return '';
+    const price = Math.round(it.value * 0.4);
+    p.inventory = p.inventory.filter((e) => e.uid !== uid);
+    p.money += price;
+    return `${it.name}을(를) ${fmt(price)} 크레딧에 팔았다.`;
+  }
+  equipItem(uid) {
+    const p = this.player; const it = p.inventory.find((e) => e.uid === uid);
+    if (!it) return;
+    p.inventory = p.inventory.filter((e) => e.uid !== uid);
+    if (p.equip[it.slot]) p.inventory.push(p.equip[it.slot]);
+    p.equip[it.slot] = it;
+    this.recalc();
+  }
+  unequip(slot) {
+    const p = this.player;
+    if (!p.equip[slot]) return;
+    p.inventory.push(p.equip[slot]); p.equip[slot] = null;
+    this.recalc();
+  }
+  useItem(id) {
+    const p = this.player; const c = CONSUMABLES.find((x) => x.id === id);
+    if (!p.items[id]) return '';
+    p.items[id]--;
+    const heal = 1 + this.mod('heal');
+    if (c.effect === 'hp') { const v = Math.floor(p.maxHp * c.val * heal); p.hp = Math.min(p.maxHp, p.hp + v); return `체력 +${v}`; }
+    if (c.effect === 'mp') { const v = Math.floor(p.maxMp * c.val * heal); p.mp = Math.min(p.maxMp, p.mp + v); return `정신력 +${v}`; }
+    if (c.effect === 'ether') { const v = this.etherGift(c.val); return `에테르 +${v}`; }
+    if (c.effect === 'bt') { p.btBonus += c.val; return `다음 돌파 성공률 +${c.val}%`; }
+    return '';
+  }
+  toggleSkill(id) {
+    const p = this.player;
+    if (id === 'strike') return;
+    if (p.equipSkills.includes(id)) p.equipSkills = p.equipSkills.filter((s) => s !== id);
+    else if (p.equipSkills.length < 4) p.equipSkills.push(id);
+  }
+
+  // ---------- 길드 ----------
+  joinGuild() {
+    const reg = this.region(); const p = this.player;
+    if (!reg.guild || p.guild) return '';
+    const g = GUILDS[reg.guild];
+    if (p.fame < g.fameReq) return `명성이 부족하다. (필요 ${g.fameReq})`;
+    p.guild = reg.guild; p.guildRank = 0; p.contrib = 0;
+    this.log(`${g.name}에 가입했다.`, 'major');
+    return `${g.name}에 ${GUILD_RANKS[0].name}(으)로 가입했다.`;
+  }
+  leaveGuild() {
+    const p = this.player; if (!p.guild) return '';
+    const g = GUILDS[p.guild];
+    p.guild = null; p.guildRank = 0; p.contrib = 0; p.fame = Math.max(0, p.fame - 5);
+    this.log(`${g.name}을(를) 탈퇴했다.`);
+    return `${g.name}을(를) 탈퇴했다. (명성 -5)`;
+  }
+  checkGuildRank(lines) {
+    const p = this.player;
+    while (p.guildRank < GUILD_RANKS.length - 1 && p.contrib >= GUILD_RANKS[p.guildRank + 1].req) {
+      p.guildRank++;
+      const t = `길드 직위 상승: ${GUILD_RANKS[p.guildRank].name}`;
+      lines.push(t); this.log(t, 'good');
+    }
+  }
+
+  // ---------- 이벤트에서 쓰는 헬퍼 ----------
+  gainNpcRelationRandom(v) {
+    const here = this.npcsHere();
+    if (!here.length) return;
+    const n = RNG.pick(here); n.met = true; this.changeRel(n, v);
+  }
+  startSparWithRandomNpc() {
+    const here = this.npcsHere().filter((n) => !n.isCompanion);
+    const n = here.length ? RNG.pick(here) : null;
+    if (n) this.queue.push({ type: 'spar', npcId: n.id, fromEvent: true });
+  }
+
+  // 대련/결투 결과
+  finishSpar(n, won) {
+    const p = this.player; n.met = true;
+    n.lastSpar = this.monthKey();
+    if (won) {
+      const g = this.trainGain(0.5); this.addEther(g); p.fame += 1;
+      this.changeRel(n, persById(n.personality).id === 'warlike' ? 8 : 4);
+      return `대련 승리! 에테르 +${fmt(g)}, 명성 +1`;
+    }
+    const g = this.trainGain(0.25); this.addEther(g);
+    this.changeRel(n, 2);
+    return `대련 패배. 그래도 배운 것이 있다. 에테르 +${fmt(g)}`;
+  }
+  finishDuel(n, won, hpLeft, mpLeft) {
+    const p = this.player;
+    if (!won) { this.gameOver(`${n.name}와(과)의 생사결에서 패해 목숨을 잃었다.`); return ''; }
+    p.hp = Math.max(1, hpLeft); p.mp = mpLeft;
+    const loot = Math.round(200 * RANKS[n.rankIdx].mult ** 1.5 * RNG.range(0.7, 1.3));
+    const ether = Math.round(stageReq(n.rankIdx, n.stage) * 0.25);
+    p.money += loot; this.addEther(ether); p.record.npcKills++;
+    const villain = n.relation <= -20 || persById(n.personality).id === 'warlike';
+    const fameD = villain ? 3 : -10;
+    p.fame = Math.max(0, p.fame + fameD);
+    this.killNpc(n, `${p.name}에게 살해`);
+    this.rumor(`${p.name}이(가) 생사결 끝에 ${n.name}을(를) 쓰러뜨렸다.`);
+    this.log(`${n.name}을(를) 쓰러뜨렸다.`, villain ? 'good' : 'bad');
+    // 같은 지역의 지인들이 반응
+    for (const o of this.npcsHere()) {
+      if (o.met && persById(o.personality).id === 'just' && !villain) this.changeRel(o, -15);
+    }
+    return `승리. ${fmt(loot)} 크레딧과 에테르 ${fmt(ether)}을(를) 빼앗았다. 명성 ${fameD > 0 ? '+' : ''}${fameD}`;
+  }
+}
