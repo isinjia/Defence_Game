@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.11";
+const GAME_VERSION = "0.12";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -6561,6 +6561,78 @@ S({
     return "마음을 다잡았다.";
   } }, { text: "아직 아니다", do: () => "조금 더 단련하기로 했다." }]
 });
+const STORY_AT = {
+  // 도시 안에서만
+  base_black_market: ["city"],
+  base_duel_challenge: ["city"],
+  base_reporter: ["city"],
+  odd_time_loop: ["city"],
+  odd_memory: ["city"],
+  rel_secret: ["city"],
+  age_mortality: ["city"],
+  rel_anniversary: ["city"],
+  // 도시 밖에서만
+  base_injured_hunter: ["field"],
+  base_ruins: ["field"],
+  base_gate_surge: ["field", "gate"],
+  // 도시든 길이든 (게이트 직후는 아님)
+  base_kid_lost: ["city", "field"],
+  base_mentor: ["city", "field"],
+  rel_master_lesson: ["city", "field"],
+  society_documentary: ["city", "field"],
+  age_birthday: ["city", "field"],
+  // 게이트 직후에만
+  gate_survivor: ["gate"],
+  gate_double: ["gate"],
+  gate_loot_fight: ["gate"],
+  gate_red: ["gate", "field"],
+  // 잠들거나 밤을 보내야 하는 사건, 집으로 오는 우편
+  odd_shadow: ["city", "field"],
+  voice_0: ["city", "field"],
+  fam_0: ["city"],
+  // 다친 몸을 보는 사건
+  rel_partner_worry: ["gate", "city"]
+};
+for (const ev of STORY) if (STORY_AT[ev.id] && !ev.at) ev.at = STORY_AT[ev.id];
+const STORY_GATE_OK = /* @__PURE__ */ new Set(["rank_c_scout", "rank_b_variety", "rank_a_nation", "rank_s_offer", "rel_rival_challenge", "media_viral", "media_tax", "class_advance_retry", "sub_0"]);
+{
+  const ev = STORY.find((e) => e.id === "rel_partner_worry");
+  if (ev) {
+    const w = ev.when;
+    ev.when = (g, c) => (g.player.injured > 0 || g.situation() === "gate") && (!w || w(g, c));
+  }
+}
+{
+  const GP = Game.prototype;
+  GP.situation = function() {
+    return this.afterGate ? "gate" : this.onCity() ? "city" : "field";
+  };
+  const baseEligible = GP.storyEligible;
+  GP.storyEligible = function(ev2, c) {
+    if (ev2.at && !ev2.at.includes(this.situation())) return false;
+    if (this.afterGate && !(ev2.at && ev2.at.includes("gate")) && !STORY_GATE_OK.has(ev2.id)) return false;
+    return baseEligible.call(this, ev2, c);
+  };
+  const mark = (name) => {
+    const base = GP[name];
+    GP[name] = function(...a) {
+      this.afterGate = true;
+      try {
+        return base.apply(this, a);
+      } finally {
+        this.afterGate = false;
+        this.lastGateExit = this.monthKey();
+      }
+    };
+  };
+  mark("finishGate");
+  mark("finishMob");
+  const ev = STORY.find((e) => e.id === "odd_memory");
+  if (ev) {
+    const w = ev.when;
+    ev.when = (g, c) => (g.lastGateExit == null || g.monthKey() - g.lastGateExit >= 1) && (!w || w(g, c));
+  }
+}
 const BARKS = {
   warlike: ["덤벼!", "이 정도냐?", "부숴 주마!", "하하, 재밌군!", "피가 끓는다!"],
   kind: ["괜찮아?", "내가 지켜 줄게!", "조금만 버텨!", "다치지 마!", "같이 살아서 나가자!"],
