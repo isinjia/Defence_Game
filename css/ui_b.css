@@ -276,3 +276,25 @@
 #foes .foe.tut-off, #allies .ally.tut-off { opacity: .55; }
 #coach-pop.nudge { animation: nudge .4s; }
 @keyframes nudge { 25% { transform: translate(calc(-50% - 6px), 0); } 75% { transform: translate(calc(-50% + 6px), 0); } }
+
+/* 상성 표시 */
+.float-num.weak { color: #ffd166; font-size: calc(var(--fn, 22px) * 1.25); text-shadow: 0 0 10px #ff9f1c, 0 2px 0 #000; }
+.float-num.weak.hurt-weak { color: #ff6b7a; text-shadow: 0 0 10px #ff2e4d, 0 2px 0 #000; }
+.float-num.resist { color: #9fb4cc; font-size: 16px; }
+.float-num.edge { font-family: var(--font-body); font-size: 12px; font-weight: 800; top: -14px; padding: 0 6px; border-radius: 4px; text-shadow: none; animation-duration: 1.3s; }
+.float-num.edge-up { color: #1a1205; background: #ffd166; }
+.float-num.edge-bad { color: #fff; background: #e23a55; }
+.float-num.edge-down { color: #dbe6f3; background: #3a4a60; }
+.deflect .fx-host { animation: deflect .42s ease-out; }
+.deflect .fx-host::before { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 3px solid #9fb4cc; opacity: 0; animation: shieldring .42s ease-out; pointer-events: none; }
+@keyframes deflect { 30% { transform: translateX(3px) scale(.98); } }
+@keyframes shieldring { 0% { opacity: .9; transform: scale(.85); } 100% { opacity: 0; transform: scale(1.15); } }
+.foe { position: relative; }
+.edge-mark { position: absolute; top: 0; right: 4px; z-index: 4; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 10px; font-size: 12px; font-weight: 800; display: grid; place-items: center; pointer-events: none; box-shadow: 0 0 0 2px #05080d; }
+.edge-mark.up { background: #ffd166; color: #1a1205; }
+.edge-mark.down { background: #3a4a60; color: #dbe6f3; }
+.edge-mark.unk { background: #222c3b; color: #9aa6b8; }
+.edge-tag { margin-left: auto; flex: none; min-width: 20px; padding: 0 5px; border-radius: 9px; font-size: 11.5px; font-weight: 800; text-align: center; }
+.edge-tag.up { background: #ffd166; color: #1a1205; }
+.edge-tag.down { background: #3a4a60; color: #dbe6f3; }
+.edge-tag.unk { background: #222c3b; color: #9aa6b8; }
