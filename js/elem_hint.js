@@ -8,6 +8,7 @@
   // 공격 속성 e가 대상 속성 t에 대해: 1 유리, -1 불리, 0 보통
   UI.elemEdge = function (e, t) {
     if (!e || !t || !ELEMENTS[e] || !ELEMENTS[t]) return 0;
+    if (typeof elemEdge === 'function') return elemEdge(e, t); // 4-9 속성 개편 뒤의 상성 함수
     return elemEdge(e, t);
   };
   UI.foeKnown = function (u) {
