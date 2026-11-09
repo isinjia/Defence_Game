@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#05080d">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=0.05">
+  <link rel="stylesheet" href="dist/style.css?v=0.06">
 </head>
 <body>
   <div id="app"></div>
@@ -16,30 +16,16 @@
   <div id="toast" class="toast hidden" role="status"></div>
   <script>
     // 스크립트 오류가 나면 새로고침 안내를 띄운다 (배포 직후 캐시가 섞였을 때 등)
-    window.addEventListener('error', function () {
+    window.addEventListener('error', function (ev) {
       if (document.getElementById('err-bar')) return;
+      var msg = (ev && ev.message ? ev.message : '알 수 없는 오류') + (ev && ev.lineno ? ' @' + ev.lineno : '');
       var d = document.createElement('div'); d.id = 'err-bar';
       d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99;background:#3a1018;color:#ffd6dc;padding:12px 16px;font:14px sans-serif;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap';
-      d.innerHTML = '문제가 생겼습니다. 새 버전이 막 배포됐을 수 있습니다. <button style="padding:6px 12px" onclick="location.reload(true)">새로고침</button>';
+      d.innerHTML = '문제가 생겼습니다. 새로고침해 보고, 계속되면 이 화면을 캡처해 알려 주세요.<br><small style="opacity:.8"></small> <button style="padding:6px 12px" onclick="location.reload(true)">새로고침</button>';
+      d.querySelector('small').textContent = msg + ' · ' + navigator.userAgent.slice(0, 120);
       document.body.appendChild(d);
     });
   </script>
-  <script src="js/data.js?v=0.05"></script>
-  <script src="js/data_classes.js?v=0.05"></script>
-  <script src="js/prologue.js?v=0.05"></script>
-  <script src="js/game.js?v=0.05"></script>
-  <script src="js/world.js?v=0.05"></script>
-  <script src="js/society.js?v=0.05"></script>
-  <script src="js/story.js?v=0.05"></script>
-  <script src="js/story_events.js?v=0.05"></script>
-  <script src="js/story_chains.js?v=0.05"></script>
-  <script src="js/combat.js?v=0.05"></script>
-  <script src="js/fx.js?v=0.05"></script>
-  <script src="assets/portraits/portraits.js?v=0.05"></script>
-  <script src="js/portrait.js?v=0.05"></script>
-  <script src="js/mapview.js?v=0.05"></script>
-  <script src="js/ui.js?v=0.05"></script>
-  <script src="js/ui_town.js?v=0.05"></script>
-  <script src="js/ui_prologue.js?v=0.05"></script>
+  <script src="dist/game.js?v=0.06"></script>
 </body>
 </html>

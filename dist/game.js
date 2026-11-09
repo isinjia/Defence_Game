@@ -1,0 +1,9183 @@
+var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b) => {
+  for (var prop in b || (b = {}))
+    if (__hasOwnProp.call(b, prop))
+      __defNormalProp(a, prop, b[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b)) {
+      if (__propIsEnum.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    }
+  return a;
+};
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+const GAME_VERSION = "0.06";
+const RANKS = [
+  { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
+  { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
+  { key: "D", name: "D급 각성자", mult: 1.8, cost: 180, life: 8, color: "#5fa8d3" },
+  { key: "C", name: "C급 각성자", mult: 2.4, cost: 340, life: 14, color: "#8f7be8" },
+  { key: "B", name: "B급 각성자", mult: 3.2, cost: 600, life: 22, color: "#d98cf0" },
+  { key: "A", name: "A급 각성자", mult: 4.4, cost: 1e3, life: 35, color: "#f0b35b" },
+  { key: "S", name: "S급 각성자", mult: 6.2, cost: 1700, life: 55, color: "#ff6b6b" },
+  { key: "SS", name: "SS급 초월자", mult: 9, cost: 3e3, life: 90, color: "#ffe066" }
+];
+const STAGE_NAMES = ["초기", "중기", "후기"];
+const BASE_LIFESPAN = 60;
+const ELEMENTS = {
+  fire: { name: "염(炎)", icon: "🔥", color: "#ff7a45", counter: "ice" },
+  bolt: { name: "뇌(雷)", icon: "⚡", color: "#ffd84d", counter: "steel" },
+  ice: { name: "빙(氷)", icon: "❄️", color: "#6fd3ff", counter: "bolt" },
+  steel: { name: "강(鋼)", icon: "⚙️", color: "#b8c0cc", counter: "spirit" },
+  spirit: { name: "영(靈)", icon: "🔮", color: "#c58cff", counter: "fire" }
+};
+const ELEMENT_KEYS = Object.keys(ELEMENTS);
+const TRAITS = [
+  { id: "iron_body", name: "강철 신체", desc: "체력 +20%, 방어 +10%", mods: { hp: 0.2, def: 0.1 } },
+  { id: "mana_sense", name: "에테르 감응", desc: "수련 효율 +30%", mods: { train: 0.3 } },
+  { id: "quick", name: "신속 반사", desc: "속도 +25%", mods: { spd: 0.25 } },
+  { id: "berserk", name: "광전사", desc: "공격 +25%, 방어 -15%", mods: { atk: 0.25, def: -0.15 } },
+  { id: "lucky", name: "행운아", desc: "운 +30%, 돌파 성공률 +10%", mods: { luck: 0.3, breakthrough: 10 } },
+  { id: "cursed", name: "불운", desc: "운 -30%", mods: { luck: -0.3 } },
+  { id: "charisma", name: "달변가", desc: "NPC 호감 상승 +50%", mods: { social: 0.5 } },
+  { id: "loner", name: "고독", desc: "NPC 호감 상승 -40%, 수련 효율 +15%", mods: { social: -0.4, train: 0.15 } },
+  { id: "frail", name: "허약", desc: "체력 -20%, 수명 -6", mods: { hp: -0.2, life: -6 } },
+  { id: "longevity", name: "장수 체질", desc: "수명 +12", mods: { life: 12 } },
+  { id: "merchant", name: "장사꾼 기질", desc: "상점 가격 -20%", mods: { price: -0.2 } },
+  { id: "glutton", name: "탐식", desc: "회복 아이템 효과 +50%, 가격 +10%", mods: { heal: 0.5, price: 0.1 } },
+  { id: "genius", name: "천재", desc: "재능 +3", mods: { talent: 3 } },
+  { id: "slow_learner", name: "둔재", desc: "재능 -2, 수명 +5", mods: { talent: -2, life: 5 } },
+  { id: "mana_core", name: "고밀도 코어", desc: "정신력 +30%", mods: { mp: 0.3 } },
+  { id: "reckless", name: "무모함", desc: "돌파 성공률 -10%, 공격 +10%", mods: { breakthrough: -10, atk: 0.1 } }
+];
+const SKILLS = [
+  { id: "strike", name: "기본 타격", elem: null, rankReq: 0, power: 1, mp: 0, type: "dmg", price: 0, desc: "무기로 공격한다." },
+  { id: "flame_fist", name: "염권(炎拳)", elem: "fire", rankReq: 0, power: 1.5, mp: 12, type: "dmg", price: 300, desc: "불꽃을 머금은 주먹." },
+  { id: "static", name: "정전기 방출", elem: "bolt", rankReq: 0, power: 1.3, mp: 10, type: "dmg", price: 300, desc: "빠르게 전격을 쏜다." },
+  { id: "frost", name: "서리 손길", elem: "ice", rankReq: 0, power: 1.4, mp: 12, type: "dmg", price: 300, desc: "한기로 적을 얼린다." },
+  { id: "harden", name: "경화 피부", elem: "steel", rankReq: 0, power: 0.4, mp: 10, type: "shield", price: 350, desc: "3턴간 방어력 상승." },
+  { id: "mend", name: "생체 재생", elem: "spirit", rankReq: 0, power: 0.35, mp: 15, type: "heal", price: 400, desc: "체력을 회복한다." },
+  { id: "inferno", name: "화염 폭풍", elem: "fire", rankReq: 2, power: 1.2, mp: 28, type: "aoe", price: 1500, desc: "전체 공격." },
+  { id: "chain", name: "연쇄 번개", elem: "bolt", rankReq: 2, power: 1.1, mp: 26, type: "aoe", price: 1500, desc: "전체 공격." },
+  { id: "glacier", name: "빙하 창", elem: "ice", rankReq: 2, power: 2.3, mp: 30, type: "dmg", price: 1600, desc: "강력한 단일 공격." },
+  { id: "overdrive", name: "오버드라이브", elem: "steel", rankReq: 2, power: 0.5, mp: 24, type: "buff", price: 1600, desc: "3턴간 공격력 상승." },
+  { id: "soulfire", name: "혼염(魂炎)", elem: "spirit", rankReq: 3, power: 2.6, mp: 40, type: "dmg", price: 4e3, desc: "영혼을 태우는 일격." },
+  { id: "meteor", name: "유성 낙하", elem: "fire", rankReq: 4, power: 2.2, mp: 60, type: "aoe", price: 9e3, desc: "광역 괴멸." },
+  { id: "thunder_god", name: "뇌신 강림", elem: "bolt", rankReq: 4, power: 3.8, mp: 65, type: "dmg", price: 9500, desc: "단일 대상 극대 피해." },
+  { id: "absolute", name: "절대영도", elem: "ice", rankReq: 5, power: 3, mp: 90, type: "aoe", price: 2e4, desc: "모든 것을 멈춘다." },
+  { id: "rebirth", name: "환생(還生)", elem: "spirit", rankReq: 5, power: 1, mp: 100, type: "heal", price: 22e3, desc: "체력을 전부 회복한다." }
+];
+const EQUIP_TEMPLATES = {
+  weapon: ["진동 블레이드", "마나 건틀릿", "전자기 라이플", "합금 창", "플라즈마 세이버", "유물 검"],
+  armor: ["전술 코트", "나노 섬유 수트", "세라믹 플레이트", "중장 외골격", "에테르 장막", "유물 갑주"],
+  acc: ["마나 임플란트", "신경 가속기", "행운의 칩", "코어 안정기", "유물 반지", "기억의 팬던트"]
+};
+const CONSUMABLES = [
+  { id: "potion", name: "응급 회복제", price: 120, desc: "체력 40% 회복", effect: "hp", val: 0.4 },
+  { id: "mana", name: "마나 앰플", price: 150, desc: "정신력 50% 회복", effect: "mp", val: 0.5 },
+  { id: "crystal", name: "에테르 결정", price: 600, desc: "에테르 획득 (등급 비례)", effect: "ether", val: 25 },
+  { id: "elixir", name: "각성 촉진제", price: 2500, desc: "다음 돌파 성공률 +20%", effect: "bt", val: 20 }
+];
+const REGIONS = [
+  { id: "gangnam", name: "서울 강남 돔", x: 1, y: 0, danger: 1, guild: "baekho", ether: 1, desc: "관리국의 보호 아래 가장 안전한 상업 구역. 백호 시큐리티 본부." },
+  { id: "gangbuk", name: "서울 강북 폐구", x: 2, y: 0, danger: 3, guild: null, ether: 1.3, desc: "첫 대붕괴 때 버려진 구역. 에테르 농도가 높고 게이트가 잦다." },
+  { id: "incheon", name: "인천 항만 특구", x: 0, y: 0, danger: 2, guild: "kama", ether: 1, desc: "국가 각성자 관리국(KAMA) 본청. 해상 게이트 감시 거점." },
+  { id: "gangneung", name: "강릉 해안 전선", x: 3, y: 0, danger: 4, guild: null, ether: 1.5, desc: "동해에서 올라오는 심해형 괴수와 맞서는 최전선." },
+  { id: "suwon", name: "수원 산업 벨트", x: 0, y: 1, danger: 2, guild: null, ether: 1.1, desc: "장비 제조의 중심. 좋은 장비가 유통된다." },
+  { id: "daejeon", name: "대전 연구 도시", x: 1, y: 1, danger: 2, guild: "cheongryong", ether: 1.2, desc: "청룡 연구소. 스킬 데이터 거래가 활발하다." },
+  { id: "daegu", name: "대구 분지 요새", x: 2, y: 1, danger: 3, guild: null, ether: 1.2, desc: "분지에 쌓이는 에테르로 수련에 유리하지만 폭주가 잦다." },
+  { id: "ulsan", name: "울산 중공업 지대", x: 3, y: 1, danger: 3, guild: "hyeonmu", ether: 1.1, desc: "현무 중공업 각성자단. 중장갑 전투의 메카." },
+  { id: "gwangju", name: "광주 자유 도시", x: 0, y: 2, danger: 2, guild: "jujak", ether: 1.1, desc: "주작 프리랜서 연합. 길드에 속하지 않은 헌터들의 집결지." },
+  { id: "jeonju", name: "전주 보존 구역", x: 1, y: 2, danger: 1, guild: null, ether: 0.9, desc: "옛 도시의 모습을 지킨 평화로운 구역. 치유 스킬이 전해진다." },
+  { id: "busan", name: "부산 해상 도시", x: 2, y: 2, danger: 3, guild: null, ether: 1.2, desc: "바다 위에 세운 거대 도시. 암시장이 번성한다." },
+  { id: "jeju", name: "제주 격리 섬", x: 3, y: 2, danger: 5, guild: null, ether: 2, desc: "최초의 게이트가 열린 곳. S급 이상만 접근을 허가받는다." }
+];
+const GUILDS = {
+  baekho: { name: "백호 시큐리티", elem: "steel", color: "#b8c0cc", fameReq: 20, desc: "민간 경비 재벌. 규율과 장비를 중시한다." },
+  kama: { name: "국가 각성자 관리국", elem: "bolt", color: "#ffd84d", fameReq: 40, desc: "정부 기관. 명성이 높아야 들어갈 수 있다." },
+  cheongryong: { name: "청룡 연구소", elem: "spirit", color: "#c58cff", fameReq: 15, desc: "에테르 연구 집단. 스킬 습득에 유리하다." },
+  hyeonmu: { name: "현무 중공업 각성자단", elem: "ice", color: "#6fd3ff", fameReq: 25, desc: "기업 직속 전투단. 보수가 두텁다." },
+  jujak: { name: "주작 프리랜서 연합", elem: "fire", color: "#ff7a45", fameReq: 5, desc: "자유로운 헌터들의 연합. 누구나 환영." }
+};
+const MONSTERS = [
+  // tier 0~1
+  { name: "변이 들개", elem: "steel", tier: 0, hp: 0.8, atk: 0.9, shape: "beast" },
+  { name: "산성 슬라임", elem: "ice", tier: 0, hp: 1.1, atk: 0.7, shape: "slime" },
+  { name: "전기 날벌레떼", elem: "bolt", tier: 0, hp: 0.6, atk: 1.1, shape: "swarm" },
+  { name: "망령 드론", elem: "spirit", tier: 1, hp: 0.9, atk: 1, shape: "drone" },
+  { name: "불꽃 쥐", elem: "fire", tier: 1, hp: 0.8, atk: 1.2, shape: "beast" },
+  // tier 2~3
+  { name: "골렘 잔해병", elem: "steel", tier: 2, hp: 1.6, atk: 0.9, shape: "golem" },
+  { name: "서리 늑대", elem: "ice", tier: 2, hp: 1.1, atk: 1.2, shape: "beast" },
+  { name: "뇌격 비행체", elem: "bolt", tier: 3, hp: 0.9, atk: 1.5, shape: "drone" },
+  { name: "망자의 합창단", elem: "spirit", tier: 3, hp: 1.3, atk: 1.2, shape: "choir" },
+  { name: "용암 두꺼비", elem: "fire", tier: 3, hp: 1.7, atk: 1.1, shape: "slime" },
+  // tier 4~5
+  { name: "철갑 거미 여왕", elem: "steel", tier: 4, hp: 2.2, atk: 1.3, shape: "spider" },
+  { name: "빙설 세이렌", elem: "ice", tier: 4, hp: 1.5, atk: 1.6, shape: "ghost" },
+  { name: "천둥 기수", elem: "bolt", tier: 5, hp: 1.6, atk: 1.9, shape: "flyer" },
+  { name: "차원 포식자", elem: "spirit", tier: 5, hp: 2, atk: 1.7, shape: "eye" },
+  // tier 6~7
+  { name: "적룡 파편체", elem: "fire", tier: 6, hp: 2.6, atk: 2, shape: "dragon" },
+  { name: "폭풍 와이번", elem: "bolt", tier: 6, hp: 2.2, atk: 2.2, shape: "dragon" },
+  { name: "강철 거신", elem: "steel", tier: 6, hp: 3, atk: 1.8, shape: "golem" },
+  { name: "빙결 고룡", elem: "ice", tier: 7, hp: 2.8, atk: 2.1, shape: "dragon" },
+  { name: "심연 감시자", elem: "spirit", tier: 7, hp: 2.6, atk: 2.2, shape: "eye" },
+  { name: "태양의 잔해", elem: "fire", tier: 7, hp: 2.4, atk: 2.4, shape: "core" }
+];
+const SURNAMES = ["김", "이", "박", "최", "정", "강", "조", "윤", "장", "임", "한", "오", "서", "신", "권", "황", "안", "송", "류", "홍", "전", "고", "문", "양", "손", "배", "백", "허", "남", "심"];
+const GIVEN_M = ["도윤", "시우", "하준", "지호", "준서", "건우", "현우", "우진", "민재", "서준", "태양", "강민", "재현", "승현", "유찬", "지훈", "성민", "원우", "정우", "동현"];
+const GIVEN_F = ["서아", "하윤", "지유", "수아", "지안", "아린", "유나", "채원", "다은", "예린", "소율", "하린", "세아", "민서", "지원", "윤서", "가은", "시은", "연우", "은서"];
+const PERSONALITIES = [
+  { id: "kind", name: "온화", relGain: 1.3, hostile: 0 },
+  { id: "warlike", name: "호전", relGain: 0.8, hostile: 0.25 },
+  { id: "greedy", name: "탐욕", relGain: 0.9, hostile: 0.1 },
+  { id: "just", name: "의협", relGain: 1.1, hostile: 0.05 },
+  { id: "cold", name: "냉담", relGain: 0.6, hostile: 0.1 }
+];
+const EVENTS = [
+  {
+    id: "injured_hunter",
+    text: "길가에 부상당한 헌터가 쓰러져 있다. 장비 가방이 옆에 떨어져 있다.",
+    choices: [
+      { text: "치료해 준다", effect: (g) => {
+        g.player.fame += 5;
+        g.gainNpcRelationRandom(15);
+        return "헌터는 감사를 표하고 당신의 이름을 기억했다. (명성 +5)";
+      } },
+      { text: "가방만 챙기고 떠난다", effect: (g) => {
+        g.player.money += 400;
+        g.player.fame -= 8;
+        return "죄책감이 남았지만 400크레딧을 얻었다. (명성 -8)";
+      } },
+      { text: "그냥 지나친다", effect: () => "아무 일도 없었다." }
+    ]
+  },
+  {
+    id: "black_market",
+    text: "뒷골목의 암시장 상인이 정체불명의 에테르 결정을 내밀며 500크레딧을 요구한다.",
+    choices: [
+      { text: "구매한다 (500)", effect: (g) => {
+        if (g.player.money < 500) return "돈이 부족하다. 상인은 코웃음을 치며 사라졌다.";
+        g.player.money -= 500;
+        if (g.rng.chance(0.65)) {
+          const v = g.etherGift(40);
+          return "진품이었다! 에테르 +".concat(v, ".");
+        }
+        g.player.hp = Math.max(1, g.player.hp - Math.floor(g.player.maxHp * 0.3));
+        return "오염된 결정이었다. 마나 역류로 체력이 깎였다.";
+      } },
+      { text: "거절한다", effect: () => "상인은 어깨를 으쓱하고 사라졌다." }
+    ]
+  },
+  {
+    id: "kid_lost",
+    text: "게이트 경보가 울리는 와중에 길을 잃은 아이를 발견했다.",
+    choices: [
+      { text: "안전 구역까지 데려다준다", effect: (g) => {
+        g.player.fame += 8;
+        return "아이의 부모가 눈물을 흘리며 감사했다. (명성 +8)";
+      } },
+      { text: "무시한다", effect: (g) => {
+        g.player.fame -= 3;
+        return "마음 한구석이 무겁다. (명성 -3)";
+      } }
+    ]
+  },
+  {
+    id: "ruins",
+    text: "붕괴된 건물 지하에서 희미한 에테르 빛이 새어 나온다. 오래된 유적 같다.",
+    choices: [
+      { text: "탐색한다", effect: (g) => {
+        const r = g.rng.next();
+        if (r < 0.4) {
+          const v = g.etherGift(30);
+          return "옛 각성자의 수련 기록을 발견했다. 에테르 +".concat(v, ".");
+        }
+        if (r < 0.7) {
+          const it = g.makeEquipment(g.rng.pick(["weapon", "armor", "acc"]), Math.min(7, g.player.rankIdx + 1));
+          g.player.inventory.push(it);
+          return "유물 장비를 발견했다: ".concat(it.name);
+        }
+        g.player.hp = Math.max(1, g.player.hp - Math.floor(g.player.maxHp * 0.4));
+        return "함정이었다. 큰 부상을 입었다.";
+      } },
+      { text: "위험하다. 돌아선다", effect: () => "안전이 최우선이다." }
+    ]
+  },
+  {
+    id: "duel_challenge",
+    text: '거리에서 거만한 헌터가 당신을 가리키며 외친다. "너 각성자지? 나와 한번 붙어보자!"',
+    choices: [
+      { text: "대련을 받아들인다", effect: (g) => {
+        g.startSparWithRandomNpc();
+        return "대련이 시작된다!";
+      } },
+      { text: "무시한다", effect: (g) => {
+        g.player.fame -= 2;
+        return "그는 당신을 겁쟁이라 비웃었다. (명성 -2)";
+      } }
+    ]
+  },
+  {
+    id: "mentor",
+    text: '백발의 노인이 당신의 자세를 보고 혀를 찬다. "그렇게 에테르를 돌리면 수명이 줄어. 이리 와보게."',
+    choices: [
+      { text: "가르침을 받는다", effect: (g) => {
+        g.player.talent += 1;
+        return "호흡법의 요령을 배웠다. 재능 +1.";
+      } },
+      { text: "거절한다", effect: () => "노인은 한숨을 쉬며 떠났다." }
+    ]
+  },
+  {
+    id: "gate_surge",
+    text: "갑작스런 에테르 폭풍! 주변 공기가 일렁이며 피부가 따끔거린다.",
+    choices: [
+      { text: "폭풍을 흡수하려 시도한다", effect: (g) => {
+        if (g.rng.chance(0.4 + g.player.talent * 0.03)) {
+          const v = g.etherGift(50);
+          return "폭풍의 에테르를 흡수했다! 에테르 +".concat(v, ".");
+        }
+        g.player.hp = Math.max(1, Math.floor(g.player.hp * 0.5));
+        return "제어에 실패했다. 체력이 절반으로 줄었다.";
+      } },
+      { text: "대피한다", effect: () => "현명한 판단이었다." }
+    ]
+  },
+  {
+    id: "reporter",
+    text: '방송국 기자가 인터뷰를 요청한다. "최근 활약 중이신 각성자시죠?"',
+    when: (g) => g.player.fame >= 15,
+    choices: [
+      { text: "인터뷰한다", effect: (g) => {
+        g.player.fame += 10;
+        return "당신의 이름이 뉴스에 올랐다. (명성 +10)";
+      } },
+      { text: "사양한다", effect: () => "조용히 자리를 떠났다." }
+    ]
+  }
+];
+const RUMOR_TEMPLATES = [
+  (n) => "".concat(n.name, "이(가) ").concat(n.rankName, "에 도달했다는 소식이다."),
+  (n) => "".concat(n.name, "이(가) 게이트 공략 중 큰 공을 세웠다고 한다."),
+  (n) => "".concat(n.name, "의 이름이 헌터 랭킹 게시판에 올랐다.")
+];
+const BACKGROUNDS = [
+  { id: "chaebol", name: "재벌가 자제", desc: "넉넉한 자금으로 시작한다. 크레딧 3000, 명성 +5.", region: "gangnam", money: 3e3, fame: 5, mods: {} },
+  { id: "orphan", name: "보육원 출신", desc: "가진 건 없지만 근성이 있다. 재능 +1, 크레딧 200.", region: "jeonju", money: 200, talent: 1, mods: {} },
+  { id: "soldier", name: "특수부대 전역", desc: "실전 감각. 공격 +15%, 체력 +10%.", region: "incheon", money: 800, mods: { atk: 0.15, hp: 0.1 } },
+  { id: "subject", name: "연구소 실험체", desc: "강제 각성의 후유증. 정신력 +30%, 수련 +15%, 수명 -6.", region: "daejeon", money: 500, mods: { mp: 0.3, train: 0.15, life: -6 } },
+  { id: "student", name: "평범한 대학생", desc: "평범함 속의 행운. 운 +20%, 크레딧 1000.", region: "gwangju", money: 1e3, mods: { luck: 0.2 } }
+];
+const RARITY = [
+  { name: "일반", mult: 1, color: "#c9ced6" },
+  { name: "희귀", mult: 1.3, color: "#5fa8d3" },
+  { name: "영웅", mult: 1.7, color: "#c58cff" },
+  { name: "전설", mult: 2.2, color: "#f0b35b" }
+];
+const GATE_RANGES = { 1: [0, 1], 2: [0, 2], 3: [1, 3], 4: [2, 5], 5: [4, 7] };
+const GATE_THEMES = ["폐지하철역", "침수된 쇼핑몰", "붕괴 아파트 단지", "버려진 병원", "지하 데이터센터", "해저 터널", "고대 신전", "에테르 숲", "폐공장", "무너진 고가도로"];
+const GUILD_RANKS = [
+  { name: "수습 단원", req: 0 },
+  { name: "정식 단원", req: 100 },
+  { name: "정예 단원", req: 300 },
+  { name: "간부", req: 700 }
+];
+const RELICS = [
+  { id: "magma_heart", name: "용암의 심장", stat: "hp", val: 0.06, desc: "체력" },
+  { id: "storm_quill", name: "뇌조의 깃", stat: "spd", val: 0.05, desc: "속도" },
+  { id: "frost_sarira", name: "빙정 사리", stat: "def", val: 0.06, desc: "방어" },
+  { id: "steel_nerve", name: "강철 신경다발", stat: "atk", val: 0.05, desc: "공격" },
+  { id: "soul_lamp", name: "혼등", stat: "mp", val: 0.08, desc: "정신력" },
+  { id: "lucky_coin", name: "대붕괴 이전의 동전", stat: "luck", val: 0.12, desc: "운" },
+  { id: "old_chip", name: "고대 연산 칩", stat: "train", val: 0.04, desc: "수련 효율" },
+  { id: "world_sap", name: "세계수 수액", stat: "life", val: 2, desc: "수명(년)" },
+  { id: "rift_shard", name: "균열의 파편", stat: "atk", val: 0.08, desc: "공격" },
+  { id: "dragon_scale", name: "적룡의 비늘", stat: "def", val: 0.09, desc: "방어" }
+];
+const FACILITIES = [
+  { id: "inn", name: "캡슐 호텔", desc: "크레딧과 5일을 써서 완전히 회복한다." },
+  { id: "market", name: "헌터 마켓", desc: "장비와 소모품을 사고판다. 큰 도시엔 각성 촉매도 들어온다." },
+  { id: "board", name: "협회 의뢰소", desc: "의뢰를 받고 보고한다. 크레딧, 협회 공적, 도시 평판을 준다." },
+  { id: "tavern", name: "포차", desc: "술 한잔으로 기운을 얻고, 이 도시 각성자들과 가까워진다." },
+  { id: "workshop", name: "공방", desc: "괴수 코어로 회복제와 각성 촉매를 만든다." },
+  { id: "archive", name: "스킬 아카이브", desc: "크레딧과 협회 공적으로 스킬 데이터를 교환한다." },
+  { id: "transit", name: "고속 이동망", desc: "가 본 도시로 빠르게 이동한다." },
+  { id: "merc", name: "용병 사무소", desc: "파티를 채울 헌터를 3개월 계약으로 고용한다." },
+  { id: "auction", name: "경매장", desc: "매년 5월, 유물과 전설 장비가 경매에 오른다.", big: true },
+  { id: "guild", name: "길드 본부", desc: "이 도시에 본부를 둔 길드.", guildOnly: true }
+];
+const BIG_CITIES = ["gangnam", "busan", "daegu"];
+const DRINKS = [
+  { id: "soju", name: "소주 한 병", price: 30, desc: "이 도시 각성자 모두와 관계 +4 (한 달에 한 번)", effect: "social" },
+  { id: "ether_cocktail", name: "에테르 칵테일", price: 220, desc: "3개월간 운 +15", effect: "buff", buff: { stat: "luck", val: 1.5, months: 3 } },
+  { id: "magma_whisky", name: "용암 위스키", price: 400, desc: "2개월간 공격 +12%", effect: "buff", buff: { stat: "atk", val: 0.12, months: 2 } },
+  { id: "calm_tea", name: "청심차", price: 150, desc: "3개월간 수련 효율 +15%", effect: "buff", buff: { stat: "train", val: 0.15, months: 3 } }
+];
+const RECIPES = [
+  { id: "potion", name: "응급 회복제", cores: 1, tier: 0, credits: 40, out: "potion", n: 2 },
+  { id: "mana", name: "마나 앰플", cores: 1, tier: 0, credits: 50, out: "mana", n: 2 },
+  { id: "crystal", name: "에테르 결정", cores: 3, tier: "rank", credits: 100, out: "crystal", n: 1 },
+  { id: "catalyst", name: "각성 촉매", cores: 5, tier: "rank", credits: 200, out: "catalyst", n: 1 }
+];
+const SAGA = {
+  tournamentMonth: 9,
+  tournamentCity: "gangnam",
+  tournamentEvery: 3,
+  auctionMonth: 5
+};
+const RACES = {
+  human: { name: "인간", w: 70, mods: {}, groups: [] },
+  orc: {
+    name: "오크",
+    w: 7,
+    mods: { hp: 0.2, atk: 0.12, mp: -0.15 },
+    groups: ["fighter", "guard"],
+    desc: "강철 같은 근육과 엄니. 이계 전쟁에서 밀려나 건너온 전사 종족.",
+    names: { M: ["우르그", "고르박", "카르둠", "브루나크", "타가르", "모르가쉬", "라즈곤", "두르크"], F: ["무르가", "라즈가", "오르샤", "가르나", "우르사", "타르카"] }
+  },
+  elf: {
+    name: "엘프",
+    w: 7,
+    mods: { spd: 0.15, mp: 0.15, hp: -0.1 },
+    groups: ["shooter", "mage", "support"],
+    desc: "긴 귀와 긴 수명. 숲이 불탄 세계에서 건너온 난민.",
+    names: { M: ["실바렌", "엘라딘", "페아노르", "갈리엔", "아르웬도", "리안델"], F: ["세리안", "엘리네", "이스릴", "나엘리", "루시엔", "아마리스"] }
+  },
+  dwarf: {
+    name: "드워프",
+    w: 6,
+    mods: { def: 0.2, hp: 0.12, spd: -0.1 },
+    groups: ["guard", "fighter", "support"],
+    desc: "작고 단단하다. 울산 용광로에서 일하는 장인이 많다.",
+    names: { M: ["두르간", "브로크", "토린바", "그림달", "발두르", "하르곤"], F: ["디스나", "헬가", "브룬힐", "마그라", "토라", "이델가"] }
+  },
+  beastkin: {
+    name: "수인",
+    w: 7,
+    mods: { spd: 0.2, atk: 0.08, def: -0.05 },
+    groups: ["shadow", "fighter"],
+    desc: "짐승의 귀와 감각. 늑대족, 여우족, 고양이족이 섞여 산다.",
+    names: { M: ["카야", "로웬", "티그로", "하울", "바로크", "세이른"], F: ["루나", "미야", "코하", "레이나", "시엘", "아라"] }
+  },
+  dragonkin: {
+    name: "용인",
+    w: 3,
+    mods: { atk: 0.12, def: 0.12, hp: 0.1 },
+    groups: ["fighter", "mage"],
+    desc: "뿔과 비늘. 수가 적고 자존심이 높다.",
+    names: { M: ["드라칸", "바르토스", "이그니르", "세라드", "카이렌"], F: ["이리스", "베라딘", "세레스", "아샤라", "니르바"] }
+  }
+};
+const RACE_KEYS = Object.keys(RACES);
+function rollRace(rng = Math.random) {
+  const tot = RACE_KEYS.reduce((a, k) => a + RACES[k].w, 0);
+  let r = rng() * tot;
+  for (const k of RACE_KEYS) {
+    r -= RACES[k].w;
+    if (r < 0) return k;
+  }
+  return "human";
+}
+function ageStage(years) {
+  return years < 4 ? "baby" : years < 13 ? "child" : years < 18 ? "teen" : years < 50 ? "adult" : years < 65 ? "middle" : "elder";
+}
+const AGE_NAME = { baby: "아기", child: "어린이", teen: "청소년", adult: "성인", middle: "중년", elder: "노인" };
+const CLASS_GROUPS = {
+  fighter: { name: "전투계", color: "#ff8a4c" },
+  guard: { name: "수호계", color: "#b8c0cc" },
+  shadow: { name: "암살계", color: "#9a7bff" },
+  shooter: { name: "사격계", color: "#7cd4a8" },
+  mage: { name: "마법계", color: "#6fb8ff" },
+  summon: { name: "소환계", color: "#c58cff" },
+  support: { name: "지원계", color: "#8be08b" },
+  esper: { name: "초능력계", color: "#ff6fb5" },
+  east: { name: "동방계", color: "#ffd84d" },
+  hidden: { name: "히든", color: "#ff4f6a" }
+};
+const CLASS_RARITY = ["일반", "희귀", "영웅", "히든"];
+const CLASSES = [
+  // ---- 전투계
+  {
+    id: "swordsman",
+    g: "fighter",
+    name: "검사",
+    r: 0,
+    role: "melee",
+    mods: { atk: 0.12, hp: 0.05 },
+    adv: ["검귀", "검성"],
+    desc: "균형 잡힌 근접 딜러. 대한민국 헌터의 표준.",
+    skills: [["일섬", "crit", 1.7, 10, "빠르게 베어 치명타율이 높다."], ["검기 방출", "aoe", 1.15, 26, "검기를 날려 적 전체를 벤다."], ["발도술 · 섬광", "pierce", 3.2, 55, "방어를 무시하는 필살의 일격."]]
+  },
+  {
+    id: "berserker",
+    g: "fighter",
+    name: "광전사",
+    r: 0,
+    role: "melee",
+    mods: { atk: 0.22, hp: 0.12, def: -0.12 },
+    adv: ["혈투사", "전쟁광"],
+    desc: "피를 볼수록 강해진다. 방어는 신경 쓰지 않는다.",
+    skills: [["광란", "buff", 0.6, 12, "3턴간 공격력 대폭 상승."], ["피의 갈증", "drain", 1.6, 24, "벤 만큼 체력을 회복한다."], ["멸살 난무", "multi", 1.4, 50, "무작위 적을 세 번 내려친다."]]
+  },
+  {
+    id: "lancer",
+    g: "fighter",
+    name: "창술사",
+    r: 0,
+    role: "melee",
+    mods: { atk: 0.1, spd: 0.1 },
+    adv: ["창귀", "창신"],
+    desc: "긴 사거리와 관통력. 갑주를 꿰뚫는다.",
+    skills: [["관통 찌르기", "pierce", 1.5, 12, "방어를 상당 부분 무시한다."], ["회선창", "aoe", 1.1, 24, "창을 휘둘러 주변을 쓸어낸다."], ["천뢰창", "stun", 2.6, 48, "번개처럼 꿰뚫어 적을 기절시킨다."]]
+  },
+  {
+    id: "monk",
+    g: "fighter",
+    name: "무도가",
+    r: 0,
+    role: "melee",
+    mods: { hp: 0.15, spd: 0.12, atk: 0.05 },
+    adv: ["권왕", "무신"],
+    desc: "맨몸이 곧 무기. 에테르를 기공으로 다룬다.",
+    skills: [["연환권", "multi", 0.8, 10, "세 번 연속으로 내지른다."], ["내공 순환", "heal", 0.3, 18, "기를 돌려 체력을 회복한다."], ["파천권", "stun", 2.8, 50, "하늘을 깨는 일권. 적을 기절시킨다."]]
+  },
+  {
+    id: "dualblade",
+    g: "fighter",
+    name: "쌍검사",
+    r: 1,
+    role: "assassin",
+    mods: { atk: 0.14, spd: 0.18, def: -0.05 },
+    adv: ["쌍룡검", "검무제"],
+    desc: "두 자루 검으로 쉴 틈 없이 몰아친다.",
+    skills: [["쌍월참", "multi", 0.95, 12, "두 검이 교차하며 세 번 벤다."], ["검무", "evade", 0.6, 20, "2턴간 공격을 흘려 낸다."], ["만검귀종", "multi", 1.9, 55, "수십 개의 검영이 쏟아진다."]]
+  },
+  // ---- 수호계
+  {
+    id: "guardian",
+    g: "guard",
+    name: "방패 기사",
+    r: 0,
+    role: "tank",
+    mods: { def: 0.3, hp: 0.25, atk: -0.1 },
+    adv: ["철벽", "불괴"],
+    desc: "동료 앞을 막아서는 벽. 파티의 생명줄.",
+    skills: [["도발", "taunt", 0.6, 8, "적의 공격을 자신에게 끈다."], ["방패 진형", "shield_all", 0.5, 24, "파티 전체 방어력 상승."], ["불괴의 성벽", "shield_all", 1.2, 50, "파티 전체가 철벽이 된다."]]
+  },
+  {
+    id: "paladin",
+    g: "guard",
+    name: "성기사",
+    r: 1,
+    role: "tank",
+    mods: { def: 0.2, hp: 0.2, mp: 0.1 },
+    adv: ["성전사", "성기사장"],
+    desc: "방패와 빛. 지키면서 치유한다.",
+    skills: [["성스러운 도발", "taunt", 0.5, 10, "빛으로 적의 시선을 끈다."], ["치유의 손길", "heal_ally", 0.35, 22, "가장 다친 동료를 치유한다."], ["심판의 빛", "aoe", 1.6, 48, "빛의 기둥이 적 전체를 내려친다."]]
+  },
+  {
+    id: "giant",
+    g: "guard",
+    name: "거인화 능력자",
+    r: 2,
+    role: "tank",
+    mods: { hp: 0.45, atk: 0.12, spd: -0.15 },
+    adv: ["거신", "타이탄"],
+    desc: "몸을 거대하게 키운다. 희귀한 변신계 각성.",
+    skills: [["거인화", "shield", 0.5, 14, "몸을 키워 방어력을 높인다."], ["대지 강타", "stun", 1.5, 26, "땅을 내리쳐 적을 기절시킨다."], ["타이탄의 발걸음", "aoe", 2, 52, "거대한 발로 모두 짓밟는다."]]
+  },
+  // ---- 암살계
+  {
+    id: "assassin",
+    g: "shadow",
+    name: "암살자",
+    r: 0,
+    role: "assassin",
+    mods: { atk: 0.15, spd: 0.2, hp: -0.1, luck: 0.2 },
+    adv: ["그림자 칼날", "죽음의 사신"],
+    desc: "급소만 노린다. 한 방이 전부다.",
+    skills: [["급소 찌르기", "crit", 2, 12, "치명타율이 매우 높다."], ["은신", "evade", 0.7, 18, "2턴간 모습을 감춘다."], ["단말마", "crit", 4, 55, "확정적인 죽음."]]
+  },
+  {
+    id: "thief",
+    g: "shadow",
+    name: "도적",
+    r: 0,
+    role: "assassin",
+    mods: { spd: 0.22, luck: 0.4 },
+    adv: ["괴도", "그림자 왕"],
+    desc: "빠르고 운이 좋다. 전리품을 더 챙긴다.",
+    skills: [["기습", "crit", 1.6, 8, "먼저 치고 빠진다."], ["연막탄", "evade", 0.6, 16, "연막으로 공격을 피한다."], ["그림자 습격", "multi", 1.5, 45, "그림자에서 연속 공격."]]
+  },
+  {
+    id: "poisoner",
+    g: "shadow",
+    name: "독술사",
+    r: 1,
+    role: "assassin",
+    mods: { atk: 0.08, spd: 0.1, mp: 0.15 },
+    adv: ["독왕", "만독불침"],
+    desc: "독은 시간이 해결해 준다.",
+    skills: [["독침", "dot", 1, 10, "맹독으로 3턴간 피해를 준다."], ["독무", "aoe", 0.9, 26, "독안개로 전체를 공격한다."], ["만독귀원", "dot", 2.8, 50, "모든 독을 하나로 응축한다."]]
+  },
+  // ---- 사격계
+  {
+    id: "archer",
+    g: "shooter",
+    name: "궁수",
+    r: 0,
+    role: "ranged",
+    mods: { atk: 0.12, spd: 0.1 },
+    adv: ["신궁", "천궁"],
+    desc: "에테르 화살로 멀리서 정확히.",
+    skills: [["속사", "multi", 0.8, 10, "세 발을 연달아 쏜다."], ["화살비", "aoe", 1.15, 26, "하늘에서 화살이 쏟아진다."], ["일시천궁", "pierce", 3.3, 55, "하늘을 꿰뚫는 한 발."]]
+  },
+  {
+    id: "sniper",
+    g: "shooter",
+    name: "저격수",
+    r: 1,
+    role: "ranged",
+    mods: { atk: 0.25, spd: -0.05, luck: 0.2 },
+    adv: ["데드아이", "일격필살"],
+    desc: "느리지만 한 발이 전부를 끝낸다.",
+    skills: [["조준 사격", "crit", 2.1, 12, "정밀하게 급소를 노린다."], ["철갑탄", "pierce", 2, 24, "방어를 꿰뚫는다."], ["일격필살", "crit", 4.4, 60, "단 한 발."]]
+  },
+  {
+    id: "gunslinger",
+    g: "shooter",
+    name: "총잡이",
+    r: 0,
+    role: "ranged",
+    mods: { atk: 0.1, spd: 0.15 },
+    adv: ["건마스터", "총신"],
+    desc: "쌍권총과 에테르 탄환. 화끈하다.",
+    skills: [["난사", "multi", 0.85, 10, "무작위로 세 발."], ["폭발탄", "aoe", 1.1, 24, "터지는 탄환."], ["데스페라도", "multi", 1.8, 52, "탄창을 전부 비운다."]]
+  },
+  // ---- 마법계
+  {
+    id: "elementalist",
+    g: "mage",
+    name: "원소술사",
+    r: 0,
+    role: "caster",
+    mods: { mp: 0.3, atk: 0.12, hp: -0.1 },
+    adv: ["대마법사", "원소의 군주"],
+    desc: "자신의 속성을 극한까지 끌어낸다.",
+    skills: [["원소탄", "dmg", 1.6, 12, "속성의 힘을 응축해 쏜다.", "self"], ["원소 폭풍", "aoe", 1.3, 28, "속성의 폭풍이 휘몰아친다.", "self"], ["원소 붕괴", "aoe", 2.3, 60, "세계의 속성이 무너진다.", "self"]]
+  },
+  {
+    id: "warlock",
+    g: "mage",
+    name: "흑마법사",
+    r: 1,
+    role: "caster",
+    mods: { mp: 0.25, atk: 0.15, def: -0.08 },
+    adv: ["저주술사", "흑마도사"],
+    desc: "저주와 흡수. 금지된 술식을 다룬다.",
+    skills: [["약화 저주", "debuff", 0.4, 12, "적의 방어를 3턴간 깎는다."], ["생명 흡수", "drain", 1.5, 22, "적의 생명을 빼앗는다."], ["파멸의 의식", "aoe", 2.2, 58, "어둠이 모두를 삼킨다."]]
+  },
+  {
+    id: "warder",
+    g: "mage",
+    name: "결계사",
+    r: 1,
+    role: "support",
+    mods: { mp: 0.3, def: 0.15 },
+    adv: ["결계왕", "절대영역"],
+    desc: "공간을 봉쇄하고 동료를 지킨다.",
+    skills: [["보호 결계", "shield_all", 0.6, 16, "파티 전체 방어 상승."], ["봉인진", "stun", 1.2, 24, "적을 결계에 가둔다."], ["절대영역", "shield_all", 1.5, 55, "어떤 것도 들어올 수 없다."]]
+  },
+  {
+    id: "chronomancer",
+    g: "mage",
+    name: "시공술사",
+    r: 2,
+    role: "caster",
+    mods: { spd: 0.3, mp: 0.25 },
+    adv: ["시간 조율자", "시공의 지배자"],
+    desc: "시간을 비틀어 싸운다. 극히 드문 각성.",
+    skills: [["가속", "buff_all", 0.35, 16, "파티 전체 공격 상승."], ["시간 정지", "stun", 1.3, 30, "적의 시간을 멈춘다."], ["인과 역전", "revive", 0.5, 70, "쓰러진 동료를 되돌린다."]]
+  },
+  // ---- 소환계
+  {
+    id: "summoner",
+    g: "summon",
+    name: "소환사",
+    r: 1,
+    role: "summoner",
+    mods: { mp: 0.3, hp: -0.05 },
+    adv: ["대소환사", "정령왕"],
+    desc: "계약한 정령을 불러낸다.",
+    skills: [["정령 소환", "summon", 0.5, 20, "정령 하나를 불러낸다."], ["정령 강화", "buff_all", 0.4, 22, "파티 전체 공격 상승."], ["정령왕 강림", "summon", 0.9, 60, "정령왕을 불러낸다."]]
+  },
+  {
+    id: "necromancer",
+    g: "summon",
+    name: "사령술사",
+    r: 2,
+    role: "summoner",
+    mods: { mp: 0.3, atk: 0.1 },
+    adv: ["망자의 지휘자", "사령왕"],
+    desc: "쓰러진 것들을 일으켜 세운다.",
+    skills: [["망자 소생", "summon", 0.45, 18, "해골 병사를 일으킨다."], ["영혼 흡수", "drain", 1.4, 22, "영혼을 빨아들인다."], ["망자의 군단", "summon", 0.8, 55, "해골 군단이 일어선다."]]
+  },
+  {
+    id: "tamer",
+    g: "summon",
+    name: "조련사",
+    r: 0,
+    role: "summoner",
+    mods: { hp: 0.1, luck: 0.15 },
+    adv: ["맹수왕", "군주 조련사"],
+    desc: "길들인 괴수와 함께 싸운다.",
+    skills: [["괴수 호출", "summon", 0.5, 18, "길들인 괴수를 부른다."], ["협공", "multi", 0.9, 16, "괴수와 함께 몰아친다."], ["군주의 포효", "buff_all", 0.6, 45, "모든 아군이 사나워진다."]]
+  },
+  // ---- 지원계
+  {
+    id: "healer",
+    g: "support",
+    name: "치유사",
+    r: 0,
+    role: "support",
+    mods: { mp: 0.3, hp: 0.05, atk: -0.15 },
+    adv: ["대치유사", "생명의 성자"],
+    desc: "파티의 생명을 쥔 자. 어느 길드든 모셔 간다.",
+    skills: [["치유", "heal_ally", 0.4, 12, "가장 다친 동료를 치유한다."], ["광역 치유", "heal_all", 0.28, 30, "파티 전체를 치유한다."], ["소생", "revive", 0.5, 50, "쓰러진 동료를 일으킨다."]]
+  },
+  {
+    id: "priest",
+    g: "support",
+    name: "사제",
+    r: 1,
+    role: "support",
+    mods: { mp: 0.25, def: 0.1 },
+    adv: ["대사제", "교황"],
+    desc: "신성한 빛으로 축복하고 정화한다.",
+    skills: [["축복", "buff_all", 0.35, 14, "파티 전체 공격 상승."], ["치유의 기도", "heal_all", 0.3, 28, "파티 전체를 치유한다."], ["신의 방패", "shield_all", 1, 48, "신성한 보호막."]]
+  },
+  {
+    id: "bard",
+    g: "support",
+    name: "음유시인",
+    r: 1,
+    role: "support",
+    mods: { spd: 0.15, luck: 0.25, mp: 0.15 },
+    adv: ["전장의 가수", "전설의 음유시인"],
+    desc: "노래 하나로 전장의 흐름을 바꾼다.",
+    skills: [["전투의 노래", "buff_all", 0.4, 14, "파티 전체 공격 상승."], ["안식의 선율", "heal_all", 0.22, 24, "파티 전체를 달랜다."], ["영웅 서사시", "buff_all", 0.9, 50, "모두가 영웅이 된다."]]
+  },
+  {
+    id: "alchemist",
+    g: "support",
+    name: "연금술사",
+    r: 1,
+    role: "support",
+    mods: { mp: 0.2, luck: 0.15 },
+    adv: ["연금술 대가", "현자"],
+    desc: "포션과 폭약. 공방 제작 비용이 싸다.",
+    skills: [["회복 포션 투척", "heal_ally", 0.38, 10, "동료에게 포션을 던진다."], ["폭약 투척", "aoe", 1.2, 22, "터지는 플라스크."], ["현자의 돌", "heal_all", 0.55, 55, "모두를 완전히 되살린다."]]
+  },
+  // ---- 초능력계
+  {
+    id: "telekinetic",
+    g: "esper",
+    name: "염동력자",
+    r: 0,
+    role: "esper",
+    mods: { mp: 0.2, atk: 0.12 },
+    adv: ["염동 파괴자", "중력의 지배자"],
+    desc: "보이지 않는 손으로 모든 것을 짓누른다.",
+    skills: [["염동 압착", "pierce", 1.5, 12, "방어를 무시하고 짓누른다."], ["파편 폭풍", "aoe", 1.2, 26, "주변 잔해를 날려 보낸다."], ["중력 붕괴", "stun", 2.8, 55, "중력이 무너진다."]]
+  },
+  {
+    id: "telepath",
+    g: "esper",
+    name: "정신 감응자",
+    r: 1,
+    role: "esper",
+    mods: { mp: 0.3, luck: 0.15, hp: -0.05 },
+    adv: ["정신 지배자", "마인드 로드"],
+    desc: "마음을 읽고, 흔들고, 지배한다.",
+    skills: [["정신 공격", "stun", 1.1, 12, "정신을 흔들어 기절시킨다."], ["공포 주입", "debuff", 0.45, 18, "적 전체의 의지를 꺾는다."], ["정신 붕괴", "pierce", 3, 55, "정신을 부숴 버린다."]]
+  },
+  {
+    id: "teleporter",
+    g: "esper",
+    name: "순간이동자",
+    r: 1,
+    role: "assassin",
+    mods: { spd: 0.35, luck: 0.1 },
+    adv: ["공간 도약자", "차원 보행자"],
+    desc: "눈 깜빡할 새 등 뒤에 있다.",
+    skills: [["단거리 도약", "evade", 0.7, 10, "공격을 피해 사라진다."], ["배후 강습", "crit", 1.9, 18, "등 뒤에서 찌른다."], ["차원 절단", "pierce", 3.4, 58, "공간째로 벤다."]]
+  },
+  {
+    id: "seer",
+    g: "esper",
+    name: "예지자",
+    r: 2,
+    role: "support",
+    mods: { luck: 0.5, spd: 0.15 },
+    adv: ["운명 관측자", "예언자"],
+    desc: "몇 초 뒤를 본다. 모든 공격을 예측한다.",
+    skills: [["예지", "evade", 0.8, 12, "다음 공격을 미리 본다."], ["운명 개변", "buff_all", 0.5, 26, "파티 전체 공격 상승."], ["미래 확정", "crit", 4.2, 60, "적이 쓰러지는 미래를 확정한다."]]
+  },
+  // ---- 동방계
+  {
+    id: "shaman",
+    g: "east",
+    name: "무당",
+    r: 1,
+    role: "support",
+    mods: { mp: 0.25, luck: 0.2 },
+    adv: ["대무당", "만신"],
+    desc: "신을 받아 굿을 한다. 망령에게 특히 강하다.",
+    skills: [["방울 굿", "dmg", 1.5, 10, "방울 소리로 악귀를 친다. 망령에 특히 강하다.", "spirit"], ["살풀이", "heal_all", 0.28, 22, "액운을 풀어 파티를 치유한다."], ["신내림 · 작두", "aoe", 2.3, 55, "작두 위에서 신이 내린다. 악귀를 쓸어 버린다.", "spirit"]]
+  },
+  {
+    id: "taoist",
+    g: "east",
+    name: "도사",
+    r: 1,
+    role: "caster",
+    mods: { mp: 0.25, def: 0.08 },
+    adv: ["도인", "신선"],
+    desc: "부적과 술법. 오래된 도술이 에테르로 깨어났다.",
+    skills: [["부적 투척", "dot", 1.1, 10, "불타는 부적."], ["축지법", "evade", 0.6, 16, "땅을 접어 피한다."], ["오행진", "aoe", 2, 52, "오행의 진법으로 가둔다."]]
+  },
+  {
+    id: "swordmonk",
+    g: "east",
+    name: "검무사",
+    r: 2,
+    role: "melee",
+    mods: { atk: 0.18, spd: 0.15, mp: 0.1 },
+    adv: ["검선", "검신"],
+    desc: "춤추듯 검을 쓴다. 칼끝에 기가 맺힌다.",
+    skills: [["검무 일식", "multi", 1, 12, "춤추듯 세 번 벤다."], ["기검", "pierce", 1.8, 22, "기로 만든 검."], ["만천화우", "aoe", 2.4, 58, "꽃비처럼 검기가 쏟아진다."]]
+  },
+  // ---- 히든 (기연으로만)
+  {
+    id: "blackflame",
+    g: "hidden",
+    name: "흑염검사",
+    r: 3,
+    role: "melee",
+    mods: { atk: 0.3, hp: 0.15, spd: 0.1 },
+    adv: ["흑염귀", "흑염제"],
+    desc: "1세대 S급 흑염의 검을 이은 자.",
+    skills: [["흑염참", "dot", 2, 14, "꺼지지 않는 검은 불꽃.", "fire"], ["흑염 폭풍", "aoe", 1.8, 30, "검은 불꽃이 휘몰아친다.", "fire"], ["멸겁", "pierce", 4.5, 60, "모든 것을 태워 없앤다.", "fire"]]
+  },
+  {
+    id: "apostle",
+    g: "hidden",
+    name: "심연의 사도",
+    r: 3,
+    role: "caster",
+    mods: { atk: 0.25, mp: 0.3, hp: 0.1 },
+    adv: ["균열의 사제", "심연의 대행자"],
+    desc: "균열교의 금지된 힘을 받아들였다.",
+    skills: [["균열 열기", "summon", 0.6, 18, "균열에서 괴수를 끌어낸다."], ["심연의 손아귀", "drain", 2, 26, "생명을 심연으로 끌어간다."], ["차원 붕괴", "aoe", 2.8, 62, "공간이 찢어진다.", "spirit"]]
+  },
+  {
+    id: "machinist",
+    g: "hidden",
+    name: "기계 교감자",
+    r: 3,
+    role: "summoner",
+    mods: { luck: 0.3, mp: 0.25, spd: 0.15 },
+    adv: ["기계 지휘관", "기계신의 벗"],
+    desc: "이계의 탐사기 누리와 마음이 통한 자.",
+    skills: [["드론 전개", "summon", 0.55, 16, "전투 드론을 띄운다."], ["약점 분석", "debuff", 0.6, 18, "적의 약점을 드러낸다."], ["궤도 폭격", "aoe", 2.6, 58, "하늘에서 빛이 내리꽂힌다.", "bolt"]]
+  },
+  {
+    id: "gatekeeper",
+    g: "hidden",
+    name: "문지기",
+    r: 3,
+    role: "tank",
+    mods: { hp: 0.35, def: 0.3, atk: 0.15 },
+    adv: ["문의 수호자", "세계의 문지기"],
+    desc: "원초의 게이트가 선택한 열쇠.",
+    skills: [["문의 압력", "taunt", 0.8, 10, "모든 적이 당신만 본다."], ["차원 장벽", "shield_all", 1.2, 30, "차원의 벽이 파티를 감싼다."], ["문 닫기", "aoe", 3, 65, "세계의 문을 닫는다.", "spirit"]]
+  },
+  {
+    id: "heir",
+    g: "hidden",
+    name: "대붕괴의 아이",
+    r: 3,
+    role: "esper",
+    mods: { atk: 0.2, mp: 0.3, luck: 0.3 },
+    adv: ["각성의 정점", "초월자"],
+    desc: "강제 각성 실험의 유일한 성공작.",
+    skills: [["폭주", "buff", 0.8, 12, "억눌렀던 힘을 푼다."], ["에테르 해방", "aoe", 1.9, 28, "몸속 에테르를 폭발시킨다."], ["초월", "pierce", 4.6, 62, "인간의 한계를 넘는다."]]
+  }
+];
+const classById = (id) => CLASSES.find((c) => c.id === id) || CLASSES[0];
+const classRank = (adv) => adv >= 2 ? 6 : adv >= 1 ? 3 : 0;
+function className(id, adv = 0) {
+  const c = classById(id);
+  return adv > 0 ? c.adv[adv - 1] : c.name;
+}
+for (const c of CLASSES) {
+  c.skills.forEach((s, i) => {
+    SKILLS.push({ id: "cls_".concat(c.id, "_").concat(i), name: s[0], type: s[1], power: s[2], mp: s[3], desc: s[4], elem: s[5] || null, rankReq: [0, 2, 5][i], price: 0, cls: c.id });
+  });
+}
+function rollClass(rng = Math.random) {
+  const w = [70, 25, 5];
+  const pool = CLASSES.filter((c) => c.r < 3);
+  const r = rng() * 100;
+  const rar = r < w[0] ? 0 : r < w[0] + w[1] ? 1 : 2;
+  const list = pool.filter((c) => c.r === rar);
+  return list[Math.floor(rng() * list.length)].id;
+}
+const PROLOGUE = {
+  // ---------- 출신별 도입 (출신마다 2장면) ----------
+  chaebol_1: {
+    title: "강남, 펜트하우스",
+    text: '대리석 식탁 위로 샹들리에 빛이 쏟아진다. 아버지가 와인잔을 내려놓는다.\n\n"백호 시큐리티 지분 일부를 네 앞으로 돌렸다. 각성자가 아니어도 괜찮다. 각성자를 부리는 쪽에 서면 되니까."\n\n창밖, 강남 돔 너머로 게이트 하나가 희미하게 깜빡인다.',
+    choices: [
+      { text: '"전 부리는 쪽이 되기 싫어요." 자리를 박차고 일어난다', e: { fire: 2 }, g: { fighter: 2 }, t: { berserk: 1 }, next: "chaebol_2" },
+      { text: "고개를 끄덕이며 아버지의 계획을 듣는다", e: { steel: 2 }, g: { guard: 1, support: 1 }, t: { merchant: 2 }, next: "chaebol_2" },
+      { text: "대답 대신 창밖의 게이트를 오래 바라본다", e: { spirit: 2 }, g: { mage: 1, esper: 1 }, t: { mana_sense: 1 }, next: "chaebol_2" }
+    ]
+  },
+  chaebol_2: {
+    title: "경호 실장",
+    text: '집안 경호를 맡은 한 실장은 B급 헌터 출신이다. 아무도 없는 지하 주차장에서 그가 묻는다.\n\n"작은 회장님, 아니, {name}. 정말로 배우고 싶습니까? 회장님은 모르게 해야 합니다."',
+    choices: [
+      { text: "목검을 집어 든다", e: { fire: 1, steel: 1 }, g: { fighter: 3 }, c: { swordsman: 2, lancer: 1 }, next: "common_1" },
+      { text: '"사람을 지키는 법을 알려 주세요"', e: { steel: 2 }, g: { guard: 3 }, c: { guardian: 2 }, t: { iron_body: 1 }, next: "common_1" },
+      { text: "그의 총을 가리킨다", e: { bolt: 2 }, g: { shooter: 3 }, c: { gunslinger: 2 }, next: "common_1" }
+    ]
+  },
+  orphan_1: {
+    title: "희망의 집",
+    text: "보육원의 아침은 늘 전쟁이다. 동생 여섯의 도시락을 싸고, 열이 나는 원장 할머니께 죽을 쑤고 나면 해가 중천이다.\n\n냉장고가 비었다. 통장도 비었다.",
+    choices: [
+      { text: "오늘도 새벽 택배 상하차를 뛴다", e: { steel: 2 }, g: { guard: 1, fighter: 1 }, t: { iron_body: 2 }, next: "orphan_2" },
+      { text: "동생들을 먼저 먹이고 굶는다", e: { spirit: 1, ice: 1 }, g: { support: 2 }, t: { charisma: 1 }, talent: 1, next: "orphan_2" },
+      { text: "마트에서 몰래 몇 개 챙겨 나온다", e: { bolt: 2 }, g: { shadow: 3 }, t: { quick: 1, lucky: 1 }, next: "orphan_2" }
+    ]
+  },
+  orphan_2: {
+    title: "철거 용역",
+    text: "재개발 조합이 보낸 용역 깡패들이 보육원 대문을 걷어찬다. 동생들이 울며 당신 뒤에 숨는다. 할머니가 비틀거리며 나오신다.",
+    choices: [
+      { text: "대문 앞을 몸으로 막아선다", e: { fire: 1, steel: 1 }, g: { guard: 2, fighter: 1 }, t: { iron_body: 1 }, next: "common_1" },
+      { text: "우두머리와 차분히 협상한다", e: { spirit: 1, ice: 1 }, g: { support: 1, esper: 2 }, t: { charisma: 2 }, next: "common_1" },
+      { text: "뒷문으로 빠져나가 그들의 차량 블랙박스를 빼 온다", e: { bolt: 1, ice: 1 }, g: { shadow: 3 }, t: { quick: 1 }, next: "common_1" }
+    ]
+  },
+  soldier_1: {
+    title: "휴전선, 새벽 3시",
+    text: 'GOP 경계 근무. 철책 너머 북쪽 하늘에 보랏빛 줄이 그어진다. 통신 두절 구역에서 무언가 이쪽을 보고 있다.\n\n옆 초소 후임이 떨리는 목소리로 묻는다. "병장님… 저거 뭡니까?"',
+    choices: [
+      { text: "규정대로 즉시 상황 보고", e: { steel: 2 }, g: { guard: 2 }, t: { iron_body: 1 }, next: "soldier_2" },
+      { text: "야간 투시경을 들고 철책 쪽으로 간다", e: { fire: 2 }, g: { fighter: 2 }, t: { reckless: 1 }, next: "soldier_2" },
+      { text: "총구를 겨누고 숨을 고른다", e: { ice: 2 }, g: { shooter: 3 }, c: { sniper: 2 }, next: "soldier_2" }
+    ]
+  },
+  soldier_2: {
+    title: "전역 신고",
+    text: "전역하는 날. 위병소를 나서는데 자꾸 박 상병 얼굴이 떠오른다. 작년 게이트 경계 작전에서 돌아오지 못한 녀석.\n\n주머니 속 녀석의 군번줄이 차갑다.",
+    choices: [
+      { text: '"네 몫까지 싸운다." 헌터 등록 안내서를 챙긴다', e: { fire: 2 }, g: { fighter: 2 }, t: { berserk: 1 }, next: "common_1" },
+      { text: "녀석의 가족을 찾아가 군번줄을 전한다", e: { spirit: 1, ice: 1 }, g: { support: 2 }, t: { charisma: 1 }, next: "common_1" },
+      { text: "모든 걸 잊으려 혼자 술을 마신다", e: { ice: 1 }, g: { shadow: 1, mage: 1 }, t: { loner: 2 }, next: "common_1" }
+    ]
+  },
+  subject_1: {
+    title: "하얀 방",
+    text: '꿈을 꾼다. 하얀 방, 하얀 가운, 손목의 바코드. "피험자 12번, 에테르 주입 7차." 바늘이 들어오고, 세상이 뒤집힌다.\n\n깨어나도 손목엔 여전히 바코드 흉터가 있다.',
+    choices: [
+      { text: "이를 악물고 고통을 견디는 기억", e: { steel: 2 }, g: { guard: 1, fighter: 1 }, t: { iron_body: 2 }, next: "subject_2" },
+      { text: "연구원의 생각이 들렸던 기억", e: { spirit: 3 }, g: { esper: 3 }, c: { telepath: 2 }, next: "subject_2" },
+      { text: "벽 너머로 몸이 미끄러졌던 기억", e: { bolt: 2 }, g: { esper: 2, shadow: 1 }, c: { teleporter: 2 }, next: "subject_2" }
+    ]
+  },
+  subject_2: {
+    title: "보호소",
+    text: "연구소가 폐쇄된 지 2년. 보호 시설에서 평범한 척 살고 있다. 그런데 요즘 손끝이 따끔거린다. 컵이 저절로 미끄러지고, 형광등이 깜빡인다.",
+    choices: [
+      { text: "아무에게도 들키지 않게 숨긴다", e: { ice: 2 }, g: { shadow: 2 }, t: { loner: 1 }, next: "common_1" },
+      { text: "밤마다 몰래 힘을 시험해 본다", e: { bolt: 1, spirit: 1 }, g: { esper: 2, mage: 1 }, c: { telekinetic: 2 }, talent: 1, next: "common_1" },
+      { text: "시설 의사에게 털어놓는다", e: { spirit: 1 }, g: { support: 2 }, t: { charisma: 1 }, next: "common_1" }
+    ]
+  },
+  student_1: {
+    title: "조별 과제",
+    text: '대학 2학년, 교양 수업 조별 과제. 단톡방은 사흘째 조용하다. 마감은 내일 아침 9시.\n\n소꿉친구 {friend}만 "나 뭐 하면 돼?"라고 물어 온다.',
+    choices: [
+      { text: "역할을 나누고 전화를 돌린다", e: { spirit: 1, steel: 1 }, g: { support: 2, guard: 1 }, t: { charisma: 2 }, next: "student_2" },
+      { text: "그냥 혼자 밤새 다 한다", e: { ice: 2 }, g: { mage: 2 }, t: { loner: 1, mana_sense: 1 }, next: "student_2" },
+      { text: "{friend}랑 PC방으로 도망간다", e: { bolt: 2 }, g: { shadow: 1, shooter: 1 }, t: { lucky: 1 }, next: "student_2" }
+    ]
+  },
+  student_2: {
+    title: "편의점 야간",
+    text: '새벽 2시 편의점. 취한 손님이 계산대를 내리치며 소리친다. "야, 내가 누군지 알아? 나 D급 헌터야!" 팔뚝에 협회 문신이 보인다.',
+    choices: [
+      { text: '눈을 똑바로 보며 "나가 주세요"', e: { fire: 2 }, g: { fighter: 2 }, t: { reckless: 1 }, next: "common_1" },
+      { text: "꾹 참고 정중하게 응대한다", e: { steel: 1, ice: 1 }, g: { guard: 2 }, t: { iron_body: 1 }, next: "common_1" },
+      { text: "몰래 휴대폰으로 녹화해 신고한다", e: { bolt: 1 }, g: { shooter: 1, shadow: 1 }, t: { quick: 1 }, next: "common_1" }
+    ]
+  },
+  // ---------- 공통 ----------
+  common_1: {
+    title: "대붕괴 20주기",
+    text: '3월 1일. 대붕괴 20주기 추모일. 방송은 하루 종일 그날의 영상을 튼다. 제주 하늘이 찢어지던 장면.\n\n{friend}에게서 문자가 온다. "광화문 추모식 같이 갈래?"',
+    choices: [
+      { text: "함께 촛불을 들러 간다", e: { spirit: 1, fire: 1 }, g: { support: 1, east: 1 }, t: { charisma: 1 }, next: "common_2" },
+      { text: "혼자 방에서 그날의 기록을 찾아본다", e: { ice: 1, spirit: 1 }, g: { mage: 2 }, t: { mana_sense: 1 }, next: "common_2" },
+      { text: '"그런 거 안 가." 헬스장으로 간다', e: { fire: 1, steel: 1 }, g: { fighter: 2 }, t: { iron_body: 1 }, next: "common_2" }
+    ]
+  },
+  common_2: {
+    title: "소문",
+    text: '헌터 커뮤니티에 글이 올라왔다. "우리 동네 폐상가 지하에 미등록 게이트 열림ㅋㅋ 쬐끄만 거라 F급도 안 될 듯"\n\n{friend}가 링크를 보내며 덧붙인다. "가 볼래? 진짜면 신고 포상금 나온대."',
+    choices: [
+      { text: '"가 보자." 손전등을 챙긴다', e: { fire: 1 }, g: { fighter: 1, shadow: 1 }, t: { reckless: 1 }, next: "path_explore" },
+      { text: '"위험해." 협회에 신고만 한다', e: { steel: 1 }, g: { guard: 1, support: 1 }, next: "path_report" },
+      { text: '"관심 없어." 일찍 잠자리에 든다', e: { ice: 1 }, g: { mage: 1 }, next: "path_home" }
+    ]
+  },
+  path_explore: {
+    title: "폐상가 지하",
+    text: '곰팡내 나는 지하 주차장. 천장에 손바닥만 한 균열이 떠 있다. 보랏빛이 숨 쉬듯 커졌다 작아진다.\n\n{friend}가 소매를 붙잡는다. "야… 이거 점점 커지는 거 같은데?"',
+    choices: [
+      { text: "앞장서서 균열에 다가간다", e: { fire: 2 }, g: { fighter: 2 }, c: { berserker: 1 }, next: "break_1" },
+      { text: "{friend}의 손을 잡고 뒤로 물러선다", e: { spirit: 1, steel: 1 }, g: { guard: 1, support: 1 }, next: "break_1" },
+      { text: "휴대폰으로 균열을 촬영한다", e: { bolt: 2 }, g: { shooter: 1, esper: 1 }, t: { lucky: 1 }, next: "break_1" }
+    ]
+  },
+  path_report: {
+    title: "무시당한 신고",
+    text: '협회 콜센터 직원이 하품 섞인 목소리로 말한다. "네, 접수됐고요. F급 이하는 대기 순번이 3주예요."\n\n그날 밤, 창밖에서 사이렌이 울린다. 폐상가 쪽 하늘이 보랏빛으로 물들었다.',
+    choices: [
+      { text: "그럴 줄 알았다. 운동화를 신고 뛰어나간다", e: { fire: 1, bolt: 1 }, g: { fighter: 1, guard: 1 }, next: "break_1" },
+      { text: "{friend}에게 전화부터 건다", e: { spirit: 1, bolt: 1 }, g: { support: 2 }, t: { charisma: 1 }, next: "break_1" },
+      { text: "대피소로 가는 사람들을 안내한다", e: { steel: 2 }, g: { guard: 2 }, next: "break_1" }
+    ]
+  },
+  path_home: {
+    title: "갈라진 하늘",
+    text: "잠결에 창문이 덜컹거린다. 눈을 뜨자 방 안이 보랏빛이다. 창밖, 폐상가 쪽 하늘이 찢어져 있다. 휴대폰에 재난 문자가 쏟아진다.\n\n[긴급] 게이트 브레이크 발생. 즉시 대피하십시오.",
+    choices: [
+      { text: "{friend}의 집 쪽으로 달린다", e: { fire: 1, spirit: 1 }, g: { support: 1, fighter: 1 }, next: "break_1" },
+      { text: "침착하게 비상 가방을 챙긴다", e: { ice: 2 }, g: { mage: 1, guard: 1 }, t: { mana_sense: 1 }, next: "break_1" },
+      { text: "창밖을 멍하니 바라본다. 저 빛이 부르는 것 같다", e: { spirit: 1, ice: 1 }, g: { esper: 1, east: 1 }, next: "break_1" }
+    ]
+  },
+  break_1: {
+    title: "게이트 브레이크",
+    text: "골목으로 괴수들이 쏟아져 나온다. 개만 한 것, 사람만 한 것, 그리고 2층 높이의 무언가.\n\n버스 정류장 아래, 일곱 살쯤 된 아이가 넘어져 울고 있다. 괴수 하나가 고개를 돌린다.",
+    choices: [
+      { text: "아이에게 달려가 끌어안는다", e: { steel: 2 }, g: { guard: 3 }, c: { paladin: 1, guardian: 1 }, t: { iron_body: 1 }, next: "break_2" },
+      { text: "돌을 던져 괴수를 자기 쪽으로 유인한다", e: { fire: 1, bolt: 1 }, g: { fighter: 1, shadow: 2 }, t: { quick: 1 }, next: "break_2" },
+      { text: '"여기요!" 주변 어른들을 큰 소리로 부른다', e: { spirit: 1 }, g: { support: 2, summon: 1 }, t: { charisma: 1 }, next: "break_2" }
+    ]
+  },
+  break_2: {
+    title: "쓰러진 헌터",
+    text: '골목 끝에 출동한 헌터가 쓰러져 있다. E급 배지. 피가 멎지 않는다. 그가 손을 뻗어 떨어진 장비를 가리킨다.\n\n"…쓸 줄 알면… 써…"',
+    choices: [
+      { text: "에테르 블레이드를 줍는다", e: { fire: 1 }, g: { fighter: 2 }, c: { swordsman: 2, dualblade: 1 }, next: "break_3" },
+      { text: "권총을 줍는다", e: { bolt: 1 }, g: { shooter: 2 }, c: { gunslinger: 2, archer: 1 }, next: "break_3" },
+      { text: "그의 품에서 빛나는 부적 뭉치를 꺼낸다", e: { spirit: 1 }, g: { east: 3 }, c: { taoist: 2, shaman: 1 }, next: "break_3" },
+      { text: "아무것도 줍지 않는다. 그의 상처부터 누른다", e: { ice: 1 }, g: { support: 3 }, c: { healer: 2 }, next: "break_3" }
+    ]
+  },
+  break_3: {
+    title: "마주침",
+    text: "2층 높이의 괴수가 골목을 막아선다. 비늘 사이로 용암 같은 빛이 흐른다. 뒤에는 아이와 {friend}가 있다.\n\n도망칠 곳은 없다.",
+    choices: [
+      { text: "정면으로 마주 선다. 이상하게 손바닥이 뜨겁다", e: { fire: 3 }, g: { fighter: 1 }, next: "break_4" },
+      { text: "괴수의 움직임을 읽는다. 머리가 차갑게 식는다", e: { ice: 3 }, g: { mage: 1, shooter: 1 }, next: "break_4" },
+      { text: "번개처럼 옆으로 몸을 던진다", e: { bolt: 3 }, g: { shadow: 1 }, next: "break_4" },
+      { text: "발을 땅에 박는다. 절대 비켜서지 않겠다", e: { steel: 3 }, g: { guard: 1 }, next: "break_4" },
+      { text: "눈을 감는다. 괴수의 분노가 들린다", e: { spirit: 3 }, g: { esper: 1 }, next: "break_4" }
+    ]
+  },
+  break_4: {
+    title: "어둠",
+    text: '괴수의 꼬리가 옆구리를 후려쳤다. 몸이 벽에 처박힌다. 숨이 쉬어지지 않는다. 세상이 조용해진다.\n\n어둠 속에서 누군가 묻는다.\n\n"무엇을 원하나."',
+    choices: [
+      { text: '"전부 부숴 버릴 힘."', e: { fire: 2 }, g: { fighter: 3 }, c: { berserker: 2 }, t: { berserk: 1 }, next: "awaken" },
+      { text: '"뒤에 있는 사람들을 지킬 힘."', e: { steel: 2 }, g: { guard: 3 }, c: { guardian: 1, paladin: 1 }, next: "awaken" },
+      { text: '"살아남을 힘. 그거면 돼."', e: { bolt: 1, ice: 1 }, g: { shadow: 3 }, c: { assassin: 2, thief: 1 }, t: { lucky: 1 }, next: "awaken" },
+      { text: '"이게 대체 뭔지 이해하고 싶다."', e: { ice: 1, spirit: 1 }, g: { mage: 3 }, c: { elementalist: 2 }, t: { genius: 1 }, talent: 1, next: "awaken" },
+      { text: '"혼자가 아니면 좋겠다."', e: { spirit: 1, bolt: 1 }, g: { summon: 3 }, c: { summoner: 1, tamer: 2 }, next: "awaken" }
+    ]
+  },
+  awaken: {
+    title: "각성",
+    text: "심장이 다시 뛴다. 아니, 무언가 다른 것이 뛴다. 혈관을 따라 낯선 힘이 쏟아진다.\n\n당신은 일어선다.",
+    choices: [
+      { text: "온몸이 불길처럼 타오른다", e: { fire: 3 }, next: "first_fight" },
+      { text: "살갗 위로 전류가 튄다", e: { bolt: 3 }, next: "first_fight" },
+      { text: "숨결이 하얗게 얼어붙는다", e: { ice: 3 }, next: "first_fight" },
+      { text: "피부가 강철처럼 단단해진다", e: { steel: 3 }, next: "first_fight" },
+      { text: "수많은 목소리가 머릿속에 울린다", e: { spirit: 3 }, next: "first_fight" }
+    ]
+  },
+  first_fight: {
+    title: "첫 싸움",
+    text: "괴수가 다시 덤벼든다. 하지만 이번엔 보인다. 놈의 움직임이, 빈틈이, 그리고 내 안의 힘을 쓰는 법이.",
+    choices: [
+      { text: "맨몸으로 파고들어 주먹을 꽂는다", g: { fighter: 2 }, c: { monk: 3 }, next: "aftermath" },
+      { text: "거리를 벌리고 힘을 쏘아 보낸다", g: { mage: 1, shooter: 1, esper: 1 }, c: { elementalist: 1, telekinetic: 1 }, next: "aftermath" },
+      { text: "그림자처럼 등 뒤로 돌아 급소를 찌른다", g: { shadow: 3 }, c: { assassin: 2 }, next: "aftermath" },
+      { text: '{friend}와 사람들에게 외친다. "내가 신호하면 동시에!"', g: { support: 2, summon: 1 }, c: { bard: 2 }, t: { charisma: 1 }, next: "aftermath" },
+      { text: '괴수의 눈을 똑바로 보며 "멈춰"라고 명령한다', g: { esper: 2, summon: 1 }, c: { telepath: 1, tamer: 1 }, next: "aftermath" }
+    ]
+  },
+  aftermath: {
+    title: "쓰러진 괴수",
+    text: "괴수가 무너진다. 거리가 조용해진다. 아이가 울음을 터뜨리고, {friend}가 다리에 힘이 풀려 주저앉는다.\n\n멀리서 협회 진압팀의 헬기 소리가 들린다. 손이 떨린다. 이게 내가 한 일인가.",
+    choices: [
+      { text: "{friend}에게 다가가 손을 내민다", t: { charisma: 1 }, friend: 15, next: "hospital" },
+      { text: "괴수의 사체에서 빛나는 코어를 뽑아 든다", t: { merchant: 1 }, g: { shadow: 1 }, next: "hospital" },
+      { text: "쓰러진 헌터에게 달려간다", g: { support: 1 }, c: { healer: 1, priest: 2 }, next: "hospital" }
+    ]
+  },
+  hospital: {
+    title: "헌터 전문 병원",
+    text: '하얀 천장. 소독약 냄새. 옆 침대에서 붕대를 감은 노인이 웃는다.\n\n"며칠 만에 깼구먼. 젊은이 덕에 우리 손주가 살았어. 각성 직후엔 몸이 제멋대로일 거야. 잘 다스려."',
+    choices: [
+      { text: "노인에게 에테르 다스리는 법을 묻는다", talent: 1, t: { mana_sense: 1 }, g: { east: 1 }, next: "night_dream" },
+      { text: "링거를 뽑고 바로 몸을 움직여 본다", t: { reckless: 1, iron_body: 1 }, g: { fighter: 1 }, next: "night_dream" },
+      { text: "창밖을 보며 조용히 생각을 정리한다", t: { loner: 1 }, g: { mage: 1 }, next: "night_dream" }
+    ]
+  },
+  night_dream: {
+    title: "병실의 밤",
+    text: "그날 밤, 이상한 꿈을 꾼다. 끝없는 벌판에 무언가가 서 있다. 그것이 당신을 향해 천천히 고개를 돌린다.",
+    choices: [
+      { text: "빛으로 된 짐승. 다가와 손을 핥는다", e: { bolt: 1 }, g: { summon: 3 }, c: { summoner: 2, tamer: 2 }, next: "rooftop" },
+      { text: "방울을 든 무녀. 춤을 추며 무언가를 부른다", e: { spirit: 2 }, g: { east: 3 }, c: { shaman: 3 }, next: "rooftop" },
+      { text: "거꾸로 도는 거대한 시계", e: { ice: 1, bolt: 1 }, g: { mage: 2, esper: 1 }, c: { chronomancer: 3, seer: 2 }, talent: 1, next: "rooftop" },
+      { text: "구름을 뚫고 선 거인", e: { steel: 2 }, g: { guard: 3 }, c: { giant: 3 }, t: { iron_body: 1 }, next: "rooftop" },
+      { text: "해골들이 무릎 꿇은 왕좌", e: { spirit: 1, ice: 1 }, g: { summon: 2, mage: 1 }, c: { necromancer: 3, warlock: 2 }, next: "rooftop" }
+    ]
+  },
+  rooftop: {
+    title: "병원 옥상",
+    text: "퇴원 전날 밤, 몰래 옥상에 올라간다. 아무도 없다. 손을 펼친다. 이번엔 의지대로 힘을 꺼내 볼 생각이다.",
+    choices: [
+      { text: "두 손에 칼날 같은 기운을 모은다", g: { fighter: 2 }, c: { dualblade: 3, swordmonk: 2 }, next: "friend_visit" },
+      { text: "멀리 옥탑 물탱크를 겨눠 한 점으로 쏜다", g: { shooter: 3 }, c: { archer: 2, sniper: 3 }, next: "friend_visit" },
+      { text: "그림자 속으로 녹아들었다 나온다", g: { shadow: 2, esper: 1 }, c: { teleporter: 3, assassin: 1 }, next: "friend_visit" },
+      { text: "손끝에서 녹색 독기가 피어오른다", g: { shadow: 3 }, c: { poisoner: 3 }, next: "friend_visit" },
+      { text: "빈 공간에 빛의 벽을 세운다", g: { mage: 2, guard: 1 }, c: { warder: 3 }, next: "friend_visit" },
+      { text: "주머니 속 약병들이 반응하며 끓어오른다", g: { support: 2 }, c: { alchemist: 3 }, t: { mana_sense: 1 }, next: "friend_visit" }
+    ]
+  },
+  friend_visit: {
+    title: "병문안",
+    text: '{friend}가 귤 한 봉지를 들고 왔다. 눈이 퉁퉁 부어 있다.\n\n"너 진짜… 바보야? 죽는 줄 알았잖아." 그러다 작게 덧붙인다. "…고마워. 근데 이제 너 헌터 되는 거야?"',
+    choices: [
+      { text: '"응. 이번엔 내가 지킬 차례야."', friend: 20, t: { charisma: 1 }, next: "measure" },
+      { text: '"모르겠어. 좀 무서워."', friend: 10, talent: 1, next: "measure" },
+      { text: '"너도 각성하면 같이 하자."', friend: 25, g: { summon: 1, support: 1 }, next: "measure" }
+    ]
+  },
+  measure: {
+    title: "관리국 측정실",
+    text: '국가 각성자 관리국 지부. 원통형 측정기 안에 들어선다. 기술자가 말한다. "힘 빼시고요. 에테르를 자연스럽게 흘려 보내세요."\n\n유리 너머로 수십 명의 신규 각성자가 순번을 기다린다.',
+    choices: [
+      { text: "숨을 고르고 차분히 흘려 보낸다", talent: 1, next: "verdict" },
+      { text: "있는 힘껏 쏟아붓는다", luck: 1, t: { reckless: 1 }, next: "measure_burst" },
+      { text: "일부러 힘을 숨긴다", t: { lucky: 1 }, g: { shadow: 1 }, next: "verdict" }
+    ]
+  },
+  measure_burst: {
+    title: "측정기 폭주",
+    text: '측정기 계기판이 붉게 치솟더니 퍽 소리와 함께 화면이 꺼진다. 기술자들이 웅성거린다.\n\n"이거… 재측정해야겠는데요? 아니, 잠깐만. 이 수치 다시 띄워 봐."',
+    choices: [
+      { text: "태연한 척한다", luck: 2, next: "verdict" },
+      { text: '"죄송합니다…" 고개를 숙인다', talent: 1, next: "verdict" }
+    ]
+  },
+  verdict: {
+    title: "판정",
+    text: '심사관이 결과지를 넘긴다. "축하합니다. 정식 각성자로 등록됩니다. 등급은 F. 다들 F에서 시작해요."\n\n그가 펜을 멈춘다. "마지막 질문입니다. 헌터가 되려는 이유가 뭡니까?"',
+    choices: [
+      { text: '"사람을 지키고 싶어서요."', t: { charisma: 1 }, g: { guard: 1 }, next: "first_morning" },
+      { text: '"돈이요. 솔직히."', t: { merchant: 2 }, next: "first_morning" },
+      { text: '"얼마나 강해질 수 있는지 알고 싶어서요."', talent: 1, t: { berserk: 1 }, g: { fighter: 1 }, next: "first_morning" },
+      { text: '"게이트가 왜 열렸는지 알아내려고요."', t: { mana_sense: 1 }, g: { mage: 1, esper: 1 }, next: "first_morning" }
+    ]
+  },
+  first_morning: {
+    title: "첫 아침",
+    text: '협회 등록증이 나왔다. 손바닥만 한 카드에 이름과 F라는 글자가 박혀 있다.\n\n휴대폰이 울린다. {friend}다. "오늘 첫 출근이지? 파이팅. 살아서 와."\n\n문을 연다. 게이트가 숨 쉬는 도시로.',
+    choices: [{ text: "첫발을 내딛는다", next: null }]
+  }
+};
+const PROLOGUE_START = { chaebol: "chaebol_1", orphan: "orphan_1", soldier: "soldier_1", subject: "subject_1", student: "student_1" };
+function resolvePrologue(sc, rng = Math.random) {
+  const top = (o, keys) => {
+    let best2 = keys[0], bv = -1;
+    for (const k of keys) {
+      const v = (o[k] || 0) + rng() * 0.5;
+      if (v > bv) {
+        bv = v;
+        best2 = k;
+      }
+    }
+    return best2;
+  };
+  const element = top(sc.e, ELEMENT_KEYS);
+  const talent = Math.max(1, Math.min(10, 4 + (sc.talent || 0) + Math.floor(rng() * 3) - 1));
+  const luck = (sc.luck || 0) + talent * 0.4;
+  const groups = Object.keys(CLASS_GROUPS).filter((g) => g !== "hidden");
+  const grp = top(sc.g, groups);
+  const pool = CLASSES.filter((c) => c.g === grp && c.r < 3);
+  const rare = [10, 4 + luck * 0.6, 1 + luck * 0.4];
+  const weights = pool.map((c) => rare[c.r] * (1 + (sc.c[c.id] || 0) * 1.5));
+  let r = rng() * weights.reduce((a, b) => a + b, 0), best = pool[0];
+  for (let i = 0; i < pool.length; i++) {
+    r -= weights[i];
+    if (r < 0) {
+      best = pool[i];
+      break;
+    }
+  }
+  const clash = { genius: "slow_learner", slow_learner: "genius", lucky: "cursed", cursed: "lucky", charisma: "loner", loner: "charisma" };
+  const traits = [];
+  const ranked = Object.entries(sc.t).sort((a, b) => b[1] - a[1] + (rng() - 0.5) * 0.3).map(([k]) => k);
+  for (const id of ranked) {
+    if (traits.length >= 3) break;
+    if (clash[id] && traits.includes(clash[id])) continue;
+    if (traitById(id)) traits.push(id);
+  }
+  while (traits.length < 3) {
+    const t = TRAITS[Math.floor(rng() * TRAITS.length)].id;
+    if (!traits.includes(t) && !(clash[t] && traits.includes(clash[t]))) traits.push(t);
+  }
+  return { element, talent, cls: best.id, traits };
+}
+const RNG = {
+  next: () => Math.random(),
+  int: (a, b) => a + Math.floor(Math.random() * (b - a + 1)),
+  range: (a, b) => a + Math.random() * (b - a),
+  pick: (arr) => arr[Math.floor(Math.random() * arr.length)],
+  chance: (p) => Math.random() < p,
+  weighted(items, weights) {
+    const total = weights.reduce((a, b) => a + b, 0);
+    let r = Math.random() * total;
+    for (let i = 0; i < items.length; i++) {
+      r -= weights[i];
+      if (r < 0) return items[i];
+    }
+    return items[items.length - 1];
+  }
+};
+const SAVE_KEY = "gate_chronicle_save_v2";
+function rankLabel(r, s) {
+  return "".concat(RANKS[r].key, "급 ").concat(STAGE_NAMES[s]);
+}
+function stageReq(r, s) {
+  return Math.floor(60 * RANKS[r].mult ** 2.5 * (1 + s * 0.25));
+}
+function statMult(r, s) {
+  return RANKS[r].mult * (1 + 0.15 * s);
+}
+function regionById(id) {
+  return REGIONS.find((r) => r.id === id);
+}
+function regionDist(a, b) {
+  const A = regionById(a), B = regionById(b);
+  return Math.abs(A.x - B.x) + Math.abs(A.y - B.y);
+}
+function skillById(id) {
+  return SKILLS.find((s) => s.id === id);
+}
+function traitById(id) {
+  return TRAITS.find((t) => t.id === id);
+}
+function persById(id) {
+  return PERSONALITIES.find((p) => p.id === id);
+}
+function relationLabel(v) {
+  if (v <= -50) return "원수";
+  if (v <= -20) return "적대";
+  if (v < 10) return "무관심";
+  if (v < 30) return "지인";
+  if (v < 60) return "친구";
+  return "절친";
+}
+function fixJosa(text) {
+  return String(text).replace(/([가-힣])(이\(가\)|은\(는\)|을\(를\)|와\(과\)|\(으\)로)/g, (m, ch, j) => {
+    const jong = (ch.charCodeAt(0) - 44032) % 28;
+    const has = jong !== 0;
+    const map = { "이(가)": has ? "이" : "가", "은(는)": has ? "은" : "는", "을(를)": has ? "을" : "를", "와(과)": has ? "과" : "와", "(으)로": has && jong !== 8 ? "으로" : "로" };
+    return ch + map[j];
+  });
+}
+function fmt(n) {
+  return Math.floor(n).toLocaleString("ko-KR");
+}
+class Game {
+  constructor() {
+    this.rng = RNG;
+    this.queue = [];
+  }
+  // ---------- 시작 / 저장 ----------
+  newGame(opts) {
+    var _a, _b, _c;
+    const bg = BACKGROUNDS.find((b) => b.id === opts.bg);
+    this.year = 2087;
+    this.month = 3;
+    this.day = 1;
+    this.mobs = [];
+    this.mapGates = [];
+    this.nextObjId = 1;
+    this.fog = new Uint8Array(WORLD.COLS * WORLD.ROWS);
+    this.logs = [];
+    this.rumors = [];
+    this.shops = {};
+    this.gates = {};
+    this.flags = { won: false };
+    this.over = null;
+    this.queue = [];
+    this.npcs = [];
+    this.nextNpcId = 1;
+    let talent = opts.talent + (bg.talent || 0);
+    for (const t of opts.traits) talent += traitById(t).mods.talent || 0;
+    const startSkill = SKILLS.find((s) => s.elem === opts.element && s.rankReq === 0);
+    this.player = {
+      name: opts.name,
+      gender: opts.gender,
+      bg: bg.id,
+      element: opts.element,
+      look: opts.look || opts.name,
+      license: "".concat(this.year, "-").concat(String(Math.floor(Math.random() * 9e3) + 1e3)),
+      traits: opts.traits.slice(),
+      talent: Math.max(1, talent),
+      rankIdx: 0,
+      stage: 0,
+      ether: 0,
+      ageMonths: 19 * 12,
+      lifePenalty: 0,
+      lifeBonus: 0,
+      money: bg.money,
+      fame: bg.fame || 0,
+      region: bg.region,
+      guild: null,
+      guildRank: 0,
+      contrib: 0,
+      skills: ["strike", startSkill.id],
+      equipSkills: [startSkill.id],
+      cls: opts.cls || "swordsman",
+      clsAdv: 0,
+      party: [],
+      equip: { weapon: null, armor: null, acc: null },
+      inventory: [],
+      items: { potion: 3, mana: 2 },
+      btBonus: 0,
+      companion: null,
+      injured: 0,
+      record: { gates: 0, kills: 0, npcKills: 0, breakthroughs: 0, fails: 0 },
+      hp: 1,
+      mp: 1
+    };
+    [this.player.x, this.player.y] = WORLD.cityPos[this.player.region];
+    this.reveal(this.player.x, this.player.y, 6);
+    this.player.equip.weapon = this.makeEquipment("weapon", 0, 0);
+    this.player.equip.armor = this.makeEquipment("armor", 0, 0);
+    this.grantClassSkills();
+    this.initSandbox();
+    this.recalc();
+    this.player.hp = this.player.maxHp;
+    this.player.mp = this.player.maxMp;
+    for (let i = 0; i < 55; i++) this.npcs.push(this.makeNpc(false));
+    for (let i = 0; i < 3; i++) this.spawnMonthly();
+    for (const n of this.npcs) {
+      (_a = n.links) != null ? _a : n.links = {};
+      (_b = n.disciples) != null ? _b : n.disciples = [];
+      (_c = n.parents) != null ? _c : n.parents = [];
+    }
+    for (let i = 0; i < 24; i++) this.simulateSociety();
+    for (const n of this.npcs.filter((x) => !x.child && RNG.chance(0.13))) {
+      const age = RNG.int(62, 84);
+      n.ageMonths = age * 12 + RNG.int(0, 11);
+      n.lifespan = Math.max(n.lifespan, age + RNG.int(3, 14));
+    }
+    for (const a of this.adults().filter((x) => x.spouse && x.id < x.spouse)) {
+      if (!RNG.chance(0.55)) continue;
+      const b = this.npcById(a.spouse);
+      if (!b) continue;
+      const c = this.makeNpc(true, RNG.chance(0.5) ? a.race : b.race);
+      c.child = true;
+      c.parents = [a.id, b.id];
+      c.region = a.region;
+      c.ageMonths = RNG.int(0, 16) * 12 + RNG.int(0, 11);
+      if (c.race === "human" && a.race === "human") c.name = a.name[0] + c.name.slice(1);
+      this.npcs.push(c);
+    }
+    for (const a of this.adults().filter((x) => x.ageMonths >= 26 * 12 && x.ageMonths <= 55 * 12 && !x.spouse)) {
+      if (!RNG.chance(0.14)) continue;
+      const c = this.makeNpc(true, a.race);
+      c.child = true;
+      c.parents = [a.id];
+      c.region = a.region;
+      c.ageMonths = RNG.int(0, 15) * 12 + RNG.int(0, 11);
+      if (c.race === "human") c.name = a.name[0] + c.name.slice(1);
+      this.npcs.push(c);
+    }
+    this.rumors = [];
+    this.lifeEvent("".concat(regionById(this.player.region).name, "에서 각성했다."));
+    this.log("".concat(this.dateStr(), ", ").concat(this.player.name, "은(는) ").concat(regionById(this.player.region).name, "에서 각성했다."), "major");
+    this.log('20년 전 "대붕괴" 이후 한반도 곳곳에 게이트가 열렸다. 살아남아, 강해져라.');
+  }
+  save() {
+    if (this.over) {
+      try {
+        localStorage.removeItem(SAVE_KEY);
+      } catch (e) {
+      }
+      return;
+    }
+    const data = {
+      year: this.year,
+      month: this.month,
+      player: this.player,
+      npcs: this.npcs,
+      nextNpcId: this.nextNpcId,
+      logs: this.logs,
+      rumors: this.rumors,
+      shops: this.shops,
+      flags: this.flags,
+      day: this.day,
+      mobs: this.mobs,
+      mapGates: this.mapGates,
+      nextObjId: this.nextObjId,
+      world: this.world,
+      fog: Array.from(this.fog).join("")
+    };
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    } catch (e) {
+    }
+  }
+  static hasSave() {
+    try {
+      return !!localStorage.getItem(SAVE_KEY);
+    } catch (e) {
+      return false;
+    }
+  }
+  load() {
+    let data = null;
+    try {
+      data = JSON.parse(localStorage.getItem(SAVE_KEY));
+    } catch (e) {
+      data = null;
+    }
+    if (!data) return false;
+    if (data.player.x == null) return false;
+    Object.assign(this, data);
+    this.fog = Uint8Array.from(String(data.fog || ""), (c) => c === "1" ? 1 : 0);
+    if (this.fog.length !== WORLD.COLS * WORLD.ROWS) this.fog = new Uint8Array(WORLD.COLS * WORLD.ROWS);
+    this.over = null;
+    this.queue = [];
+    this.initSandbox();
+    this.recalc();
+    return true;
+  }
+  // ---------- 기본 계산 ----------
+  mod(key) {
+    const p = this.player;
+    let v = 0;
+    for (const t of p.traits) v += traitById(t).mods[key] || 0;
+    const bg = BACKGROUNDS.find((b) => b.id === p.bg);
+    v += bg.mods[key] || 0;
+    if (p.relicBonus) v += this.extraMod(key);
+    if (p.cls) v += this.classMod(p.cls, p.clsAdv || 0, key);
+    return v;
+  }
+  recalc() {
+    const p = this.player;
+    const m = statMult(p.rankIdx, p.stage);
+    let hp = 100 * m * (1 + this.mod("hp"));
+    let mp = 50 * m * (1 + this.mod("mp"));
+    let atk = 20 * m * (1 + this.mod("atk"));
+    let def = 8 * m * (1 + this.mod("def"));
+    let spd = 10 * Math.sqrt(m) * (1 + this.mod("spd"));
+    let luck = 10 * (1 + this.mod("luck"));
+    for (const slot of ["weapon", "armor", "acc"]) {
+      const e = p.equip[slot];
+      if (!e) continue;
+      hp += e.hp || 0;
+      mp += e.mp || 0;
+      atk += e.atk || 0;
+      def += e.def || 0;
+      spd += e.spd || 0;
+      luck += e.luck || 0;
+    }
+    if (p.injured > 0) {
+      atk *= 0.8;
+      def *= 0.8;
+    }
+    Object.assign(p, {
+      maxHp: Math.round(hp),
+      maxMp: Math.round(mp),
+      atk: Math.round(atk),
+      def: Math.round(def),
+      spd: Math.round(spd),
+      luck: Math.round(luck)
+    });
+    p.hp = Math.min(p.hp, p.maxHp);
+    p.mp = Math.min(p.mp, p.maxMp);
+  }
+  classMod(cls, adv, key) {
+    const c = classById(cls);
+    let v = (c.mods[key] || 0) * (1 + 0.3 * adv);
+    if (["hp", "atk", "def", "mp"].includes(key)) v += 0.06 * adv;
+    return v;
+  }
+  // 등급에 맞는 직업 스킬을 자동으로 익힌다
+  grantClassSkills() {
+    const p = this.player;
+    const got = [];
+    for (const sk of SKILLS) {
+      if (sk.cls !== p.cls || sk.rankReq > p.rankIdx || p.skills.includes(sk.id)) continue;
+      p.skills.push(sk.id);
+      got.push(sk.name);
+      if (p.equipSkills.length < 5) p.equipSkills.push(sk.id);
+    }
+    return got;
+  }
+  setClass(cls, why) {
+    const p = this.player;
+    const old = className(p.cls, p.clsAdv);
+    p.skills = p.skills.filter((id) => !(skillById(id) || {}).cls);
+    p.equipSkills = p.equipSkills.filter((id) => !(skillById(id) || {}).cls);
+    p.cls = cls;
+    const got = this.grantClassSkills();
+    this.recalc();
+    this.lifeEvent("".concat(why || "각성", ": 직업이 [").concat(old, "]에서 [").concat(className(cls, p.clsAdv), "](으)로 바뀌었다."));
+    return got;
+  }
+  maxLife() {
+    const p = this.player;
+    return BASE_LIFESPAN + RANKS[p.rankIdx].life + this.mod("life") + p.lifeBonus - p.lifePenalty;
+  }
+  ageYears() {
+    return Math.floor(this.player.ageMonths / 12);
+  }
+  dateStr() {
+    return "".concat(this.year, "년 ").concat(this.month, "월");
+  }
+  fullDate() {
+    return "".concat(this.year, "년 ").concat(this.month, "월 ").concat(this.day, "일");
+  }
+  monthKey() {
+    return this.year * 12 + this.month;
+  }
+  region() {
+    return regionById(this.player.region);
+  }
+  log(text, type = "") {
+    this.logs.unshift({ date: this.dateStr(), text: fixJosa(text), type });
+    if (this.logs.length > 120) this.logs.length = 120;
+  }
+  rumor(text) {
+    this.rumors.unshift({ date: this.dateStr(), text: fixJosa(text) });
+    if (this.rumors.length > 80) this.rumors.length = 80;
+  }
+  // ---------- 수련 / 돌파 ----------
+  trainGain(mult = 1) {
+    const p = this.player;
+    let g = 15 * RANKS[p.rankIdx].mult * this.region().ether * (1 + p.talent * 0.08) * (1 + this.mod("train"));
+    if (p.guild === "cheongryong") g *= 1.15;
+    if (p.injured > 0) g *= 0.5;
+    if (this.onEther()) g *= 1.4;
+    return Math.max(1, Math.floor(g * mult * RNG.range(0.85, 1.15)));
+  }
+  addEther(n) {
+    const p = this.player;
+    p.ether += n;
+    while (p.stage < 2 && p.ether >= stageReq(p.rankIdx, p.stage)) {
+      p.ether -= stageReq(p.rankIdx, p.stage);
+      p.stage++;
+      this.recalc();
+      p.hp = p.maxHp;
+      p.mp = p.maxMp;
+      this.log("경지가 올랐다: ".concat(rankLabel(p.rankIdx, p.stage)), "good");
+    }
+    if (p.stage === 2) p.ether = Math.min(p.ether, stageReq(p.rankIdx, 2));
+  }
+  // 이벤트·아이템용: 등급에 비례한 에테르 지급
+  etherGift(base) {
+    const v = Math.round(base * RANKS[this.player.rankIdx].mult ** 1.5);
+    this.addEther(v);
+    return v;
+  }
+  canBreakthrough() {
+    const p = this.player;
+    return p.rankIdx < RANKS.length - 1 && p.stage === 2 && p.ether >= stageReq(p.rankIdx, 2);
+  }
+  btChance() {
+    const p = this.player;
+    let c = 75 - p.rankIdx * 8 + (p.luck - 10) * 0.5 + this.mod("breakthrough") + p.btBonus;
+    if (p.injured > 0) c -= 20;
+    return Math.max(5, Math.min(95, Math.round(c)));
+  }
+  train() {
+    if (!this.canAct()) return;
+    const g = this.trainGain();
+    this.addEther(g);
+    this.log("".concat(this.region().name).concat(this.onEther() ? "의 에테르 농축 지대" : "", "에서 한 달간 수련했다. 에테르 +").concat(fmt(g)));
+    this.advanceMonth(1, { eventChance: 0.22 });
+  }
+  rest() {
+    if (!this.canAct()) return;
+    const p = this.player;
+    p.hp = p.maxHp;
+    p.mp = p.maxMp;
+    if (p.injured > 0) p.injured = Math.max(0, p.injured - 2);
+    this.recalc();
+    this.log("한 달간 휴식하며 몸을 회복했다.");
+    this.advanceMonth(1, { eventChance: 0.15, noRegen: true });
+  }
+  breakthrough() {
+    if (!this.canBreakthrough() || !this.canAct()) return null;
+    const p = this.player;
+    const chance = this.btChance();
+    const ok = RNG.int(1, 100) <= chance;
+    let msg;
+    if (ok) {
+      p.rankIdx++;
+      p.stage = 0;
+      p.ether = 0;
+      p.btBonus = 0;
+      p.record.breakthroughs++;
+      p.fame += 5 * p.rankIdx;
+      this.recalc();
+      p.hp = p.maxHp;
+      p.mp = p.maxMp;
+      msg = "돌파 성공! ".concat(RANKS[p.rankIdx].name, "이 되었다. 수명이 늘어났다.");
+      const learned = this.grantClassSkills();
+      if (learned.length) msg += " 새 직업 스킬: ".concat(learned.join(", "), ".");
+      if (p.rankIdx >= 3 && p.clsAdv < 1 || p.rankIdx >= 6 && p.clsAdv < 2) this.queue.push({ type: "story", id: "class_advance" });
+      this.log(msg, "major");
+      if (p.rankIdx >= 4) this.rumor("신예 ".concat(p.name, "이(가) ").concat(RANKS[p.rankIdx].name, "에 올랐다는 소식에 업계가 술렁인다."));
+    } else {
+      p.ether = Math.floor(p.ether * 0.5);
+      p.hp = Math.max(1, Math.floor(p.maxHp * 0.3));
+      p.lifePenalty += 1;
+      p.btBonus = 5;
+      p.record.fails++;
+      msg = "돌파 실패... 에테르가 역류해 내상을 입었다. (에테르 절반 손실, 수명 -1) 하지만 깨달음을 얻었다. (다음 돌파 +5%)";
+      this.log(msg, "bad");
+    }
+    this.advanceMonth(1, { eventChance: 0 });
+    return { ok, msg, chance };
+  }
+  canAct() {
+    return !this.over;
+  }
+  // ---------- 지도 이동 ----------
+  onEther() {
+    return WORLD.type(this.player.x, this.player.y) === WORLD.T.ETHER;
+  }
+  onCity() {
+    return WORLD.cityAt(this.player.x, this.player.y);
+  }
+  canJeju() {
+    return this.player.rankIdx >= 6;
+  }
+  moveRange() {
+    return Math.min(9, 5 + Math.floor(this.player.spd / 12));
+  }
+  reveal(x, y, r) {
+    for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+      if (dx * dx + dy * dy > r * r + r || !WORLD.inb(x + dx, y + dy)) continue;
+      this.fog[WORLD.idx(x + dx, y + dy)] = 1;
+    }
+  }
+  revealed(x, y) {
+    return this.fog[WORLD.idx(x, y)] === 1;
+  }
+  objAt(x, y) {
+    return this.mapGates.find((g) => g.x === x && g.y === y) || this.mobs.find((m) => m.x === x && m.y === y) || null;
+  }
+  // path: 타일 인덱스 배열 (시작 포함), cost: 이동 비용
+  moveAlong(path, cost) {
+    if (!this.canAct() || !path || path.length < 2) return 0;
+    const p = this.player;
+    for (const i of path) {
+      const [x, y] = WORLD.xy(i);
+      this.reveal(x, y, 3);
+    }
+    [p.x, p.y] = WORLD.xy(path[path.length - 1]);
+    const reg = WORLD.regionAt(p.x, p.y);
+    if (reg && reg.id !== p.region) {
+      p.region = reg.id;
+      this.log("".concat(reg.name, "에 들어섰다."));
+    }
+    const city = this.onCity();
+    if (city) {
+      this.reveal(p.x, p.y, 5);
+      this.visitCity(city.id);
+      this.questEvent("arrive", { region: city.id });
+    }
+    this.syncParty();
+    const days = WORLD.daysFor(cost);
+    this.advanceDays(days, { eventChance: 0.3 });
+    return days;
+  }
+  advanceDays(n, opts = {}) {
+    this.day += n;
+    while (this.day > 30 && !this.over) {
+      this.day -= 30;
+      this.advanceMonth(1, __spreadProps(__spreadValues({}, opts), { noSave: opts.noSave }));
+    }
+    if (!opts.noSave) this.save();
+  }
+  // 지도에서 한 칸 걷기. 시간이 흐르고, 길 위에서 일이 생기면 stop 을 돌려준다.
+  walkStep(x, y, diag) {
+    const p = this.player;
+    const t = WORLD.type(x, y);
+    const days = Math.max(1, Math.round(WORLD.T_COST[t] * (diag ? 1.4 : 1) * WORLD.DAYS_PER_COST));
+    p.x = x;
+    p.y = y;
+    this.reveal(x, y, 3);
+    const reg = WORLD.regionAt(x, y);
+    if (reg && reg.id !== p.region) {
+      p.region = reg.id;
+      this.log("".concat(reg.name, "에 들어섰다."));
+    }
+    this.syncParty();
+    const city = this.onCity();
+    if (city) {
+      this.reveal(x, y, 5);
+      this.visitCity(city.id);
+      this.questEvent("arrive", { region: city.id });
+    }
+    const before = this.queue.length;
+    this.advanceDays(days, { eventChance: 0.3, noSave: true });
+    if (this.over) return { stop: true, days };
+    let stop = this.queue.length > before || !!city;
+    if (!city && !stop) {
+      if (RNG.chance(0.03)) {
+        const ev = this.pickStory("road") || this.pickStory("month");
+        if (ev) {
+          this.queue.push(ev);
+          stop = true;
+        }
+      }
+      const mob = !stop && this.mobs.find((m) => Math.max(Math.abs(m.x - x), Math.abs(m.y - y)) === 1);
+      if (mob && RNG.chance(Math.max(0.12, 0.3 + (mob.tier - p.rankIdx) * 0.1))) {
+        this.queue.push({ type: "mobAmbush", mobId: mob.id });
+        stop = true;
+      }
+    }
+    if (this.objAt(x, y)) stop = true;
+    return { stop, days, city };
+  }
+  // 매달 지도 위 게이트와 괴수 무리 갱신
+  randomFreeTile(regionId) {
+    const pool = WORLD.regionTiles[regionId];
+    if (!pool || !pool.length) return null;
+    for (let k = 0; k < 20; k++) {
+      const [x, y] = WORLD.xy(RNG.pick(pool));
+      if (this.objAt(x, y) || this.player && this.player.x === x && this.player.y === y) continue;
+      return [x, y];
+    }
+    return null;
+  }
+  spawnMonthly() {
+    const key = this.monthKey();
+    this.mapGates = this.mapGates.filter((g) => g.final || g.mission || key - g.born < 4);
+    this.mobs = this.mobs.filter((m) => key - m.born < 5);
+    for (const reg of REGIONS) {
+      const [lo, hi] = GATE_RANGES[reg.danger];
+      const gCount = this.mapGates.filter((g) => g.region === reg.id && !g.final && !g.mission).length;
+      if (gCount < 2 && RNG.chance(0.35 + reg.danger * 0.1)) {
+        const pos = this.randomFreeTile(reg.id);
+        if (pos) this.mapGates.push({ id: this.nextObjId++, kind: "gate", x: pos[0], y: pos[1], region: reg.id, tier: RNG.int(lo, hi), theme: RNG.pick(GATE_THEMES), elem: RNG.pick(ELEMENT_KEYS), born: key });
+      }
+      const cap = 2 + Math.floor(reg.danger / 2);
+      const mCount = this.mobs.filter((m) => m.region === reg.id).length;
+      for (let k = mCount; k < cap; k++) {
+        if (!RNG.chance(0.55)) continue;
+        const pos = this.randomFreeTile(reg.id);
+        if (!pos) continue;
+        const tier = Math.max(0, RNG.int(lo - 1, hi - 1));
+        const tpl = RNG.pick(MONSTERS.filter((m) => Math.abs(m.tier - tier) <= 1));
+        this.mobs.push({ id: this.nextObjId++, kind: "mob", x: pos[0], y: pos[1], region: reg.id, tier, elem: tpl.elem, name: tpl.name, shape: tpl.shape, count: RNG.int(1, 3), born: key });
+      }
+    }
+    const p = this.player;
+    if (p && p.guild && !this.mapGates.some((g) => g.mission)) {
+      const home = REGIONS.find((r) => r.guild === p.guild);
+      const pos = this.randomFreeTile(home.id);
+      if (pos) this.mapGates.push({ id: this.nextObjId++, kind: "gate", x: pos[0], y: pos[1], region: home.id, tier: Math.max(0, Math.min(7, p.rankIdx + RNG.int(-1, 0))), theme: "길드 지정 게이트", elem: GUILDS[p.guild].elem, born: key, mission: true });
+    }
+    if (p && !p.guild) this.mapGates = this.mapGates.filter((g) => !g.mission);
+    if (!this.flags.won && !this.mapGates.some((g) => g.final)) {
+      const jt = WORLD.regionTiles.jeju.map(WORLD.xy).find(([x, y]) => WORLD.type(x, y) === WORLD.T.MOUNTAIN) || WORLD.xy(WORLD.regionTiles.jeju[0]);
+      this.mapGates.push({ id: this.nextObjId++, kind: "gate", x: jt[0], y: jt[1], region: "jeju", tier: 7, theme: "원초의 게이트", elem: "spirit", born: key, final: true });
+    }
+  }
+  mobRoom(mob) {
+    const list = [];
+    for (let k = 0; k < mob.count; k++) {
+      const m = this.makeMonster(mob.tier, false, mob.elem);
+      if (k === 0) {
+        const tpl = MONSTERS.find((t) => t.name === mob.name);
+        if (tpl) {
+          m.name = tpl.name;
+          m.shape = tpl.shape;
+          m.elem = tpl.elem;
+        }
+      }
+      list.push(m);
+    }
+    return this.scaleForParty(list, mob.tier);
+  }
+  finishMob(mob, result, kills, hpLeft, mpLeft) {
+    const p = this.player;
+    p.hp = Math.max(1, hpLeft);
+    p.mp = Math.max(0, mpLeft);
+    if (result === "lose") {
+      const lost = Math.floor(p.money * 0.15);
+      p.money -= lost;
+      p.lifePenalty += 1;
+      p.injured = 2;
+      this.recalc();
+      p.hp = Math.max(1, Math.floor(p.maxHp * 0.3));
+      this.log("".concat(mob.name, " 무리에게 패배했다."), "bad");
+      this.advanceDays(20, { noRegen: true });
+      return ["간신히 목숨을 건졌다. 치료비 ".concat(fmt(lost), " 크레딧, 수명 -1년, 부상 2개월.")];
+    }
+    if (result !== "win") return ["무리에게서 물러났다."];
+    let money = 0, ether = 0;
+    for (const k of kills) {
+      const r = this.monsterReward(k);
+      money += r.money;
+      ether += r.ether;
+    }
+    p.money += money;
+    this.addEther(ether);
+    p.record.kills += kills.length;
+    this.mobs = this.mobs.filter((m) => m !== mob && m.id !== mob.id);
+    const lines = ["토벌 보상: ".concat(fmt(money), " 크레딧, 에테르 ").concat(fmt(ether)), ...this.lootFromKills(kills, false)];
+    this.questEvent("kill", { region: mob.region, tier: mob.tier, n: kills.length });
+    if (RNG.chance(0.15)) {
+      const it = this.makeEquipment(RNG.pick(["weapon", "armor", "acc"]), mob.tier);
+      p.inventory.push(it);
+      lines.push("전리품: ".concat(it.name));
+    }
+    this.log("".concat(mob.name, " 무리를 토벌했다."), "good");
+    this.save();
+    return lines;
+  }
+  // ---------- 시간 ----------
+  advanceMonth(n = 1, opts = {}) {
+    const p = this.player;
+    for (let i = 0; i < n && !this.over; i++) {
+      this.month++;
+      if (this.month > 12) {
+        this.month = 1;
+        this.year++;
+      }
+      p.ageMonths++;
+      if (p.injured > 0) {
+        p.injured--;
+        if (p.injured === 0) {
+          this.recalc();
+          this.log("부상이 완치되었다.", "good");
+        }
+      }
+      if (!opts.noRegen) {
+        p.hp = Math.min(p.maxHp, p.hp + Math.floor(p.maxHp * 0.2));
+        p.mp = Math.min(p.maxMp, p.mp + Math.floor(p.maxMp * 0.3));
+      }
+      if (p.guild) {
+        const sal = Math.floor(40 * RANKS[p.rankIdx].mult * (1 + p.guildRank));
+        p.money += sal;
+      }
+      this.simulateNpcs();
+      this.spawnMonthly();
+      this.simulateSociety();
+      this.worldMonthly();
+      this.storyMonthly();
+      if (this.ageYears() >= this.maxLife()) {
+        this.gameOver("".concat(this.ageYears(), "세, 수명이 다해 눈을 감았다."));
+        return;
+      }
+      if (this.month === 1) this.log("".concat(this.year, "년이 밝았다. ").concat(this.ageYears(), "세."), "major");
+    }
+    if (this.over) return;
+    const enemies = this.npcsHere().filter((n2) => n2.relation <= -30 && !n2.isCompanion);
+    for (const e of enemies) {
+      if (RNG.chance(0.12 + persById(e.personality).hostile)) {
+        this.queue.push({ type: "ambush", npcId: e.id });
+        break;
+      }
+    }
+    if (opts.eventChance && RNG.chance(opts.eventChance)) {
+      const ev = this.pickStory();
+      if (ev) this.queue.push(ev);
+    }
+    if (!opts.noSave) this.save();
+  }
+  gameOver(reason) {
+    reason = fixJosa(reason);
+    this.over = { reason, date: this.dateStr() };
+    this.log(reason, "bad");
+    this.queue = [{ type: "gameover" }];
+    try {
+      localStorage.removeItem(SAVE_KEY);
+    } catch (e) {
+    }
+  }
+  // ---------- NPC ----------
+  makeNpc(young, race) {
+    const gender = RNG.chance(0.5) ? "M" : "F";
+    race = race || rollRace();
+    const name = race === "human" ? RNG.pick(SURNAMES) + RNG.pick(gender === "M" ? GIVEN_M : GIVEN_F) : RNG.pick(RACES[race].names[gender]);
+    const rankIdx = young ? RNG.weighted([0, 1], [80, 20]) : RNG.weighted([0, 1, 2, 3, 4, 5, 6], [26, 24, 18, 13, 10, 6, 3]);
+    const raceLife = { elf: 35, dwarf: 15, dragonkin: 25, orc: -5, beastkin: -5 }[race] || 0;
+    const lifespan = BASE_LIFESPAN + RANKS[rankIdx].life + raceLife + RNG.int(-8, 8);
+    let ageYears = young ? RNG.int(18, 22) : Math.min(lifespan - 3, 19 + rankIdx * 5 + RNG.int(0, 15));
+    const guildIds = Object.keys(GUILDS);
+    return {
+      id: this.nextNpcId++,
+      name,
+      gender,
+      ageMonths: ageYears * 12 + RNG.int(0, 11),
+      lifespan,
+      rankIdx,
+      stage: RNG.int(0, 2),
+      progress: RNG.next(),
+      element: RNG.pick(ELEMENT_KEYS),
+      personality: RNG.pick(PERSONALITIES).id,
+      region: RNG.pick(REGIONS.filter((r) => r.id !== "jeju" || rankIdx >= 6)).id,
+      relation: 0,
+      alive: true,
+      talent: RNG.int(2, 9),
+      guild: rankIdx >= 1 && RNG.chance(0.35) ? RNG.pick(guildIds) : null,
+      lastTalk: -1,
+      lastSpar: -1,
+      met: false,
+      isCompanion: false,
+      death: null,
+      links: {},
+      disciples: [],
+      parents: [],
+      partner: null,
+      spouse: null,
+      master: null,
+      child: false,
+      cls: race !== "human" && RACES[race].groups.length && RNG.chance(0.6) ? RNG.pick(CLASSES.filter((c) => RACES[race].groups.includes(c.g) && c.r < 3)).id : rollClass(),
+      race
+    };
+  }
+  npcById(id) {
+    return this.npcs.find((n) => n.id === id);
+  }
+  npcsHere() {
+    return this.npcs.filter((n) => n.alive && !n.child && n.region === this.player.region);
+  }
+  party() {
+    const p = this.player;
+    return (p.party || []).map((id) => this.npcById(id)).filter((n) => n && n.alive);
+  }
+  companion() {
+    return this.party()[0] || null;
+  }
+  partySize() {
+    return 1 + this.party().length;
+  }
+  syncParty() {
+    for (const n of this.party()) n.region = this.player.region;
+  }
+  npcRankLabel(n) {
+    return rankLabel(n.rankIdx, n.stage);
+  }
+  killNpc(n, cause, killer) {
+    n.alive = false;
+    n.death = { date: this.dateStr(), cause };
+    if (n.isCompanion) {
+      n.isCompanion = false;
+      if (this.player) this.player.party = (this.player.party || []).filter((x) => x !== n.id);
+    }
+    const p = this.player;
+    if (p && p.partner === n.id) {
+      p.partner = null;
+      this.lifeEvent("연인 ".concat(n.name, "을(를) 잃었다."));
+    }
+    if (p && p.spouse === n.id) {
+      p.spouse = null;
+      this.lifeEvent("배우자 ".concat(n.name, "을(를) 잃었다."));
+    }
+    if (p && p.master === n.id) {
+      p.master = null;
+      this.lifeEvent("스승 ".concat(n.name, "이(가) 세상을 떠났다."));
+    }
+    if (p && p.disciples && p.disciples.includes(n.id)) {
+      p.disciples = p.disciples.filter((x) => x !== n.id);
+      this.lifeEvent("제자 ".concat(n.name, "을(를) 잃었다."));
+    }
+    if (this.avenge && (killer || cause === "게이트")) this.avenge(n, killer);
+    if (this.questEvent) this.questEvent("npckill", { id: n.id });
+  }
+  simulateNpcs() {
+    for (const n of this.npcs) {
+      if (!n.alive) continue;
+      n.ageMonths++;
+      if (n.child) continue;
+      if (n.ageMonths / 12 >= n.lifespan) {
+        this.killNpc(n, "수명");
+        if (n.met || n.rankIdx >= 4) this.rumor("".concat(RANKS[n.rankIdx].key, "급 각성자 ").concat(n.name, "이(가) ").concat(Math.floor(n.ageMonths / 12), "세로 세상을 떠났다."));
+        if (n.met) this.log("".concat(n.name, "이(가) 수명을 다해 세상을 떠났다는 소식을 들었다."), "bad");
+        continue;
+      }
+      const reg = regionById(n.region);
+      n.progress += (1 + n.talent * 0.08) * reg.ether * 0.3 / (4 * RANKS[n.rankIdx].mult ** 1.5) * RNG.range(0.5, 1.5);
+      if (n.progress >= 1) {
+        if (n.stage < 2) {
+          n.stage++;
+          n.progress = 0;
+        } else if (n.rankIdx < RANKS.length - 1) {
+          if (RNG.chance((60 - n.rankIdx * 9) / 100)) {
+            n.rankIdx++;
+            n.stage = 0;
+            n.progress = 0;
+            n.lifespan += RANKS[n.rankIdx].life - RANKS[n.rankIdx - 1].life;
+            if (n.met || n.rankIdx >= 3) this.rumor(RUMOR_TEMPLATES[0]({ name: n.name, rankName: RANKS[n.rankIdx].name }));
+          } else {
+            n.progress = 0.3;
+          }
+        } else n.progress = 1;
+      }
+      if (!n.isCompanion && RNG.chance(15e-4 * reg.danger)) {
+        this.killNpc(n, "게이트");
+        if (n.met || n.rankIdx >= 4) this.rumor("".concat(n.name, "이(가) ").concat(reg.name, "의 게이트에서 돌아오지 못했다."));
+        if (n.met) this.log("".concat(n.name, "이(가) 게이트에서 전사했다는 비보가 들려왔다."), "bad");
+        continue;
+      }
+      if (RNG.chance(6e-3)) this.rumor(RNG.pick(RUMOR_TEMPLATES.slice(1))({ name: n.name }));
+      if (!n.isCompanion && RNG.chance(0.04)) {
+        const opts = REGIONS.filter((r) => regionDist(r.id, n.region) === 1 && (r.id !== "jeju" || n.rankIdx >= 6));
+        if (opts.length) n.region = RNG.pick(opts).id;
+      }
+      if (!n.guild && n.rankIdx >= 1 && RNG.chance(0.01)) n.guild = RNG.pick(Object.keys(GUILDS));
+      if (persById(n.personality).id === "warlike" && RNG.chance(2e-3)) {
+        const victims = this.npcs.filter((o) => o.alive && o !== n && o.region === n.region && o.rankIdx < n.rankIdx && !o.isCompanion);
+        if (victims.length) {
+          const v = RNG.pick(victims);
+          this.killNpc(v, "".concat(n.name, "에게 살해"), n);
+          this.rumor("".concat(n.name, "이(가) 결투 끝에 ").concat(v.name, "을(를) 쓰러뜨렸다."));
+          if (v.met) this.log("".concat(v.name, "이(가) ").concat(n.name, "에게 살해당했다."), "bad");
+          if (v.met && v.relation >= 30) {
+            n.relation -= 20;
+          }
+        }
+      }
+    }
+    const alive = this.npcs.filter((n) => n.alive && !n.child).length;
+    for (let i = alive; i < 50; i++) this.npcs.push(this.makeNpc(true));
+    if (this.npcs.length > 180) {
+      const keep = /* @__PURE__ */ new Set();
+      const p = this.player;
+      [p.partner, p.spouse, p.master, ...p.disciples || []].forEach((id) => id && keep.add(id));
+      this.npcs = this.npcs.filter((n) => n.alive || n.met || keep.has(n.id));
+    }
+  }
+  relGain(n, base) {
+    let g = base * persById(n.personality).relGain * (1 + this.mod("social")) * (1 + Math.min(this.player.fame, 200) / 400);
+    if (n.guild && n.guild === this.player.guild) g *= 1.5;
+    return Math.round(g);
+  }
+  changeRel(n, d) {
+    n.relation = Math.max(-100, Math.min(100, n.relation + d));
+  }
+  talk(id) {
+    const n = this.npcById(id);
+    if (!n || !n.alive) return "";
+    if (n.lastTalk === this.monthKey()) return "".concat(n.name, "은(는) 이미 이번 달에 충분히 이야기를 나눴다.");
+    n.lastTalk = this.monthKey();
+    n.met = true;
+    const pers = persById(n.personality);
+    if ((pers.id === "warlike" || pers.id === "cold") && RNG.chance(0.2)) {
+      this.changeRel(n, -6);
+      return pers.id === "warlike" ? "".concat(n.name, ': "시비 거는 거냐? 꺼져." (관계 -6)') : "".concat(n.name, "은(는) 당신을 무시했다. (관계 -6)");
+    }
+    const g = this.relGain(n, RNG.int(3, 7));
+    this.changeRel(n, g);
+    const lines = {
+      kind: ['"오늘도 무사해서 다행이에요."', '"요즘 게이트가 부쩍 늘었대요. 조심하세요."'],
+      warlike: ['"강한 놈이랑 붙고 싶어 몸이 근질근질해."', '"네 실력, 언젠가 확인해보겠어."'],
+      greedy: ['"좋은 결정 시세가 오르고 있어. 정보 하나 줄까?"', '"돈 되는 게이트 알면 나한테도 알려줘."'],
+      just: ['"힘은 약한 자를 지키기 위해 쓰는 거다."', '"관리국은 너무 느려. 우리가 움직여야 해."'],
+      cold: ['"...용건만 말해."', '"..."']
+    };
+    return "".concat(n.name, ": ").concat(RNG.pick(lines[pers.id]), " (관계 +").concat(g, ")");
+  }
+  giftCost(n) {
+    return Math.round(100 * RANKS[n.rankIdx].mult);
+  }
+  gift(id) {
+    const n = this.npcById(id);
+    if (!n) return "";
+    const cost = this.giftCost(n);
+    if (this.player.money < cost) return "크레딧이 부족하다.";
+    this.player.money -= cost;
+    n.met = true;
+    const g = this.relGain(n, persById(n.personality).id === "greedy" ? 18 : 12);
+    this.changeRel(n, g);
+    return "".concat(n.name, "에게 ").concat(fmt(cost), " 크레딧 상당의 선물을 건넸다. (관계 +").concat(g, ")");
+  }
+  canTeach(n) {
+    return n.rankIdx >= this.player.rankIdx + 1 && (n.relation >= 40 || this.player.master === n.id);
+  }
+  teach(id) {
+    const n = this.npcById(id);
+    if (!n || !this.canTeach(n) || !this.canAct()) return "";
+    const g = this.trainGain(2.2);
+    this.addEther(g);
+    this.changeRel(n, 2);
+    this.log("".concat(n.name, "에게 한 달간 가르침을 받았다. 에테르 +").concat(fmt(g)), "good");
+    this.advanceMonth(1, { eventChance: 0.1 });
+    return "".concat(n.name, "의 지도 아래 수련했다. 에테르 +").concat(fmt(g));
+  }
+  // 제자를 한 달 동안 직접 가르친다
+  teachDisciple(id) {
+    const p = this.player;
+    const n = this.npcById(id);
+    if (!n || !n.alive || !(p.disciples || []).includes(id) || !this.canAct()) return "";
+    n.progress += 1.2;
+    this.changeRel(n, 6);
+    p.fame += 2;
+    p.merit += 3;
+    let msg = "".concat(n.name, "을(를) 한 달 동안 가르쳤다.");
+    if (n.progress >= 1) {
+      n.progress = 0;
+      if (n.stage < 2) n.stage++;
+      else if (n.rankIdx < p.rankIdx - 1 || RNG.chance(0.4)) {
+        n.rankIdx = Math.min(7, n.rankIdx + 1);
+        n.stage = 0;
+        msg += " ".concat(n.name, "이(가) ").concat(RANKS[n.rankIdx].key, "급으로 돌파했다!");
+        this.lifeEvent("제자 ".concat(n.name, "을(를) ").concat(RANKS[n.rankIdx].key, "급으로 키워 냈다."));
+      }
+    }
+    this.advanceMonth(1, { eventChance: 0.1 });
+    return msg + " (명성 +2, 협회 공적 +3)";
+  }
+  canRecruit(n) {
+    return !n.isCompanion && !n.child && n.relation >= 50 && this.party().length < 4;
+  }
+  recruit(id) {
+    const n = this.npcById(id);
+    if (!n || !this.canRecruit(n)) return "";
+    const p = this.player;
+    if (n.rankIdx > p.rankIdx + 1 && !RNG.chance(0.25)) {
+      this.changeRel(n, -3);
+      return "".concat(n.name, ': "아직은 네가 날 따라올 실력이 아닌 것 같아." (거절)');
+    }
+    n.isCompanion = true;
+    (p.party || (p.party = [])).push(n.id);
+    n.region = p.region;
+    this.log("".concat(n.name, "이(가) 파티에 합류했다."), "good");
+    return "".concat(n.name, ': "좋아, 함께 가자." 파티에 합류했다!');
+  }
+  dismiss(id) {
+    const p = this.player;
+    const c = id != null ? this.npcById(id) : this.companion();
+    if (!c) return "";
+    c.isCompanion = false;
+    p.party = (p.party || []).filter((x) => x !== c.id);
+    c.merc = null;
+    this.log("".concat(c.name, "이(가) 파티를 떠났다."));
+    return "".concat(c.name, "와(과) 헤어졌다.");
+  }
+  // 전투 유닛 생성
+  playerUnit() {
+    const p = this.player;
+    return {
+      id: "player",
+      name: p.name,
+      side: "ally",
+      isPlayer: true,
+      cls: p.cls,
+      clsAdv: p.clsAdv,
+      hp: p.hp,
+      maxHp: p.maxHp,
+      mp: p.mp,
+      maxMp: p.maxMp,
+      atk: p.atk,
+      def: p.def,
+      spd: p.spd,
+      luck: p.luck,
+      elem: p.element,
+      skills: ["strike", ...p.equipSkills],
+      affinity: p.element
+    };
+  }
+  npcUnit(n, side) {
+    const cls = n.cls || "swordsman";
+    const adv = n.rankIdx >= 6 ? 2 : n.rankIdx >= 3 ? 1 : 0;
+    const m = statMult(n.rankIdx, n.stage) * 1.12;
+    const rm = n.race && RACES[n.race] ? RACES[n.race].mods : {};
+    const cm = (k) => 1 + this.classMod(cls, adv, k) + (rm[k] || 0);
+    const skills = ["strike", ...SKILLS.filter((s) => s.cls === cls && s.rankReq <= n.rankIdx).map((s) => s.id), ...SKILLS.filter((s) => !s.cls && s.elem === n.element && s.rankReq <= n.rankIdx && s.price).map((s) => s.id).slice(-1)];
+    return {
+      id: "npc" + n.id,
+      npcId: n.id,
+      name: n.name,
+      side,
+      cls,
+      clsAdv: adv,
+      pers: n.personality,
+      hp: Math.round(100 * m * cm("hp")),
+      maxHp: Math.round(100 * m * cm("hp")),
+      mp: Math.round(50 * m * cm("mp")),
+      maxMp: Math.round(50 * m * cm("mp")),
+      atk: Math.round(20 * m * cm("atk")),
+      def: Math.round(8 * m * cm("def")),
+      spd: Math.round(10 * Math.sqrt(m) * cm("spd")),
+      luck: Math.round(10 * cm("luck")),
+      elem: n.element,
+      skills,
+      affinity: n.element,
+      rankText: this.npcRankLabel(n)
+    };
+  }
+  // 파티 인원에 맞춰 적 규모를 키운다 (혼자면 그대로)
+  scaleForParty(list, tier) {
+    const n = this.partySize();
+    if (n <= 1) return list;
+    for (const e of list) {
+      e.maxHp = e.hp = Math.round(e.hp * (1 + 0.28 * (n - 1)));
+      e.atk = Math.round(e.atk * (1 + 0.05 * (n - 1)));
+    }
+    const extra = n >= 4 ? 2 : n >= 2 ? 1 : 0;
+    for (let i = 0; i < extra && list.length < 6; i++) list.push(this.makeMonster(tier, false, list[0] && list[0].elem));
+    return list;
+  }
+  makeMonster(tier, boss, prefElem) {
+    let pool = MONSTERS.filter((m2) => Math.abs(m2.tier - tier) <= 1);
+    if (!pool.length) pool = MONSTERS;
+    if (prefElem && RNG.chance(0.6)) {
+      const ep = pool.filter((m2) => m2.elem === prefElem);
+      if (ep.length) pool = ep;
+    }
+    const t = RNG.pick(pool);
+    const m = RANKS[tier].mult * RNG.range(0.95, 1.1) * (boss ? 1 : 1);
+    const hpMul = boss ? 3.2 : 1, atkMul = boss ? 1.35 : 1;
+    const skills = ["strike", ...SKILLS.filter((s) => s.elem === t.elem && (s.type === "dmg" || s.type === "aoe") && s.rankReq <= Math.floor(tier / 1.5)).map((s) => s.id).slice(-2)];
+    const hp = Math.round(60 * m * t.hp * hpMul);
+    return {
+      id: "m" + Math.random().toString(36).slice(2, 8),
+      name: (boss ? "[보스] " : "") + t.name,
+      side: "enemy",
+      boss,
+      hp,
+      maxHp: hp,
+      mp: Math.round(40 * m),
+      maxMp: Math.round(40 * m),
+      atk: Math.round(10.5 * m * t.atk * atkMul),
+      def: Math.round(4 * m * (boss ? 1.3 : 1)),
+      spd: Math.round(10.5 * Math.sqrt(m) * RNG.range(0.92, 1.15) * (boss ? 1.1 : 1)),
+      luck: 5,
+      elem: t.elem,
+      skills,
+      tier,
+      shape: t.shape
+    };
+  }
+  // ---------- 게이트 ----------
+  getGates() {
+    return this.mapGates;
+  }
+  gateName(gate) {
+    return gate.final ? "원초의 게이트" : "".concat(RANKS[gate.tier].key, "급 게이트 · ").concat(gate.theme);
+  }
+  gateRooms(gate) {
+    const rooms = [];
+    const n = gate.final ? 4 : 3;
+    for (let i = 0; i < n; i++) {
+      const last = i === n - 1;
+      const enemies = [];
+      if (last) {
+        if (gate.final) {
+          const boss = this.makeMonster(7, true, "spirit");
+          boss.name = "[최종] 심연의 군주";
+          boss.shape = "lord";
+          boss.hp = boss.maxHp = Math.round(boss.maxHp * 2.2);
+          boss.atk = Math.round(boss.atk * 1.2);
+          enemies.push(boss);
+        } else {
+          enemies.push(this.makeMonster(gate.tier, true, gate.elem));
+          if (RNG.chance(0.4)) enemies.push(this.makeMonster(gate.tier, false, gate.elem));
+        }
+      } else {
+        const cnt = i === 0 ? RNG.int(1, 2) : RNG.int(2, 3);
+        for (let k = 0; k < cnt; k++) enemies.push(this.makeMonster(gate.tier, false, gate.elem));
+      }
+      rooms.push(this.scaleForParty(enemies, gate.tier));
+    }
+    return rooms;
+  }
+  monsterReward(mon) {
+    const m = RANKS[mon.tier].mult;
+    const mul = mon.boss ? 5 : 1;
+    return {
+      money: Math.round(40 * m * mul * RNG.range(0.8, 1.2)),
+      ether: Math.round(3 * m ** 1.2 * mul * RNG.range(0.85, 1.15))
+    };
+  }
+  // 게이트 종료 처리. result: 'clear' | 'retreat' | 'lose'
+  finishGate(gate, result, loot, hpLeft, mpLeft) {
+    const p = this.player;
+    p.hp = Math.max(1, hpLeft);
+    p.mp = Math.max(0, mpLeft);
+    const lines = [];
+    if (result === "lose") {
+      const lost = Math.floor(p.money * 0.3);
+      p.money -= lost;
+      p.lifePenalty += 2;
+      p.injured = 3;
+      this.recalc();
+      p.hp = Math.max(1, Math.floor(p.maxHp * 0.3));
+      lines.push("쓰러진 당신을 관리국 구조대가 끌어냈다. 치료비로 ".concat(fmt(lost), " 크레딧을 잃었고, 치명상으로 수명이 2년 줄었다. (부상 3개월)"));
+      this.log("".concat(this.gateName(gate), "에서 패배했다."), "bad");
+      this.advanceDays(45, { noRegen: true });
+      return lines;
+    }
+    p.money += loot.money;
+    p.record.kills += loot.kills;
+    this.addEther(loot.ether);
+    lines.push("획득: ".concat(fmt(loot.money), " 크레딧, 에테르 ").concat(fmt(loot.ether)));
+    lines.push(...this.lootFromKills(loot.list || [], result === "clear"));
+    if (loot.list) this.questEvent("kill", { region: gate.region, tier: gate.tier, n: loot.list.length });
+    if (result === "clear") {
+      gate.cleared = true;
+      p.record.gates++;
+      this.mapGates = this.mapGates.filter((g) => g.id !== gate.id);
+      this.questEvent("gate", { region: gate.region, tier: gate.tier });
+      if (gate.breakCity) lines.push(this.resolveBreak(gate.breakCity));
+      if (p.record.gates === 1) this.lifeEvent("첫 게이트를 공략했다.");
+      const fame = gate.tier + 1;
+      p.fame += fame;
+      lines.push("게이트 클리어! 명성 +".concat(fame));
+      if (RNG.chance(0.7)) {
+        const it = this.makeEquipment(RNG.pick(["weapon", "armor", "acc"]), gate.tier);
+        p.inventory.push(it);
+        lines.push("보스 드롭: ".concat(it.name));
+      }
+      if (RNG.chance(0.3)) {
+        p.items.crystal = (p.items.crystal || 0) + 1;
+        lines.push("에테르 결정 1개를 주웠다.");
+      }
+      if (gate.mission) {
+        const c = 30 * (gate.tier + 1);
+        p.contrib += c;
+        p.money += Math.round(loot.money * 0.3);
+        lines.push("길드 임무 완료: 공헌도 +".concat(c, ", 보너스 보수 지급"));
+        this.checkGuildRank(lines);
+      }
+      const comp = this.companion();
+      if (comp) this.changeRel(comp, 2);
+      this.log("".concat(this.gateName(gate), " 공략 완료."), "good");
+      if (gate.final) {
+        this.flags.won = true;
+        p.fame += 500;
+        this.log("원초의 게이트를 닫았다. 한반도에 새벽이 찾아왔다.", "major");
+        this.rumor("".concat(p.name, "이(가) 원초의 게이트를 닫았다! 전설이 탄생했다."));
+        this.queue.push({ type: "victory" });
+      }
+    } else {
+      this.log("".concat(this.gateName(gate), "에서 철수했다."));
+    }
+    this.advanceDays(10, { eventChance: 0.1 });
+    return lines;
+  }
+  // ---------- 장비 / 상점 ----------
+  makeEquipment(slot, tier, rarityIdx) {
+    if (rarityIdx == null) {
+      const luckBonus = Math.max(0, (this.player ? this.player.luck : 10) - 10) * 0.6;
+      rarityIdx = RNG.weighted([0, 1, 2, 3], [55, 30 + luckBonus, 12 + luckBonus / 2, 3 + luckBonus / 4]);
+    }
+    const r = RARITY[rarityIdx];
+    const m = RANKS[tier].mult * r.mult;
+    const base = RNG.pick(EQUIP_TEMPLATES[slot]);
+    const it = { uid: Math.random().toString(36).slice(2, 10), slot, tier, rarity: rarityIdx, name: "[".concat(RANKS[tier].key, "] ").concat(base) };
+    if (slot === "weapon") {
+      it.atk = Math.round(8 * m);
+      if (RNG.chance(0.3)) it.spd = Math.round(2 * m);
+    }
+    if (slot === "armor") {
+      it.def = Math.round(5 * m);
+      it.hp = Math.round(30 * m);
+    }
+    if (slot === "acc") {
+      it.mp = Math.round(20 * m);
+      it.luck = Math.round(3 * r.mult);
+      if (RNG.chance(0.5)) it.spd = Math.round(1.5 * m);
+    }
+    it.value = Math.round(150 * RANKS[tier].mult ** 2 * r.mult);
+    return it;
+  }
+  priceMul() {
+    let m = 1 + this.mod("price");
+    const reg = this.region();
+    if (reg.guild && reg.guild === this.player.guild) m *= 0.8;
+    if (this.cityPriceMul) m *= this.cityPriceMul(reg.id);
+    return m;
+  }
+  getShop() {
+    const reg = this.region();
+    const key = this.monthKey();
+    let s = this.shops[reg.id];
+    if (!s || s.key !== key) {
+      const [lo, hi] = GATE_RANGES[reg.danger];
+      const eqCount = reg.id === "suwon" ? 6 : reg.id === "busan" ? 5 : 3;
+      const equips = [];
+      for (let i = 0; i < eqCount; i++) {
+        const rar = reg.id === "busan" ? RNG.weighted([0, 1, 2, 3], [30, 35, 25, 10]) : RNG.weighted([0, 1, 2], [60, 30, 10]);
+        const it = this.makeEquipment(RNG.pick(["weapon", "armor", "acc"]), RNG.int(lo, Math.min(7, hi + (reg.id === "suwon" ? 1 : 0))), rar);
+        if (reg.id === "busan") it.value = Math.round(it.value * RNG.range(0.6, 1.5));
+        equips.push(it);
+      }
+      const skCount = reg.id === "daejeon" ? 5 : 2;
+      let skPool = SKILLS.filter((sk) => sk.price > 0 && sk.rankReq <= hi);
+      const guildElem = reg.guild ? GUILDS[reg.guild].elem : null;
+      const skills = [];
+      for (let i = 0; i < skCount && skPool.length; i++) {
+        let pick = guildElem && RNG.chance(0.5) ? skPool.find((sk) => sk.elem === guildElem && !skills.includes(sk.id)) : null;
+        if (!pick) pick = RNG.pick(skPool);
+        skills.push(pick.id);
+        skPool = skPool.filter((sk) => sk.id !== pick.id);
+      }
+      s = this.shops[reg.id] = { key, equips, skills };
+    }
+    return s;
+  }
+  buyEquip(uid) {
+    const s = this.getShop();
+    const it = s.equips.find((e) => e.uid === uid);
+    if (!it) return "";
+    const price = Math.round(it.value * this.priceMul());
+    if (this.player.money < price) return "크레딧이 부족하다.";
+    this.player.money -= price;
+    s.equips = s.equips.filter((e) => e.uid !== uid);
+    this.player.inventory.push(it);
+    return "".concat(it.name, "을(를) 구매했다.");
+  }
+  buySkill(id) {
+    const sk = skillById(id);
+    const p = this.player;
+    if (p.skills.includes(id)) return "이미 습득한 스킬이다.";
+    if (sk.rankReq > p.rankIdx) return "".concat(RANKS[sk.rankReq].key, "급 이상만 익힐 수 있다.");
+    const price = Math.round(sk.price * this.priceMul());
+    if (p.money < price) return "크레딧이 부족하다.";
+    p.money -= price;
+    p.skills.push(id);
+    if (p.equipSkills.length < 4) p.equipSkills.push(id);
+    this.log("스킬 데이터 [".concat(sk.name, "]을(를) 습득했다."), "good");
+    return "[".concat(sk.name, "] 습득 완료.");
+  }
+  buyItem(id) {
+    const c = CONSUMABLES.find((x) => x.id === id);
+    const price = Math.round(c.price * this.priceMul());
+    if (this.player.money < price) return "크레딧이 부족하다.";
+    this.player.money -= price;
+    this.player.items[id] = (this.player.items[id] || 0) + 1;
+    return "".concat(c.name, "을(를) 구매했다.");
+  }
+  sellEquip(uid) {
+    const p = this.player;
+    const it = p.inventory.find((e) => e.uid === uid);
+    if (!it) return "";
+    const price = Math.round(it.value * 0.4);
+    p.inventory = p.inventory.filter((e) => e.uid !== uid);
+    p.money += price;
+    return "".concat(it.name, "을(를) ").concat(fmt(price), " 크레딧에 팔았다.");
+  }
+  equipItem(uid) {
+    const p = this.player;
+    const it = p.inventory.find((e) => e.uid === uid);
+    if (!it) return;
+    p.inventory = p.inventory.filter((e) => e.uid !== uid);
+    if (p.equip[it.slot]) p.inventory.push(p.equip[it.slot]);
+    p.equip[it.slot] = it;
+    this.recalc();
+  }
+  unequip(slot) {
+    const p = this.player;
+    if (!p.equip[slot]) return;
+    p.inventory.push(p.equip[slot]);
+    p.equip[slot] = null;
+    this.recalc();
+  }
+  useItem(id) {
+    const p = this.player;
+    const c = CONSUMABLES.find((x) => x.id === id);
+    if (!p.items[id]) return "";
+    p.items[id]--;
+    const heal = 1 + this.mod("heal");
+    if (c.effect === "hp") {
+      const v = Math.floor(p.maxHp * c.val * heal);
+      p.hp = Math.min(p.maxHp, p.hp + v);
+      return "체력 +".concat(v);
+    }
+    if (c.effect === "mp") {
+      const v = Math.floor(p.maxMp * c.val * heal);
+      p.mp = Math.min(p.maxMp, p.mp + v);
+      return "정신력 +".concat(v);
+    }
+    if (c.effect === "ether") {
+      const v = this.etherGift(c.val);
+      return "에테르 +".concat(v);
+    }
+    if (c.effect === "bt") {
+      p.btBonus += c.val;
+      return "다음 돌파 성공률 +".concat(c.val, "%");
+    }
+    return "";
+  }
+  toggleSkill(id) {
+    const p = this.player;
+    if (id === "strike") return;
+    if (p.equipSkills.includes(id)) p.equipSkills = p.equipSkills.filter((s) => s !== id);
+    else if (p.equipSkills.length < 4) p.equipSkills.push(id);
+  }
+  // ---------- 길드 ----------
+  joinGuild() {
+    const reg = this.region();
+    const p = this.player;
+    if (!reg.guild || p.guild) return "";
+    if (!this.onCity()) return "길드 본부가 있는 도시 안에서 신청할 수 있다.";
+    const g = GUILDS[reg.guild];
+    if (p.fame < g.fameReq) return "명성이 부족하다. (필요 ".concat(g.fameReq, ")");
+    p.guild = reg.guild;
+    p.guildRank = 0;
+    p.contrib = 0;
+    this.log("".concat(g.name, "에 가입했다."), "major");
+    return "".concat(g.name, "에 ").concat(GUILD_RANKS[0].name, "(으)로 가입했다.");
+  }
+  leaveGuild() {
+    const p = this.player;
+    if (!p.guild) return "";
+    const g = GUILDS[p.guild];
+    p.guild = null;
+    p.guildRank = 0;
+    p.contrib = 0;
+    p.fame = Math.max(0, p.fame - 5);
+    this.log("".concat(g.name, "을(를) 탈퇴했다."));
+    return "".concat(g.name, "을(를) 탈퇴했다. (명성 -5)");
+  }
+  checkGuildRank(lines) {
+    const p = this.player;
+    while (p.guildRank < GUILD_RANKS.length - 1 && p.contrib >= GUILD_RANKS[p.guildRank + 1].req) {
+      p.guildRank++;
+      const t = "길드 직위 상승: ".concat(GUILD_RANKS[p.guildRank].name);
+      lines.push(t);
+      this.log(t, "good");
+    }
+  }
+  // ---------- 이벤트에서 쓰는 헬퍼 ----------
+  gainNpcRelationRandom(v) {
+    const here = this.npcsHere();
+    if (!here.length) return;
+    const n = RNG.pick(here);
+    n.met = true;
+    this.changeRel(n, v);
+  }
+  startSparWithRandomNpc() {
+    const here = this.npcsHere().filter((n2) => !n2.isCompanion);
+    const n = here.length ? RNG.pick(here) : null;
+    if (n) this.queue.push({ type: "spar", npcId: n.id, fromEvent: true });
+  }
+  // 대련/결투 결과
+  finishSpar(n, won) {
+    const p = this.player;
+    n.met = true;
+    n.lastSpar = this.monthKey();
+    if (won) {
+      const g2 = this.trainGain(0.5);
+      this.addEther(g2);
+      p.fame += 1;
+      this.changeRel(n, persById(n.personality).id === "warlike" ? 8 : 4);
+      return "대련 승리! 에테르 +".concat(fmt(g2), ", 명성 +1");
+    }
+    const g = this.trainGain(0.25);
+    this.addEther(g);
+    this.changeRel(n, 2);
+    return "대련 패배. 그래도 배운 것이 있다. 에테르 +".concat(fmt(g));
+  }
+  finishDuel(n, won, hpLeft, mpLeft) {
+    const p = this.player;
+    if (!won) {
+      this.gameOver("".concat(n.name, "와(과)의 생사결에서 패해 목숨을 잃었다."));
+      return "";
+    }
+    p.hp = Math.max(1, hpLeft);
+    p.mp = mpLeft;
+    const loot = Math.round(200 * RANKS[n.rankIdx].mult ** 1.5 * RNG.range(0.7, 1.3));
+    const ether = Math.round(stageReq(n.rankIdx, n.stage) * 0.25);
+    p.money += loot;
+    this.addEther(ether);
+    p.record.npcKills++;
+    const villain = n.relation <= -20 || persById(n.personality).id === "warlike";
+    const fameD = villain ? 3 : -10;
+    p.fame = Math.max(0, p.fame + fameD);
+    this.killNpc(n, "".concat(p.name, "에게 살해"), "player");
+    this.lifeEvent("생사결 끝에 ".concat(n.name, "을(를) 베었다."));
+    this.rumor("".concat(p.name, "이(가) 생사결 끝에 ").concat(n.name, "을(를) 쓰러뜨렸다."));
+    this.log("".concat(n.name, "을(를) 쓰러뜨렸다."), villain ? "good" : "bad");
+    for (const o of this.npcsHere()) {
+      if (o.met && persById(o.personality).id === "just" && !villain) this.changeRel(o, -15);
+    }
+    return "승리. ".concat(fmt(loot), " 크레딧과 에테르 ").concat(fmt(ether), "을(를) 빼앗았다. 명성 ").concat(fameD > 0 ? "+" : "").concat(fameD);
+  }
+}
+const WORLD = (() => {
+  const COLS = 36, ROWS = 58;
+  const LON0 = 125.6, LAT0 = 38.8, DLON = 0.12, DLAT = 0.1;
+  const T = { SEA: 0, PLAIN: 1, MOUNTAIN: 2, RUIN: 3, ETHER: 4, CITY: 5, BRIDGE: 6, NORTH: 7 };
+  const T_NAME = ["바다", "황무지", "산악 지대", "폐허", "에테르 농축 지대", "도시", "해상 연결로", "북부 봉쇄 구역"];
+  const T_COST = [0, 1, 2, 1, 1, 1, 1, 0];
+  const DAYS_PER_COST = 2;
+  const REGION_LL = {
+    incheon: [126.62, 37.46],
+    gangnam: [127.05, 37.48],
+    gangbuk: [127.02, 37.68],
+    gangneung: [128.88, 37.75],
+    suwon: [127.02, 37.26],
+    daejeon: [127.38, 36.35],
+    daegu: [128.6, 35.87],
+    ulsan: [129.25, 35.54],
+    gwangju: [126.85, 35.16],
+    jeonju: [127.15, 35.82],
+    busan: [129.02, 35.18],
+    jeju: [126.53, 33.38]
+  };
+  const LAND = [[126.1, 37.75], [126.38, 37.62], [126.62, 37.4], [126.85, 37.05], [126.4, 36.95], [126.15, 36.75], [126.55, 36.35], [126.62, 35.98], [126.45, 35.62], [126.38, 35.3], [126.25, 35.05], [126.35, 34.62], [126.65, 34.35], [127.05, 34.55], [127.35, 34.62], [127.62, 34.72], [127.85, 34.78], [128.1, 34.88], [128.42, 34.85], [128.68, 34.95], [129, 35.08], [129.2, 35.2], [129.38, 35.45], [129.45, 35.85], [129.55, 36.05], [129.42, 36.45], [129.38, 36.9], [129.22, 37.3], [128.95, 37.72], [128.62, 38.15], [128.38, 38.6], [128.1, 38.33], [127.6, 38.32], [127.1, 38.28], [126.68, 37.95]];
+  const NORTH = [[126.1, 37.75], [125.5, 37.9], [125.5, 38.9], [128.2, 38.9], [128.38, 38.6], [128.1, 38.33], [127.6, 38.32], [127.1, 38.28], [126.68, 37.95]];
+  const pip = (poly, x, y) => {
+    let inside = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const [xi, yi] = poly[i], [xj, yj] = poly[j];
+      if (yi > y !== yj > y && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+    }
+    return inside;
+  };
+  const inJeju = (lon, lat) => ((lon - 126.55) / 0.42) ** 2 + ((lat - 33.38) / 0.17) ** 2 <= 1;
+  const toTile = (lon, lat) => [Math.floor((lon - LON0) / DLON), Math.floor((LAT0 - lat) / DLAT)];
+  const center = (x, y) => [LON0 + (x + 0.5) * DLON, LAT0 - (y + 0.5) * DLAT];
+  const idx = (x, y) => y * COLS + x;
+  const inb = (x, y) => x >= 0 && y >= 0 && x < COLS && y < ROWS;
+  const h2 = (x, y, s) => {
+    let h = x * 374761393 + y * 668265263 + s * 2147483647 | 0;
+    h = Math.imul(h ^ h >>> 13, 1274126177);
+    return ((h ^ h >>> 16) >>> 0) / 4294967296;
+  };
+  const noise = (x, y, s) => {
+    const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+    const sm = (t) => t * t * (3 - 2 * t);
+    const a = h2(xi, yi, s), b = h2(xi + 1, yi, s), c = h2(xi, yi + 1, s), d = h2(xi + 1, yi + 1, s);
+    const u = sm(xf), v = sm(yf);
+    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+  };
+  const tiles = new Uint8Array(COLS * ROWS);
+  const region = new Int8Array(COLS * ROWS).fill(-1);
+  const cityOf = new Int8Array(COLS * ROWS).fill(-1);
+  const cityPos = {};
+  const regionTiles = {};
+  (function generate() {
+    var _a;
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      const [lon, lat] = center(x, y);
+      let t = T.SEA;
+      if (inJeju(lon, lat) || pip(LAND, lon, lat)) t = T.PLAIN;
+      else if (pip(NORTH, lon, lat)) t = T.NORTH;
+      tiles[idx(x, y)] = t;
+    }
+    const eastX = [];
+    for (let y = 0; y < ROWS; y++) {
+      let m = -1;
+      for (let x = 0; x < COLS; x++) if (tiles[idx(x, y)] === T.PLAIN && y < 48) m = x;
+      eastX[y] = m;
+    }
+    const segDist = (px, py, ax2, ay2, bx2, by2) => {
+      const dx = bx2 - ax2, dy = by2 - ay2;
+      const t = Math.max(0, Math.min(1, ((px - ax2) * dx + (py - ay2) * dy) / (dx * dx + dy * dy)));
+      return Math.hypot(px - ax2 - t * dx, py - ay2 - t * dy);
+    };
+    const [hx, hy] = toTile(126.53, 33.36);
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      const i = idx(x, y);
+      if (tiles[i] !== T.PLAIN) continue;
+      const n1 = noise(x * 0.42, y * 0.42, 1), n2 = noise(x * 0.3, y * 0.3, 2);
+      const e = eastX[y] - x;
+      let mount = false;
+      if (y < 32 && e >= 1 && e <= 6 && n1 > 0.36) mount = true;
+      if (segDist(x, y, 23, 21, 13, 33) < 1.7 && n1 > 0.4) mount = true;
+      if (Math.hypot(x - 15, y - 33) < 2.2) mount = true;
+      if (Math.hypot(x - hx, y - hy) < 1.3) mount = true;
+      if (mount) tiles[i] = T.MOUNTAIN;
+      else if (n2 > 0.76) tiles[i] = T.ETHER;
+      else if (n1 > 0.8) tiles[i] = T.RUIN;
+    }
+    REGIONS.forEach((r, ri) => {
+      let [cx, cy] = toTile(...REGION_LL[r.id]);
+      if (tiles[idx(cx, cy)] === T.SEA || tiles[idx(cx, cy)] === T.NORTH) {
+        let best = null;
+        for (let d = 1; d < 5 && !best; d++) for (let dy = -d; dy <= d; dy++) for (let dx = -d; dx <= d; dx++) {
+          const t = tiles[idx(cx + dx, cy + dy)];
+          if (!best && inb(cx + dx, cy + dy) && t !== T.SEA && t !== T.NORTH) best = [cx + dx, cy + dy];
+        }
+        [cx, cy] = best;
+      }
+      cityPos[r.id] = [cx, cy];
+      const big = ["gangnam", "busan", "daegu"].includes(r.id);
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if (!big && dx && dy) continue;
+        const x = cx + dx, y = cy + dy, i = idx(x, y);
+        if (!inb(x, y) || tiles[i] === T.SEA || tiles[i] === T.NORTH || cityOf[i] >= 0) continue;
+        tiles[i] = T.CITY;
+        cityOf[i] = ri;
+      }
+      for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) {
+        const x = cx + dx, y = cy + dy, i = idx(x, y), d = Math.hypot(dx, dy);
+        if (inb(x, y) && tiles[i] === T.PLAIN && d >= 2 && d <= 4 && noise(x * 0.9, y * 0.9, 3) > 0.55) tiles[i] = T.RUIN;
+      }
+    });
+    const jejuIdx = REGIONS.findIndex((r) => r.id === "jeju");
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      const i = idx(x, y), t = tiles[i];
+      if (t === T.SEA || t === T.NORTH) continue;
+      const [lon, lat] = center(x, y);
+      if (inJeju(lon, lat)) {
+        region[i] = jejuIdx;
+        continue;
+      }
+      let best = -1, bd = 1e9;
+      REGIONS.forEach((r, ri) => {
+        if (ri === jejuIdx) return;
+        const [cx, cy] = cityPos[r.id];
+        const d = (cx - x) ** 2 + ((cy - y) * 1.1) ** 2;
+        if (d < bd) {
+          bd = d;
+          best = ri;
+        }
+      });
+      region[i] = best;
+      if (REGIONS[best].id === "gangbuk" && t === T.PLAIN && h2(x, y, 9) < 0.6) tiles[i] = T.RUIN;
+    }
+    let [ax, ay] = toTile(126.4, 34.62);
+    const [bx, by] = toTile(126.5, 33.52);
+    while (tiles[idx(ax, ay)] === T.SEA) ay--;
+    const steps = Math.max(Math.abs(bx - ax), Math.abs(by - ay));
+    for (let s = 0; s <= steps; s++) {
+      const x = Math.round(ax + (bx - ax) * s / steps), y = Math.round(ay + (by - ay) * s / steps), i = idx(x, y);
+      if (tiles[i] === T.SEA) {
+        tiles[i] = T.BRIDGE;
+        region[i] = jejuIdx;
+      }
+    }
+    for (let i = 0; i < tiles.length; i++) {
+      const t = tiles[i];
+      if (region[i] < 0 || t === T.CITY || t === T.BRIDGE || t === T.SEA || t === T.NORTH) continue;
+      (regionTiles[_a = REGIONS[region[i]].id] || (regionTiles[_a] = [])).push(i);
+    }
+  })();
+  const passable = (i, canJeju) => {
+    const t = tiles[i];
+    if (t === T.SEA || t === T.NORTH) return false;
+    if (!canJeju && REGIONS[region[i]] && REGIONS[region[i]].id === "jeju") return false;
+    return true;
+  };
+  function reach(sx, sy, mp, canJeju) {
+    const start = idx(sx, sy);
+    const dist = /* @__PURE__ */ new Map([[start, 0]]);
+    const prev = /* @__PURE__ */ new Map();
+    const open = [[0, start]];
+    while (open.length) {
+      open.sort((a, b) => a[0] - b[0]);
+      const [d, i] = open.shift();
+      if (d > dist.get(i)) continue;
+      const x = i % COLS, y = i / COLS | 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy) continue;
+        const nx = x + dx, ny = y + dy;
+        if (!inb(nx, ny)) continue;
+        const j = idx(nx, ny);
+        if (!passable(j, canJeju)) continue;
+        if (dx && dy && !passable(idx(x + dx, y), canJeju) && !passable(idx(x, y + dy), canJeju)) continue;
+        const nd = d + T_COST[tiles[j]] * (dx && dy ? 1.4 : 1);
+        if (nd > mp + 1e-9) continue;
+        if (!dist.has(j) || nd < dist.get(j)) {
+          dist.set(j, nd);
+          prev.set(j, i);
+          open.push([nd, j]);
+        }
+      }
+    }
+    return { dist, prev, start };
+  }
+  function pathTo(r, target) {
+    if (!r.dist.has(target)) return null;
+    const path = [target];
+    let c = target;
+    while (c !== r.start) {
+      c = r.prev.get(c);
+      path.unshift(c);
+    }
+    return path;
+  }
+  return {
+    COLS,
+    ROWS,
+    T,
+    T_NAME,
+    T_COST,
+    DAYS_PER_COST,
+    tiles,
+    region,
+    cityOf,
+    cityPos,
+    regionTiles,
+    idx,
+    inb,
+    h2,
+    noise,
+    passable,
+    reach,
+    pathTo,
+    type: (x, y) => tiles[idx(x, y)],
+    regionAt: (x, y) => {
+      const r = region[idx(x, y)];
+      return r >= 0 ? REGIONS[r] : null;
+    },
+    cityAt: (x, y) => {
+      const c = cityOf[idx(x, y)];
+      return c >= 0 ? REGIONS[c] : null;
+    },
+    xy: (i) => [i % COLS, i / COLS | 0],
+    daysFor: (cost) => Math.max(1, Math.round(cost * DAYS_PER_COST))
+  };
+})();
+const RANK_KEYS = RANKS.map((r) => r.key);
+const coreName = (t) => "".concat(RANKS[t].key, "급 코어");
+const relicById = (id) => RELICS.find((r) => r.id === id);
+Object.assign(Game.prototype, {
+  // ---------- 초기화 / 이전 저장 호환 ----------
+  initSandbox() {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E;
+    const p = this.player;
+    (_a = p.merit) != null ? _a : p.merit = 0;
+    (_b = p.rep) != null ? _b : p.rep = {};
+    (_c = p.mats) != null ? _c : p.mats = {};
+    (_d = p.relics) != null ? _d : p.relics = [];
+    (_e = p.relicBonus) != null ? _e : p.relicBonus = {};
+    (_f = p.buffs) != null ? _f : p.buffs = [];
+    (_g = p.visited) != null ? _g : p.visited = [p.region];
+    (_h = p.quests) != null ? _h : p.quests = [];
+    (_i = p.disciples) != null ? _i : p.disciples = [];
+    (_j = p.partner) != null ? _j : p.partner = null;
+    (_k = p.spouse) != null ? _k : p.spouse = null;
+    (_l = p.master) != null ? _l : p.master = null;
+    (_m = p.lifeEvents) != null ? _m : p.lifeEvents = [];
+    (_n = p.tavern) != null ? _n : p.tavern = {};
+    (_o = p.cls) != null ? _o : p.cls = "swordsman";
+    (_p = p.clsAdv) != null ? _p : p.clsAdv = 0;
+    (_q = p.party) != null ? _q : p.party = [];
+    if (p.companion) {
+      if (!p.party.includes(p.companion)) p.party.push(p.companion);
+      p.companion = null;
+    }
+    (_r = this.world) != null ? _r : this.world = { breaks: [], boards: {}, auctions: {}, lastTournament: 0, archives: {} };
+    (_t = (_s = this.flags).chains) != null ? _t : _s.chains = {};
+    (_v = (_u = this.flags).chainAt) != null ? _v : _u.chainAt = {};
+    (_x = (_w = this.flags).seen) != null ? _x : _w.seen = {};
+    (_z = (_y = this.flags).story) != null ? _z : _y.story = {};
+    for (const n of this.npcs) {
+      (_A = n.links) != null ? _A : n.links = {};
+      (_B = n.disciples) != null ? _B : n.disciples = [];
+      (_C = n.parents) != null ? _C : n.parents = [];
+      (_D = n.cls) != null ? _D : n.cls = rollClass();
+      (_E = n.race) != null ? _E : n.race = "human";
+    }
+  },
+  // ---------- 용병 사무소 ----------
+  mercsFor(regionId) {
+    var _a, _b;
+    const key = this.monthKey();
+    (_b = (_a = this.world).mercs) != null ? _b : _a.mercs = {};
+    let m = this.world.mercs[regionId];
+    if (!m || m.key !== key) {
+      const list = [];
+      const pr = this.player.rankIdx;
+      const groups = Object.keys(CLASS_GROUPS).filter((g) => g !== "hidden").sort(() => Math.random() - 0.5).slice(0, 4);
+      for (let i = 0; i < 4; i++) {
+        const n = this.makeNpc(false);
+        const pool = CLASSES.filter((c) => c.g === groups[i] && c.r < 3);
+        n.cls = RNG.pick(pool).id;
+        n.rankIdx = Math.max(0, Math.min(7, pr + RNG.int(-1, 0)));
+        n.stage = RNG.int(0, 2);
+        n.ageMonths = (22 + n.rankIdx * 4 + RNG.int(0, 10)) * 12;
+        n.region = regionId;
+        n.hireable = true;
+        n.personality = RNG.pick(["kind", "greedy", "cold", "just"]);
+        list.push(n);
+      }
+      m = this.world.mercs[regionId] = { key, list };
+    }
+    return m.list;
+  },
+  mercFee(n) {
+    return Math.round(180 * RANKS[n.rankIdx].mult ** 1.6 * (classById(n.cls).r + 1) ** 0.5);
+  },
+  hireMerc(regionId, idx) {
+    var _a, _b, _c;
+    const p = this.player;
+    const list = this.mercsFor(regionId);
+    const n = list[idx];
+    if (!n || n.hired) return "";
+    if (this.party().length >= 4) return "파티는 최대 5명이다.";
+    const fee = this.mercFee(n);
+    if (p.money < fee) return "크레딧이 부족하다.";
+    p.money -= fee;
+    n.hired = true;
+    n.hireable = false;
+    n.met = true;
+    n.relation = 10;
+    n.isCompanion = true;
+    n.merc = { until: this.monthKey() + 3 };
+    (_a = n.links) != null ? _a : n.links = {};
+    (_b = n.disciples) != null ? _b : n.disciples = [];
+    (_c = n.parents) != null ? _c : n.parents = [];
+    this.npcs.push(n);
+    p.party.push(n.id);
+    return "".concat(n.name, "(").concat(className(n.cls), ")을(를) 3개월 계약으로 고용했다.");
+  },
+  expireMercs() {
+    const mk = this.monthKey();
+    for (const n of this.party()) {
+      if (n.merc && mk >= n.merc.until) {
+        if (n.relation >= 40) {
+          n.merc = null;
+          this.log("계약이 끝났지만 ".concat(n.name, '은(는) 남기로 했다. "돈 때문만은 아니었으니까."'), "good");
+        } else {
+          this.dismiss(n.id);
+          this.log("".concat(n.name, "의 용병 계약이 끝났다."));
+        }
+      }
+    }
+  },
+  // 쓰러진 파티원은 낮은 확률로 목숨을 잃는다
+  partyCasualties(units) {
+    const lost = [];
+    for (const u of units) {
+      if (!u.npcId || u.alive) continue;
+      const n = this.npcById(u.npcId);
+      if (u.fled) {
+        if (n) {
+          this.changeRel(n, -6);
+          this.log("".concat(n.name, "은(는) 전투 중 달아났다. 서로 어색해졌다."), "bad");
+        }
+        continue;
+      }
+      if (n && RNG.chance(0.08)) {
+        this.killNpc(n, "전투 중 전사");
+        lost.push(n.name);
+        this.lifeEvent("동료 ".concat(n.name, "이(가) 전투에서 쓰러져 돌아오지 못했다."));
+      }
+    }
+    return lost;
+  },
+  lifeEvent(text) {
+    this.player.lifeEvents.push({ date: this.dateStr(), age: this.ageYears(), text: fixJosa(text) });
+    this.log(text, "major");
+  },
+  // ---------- 능력치 보정: 목표, 유물, 일시 버프 ----------
+  extraMod(key) {
+    const p = this.player;
+    let v = 0;
+    if (p.relicBonus && p.relicBonus[key]) v += p.relicBonus[key];
+    const mk = this.monthKey();
+    for (const b of p.buffs || []) if (b.stat === key && b.until >= mk) v += b.val;
+    if (key !== "life" && p.spouse && this.npcById(p.spouse) && this.npcById(p.spouse).alive && ["atk", "def", "hp"].includes(key)) v += 0.04;
+    if (key === "train" && p.master && this.npcById(p.master) && this.npcById(p.master).alive) v += 0.1;
+    return v;
+  },
+  // ---------- 재료와 유물 ----------
+  addCore(tier, n = 1) {
+    const p = this.player;
+    p.mats["c" + tier] = (p.mats["c" + tier] || 0) + n;
+  },
+  coreCount(tier) {
+    return this.player.mats["c" + tier] || 0;
+  },
+  addRelic(id, grade) {
+    const r = id ? relicById(id) : RNG.pick(RELICS);
+    const g = grade != null ? grade : RNG.weighted([0, 1, 2, 3], [50, 32, 14, 4]);
+    this.player.relics.push({ id: r.id, grade: g, uid: Math.random().toString(36).slice(2, 9) });
+    return "".concat(RARITY[g].name, " 유물 [").concat(r.name, "]");
+  },
+  relicLabel(rl) {
+    const r = relicById(rl.id);
+    return "".concat(r.name, " (").concat(RARITY[rl.grade].name, ")");
+  },
+  relicValue(rl) {
+    const r = relicById(rl.id);
+    return r.val * RARITY[rl.grade].mult;
+  },
+  catalystKey() {
+    return "cat" + this.player.rankIdx;
+  },
+  hasCatalyst() {
+    return (this.player.items[this.catalystKey()] || 0) > 0;
+  },
+  relicSlots() {
+    return 1 + Math.floor(this.player.rankIdx / 2);
+  },
+  // 괴수 처치 보상: 코어, 낮은 확률로 유물
+  lootFromKills(kills, boss) {
+    const lines = [];
+    let cores = {};
+    for (const k of kills) {
+      const n = k.boss ? 2 : RNG.chance(0.7) ? 1 : 0;
+      if (n) {
+        this.addCore(k.tier, n);
+        cores[k.tier] = (cores[k.tier] || 0) + n;
+      }
+    }
+    const txt = Object.entries(cores).map(([t, n]) => "".concat(coreName(+t), " ").concat(n, "개")).join(", ");
+    if (txt) lines.push("괴수 코어: ".concat(txt));
+    if (boss && RNG.chance(0.3 + this.player.luck / 400)) lines.push("유물 발견: ".concat(this.addRelic()));
+    return lines;
+  },
+  // ---------- 돌파 (촉매 필수, 유물 선택) ----------
+  breakthroughWith(relicUids) {
+    const p = this.player;
+    if (!this.canBreakthrough() || !this.hasCatalyst()) return null;
+    const used = p.relics.filter((r) => relicUids.includes(r.uid)).slice(0, this.relicSlots());
+    p.items[this.catalystKey()]--;
+    const res = this.breakthrough();
+    if (!res) return null;
+    if (res.ok && used.length) {
+      const gains = [];
+      for (const rl of used) {
+        const r = relicById(rl.id);
+        const v = this.relicValue(rl);
+        p.relicBonus[r.stat] = (p.relicBonus[r.stat] || 0) + v;
+        gains.push("".concat(r.desc, " +").concat(r.stat === "life" ? Math.round(v) + "년" : Math.round(v * 100) + "%"));
+      }
+      p.relics = p.relics.filter((r) => !used.includes(r));
+      this.recalc();
+      p.hp = p.maxHp;
+      p.mp = p.maxMp;
+      res.msg += " 유물의 힘이 깃들었다: ".concat(gains.join(", "));
+    }
+    if (res.ok) this.lifeEvent("".concat(RANKS[p.rankIdx].name, "에 올랐다."));
+    return res;
+  },
+  // ---------- 도시 평판, 협회 공적 ----------
+  rep(regionId) {
+    return this.player.rep[regionId] || 0;
+  },
+  addRep(regionId, n) {
+    this.player.rep[regionId] = Math.max(-100, Math.min(300, this.rep(regionId) + n));
+  },
+  repLabel(v) {
+    return v >= 200 ? "도시의 영웅" : v >= 100 ? "존경받는 헌터" : v >= 40 ? "믿을 만한 헌터" : v >= 10 ? "아는 얼굴" : v <= -20 ? "경계 대상" : "외지인";
+  },
+  cityPriceMul(regionId) {
+    return Math.max(0.7, 1 - this.rep(regionId) / 1e3);
+  },
+  // ---------- 캡슐 호텔 ----------
+  innCost() {
+    return Math.round(30 * RANKS[this.player.rankIdx].mult);
+  },
+  stayInn() {
+    const p = this.player;
+    const c = this.innCost();
+    if (p.money < c) return "크레딧이 부족하다.";
+    p.money -= c;
+    p.hp = p.maxHp;
+    p.mp = p.maxMp;
+    if (p.injured > 0) p.injured = Math.max(0, p.injured - 1);
+    this.recalc();
+    p.hp = p.maxHp;
+    p.mp = p.maxMp;
+    this.advanceDays(5, { eventChance: 0.1 });
+    return "캡슐 호텔에서 푹 쉬었다. 몸이 가볍다. (".concat(fmt(c), " 크레딧, 5일)");
+  },
+  // ---------- 포차 ----------
+  drink(id) {
+    const p = this.player;
+    const d = DRINKS.find((x) => x.id === id);
+    const city = this.region().id;
+    const price = Math.round(d.price * RANKS[p.rankIdx].mult ** 0.5);
+    if (p.money < price) return "크레딧이 부족하다.";
+    if (d.effect === "social") {
+      if (p.tavern[city] === this.monthKey()) return "이번 달엔 이미 이 도시 사람들과 한잔했다.";
+      p.tavern[city] = this.monthKey();
+      p.money -= price;
+      const here = this.npcsHere();
+      for (const n of here) {
+        n.met = true;
+        this.changeRel(n, this.relGain(n, 4));
+      }
+      this.addRep(city, 2);
+      return "포차에 모인 ".concat(here.length, "명과 잔을 부딪쳤다. 다들 조금 가까워졌다.");
+    }
+    p.money -= price;
+    p.buffs = p.buffs.filter((b) => b.stat !== d.buff.stat);
+    p.buffs.push({ stat: d.buff.stat, val: d.buff.val, until: this.monthKey() + d.buff.months - 1, name: d.name });
+    this.recalc();
+    return "".concat(d.name, "을(를) 마셨다. ").concat(d.desc);
+  },
+  drinkPrice(d) {
+    return Math.round(d.price * RANKS[this.player.rankIdx].mult ** 0.5);
+  },
+  // ---------- 공방 ----------
+  recipeTier(rc) {
+    return rc.tier === "rank" ? this.player.rankIdx : rc.tier;
+  },
+  recipeCost(rc) {
+    return Math.round(rc.credits * (rc.tier === "rank" ? RANKS[this.player.rankIdx].mult ** 2 : 1));
+  },
+  craft(id) {
+    const p = this.player;
+    const rc = RECIPES.find((r) => r.id === id);
+    const tier = this.recipeTier(rc);
+    const cost = this.recipeCost(rc);
+    let have = 0;
+    for (let t = tier; t < RANKS.length; t++) have += this.coreCount(t);
+    if (have < rc.cores) return "".concat(coreName(tier), " 이상이 ").concat(rc.cores, "개 필요하다.");
+    if (p.money < cost) return "크레딧이 부족하다.";
+    let need = rc.cores;
+    for (let t = tier; t < RANKS.length && need > 0; t++) {
+      const u = Math.min(need, this.coreCount(t));
+      p.mats["c" + t] -= u;
+      need -= u;
+    }
+    p.money -= cost;
+    const key = rc.out === "catalyst" ? "cat" + tier : rc.out;
+    p.items[key] = (p.items[key] || 0) + rc.n;
+    return "".concat(rc.out === "catalyst" ? "".concat(RANKS[tier].key, "급 ") : "").concat(rc.name, " ").concat(rc.n, "개를 만들었다.");
+  },
+  // ---------- 헌터 마켓: 큰 도시는 각성 촉매 판매 ----------
+  catalystPrice() {
+    return Math.round(900 * RANKS[this.player.rankIdx].mult ** 2.2);
+  },
+  buyCatalyst() {
+    const p = this.player;
+    const c = Math.round(this.catalystPrice() * this.priceMul());
+    if (!BIG_CITIES.includes(this.region().id)) return "";
+    if (p.money < c) return "크레딧이 부족하다.";
+    p.money -= c;
+    p.items[this.catalystKey()] = (p.items[this.catalystKey()] || 0) + 1;
+    return "".concat(RANKS[p.rankIdx].key, "급 각성 촉매를 구했다.");
+  },
+  sellCores(tier) {
+    const n = this.coreCount(tier);
+    if (!n) return "";
+    const v = Math.round(18 * RANKS[tier].mult ** 1.6) * n;
+    this.player.mats["c" + tier] = 0;
+    this.player.money += v;
+    return "".concat(coreName(tier), " ").concat(n, "개를 ").concat(fmt(v), " 크레딧에 넘겼다.");
+  },
+  // ---------- 스킬 아카이브 ----------
+  archiveSkills() {
+    const reg = this.region();
+    const key = this.year;
+    let a = this.world.archives[reg.id];
+    if (!a || a.key !== key) {
+      const [, hi] = GATE_RANGES[reg.danger];
+      let pool = SKILLS.filter((s) => s.price > 0 && s.rankReq <= Math.min(7, hi + 1));
+      const guildElem = reg.guild ? GUILDS[reg.guild].elem : null;
+      const pick = [];
+      while (pick.length < (reg.id === "daejeon" ? 6 : 4) && pool.length) {
+        let s = guildElem && RNG.chance(0.4) ? pool.find((x) => x.elem === guildElem) : null;
+        if (!s) s = RNG.pick(pool);
+        pick.push(s.id);
+        pool = pool.filter((x) => x !== s);
+      }
+      a = this.world.archives[reg.id] = { key, skills: pick };
+    }
+    return a.skills;
+  },
+  skillMerit(sk) {
+    return Math.round(sk.price / 25);
+  },
+  skillRepReq(sk) {
+    return sk.rankReq >= 4 ? 60 : sk.rankReq >= 2 ? 25 : 0;
+  },
+  learnFromArchive(id) {
+    const p = this.player;
+    const sk = skillById(id);
+    const reg = this.region();
+    if (p.skills.includes(id)) return "이미 습득한 스킬이다.";
+    if (sk.rankReq > p.rankIdx) return "".concat(RANKS[sk.rankReq].key, "급 이상만 익힐 수 있다.");
+    if (this.rep(reg.id) < this.skillRepReq(sk)) return "이 도시 평판이 ".concat(this.skillRepReq(sk), " 이상이어야 열람할 수 있다.");
+    const price = Math.round(sk.price * this.priceMul() * this.cityPriceMul(reg.id));
+    const merit = this.skillMerit(sk);
+    if (p.money < price) return "크레딧이 부족하다.";
+    if (p.merit < merit) return "협회 공적이 ".concat(merit, " 필요하다.");
+    p.money -= price;
+    p.merit -= merit;
+    p.skills.push(id);
+    if (p.equipSkills.length < 4) p.equipSkills.push(id);
+    this.log("스킬 데이터 [".concat(sk.name, "]을(를) 내려받았다."), "good");
+    return "[".concat(sk.name, "] 습득 완료.");
+  },
+  // ---------- 고속 이동망 ----------
+  transitCost(regionId) {
+    return Math.round(60 * regionDist(this.player.region, regionId) * RANKS[this.player.rankIdx].mult ** 0.5);
+  },
+  transit(regionId) {
+    const p = this.player;
+    if (regionId === "jeju" && !this.canJeju()) return "제주는 S급 이상만 출입할 수 있다.";
+    if (!p.visited.includes(regionId)) return "가 본 적 없는 도시다.";
+    const c = this.transitCost(regionId);
+    if (p.money < c) return "크레딧이 부족하다.";
+    p.money -= c;
+    [p.x, p.y] = WORLD.cityPos[regionId];
+    p.region = regionId;
+    this.reveal(p.x, p.y, 5);
+    this.syncParty();
+    this.advanceDays(2, { eventChance: 0.05 });
+    return "고속 이동망으로 ".concat(regionById(regionId).name, "에 도착했다.");
+  },
+  visitCity(regionId) {
+    const p = this.player;
+    if (!p.visited.includes(regionId)) {
+      p.visited.push(regionId);
+      this.log("".concat(regionById(regionId).name, "에 처음 발을 들였다."));
+    }
+  },
+  // ---------- 협회 의뢰소 ----------
+  board(regionId) {
+    const key = this.monthKey();
+    let b = this.world.boards[regionId];
+    if (!b || b.key !== key) {
+      b = this.world.boards[regionId] = { key, list: this.makeBounties(regionId) };
+    }
+    return b.list;
+  },
+  makeBounties(regionId) {
+    const key = this.monthKey();
+    const reg = regionById(regionId);
+    const [lo, hi] = GATE_RANGES[reg.danger];
+    const pr = this.player.rankIdx;
+    const out = [];
+    const types = ["hunt", "gate", "deliver", "courier", "wanted"];
+    for (let i = 0; i < 4; i++) {
+      const type = RNG.pick(types);
+      const tier = Math.max(0, Math.min(7, RNG.int(Math.max(lo, pr - 1), Math.max(lo, Math.min(hi, pr + 1)))));
+      const m = RANKS[tier].mult;
+      const q = { id: "".concat(key, "-").concat(regionId, "-").concat(i), type, region: regionId, tier, from: regionId, months: RNG.int(3, 6) };
+      if (type === "hunt") {
+        q.n = RNG.int(3, 6);
+        q.title = "".concat(reg.name, " 일대 ").concat(RANKS[tier].key, "급 이상 괴수 ").concat(q.n, "마리 토벌");
+      }
+      if (type === "gate") {
+        q.n = 1;
+        q.title = "".concat(reg.name, "의 ").concat(RANKS[tier].key, "급 이상 게이트 공략");
+      }
+      if (type === "deliver") {
+        q.n = RNG.int(2, 5);
+        q.title = "".concat(coreName(tier), " ").concat(q.n, "개 납품");
+      }
+      if (type === "courier") {
+        const dest = RNG.pick(REGIONS.filter((r) => r.id !== regionId && r.id !== "jeju" && regionDist(r.id, regionId) <= 3));
+        q.dest = dest.id;
+        q.title = "".concat(dest.name, "까지 봉인 화물 운송");
+      }
+      if (type === "wanted") {
+        const targets = this.npcs.filter((n) => n.alive && !n.child && !n.isCompanion && n.region !== "jeju" && Math.abs(n.rankIdx - pr) <= 1 && persById(n.personality).hostile > 0);
+        if (!targets.length) {
+          i--;
+          continue;
+        }
+        const t = RNG.pick(targets);
+        q.target = t.id;
+        q.tier = t.rankIdx;
+        q.title = "현상수배: ".concat(t.name, " (").concat(RANKS[t.rankIdx].key, "급) 처치");
+      }
+      const base = { hunt: 50, gate: 140, deliver: 40, courier: 70, wanted: 220 }[type] * (q.n || 1) ** 0.6;
+      q.money = Math.round(base * m * RNG.range(0.85, 1.2));
+      q.merit = Math.round({ hunt: 6, gate: 12, deliver: 4, courier: 6, wanted: 18 }[type] * (1 + tier * 0.5));
+      q.repGain = { hunt: 6, gate: 10, deliver: 4, courier: 5, wanted: 12 }[type];
+      out.push(q);
+    }
+    return out;
+  },
+  acceptBounty(qid) {
+    const p = this.player;
+    const q = this.board(this.region().id).find((x) => x.id === qid);
+    if (!q || q.taken) return "";
+    if (p.quests.filter((x) => x.kind === "bounty" && x.status !== "claimed").length >= 4) return "의뢰는 동시에 4개까지만 받을 수 있다.";
+    q.taken = true;
+    const t = __spreadProps(__spreadValues({}, q), { kind: "bounty", progress: 0, status: "active", deadline: this.monthKey() + q.months });
+    if (q.type === "deliver") t.status = "turnin";
+    p.quests.push(t);
+    return "의뢰 수락: ".concat(q.title);
+  },
+  claimBounty(qid) {
+    const p = this.player;
+    const q = p.quests.find((x) => x.id === qid);
+    if (!q) return "";
+    if (q.type === "deliver") {
+      if (this.coreCount(q.tier) < q.n) return "".concat(coreName(q.tier), "가 ").concat(q.n, "개 필요하다.");
+      p.mats["c" + q.tier] -= q.n;
+    } else if (q.status !== "done") return "아직 완료하지 못했다.";
+    if (q.from !== this.region().id || !this.onCity()) return "".concat(regionById(q.from).name, " 의뢰소에 보고해야 한다.");
+    return this.payBounty(q);
+  },
+  payBounty(q) {
+    const p = this.player;
+    p.money += q.money;
+    p.merit += q.merit;
+    this.addRep(q.from, q.repGain);
+    q.status = "claimed";
+    p.quests = p.quests.filter((x) => x !== q);
+    p.fame += 1;
+    return "의뢰 완료: ".concat(q.title, ". ").concat(fmt(q.money), " 크레딧, 협회 공적 +").concat(q.merit, ", ").concat(regionById(q.from).name, " 평판 +").concat(q.repGain);
+  },
+  // 진행도 갱신
+  questEvent(kind, data) {
+    const p = this.player;
+    for (const q of p.quests) {
+      if (q.status !== "active") continue;
+      if (kind === "kill" && q.type === "hunt" && data.region === q.region && data.tier >= q.tier) {
+        q.progress += data.n;
+        if (q.progress >= q.n) q.status = "done";
+      }
+      if (kind === "gate" && (q.type === "gate" || q.type === "npc_gate") && data.region === q.region && data.tier >= q.tier) {
+        q.progress = 1;
+        q.status = "done";
+      }
+      if (kind === "npckill" && q.target === data.id) {
+        q.status = "done";
+      }
+      if (kind === "arrive" && q.type === "courier" && q.dest === data.region) {
+        q.status = "done";
+        this.queue.push({ type: "toast", text: this.payBounty(q) });
+      }
+    }
+    for (const q of p.quests) if (q.status === "done" && q.kind === "bounty" && q.type !== "courier") q.notified || (q.notified = (this.log("의뢰 달성: ".concat(q.title, ". ").concat(regionById(q.from).name, " 의뢰소에 보고하자."), "good"), true));
+    for (const q of [...p.quests]) if (q.kind === "npc" && q.status === "done") this.finishNpcQuest(q);
+  },
+  expireQuests() {
+    const p = this.player;
+    const mk = this.monthKey();
+    for (const q of [...p.quests]) {
+      if (q.deadline && mk > q.deadline && q.status !== "done") {
+        p.quests = p.quests.filter((x) => x !== q);
+        if (q.kind === "bounty") {
+          this.addRep(q.from, -5);
+          this.log("의뢰 기한 초과: ".concat(q.title), "bad");
+        }
+        if (q.kind === "npc") {
+          const n = this.npcById(q.npc);
+          if (n) this.changeRel(n, -12);
+          this.log("".concat(n ? n.name : "누군가", "의 부탁을 지키지 못했다."), "bad");
+        }
+      }
+    }
+  },
+  // ---------- 경매장 ----------
+  auctionOpen() {
+    return BIG_CITIES.includes(this.region().id) && this.month === SAGA.auctionMonth;
+  },
+  auctionLots() {
+    const id = this.region().id;
+    const key = this.year;
+    let a = this.world.auctions[id];
+    if (!a || a.key !== key) {
+      const lots = [];
+      for (let i = 0; i < 2; i++) {
+        const r = RNG.pick(RELICS);
+        const g = RNG.weighted([1, 2, 3], [50, 35, 15]);
+        lots.push({ kind: "relic", id: r.id, grade: g, base: Math.round(1500 * RARITY[g].mult ** 2 * RANKS[Math.max(1, this.player.rankIdx)].mult) });
+      }
+      const tier = Math.min(7, this.player.rankIdx + 1);
+      lots.push({ kind: "equip", item: this.makeEquipment(RNG.pick(["weapon", "armor", "acc"]), tier, 3), base: 0 });
+      lots[2].base = Math.round(lots[2].item.value * 1.2);
+      lots.forEach((l, i) => {
+        l.uid = "".concat(key, "-").concat(id, "-").concat(i);
+        l.max = Math.round(l.base * RNG.range(0.85, 1.9));
+        l.done = false;
+      });
+      a = this.world.auctions[id] = { key, lots };
+    }
+    return a.lots;
+  },
+  bid(uid, mult) {
+    const p = this.player;
+    const lot = this.auctionLots().find((l) => l.uid === uid);
+    if (!lot || lot.done) return "";
+    const amount = Math.round(lot.base * mult);
+    if (p.money < amount) return "크레딧이 부족하다.";
+    lot.done = true;
+    if (amount >= lot.max) {
+      p.money -= amount;
+      if (lot.kind === "relic") {
+        this.addRelic(lot.id, lot.grade);
+        return "낙찰! ".concat(RARITY[lot.grade].name, " 유물 [").concat(relicById(lot.id).name, "]을(를) ").concat(fmt(amount), " 크레딧에 손에 넣었다.");
+      }
+      p.inventory.push(lot.item);
+      return "낙찰! ".concat(lot.item.name, "을(를) ").concat(fmt(amount), " 크레딧에 손에 넣었다.");
+    }
+    const rival = RNG.pick(this.npcs.filter((n) => n.alive && !n.child && n.rankIdx >= p.rankIdx)) || { name: "익명의 입찰자" };
+    return "".concat(rival.name, "이(가) ").concat(fmt(lot.max), " 크레딧을 불러 가져갔다.");
+  },
+  // ---------- NPC 사회 시뮬레이션 ----------
+  link(a, b) {
+    return a.links && a.links[b.id] || 0;
+  },
+  addLink(a, b, d) {
+    a.links[b.id] = Math.max(-100, Math.min(100, this.link(a, b) + d));
+    b.links[a.id] = Math.max(-100, Math.min(100, this.link(b, a) + d));
+  },
+  adults() {
+    return this.npcs.filter((n) => n.alive && !n.child);
+  },
+  simulateSociety() {
+    const alive = this.adults();
+    const notable = (...ns) => ns.some((n) => n.met || n.rankIdx >= 4);
+    for (const n of this.npcs) if (n.alive && n.child && n.ageMonths >= 18 * 12) {
+      n.child = false;
+      const par = n.parents.map((id) => this.npcById(id)).filter(Boolean);
+      if (par.some((x) => x.met) || par.some((x) => x.id === -1)) this.rumor("".concat(par.map((x) => x.name).join("와(과) "), "의 자녀 ").concat(n.name, "이(가) 각성자로 등록됐다."));
+    }
+    for (let k = 0; k < 40; k++) {
+      const a = RNG.pick(alive);
+      if (!a) break;
+      const others = alive.filter((o) => o !== a && o.region === a.region);
+      if (!others.length) continue;
+      const known = others.filter((o) => Math.abs(this.link(a, o)) >= 10);
+      const b = known.length && RNG.chance(0.65) ? RNG.pick(known) : RNG.pick(others);
+      const pa = persById(a.personality), pb = persById(b.personality);
+      const cur = this.link(a, b);
+      const drift = cur >= 20 ? 3 : cur <= -20 ? -3 : 0;
+      const d = Math.round(RNG.int(-4, 11) * (pa.relGain + pb.relGain) / 2 - (pa.hostile + pb.hostile) * 8 + drift);
+      this.addLink(a, b, d);
+      const L = this.link(a, b);
+      const single = (x) => !x.partner && !x.spouse;
+      const ageOk = Math.abs(a.ageMonths - b.ageMonths) < 15 * 12;
+      if (L >= 60 && single(a) && single(b) && ageOk && RNG.chance(0.25)) {
+        a.partner = b.id;
+        b.partner = a.id;
+        if (notable(a, b)) this.rumor("".concat(a.name, "와(과) ").concat(b.name, "이(가) 연인 사이라는 목격담이 올라왔다."));
+      } else if (a.partner === b.id && L >= 80 && !a.spouse && RNG.chance(0.1)) {
+        a.spouse = b.id;
+        b.spouse = a.id;
+        if (notable(a, b)) this.rumor("".concat(a.name, "와(과) ").concat(b.name, "이(가) 결혼식을 올렸다. 하객 명단에 S급이 둘이나 있었다는 소문이다."));
+        if (a.met && a.relation >= 30) this.queue.push({ type: "story", id: "npc_wedding", npc: a.id });
+      } else if (a.spouse === b.id && a.ageMonths < 45 * 12 && RNG.chance(0.04)) {
+        const c = this.makeNpc(true, RNG.chance(0.5) ? a.race : b.race);
+        c.ageMonths = 0;
+        c.child = true;
+        c.parents = [a.id, b.id];
+        c.region = a.region;
+        if (c.race === "human" && a.race === "human") c.name = a.name[0] + c.name.slice(1);
+        c.lifespan += 2;
+        this.npcs.push(c);
+        if (notable(a, b)) this.rumor("".concat(a.name, "·").concat(b.name, " 부부가 아이를 얻었다. 이름은 ").concat(c.name, "."));
+      } else if (Math.abs(a.rankIdx - b.rankIdx) >= 2 && L >= 40 && RNG.chance(0.12)) {
+        const [m, s] = a.rankIdx > b.rankIdx ? [a, b] : [b, a];
+        if (!s.master && m.disciples.length < 3) {
+          s.master = m.id;
+          m.disciples.push(s.id);
+          if (notable(m, s)) this.rumor("".concat(m.name, "이(가) ").concat(s.name, "을(를) 제자로 받아들였다."));
+        }
+      } else if (L <= -45 && (pa.id === "warlike" || pb.id === "warlike") && RNG.chance(0.15)) {
+        const pa2 = a.rankIdx + a.stage * 0.3 + RNG.range(-1, 1), pb2 = b.rankIdx + b.stage * 0.3 + RNG.range(-1, 1);
+        const [win, lose] = pa2 >= pb2 ? [a, b] : [b, a];
+        if (lose.isCompanion) continue;
+        this.killNpc(lose, "".concat(win.name, "와(과)의 결투"), win);
+        if (notable(win, lose)) this.rumor("".concat(win.name, "와(과) ").concat(lose.name, "의 오랜 악연이 결투로 끝났다. ").concat(lose.name, "은(는) 돌아오지 못했다."));
+      } else if (a.partner === b.id && L < 20 && RNG.chance(0.3)) {
+        a.partner = null;
+        b.partner = null;
+        if (a.spouse === b.id) {
+          a.spouse = null;
+          b.spouse = null;
+        }
+        if (notable(a, b)) this.rumor("".concat(a.name, "와(과) ").concat(b.name, "이(가) 갈라섰다는 이야기가 돈다."));
+      }
+    }
+  },
+  // 죽음이 남기는 원한
+  avenge(victim, killer) {
+    const close = this.adults().filter((n) => n !== victim && (n.spouse === victim.id || n.partner === victim.id || victim.parents.includes(n.id) || n.parents.includes(victim.id) || n.master === victim.id || victim.master === n.id || this.link(n, victim) >= 55));
+    for (const n of close) {
+      if (killer === "player") {
+        n.met = true;
+        n.relation = Math.min(n.relation, -80);
+        n.nemesis = "player";
+        if (n.isCompanion) {
+          n.isCompanion = false;
+          this.player.companion = null;
+        }
+        if (this.player.partner === n.id) this.player.partner = null;
+        this.queue.push({ type: "story", id: "vow_revenge", npc: n.id, victim: victim.id });
+      } else if (killer) {
+        this.addLink(n, killer, -70);
+        n.nemesis = killer.id;
+      }
+    }
+  },
+  // ---------- 세계 사건 ----------
+  worldMonthly() {
+    const mk = this.monthKey();
+    const p = this.player;
+    for (const b of [...this.world.breaks]) {
+      if (mk > b.until) {
+        this.world.breaks = this.world.breaks.filter((x) => x !== b);
+        const victims = this.adults().filter((n) => n.region === b.city && !n.isCompanion && RNG.chance(0.18));
+        for (const v of victims) this.killNpc(v, "게이트 브레이크");
+        this.rumor("".concat(regionById(b.city).name, "의 게이트 브레이크가 수습됐다. 희생자 ").concat(victims.length, "명."));
+        if (victims.some((v) => v.met)) this.log("".concat(regionById(b.city).name, " 게이트 브레이크로 아는 얼굴이 희생됐다."), "bad");
+      }
+    }
+    if (RNG.chance(0.035) && this.world.breaks.length < 2) {
+      const reg = RNG.pick(REGIONS.filter((r) => r.danger >= 2 && r.id !== "jeju" && !this.world.breaks.some((b) => b.city === r.id)));
+      if (reg) {
+        this.world.breaks.push({ city: reg.id, until: mk + 2, tier: Math.min(7, GATE_RANGES[reg.danger][1]) });
+        this.rumor("긴급: ".concat(reg.name, "에서 게이트 브레이크 발생! 협회가 각성자를 소집하고 있다."));
+        this.log("".concat(reg.name, "에서 게이트 브레이크가 발생했다."), "major");
+      }
+    }
+    if (this.month === SAGA.tournamentMonth && this.year % SAGA.tournamentEvery === 0 && this.world.lastTournament !== this.year) {
+      this.world.lastTournament = this.year;
+      if (p.region === SAGA.tournamentCity) this.queue.push({ type: "tournament" });
+      else {
+        const champ = this.adults().sort((a, b) => b.rankIdx - a.rankIdx || b.stage - a.stage)[RNG.int(0, 4)];
+        if (champ) {
+          this.rumor("".concat(this.year, "년 전국 헌터 대회 우승자는 ").concat(champ.name, ". 명성이 하늘을 찌른다."));
+          champ.met = champ.met;
+        }
+      }
+    }
+    if (this.month === SAGA.tournamentMonth - 1 && this.year % SAGA.tournamentEvery === 0) this.rumor("다음 달 ".concat(regionById(SAGA.tournamentCity).name, "에서 전국 헌터 대회가 열린다."));
+    if (this.month === SAGA.auctionMonth - 1) this.rumor("다음 달 강남·부산·대구 경매장에서 정기 경매가 열린다.");
+    p.buffs = p.buffs.filter((b) => b.until >= mk);
+    this.expireMercs();
+    this.expireQuests();
+  },
+  cityBreak(regionId) {
+    return this.world.breaks.find((b) => b.city === regionId);
+  },
+  breakGate(regionId) {
+    const b = this.cityBreak(regionId);
+    if (!b) return null;
+    return { id: "break-" + regionId, kind: "gate", tier: b.tier, theme: "게이트 브레이크 방어전", elem: RNG.pick(ELEMENT_KEYS), region: regionId, breakCity: regionId, x: this.player.x, y: this.player.y };
+  },
+  resolveBreak(regionId) {
+    this.world.breaks = this.world.breaks.filter((b) => b.city !== regionId);
+    const p = this.player;
+    p.merit += 40;
+    p.fame += 15;
+    this.addRep(regionId, 40);
+    this.lifeEvent("".concat(regionById(regionId).name, " 게이트 브레이크를 막아 냈다."));
+    this.rumor("".concat(p.name, "이(가) ").concat(regionById(regionId).name, "의 게이트 브레이크를 막았다. 시민들이 이름을 연호한다."));
+    return "도시를 지켜 냈다. 협회 공적 +40, 명성 +15, 도시 평판 +40";
+  }
+});
+const STORY = [];
+const S = (ev) => {
+  STORY.push(ev);
+  return ev;
+};
+const RK = (g) => g.player.rankIdx;
+Object.assign(Game.prototype, {
+  // 문장 속 {name} {npc} {city} {rank} {npc2} {victim} 치환
+  storyFill(str, c = {}) {
+    const p = this.player;
+    const map = {
+      name: p.name,
+      npc: c.npc ? c.npc.name : "누군가",
+      npc2: c.npc2 ? c.npc2.name : "누군가",
+      victim: c.victim ? c.victim.name : "그 사람",
+      city: this.region().name,
+      rank: RANKS[p.rankIdx].key,
+      next: RANKS[Math.min(7, p.rankIdx + 1)].key,
+      spouse: p.spouse && this.npcById(p.spouse) ? this.npcById(p.spouse).name : ""
+    };
+    return fixJosa(String(str).replace(/\{(\w+)\}/g, (m, k) => k in map ? map[k] : m));
+  },
+  storyNpc(kind) {
+    const p = this.player;
+    const here = this.npcsHere().filter((n) => !n.isCompanion);
+    const met = this.adults().filter((n) => n.met && !n.isCompanion);
+    const pick = (a) => a.length ? RNG.pick(a) : null;
+    switch (kind) {
+      case "here":
+        return pick(here);
+      case "stranger":
+        return pick(here.filter((n) => !n.met));
+      case "friend":
+        return pick(met.filter((n) => n.relation >= 30));
+      case "friendHere":
+        return pick(here.filter((n) => n.relation >= 25));
+      case "rival":
+        return pick(met.filter((n) => n.relation <= -20));
+      case "strong":
+        return pick(here.filter((n) => n.rankIdx >= p.rankIdx + 2));
+      case "weak":
+        return pick(here.filter((n) => n.rankIdx < p.rankIdx));
+      case "warlike":
+        return pick(here.filter((n) => n.personality === "warlike"));
+      case "greedy":
+        return pick(here.filter((n) => n.personality === "greedy"));
+      case "kind":
+        return pick(here.filter((n) => n.personality === "kind" || n.personality === "just"));
+      case "partner": {
+        const id = p.spouse || p.partner;
+        const n = id && this.npcById(id);
+        return n && n.alive ? n : null;
+      }
+      case "disciple":
+        return pick((p.disciples || []).map((id) => this.npcById(id)).filter((n) => n && n.alive));
+      case "master": {
+        const n = p.master && this.npcById(p.master);
+        return n && n.alive ? n : null;
+      }
+      default:
+        return null;
+    }
+  },
+  storyEligible(ev, c) {
+    var _a;
+    const f = this.flags;
+    const p = this.player;
+    if (ev.once && f.seen[ev.id]) return false;
+    if (ev.chain) {
+      const st = f.chains[ev.chain] || 0;
+      if (st !== ev.step) return false;
+      if (st > 0 && this.monthKey() - (f.chainAt[ev.chain] || 0) < ((_a = ev.gap) != null ? _a : 2)) return false;
+    }
+    if (ev.region && !(Array.isArray(ev.region) ? ev.region.includes(p.region) : p.region === ev.region)) return false;
+    if (ev.city && !this.onCity()) return false;
+    if (ev.field && this.onCity()) return false;
+    if (ev.minRank != null && p.rankIdx < ev.minRank) return false;
+    if (ev.maxRank != null && p.rankIdx > ev.maxRank) return false;
+    if (ev.minAge != null && this.ageYears() < ev.minAge) return false;
+    if (ev.npc && !c.npc) return false;
+    if (ev.when && !ev.when(this, c)) return false;
+    return true;
+  },
+  pickStory(trigger = "month") {
+    var _a;
+    const cands = [], weights = [];
+    const mk = this.monthKey();
+    for (const ev2 of STORY) {
+      if ((ev2.trigger || "month") !== trigger) continue;
+      const c2 = {};
+      if (ev2.npc) c2.npc = this.storyNpc(ev2.npc);
+      if (!this.storyEligible(ev2, c2)) continue;
+      let w = (_a = ev2.weight) != null ? _a : 1;
+      if (ev2.chain) w *= 2.2;
+      const seen = this.flags.seen[ev2.id];
+      if (seen && mk - seen < 36) w *= 0.15;
+      cands.push({ ev: ev2, c: c2 });
+      weights.push(w);
+    }
+    if (!cands.length) return null;
+    const { ev, c } = RNG.weighted(cands, weights);
+    return { type: "story", id: ev.id, npc: c.npc ? c.npc.id : null };
+  },
+  storyById(id) {
+    return STORY.find((e) => e.id === id);
+  },
+  storyCtx(q) {
+    return { npc: q.npc != null ? this.npcById(q.npc) : null, victim: q.victim != null ? this.npcById(q.victim) : null, npc2: q.npc2 != null ? this.npcById(q.npc2) : null, extra: q.extra };
+  },
+  markSeen(id) {
+    this.flags.seen[id] = this.monthKey();
+  },
+  chainNext(id) {
+    this.flags.chains[id] = (this.flags.chains[id] || 0) + 1;
+    this.flags.chainAt[id] = this.monthKey();
+  },
+  chainSet(id, step) {
+    this.flags.chains[id] = step;
+    this.flags.chainAt[id] = this.monthKey();
+  },
+  chainEnd(id) {
+    this.flags.chains[id] = 99;
+  },
+  chainAt(id) {
+    return this.flags.chains[id] || 0;
+  },
+  roll(p) {
+    return RNG.chance(Math.max(0.03, Math.min(0.97, p + (this.player.luck - 10) / 200)));
+  },
+  // 사건 보상/대가를 적용하고 요약 문구를 돌려준다
+  gain(o, c = {}) {
+    const p = this.player;
+    const out = [];
+    const m = RANKS[p.rankIdx].mult;
+    if (o.money) {
+      const v = Math.round(o.money * m);
+      p.money = Math.max(0, p.money + v);
+      out.push("크레딧 ".concat(v > 0 ? "+" : "").concat(fmt(v)));
+    }
+    if (o.ether) out.push("에테르 +".concat(fmt(this.etherGift(o.ether))));
+    if (o.fame) {
+      p.fame = Math.max(0, p.fame + o.fame);
+      out.push("명성 ".concat(o.fame > 0 ? "+" : "").concat(o.fame));
+    }
+    if (o.merit) {
+      p.merit = Math.max(0, p.merit + o.merit);
+      out.push("협회 공적 ".concat(o.merit > 0 ? "+" : "").concat(o.merit));
+    }
+    if (o.rep) {
+      this.addRep(p.region, o.rep);
+      out.push("도시 평판 ".concat(o.rep > 0 ? "+" : "").concat(o.rep));
+    }
+    if (o.hp) {
+      p.hp = Math.max(1, Math.min(p.maxHp, p.hp + Math.round(p.maxHp * o.hp)));
+      out.push("체력 ".concat(o.hp > 0 ? "회복" : "손실"));
+    }
+    if (o.life) {
+      if (o.life > 0) p.lifeBonus += o.life;
+      else p.lifePenalty += -o.life;
+      out.push("수명 ".concat(o.life > 0 ? "+" : "").concat(o.life, "년"));
+    }
+    if (o.injure) {
+      p.injured = Math.max(p.injured, o.injure);
+      this.recalc();
+      out.push("부상 ".concat(o.injure, "개월"));
+    }
+    if (o.talent) {
+      p.talent += o.talent;
+      out.push("재능 ".concat(o.talent > 0 ? "+" : "").concat(o.talent));
+    }
+    if (o.core) {
+      const t = Math.max(0, Math.min(7, p.rankIdx + (o.core[0] || 0)));
+      this.addCore(t, o.core[1]);
+      out.push("".concat(coreName(t), " ").concat(o.core[1], "개"));
+    }
+    if (o.relic) out.push(this.addRelic(null, typeof o.relic === "number" ? o.relic : void 0));
+    if (o.item) {
+      p.items[o.item[0]] = (p.items[o.item[0]] || 0) + o.item[1];
+      out.push("".concat((CONSUMABLES.find((x) => x.id === o.item[0]) || { name: "각성 촉매" }).name, " ").concat(o.item[1], "개"));
+    }
+    if (o.catalyst) {
+      const k = this.catalystKey();
+      p.items[k] = (p.items[k] || 0) + o.catalyst;
+      out.push("".concat(RANKS[p.rankIdx].key, "급 각성 촉매 ").concat(o.catalyst, "개"));
+    }
+    if (o.equip) {
+      const it = this.makeEquipment(RNG.pick(["weapon", "armor", "acc"]), Math.min(7, p.rankIdx + (o.equip === true ? 0 : o.equip)));
+      p.inventory.push(it);
+      out.push(it.name);
+    }
+    if (o.skill) {
+      const pool = SKILLS.filter((s) => s.price && s.rankReq <= p.rankIdx && !p.skills.includes(s.id));
+      if (pool.length) {
+        const s = RNG.pick(pool);
+        p.skills.push(s.id);
+        if (p.equipSkills.length < 4) p.equipSkills.push(s.id);
+        out.push("스킬 [".concat(s.name, "]"));
+      }
+    }
+    if (o.rel && c.npc) {
+      c.npc.met = true;
+      this.changeRel(c.npc, o.rel);
+      out.push("".concat(c.npc.name, " 관계 ").concat(o.rel > 0 ? "+" : "").concat(o.rel));
+    }
+    if (o.relAll) {
+      for (const n of this.npcsHere()) this.changeRel(n, o.relAll);
+      out.push("주변 인물 관계 ".concat(o.relAll > 0 ? "+" : "").concat(o.relAll));
+    }
+    this.recalc();
+    return out.length ? " (".concat(out.join(", "), ")") : "";
+  },
+  // 스토리 전투 예약
+  storyFight(spec) {
+    this.queue.unshift({ type: "storyfight", spec });
+  },
+  // ---------- NPC가 먼저 찾아오는 부탁과 사연 ----------
+  storyMonthly() {
+    const p = this.player;
+    if (p.spouse && RNG.chance(0.035) && this.ageYears() < 55) {
+      const sp = this.npcById(p.spouse);
+      if (sp && sp.alive) {
+        const c = this.makeNpc(true, RNG.chance(0.5) ? p.race || "human" : sp.race);
+        c.ageMonths = 0;
+        c.child = true;
+        c.parents = [-1, sp.id];
+        c.region = p.region;
+        c.name = p.name[0] + c.name.slice(1);
+        c.met = true;
+        c.relation = 80;
+        c.element = RNG.chance(0.5) ? p.element : sp.element;
+        this.npcs.push(c);
+        (p.children || (p.children = [])).push(c.id);
+        this.lifeEvent("".concat(sp.name, "와(과)의 사이에서 아이 ").concat(c.name, "이(가) 태어났다."));
+        this.queue.push({ type: "story", id: "child_born", npc: c.id });
+      }
+    }
+    for (const l of [...p.loans || []]) {
+      if (this.monthKey() < l.due) continue;
+      p.loans = p.loans.filter((x) => x !== l);
+      const n = this.npcById(l.npc);
+      if (n && n.alive && (n.personality !== "greedy" || RNG.chance(0.5))) {
+        p.money += Math.round(l.amount * 1.3);
+        this.log("".concat(n.name, "이(가) 빌린 돈을 이자까지 붙여 갚았다. (+").concat(fmt(l.amount * 1.3), ")"), "good");
+        this.changeRel(n, 10);
+      } else if (n) {
+        this.log("".concat(n.name, "에게 빌려준 돈은 결국 돌아오지 않았다."), "bad");
+        this.changeRel(n, -15);
+      }
+    }
+    if (RNG.chance(0.32)) {
+      const r = this.pickRequest();
+      if (r) this.queue.push(r);
+    }
+    const nem = this.adults().find((n) => n.nemesis === "player" && n.region === p.region && RNG.chance(0.35));
+    if (nem) this.queue.push({ type: "ambush", npcId: nem.id });
+  },
+  pickRequest() {
+    const cands = [], weights = [];
+    for (const [kind2, rq] of Object.entries(REQUESTS)) {
+      const pool = rq.who(this).filter((n2) => n2 && n2.alive && !n2.child);
+      if (!pool.length) continue;
+      cands.push({ kind: kind2, n: RNG.pick(pool) });
+      weights.push(rq.weight || 1);
+    }
+    if (!cands.length) return null;
+    const { kind, n } = RNG.weighted(cands, weights);
+    const q = { type: "request", kind, npc: n.id };
+    if (kind === "revenge_help") q.npc2 = n.nemesis;
+    return q;
+  },
+  addNpcQuest(n, type, data) {
+    const q = __spreadValues({ id: "nq" + Date.now() + RNG.int(0, 999), kind: "npc", type, npc: n.id, status: "active", deadline: this.monthKey() + (data.months || 4) }, data);
+    this.player.quests.push(q);
+    return q;
+  },
+  finishNpcQuest(q) {
+    const p = this.player;
+    const n = this.npcById(q.npc);
+    p.quests = p.quests.filter((x) => x !== q);
+    if (!n || !n.alive) return;
+    this.changeRel(n, q.relReward || 15);
+    const money = Math.round((q.money || 120) * RANKS[p.rankIdx].mult);
+    p.money += money;
+    p.fame += 2;
+    this.queue.push({ type: "toast", text: fixJosa("".concat(n.name, "의 부탁을 들어줬다. 고맙다며 ").concat(fmt(money), " 크레딧을 보내왔다.")) });
+    this.log("".concat(n.name, "의 부탁을 해결했다."), "good");
+  },
+  // 납품형 부탁: 같은 지역에 있을 때 코어가 있으면 전달
+  checkDeliveries() {
+    const p = this.player;
+    for (const q of [...p.quests]) {
+      if (q.kind !== "npc" || q.type !== "npc_cores") continue;
+      const n = this.npcById(q.npc);
+      if (n && n.region === p.region && this.coreCount(q.tier) >= q.n) {
+        p.mats["c" + q.tier] -= q.n;
+        q.status = "done";
+        this.finishNpcQuest(q);
+      }
+    }
+  }
+});
+const REQUESTS = {
+  help_gate: {
+    who: (g) => g.adults().filter((n) => n.met && n.relation >= 20 && !n.isCompanion && n.region !== "jeju" && !g.player.quests.some((q) => q.npc === n.id)),
+    text: (g, c) => "".concat(c.npc.name, '에게서 메시지가 왔다.\n\n"').concat(regionById(c.npc.region).name, '에 게이트가 하나 열렸는데, 혼자 들어가기엔 좀 불안해서. 시간 되면 같이 처리해 줄래? 보수는 섭섭지 않게 챙길게."'),
+    accept: "도와주겠다고 답한다",
+    onAccept: (g, c) => {
+      g.addNpcQuest(c.npc, "npc_gate", { region: c.npc.region, tier: Math.max(0, g.player.rankIdx - 1), title: "".concat(c.npc.name, "의 부탁: ").concat(regionById(c.npc.region).name, "의 ").concat(RANKS[Math.max(0, g.player.rankIdx - 1)].key, "급 이상 게이트 공략"), money: 160, relReward: 18 });
+      return '"고마워. 진짜 큰 힘이 된다." 기한은 4개월.';
+    },
+    onDecline: (g, c) => {
+      g.changeRel(c.npc, -4);
+      return '"그래, 바쁘면 어쩔 수 없지."';
+    }
+  },
+  need_cores: {
+    who: (g) => g.adults().filter((n) => n.met && n.relation >= 15 && !g.player.quests.some((q) => q.npc === n.id)),
+    text: (g, c) => {
+      const t = Math.max(0, Math.min(7, c.npc.rankIdx - 1));
+      c.extra = t;
+      return "".concat(c.npc.name, '이(가) 조심스럽게 연락해 왔다.\n\n"혹시 ').concat(RANKS[t].key, '급 코어 남는 거 있어? 장비 수리에 3개가 꼭 필요한데, 마켓엔 물량이 없더라고."');
+    },
+    accept: "구해 주겠다고 한다",
+    onAccept: (g, c) => {
+      const t = Math.max(0, Math.min(7, c.npc.rankIdx - 1));
+      g.addNpcQuest(c.npc, "npc_cores", { tier: t, n: 3, title: "".concat(c.npc.name, "에게 ").concat(RANKS[t].key, "급 코어 3개 전달 (같은 지역에서 자동 전달)"), money: 90, relReward: 14, months: 5 });
+      g.checkDeliveries();
+      return '"정말? 살았다!"';
+    },
+    onDecline: (g, c) => {
+      g.changeRel(c.npc, -2);
+      return '"아냐, 괜히 물어봤네."';
+    }
+  },
+  spar_invite: {
+    who: (g) => g.npcsHere().filter((n) => n.met && n.personality === "warlike" && n.relation >= 0 && n.lastSpar !== g.monthKey()),
+    text: (g, c) => "".concat(c.npc.name, '이(가) 어깨를 툭 친다.\n\n"요즘 소문이 좋던데. 실력이 소문만큼인지 한 판 붙어 보자고. 살살 할게."'),
+    accept: "대련을 받아들인다",
+    onAccept: (g, c) => {
+      g.queue.unshift({ type: "spar", npcId: c.npc.id });
+      return "두 사람은 근처 공터로 향했다.";
+    },
+    onDecline: (g, c) => {
+      g.changeRel(c.npc, -6);
+      return '"쳇, 겁먹긴."';
+    }
+  },
+  confess: {
+    weight: 0.8,
+    who: (g) => g.player.partner || g.player.spouse ? [] : g.adults().filter((n) => n.met && n.relation >= 70 && !n.partner && !n.spouse && Math.abs(n.ageMonths / 12 - g.ageYears()) < 15),
+    text: (g, c) => "늦은 밤, ".concat(c.npc.name, '이(가) 할 말이 있다며 찾아왔다. 한참을 망설이다 입을 연다.\n\n"게이트에 들어갈 때마다 네가 무사히 나올지 그것만 생각나. 나… 너 좋아해."'),
+    accept: "마음을 받아들인다",
+    onAccept: (g, c) => {
+      g.player.partner = c.npc.id;
+      c.npc.partner = -1;
+      g.changeRel(c.npc, 15);
+      g.lifeEvent("".concat(c.npc.name, "와(과) 연인이 되었다."));
+      return "".concat(c.npc.name, "이(가) 웃었다. 둘은 연인이 되었다.");
+    },
+    decline: "정중히 거절한다",
+    onDecline: (g, c) => {
+      g.changeRel(c.npc, -20);
+      return '"…그렇구나. 미안, 잊어 줘." '.concat(c.npc.name, "은(는) 애써 웃으며 돌아섰다.");
+    }
+  },
+  propose: {
+    weight: 1.5,
+    who: (g) => {
+      const n = g.player.partner && g.npcById(g.player.partner);
+      return n && n.alive && !g.player.spouse && n.relation >= 85 ? [n] : [];
+    },
+    text: (g, c) => "".concat(c.npc.name, '이(가) 한강 야경이 보이는 옥상으로 불러냈다. 작은 반지 상자가 손에 들려 있다.\n\n"내일 게이트에서 못 돌아올 수도 있는 직업이잖아, 우리. 그러니까 미루지 않으려고. 나랑 결혼해 줄래?"'),
+    accept: "결혼한다",
+    onAccept: (g, c) => {
+      const p = g.player;
+      p.spouse = c.npc.id;
+      p.partner = null;
+      c.npc.spouse = -1;
+      c.npc.partner = null;
+      p.fame += 5;
+      g.changeRel(c.npc, 10);
+      g.lifeEvent("".concat(c.npc.name, "와(과) 결혼했다."));
+      g.rumor("".concat(p.name, "와(과) ").concat(c.npc.name, "이(가) 결혼식을 올렸다. 동료 헌터들이 축하 게이트 공략을 선물했다고."));
+      return "조촐하지만 따뜻한 결혼식이 열렸다. 배우자가 곁에 있는 동안 공격·방어·체력이 4% 오른다.";
+    },
+    decline: "아직은 이르다고 말한다",
+    onDecline: (g, c) => {
+      g.changeRel(c.npc, -12);
+      return '"…응, 기다릴게." 목소리가 조금 떨렸다.';
+    }
+  },
+  disciple_ask: {
+    weight: 0.7,
+    who: (g) => (g.player.disciples || []).length >= 3 || g.player.rankIdx < 2 ? [] : g.adults().filter((n) => n.met && n.relation >= 45 && n.rankIdx < g.player.rankIdx && !n.master),
+    text: (g, c) => "".concat(c.npc.name, '이(가) 무릎을 꿇었다.\n\n"').concat(g.player.name, ' 님의 전투를 봤습니다. 저도 그렇게 되고 싶습니다. 제자로 받아 주십시오!"'),
+    accept: "제자로 받아들인다",
+    onAccept: (g, c) => {
+      g.player.disciples.push(c.npc.id);
+      c.npc.master = -1;
+      g.changeRel(c.npc, 15);
+      g.lifeEvent("".concat(c.npc.name, "을(를) 첫 제자로 받아들였다."));
+      return "제자가 생겼다. 인물 창에서 한 달을 들여 직접 가르칠 수 있다.";
+    },
+    onDecline: (g, c) => {
+      g.changeRel(c.npc, -8);
+      return '"…포기하지 않겠습니다."';
+    }
+  },
+  master_offer: {
+    weight: 0.6,
+    who: (g) => g.player.master ? [] : g.adults().filter((n) => n.met && n.relation >= 55 && n.rankIdx >= g.player.rankIdx + 2),
+    text: (g, c) => "".concat(c.npc.name, '이(가) 술잔을 내려놓았다.\n\n"너, 에테르 돌리는 법이 엉망이야. 그대로 두면 B급에서 막혀. …내가 봐 줄까? 대신 사부 소리는 들어야겠다."'),
+    accept: "사부로 모신다",
+    onAccept: (g, c) => {
+      g.player.master = c.npc.id;
+      g.changeRel(c.npc, 12);
+      g.lifeEvent("".concat(c.npc.name, "을(를) 스승으로 모셨다."));
+      return "스승이 생겼다. 스승이 살아 있는 동안 수련 효율 +10%, 언제든 가르침을 청할 수 있다.";
+    },
+    onDecline: (g, c) => {
+      g.changeRel(c.npc, -5);
+      return '"흥, 후회할 거다."';
+    }
+  },
+  loan: {
+    who: (g) => g.adults().filter((n) => n.met && n.relation >= 25 && (n.personality === "greedy" || n.personality === "kind") && !(g.player.loans || []).some((l) => l.npc === n.id)),
+    text: (g, c) => "".concat(c.npc.name, '에게서 다급한 전화가 왔다.\n\n"정말 미안한데… ').concat(fmt(Math.round(400 * RANKS[g.player.rankIdx].mult)), ' 크레딧만 빌려줄 수 있어? 장비 할부가 밀려서 길드에서 잘리게 생겼어. 반년 안에 꼭 갚을게."'),
+    accept: "빌려준다",
+    onAccept: (g, c) => {
+      var _a;
+      const a = Math.round(400 * RANKS[g.player.rankIdx].mult);
+      if (g.player.money < a) return "통장 잔고가 모자라 빌려줄 수 없었다.";
+      g.player.money -= a;
+      ((_a = g.player).loans || (_a.loans = [])).push({ npc: c.npc.id, amount: a, due: g.monthKey() + RNG.int(4, 8) });
+      g.changeRel(c.npc, 12);
+      return '"평생 안 잊을게. 진짜로."';
+    },
+    onDecline: (g, c) => {
+      g.changeRel(c.npc, -6);
+      return '"…아냐, 내가 염치가 없었네."';
+    }
+  },
+  revenge_help: {
+    weight: 1.2,
+    who: (g) => g.adults().filter((n) => n.met && n.relation >= 35 && typeof n.nemesis === "number" && g.npcById(n.nemesis) && g.npcById(n.nemesis).alive),
+    text: (g, c) => {
+      const t = g.npcById(c.npc.nemesis);
+      return "".concat(c.npc.name, '의 눈이 충혈돼 있다.\n\n"').concat(t.name, "… 그 자식이 내 사람을 죽였어. 협회는 '정당한 결투'였다며 손을 놨고. 부탁이야. 나 혼자선 못 이겨.\"");
+    },
+    accept: "복수를 돕겠다",
+    onAccept: (g, c) => {
+      const t = g.npcById(c.npc.nemesis);
+      g.addNpcQuest(c.npc, "npc_kill", { target: t.id, title: "".concat(c.npc.name, "의 원수 ").concat(t.name, "(").concat(RANKS[t.rankIdx].key, "급, ").concat(regionById(t.region).name, ") 처치"), money: 300, relReward: 30, months: 8 });
+      t.met = true;
+      return '"…고마워. 이 은혜는 목숨으로 갚을게." '.concat(t.name, "은(는) 지금 ").concat(regionById(t.region).name, "에 있다고 한다.");
+    },
+    decline: "원한에 휘말리고 싶지 않다",
+    onDecline: (g, c) => {
+      g.changeRel(c.npc, -10);
+      return '"그래. 다들 그렇지."';
+    }
+  }
+};
+for (const e of EVENTS) S({ id: "base_" + e.id, text: e.text, when: e.when ? (g) => e.when(g) : null, choices: e.choices.map((ch) => ({ text: ch.text, do: (g) => ch.effect(g) })) });
+S({
+  id: "street_busker",
+  city: true,
+  text: "광장에서 버스킹하는 소녀의 노래에 에테르가 섞여 있다. 듣는 사람들의 표정이 편안해진다. 미등록 각성자가 분명하다.",
+  choices: [
+    { text: "협회 등록을 권한다", do: (g) => "소녀는 망설이다 명함을 받았다. 몇 달 뒤, 그녀가 E급으로 등록됐다는 소식을 들었다." + g.gain({ fame: 2, merit: 3 }) },
+    { text: "조용히 노래를 듣고 떠난다", do: (g) => "마음이 한결 가벼워졌다." + g.gain({ hp: 0.3 }) },
+    { text: "신고 포상금을 받는다", do: (g) => "소녀는 관리국 요원에게 끌려갔다. 씁쓸한 포상금이 입금됐다." + g.gain({ money: 120, fame: -3 }) }
+  ]
+});
+S({
+  id: "street_pickpocket",
+  city: true,
+  text: "누군가 등 뒤에서 지갑을 노린다. 손놀림이 비정상적으로 빠르다. 속도 계열 각성자다.",
+  choices: [
+    { text: "손목을 낚아챈다", do: (g) => g.roll(0.45 + g.player.spd / 120) ? "손목을 잡았다. 소매치기는 열여섯 살 남짓한 소년이었다. 배가 고팠다고 한다." + g.gain({ fame: 1 }) : "놓쳤다. 지갑이 가벼워졌다." + g.gain({ money: -60 }) },
+    { text: "모른 척 지갑을 내준다", do: (g) => "소년은 놀란 눈으로 당신을 보고 사라졌다. 며칠 뒤 문 앞에 작은 코어 하나가 놓여 있었다." + g.gain({ money: -40, core: [0, 1] }) }
+  ]
+});
+S({
+  id: "street_protest",
+  city: true,
+  text: '"각성자 특권 폐지!" 시청 앞에서 비각성자 시위대가 행진하고 있다. 누군가 당신을 알아보고 손가락질한다.',
+  choices: [
+    { text: "확성기를 빌려 대화를 청한다", do: (g) => g.roll(0.5) ? "야유가 쏟아졌지만, 끝까지 들어 준 사람도 있었다. 다음 날 기사에 사진이 실렸다." + g.gain({ fame: 6, rep: 4 }) : "물병이 날아왔다. 대화는 실패였다." + g.gain({ fame: -2 }) },
+    { text: "조용히 자리를 피한다", do: () => "구호 소리가 한참 동안 등 뒤를 따라왔다." },
+    { text: "위압감으로 해산시킨다", do: (g) => "에테르를 살짝 풀자 시위대가 흩어졌다. 그 영상은 하루 만에 백만 뷰를 찍었다." + g.gain({ fame: -8, rep: -6 }) }
+  ]
+});
+S({
+  id: "street_food",
+  city: true,
+  text: '골목 끝 떡볶이 포장마차. 사장님이 "헌터 양반이네, 오늘은 서비스!"라며 어묵을 잔뜩 얹어 준다.',
+  choices: [
+    { text: "감사히 먹는다", do: (g) => "대붕괴 전부터 장사했다는 사장님의 이야기를 들었다. 배도 마음도 든든하다." + g.gain({ hp: 0.25, rep: 2 }) },
+    { text: "돈을 넉넉히 놓고 간다", do: (g) => '"이러면 내가 미안하지!" 사장님은 동네 사람들에게 당신 자랑을 했다.' + g.gain({ money: -15, rep: 5 }) }
+  ]
+});
+S({
+  id: "street_kid_fan",
+  city: true,
+  minRank: 2,
+  text: '꼬마 하나가 수첩을 내밀며 사인을 해 달라고 한다. "저도 커서 헌터 될 거예요!" 엄마는 어딘가 불안한 얼굴이다.',
+  choices: [
+    { text: "사인을 해 주고 응원한다", do: (g) => "꼬마는 수첩을 껴안고 뛰어갔다." + g.gain({ fame: 2 }) },
+    { text: '"헌터는 위험한 일이야"라고 말해 준다', do: (g) => "꼬마는 시무룩했지만, 엄마는 고개 숙여 인사했다." + g.gain({ rep: 3 }) }
+  ]
+});
+S({
+  id: "street_drone_ads",
+  city: true,
+  text: '광고 드론이 머리 위를 맴돌며 "에테르 증폭 보조제! 하루 한 알이면 등급이 오릅니다!"를 외친다. 한 통에 300크레딧.',
+  choices: [
+    { text: "속는 셈 치고 산다", do: (g) => g.roll(0.25) ? "놀랍게도 진짜 효과가 있었다." + g.gain({ money: -300 / RANKS[g.player.rankIdx].mult, ether: 25 }) : "설탕 덩어리였다." + g.gain({ money: -300 / RANKS[g.player.rankIdx].mult }) },
+    { text: "드론을 격추해 신고한다", do: (g) => "불법 광고 드론이었다. 협회가 포상했다." + g.gain({ merit: 4 }) },
+    { text: "무시한다", do: () => "드론은 다음 목표를 향해 날아갔다." }
+  ]
+});
+S({
+  id: "street_old_hunter",
+  city: true,
+  text: "지하철역 계단에 한쪽 팔이 없는 노인이 앉아 있다. 낡은 협회 배지가 가슴에 달려 있다. 1세대 헌터다.",
+  choices: [
+    { text: "옆에 앉아 이야기를 듣는다", do: (g) => '"첫 게이트 때는 등급이란 것도 없었지. 다들 맨손으로 들어갔어." 노인의 이야기에서 배운 것이 많다.' + g.gain({ ether: 20 }) },
+    { text: "식사비를 건넨다", do: (g) => '노인은 받지 않았다. 대신 오래된 코어 하나를 쥐여 줬다. "나보다 네가 더 쓸모 있겠지."' + g.gain({ core: [1, 1] }) }
+  ]
+});
+S({
+  id: "city_blackout",
+  city: true,
+  text: "도시 전체가 정전됐다. 에테르 발전소가 과부하에 걸렸다는 비상 방송이 흘러나온다. 발전소 쪽 하늘이 보랏빛으로 일렁인다.",
+  choices: [
+    { text: "발전소로 달려간다", do: (g) => {
+      if (g.roll(0.55)) return "폭주하던 에테르를 흡수해 안정시켰다. 몸이 타는 듯했지만 버텼다." + g.gain({ ether: 40, rep: 10, merit: 6, hp: -0.3 });
+      return "흡수에 실패해 튕겨 나갔다. 다른 헌터들이 수습했다." + g.gain({ hp: -0.5, injure: 1 });
+    } },
+    { text: "대피소 질서를 맡는다", do: (g) => "공황에 빠진 사람들을 진정시켰다. 아무도 다치지 않았다." + g.gain({ rep: 6 }) }
+  ]
+});
+S({
+  id: "city_scam_guild",
+  city: true,
+  maxRank: 2,
+  text: "\"신생 길드 '블루 라이트'! 가입비 500크레딧이면 매달 D급 게이트 공략 보장!\" 전단을 든 남자가 웃는다.",
+  choices: [
+    { text: "가입한다", do: (g) => "다음 날 사무실은 텅 비어 있었다. 사기였다." + g.gain({ money: -500 / RANKS[g.player.rankIdx].mult }) },
+    { text: "수상해서 협회에 제보한다", do: (g) => "전국에 피해자가 수십 명이었다. 일당이 검거됐다." + g.gain({ merit: 8, fame: 2 }) },
+    { text: "거절한다", do: () => "남자는 다음 사람에게 전단을 내밀었다." }
+  ]
+});
+S({
+  id: "city_hospital",
+  city: true,
+  when: (g) => g.player.injured > 0 || g.player.hp < g.player.maxHp * 0.5,
+  text: '상처가 욱신거린다. 헌터 전문 병원 앞에 "에테르 재생 치료, 협회원 50% 할인" 현수막이 걸려 있다.',
+  choices: [
+    { text: "치료를 받는다", do: (g) => {
+      g.player.injured = 0;
+      return "말끔히 나았다." + g.gain({ money: -150, hp: 1 });
+    } },
+    { text: "참는다", do: () => "버틸 만하다. 아마도." }
+  ]
+});
+S({
+  id: "field_refugees",
+  field: true,
+  text: "무너진 고가도로 아래, 게이트 난민 가족이 천막을 치고 있다. 아이가 기침을 한다. 근처에 괴수 발자국이 보인다.",
+  choices: [
+    { text: "도시까지 호위한다", do: (g) => "사흘 동안 그들을 지켰다. 도시 입구에서 아이가 손을 흔들었다." + g.gain({ fame: 4, rep: 4 }) },
+    { text: "물자를 나눠 준다", do: (g) => "회복제 하나와 식량을 두고 왔다." + (g.player.items.potion ? (g.player.items.potion--, "") : "") + g.gain({ fame: 2 }) },
+    { text: "갈 길을 간다", do: () => "기침 소리가 오래 귀에 남았다." }
+  ]
+});
+S({
+  id: "field_crashed_truck",
+  field: true,
+  text: "전복된 협회 수송 트럭. 운전석은 비어 있고, 짐칸에 봉인된 코어 상자가 그대로 있다.",
+  choices: [
+    { text: "협회에 신고하고 지킨다", do: (g) => "수거 팀이 도착할 때까지 지켰다." + g.gain({ merit: 8 }) },
+    { text: "상자 하나를 챙긴다", do: (g) => g.roll(0.7) ? "아무도 모를 것이다." + g.gain({ core: [0, 4] }) : "CCTV 드론에 찍혔다. 협회에서 경고장이 날아왔다." + g.gain({ core: [0, 4], merit: -15, fame: -5 }) },
+    { text: "운전자를 찾아 나선다", do: (g) => g.roll(0.5) ? "숲속에서 다친 운전자를 찾아냈다. 그는 당신 덕에 살았다." + g.gain({ fame: 5, merit: 5 }) : "핏자국만 남아 있었다." }
+  ]
+});
+S({
+  id: "field_ether_spring",
+  field: true,
+  text: "바위 틈에서 맑은 에테르가 샘솟는다. 지도에 없는 샘이다. 주변 풀이 비정상적으로 크다.",
+  choices: [
+    { text: "샘 옆에서 수련한다", do: (g) => {
+      g.advanceDays(10);
+      return "열흘간 샘물을 마시며 수련했다." + g.gain({ ether: 45 });
+    } },
+    { text: "샘물을 병에 담는다", do: (g) => "고급 마나 앰플 대용으로 쓸 수 있겠다." + g.gain({ item: ["mana", 3] }) },
+    { text: "협회에 좌표를 판다", do: (g) => "좋은 값을 받았다." + g.gain({ money: 250, merit: 3 }) }
+  ]
+});
+S({
+  id: "field_lost_hunter",
+  field: true,
+  npc: "stranger",
+  text: "안개 속에서 비틀거리는 각성자 {npc}을(를) 만났다. 동료를 게이트에서 잃고 사흘째 헤매는 중이라고 한다.",
+  choices: [
+    { text: "도시까지 데려다준다", do: (g, c) => "{npc}은(는) 몇 번이고 고맙다고 했다." + g.gain({ rel: 25 }, c) },
+    { text: "회복제를 주고 길만 알려 준다", do: (g, c) => (g.player.items.potion ? (g.player.items.potion--, "") : "") + "그는 혼자 걸어갔다." + g.gain({ rel: 10 }, c) }
+  ]
+});
+S({
+  id: "field_monster_nest",
+  field: true,
+  minRank: 1,
+  text: "쓰러진 아파트 단지 안에 괴수 둥지가 있다. 알 몇 개가 에테르 빛을 내며 맥동한다.",
+  choices: [
+    { text: "둥지를 소각한다", do: (g) => {
+      g.storyFight({ title: "둥지를 지키는 어미", mobs: { tier: g.player.rankIdx, n: 1, boss: true }, win: { text: "어미를 쓰러뜨리고 둥지를 태웠다.", gain: { rep: 6, merit: 8, core: [0, 3] } } });
+      return "알을 건드리자 둥지 깊은 곳에서 포효가 울렸다!";
+    } },
+    { text: "알을 팔면 비싸다던데", do: (g) => g.roll(0.5) ? "알 두 개를 암시장에 넘겼다." + g.gain({ money: 400 }) : "알이 손안에서 부화했다. 새끼가 손을 물고 달아났다." + g.gain({ hp: -0.2 }) },
+    { text: "물러난다", do: () => "지도에 표시만 해 두었다." }
+  ]
+});
+S({
+  id: "field_rain",
+  field: true,
+  text: "보라색 비가 내린다. 에테르 비다. 맞으면 감기에 걸리거나, 아주 드물게 각성이 진전된다는 속설이 있다.",
+  choices: [
+    { text: "비를 맞으며 명상한다", do: (g) => g.roll(0.35) ? "빗방울 하나하나가 몸속으로 녹아들었다." + g.gain({ ether: 35 }) : "지독한 몸살에 걸렸다." + g.gain({ hp: -0.4 }) },
+    { text: "비를 피한다", do: () => "처마 밑에서 비가 그치길 기다렸다." }
+  ]
+});
+S({
+  id: "field_old_bunker",
+  field: true,
+  text: '대붕괴 이전 군 벙커 입구를 발견했다. 녹슨 철문에 "출입 금지 - 국방부"라고 적혀 있다.',
+  choices: [
+    { text: "들어가 본다", do: (g) => {
+      const r = RNG.next();
+      if (r < 0.4) return "보급품 창고가 그대로 남아 있었다." + g.gain({ item: ["potion", 4], money: 200 });
+      if (r < 0.7) return "먼지 쌓인 실험 기록 사이에서 이상한 장비를 찾았다." + g.gain({ equip: 1 });
+      g.storyFight({ title: "벙커의 경비 드론", mobs: { tier: g.player.rankIdx, n: 2, shape: "drone", elem: "steel" }, win: { text: "드론을 부수고 안쪽 금고를 열었다.", gain: { money: 350, relic: true } } });
+      return "어둠 속에서 붉은 센서가 켜졌다!";
+    } },
+    { text: "위험하다. 지나간다", do: () => "철문 너머에서 기계음이 들린 것 같았다." }
+  ]
+});
+S({
+  id: "field_rival_party",
+  field: true,
+  minRank: 1,
+  text: '다른 헌터 파티와 마주쳤다. 같은 괴수 무리를 쫓고 있었던 모양이다. 리더가 "우리가 먼저 찾았다"며 물러나라고 한다.',
+  choices: [
+    { text: "양보한다", do: (g) => "그들은 고개를 까딱하고 지나갔다." + g.gain({ relAll: 2 }) },
+    { text: "전리품을 나누자고 제안한다", do: (g) => g.roll(0.6) ? "함께 사냥해 반씩 나눴다." + g.gain({ money: 150, core: [0, 1] }) : "협상은 결렬됐고, 서로 노려보며 헤어졌다." },
+    { text: "실력으로 정하자", do: (g) => {
+      g.storyFight({ title: "헌터 파티와의 다툼", mobs: { tier: g.player.rankIdx, n: 2, human: true }, spar: true, win: { text: "그들은 투덜대며 물러났다. 사냥감은 당신 차지다.", gain: { money: 200, core: [0, 2], fame: 1 } }, lose: { text: "흠씬 두들겨 맞고 빈손으로 돌아섰다.", gain: { fame: -2 } } });
+      return "리더가 무기를 뽑았다.";
+    } }
+  ]
+});
+S({
+  id: "gate_survivor",
+  minRank: 1,
+  text: '게이트 출구에서 갓 나온 생존자가 쓰러진다. "안에… 아직 둘 남아 있어요…" 게이트가 닫히기까지 남은 시간은 얼마 없다.',
+  choices: [
+    { text: "다시 뛰어든다", do: (g) => {
+      g.storyFight({ title: "닫혀 가는 게이트", mobs: { tier: g.player.rankIdx, n: 3 }, win: { text: "두 사람을 업고 닫히기 직전에 빠져나왔다.", gain: { fame: 10, rep: 8, merit: 10 } }, lose: { text: "혼자 겨우 빠져나왔다. 게이트가 닫혔다.", gain: { injure: 2, fame: 2 } } });
+      return "게이트 안으로 몸을 던졌다.";
+    } },
+    { text: "구조대를 부른다", do: (g) => "구조대가 왔지만 이미 늦었다." + g.gain({ fame: -1 }) }
+  ]
+});
+S({
+  id: "gate_red",
+  minRank: 2,
+  weight: 0.5,
+  text: "눈앞의 게이트가 붉게 변했다. 레드 게이트, 들어가면 공략 전까진 나올 수 없다. 안에서 비명이 들린다.",
+  choices: [
+    { text: "들어간다", do: (g) => {
+      g.storyFight({ title: "레드 게이트", mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 2, boss: true }, lethal: true, win: { text: "레드 게이트를 깨뜨렸다. 안에 갇혀 있던 사람들이 울며 매달렸다.", gain: { fame: 20, merit: 25, relic: 1, rep: 15 } } });
+      if (!g.flags.story.redGate) {
+        g.flags.story.redGate = true;
+        g.lifeEvent("처음으로 레드 게이트에 스스로 뛰어들었다.");
+      }
+      return "붉은 막이 등 뒤에서 닫혔다. 이기거나, 죽거나.";
+    } },
+    { text: "외부에서 협회에 알린다", do: (g) => "S급 팀이 오기까지 사흘이 걸렸다. 생존자는 없었다." + g.gain({ merit: 2 }) }
+  ]
+});
+S({
+  id: "gate_double",
+  minRank: 3,
+  text: "공략이 끝난 게이트 안쪽에 또 하나의 문이 열렸다. 이중 게이트. 기록에 없는 공간이다.",
+  choices: [
+    { text: "탐색한다", do: (g) => {
+      g.storyFight({ title: "이중 게이트의 수호자", mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true, shape: "eye", elem: "spirit" }, win: { text: "수호자가 쓰러지자 제단 위의 유물이 빛났다.", gain: { relic: 2, ether: 60 } } });
+      return "문 너머에서 거대한 눈이 떠졌다.";
+    } },
+    { text: "보고서만 쓴다", do: (g) => "협회가 연구 팀을 보냈다." + g.gain({ merit: 12 }) }
+  ]
+});
+S({
+  id: "gate_loot_fight",
+  minRank: 1,
+  npc: "here",
+  text: "게이트 공략 후 분배 자리에서 {npc}이(가) 보스 코어를 슬쩍 챙기는 걸 봤다.",
+  choices: [
+    { text: "공개적으로 지적한다", do: (g, c) => "{npc}은(는) 얼굴이 빨개져 코어를 내놓았다." + g.gain({ core: [0, 2], rel: -20 }, c) },
+    { text: "따로 불러 조용히 말한다", do: (g, c) => '"…미안. 동생 병원비가 급해서." {npc}은(는) 코어를 돌려줬고, 당신은 반을 쥐여 줬다.' + g.gain({ core: [0, 1], rel: 18 }, c) },
+    { text: "못 본 척한다", do: () => "분배는 조용히 끝났다." }
+  ]
+});
+S({
+  id: "rank_f_mocked",
+  maxRank: 0,
+  city: true,
+  text: '협회 창구 직원이 등급표를 보고 피식 웃는다. "F급이시면… 청소 의뢰 정도 가능하시겠네요." 뒤에 선 헌터들이 킥킥거린다.',
+  choices: [
+    { text: "청소 의뢰라도 받는다", do: (g) => "하수도 슬라임 청소. 냄새는 끔찍했지만 돈은 됐다." + g.gain({ money: 120, core: [0, 2] }) },
+    { text: '"두고 봐"라고 말한다', do: (g) => "등 뒤에서 웃음소리가 커졌다. 이를 악물었다." + g.gain({ ether: 15 }) }
+  ]
+});
+S({
+  id: "rank_e_first_party",
+  minRank: 1,
+  maxRank: 1,
+  once: true,
+  text: 'E급이 되자 처음으로 파티 모집 공고에 지원할 수 있게 됐다. 단톡방에 "E급 탱커 구합니다" 공고가 올라왔다.',
+  choices: [
+    { text: "지원한다", do: (g) => g.roll(0.6) ? "좋은 사람들이었다. 첫 파티 공략은 순조로웠다." + g.gain({ money: 200, relAll: 5 }) : "리더가 몬스터를 당신 쪽으로 몰아 놓고 도망쳤다. 살아 나온 게 기적이다." + g.gain({ injure: 1, ether: 20 }) },
+    { text: "아직 혼자가 편하다", do: () => "단톡방 알림을 껐다." }
+  ]
+});
+S({
+  id: "rank_c_scout",
+  minRank: 3,
+  maxRank: 3,
+  when: (g) => !g.player.guild,
+  text: '대형 길드 스카우터가 명함을 내민다. "계약금 5천, 연봉 별도. C급이면 우리 2군 주전입니다."',
+  choices: [
+    { text: "조건을 듣는다", do: (g) => "좋은 조건이었지만 서명은 미뤘다. 소문이 퍼져 몸값이 올랐다." + g.gain({ fame: 8 }) },
+    { text: "계약금만 받고 생각해 본다", do: (g) => g.roll(0.4) ? '스카우터는 웃으며 선급금을 줬다. "편하게 생각하세요."' + g.gain({ money: 600 }) : '"장난하세요?" 스카우터의 표정이 굳었다.' + g.gain({ fame: -2 }) }
+  ]
+});
+S({
+  id: "rank_b_variety",
+  minRank: 4,
+  text: '예능 PD가 연락해 왔다. "헌터의 하루" 관찰 예능에 출연해 달라는 것. 출연료는 짭짤하다.',
+  choices: [
+    { text: "출연한다", do: (g) => g.roll(0.6) ? "의외의 허당 매력이 화제가 됐다." + g.gain({ money: 900, fame: 25 }) : "편집이 악마 같았다. 오만한 헌터로 낙인찍혔다." + g.gain({ money: 900, fame: -10 }) },
+    { text: "거절한다", do: () => '"아쉽네요. 마음 바뀌면 연락 주세요."' }
+  ]
+});
+S({
+  id: "rank_a_nation",
+  minRank: 5,
+  text: "관리국에서 국가 비상 소집령이 내려왔다. 동해 심해 게이트에서 대형 개체가 상륙을 시도하고 있다.",
+  choices: [
+    { text: "소집에 응한다", do: (g) => {
+      g.storyFight({ title: "동해 방어선", mobs: { tier: Math.min(7, g.player.rankIdx), n: 3, elem: "ice" }, win: { text: "방어선을 지켰다. 대통령 표창이 내려왔다.", gain: { fame: 40, merit: 50, money: 3e3 } }, lose: { text: "전선이 밀렸다. 많은 희생이 났다.", gain: { injure: 3, fame: -10 } } });
+      g.lifeEvent("동해 방어선 국가 소집에 응했다.");
+      return "강릉행 수송기에 올랐다.";
+    } },
+    { text: "개인 사정으로 빠진다", do: (g) => "비난 여론이 일었다." + g.gain({ fame: -25, merit: -20 }) }
+  ]
+});
+S({
+  id: "rank_s_offer",
+  minRank: 6,
+  once: true,
+  text: "정체불명의 해외 길드에서 영입 제안이 왔다. 연봉은 국내 최고액의 열 배. 조건은 하나, 국적을 버릴 것.",
+  choices: [
+    { text: "거절한다", do: (g) => '뉴스가 터졌다. "S급 헌터, 수천억 거절하고 한국에 남아".' + g.gain({ fame: 60 }) },
+    { text: "조건만 들어 본다", do: (g) => "들어 볼수록 수상했다. 관리국이 조용히 감시를 붙였다." + g.gain({ merit: -10 }) }
+  ]
+});
+S({
+  id: "reg_busan_market",
+  region: "busan",
+  city: true,
+  text: '부산 해상 도시의 밤 시장. 포장마차 사이로 "출처 묻지 않는 유물" 좌판이 섞여 있다. 상인이 눈을 찡긋한다.',
+  choices: [
+    { text: "유물을 산다", do: (g) => g.roll(0.55) ? "진품이었다!" + g.gain({ money: -700, relic: true }) : "플라스틱에 형광 도료를 칠한 가짜였다." + g.gain({ money: -700 }) },
+    { text: "단속반에 넘긴다", do: (g) => "좌판이 털렸다. 시장 사람들의 눈빛이 싸늘해졌다." + g.gain({ merit: 10, rep: -8 }) },
+    { text: "어묵 국물만 마신다", do: (g) => "부산 어묵은 역시 다르다." + g.gain({ hp: 0.2 }) }
+  ]
+});
+S({
+  id: "reg_gangbuk_ruins",
+  region: "gangbuk",
+  text: '강북 폐구의 무너진 초등학교. 칠판에 20년 전 날짜와 "내일 소풍!"이라는 글씨가 그대로 남아 있다. 교실 구석에서 무언가 움직인다.',
+  choices: [
+    { text: "살펴본다", do: (g) => g.roll(0.5) ? "숨어 지내던 고양이 가족이었다. 먹을 것을 두고 나왔다." + g.gain({ hp: 0.1 }) : (g.storyFight({ title: "교실의 그림자", mobs: { tier: Math.max(0, g.player.rankIdx), n: 2, shape: "ghost", elem: "spirit" }, win: { text: "그림자가 흩어지며 아이들의 웃음소리가 들렸다.", gain: { ether: 40, rep: 4 } } }), "그림자가 아이 형상을 하고 일어섰다.") },
+    { text: "조용히 문을 닫는다", do: () => "20년 전의 소풍은 영영 오지 않았다." }
+  ]
+});
+S({
+  id: "reg_gangneung_front",
+  region: "gangneung",
+  text: '강릉 해안 전선의 경계 근무 교대 시간. 지친 병사가 "헌터님, 잠깐만 대신 봐 주실 수 있어요?"라며 망원경을 건넨다.',
+  choices: [
+    { text: "대신 경계를 선다", do: (g) => g.roll(0.4) ? "수평선에서 무언가 다가오는 걸 먼저 발견했다. 경보 덕에 피해가 없었다." + g.gain({ fame: 8, merit: 10, rep: 6 }) : "조용한 밤이었다. 병사는 꿀잠을 잤다." + g.gain({ rep: 3 }) },
+    { text: "거절한다", do: () => "병사는 하품을 참으며 망원경을 다시 들었다." }
+  ]
+});
+S({
+  id: "reg_daejeon_lab",
+  region: "daejeon",
+  city: true,
+  text: '청룡 연구소 연구원이 길을 막는다. "피험자 모집 중입니다! 에테르 회로 측정만 하시면 돼요. 사례비 드립니다."',
+  choices: [
+    { text: "참여한다", do: (g) => g.roll(0.7) ? "측정 결과를 바탕으로 수련법을 교정받았다." + g.gain({ money: 200, talent: 1 }) : "측정기 오작동으로 감전됐다." + g.gain({ money: 400, hp: -0.4 }) },
+    { text: "거절한다", do: () => '"다음에 꼭이요!"' }
+  ]
+});
+S({
+  id: "reg_jeonju_hanok",
+  region: "jeonju",
+  city: true,
+  text: '전주 보존 구역의 한옥 마을. 한복을 입은 노파가 마당에서 약초를 말리고 있다. "에테르에 지친 얼굴이구먼. 차 한잔 하고 가."',
+  choices: [
+    { text: "차를 마신다", do: (g) => "오래된 약차가 몸속 막힌 곳을 풀어 줬다." + g.gain({ hp: 0.5, life: 1 }) },
+    { text: "약초 캐는 걸 돕는다", do: (g) => {
+      g.advanceDays(5);
+      return "닷새 동안 약초를 캤다. 노파는 회복제를 잔뜩 싸 줬다." + g.gain({ item: ["potion", 5], rep: 6 });
+    } }
+  ]
+});
+S({
+  id: "reg_gwangju_free",
+  region: "gwangju",
+  city: true,
+  text: '광주 자유 도시의 프리랜서 광장. 길드 없는 헌터들이 모여 즉석 파티를 꾸린다. "한 자리 비는데, 들어올 사람?"',
+  choices: [
+    { text: "합류한다", do: (g) => "자유로운 분위기 속에서 즐겁게 사냥했다." + g.gain({ money: 180, relAll: 4, core: [0, 1] }) },
+    { text: "구경만 한다", do: () => "다들 자기 길을 가는 사람들이다." }
+  ]
+});
+S({
+  id: "reg_incheon_port",
+  region: "incheon",
+  city: true,
+  text: '인천 항만의 관리국 검문소. 직원이 당신의 짐을 뒤지다 코어를 발견한다. "신고 안 된 코어네요. 압수입니다."',
+  choices: [
+    { text: "순순히 내준다", do: (g) => {
+      const t = g.player.rankIdx;
+      const n = Math.min(2, g.coreCount(t));
+      g.player.mats["c" + t] -= n;
+      return "서류에 사인했다. 관리국 신뢰도가 조금 올랐다." + g.gain({ merit: 5 });
+    } },
+    { text: "협회원 증명을 내민다", do: (g) => g.player.merit >= 30 ? '"아, 실례했습니다." 직원이 경례했다.' : '"공적이 부족하시네요." 소용없었다.' + g.gain({ merit: -3 }) }
+  ]
+});
+S({
+  id: "reg_ulsan_forge",
+  region: "ulsan",
+  city: true,
+  text: '울산 중공업 지대의 거대 용광로. 현무 중공업 기술자가 "괴수 코어 녹여서 합금 만드는 거 구경할래요?"라고 묻는다.',
+  choices: [
+    { text: "코어를 맡겨 장비를 맞춘다", do: (g) => {
+      const t = g.player.rankIdx;
+      if (g.coreCount(t) < 3) return "코어가 부족했다. 기술자는 다음에 오라고 했다.";
+      g.player.mats["c" + t] -= 3;
+      return "불꽃 속에서 새 장비가 태어났다." + g.gain({ equip: 0 });
+    } },
+    { text: "구경만 한다", do: (g) => "쇳물이 흐르는 광경에 넋을 잃었다." + g.gain({ ether: 10 }) }
+  ]
+});
+S({
+  id: "reg_daegu_heat",
+  region: "daegu",
+  text: "대구 분지에 에테르 열기가 고였다. 기온 45도. 거리의 사람들이 쓰러진다.",
+  choices: [
+    { text: "빙결 능력자를 찾아 협력한다", do: (g) => "임시 냉각소를 열었다. 수백 명이 쉬어 갔다." + g.gain({ rep: 10, fame: 4 }) },
+    { text: "열기를 수련에 이용한다", do: (g) => "극한의 열기 속에서 에테르가 단련됐다." + g.gain({ ether: 30, hp: -0.3 }) }
+  ]
+});
+S({
+  id: "reg_suwon_factory",
+  region: "suwon",
+  city: true,
+  text: '수원 산업 벨트 공장 노동자들이 파업 중이다. "괴수 습격 위험수당을 달라!" 공장장은 헌터를 고용해 해산시키려 한다.',
+  choices: [
+    { text: "노동자 편에 선다", do: (g) => "공장장이 물러섰다. 노동자들이 박수를 쳤다." + g.gain({ rep: 10, money: -50 }) },
+    { text: "공장장의 의뢰를 받는다", do: (g) => "돈은 받았지만 뒷맛이 씁쓸했다." + g.gain({ money: 400, rep: -12, fame: -4 }) },
+    { text: "양쪽을 중재한다", do: (g) => g.roll(0.5) ? "위험수당 절반 지급으로 타결됐다." + g.gain({ rep: 6, fame: 3 }) : "양쪽 다 당신에게 화를 냈다." + g.gain({ rep: -3 }) }
+  ]
+});
+S({
+  id: "reg_gangnam_party",
+  region: "gangnam",
+  city: true,
+  minRank: 3,
+  text: "강남 돔 최상층 펜트하우스에서 재벌가 파티 초대장이 왔다. 드레스 코드: 블랙. 상류층 헌터들이 모인다.",
+  choices: [
+    { text: "참석한다", do: (g) => g.roll(0.5) ? "인맥이 넓어졌다. 투자 제안도 받았다." + g.gain({ fame: 6, money: 500 }) : "술에 취한 재벌 3세와 시비가 붙었다." + g.gain({ fame: -4 }) },
+    { text: "불참한다", do: () => "그날 밤은 컵라면을 먹으며 보냈다." }
+  ]
+});
+S({
+  id: "rel_jealous",
+  npc: "partner",
+  when: (g) => g.adults().some((n) => n.region === g.player.region && n.relation >= 40 && n.id !== (g.player.partner || g.player.spouse)),
+  text: '{npc}이(가) 시무룩하다. "요즘 다른 사람이랑 더 자주 다니더라." 질투하는 모양이다.',
+  choices: [
+    { text: "하루를 온전히 함께 보낸다", do: (g, c) => {
+      g.advanceDays(3);
+      return "한강에서 자전거를 탔다. {npc}의 기분이 풀렸다." + g.gain({ rel: 12 }, c);
+    } },
+    { text: '"일 때문이야"라고 넘긴다', do: (g, c) => '"…그래." 대답이 짧았다.' + g.gain({ rel: -8 }, c) }
+  ]
+});
+S({
+  id: "rel_partner_worry",
+  npc: "partner",
+  minRank: 2,
+  text: '{npc}이(가) 붕대 감은 당신 팔을 보고 울컥한다. "이번 달은 게이트 좀 쉬면 안 돼?"',
+  choices: [
+    { text: "약속한다", do: (g, c) => {
+      g.advanceDays(20);
+      return "스무 날을 함께 쉬었다. 몸도 마음도 회복됐다." + g.gain({ rel: 10, hp: 1 }, c);
+    } },
+    { text: '"이게 내 일이야"', do: (g, c) => "{npc}은(는) 더 말하지 않았다." + g.gain({ rel: -5 }, c) }
+  ]
+});
+S({
+  id: "rel_anniversary",
+  npc: "partner",
+  text: "오늘은 {npc}와(과)의 기념일이다. 깜빡할 뻔했다.",
+  choices: [
+    { text: "근사한 저녁을 예약한다", do: (g, c) => "강남 루프탑 레스토랑. 야경만큼 {npc}의 웃음이 빛났다." + g.gain({ money: -120, rel: 10 }, c) },
+    { text: "손편지를 쓴다", do: (g, c) => "{npc}은(는) 편지를 지갑에 넣고 다닌다고 했다." + g.gain({ rel: 8 }, c) }
+  ]
+});
+S({
+  id: "rel_betrayal",
+  npc: "friend",
+  minRank: 2,
+  when: (g, c) => c.npc && c.npc.personality === "greedy",
+  text: "{npc}이(가) 당신의 공략 정보를 다른 길드에 팔았다는 걸 알게 됐다. 증거 메시지가 손에 있다.",
+  choices: [
+    { text: "정면으로 따진다", do: (g, c) => g.roll(0.5) ? '"…미안. 빚 때문에." {npc}은(는) 고개를 숙였다. 용서할지는 나중 일이다.' + g.gain({ rel: -10 }, c) : "{npc}은(는) 오히려 화를 냈다. 관계는 끝났다." + g.gain({ rel: -60 }, c) },
+    { text: "조용히 손절한다", do: (g, c) => "연락처를 지웠다." + g.gain({ rel: -40 }, c) },
+    { text: "이번 한 번은 눈감아 준다", do: (g, c) => "{npc}은(는) 당신이 안다는 사실을 모른다. 아직은." }
+  ]
+});
+S({
+  id: "rel_secret",
+  npc: "friend",
+  text: '술에 취한 {npc}이(가) 비밀을 털어놓는다. "나… 사실 등급 측정 조작했어. 진짜는 한 단계 아래야."',
+  choices: [
+    { text: "비밀을 지켜 준다", do: (g, c) => "{npc}은(는) 다음 날 아무것도 기억 못 하는 척했지만, 눈빛이 달라졌다." + g.gain({ rel: 15 }, c) },
+    { text: "협회에 알린다", do: (g, c) => "{npc}은(는) 자격 정지를 당했다. 당신을 원망했다." + g.gain({ merit: 10, rel: -50 }, c) }
+  ]
+});
+S({
+  id: "rel_business",
+  npc: "friend",
+  minRank: 1,
+  text: '{npc}이(가) 사업 제안을 한다. "코어 가공 공방 같이 차리자. 너는 코어 대고, 나는 운영하고. 수익 반반."',
+  choices: [
+    { text: "투자한다", do: (g, c) => {
+      var _a;
+      const a = Math.round(500 * RANKS[g.player.rankIdx].mult);
+      if (g.player.money < a) return "돈이 부족했다.";
+      g.player.money -= a;
+      ((_a = g.player).loans || (_a.loans = [])).push({ npc: c.npc.id, amount: a * 1.4, due: g.monthKey() + 12 });
+      return "".concat(fmt(a), " 크레딧을 넣었다. 1년 뒤 결과가 나올 것이다.") + g.gain({ rel: 10 }, c);
+    } },
+    { text: "사양한다", do: (g, c) => '"그래, 강요는 안 해."' }
+  ]
+});
+S({
+  id: "rel_rival_challenge",
+  npc: "rival",
+  text: '{npc}이(가) 공개 채널에 글을 올렸다. "{name}, 실력 없는 놈이 운만 좋아서 뜬 거다. 증명해 보든가."',
+  choices: [
+    { text: "공개 대련을 받는다", do: (g, c) => {
+      g.queue.unshift({ type: "spar", npcId: c.npc.id });
+      return "수백 명이 생중계를 지켜봤다." + g.gain({ fame: 3 });
+    } },
+    { text: "무시한다", do: (g) => '"쫄았네 ㅋㅋ" 댓글이 달렸다.' + g.gain({ fame: -3 }) },
+    { text: "고소한다", do: (g, c) => "명예훼손 소송에서 이겼다. 합의금이 들어왔다." + g.gain({ money: 300, rel: -20 }, c) }
+  ]
+});
+S({
+  id: "rel_master_lesson",
+  npc: "master",
+  text: '스승 {npc}이(가) 새벽부터 깨운다. "오늘은 산에 간다. 한 달 동안 내려올 생각 하지 마."',
+  choices: [
+    { text: "따른다", do: (g, c) => {
+      g.advanceDays(30);
+      return "지옥 같은 한 달이었다. 하지만 확실히 강해졌다." + g.gain({ ether: 90, rel: 8 }, c);
+    } },
+    { text: "바쁘다고 핑계 댄다", do: (g, c) => '"쯧. 그래서 언제 크냐."' + g.gain({ rel: -6 }, c) }
+  ]
+});
+S({
+  id: "rel_disciple_trouble",
+  npc: "disciple",
+  text: "제자 {npc}이(가) 다른 길드 헌터와 시비가 붙어 경찰서에 있다는 연락이 왔다.",
+  choices: [
+    { text: "데리러 간다", do: (g, c) => "보증을 서고 데려 나왔다. {npc}은(는) 고개를 들지 못했다." + g.gain({ money: -100, rel: 12 }, c) },
+    { text: "스스로 해결하게 둔다", do: (g, c) => "{npc}은(는) 사흘 뒤 혼자 돌아왔다. 조금 어른스러워졌다." + g.gain({ rel: -5 }, c) }
+  ]
+});
+S({
+  id: "rel_friend_gift",
+  npc: "friend",
+  weight: 0.7,
+  text: '{npc}에게서 택배가 왔다. "지난번 고마웠어. 게이트에서 주운 건데 너한테 더 필요할 것 같아서."',
+  choices: [{ text: "고맙게 받는다", do: (g, c) => "상자 안에는 편지와 선물이 들어 있었다." + g.gain(RNG.chance(0.3) ? { relic: true, rel: 5 } : { core: [0, 3], rel: 5 }, c) }]
+});
+S({
+  id: "media_viral",
+  minRank: 1,
+  text: "게이트에서 싸우는 당신의 영상이 SNS에서 퍼지고 있다. 누군가 몰래 찍은 것이다. 댓글이 수만 개.",
+  choices: [
+    { text: "공식 채널을 개설한다", do: (g) => g.roll(0.6) ? "구독자가 폭발적으로 늘었다." + g.gain({ fame: 15, money: 300 }) : "악플이 쏟아졌다. 멘탈이 흔들렸다." + g.gain({ fame: 5, hp: -0.2 }) },
+    { text: "삭제 요청을 한다", do: (g) => "영상은 내려갔지만 짤은 영원했다." + g.gain({ fame: 4 }) }
+  ]
+});
+S({
+  id: "media_hearing",
+  minRank: 4,
+  text: '국회 각성자 관리법 청문회에 증인으로 불려 갔다. 의원이 묻는다. "각성자의 무력은 국가가 통제해야 하지 않습니까?"',
+  choices: [
+    { text: '"헌터는 시민입니다"라고 답한다', do: (g) => "각성자 커뮤니티에서 영웅이 됐다. 관리국은 불편해했다." + g.gain({ fame: 20, merit: -10 }) },
+    { text: '"관리가 필요합니다"라고 답한다', do: (g) => "관리국의 신임을 얻었다. 동료 헌터들의 시선은 차가워졌다." + g.gain({ merit: 25, relAll: -5 }) },
+    { text: "원론적으로 답한다", do: (g) => "무난히 넘어갔다." + g.gain({ merit: 3 }) }
+  ]
+});
+S({
+  id: "media_tax",
+  minRank: 2,
+  text: '국세청에서 연락이 왔다. "게이트 수익 신고 누락분이 있으시네요."',
+  choices: [
+    { text: "세금을 낸다", do: (g) => "성실 납세자가 됐다." + g.gain({ money: -Math.round(g.player.money * 0.1 / RANKS[g.player.rankIdx].mult), merit: 5 }) },
+    { text: "세무사를 고용한다", do: (g) => g.roll(0.6) ? "절세에 성공했다." + g.gain({ money: -80 }) : "가산세까지 물었다." + g.gain({ money: -Math.round(g.player.money * 0.15 / RANKS[g.player.rankIdx].mult) }) }
+  ]
+});
+S({
+  id: "society_awakening_kid",
+  city: true,
+  text: "학교 앞에서 소동이 났다. 중학생이 수업 중 갑자기 각성해 교실 창문을 전부 날려 버렸다고 한다. 아이는 겁에 질려 운동장 한가운데서 불꽃을 뿜고 있다.",
+  choices: [
+    { text: "다가가 진정시킨다", do: (g) => g.roll(0.6) ? '"괜찮아, 나도 처음엔 그랬어." 불꽃이 잦아들었다.' + g.gain({ fame: 8, rep: 8 }) : "불꽃에 휩싸였다. 그래도 아이를 안아 진정시켰다." + g.gain({ fame: 10, hp: -0.4, rep: 8 }) },
+    { text: "관리국 진압팀을 기다린다", do: () => "진압팀이 마취총을 쐈다. 아이는 그대로 연구소로 이송됐다." }
+  ]
+});
+S({
+  id: "society_documentary",
+  minRank: 1,
+  text: '다큐멘터리 제작진이 "대붕괴 20년, 헌터의 삶"을 찍고 싶다며 동행을 요청한다.',
+  choices: [
+    { text: "동행을 허락한다", do: (g) => "방송이 나갔다. 생각보다 진솔하게 그려졌다." + g.gain({ fame: 10 }) },
+    { text: "거절한다", do: () => '"아쉽네요."' }
+  ]
+});
+S({
+  id: "odd_time_loop",
+  minRank: 2,
+  text: "같은 거리를 세 번째 지나고 있다. 같은 신호등, 같은 행인, 같은 대화. 에테르가 시간을 꼬아 놓았다.",
+  choices: [
+    { text: "고리의 중심을 찾는다", do: (g) => g.roll(0.5) ? "골목 끝 깨진 거울이 원인이었다. 부수자 시간이 흘렀다." + g.gain({ ether: 50, relic: true }) : "빠져나오는 데 2주가 걸렸다. 체감은 하루였다." + (g.advanceDays(14), "") + g.gain({ ether: 20 }) },
+    { text: "눈을 감고 기다린다", do: () => "눈을 뜨자 고리는 사라져 있었다. 꿈이었을까." }
+  ]
+});
+S({
+  id: "odd_shadow",
+  minRank: 3,
+  text: '그림자가 반 박자 늦게 움직인다. 밤이 되자 그림자가 말을 건다. "너는 나야. 나는 더 강한 너고."',
+  choices: [
+    { text: "그림자와 싸운다", do: (g) => {
+      g.storyFight({ title: "나의 그림자", mirror: true, win: { text: "그림자가 다시 발밑으로 돌아왔다. 무언가 하나를 넘어선 느낌이다.", gain: { ether: 80, talent: 1 } }, lose: { text: "그림자에게 짓밟혔다. 깨어나니 아침이었다.", gain: { injure: 2 } } });
+      return "그림자가 바닥에서 일어섰다.";
+    } },
+    { text: "그림자의 말을 듣는다", do: (g) => '"서둘러. 수명은 생각보다 짧아." 그림자는 다시 조용해졌다.' + g.gain({ ether: 30 }) }
+  ]
+});
+S({
+  id: "odd_memory",
+  text: '눈을 떠 보니 모르는 병원이다. 지난 사흘간의 기억이 없다. 주머니에 낯선 코어와 쪽지 한 장: "아직 때가 아니다."',
+  choices: [{ text: "쪽지를 간직한다", do: (g) => {
+    g.advanceDays(3);
+    g.flags.story.note = true;
+    return "필체가… 당신의 것과 똑같다." + g.gain({ core: [1, 1] });
+  } }]
+});
+S({
+  id: "odd_ether_child",
+  field: true,
+  text: "빛으로 된 아이가 숲속을 뛰어다닌다. 에테르가 응집해 생긴 정령인 듯하다. 아이가 당신 손을 잡아끈다.",
+  choices: [
+    { text: "따라간다", do: (g) => "정령이 데려간 곳에 오래된 각성자의 무덤이 있었다. 무덤 앞에 유물이 놓여 있었다." + g.gain({ relic: true }) },
+    { text: "손을 뿌리친다", do: () => "아이는 슬픈 얼굴로 흩어졌다." }
+  ]
+});
+S({
+  id: "age_birthday",
+  when: (g) => g.month === 3 && g.ageYears() % 10 === 0,
+  text: "{name}의 생일이다. 나이를 세어 보니 어느덧 앞자리가 바뀌었다.",
+  choices: [
+    { text: "조용히 케이크를 먹는다", do: (g) => "촛불을 끄며 지난 10년을 돌아봤다." + g.gain({ hp: 0.3 }) },
+    { text: "아는 사람들을 불러 파티를 연다", do: (g) => "생각보다 많은 사람이 왔다." + g.gain({ money: -100, relAll: 6 }) }
+  ]
+});
+S({
+  id: "age_mortality",
+  when: (g) => g.maxLife() - g.ageYears() <= 8 && g.maxLife() - g.ageYears() > 0,
+  text: "아침에 거울을 보다 흰머리가 부쩍 늘었다는 걸 알았다. 에테르가 예전처럼 돌지 않는다. 남은 시간은 길지 않다.",
+  choices: [
+    { text: "돌파에 모든 걸 건다", do: (g) => "남은 생을 불태우기로 했다." + g.gain({ ether: 40, hp: -0.2 }) },
+    { text: "주변을 정리한다", do: (g) => "고마운 사람들에게 편지를 썼다." + g.gain({ relAll: 10 }) },
+    { text: "후배를 키운다", do: (g) => "내가 못 간 길을 누군가는 가겠지." + g.gain({ fame: 8 }) }
+  ]
+});
+S({
+  id: "age_classmate",
+  minAge: 30,
+  text: '고등학교 동창회 단톡방이 울린다. 비각성자 친구들은 대부분 결혼해 아이를 키우고 있다. "넌 요즘 뭐 해? TV에서 봤어!"',
+  choices: [
+    { text: "동창회에 간다", do: (g) => "평범한 삶이 조금 부러웠다. 그래도 즐거웠다." + g.gain({ hp: 0.3, fame: 1 }) },
+    { text: "읽고 답하지 않는다", do: () => "단톡방에서 조용히 나왔다." }
+  ]
+});
+S({
+  id: "arrive_welcome",
+  trigger: "city",
+  when: (g) => g.rep(g.player.region) >= 100,
+  text: "{city} 입구에서 사람들이 당신을 알아보고 환호한다. 꽃다발을 든 아이가 달려온다.",
+  choices: [{ text: "손을 흔든다", do: (g) => "이 도시는 당신을 잊지 않았다." + g.gain({ hp: 0.3, fame: 2 }) }]
+});
+S({
+  id: "arrive_suspicious",
+  trigger: "city",
+  when: (g) => g.rep(g.player.region) <= -20,
+  text: '{city} 검문소 직원이 당신 이름을 보고 표정이 굳는다. "…추가 검사가 필요합니다."',
+  choices: [
+    { text: "검사에 응한다", do: (g) => {
+      g.advanceDays(2);
+      return "이틀을 허비했다." + g.gain({ rep: 3 });
+    } },
+    { text: "뒷돈을 건넨다", do: (g) => "직원은 못 본 척했다." + g.gain({ money: -80, rep: -2 }) }
+  ]
+});
+S({
+  id: "arrive_news",
+  trigger: "city",
+  text: "{city} 대형 전광판에 속보가 흐른다. 각성자 관련 뉴스, 길드 순위, 그리고 게이트 경보.",
+  choices: [{ text: "뉴스를 훑어본다", do: (g) => {
+    const r = g.rumors[0];
+    return r ? '"'.concat(r.text, '"') : "별다른 소식은 없었다.";
+  } }]
+});
+S({
+  id: "arrive_npc_greet",
+  trigger: "city",
+  npc: "friendHere",
+  text: '{city}에 들어서자 {npc}이(가) 반갑게 손을 흔든다. "어? 여기 웬일이야! 밥은 먹었어?"',
+  choices: [
+    { text: "같이 밥을 먹는다", do: (g, c) => "국밥 한 그릇에 근황을 나눴다." + g.gain({ rel: 6, hp: 0.2 }, c) },
+    { text: "바빠서 다음에 보자고 한다", do: (g, c) => '"그래, 연락해!"' }
+  ]
+});
+S({
+  id: "road_merchant",
+  trigger: "road",
+  text: '먼지를 뒤집어쓴 행상 트럭이 길가에 서 있다. "헌터 양반! 회복제 싸게 줄게, 코어도 사고!"',
+  choices: [
+    { text: "회복제를 산다", do: (g) => g.player.money >= 60 ? "시중가의 반값이었다." + g.gain({ money: -60 / RANKS[g.player.rankIdx].mult, item: ["potion", 2] }) : "돈이 모자랐다." },
+    { text: "코어를 넘긴다", do: (g) => {
+      const t = g.player.rankIdx;
+      const n = g.coreCount(t);
+      if (!n) return "팔 코어가 없었다.";
+      g.player.mats["c" + t] = 0;
+      return "".concat(n, "개를 넘겼다. 시세보다 조금 쳐줬다.") + g.gain({ money: 22 * n });
+    } },
+    { text: "그냥 지나간다", do: () => "트럭 확성기에서 트로트가 흘러나왔다." }
+  ]
+});
+S({
+  id: "road_hitchhiker",
+  trigger: "road",
+  text: '배낭을 멘 청년이 엄지를 든다. "다음 도시까지만 같이 가요! 혼자 걷기 무서워서요."',
+  choices: [
+    { text: "함께 걷는다", do: (g) => g.roll(0.75) ? "수다스러운 청년이었다. 헤어지며 지도에 없는 샘 위치를 알려 줬다." + (g.reveal(g.player.x, g.player.y, 7), "") + g.gain({ fame: 1 }) : "밤중에 청년이 짐을 뒤지다 들켜 도망쳤다. 각성자 강도였다." + g.gain({ money: -80 }) },
+    { text: "거절한다", do: () => "청년은 실망한 얼굴로 다음 행인을 기다렸다." }
+  ]
+});
+S({
+  id: "road_checkpoint",
+  trigger: "road",
+  minRank: 1,
+  text: '길 한복판에 바리케이드. 완장 찬 사내들이 막아선다. "여긴 우리 구역이야. 통행세 내고 가."',
+  choices: [
+    { text: "통행세를 낸다", do: (g) => "지갑이 가벼워졌다." + g.gain({ money: -60 }) },
+    { text: "뚫고 지나간다", do: (g) => {
+      g.storyFight({ title: "불법 검문소", mobs: { tier: Math.max(0, g.player.rankIdx - 1), n: 3, human: true }, win: { text: "바리케이드가 무너졌다. 근처 주민들이 박수를 쳤다.", gain: { rep: 5, money: 80 } } });
+      return "사내들이 쇠파이프를 들었다.";
+    } },
+    { text: "돌아간다", do: (g) => {
+      g.advanceDays(4, { noSave: true });
+      return "나흘을 돌아갔다.";
+    } }
+  ]
+});
+S({
+  id: "road_bridge",
+  trigger: "road",
+  text: "앞의 다리가 반쯤 무너져 있다. 아래는 에테르로 탁해진 강물. 우회로는 한참 돌아간다.",
+  choices: [
+    { text: "에테르를 발에 모아 뛰어넘는다", do: (g) => g.roll(0.5 + g.player.spd / 150) ? "가뿐히 건넜다." + g.gain({ ether: 8 }) : "발을 헛디뎌 강물에 빠졌다. 겨우 기어 나왔다." + g.gain({ hp: -0.35 }) },
+    { text: "우회한다", do: (g) => {
+      g.advanceDays(5, { noSave: true });
+      return "닷새를 돌아갔다.";
+    } },
+    { text: "다리를 보수하고 간다", do: (g) => {
+      g.advanceDays(3, { noSave: true });
+      return "사흘에 걸쳐 임시 다리를 놓았다. 뒤에 오는 사람들이 고마워할 것이다." + g.gain({ rep: 4, fame: 2 });
+    } }
+  ]
+});
+S({
+  id: "road_storm",
+  trigger: "road",
+  text: "지평선 너머 보랏빛 벽이 다가온다. 에테르 폭풍이다. 바람에 섞인 빛가루가 피부를 따끔하게 찌른다.",
+  choices: [
+    { text: "폭풍을 정면으로 맞는다", do: (g) => g.roll(0.45) ? "폭풍의 에테르를 고스란히 흡수했다." + g.gain({ ether: 40, hp: -0.2 }) : "폭풍에 휩쓸려 정신을 잃었다." + g.gain({ hp: -0.5, injure: 1 }) },
+    { text: "폐건물에 숨는다", do: (g) => {
+      g.advanceDays(3, { noSave: true });
+      return "사흘 뒤에야 폭풍이 지나갔다.";
+    } }
+  ]
+});
+S({
+  id: "road_camp",
+  trigger: "road",
+  text: '모닥불 연기가 보인다. 헌터 몇이 야영 중이다. "같이 불 쬐고 가요. 오늘 밤은 길어요."',
+  choices: [
+    { text: "하룻밤 신세 진다", do: (g) => "라면을 끓여 먹으며 근처 게이트 정보를 나눴다. 주변 지형이 머릿속에 그려졌다." + (g.reveal(g.player.x, g.player.y, 8), "") + g.gain({ hp: 0.5 }) },
+    { text: "인사만 하고 간다", do: () => "불빛이 등 뒤로 멀어졌다." }
+  ]
+});
+S({
+  id: "road_wreck",
+  trigger: "road",
+  text: "도로 옆 구덩이에 처박힌 협회 장갑차. 문이 뜯겨 있고, 안에 물자 상자가 보인다. 핏자국은 없다.",
+  choices: [
+    { text: "상자를 연다", do: (g) => {
+      const r = RNG.next();
+      if (r < 0.5) return "응급 물자가 들어 있었다." + g.gain({ item: ["potion", 2], item2: null });
+      if (r < 0.8) return "봉인된 코어 상자였다." + g.gain({ core: [0, 3] });
+      g.storyFight({ title: "장갑차에 숨어 있던 것", mobs: { tier: g.player.rankIdx, n: 1, boss: true }, win: { text: "괴수를 쓰러뜨리자 차량 깊숙한 곳에서 유물이 나왔다.", gain: { relic: true } } });
+      return "상자가 꿈틀거렸다.";
+    } },
+    { text: "협회에 위치를 신고한다", do: (g) => "수거 팀이 고맙다고 했다." + g.gain({ merit: 5 }) }
+  ]
+});
+S({
+  id: "road_bandits",
+  trigger: "road",
+  minRank: 1,
+  text: '버려진 휴게소에서 복면을 쓴 각성자들이 튀어나온다. "가진 거 다 내놔. 코어도!"',
+  choices: [
+    { text: "싸운다", do: (g) => {
+      g.storyFight({ title: "노상강도", mobs: { tier: g.player.rankIdx, n: 2, human: true }, win: { text: "강도들을 포박해 협회에 넘겼다. 현상금이 걸려 있던 놈들이었다.", gain: { money: 250, merit: 8 } }, lose: { text: "두들겨 맞고 지갑을 털렸다.", gain: { money: -200, injure: 1 } } });
+      return "먼저 움직였다.";
+    } },
+    { text: "돈을 내준다", do: (g) => "목숨값 치고는 싸다고 생각하기로 했다." + g.gain({ money: -150 }) }
+  ]
+});
+S({
+  id: "road_signal",
+  trigger: "road",
+  text: '무전기에서 잡음 섞인 구조 신호가 들린다. "…여기 세 명… 고립… 게이트 균열이…" 좌표는 이 근처다.',
+  choices: [
+    { text: "신호를 따라간다", do: (g) => {
+      if (g.roll(0.6)) {
+        g.storyFight({ title: "고립된 헌터들을 포위한 괴수", mobs: { tier: g.player.rankIdx, n: 3 }, win: { text: "세 사람을 구해 냈다. 다들 당신 이름을 몇 번이고 되뇌었다.", gain: { fame: 8, merit: 8, rep: 5 } } });
+        return "괴수의 포효가 가까워진다.";
+      }
+      return "도착했을 땐 아무도 없었다. 무전기만 덩그러니 남아 있었다.";
+    } },
+    { text: "협회에 전달만 한다", do: (g) => "구조대가 출동했다는 답이 왔다." + g.gain({ merit: 2 }) }
+  ]
+});
+S({
+  id: "road_shrine",
+  trigger: "road",
+  field: true,
+  text: "고갯마루에 오래된 서낭당이 있다. 오색 천이 바람에 날리고, 돌무더기 위에 동전과 코어 조각이 놓여 있다. 대붕괴 뒤에도 누군가 계속 찾아온 모양이다.",
+  choices: [
+    { text: "돌 하나를 얹고 빈다", do: (g) => {
+      const p = g.player;
+      p.buffs = p.buffs.filter((b) => b.stat !== "luck");
+      p.buffs.push({ stat: "luck", val: 1, until: g.monthKey() + 2, name: "서낭당의 가호" });
+      g.recalc();
+      return "마음이 차분해졌다. (3개월간 운 +10)";
+    } },
+    { text: "코어 조각을 슬쩍한다", do: (g) => g.roll(0.5) ? "아무 일도 없었다." + g.gain({ core: [-1, 2] }) : "내려오는 길에 발목을 접질렸다. 우연일까." + g.gain({ core: [-1, 2], hp: -0.3 }) }
+  ]
+});
+S({
+  id: "road_view",
+  trigger: "road",
+  field: true,
+  text: "언덕 위에서 내려다보니 멀리 무너진 도시와 그 위로 걸린 게이트 몇 개가 보인다. 이상하게 아름답다.",
+  choices: [
+    { text: "잠시 앉아 쉬어 간다", do: (g) => "바람이 땀을 식혀 줬다." + g.gain({ hp: 0.3 }) },
+    { text: "게이트 위치를 지도에 표시한다", do: (g) => "주변 지형이 한눈에 들어왔다." + (g.reveal(g.player.x, g.player.y, 9), "") }
+  ]
+});
+S({
+  id: "road_stray",
+  trigger: "road",
+  text: "덤불 속에서 강아지만 한 새끼 괴수가 낑낑거린다. 다리를 다쳤다. 어미는 보이지 않는다.",
+  choices: [
+    { text: "다리를 치료해 준다", do: (g) => "새끼는 한참 당신을 따라오다 숲으로 사라졌다. 며칠 뒤 그 길엔 괴수가 얼씬도 하지 않았다." + g.gain({ ether: 10 }) },
+    { text: "처치한다", do: (g) => "코어는 작았다. 뒷맛이 썼다." + g.gain({ core: [-1, 1] }) },
+    { text: "그냥 둔다", do: () => "낑낑거리는 소리가 오래 따라왔다." }
+  ]
+});
+S({
+  id: "road_meet",
+  trigger: "system",
+  npc: "here",
+  text: (g, c) => c.npc && c.npc.met ? '길 위에서 {npc}와(과) 마주쳤다. "어? 여기서 다 보네!"' : "길 위에서 낯선 각성자와 마주쳤다. 등급표를 보니 {npc}. 서로 경계하며 걸음을 멈췄다.",
+  choices: [
+    { text: "인사를 나눈다", do: (g, c) => (c.npc.personality === "cold" ? "{npc}은(는) 고개만 까딱했다." : "짧게 근황을 나눴다.") + g.gain({ rel: c.npc.personality === "cold" ? 1 : 4 }, c) },
+    { text: "같은 방향이면 함께 걷는다", do: (g, c) => {
+      g.advanceDays(2, { noSave: true });
+      return "이틀을 함께 걸었다. 길이 짧게 느껴졌다." + g.gain({ rel: 9 }, c);
+    } },
+    { text: "대련을 청한다", when: (g, c) => c.npc.lastSpar !== g.monthKey(), do: (g, c) => {
+      g.queue.unshift({ type: "spar", npcId: c.npc.id });
+      return '"좋지!"';
+    } },
+    { text: "모른 척 지나간다", do: () => "발소리가 멀어졌다." }
+  ]
+});
+S({
+  id: "race_orc_workers",
+  city: true,
+  text: '공사 현장 앞. 안전모를 쓴 오크 노동자들에게 현장 소장이 소리친다. "니들은 이계 출신이라 일당 반이야! 싫으면 꺼져!" 한 오크가 주먹을 쥐었다 편다.',
+  choices: [
+    { text: "소장에게 따진다", do: (g) => '소장은 당신의 협회 배지를 보고 꼬리를 내렸다. 오크들이 고개 숙여 인사했다. "이 은혜, 잊지 않겠다."' + g.gain({ rep: 4, fame: 3 }) },
+    { text: "오크들에게 협회 노동 상담 창구를 알려 준다", do: (g) => "며칠 뒤 그들이 정당한 임금을 받았다는 소식을 들었다." + g.gain({ merit: 3, rep: 3 }) },
+    { text: "남의 일이다", do: () => "등 뒤에서 무거운 한숨 소리가 들렸다." }
+  ]
+});
+S({
+  id: "race_elf_camp",
+  field: true,
+  text: '숲가에 엘프 난민촌이 있다. 불탄 고향에서 건너온 이들이다. 늙은 엘프가 시든 묘목을 쓰다듬으며 말한다. "이 세계의 흙은 거칠군요. 그래도 언젠가 자라겠지요."',
+  choices: [
+    { text: "물자를 나눠 준다", do: (g) => "엘프들이 오래된 노래로 답례했다. 마음이 맑아졌다." + g.gain({ money: -80, ether: 25 }) },
+    { text: "엘프의 수련법을 묻는다", do: (g) => '"에테르는 강물과 같지요. 거스르지 마세요." 수천 년 된 지혜였다.' + g.gain({ ether: 35 }) },
+    { text: "지나간다", do: () => "바람에 낯선 노래가 실려 왔다." }
+  ]
+});
+S({
+  id: "race_dwarf_forge",
+  region: ["ulsan", "suwon"],
+  city: true,
+  text: '드워프 대장장이의 공방. 수염을 땋은 장인이 망치를 내려놓는다. "인간 헌터로군. 그 무기, 균형이 엉망이야. 코어 몇 개 내면 제대로 손봐 주지."',
+  choices: [
+    { text: "코어 3개를 맡긴다", when: (g) => g.coreCount(g.player.rankIdx) >= 3, do: (g) => {
+      g.player.mats["c" + g.player.rankIdx] -= 3;
+      return "불꽃이 튀고, 드워프식 무기가 태어났다." + g.gain({ equip: 1 });
+    } },
+    { text: "드워프식 단조를 구경한다", do: (g) => "망치질 소리에 맞춰 에테르가 정돈되는 느낌이었다." + g.gain({ ether: 15 }) }
+  ]
+});
+S({
+  id: "cult_0",
+  chain: "cult",
+  step: 0,
+  city: true,
+  minRank: 1,
+  text: '전봇대마다 같은 전단이 붙어 있다. "균열은 저주가 아니라 구원이다. 신의 문이 열릴 때, 각성하지 못한 자들도 구원받으리라. — 균열교"',
+  choices: [
+    { text: "적힌 주소로 가 본다", do: (g) => {
+      g.chainNext("cult");
+      return "전단을 접어 주머니에 넣었다.";
+    } },
+    { text: "찢어 버린다", do: () => "바람에 날린 전단이 하수구로 빨려 들어갔다." }
+  ]
+});
+S({
+  id: "cult_1",
+  chain: "cult",
+  step: 1,
+  city: true,
+  text: "폐업한 예식장 지하. 백여 명의 신도가 촛불을 들고 있다. 단상의 가면 쓴 남자, '무명'이 외친다. \"다음 보름, 우리는 스스로 문을 연다! 각성하지 못한 형제들이 신의 빛을 받으리라!\" 신도 대부분이 비각성자다.",
+  choices: [
+    { text: "신도인 척 잠입한다", do: (g) => {
+      g.flags.story.cult = "spy";
+      g.chainNext("cult");
+      return '흰 로브를 받아 입었다. 옆자리 노인이 "우리 손녀도 이번에 문을 보게 될 거야"라며 웃었다.';
+    } },
+    { text: "협회에 신고한다", do: (g) => {
+      g.flags.story.cult = "report";
+      g.chainNext("cult");
+      return '협회는 "증거가 부족하다"며 미적거렸지만, 감시 요원을 붙였다.' + g.gain({ merit: 6 });
+    } },
+    { text: "무명의 말에 끌린다", do: (g) => {
+      g.flags.story.cult = "join";
+      g.chainNext("cult");
+      return "이상하게도 그의 말이 틀리지 않은 것 같았다. 각성하지 못해 죽어 간 사람들을 너무 많이 봤으니까.";
+    } }
+  ]
+});
+S({
+  id: "cult_2",
+  chain: "cult",
+  step: 2,
+  text: "보름이 다가온다. 의식 장소는 강북 폐구의 버려진 지하철역. 신도들이 수십 개의 코어를 모아 인공 게이트를 열려 한다. 실패하면 일대가 날아간다.",
+  choices: [
+    { text: "혼자 의식을 막는다", when: (g) => g.flags.story.cult !== "join", do: (g) => {
+      g.storyFight({ title: "균열교 무장 신도", mobs: { tier: g.player.rankIdx, n: 3, human: true, elem: "spirit" }, win: { text: "코어 배열을 부쉈다. 신도들이 흩어지는 사이, 무명은 사라졌다.", gain: { fame: 12, merit: 12, core: [0, 4] }, chain: "cult" } });
+      return "지하철역 계단을 뛰어 내려갔다.";
+    } },
+    { text: "협회 진압팀과 함께 간다", when: (g) => g.flags.story.cult === "report", do: (g) => {
+      g.chainNext("cult");
+      return "합동 작전은 성공했다. 하지만 체포된 신도들 사이에 무명은 없었다." + g.gain({ merit: 20, fame: 5 });
+    } },
+    { text: "의식에 참여한다", when: (g) => g.flags.story.cult === "join", do: (g) => {
+      g.chainNext("cult");
+      g.flags.story.cultist = true;
+      g.lifeEvent("균열교의 의식에 참여했다.");
+      return '인공 게이트가 열리는 순간, 엄청난 에테르가 몸을 관통했다. 비각성 신도 몇이 그 자리에서 쓰러졌다. 무명이 당신을 바라보며 웃었다. "역시, 너는 선택받았어."' + g.gain({ ether: 150, life: -3 });
+    } }
+  ]
+});
+S({
+  id: "cult_3",
+  chain: "cult",
+  step: 3,
+  gap: 3,
+  minRank: 2,
+  text: '무명에게서 직접 연락이 왔다. 가면을 벗은 그는 대붕괴 당시 관리국 수석 연구원이었다. "게이트는 재앙이 아니야. 진화의 문이다. 정부는 그걸 독점하려고 거짓말을 했지. 마지막 의식을 함께하자. 아니면 막아 보든가."',
+  choices: [
+    { text: "그를 막는다", do: (g) => {
+      g.storyFight({ title: "균열교 교주 무명", mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true, human: true, elem: "spirit", name: "[교주] 무명" }, win: { text: '무명이 무릎을 꿇었다. "…그래도 문은 언젠가 열린다." 그가 남긴 수첩에는 제주에 관한 메모가 빼곡했다.', gain: { fame: 30, merit: 30, relic: 2 }, life: "균열교 교주 무명을 쓰러뜨렸다.", chainEnd: "cult" } });
+      return "무명이 손을 펼치자 공간이 찢어졌다.";
+    } },
+    { text: "그의 사도가 된다", when: (g) => g.flags.story.cultist, do: (g) => {
+      g.chainEnd("cult");
+      g.flags.story.apostle = true;
+      g.lifeEvent("균열교의 사도가 되었다.");
+      g.rumor("충격: 유명 헌터 ".concat(g.player.name, ", 균열교 사도로 활동 정황."));
+      g.setClass("apostle", "히든 직업 각성");
+      return "무명이 당신 이마에 손을 얹었다. 금지된 지식이 흘러들었다. 히든 직업 [심연의 사도]. 세상의 시선은 차가워졌다." + g.gain({ relic: 3, ether: 200, fame: -60, merit: -60 });
+    } },
+    { text: "외면한다", do: (g) => {
+      g.chainEnd("cult");
+      g.rumor("균열교가 다시 활동을 시작했다는 제보가 이어진다.");
+      return "전화를 끊었다. 그 뒤로 균열교 소식은 뉴스에서만 들었다.";
+    } }
+  ]
+});
+S({
+  id: "fam_0",
+  chain: "family",
+  step: 0,
+  minRank: 1,
+  once: true,
+  text: '우편함에 낡은 봉투가 꽂혀 있다. 10년 전 게이트 사고로 실종된 혈육의 사진. 뒷면에 낯선 글씨: "강릉 해안 전선에서 이 사람을 봤습니다."',
+  choices: [
+    { text: "찾아 나선다", do: (g) => {
+      g.flags.story.sib = g.player.name[0] + RNG.pick(g.player.gender === "M" ? GIVEN_F.concat(GIVEN_M) : GIVEN_M.concat(GIVEN_F));
+      g.chainNext("family");
+      return "사진 속 ".concat(g.flags.story.sib, "은(는) 열두 살 그대로 웃고 있었다. 강릉으로 가야 한다.");
+    } },
+    { text: "장난이라 생각하고 버린다", do: () => "봉투를 버렸지만, 그날 밤 잠이 오지 않았다." }
+  ]
+});
+S({
+  id: "fam_1",
+  chain: "family",
+  step: 1,
+  gap: 0,
+  region: "gangneung",
+  text: () => '해안 전선의 늙은 상사가 사진을 보고 한참 말이 없다. "…심해 게이트에서 혼자 걸어 나온 애가 있었지. 기억을 다 잃었더라고. 부산 쪽 사람들이 데려갔어. 좋은 사람들은 아니었고."',
+  choices: [{ text: "부산으로 향한다", do: (g) => {
+    g.chainNext("family");
+    return "주먹을 쥐었다." + g.gain({ ether: 15 });
+  } }]
+});
+S({
+  id: "fam_2",
+  chain: "family",
+  step: 2,
+  gap: 0,
+  region: "busan",
+  text: (g) => '부산 암시장 뒷골목. "기억 없는 헌터"를 빚으로 묶어 게이트 총알받이로 쓰는 조직이 있다. 창고 안, 목줄 같은 추적 장치를 찬 사람들 사이에 '.concat(g.flags.story.sib, "이(가) 있다."),
+  choices: [
+    { text: "창고를 습격한다", do: (g) => {
+      g.storyFight({ title: "암시장 조직원", mobs: { tier: Math.max(1, g.player.rankIdx), n: 3, human: true }, win: { text: "조직원들을 쓰러뜨리고 추적 장치를 끊었다. ".concat(g.flags.story.sib, "이(가) 멍하니 당신을 본다."), gain: { fame: 8 }, chain: "family" } });
+      return "문을 걷어찼다.";
+    } },
+    { text: "빚을 대신 갚는다", do: (g) => {
+      const a = Math.round(2500 * RANKS[g.player.rankIdx].mult);
+      if (g.player.money < a) return "몸값은 ".concat(fmt(a), " 크레딧. 지금은 부족하다.");
+      g.player.money -= a;
+      g.chainNext("family");
+      return "조직 두목이 웃으며 열쇠를 던졌다.";
+    } }
+  ]
+});
+S({
+  id: "fam_3",
+  chain: "family",
+  step: 3,
+  gap: 1,
+  text: (g) => "".concat(g.flags.story.sib, "은(는) 당신을 기억하지 못한다. 그래도 매일 찾아가 옛날이야기를 들려줬다. 어느 날, ").concat(g.flags.story.sib, '이(가) 문득 말했다. "…놀이터 미끄럼틀. 네가 떨어졌을 때 내가 울었잖아."'),
+  choices: [{ text: "끌어안는다", do: (g) => {
+    const n = g.makeNpc(false);
+    n.name = g.flags.story.sib;
+    n.gender = RNG.chance(0.5) ? "M" : "F";
+    n.rankIdx = Math.max(1, g.player.rankIdx - 1);
+    n.stage = 0;
+    n.ageMonths = (g.ageYears() + RNG.int(-3, 3)) * 12;
+    n.region = g.player.region;
+    n.met = true;
+    n.relation = 90;
+    n.personality = "kind";
+    n.lifespan = Math.max(n.lifespan, g.ageYears() + 30);
+    n.parents = [];
+    n.family = true;
+    g.npcs.push(n);
+    g.chainEnd("family");
+    g.lifeEvent("10년 만에 혈육 ".concat(n.name, "을(를) 되찾았다."));
+    return "".concat(n.name, "이(가) 돌아왔다. 인물 창에서 동료로 삼을 수 있다.") + g.gain({ fame: 10, hp: 1 });
+  } }]
+});
+S({
+  id: "voice_0",
+  chain: "voice",
+  step: 0,
+  minRank: 2,
+  text: "꿈을 꿨다. 검은 바다 건너, 하늘까지 닿은 문. 문 너머에서 누군가 당신의 이름을 부른다. 깨어 보니 베개가 에테르로 젖어 있었다.",
+  choices: [{ text: "꿈을 기록해 둔다", do: (g) => {
+    g.chainNext("voice");
+    return "같은 꿈을 꾸는 헌터가 또 있을까." + g.gain({ ether: 20 });
+  } }]
+});
+S({
+  id: "voice_1",
+  chain: "voice",
+  step: 1,
+  region: "daejeon",
+  minRank: 3,
+  text: "청룡 연구소 지하 기록 보관소. 아는 연구원이 몰래 문을 열어 줬다. \"대붕괴 사흘 전, 제주에서 '공명 실험'이 있었어요. 기록은 거기서 끊겨요.\"",
+  choices: [
+    { text: "자료를 복사한다", do: (g) => {
+      g.chainNext("voice");
+      return "실험 책임자 명단 맨 위에 '무명'이라는 이름이 있었다." + g.gain({ merit: -5 });
+    } },
+    { text: "연구원을 설득해 정식 열람 허가를 받는다", do: (g) => {
+      g.chainNext("voice");
+      return "시간은 걸렸지만 떳떳하게 자료를 얻었다." + (g.advanceDays(10), "") + g.gain({ merit: 5 });
+    } }
+  ]
+});
+S({
+  id: "voice_2",
+  chain: "voice",
+  step: 2,
+  region: "incheon",
+  minRank: 4,
+  text: '관리국 본청 기밀 서버. 문서 제목: "원초 게이트 개방 경위". 첫 문장에서 손이 떨렸다. "게이트는 열린 것이 아니라, 우리가 열었다."',
+  choices: [
+    { text: "언론에 폭로한다", do: (g) => {
+      g.flags.story.voice = "expose";
+      g.chainNext("voice");
+      g.lifeEvent("관리국의 원초 게이트 은폐를 폭로했다.");
+      g.rumor('대특종: "대붕괴는 인재였다" — 관리국 기밀 유출, 국회 긴급 소집.');
+      return "나라가 뒤집혔다." + g.gain({ fame: 60, merit: -50 });
+    } },
+    { text: "국장과 거래한다", do: (g) => {
+      g.flags.story.voice = "deal";
+      g.chainNext("voice");
+      return "국장은 침묵의 대가로 협회 최고 등급 지원을 약속했다." + g.gain({ merit: 50, catalyst: 1, money: 2e3 });
+    } },
+    { text: "혼자 간직한다", do: (g) => {
+      g.flags.story.voice = "keep";
+      g.chainNext("voice");
+      return "진실의 무게를 혼자 지기로 했다." + g.gain({ ether: 40 });
+    } }
+  ]
+});
+S({
+  id: "voice_3",
+  chain: "voice",
+  step: 3,
+  minRank: 5,
+  gap: 3,
+  text: "제주 출신 노인이 당신을 찾아왔다. 대붕괴의 유일한 생존자라고 한다. \"그날 문이 열리고 처음 나온 건 괴물이 아니었어. 사람이었어. 우리랑 똑같이 생긴. 그 사람이 울면서 '닫아 달라'고 했지.\"",
+  choices: [{ text: "노인의 말을 새긴다", do: (g) => {
+    g.chainNext("voice");
+    return "문 너머에도 누군가 있다." + g.gain({ ether: 60 });
+  } }]
+});
+S({
+  id: "voice_4",
+  chain: "voice",
+  step: 4,
+  region: "jeju",
+  minRank: 6,
+  text: '한라산 정상, 원초의 게이트 앞. 꿈속의 목소리가 이번엔 또렷하다. "너는 열쇠다. 문을 닫으면 저편의 우리도 끝난다. 문을 열어 두면 이편의 너희가 끝난다. 선택해."',
+  choices: [
+    { text: '"닫겠다"', do: (g) => {
+      g.flags.story.voiceEnd = "seal";
+      g.chainEnd("voice");
+      g.setClass("gatekeeper", "히든 직업 각성");
+      g.player.relicBonus.atk = (g.player.relicBonus.atk || 0) + 0.15;
+      g.recalc();
+      return '목소리가 슬프게 웃었다. "…고마워. 우리도 그걸 원했어." 문의 약점이 보이기 시작했다. (공격 영구 +15%)';
+    } },
+    { text: '"함께 사는 길은 없나"', do: (g) => {
+      g.flags.story.voiceEnd = "bridge";
+      g.chainEnd("voice");
+      g.setClass("gatekeeper", "히든 직업 각성");
+      g.player.relicBonus.def = (g.player.relicBonus.def || 0) + 0.15;
+      g.recalc();
+      return '긴 침묵. "…그런 질문을 한 건 네가 처음이야." 문이 조금 잦아들었다. (방어 영구 +15%)';
+    } }
+  ]
+});
+S({
+  id: "sub_0",
+  chain: "subject",
+  step: 0,
+  when: (g) => g.player.bg === "subject",
+  text: '모르는 번호로 문자가 왔다. "나야, 7번. 연구소에서 같이 있었던. 우리 기수 피험자들이 한 명씩 사라지고 있어. 너도 조심해."',
+  choices: [{ text: "7번을 만나러 간다", do: (g) => {
+    g.chainNext("subject");
+    return "약속 장소는 대전 외곽의 버스 정류장.";
+  } }]
+});
+S({
+  id: "sub_1",
+  chain: "subject",
+  step: 1,
+  gap: 1,
+  text: "약속 장소에 7번은 없었다. 대신 검은 정장 둘이 다가온다. \"피험자 12번, 동행해 주시죠.\" 관리국 '청소부'다.",
+  choices: [{ text: "싸운다", do: (g) => {
+    g.storyFight({ title: "관리국 청소부", mobs: { tier: g.player.rankIdx, n: 2, human: true, elem: "steel" }, win: { text: "청소부의 품에서 7번의 신분증과 좌표가 적힌 쪽지가 나왔다.", gain: { merit: -5 }, chain: "subject" } });
+    return "정장 사내들이 총을 뽑았다.";
+  } }]
+});
+S({
+  id: "sub_2",
+  chain: "subject",
+  step: 2,
+  minRank: 2,
+  text: "좌표는 울산 해안의 폐조선소. 지하에 아직 가동 중인 연구 시설이 있다. 유리관 속에 아이들이 잠들어 있다. 강제 각성 실험이 계속되고 있었다.",
+  choices: [
+    { text: "아이들을 구출한다", do: (g) => {
+      g.storyFight({ title: "시설 경비 시스템", mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true, shape: "golem", elem: "steel", name: "[실험체] 0번" }, win: { text: "아이들을 모두 데리고 나왔다. 그중 하나가 당신 손을 꼭 잡았다.", gain: { fame: 25, rep: 10 }, life: "비밀 연구 시설에서 아이들을 구해 냈다.", chain: "subject" } });
+      return "경보가 울리고, 가장 안쪽 유리관이 깨졌다.";
+    } },
+    { text: "증거만 챙겨 나온다", do: (g) => {
+      g.chainNext("subject");
+      return "하드 드라이브를 품에 넣었다. 아이들의 얼굴이 눈에 밟혔다." + g.gain({ merit: 10 });
+    } }
+  ]
+});
+S({
+  id: "sub_3",
+  chain: "subject",
+  step: 3,
+  text: '실험의 책임자가 화상 통화를 걸어 왔다. "12번, 너는 우리 최고의 성공작이야. 돌아오면 S급까지 보장하지. 수명도."',
+  choices: [
+    { text: "모든 걸 폭로한다", do: (g) => {
+      g.chainEnd("subject");
+      g.lifeEvent("강제 각성 실험을 세상에 알렸다.");
+      g.rumor("관리국 강제 각성 실험 폭로 파문. 책임자 긴급 체포.");
+      return "책임자는 체포됐다. 당신의 과거도 뉴스에 실렸지만, 후회는 없다." + g.gain({ fame: 40, talent: 1 });
+    } },
+    { text: "거래에 응한다", do: (g) => {
+      g.chainEnd("subject");
+      g.lifeEvent("연구소와 다시 손을 잡았다.");
+      g.setClass("heir", "히든 직업 각성");
+      return "주사 한 방. 몸속 에테르 회로가 다시 짜였다. 히든 직업 [대붕괴의 아이]." + g.gain({ catalyst: 1, life: 6, fame: -15 });
+    } }
+  ]
+});
+S({
+  id: "pocha_0",
+  chain: "pocha",
+  step: 0,
+  trigger: "city",
+  minRank: 1,
+  text: '단골 포차. 사장님이 당신 팔의 상처를 보더니 말없이 구급상자를 꺼낸다. 붕대를 감는 손놀림이 이상할 만큼 능숙하다. "옛날에 좀 다쳐 봤지."',
+  choices: [{ text: '"사장님, 혹시 헌터셨어요?"', do: (g) => {
+    g.chainNext("pocha");
+    return "사장님은 대답 대신 소주를 한 잔 따라 줬다." + g.gain({ hp: 0.4 });
+  } }]
+});
+S({
+  id: "pocha_1",
+  chain: "pocha",
+  step: 1,
+  trigger: "city",
+  text: "비 오는 밤, 손님이 당신뿐이다. 사장님이 처음으로 옛날 이야기를 꺼낸다. \"1세대 S급 '흑염'. 내 이름이었어. 백골룡 게이트에서 동료 넷을 잃고 칼을 놨지.\"",
+  choices: [{ text: "끝까지 듣는다", do: (g) => {
+    g.chainNext("pocha");
+    return "그날 밤 사장님은 세 병을 비웠다." + g.gain({ ether: 25 });
+  } }]
+});
+S({
+  id: "pocha_2",
+  chain: "pocha",
+  step: 2,
+  gap: 2,
+  minRank: 2,
+  text: '긴급 속보: 동해에서 백골룡 개체 재출현. 포차 셔터가 내려져 있다. 쪽지 한 장: "빚은 갚아야지. — 흑염"',
+  choices: [
+    { text: "뒤쫓아 함께 싸운다", do: (g) => {
+      g.storyFight({ title: "백골룡", mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true, shape: "dragon", elem: "spirit", name: "[재앙] 백골룡" }, ally: { name: "흑염", rank: Math.min(7, g.player.rankIdx + 2), elem: "fire" }, win: { text: '백골룡이 쓰러졌다. 흑염은 피투성이로 웃었다. "…이제야 애들한테 갈 낯이 서네."', gain: { fame: 30 }, chain: "pocha" }, lose: { text: "패배했다. 흑염이 당신을 업고 빠져나왔다. 그는 돌아오지 않았다.", gain: { injure: 3 }, chainEnd: "pocha" } });
+      return "강릉으로 달렸다.";
+    } },
+    { text: "그의 선택을 존중한다", do: (g) => {
+      g.chainEnd("pocha");
+      g.rumor("은퇴한 1세대 S급 '흑염', 백골룡과 동귀어진.");
+      return "며칠 뒤, 포차 자리에 꽃이 쌓였다.";
+    } }
+  ]
+});
+S({
+  id: "pocha_3",
+  chain: "pocha",
+  step: 3,
+  trigger: "city",
+  text: '포차가 다시 문을 열었다. 흑염이 낡은 검집을 내민다. "나는 이제 진짜 은퇴다. 이건 네가 써. 그리고… 내 기술도 좀 가르쳐 줄게."',
+  choices: [
+    { text: "두 손으로 받는다", do: (g) => {
+      g.chainEnd("pocha");
+      g.lifeEvent("1세대 S급 흑염의 검을 물려받았다.");
+      g.setClass("blackflame", "히든 직업 각성");
+      return "검을 쥐는 순간 검은 불꽃이 손목을 타고 올랐다. 히든 직업 [흑염검사]에 각성했다." + g.gain({ relic: 3, equip: 1 });
+    } },
+    { text: "검만 받고 내 길을 간다", do: (g) => {
+      g.chainEnd("pocha");
+      g.lifeEvent("1세대 S급 흑염의 검을 물려받았다.");
+      return '"그래, 네 방식대로 가라." 흑염이 웃었다.' + g.gain({ skill: true, relic: 3, equip: 1 });
+    } }
+  ]
+});
+S({
+  id: "nuri_0",
+  chain: "nuri",
+  step: 0,
+  field: true,
+  text: '폐허 더미 속에서 손바닥만 한 드론이 깜빡인다. 스피커에서 갈라진 소리가 난다. "도…와…줘…"',
+  choices: [
+    { text: "데려간다", do: (g) => {
+      g.chainNext("nuri");
+      return "드론을 품에 넣었다. 따뜻했다. 기계인데.";
+    } },
+    { text: "고철상에 판다", do: (g) => {
+      g.chainEnd("nuri");
+      return "고철값을 받았다." + g.gain({ money: 30 });
+    } }
+  ]
+});
+S({
+  id: "nuri_1",
+  chain: "nuri",
+  step: 1,
+  gap: 1,
+  city: true,
+  text: '공방 기술자가 드론을 열어 보고 휘파람을 분다. "이거 지구 기술이 아닌데요? 살리려면 코어가 3개는 필요해요."',
+  choices: [
+    { text: "코어를 넣는다", when: (g) => g.coreCount(g.player.rankIdx) + g.coreCount(Math.max(0, g.player.rankIdx - 1)) >= 3, do: (g) => {
+      let need = 3;
+      for (const t of [g.player.rankIdx, Math.max(0, g.player.rankIdx - 1)]) {
+        const u = Math.min(need, g.coreCount(t));
+        g.player.mats["c" + t] -= u;
+        need -= u;
+      }
+      g.chainNext("nuri");
+      return '드론의 눈이 파랗게 켜졌다. "안녕. 나는… 누리. 이름은 방금 지었어."';
+    } },
+    { text: "나중에 다시 오겠다", do: () => "기술자가 드론을 조심스럽게 돌려줬다." }
+  ]
+});
+S({
+  id: "nuri_2",
+  chain: "nuri",
+  step: 2,
+  gap: 2,
+  text: '누리가 말을 꽤 잘하게 됐다. 뉴스를 보며 "인간은 왜 서로 싸워?"라고 묻는다. 게이트 근처에선 에테르 흐름을 읽어 약점을 알려 준다.',
+  choices: [{ text: '"같이 배워 가자"', do: (g) => {
+    g.chainNext("nuri");
+    g.player.relicBonus.luck = (g.player.relicBonus.luck || 0) + 1.5;
+    g.recalc();
+    return "누리가 어깨에 앉아 함께 다니기 시작했다. (운 영구 +15)";
+  } }]
+});
+S({
+  id: "nuri_3",
+  chain: "nuri",
+  step: 3,
+  gap: 4,
+  minRank: 3,
+  text: '누리가 처음으로 망설이며 말한다. "기억이 돌아왔어. 나는 게이트 너머에서 온 탐사기야. 저편 사람들이 이쪽을 이해하려고 보냈어. 이제… 돌아가서 보고해야 해."',
+  choices: [
+    { text: "돌려보낸다", do: (g) => {
+      g.chainEnd("nuri");
+      g.lifeEvent("누리를 게이트 너머로 돌려보냈다.");
+      return '누리는 마지막으로 당신 뺨에 부딪혔다. "인간은 싸우지만, 너 같은 인간도 있다고 말할게." 남은 자리에 빛나는 결정이 떨어져 있었다.' + g.gain({ relic: 3 });
+    } },
+    { text: '"남아 줘"', do: (g) => {
+      g.chainEnd("nuri");
+      g.player.relicBonus.train = (g.player.relicBonus.train || 0) + 0.08;
+      g.recalc();
+      g.lifeEvent("누리가 곁에 남기로 했다.");
+      g.setClass("machinist", "히든 직업 각성");
+      return '히든 직업 [기계 교감자]에 각성했다. 누리는 오래 깜빡이다 대답했다. "…응. 보고서는 천천히 써도 되겠지." (수련 효율 영구 +8%)';
+    } }
+  ]
+});
+S({
+  id: "smug_0",
+  chain: "smuggle",
+  step: 0,
+  region: "busan",
+  minRank: 2,
+  text: '부산 항구 컨테이너 사이에서 선글라스 쓴 남자가 다가온다. "오징어"라고 불린다. "코어 운반 한 건. 세관만 피해 주면 일반 의뢰 열 배."',
+  choices: [
+    { text: "받아들인다", do: (g) => {
+      g.flags.story.smug = "in";
+      g.chainNext("smuggle");
+      return "첫 운반은 싱겁게 끝났다." + g.gain({ money: 900, merit: -8 });
+    } },
+    { text: "관리국에 정보를 넘긴다", do: (g) => {
+      g.flags.story.smug = "mole";
+      g.chainNext("smuggle");
+      return "관리국은 당신에게 이중 첩자를 제안했다." + g.gain({ merit: 10 });
+    } },
+    { text: "거절한다", do: () => '"아쉽네. 마음 바뀌면 3번 부두로 와."' }
+  ]
+});
+S({
+  id: "smug_1",
+  chain: "smuggle",
+  step: 1,
+  region: "busan",
+  text: "오징어가 신임을 보인다. \"큰 건이야. 회장님 물건. 경쟁 조직 '흑룡'이 노리고 있어. 호위 좀 해 줘.\"",
+  choices: [{ text: "호위한다", do: (g) => {
+    g.storyFight({ title: "흑룡파 습격", mobs: { tier: g.player.rankIdx, n: 3, human: true }, win: { text: "물건을 지켜 냈다. 회장이 직접 보자고 한다.", gain: { money: 1200 }, chain: "smuggle" } });
+    return "부두에 안개가 낀다. 총성이 울렸다.";
+  } }]
+});
+S({
+  id: "smug_2",
+  chain: "smuggle",
+  step: 2,
+  region: "busan",
+  gap: 2,
+  text: "해상 요트에서 만난 '최회장'이 웃는다. \"자네 실력 좋더군. 그래서 미안하네. 관리국에 내줄 희생양이 하나 필요하거든.\" 사방에서 무장한 각성자들이 일어선다.",
+  choices: [{ text: "돌파한다", do: (g) => {
+    g.storyFight({ title: "최회장의 경호대", mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 2, human: true, boss: true, name: "[암시장 왕] 최회장" }, lethal: true, win: { text: "최회장이 갑판에 쓰러졌다. 부산 암시장의 왕좌가 비었다.", gain: { fame: 10 }, chain: "smuggle" } });
+    return "요트가 흔들렸다.";
+  } }]
+});
+S({
+  id: "smug_3",
+  chain: "smuggle",
+  step: 3,
+  region: "busan",
+  gap: 1,
+  text: '오징어가 무릎을 꿇는다. "이제 형님이 왕입니다. 아니면… 전부 관리국에 넘기시든가요."',
+  choices: [
+    { text: "왕좌에 앉는다", do: (g) => {
+      g.chainEnd("smuggle");
+      g.flags.story.kingpin = true;
+      g.lifeEvent("부산 암시장의 왕이 되었다.");
+      return "매달 상납금이 들어온다. 협회는 당신을 의심의 눈으로 본다." + g.gain({ money: 5e3, merit: -40, fame: -10 });
+    } },
+    { text: "조직을 통째로 넘긴다", do: (g) => {
+      g.chainEnd("smuggle");
+      g.lifeEvent("부산 암시장 조직을 일망타진했다.");
+      g.rumor("".concat(g.player.name, ", 부산 최대 밀수 조직 일망타진."));
+      return "관리국 역사상 최대 검거였다." + g.gain({ merit: 60, fame: 25, rep: 20 });
+    } }
+  ]
+});
+S({
+  id: "baekho_0",
+  chain: "baekho",
+  step: 0,
+  region: "gangnam",
+  minRank: 3,
+  when: (g) => g.player.fame >= 40,
+  text: '백호 시큐리티 회장이 직접 연락했다. "손주 놈 경호를 맡아 주게. 요즘 집안이 시끄러워서 말이야. 길드 사람은 못 믿겠네."',
+  choices: [
+    { text: "수락한다", do: (g) => {
+      const n = g.makeNpc(false);
+      n.name = "백" + RNG.pick(GIVEN_M.concat(GIVEN_F));
+      n.rankIdx = Math.max(1, g.player.rankIdx - 2);
+      n.region = "gangnam";
+      n.met = true;
+      n.relation = 20;
+      n.guild = "baekho";
+      n.ageMonths = 22 * 12;
+      n.personality = "cold";
+      g.npcs.push(n);
+      g.flags.story.heir = n.id;
+      g.chainNext("baekho");
+      return "회장의 손주 ".concat(n.name, '은(는) 첫인사부터 퉁명스러웠다. "경호 필요 없어."') + g.gain({ money: 800 });
+    } },
+    { text: "거절한다", do: () => '"아쉽군."' }
+  ]
+});
+S({
+  id: "baekho_1",
+  chain: "baekho",
+  step: 1,
+  region: "gangnam",
+  text: (g) => {
+    const n = g.npcById(g.flags.story.heir);
+    return "".concat(n ? n.name : "손주", "의 차량 행렬. 고가도로 위에서 트럭이 돌진한다. 암살이다.");
+  },
+  choices: [{ text: "막아선다", do: (g) => {
+    g.storyFight({ title: "암살자들", mobs: { tier: g.player.rankIdx, n: 3, human: true, elem: "spirit" }, win: { text: "암살자를 제압했다. 품에서 백호 시큐리티 내부 출입증이 나왔다.", gain: { fame: 6 }, chain: "baekho" } });
+    const n = g.npcById(g.flags.story.heir);
+    if (n) g.changeRel(n, 30);
+    return "트럭 위에서 복면들이 뛰어내렸다.";
+  } }]
+});
+S({
+  id: "baekho_2",
+  chain: "baekho",
+  step: 2,
+  region: "gangnam",
+  text: (g) => {
+    const n = g.npcById(g.flags.story.heir);
+    return "배후는 회장의 장남, 그러니까 ".concat(n ? n.name : "손주", "의 큰아버지였다. 장남이 먼저 찾아와 봉투를 내민다. \"조카만 '사고'로 정리되면 자네는 우리 길드 간부야.\"");
+  },
+  choices: [
+    { text: "회장에게 모두 알린다", do: (g) => {
+      g.chainEnd("baekho");
+      g.lifeEvent("백호 가문의 후계 다툼을 막았다.");
+      const n = g.npcById(g.flags.story.heir);
+      if (n) g.changeRel(n, 40);
+      return "장남은 실각했다. 회장은 당신에게 평생 빚을 졌다고 말했다." + g.gain({ money: 4e3, fame: 15, rep: 20 });
+    } },
+    { text: "봉투를 받는다", do: (g) => {
+      g.chainEnd("baekho");
+      const n = g.npcById(g.flags.story.heir);
+      if (n) {
+        g.killNpc(n, "고가도로 사고");
+      }
+      g.lifeEvent("돈을 받고 백호 가문의 후계자를 버렸다.");
+      return "며칠 뒤, 후계자의 사고 소식이 뉴스에 나왔다. 통장은 두둑해졌다." + g.gain({ money: 8e3, fame: -20 });
+    } },
+    { text: "후계자와 함께 집안을 떠난다", do: (g) => {
+      g.chainEnd("baekho");
+      const n = g.npcById(g.flags.story.heir);
+      if (n) {
+        g.changeRel(n, 50);
+        n.guild = null;
+      }
+      return '"…너 진짜 이상한 놈이다." 그래도 따라 나섰다. 둘은 광주 프리랜서 광장에서 새 출발을 했다.' + g.gain({ fame: 5 });
+    } }
+  ]
+});
+S({
+  id: "npc_wedding",
+  trigger: "system",
+  npc: "friend",
+  text: '{npc}의 청첩장이 도착했다. "꼭 와 줘. 네가 없으면 안 될 것 같아."',
+  choices: [
+    { text: "축의금을 두둑이 들고 간다", do: (g, c) => "눈물 나게 행복한 결혼식이었다." + g.gain({ money: -150, rel: 15 }, c) },
+    { text: "바빠서 축하 메시지만 보낸다", do: (g, c) => '"그래도 고마워."' + g.gain({ rel: -3 }, c) }
+  ]
+});
+S({
+  id: "vow_revenge",
+  trigger: "system",
+  npc: "here",
+  text: '{npc}에게서 메시지가 왔다. 단 한 줄. "{victim}을(를) 죽인 대가를 반드시 치르게 해 주마."',
+  choices: [
+    { text: "사과의 뜻을 전한다", do: (g, c) => g.roll(0.25) ? '긴 침묵 끝에 답장이 왔다. "…용서는 못 해. 하지만 칼은 거두지." 원한이 조금 누그러졌다.' + (c.npc && (c.npc.nemesis = null, c.npc.relation = -25), "") : "읽음 표시만 떴다." },
+    { text: '"언제든 와라"', do: () => "전쟁이 시작됐다." }
+  ]
+});
+S({
+  id: "child_born",
+  trigger: "system",
+  npc: "here",
+  text: "아이가 태어났다. {npc}. 작은 손가락이 당신 손가락을 꽉 쥔다. 에테르 냄새가 난다. 언젠가 이 아이도 각성하겠지.",
+  choices: [
+    { text: '"아빠/엄마가 지켜 줄게"', do: (g) => "세상이 조금 달라 보였다." + g.gain({ hp: 1, fame: 3 }) }
+  ]
+});
+S({
+  id: "class_advance",
+  trigger: "system",
+  text: (g) => {
+    const p = g.player;
+    const next = classById(p.cls).adv[p.clsAdv] || classById(p.cls).adv[1];
+    return '협회 본부에서 통지가 왔다. "'.concat(RANKS[p.rankIdx].key, "급 도달을 축하합니다. [").concat(className(p.cls, p.clsAdv), "] 계열 전직 시험 자격이 주어졌습니다. 합격 시 [").concat(next, '] 칭호가 부여됩니다."\n\n시험관은 같은 계열의 현역 헌터다. 실전 형식이다.');
+  },
+  choices: [
+    { text: "시험에 응한다", do: (g) => {
+      const p = g.player;
+      g.storyFight({ title: "전직 시험", mobs: { tier: p.rankIdx, n: 1, boss: true, human: true, name: "[시험관] 협회 수석 헌터" }, spar: true, win: { text: '시험관이 검을 거두며 고개를 끄덕였다. "합격."', after: (gg) => {
+        gg.player.clsAdv = Math.min(2, gg.player.clsAdv + 1);
+        gg.recalc();
+        gg.lifeEvent("전직 시험에 합격해 [".concat(className(gg.player.cls, gg.player.clsAdv), "]이(가) 되었다."));
+      } }, lose: { text: "불합격. 다음 기회에 다시 도전할 수 있다.", gain: {}, after: (gg) => gg.queue.push({ type: "story", id: "class_advance_retry" }) } });
+      return "시험장 문이 열렸다.";
+    } },
+    { text: "나중에 응시한다", do: (g) => {
+      g.flags.story.advPending = true;
+      return "협회 의뢰소에서 언제든 응시할 수 있다.";
+    } }
+  ]
+});
+S({
+  id: "class_advance_retry",
+  trigger: "month",
+  when: (g) => {
+    const p = g.player;
+    return p.rankIdx >= 3 && p.clsAdv < 1 || p.rankIdx >= 6 && p.clsAdv < 2;
+  },
+  weight: 3,
+  text: "협회에서 전직 시험 재응시 안내가 왔다.",
+  choices: [{ text: "다시 도전한다", do: (g) => {
+    g.queue.unshift({ type: "story", id: "class_advance" });
+    return "마음을 다잡았다.";
+  } }, { text: "아직 아니다", do: () => "조금 더 단련하기로 했다." }]
+});
+const BARKS = {
+  warlike: ["덤벼!", "이 정도냐?", "부숴 주마!", "하하, 재밌군!", "피가 끓는다!"],
+  kind: ["괜찮아?", "내가 지켜 줄게!", "조금만 버텨!", "다치지 마!", "같이 살아서 나가자!"],
+  greedy: ["그 코어 내 거야!", "막타는 내 몫!", "보수 올려 줘야 해!", "돈값은 한다!", "이건 추가 수당감이야."],
+  just: ["물러서지 마!", "내가 막는다!", "동료는 못 건드려!", "등 뒤는 맡겨!", "여기서 끝낸다!"],
+  cold: ["…", "비효율적이군.", "끝낸다.", "약점은 거기다.", "시간 낭비다."]
+};
+const HEAL_AT = { kind: 0.72, just: 0.6, cold: 0.35, warlike: 0.35, greedy: 0.45 };
+const SUMMON_NAME = { summoner: "정령", necromancer: "해골 병사", tamer: "길들인 괴수", apostle: "균열 괴수", machinist: "전투 드론" };
+class Combat {
+  // opts: { allies, enemies, canFlee, title, spar }
+  constructor(game, opts) {
+    this.game = game;
+    this.title = opts.title || "전투";
+    this.canFlee = opts.canFlee !== false;
+    this.spar = !!opts.spar;
+    this.units = [...opts.allies, ...opts.enemies].map((u) => this.prep(u));
+    this.log = [];
+    this.round = 1;
+    this.actions = 0;
+    this.result = null;
+    this.waiting = false;
+    this.auto = false;
+    this.target = null;
+    this.active = null;
+    this.kills = [];
+    const sp = this.units.map((u) => u.spd);
+    this.meanSpd = sp.reduce((a, b) => a + b, 0) / sp.length || 10;
+    for (const u of this.units) u.atb = Math.random() * 35 + u.spd / this.meanSpd * 15;
+    this.initial = Object.fromEntries(this.units.map((u) => [u.id, { hp: u.hp, mp: u.mp }]));
+  }
+  prep(u) {
+    return __spreadProps(__spreadValues({}, u), { alive: u.hp > 0, atb: 0, buffs: { atk: 0, atkT: 0, def: 0, defT: 0 }, stun: 0, poison: null, evadeT: 0, tauntT: 0 });
+  }
+  get player() {
+    return this.units.find((u) => u.isPlayer);
+  }
+  side(s) {
+    return this.units.filter((u) => u.side === s && u.alive);
+  }
+  allies() {
+    return this.side("ally");
+  }
+  enemies() {
+    return this.side("enemy");
+  }
+  friendsOf(u) {
+    return this.side(u.side);
+  }
+  foesOf(u) {
+    return this.side(u.side === "ally" ? "enemy" : "ally");
+  }
+  push(t, cls = "", ev = null) {
+    this.log.push({ t: t ? fixJosa(t) : "", cls, ev });
+  }
+  fillRate(u) {
+    return u.spd / this.meanSpd * (100 / 2.4);
+  }
+  // 초당 게이지 증가량
+  // ---------- ATB: 시간이 흐르며 게이지가 찬다 ----------
+  // dt초만큼 게이지를 채우고, 가득 찬 캐릭터가 있으면 돌려준다
+  tick(dt) {
+    if (this.result || this.waiting) return null;
+    let ready = null;
+    for (const u of this.units) {
+      if (!u.alive) continue;
+      u.atb = Math.min(100, u.atb + this.fillRate(u) * dt);
+      if (u.atb >= 100 && (!ready || u.spd > ready.spd)) ready = u;
+    }
+    return ready;
+  }
+  // 다음 캐릭터가 준비될 때까지 시간을 건너뛴다 (시뮬레이션용)
+  skipToNext() {
+    let best = Infinity;
+    for (const u of this.units) if (u.alive) best = Math.min(best, (100 - u.atb) / this.fillRate(u));
+    return this.tick(Math.max(0, best) + 1e-6);
+  }
+  // 차례가 된 캐릭터의 행동 시작. 플레이어면 입력을 기다린다.
+  takeTurn(u) {
+    this.actions++;
+    this.round = 1 + Math.floor(this.actions / Math.max(1, this.units.filter((x) => x.alive).length));
+    this.active = u;
+    if (u.buffs.atkT > 0 && --u.buffs.atkT === 0) u.buffs.atk = 0;
+    if (u.buffs.defT > 0 && --u.buffs.defT === 0) u.buffs.def = 0;
+    if (u.evadeT > 0) u.evadeT--;
+    if (u.tauntT > 0) u.tauntT--;
+    u.mp = Math.min(u.maxMp, u.mp + Math.round(u.maxMp * 0.05));
+    if (u.poison) {
+      u.hp -= u.poison.dmg;
+      u.poison.t--;
+      this.push("".concat(u.name, "이(가) 중독으로 ").concat(u.poison.dmg, " 피해"), u.side === "enemy" ? "hit" : "hurt", { k: "dmg", dst: u.id, amt: u.poison.dmg, elem: null, hp: Math.max(0, u.hp), killed: u.hp <= 0, dot: true });
+      if (u.poison.t <= 0) u.poison = null;
+      if (u.hp <= 0) {
+        this.down(u);
+        this.checkEnd();
+        u.atb = 0;
+        return "done";
+      }
+    }
+    if (u.stun > 0) {
+      u.stun--;
+      u.atb = 0;
+      this.push("".concat(u.name, "은(는) 기절해 움직이지 못한다."), "", { k: "note", dst: u.id });
+      return "done";
+    }
+    if (u.isPlayer && !this.auto) {
+      this.waiting = true;
+      return "wait";
+    }
+    this.aiAct(u);
+    u.atb = 0;
+    this.checkEnd();
+    return "done";
+  }
+  // 연출 없이 끝까지 진행 (시뮬레이션용)
+  runAll() {
+    this.auto = true;
+    let g = 0;
+    while (!this.result && g++ < 3e3) {
+      const u = this.skipToNext();
+      if (u) this.takeTurn(u);
+    }
+  }
+  down(u) {
+    u.hp = this.spar && u.isPlayer ? 1 : 0;
+    u.alive = false;
+    this.push("".concat(u.name, "이(가) 쓰러졌다."), u.side === "enemy" ? "good" : "bad", { k: "down", dst: u.id });
+    if (u.side === "ally" && !u.summon) {
+      const friend = this.allies().find((f) => f.pers && !f.isPlayer && f !== u);
+      if (friend) {
+        const t = friend.pers === "kind" ? "".concat(u.name, "!! 안 돼!") : friend.pers === "warlike" ? "이 자식들, 가만 안 둬!" : friend.pers === "cold" ? "…하나 줄었군." : friend.pers === "greedy" ? "이거 위험수당 나오는 거지?" : "".concat(u.name, "의 몫까지 싸운다!");
+        this.push("".concat(friend.name, ': "').concat(t, '"'), "", { k: "say", src: friend.id, text: t });
+      }
+    }
+    if (u.side === "enemy" && !u.summon) this.kills.push(u);
+  }
+  checkEnd() {
+    if (this.result) return;
+    const p = this.player;
+    const allyCore = this.units.filter((u) => u.side === "ally" && !u.summon && u.alive);
+    if (this.spar && !p.alive || !allyCore.length) {
+      this.result = "lose";
+      this.push("파티가 무너졌다…", "bad");
+      return;
+    }
+    if (!this.enemies().length) {
+      this.result = "win";
+      this.push("전투 승리!", "good");
+    }
+  }
+  pickTarget(u) {
+    const foes = this.foesOf(u);
+    if (!foes.length) return null;
+    if (u.side === "ally") {
+      if (u.isPlayer && this.target && this.target.alive) return this.target;
+      switch (u.pers) {
+        case "warlike":
+          return foes.reduce((a, b) => (b.boss ? 1e9 : 0) + b.maxHp > (a.boss ? 1e9 : 0) + a.maxHp ? b : a);
+        // 가장 강한 적
+        case "greedy":
+          return foes.reduce((a, b) => a.hp < b.hp ? a : b);
+        // 막타
+        case "cold": {
+          const adv = foes.find((f) => u.elem && f.elem && ELEMENTS[u.elem].counter === f.elem);
+          return adv || foes.reduce((a, b) => a.def < b.def ? a : b);
+        }
+        case "just":
+        case "kind": {
+          const weak = this.allies().filter((f) => !f.summon).reduce((a, b) => b.hp / b.maxHp < a.hp / a.maxHp ? b : a, u);
+          const culprit = weak.lastHitBy && this.units.find((x) => x.id === weak.lastHitBy && x.alive);
+          return culprit || foes.reduce((a, b) => a.hp < b.hp ? a : b);
+        }
+        default:
+          return foes.reduce((a, b) => a.hp < b.hp ? a : b);
+      }
+    }
+    const taunter = foes.find((f) => f.tauntT > 0);
+    if (taunter && Math.random() < 0.8) return taunter;
+    const pl = foes.find((f) => f.isPlayer);
+    if (pl && Math.random() < 0.35) return pl;
+    return foes[Math.floor(Math.random() * foes.length)];
+  }
+  bark(u, force) {
+    if (!u.pers || u.isPlayer || !BARKS[u.pers]) return;
+    if (!force && Math.random() > 0.16) return;
+    const t = BARKS[u.pers][Math.floor(Math.random() * BARKS[u.pers].length)];
+    this.push("".concat(u.name, ': "').concat(t, '"'), "", { k: "say", src: u.id, text: t });
+  }
+  // ---------- AI: 직업과 성격으로 행동 결정 ----------
+  aiAct(u) {
+    var _a;
+    if (u.pers === "greedy" && u.side === "ally" && !u.isPlayer && !this.spar && u.hp < u.maxHp * 0.25 && Math.random() < 0.35) {
+      u.alive = false;
+      u.fled = true;
+      this.push("".concat(u.name, '이(가) "목숨값은 따로 안 받았거든!" 하고 전장에서 달아났다.'), "bad", { k: "flee", src: u.id });
+      this.checkEnd();
+      return;
+    }
+    this.bark(u);
+    const g = this.game;
+    if (u.isPlayer && u.hp < u.maxHp * 0.35 && g.player.items.potion > 0) {
+      g.player.items.potion--;
+      const v = Math.round(u.maxHp * 0.4 * (1 + g.mod("heal")));
+      u.hp = Math.min(u.maxHp, u.hp + v);
+      this.push("".concat(u.name, "이(가) 응급 회복제를 사용했다: 체력 +").concat(v), "heal", { k: "heal", dst: u.id, amt: v, hp: u.hp });
+      return;
+    }
+    const usable = u.skills.map(skillById).filter((s) => s && s.mp <= u.mp);
+    const has = (t) => usable.filter((s) => s.type === t);
+    const friends = this.friendsOf(u), foes = this.foesOf(u);
+    const healAt = (_a = HEAL_AT[u.pers]) != null ? _a : 0.55;
+    const hurt = friends.filter((f) => f.hp < f.maxHp * healAt && !f.summon);
+    const war = u.pers === "warlike";
+    const fallen = this.units.filter((f) => f.side === u.side && !f.alive && !f.summon);
+    const mySummons = this.units.filter((f) => f.alive && f.summonOf === u.id).length;
+    const R = Math.random;
+    const choose = (list) => list.length ? list.reduce((a, b) => b.power > a.power ? b : a) : null;
+    let skill = null;
+    if (!skill && fallen.length && has("revive").length && R() < 0.8) skill = has("revive")[0];
+    if (!skill && hurt.length >= 2 && has("heal_all").length) skill = choose(has("heal_all"));
+    if (!skill && hurt.length >= 1 && has("heal_ally").length) skill = choose(has("heal_ally"));
+    if (!skill && u.hp < u.maxHp * 0.4 && has("heal").length) skill = has("heal")[0];
+    if (!skill && has("taunt").length && !u.tauntT && friends.length > 1) skill = has("taunt")[0];
+    if (!skill && u.pers === "just" && has("taunt").length && friends.some((f) => f !== u && f.hp < f.maxHp * 0.35)) skill = has("taunt")[0];
+    if (!skill && has("summon").length && mySummons < 2 && R() < 0.7) skill = choose(has("summon"));
+    const support = war ? 0.15 : u.pers === "kind" ? 0.75 : 0.5;
+    if (!skill && has("buff_all").length && !friends.some((f) => f.buffs.atkT) && R() < support) skill = choose(has("buff_all"));
+    if (!skill && has("shield_all").length && !friends.some((f) => f.buffs.defT) && (hurt.length || this.round === 1) && R() < support) skill = choose(has("shield_all"));
+    if (!skill && has("debuff").length && !foes.some((f) => f.buffs.def < 0) && R() < (u.pers === "cold" ? 0.7 : war ? 0.1 : 0.4)) skill = has("debuff")[0];
+    if (!skill && has("evade").length && !u.evadeT && u.hp < u.maxHp * 0.6 && R() < (war ? 0.05 : u.pers === "greedy" ? 0.7 : 0.4)) skill = has("evade")[0];
+    if (!skill && (has("buff").length || has("shield").length) && !u.buffs.atkT && !u.buffs.defT && R() < 0.25) skill = has("buff")[0] || has("shield")[0];
+    if (!skill && has("aoe").length && foes.length >= 2 && R() < (war ? 0.85 : 0.65)) skill = choose(has("aoe"));
+    if (!skill && has("stun").length && foes.some((f) => f.boss || f.maxHp > u.maxHp) && R() < 0.5) skill = choose(has("stun"));
+    if (!skill) {
+      const atk = usable.filter((s) => ["dmg", "crit", "pierce", "multi", "dot", "drain", "stun"].includes(s.type) && s.id !== "strike");
+      if (atk.length && war) skill = choose(atk);
+      else if (atk.length && u.pers === "cold") {
+        const t = this.pickTarget(u);
+        skill = t && t.hp < u.atk * 1.2 ? null : choose(atk);
+      } else if (atk.length && u.pers === "greedy") {
+        const pref = atk.filter((s) => s.type === "multi" || s.type === "crit");
+        skill = pref.length && R() < 0.7 ? choose(pref) : choose(atk);
+      } else if (atk.length && R() < 0.7) skill = R() < 0.6 ? choose(atk) : atk[Math.floor(R() * atk.length)];
+    }
+    if (!skill) skill = skillById("strike");
+    this.useSkill(u, skill, this.pickTarget(u));
+  }
+  calcDamage(att, def, skill, opt = {}) {
+    const atk = att.atk * (1 + att.buffs.atk);
+    const d = Math.max(0, def.def * (1 + def.buffs.def) * (opt.pierce ? 0.3 : 1));
+    let dmg = atk * skill.power * atk / (atk + d);
+    let note = "";
+    const e = skill.elem === "self" ? att.elem : skill.elem;
+    if (e && def.elem) {
+      if (ELEMENTS[e].counter === def.elem) {
+        dmg *= 1.5;
+        note = " 효과적!";
+      } else if (ELEMENTS[def.elem].counter === e) {
+        dmg *= 0.7;
+        note = " 저항됨";
+      }
+    }
+    if (e && att.affinity === e) dmg *= 1.2;
+    if (Math.random() < 0.05 + att.luck / 400 + (opt.crit || 0)) {
+      dmg *= 1.6;
+      note += " 치명타!";
+    }
+    dmg *= 0.9 + Math.random() * 0.2;
+    return { dmg: Math.max(1, Math.round(dmg)), note, elem: e };
+  }
+  dealDamage(att, def, skill, opt = {}) {
+    if (def.side === "ally" && !def.summon && def.hp < def.maxHp * 0.35) {
+      const cover = this.allies().find((f) => f !== def && !f.summon && !f.isPlayer && (f.pers === "just" || f.pers === "kind") && f.hp > f.maxHp * 0.6 && !f.stun);
+      if (cover && Math.random() < 0.38) {
+        this.push("".concat(cover.name, "이(가) ").concat(def.name, "을(를) 감싸며 막아섰다!"), "heal", { k: "cover", src: cover.id, dst: def.id });
+        def = cover;
+      }
+    }
+    def.lastHitBy = att.id;
+    if (def.evadeT > 0 && Math.random() < 0.6) {
+      this.push("".concat(def.name, "이(가) ").concat(skill.name, "을(를) 피했다!"), "", { k: "miss", dst: def.id });
+      return 0;
+    }
+    const { dmg, note, elem } = this.calcDamage(att, def, skill, opt);
+    def.hp -= dmg;
+    const killed = def.hp <= 0;
+    this.push(
+      "".concat(att.name, "의 ").concat(skill.name, " → ").concat(def.name, "에게 ").concat(dmg, " 피해").concat(note),
+      att.side === "ally" ? "hit" : "hurt",
+      { k: "dmg", src: att.id, dst: def.id, amt: dmg, elem, crit: note.includes("치명타"), eff: note.includes("효과적"), hp: Math.max(0, def.hp), killed }
+    );
+    if (killed) this.down(def);
+    return dmg;
+  }
+  buffEvent(u, txt) {
+    this.push("".concat(u.name, ": ").concat(txt), "heal", { k: "buff", dst: u.id, mp: u.mp });
+  }
+  healUnit(u, v, by) {
+    const amt = Math.round(by && by === u ? v * 0.55 : v);
+    u.hp = Math.min(u.maxHp, u.hp + amt);
+    this.push("".concat(by ? by.name + "의 치유 → " : "").concat(u.name, " 체력 +").concat(amt), "heal", { k: "heal", dst: u.id, amt, hp: u.hp });
+  }
+  useSkill(u, skill, target) {
+    u.mp -= skill.mp;
+    this.log.push({ t: "", cls: "cast", ev: { k: "cast", src: u.id, mp: u.mp, elem: skill.elem === "self" ? u.elem : skill.elem, side: u.side, name: skill.id === "strike" ? "" : skill.name } });
+    const friends = this.friendsOf(u), foes = this.foesOf(u);
+    const P = skill.power;
+    switch (skill.type) {
+      case "dmg":
+        if (target) this.dealDamage(u, target, skill);
+        break;
+      case "crit":
+        if (target) this.dealDamage(u, target, skill, { crit: 0.45 });
+        break;
+      case "pierce":
+        if (target) this.dealDamage(u, target, skill, { pierce: true });
+        break;
+      case "multi":
+        for (let i = 0; i < 3; i++) {
+          const f = this.foesOf(u);
+          if (!f.length) break;
+          this.dealDamage(u, f[Math.floor(Math.random() * f.length)], skill);
+        }
+        break;
+      case "dot":
+        if (target && this.dealDamage(u, target, skill) && target.alive) {
+          target.poison = { dmg: Math.max(1, Math.round(u.atk * P * 0.3)), t: 3 };
+          this.push("".concat(target.name, "이(가) 중독됐다."), "hit", { k: "note", dst: target.id });
+        }
+        break;
+      case "stun":
+        if (target && this.dealDamage(u, target, skill) && target.alive && Math.random() < (target.boss ? 0.25 : 0.5)) {
+          target.stun = 1;
+          this.push("".concat(target.name, "이(가) 기절했다!"), "hit", { k: "note", dst: target.id });
+        }
+        break;
+      case "drain":
+        if (target) {
+          const d = this.dealDamage(u, target, skill);
+          if (d) this.healUnit(u, d * 0.5);
+        }
+        break;
+      case "aoe":
+        this.push("".concat(u.name, "이(가) ").concat(skill.name, "을(를) 펼쳤다!"), u.side === "ally" ? "hit" : "hurt", { k: "aoe", src: u.id, side: u.side, elem: skill.elem === "self" ? u.elem : skill.elem });
+        for (const f of foes) this.dealDamage(u, f, skill);
+        break;
+      case "debuff":
+        for (const f of foes) {
+          f.buffs.def = -Math.min(0.6, P);
+          f.buffs.defT = 3;
+        }
+        this.push("".concat(u.name, "의 ").concat(skill.name, ": 적 전체의 방어가 무너졌다."), "hit", { k: "aoe", src: u.id, side: u.side, elem: "spirit" });
+        break;
+      case "taunt":
+        u.tauntT = 2;
+        u.buffs.def = Math.max(u.buffs.def, P);
+        u.buffs.defT = 2;
+        this.buffEvent(u, "".concat(skill.name, "! 적의 시선이 쏠린다."));
+        break;
+      case "shield_all":
+        for (const f of friends) {
+          f.buffs.def = Math.max(f.buffs.def, P);
+          f.buffs.defT = 3;
+        }
+        this.buffEvent(u, "".concat(skill.name, " · 파티 방어 상승"));
+        break;
+      case "buff_all":
+        for (const f of friends) {
+          f.buffs.atk = Math.max(f.buffs.atk, P);
+          f.buffs.atkT = 3;
+        }
+        this.buffEvent(u, "".concat(skill.name, " · 파티 공격 상승"));
+        break;
+      case "heal_ally": {
+        const t = friends.filter((f) => !f.summon).reduce((a, b) => b.hp / b.maxHp < a.hp / a.maxHp ? b : a, u);
+        this.healUnit(t, t.maxHp * P, u);
+        break;
+      }
+      case "heal_all":
+        for (const f of friends) this.healUnit(f, f.maxHp * P * (friends.length === 1 ? 0.55 : 1), null);
+        break;
+      case "heal":
+        this.healUnit(u, u.maxHp * P);
+        break;
+      case "revive": {
+        const t = this.units.find((f) => f.side === u.side && !f.alive && !f.summon);
+        if (t) {
+          t.alive = true;
+          t.hp = Math.round(t.maxHp * P);
+          this.push("".concat(u.name, "의 ").concat(skill.name, "! ").concat(t.name, "이(가) 다시 일어섰다."), "heal", { k: "heal", dst: t.id, amt: t.hp, hp: t.hp, revive: true });
+          t.atb = 30;
+        } else this.healUnit(u, u.maxHp * 0.2);
+        break;
+      }
+      case "evade":
+        u.evadeT = 2;
+        this.buffEvent(u, "".concat(skill.name, " · 회피 태세"));
+        break;
+      case "buff":
+        u.buffs.atk = P;
+        u.buffs.atkT = 3;
+        this.buffEvent(u, "".concat(skill.name, " · 공격력 상승"));
+        break;
+      case "shield":
+        u.buffs.def = P * 2;
+        u.buffs.defT = 3;
+        this.buffEvent(u, "".concat(skill.name, " · 방어력 상승"));
+        break;
+      case "summon": {
+        const n = this.units.filter((f) => f.summonOf === u.id && f.alive).length;
+        if (n >= 2) {
+          this.dealDamage(u, target || foes[0], skillById("strike"));
+          break;
+        }
+        const s = {
+          id: "".concat(u.id, "_s").concat(Math.random().toString(36).slice(2, 6)),
+          name: SUMMON_NAME[u.cls] || "소환수",
+          side: u.side,
+          summon: true,
+          summonOf: u.id,
+          hp: Math.round(u.maxHp * (0.5 + P * 0.6)),
+          maxHp: Math.round(u.maxHp * (0.5 + P * 0.6)),
+          mp: 0,
+          maxMp: 1,
+          atk: Math.round(u.atk * (0.45 + P * 0.5)),
+          def: Math.round(u.def * 0.7),
+          spd: u.spd,
+          luck: 5,
+          elem: u.elem,
+          skills: ["strike"],
+          shape: { summoner: "ghost", necromancer: "ghost", tamer: "beast", apostle: "eye", machinist: "drone" }[u.cls] || "slime",
+          tier: 0
+        };
+        const su = this.prep(s);
+        su.atb = Math.random() * 40;
+        this.units.push(su);
+        this.push("".concat(u.name, "이(가) ").concat(s.name, "을(를) 불러냈다!"), "heal", { k: "summon", dst: su.id, src: u.id });
+        break;
+      }
+      default:
+        if (target) this.dealDamage(u, target, skill);
+    }
+    this.checkEnd();
+  }
+  // ----- 플레이어 입력 (내 차례일 때만) -----
+  playerSkill(id) {
+    if (!this.waiting || this.result) return;
+    const p = this.player;
+    const skill = skillById(id);
+    if (skill.mp > p.mp) {
+      this.push("정신력이 부족하다.", "bad");
+      return;
+    }
+    const target = this.target && this.target.alive ? this.target : this.enemies()[0];
+    this.useSkill(p, skill, target);
+    this.endPlayerTurn();
+  }
+  playerItem(id) {
+    if (!this.waiting || this.result) return;
+    const g = this.game;
+    const p = this.player;
+    if (!g.player.items[id]) return;
+    const c = CONSUMABLES.find((x) => x.id === id);
+    if (c.effect !== "hp" && c.effect !== "mp") return;
+    g.player.items[id]--;
+    const mul = 1 + g.mod("heal");
+    if (c.effect === "hp") this.healUnit(p, p.maxHp * c.val * mul);
+    else {
+      const v = Math.round(p.maxMp * c.val * mul);
+      p.mp = Math.min(p.maxMp, p.mp + v);
+      this.push("".concat(c.name, " 사용: 정신력 +").concat(v), "heal", { k: "mp", dst: p.id, mp: p.mp });
+    }
+    this.endPlayerTurn();
+  }
+  playerFlee() {
+    if (!this.waiting || this.result || !this.canFlee) return;
+    const p = this.player;
+    const es = this.enemies();
+    const avg = es.reduce((a, e) => a + e.spd, 0) / es.length;
+    const chance = Math.max(0.2, Math.min(0.9, 0.5 + (p.spd - avg) / (p.spd * 2)));
+    if (Math.random() < chance) {
+      this.result = "flee";
+      this.push("전장에서 이탈했다.", "");
+      this.waiting = false;
+      return;
+    }
+    this.push("도주에 실패했다!", "bad");
+    this.endPlayerTurn();
+  }
+  setTarget(id) {
+    const t = this.units.find((u) => u.id === id && u.alive && u.side === "enemy");
+    if (t) this.target = t;
+  }
+  toggleAuto() {
+    this.auto = !this.auto;
+  }
+  autoStep() {
+    if (!this.waiting || this.result) return;
+    this.waiting = false;
+    this.aiAct(this.player);
+    this.player.atb = 0;
+    this.checkEnd();
+  }
+  endPlayerTurn() {
+    this.waiting = false;
+    this.player.atb = 0;
+    this.checkEnd();
+  }
+}
+const FX = {
+  hash(str) {
+    let h = 2166136261;
+    for (const c of String(str)) {
+      h ^= c.charCodeAt(0);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  },
+  rng(seed) {
+    let a = seed >>> 0;
+    return () => {
+      a = a + 1831565813 >>> 0;
+      let t = a;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  },
+  uid() {
+    return "g" + Math.random().toString(36).slice(2, 9);
+  },
+  reduced: typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches,
+  PAL: {
+    fire: { dark: "#2a0f0b", mid: "#7a2a16", hi: "#ff7a45" },
+    bolt: { dark: "#24200a", mid: "#6b5a12", hi: "#ffd84d" },
+    ice: { dark: "#0a2230", mid: "#1d5a78", hi: "#6fd3ff" },
+    steel: { dark: "#1b1f26", mid: "#4a5361", hi: "#c9d2de" },
+    spirit: { dark: "#1c0f2e", mid: "#4e2a7a", hi: "#c58cff" },
+    none: { dark: "#1b1f26", mid: "#3a4250", hi: "#9aa6b8" }
+  },
+  // ---------- 아이콘 ----------
+  elemIcon(e, size = 14) {
+    const c = e ? ELEMENTS[e].color : "#9aa6b8";
+    const s = 'width="'.concat(size, '" height="').concat(size, '" viewBox="0 0 24 24" aria-hidden="true" class="ico"');
+    switch (e) {
+      case "fire":
+        return "<svg ".concat(s, '><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="').concat(c, '"/></svg>');
+      case "bolt":
+        return "<svg ".concat(s, '><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="').concat(c, '"/></svg>');
+      case "ice":
+        return "<svg ".concat(s, '><g stroke="').concat(c, '" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7"/><path d="M9 3.5 12 6l3-2.5M9 20.5 12 18l3 2.5" fill="none"/></g></svg>');
+      case "steel":
+        return "<svg ".concat(s, '><path d="M10 2h4l.6 2.6 2.3 1 2.3-1.4 2.8 2.8-1.4 2.3 1 2.3L24 12v0l-2.6.6-1 2.3 1.4 2.3-2.8 2.8-2.3-1.4-2.3 1L14 22h-4l-.6-2.6-2.3-1-2.3 1.4-2.8-2.8 1.4-2.3-1-2.3L0 12l2.6-.6 1-2.3-1.4-2.3 2.8-2.8 2.3 1.4 2.3-1z" fill="').concat(c, '"/><circle cx="12" cy="12" r="3.6" fill="#11151d"/></svg>');
+      case "spirit":
+        return "<svg ".concat(s, '><ellipse cx="12" cy="12" rx="10" ry="6.5" fill="none" stroke="').concat(c, '" stroke-width="2"/><circle cx="12" cy="12" r="3.5" fill="').concat(c, '"/></svg>');
+      default:
+        return "<svg ".concat(s, '><circle cx="12" cy="12" r="5" fill="').concat(c, '"/></svg>');
+    }
+  },
+  icon(name, size = 15) {
+    const s = 'width="'.concat(size, '" height="').concat(size, '" viewBox="0 0 24 24" aria-hidden="true" class="ico" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"');
+    const P = {
+      calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+      pin: '<path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
+      hourglass: '<path d="M6 2h12M6 22h12M7 2c0 6 10 6 10 10S7 16 7 22M17 2c0 6-10 6-10 10s10 4 10 10"/>',
+      coin: '<circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.6 3 2 3 .9 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v2M12 16v2"/>',
+      star: '<path d="m12 3 2.8 5.8 6.2.9-4.5 4.4 1 6.2L12 17.4l-5.5 2.9 1-6.2L3 9.7l6.2-.9z"/>',
+      train: '<circle cx="12" cy="5" r="2.5"/><path d="M12 8v6M6 21l3-7h6l3 7M7 11h10"/>',
+      rest: '<path d="M21 13a8 8 0 1 1-9.5-9.8A6.5 6.5 0 0 0 21 13z"/>',
+      gate: '<ellipse cx="12" cy="12" rx="6" ry="9"/><ellipse cx="12" cy="12" rx="2.5" ry="5"/>'
+    };
+    return "<svg ".concat(s, ">").concat(P[name] || "", "</svg>");
+  },
+  // ---------- 인물 초상화 (portrait.js) ----------
+  avatar(seed, gender, element, rankIdx, size = 56, opts) {
+    return PORTRAIT.avatar(seed, gender, element, rankIdx, size, opts);
+  },
+  portrait(seed, gender, element, rankIdx, w = 200, opts) {
+    return PORTRAIT.card(seed, gender, element, rankIdx, w, opts);
+  },
+  // ---------- 괴수 스프라이트 ----------
+  monster(mon, size = 110) {
+    const shape = mon.shape || "slime";
+    const pal = this.PAL[mon.elem] || this.PAL.none;
+    const id = this.uid();
+    const r = this.rng(this.hash(mon.name));
+    const body = "url(#".concat(id, "g)");
+    const hi = pal.hi;
+    const eye = (x, y, rr = 3) => '<circle cx="'.concat(x, '" cy="').concat(y, '" r="').concat(rr * 1.9, '" fill="').concat(hi, '" opacity=".35"/><circle cx="').concat(x, '" cy="').concat(y, '" r="').concat(rr, '" fill="').concat(hi, '"/><circle cx="').concat(x, '" cy="').concat(y, '" r="').concat(rr * 0.45, '" fill="#fff"/>');
+    let g = "";
+    switch (shape) {
+      case "beast":
+        g = '<path d="M12 50 21 37 26 44 34 41C46 38 62 38 72 43 82 47 87 54 89 61L96 56 93 66 87 67C85 73 81 75 77 75L77 88H70L68 75H46L44 88H37L36 73C31 71 27 67 25 61H15C10 59 8 53 12 50Z" fill="'.concat(body, '"/>\n          <path d="M38 40 42 31 46 39M50 38 55 28 59 38M62 40 68 31 70 42" fill="').concat(hi, '" opacity=".9"/>\n          ').concat(eye(20, 49, 2.6), '<path d="M13 57h9" stroke="').concat(hi, '" stroke-width="1.5"/>');
+        break;
+      case "slime":
+        g = '<path d="M14 82C8 60 24 28 50 26 76 28 92 60 86 82 70 90 30 90 14 82Z" fill="'.concat(body, '"/>\n          <ellipse cx="38" cy="42" rx="10" ry="6" fill="#fff" opacity=".18" transform="rotate(-25 38 42)"/>\n          <path d="M26 84v6M60 86v7M74 83v5" stroke="').concat(hi, '" stroke-width="4" stroke-linecap="round" opacity=".7"/>\n          ').concat(eye(40, 58, 4.5)).concat(eye(60, 58, 4.5), '<path d="M42 70q8 6 16 0" stroke="').concat(pal.dark, '" stroke-width="3" fill="none" stroke-linecap="round"/>');
+        break;
+      case "swarm": {
+        let bugs = "";
+        const pts = [];
+        for (let i = 0; i < 8; i++) {
+          const x = 18 + r() * 64, y = 22 + r() * 56;
+          pts.push([x, y]);
+          bugs += '<g transform="translate('.concat(x, " ").concat(y, ") rotate(").concat(r() * 60 - 30, ')"><ellipse cx="-5" cy="-4" rx="6" ry="3" fill="#fff" opacity=".35"/><ellipse cx="5" cy="-4" rx="6" ry="3" fill="#fff" opacity=".35"/><ellipse rx="4" ry="6" fill="').concat(body, '"/><circle cy="-4" r="1.6" fill="').concat(hi, '"/></g>');
+        }
+        const lines = pts.slice(1).map((p, i) => '<path d="M'.concat(pts[i][0], " ").concat(pts[i][1], " L").concat((pts[i][0] + p[0]) / 2 + 4, " ").concat((pts[i][1] + p[1]) / 2 - 3, " L").concat(p[0], " ").concat(p[1], '" stroke="').concat(hi, '" stroke-width="1" fill="none" opacity=".55"/>')).join("");
+        g = lines + bugs;
+        break;
+      }
+      case "drone":
+        g = '<path d="M18 46 6 40 10 54ZM82 46 94 40 90 54Z" fill="'.concat(pal.mid, '"/>\n          <circle cx="50" cy="48" r="26" fill="').concat(body, '"/><circle cx="50" cy="48" r="26" fill="none" stroke="').concat(hi, '" stroke-width="2" stroke-dasharray="6 5" opacity=".8"/>\n          <circle cx="50" cy="48" r="13" fill="').concat(pal.dark, '"/>').concat(eye(50, 48, 6), '\n          <path d="M38 72q-4 10 2 18M50 74v18M62 72q4 10-2 18" stroke="').concat(hi, '" stroke-width="2" fill="none" opacity=".7"/>');
+        break;
+      case "golem":
+        g = '<rect x="36" y="14" width="28" height="22" rx="3" fill="'.concat(body, '"/><rect x="41" y="23" width="18" height="4" fill="').concat(hi, '"/>\n          <path d="M28 38H72L78 70H22Z" fill="').concat(body, '"/>\n          <rect x="10" y="38" width="15" height="40" rx="4" fill="').concat(body, '"/><rect x="75" y="38" width="15" height="40" rx="4" fill="').concat(body, '"/>\n          <rect x="30" y="70" width="15" height="22" rx="2" fill="').concat(body, '"/><rect x="55" y="70" width="15" height="22" rx="2" fill="').concat(body, '"/>\n          <path d="M44 42 50 52 46 60M58 46 54 56" stroke="').concat(hi, '" stroke-width="2" fill="none"/><circle cx="50" cy="52" r="5" fill="').concat(hi, '" opacity=".8"/>');
+        break;
+      case "ghost":
+        g = '<path d="M50 12C34 12 27 28 27 44L23 88 31 80 37 90 44 80 50 90 56 80 63 90 69 80 77 88 73 44C73 28 66 12 50 12Z" fill="'.concat(body, '" opacity=".95"/>\n          <path d="M37 22C40 15 60 15 63 22 60 18 40 18 37 22Z" fill="#fff" opacity=".2"/>\n          <ellipse cx="50" cy="40" rx="12" ry="14" fill="').concat(pal.dark, '"/>').concat(eye(45, 40, 2.6)).concat(eye(55, 40, 2.6), '\n          <path d="M30 55q-12 6-14 18M70 55q12 6 14 18" stroke="').concat(hi, '" stroke-width="2" fill="none" opacity=".6"/>');
+        break;
+      case "choir":
+        g = [[28, 0.7], [72, 0.7], [50, 0.95]].map(([cx, sc]) => '<g transform="translate('.concat(cx, " ").concat(54 - sc * 8, ") scale(").concat(sc, ') translate(-50 -50)">\n          <path d="M50 12C36 12 30 26 30 42L26 86 34 78 40 88 46 78 50 86 54 78 60 88 66 78 74 86 70 42C70 26 64 12 50 12Z" fill="').concat(body, '"/>\n          <ellipse cx="50" cy="38" rx="11" ry="12" fill="').concat(pal.dark, '"/>').concat(eye(46, 37, 2.2)).concat(eye(54, 37, 2.2), '<ellipse cx="50" cy="45" rx="3" ry="4" fill="').concat(hi, '" opacity=".8"/></g>')).join("");
+        break;
+      case "spider": {
+        let legs = "";
+        for (let i = 0; i < 4; i++) {
+          const y = 46 + i * 7;
+          legs += '<path d="M42 '.concat(y, " L").concat(22 - i * 3, " ").concat(y - 16 + i * 2, " L").concat(8 + i * 2, " ").concat(y + 14 + i * 4, '" stroke="').concat(pal.mid, '" stroke-width="3.5" fill="none" stroke-linejoin="round"/>');
+          legs += '<path d="M58 '.concat(y, " L").concat(78 + i * 3, " ").concat(y - 16 + i * 2, " L").concat(92 - i * 2, " ").concat(y + 14 + i * 4, '" stroke="').concat(pal.mid, '" stroke-width="3.5" fill="none" stroke-linejoin="round"/>');
+        }
+        g = "".concat(legs, '<ellipse cx="50" cy="66" rx="20" ry="18" fill="').concat(body, '"/><path d="M42 60h16M44 68h12M46 76h8" stroke="').concat(hi, '" stroke-width="2"/>\n          <ellipse cx="50" cy="44" rx="12" ry="10" fill="').concat(body, '"/>').concat(eye(45, 42, 2)).concat(eye(55, 42, 2)).concat(eye(50, 38, 1.6), '<path d="M34 34 42 26 46 33M66 34 58 26 54 33" fill="').concat(hi, '"/>');
+        break;
+      }
+      case "flyer":
+        g = '<path d="M50 48 8 20 20 50 4 58 34 58ZM50 48 92 20 80 50 96 58 66 58Z" fill="'.concat(pal.mid, '" opacity=".9"/>\n          <path d="M50 48 8 20M50 48 92 20" stroke="').concat(hi, '" stroke-width="1.5"/>\n          <path d="M50 26 60 50 50 88 40 50Z" fill="').concat(body, '"/>').concat(eye(50, 38, 3), '\n          <path d="M44 62 30 80M56 62 70 80" stroke="').concat(hi, '" stroke-width="2.5" stroke-linecap="round"/><path d="M50 70 L46 96 50 90 54 96Z" fill="').concat(hi, '"/>');
+        break;
+      case "dragon":
+        g = '<path d="M54 50C60 30 72 14 92 8 84 22 86 30 96 38 82 40 76 50 72 58Z" fill="'.concat(pal.mid, '" opacity=".95"/>\n          <path d="M50 52C40 34 28 22 10 18 18 30 14 38 6 46 20 46 30 52 36 60Z" fill="').concat(pal.mid, '" opacity=".8"/>\n          <path d="M36 62C38 50 52 46 64 52 74 58 78 70 90 74 96 76 98 84 94 90 88 82 76 84 66 80 54 84 40 78 36 62Z" fill="').concat(body, '"/>\n          <path d="M42 58C36 46 30 38 20 36 14 35 8 38 6 44L14 46 10 52C16 52 22 50 26 52 30 56 32 62 34 66Z" fill="').concat(body, '"/>\n          <path d="M14 36 12 28 18 34M22 35 24 27 26 36" fill="').concat(hi, '"/>').concat(eye(15, 42, 2.2), '\n          <path d="M44 66h18M48 72h14" stroke="').concat(hi, '" stroke-width="1.5" opacity=".8"/><path d="M6 46 0 50" stroke="').concat(hi, '" stroke-width="2"/>');
+        break;
+      case "eye": {
+        let tent = "";
+        for (let i = 0; i < 6; i++) {
+          const x = 26 + i * 10;
+          tent += '<path d="M'.concat(x, " 66 Q").concat(x + (r() * 16 - 8), " 80 ").concat(x + (r() * 20 - 10), ' 96" stroke="').concat(pal.mid, '" stroke-width="5" fill="none" stroke-linecap="round"/>');
+        }
+        g = "".concat(tent, '<circle cx="50" cy="46" r="30" fill="').concat(body, '"/><circle cx="50" cy="46" r="20" fill="#e8e2f0"/>\n          <circle cx="50" cy="46" r="13" fill="').concat(hi, '"/><ellipse cx="50" cy="46" rx="3.5" ry="11" fill="#0a0a10"/><circle cx="44" cy="40" r="3" fill="#fff" opacity=".8"/>\n          <path d="M20 46q30-34 60 0" stroke="').concat(pal.dark, '" stroke-width="4" fill="none"/>');
+        break;
+      }
+      case "core": {
+        let rays = "";
+        for (let i = 0; i < 12; i++) {
+          const a = i / 12 * Math.PI * 2;
+          const x1 = 50 + Math.cos(a) * 28, y1 = 50 + Math.sin(a) * 28, x2 = 50 + Math.cos(a) * (40 + r() * 8), y2 = 50 + Math.sin(a) * (40 + r() * 8);
+          rays += '<path d="M'.concat(x1, " ").concat(y1, "L").concat(x2, " ").concat(y2, '" stroke="').concat(hi, '" stroke-width="').concat(2 + r() * 3, '" stroke-linecap="round"/>');
+        }
+        g = "".concat(rays, '<circle cx="50" cy="50" r="28" fill="').concat(body, '"/><circle cx="50" cy="50" r="16" fill="').concat(hi, '" opacity=".9"/><circle cx="50" cy="50" r="8" fill="#fff"/>\n          <path d="M30 40q8-6 14 0M56 40q8-6 14 0" stroke="').concat(pal.dark, '" stroke-width="3" fill="none"/>');
+        break;
+      }
+      case "lord": {
+        let tent = "";
+        for (let i = 0; i < 9; i++) {
+          const x = 14 + i * 9;
+          tent += '<path d="M'.concat(x, " 62 Q").concat(x + (r() * 24 - 12), " 82 ").concat(x + (r() * 24 - 12), ' 99" stroke="').concat(pal.mid, '" stroke-width="6" fill="none" stroke-linecap="round"/>');
+        }
+        g = '<circle cx="50" cy="44" r="44" fill="'.concat(hi, '" opacity=".12"/>').concat(tent, '\n          <path d="M14 66C14 34 30 18 50 18S86 34 86 66Z" fill="').concat(body, '"/>\n          <path d="M28 22 34 6 40 18 50 2 60 18 66 6 72 22Z" fill="').concat(hi, '"/>\n          <circle cx="50" cy="44" r="16" fill="#e8e2f0"/><circle cx="50" cy="44" r="10" fill="').concat(hi, '"/><ellipse cx="50" cy="44" rx="3" ry="9" fill="#0a0a10"/>\n          ').concat(eye(28, 52, 3)).concat(eye(72, 52, 3)).concat(eye(36, 34, 2)).concat(eye(64, 34, 2));
+        break;
+      }
+    }
+    return '<svg class="mon-svg" width="'.concat(size, '" height="').concat(size, '" viewBox="0 0 100 100" role="img" aria-label="').concat(mon.name, '">\n      <defs><linearGradient id="').concat(id, 'g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="').concat(pal.mid, '"/><stop offset="1" stop-color="').concat(pal.dark, '"/></linearGradient></defs>\n      <ellipse cx="50" cy="96" rx="30" ry="4" fill="#000" opacity=".45"/>').concat(g, "</svg>");
+  },
+  // ---------- 사건 삽화 ----------
+  eventArt(id) {
+    const scenes = {
+      injured_hunter: ["#3a1520", '<path d="M20 70h60" stroke="#ff6b6b" stroke-width="2"/><ellipse cx="50" cy="64" rx="22" ry="6" fill="#0a0d14"/><circle cx="30" cy="60" r="6" fill="#c9a28a"/><path d="M36 60h28l6 4H36z" fill="#2a3245"/><path d="M74 28h6v6h6v6h-6v6h-6v-6h-6v-6h6z" fill="#ff6b6b"/>'],
+      black_market: ["#1d1430", '<path d="M30 80V44c0-12 8-20 18-20s18 8 18 20v36z" fill="#0a0d14"/><circle cx="48" cy="44" r="8" fill="#140f20"/><circle cx="45" cy="44" r="1.6" fill="#c58cff"/><circle cx="51" cy="44" r="1.6" fill="#c58cff"/><path d="M68 62l6-10 6 10-6 10z" fill="#c58cff"/><circle cx="74" cy="62" r="12" fill="#c58cff" opacity=".2"/>'],
+      kid_lost: ["#2a1d10", '<rect x="16" y="20" width="8" height="8" rx="2" fill="#ff4f6a"/><circle cx="20" cy="24" r="14" fill="#ff4f6a" opacity=".2"/><circle cx="52" cy="50" r="6" fill="#e8c3a3"/><path d="M45 58h14l2 18H43z" fill="#f0b35b"/><path d="M47 76v8M57 76v8" stroke="#2a3245" stroke-width="3"/>'],
+      ruins: ["#10202a", '<path d="M18 84V40h10v44M40 84V52h10v32M64 84V34h10v12l-4 4 4 4v30" fill="#2a3245"/><path d="M14 84h76" stroke="#3a4560" stroke-width="3"/><ellipse cx="52" cy="80" rx="18" ry="5" fill="#6fd3ff" opacity=".5"/><circle cx="52" cy="72" r="10" fill="#6fd3ff" opacity=".2"/>'],
+      duel_challenge: ["#2a1414", '<path d="M24 76 70 30M30 82l-10-10M76 24l6-6" stroke="#c9d2de" stroke-width="4" stroke-linecap="round"/><path d="M76 76 30 30M70 82l10-10M24 24l-6-6" stroke="#ff7a45" stroke-width="4" stroke-linecap="round"/><circle cx="50" cy="53" r="6" fill="#fff" opacity=".7"/>'],
+      mentor: ["#14202a", '<circle cx="50" cy="40" r="22" fill="#4fd1e8" opacity=".12"/><circle cx="50" cy="36" r="7" fill="#d6a77f"/><path d="M44 30q6-6 12 0" stroke="#e8e8f0" stroke-width="3" fill="none"/><path d="M40 46h20l4 32H36z" fill="#2a3245"/><path d="M68 44v40" stroke="#8a6a4a" stroke-width="3"/>'],
+      gate_surge: ["#160f2a", '<ellipse cx="50" cy="52" rx="20" ry="30" fill="none" stroke="#c58cff" stroke-width="3"/><ellipse cx="50" cy="52" rx="10" ry="18" fill="#c58cff" opacity=".45"/><path d="M20 30q10 10 4 22M80 28q-8 12-2 24M30 82q10-6 20 0" stroke="#4fd1e8" stroke-width="2" fill="none"/>'],
+      reporter: ["#1a1d10", '<rect x="22" y="40" width="34" height="24" rx="3" fill="#2a3245"/><circle cx="39" cy="52" r="8" fill="#0a0d14" stroke="#c9d2de" stroke-width="2"/><rect x="56" y="46" width="10" height="12" fill="#2a3245"/><circle cx="74" cy="36" r="5" fill="#ff4f6a"/><path d="M74 41v30" stroke="#c9d2de" stroke-width="3"/>']
+    };
+    const [bg, art] = scenes[id] || ["#14202a", ""];
+    return '<svg class="event-art" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" role="img" aria-label="사건 삽화" style="background:radial-gradient(circle at 50% 40%, '.concat(bg, ', #0a0d14 75%)">').concat(art, "</svg>");
+  },
+  // ---------- 타이틀 캔버스: 균열 포털과 도시 ----------
+  title(canvas) {
+    const ctx = canvas.getContext("2d");
+    let w, h, dpr, buildings = [], parts = [], raf = 0, t = 0;
+    const r = this.rng(2087);
+    const resize = () => {
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      w = canvas.clientWidth;
+      h = canvas.clientHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      buildings = [];
+      let x = -10;
+      while (x < w + 10) {
+        const bw = 18 + r() * 46;
+        const bh = h * (0.08 + r() * 0.22);
+        buildings.push({ x, bw, bh, win: Array.from({ length: 30 }, () => r() < 0.28) });
+        x += bw + 2;
+      }
+    };
+    const spawn = () => ({ a: r() * Math.PI * 2, d: 40 + r() * Math.max(w, h) * 0.6, s: 0.4 + r() * 1.4, c: r() < 0.7 ? "79,209,232" : "197,140,255", z: r() });
+    resize();
+    for (let i = 0; i < 160; i++) parts.push(spawn());
+    const draw = () => {
+      t += 8e-3;
+      const cx = w / 2, cy = h * 0.4;
+      ctx.fillStyle = "#07090f";
+      ctx.fillRect(0, 0, w, h);
+      const sky = ctx.createRadialGradient(cx, cy, 10, cx, cy, Math.max(w, h) * 0.7);
+      sky.addColorStop(0, "rgba(120,70,200,.35)");
+      sky.addColorStop(0.4, "rgba(30,60,110,.18)");
+      sky.addColorStop(1, "rgba(7,9,15,0)");
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, w, h);
+      const R = Math.min(w, h) * 0.18;
+      for (let i = 0; i < 5; i++) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(t * (i % 2 ? -1 : 1) * (0.4 + i * 0.15));
+        ctx.scale(1, 1.45);
+        ctx.strokeStyle = i % 2 ? "rgba(197,140,255,.55)" : "rgba(79,209,232,.5)";
+        ctx.lineWidth = 1.5 + (4 - i) * 0.6;
+        ctx.setLineDash([R * 0.4, R * 0.18 + i * 6]);
+        ctx.beginPath();
+        ctx.arc(0, 0, R * (0.55 + i * 0.16), 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+      const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 0.75);
+      core.addColorStop(0, "rgba(255,255,255,.9)");
+      core.addColorStop(0.25, "rgba(197,140,255,.65)");
+      core.addColorStop(1, "rgba(79,209,232,0)");
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(0.62, 1);
+      ctx.fillStyle = core;
+      ctx.beginPath();
+      ctx.arc(0, 0, R * 0.75, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      for (const p of parts) {
+        p.d -= p.s * (1 + (1 - p.d / (Math.max(w, h) * 0.6)) * 2);
+        p.a += 4e-3 + 0.02 * (60 / Math.max(60, p.d));
+        if (p.d < 8) Object.assign(p, spawn());
+        const x = cx + Math.cos(p.a) * p.d, y = cy + Math.sin(p.a) * p.d * 1.2;
+        ctx.fillStyle = "rgba(".concat(p.c, ",").concat(0.25 + p.z * 0.6, ")");
+        ctx.fillRect(x, y, 1.2 + p.z * 1.6, 1.2 + p.z * 1.6);
+      }
+      for (const b of buildings) {
+        const by = h - b.bh;
+        ctx.fillStyle = "#0b0f18";
+        ctx.fillRect(b.x, by, b.bw, b.bh);
+        ctx.fillStyle = "rgba(79,209,232,.08)";
+        ctx.fillRect(b.x, by, b.bw, 2);
+        let k = 0;
+        for (let yy = by + 8; yy < h - 6; yy += 9) for (let xx = b.x + 5; xx < b.x + b.bw - 5; xx += 8) {
+          if (b.win[k++ % 30]) {
+            ctx.fillStyle = k * 7 % 11 === 0 ? "rgba(255,181,71,.55)" : "rgba(150,200,255,.22)";
+            ctx.fillRect(xx, yy, 3, 4);
+          }
+        }
+      }
+      const fog = ctx.createLinearGradient(0, h * 0.7, 0, h);
+      fog.addColorStop(0, "rgba(7,9,15,0)");
+      fog.addColorStop(1, "rgba(7,9,15,.85)");
+      ctx.fillStyle = fog;
+      ctx.fillRect(0, h * 0.7, w, h * 0.3);
+      if (!FX.reduced) raf = requestAnimationFrame(draw);
+    };
+    draw();
+    window.addEventListener("resize", resize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+    };
+  },
+  // ---------- 돌파 연출 ----------
+  breakthrough(ok, rankIdx, done) {
+    const R = RANKS[rankIdx];
+    const el = document.createElement("div");
+    el.className = "bt-overlay " + (ok ? "ok" : "fail");
+    el.style.setProperty("--rc", ok ? R.color : "#ff4f6a");
+    el.innerHTML = '<div class="bt-ring"></div><div class="bt-ring r2"></div><div class="bt-ring r3"></div>\n      <div class="bt-letter">'.concat(ok ? R.key : "✕", '</div><div class="bt-cap">').concat(ok ? "".concat(R.name, " 각성") : "역류", "</div>");
+    document.body.appendChild(el);
+    const end = () => {
+      el.remove();
+      done();
+    };
+    setTimeout(end, FX.reduced ? 300 : 2100);
+  },
+  // ---------- 전투 효과 ----------
+  floatText(host, text, cls) {
+    const f = document.createElement("div");
+    f.className = "float-num " + (cls || "");
+    f.textContent = text;
+    host.appendChild(f);
+    setTimeout(() => f.remove(), 1100);
+  },
+  burst(host, color, n = 10) {
+    if (FX.reduced) return;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement("i");
+      p.className = "spark";
+      const a = Math.random() * Math.PI * 2, d = 24 + Math.random() * 36;
+      p.style.setProperty("--dx", Math.cos(a) * d + "px");
+      p.style.setProperty("--dy", Math.sin(a) * d + "px");
+      p.style.background = color;
+      host.appendChild(p);
+      setTimeout(() => p.remove(), 650);
+    }
+  },
+  pulse(el, cls, ms = 450) {
+    el.classList.remove(cls);
+    void el.offsetWidth;
+    el.classList.add(cls);
+    setTimeout(() => el.classList.remove(cls), ms);
+  }
+};
+const PORTRAIT_IMAGES = [];
+const PORTRAIT = /* @__PURE__ */ (() => {
+  const clamp = (v) => Math.max(0, Math.min(255, Math.round(v)));
+  const hex2 = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const toHex = (r, g, b) => "#" + [r, g, b].map((v) => clamp(v).toString(16).padStart(2, "0")).join("");
+  const shade = (h, t) => {
+    const [r, g, b] = hex2(h);
+    return t >= 0 ? toHex(r + (255 - r) * t, g + (255 - g) * t, b + (255 - b) * t) : toHex(r * (1 + t), g * (1 + t), b * (1 + t));
+  };
+  const mix = (a, b, t) => {
+    const A = hex2(a), B = hex2(b);
+    return toHex(A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t, A[2] + (B[2] - A[2]) * t);
+  };
+  const f = (n) => n.toFixed(1);
+  const SKIN = ["#f6e2d3", "#f1d8c5", "#ead0bb", "#e2c3aa", "#d6b394"];
+  const HAIR = ["#121219", "#121219", "#1b1a24", "#24202a", "#2f2420", "#3c2c24", "#1c2338", "#cfd3dc", "#e9ebf0", "#4a1f2c"];
+  const EYES = ["#3a2a22", "#2a2026", "#4a3426", "#262a36"];
+  const OUTFIT = ["#121722", "#16161c", "#1d1a22", "#161e22", "#22202a", "#f0eee8"];
+  function bangs(r, style) {
+    const n = style === "curtain" ? 6 : 7;
+    let d = "";
+    for (let k = 0; k < n; k++) {
+      const t0 = k / n, t1 = (k + 1) / n;
+      const ang = (t) => Math.PI * (1.06 - t * 1.12);
+      const rx = 34, ry = 30, cx = 100, cy = 78;
+      const x0 = cx + Math.cos(ang(t0)) * rx, y0 = cy - Math.sin(ang(t0)) * ry;
+      const x1 = cx + Math.cos(ang(t1)) * rx, y1 = cy - Math.sin(ang(t1)) * ry;
+      const mid = (t0 + t1) / 2;
+      let len = 30 + r() * 16;
+      let lean = (mid - 0.5) * 18 + (r() - 0.5) * 8;
+      if (style === "curtain") {
+        lean = (mid < 0.5 ? -1 : 1) * (10 + r() * 6);
+        len = 26 + r() * 10 + Math.abs(mid - 0.5) * 30;
+      }
+      if (style === "swept") {
+        lean = -12 - r() * 8;
+        len = 28 + mid * 26;
+      }
+      if (style === "spiky") {
+        len = 22 + r() * 14;
+        lean = (mid - 0.5) * 30;
+      }
+      if (style === "cover" && k === (n >> 1) + 1) {
+        len = 58;
+        lean = 10;
+      }
+      const mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+      const tx = mx + lean, ty = Math.min(my + len, 116);
+      d += "M".concat(f(x0), " ").concat(f(y0), "Q").concat(f(x0 + (tx - x0) * 0.35 - 3), " ").concat(f(y0 + (ty - y0) * 0.6), " ").concat(f(tx), " ").concat(f(ty), "Q").concat(f(x1 + (tx - x1) * 0.4 + 3), " ").concat(f(y1 + (ty - y1) * 0.55), " ").concat(f(x1), " ").concat(f(y1), "Z");
+    }
+    return d;
+  }
+  function shine(r) {
+    const off = r() * 6 - 3;
+    return "M".concat(f(76 + off), " ").concat(f(50), "Q").concat(f(84 + off), " ").concat(f(42), " ").concat(f(93 + off), " ").concat(f(40), "M").concat(f(104 + off), " ").concat(f(39), "Q").concat(f(113 + off), " ").concat(f(40), " ").concat(f(119 + off), " ").concat(f(45));
+  }
+  function make(seed, gender, element, rankIdx, opts = {}) {
+    const r = FX.rng(FX.hash(seed + "|wt"));
+    const pick = (a) => a[Math.floor(r() * a.length)];
+    const id = FX.uid();
+    const pal = FX.PAL[element] || FX.PAL.none;
+    const ec = element && ELEMENTS[element] ? ELEMENTS[element].color : "#46e0d0";
+    const rank = rankIdx == null ? 0 : rankIdx;
+    const F = gender === "F";
+    const years = opts.age == null ? 25 : opts.age;
+    const st = typeof ageStage === "function" ? ageStage(years) : "adult";
+    const race = opts.race || "human";
+    const young = st === "baby" || st === "child";
+    const old = st === "elder" || st === "middle";
+    const RSKIN = { orc: ["#7f9c5c", "#6f8c4f", "#8aa86a", "#627e48"], elf: ["#f6ece4", "#f1e6de", "#ece2dc"], dwarf: ["#eab99c", "#dca386", "#e5ad90"], dragonkin: ["#efdccb", "#e6cfbd"] };
+    const RHAIR = { orc: ["#141414", "#24201c", "#3a2a20"], elf: ["#e9ebf0", "#e6d39a", "#cfd8b8", "#b9c6d8"], dwarf: ["#8a3a1e", "#a8582a", "#5a3a22", "#c0682e"], dragonkin: ["#3a1a1e", "#14141a", "#5a2026"] };
+    const skin = RSKIN[race] ? pick(RSKIN[race]) : pick(SKIN);
+    let hair = RHAIR[race] ? pick(RHAIR[race]) : r() < 0.1 ? shade(ec, -0.45) : pick(HAIR);
+    if (st === "middle") hair = mix(hair, "#a9a9b0", 0.3);
+    if (st === "elder") hair = mix(hair, "#e4e4ea", Math.min(0.92, 0.55 + (years - 65) / 40));
+    const light = hex2(hair).reduce((a, b) => a + b, 0) > 450;
+    const outfit = pick(OUTFIT);
+    const glowEyes = !young && (rank >= 4 || r() < 0.12);
+    const iris = glowEyes ? ec : pick(EYES);
+    const bangStyle = young ? pick(["curtain", "swept"]) : F ? pick(["curtain", "swept", "cover", "curtain"]) : pick(["swept", "spiky", "cover", "curtain", "swept"]);
+    const back = st === "baby" ? "none" : st === "child" ? F ? pick(["bob", "pony"]) : "none" : F ? pick(["long", "long", "pony", "bob"]) : pick(["none", "none", "nape", "tail"]);
+    const outfitKind = pick(["coat", "hanbok", "mandarin", "tactical"]);
+    const acc = young ? { hairpin: F && r() < 0.5 } : { earpiece: r() < 0.18, scar: !F && r() < 0.2, marks: rank >= 5 || r() < 0.12, earring: F ? r() < 0.45 : r() < 0.2, mask: !F && race === "human" && r() < 0.1, hairpin: F && r() < 0.35 };
+    const beard = race === "dwarf" ? !F || r() < 0.15 : !F && (st === "elder" ? r() < 0.45 : st === "middle" ? r() < 0.2 : 0);
+    const skinSh = mix(skin, "#8a5a6a", 0.28), skinDeep = mix(skin, "#5a3040", 0.45);
+    const hairHi = light ? "#ffffff" : shade(hair, 0.45), hairSh = light ? shade(hair, -0.3) : shade(hair, -0.5);
+    const line = mix(hair, "#000000", 0.55);
+    const aura = 0.18 + rank * 0.06;
+    const bg = '<rect width="200" height="240" fill="url(#'.concat(id, 'bg)"/>\n      <path d="M-20 200L120 -20L150 -20L10 200ZM60 240L210 30L222 46L84 240Z" fill="').concat(ec, '" opacity=".07"/>\n      <circle cx="100" cy="104" r="').concat(74 + rank * 5, '" fill="url(#').concat(id, 'aura)"/>\n      ').concat(Array.from({ length: 4 + rank * 2 }, () => {
+      const x = r() * 200, y = r() * 200, l = 4 + r() * 10;
+      return '<path d="M'.concat(f(x), " ").concat(f(y), "l").concat(f(l * 0.4), " ").concat(f(-l), '" stroke="').concat(ec, '" stroke-width="1" opacity="').concat((0.25 + r() * 0.5).toFixed(2), '"/>');
+    }).join(""));
+    const BACK = {
+      none: "",
+      nape: "M66 104C62 130 66 148 74 154L126 154C134 148 138 130 134 104Z",
+      tail: "M118 64C150 70 158 120 150 176L146 162L142 178C140 140 138 104 116 82Z",
+      long: "M64 98C56 150 62 200 50 240L72 228L84 240L100 230L116 240L128 228L150 240C138 200 144 150 136 98Z",
+      pony: "M120 50C162 52 170 120 156 196L150 180L144 200C146 150 142 100 118 76Z",
+      bob: "M62 100C58 128 62 150 68 162L80 154L90 164L100 156L110 164L120 154L132 162C138 150 142 128 138 100Z"
+    };
+    const backSvg = BACK[back] ? '<path d="'.concat(BACK[back], '" fill="').concat(hair, '"/><path d="').concat(BACK[back], '" fill="none" stroke="').concat(line, '" stroke-width="1"/>') : "";
+    const babyCol = pick(["#f2c6d0", "#c6dcf2", "#f2e6b8", "#cfe8c8"]);
+    const cloth = st === "baby" ? babyCol : st === "child" ? pick(["#3a5a8a", "#8a3a4a", "#4a7a5a", "#6a4a8a"]) : outfit, clothSh = shade(outfit, outfit === "#f0eee8" ? -0.25 : -0.45), clothHi = shade(outfit, outfit === "#f0eee8" ? 0.3 : 0.18);
+    let body = '<path d="M22 240C26 206 50 186 84 178L116 178C150 186 174 206 178 240Z" fill="'.concat(cloth, '"/>\n      <path d="M22 240C26 206 50 186 84 178L92 190C70 200 56 216 52 240Z" fill="').concat(clothSh, '"/>');
+    if (st === "baby") body += '<circle cx="100" cy="200" r="5" fill="#fff" opacity=".8"/><path d="M84 186Q100 196 116 186" stroke="#fff" stroke-width="3" fill="none" opacity=".7"/>';
+    else if (st === "child") body += '<path d="M84 178Q100 190 116 178" stroke="'.concat(clothHi, '" stroke-width="4" fill="none"/><rect x="88" y="206" width="24" height="14" rx="3" fill="').concat(clothHi, '" opacity=".6"/>');
+    else if (outfitKind === "coat") body += '\n      <path d="M70 164L84 200L100 212L116 200L130 164L140 176L126 214L100 226L74 214L60 176Z" fill="'.concat(clothSh, '" stroke="').concat(line, '" stroke-width="1"/>\n      <path d="M140 176L126 214L100 226" stroke="').concat(ec, '" stroke-width="1.4" fill="none" opacity=".8"/>\n      <path d="M100 226V240" stroke="').concat(line, '" stroke-width="1.5"/>');
+    else if (outfitKind === "hanbok") body += '\n      <path d="M84 178L118 178L72 240L52 240Z" fill="'.concat(clothHi, '"/>\n      <path d="M118 178L128 186L82 240L72 240Z" fill="').concat(shade(ec, -0.35), '"/>\n      <path d="M119 179L76 238" stroke="#f4f1ea" stroke-width="3.2"/>\n      <path d="M84 178L100 206" stroke="').concat(line, '" stroke-width="1.2"/>\n      <path d="M96 212Q108 214 118 222M96 212Q100 226 96 238" stroke="').concat(ec, '" stroke-width="2" fill="none" opacity=".85"/>');
+    else if (outfitKind === "mandarin") body += '\n      <path d="M82 166Q100 172 118 166L120 184Q100 192 80 184Z" fill="'.concat(clothSh, '" stroke="').concat(line, '" stroke-width="1"/>\n      <path d="M100 188V240" stroke="').concat(line, '" stroke-width="1.4"/>\n      ').concat([198, 210, 222, 234].map((y) => '<path d="M94 '.concat(y, 'H106" stroke="').concat(ec, '" stroke-width="2.2" stroke-linecap="round"/><circle cx="100" cy="').concat(y, '" r="1.6" fill="').concat(ec, '"/>')).join(""));
+    else body += '\n      <path d="M76 172L100 192L124 172L128 188L100 206L72 188Z" fill="'.concat(clothSh, '"/>\n      <path d="M50 214L84 198M150 214L116 198" stroke="').concat(shade(outfit, 0.3), '" stroke-width="3"/>\n      <path d="M100 206V240" stroke="').concat(ec, '" stroke-width="1.6" opacity=".9"/>\n      <rect x="112" y="216" width="22" height="9" fill="').concat(clothSh, '"/><rect x="115" y="219" width="7" height="2" fill="').concat(ec, '"/>');
+    const faceD = young ? "M68 92C68 62 82 48 100 48C118 48 132 62 132 92C132 118 121 136 100 143C79 136 68 118 68 92Z" : race === "orc" ? "M66 88C66 60 82 46 100 46C118 46 134 60 134 88C134 112 132 130 121 142L100 151L79 142C68 130 66 112 66 88Z" : race === "dwarf" ? "M67 92C67 62 82 48 100 48C118 48 133 62 133 92C133 116 125 134 100 143C75 134 67 116 67 92Z" : F ? "M71 92C71 64 84 50 100 50C116 50 129 64 129 92C129 112 124 128 115 140L100 153L85 140C76 128 71 112 71 92Z" : "M70 90C70 62 84 48 100 48C116 48 130 62 130 90C130 112 125 128 116 140L100 155L84 140C75 128 70 112 70 90Z";
+    const neck = '<path d="M89 134L111 134L113 182Q100 188 87 182Z" fill="'.concat(skin, '"/>\n      <path d="M89 140L100 156L111 140L112 162Q100 170 88 162Z" fill="').concat(skinSh, '"/>\n      <path d="M89 134L111 134L113 182Q100 188 87 182Z" fill="none" stroke="').concat(skinDeep, '" stroke-width=".8" opacity=".6"/>');
+    const ears = race === "elf" ? '<path d="M71 98L44 76Q52 96 64 110Q68 116 72 116Z" fill="'.concat(skinSh, '" stroke="').concat(skinDeep, '" stroke-width=".8"/><path d="M129 98L156 76Q148 96 136 110Q132 116 128 116Z" fill="').concat(skin, '" stroke="').concat(skinDeep, '" stroke-width=".8"/>') : race === "beastkin" ? "" : race === "orc" ? '<path d="M70 96L58 90Q60 106 72 116Z" fill="'.concat(skinSh, '"/><path d="M130 96L142 90Q140 106 128 116Z" fill="').concat(skin, '"/>') : '<path d="M70 98Q63 96 64 106Q66 116 72 116Z" fill="'.concat(skinSh, '"/><path d="M130 98Q137 96 136 106Q134 116 128 116Z" fill="').concat(skin, '"/>');
+    const face = "".concat(ears, '<path d="').concat(faceD, '" fill="').concat(skin, '"/>\n      <path d="M71 92C71 112 76 128 85 140L100 153L92 141C82 128 77 112 77 94Z" fill="').concat(skinSh, '"/>\n      <path d="M129 92C129 112 124 128 115 140L113 138C121 126 126 110 127 92Z" fill="').concat(ec, '" opacity=".45"/>\n      <path d="').concat(faceD, '" fill="none" stroke="').concat(skinDeep, '" stroke-width="1"/>\n      ').concat(F ? '<ellipse cx="83" cy="121" rx="6" ry="2.4" fill="#ff8a9a" opacity=".22"/><ellipse cx="117" cy="121" rx="6" ry="2.4" fill="#ff8a9a" opacity=".22"/>' : "", '\n      <path d="M101 113L98.5 121L102 121.5" stroke="').concat(skinDeep, '" stroke-width="1.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>');
+    let feat = "";
+    if (old) feat += '<path d="M92 121Q88 128 91 135M108 121Q112 128 109 135" stroke="'.concat(skinDeep, '" stroke-width="').concat(st === "elder" ? 1.1 : 0.8, '" fill="none" opacity=".6" stroke-linecap="round"/>');
+    if (st === "elder") feat += '<path d="M70 104l-5 -2M70 107l-5 1M130 104l5 -2M130 107l5 1M77 110Q85 114 92 110M108 110Q115 114 123 110" stroke="'.concat(skinDeep, '" stroke-width=".9" fill="none" opacity=".6" stroke-linecap="round"/>');
+    if (race === "orc" && !young) feat += '<path d="M90 140L87 127L94 136Z" fill="#f2ead2" stroke="#8a7a5a" stroke-width=".6"/><path d="M110 140L113 127L106 136Z" fill="#f2ead2" stroke="#8a7a5a" stroke-width=".6"/><path d="M96 118Q100 122 104 118" stroke="'.concat(skinDeep, '" stroke-width="1.4" fill="none"/>');
+    if (race === "dragonkin") feat += '<path d="M120 112q4 -2 6 1M118 118q4 -2 6 1M74 112q4 -3 6 0" stroke="'.concat(ec, '" stroke-width="1.2" fill="none" opacity=".8"/>');
+    const sc = F ? "M76 104Q84 96.5 94.5 101.5Q87 108.5 77.5 106.5Z" : "M76 104Q85 98.5 94.5 102Q87 107.5 77.5 105.5Z";
+    const eyeK = st === "baby" ? "translate(84 104) scale(1.12 1.45) translate(-86 -104)" : st === "child" ? "translate(85 104) scale(1.08 1.28) translate(-86 -104)" : st === "elder" ? "translate(86 104) scale(1 .82) translate(-86 -104)" : "";
+    const eyeOne = (flip) => "<g ".concat(flip ? 'transform="translate(200 0) scale(-1 1)"' : "", '><g transform="').concat(eyeK, '">\n        <path d="').concat(sc, '" fill="#f8f7fb"/>\n        <clipPath id="').concat(id, "e").concat(flip ? 1 : 0, '"><path d="').concat(sc, '"/></clipPath>\n        <g clip-path="url(#').concat(id, "e").concat(flip ? 1 : 0, ')">\n          <ellipse cx="86.5" cy="103.5" rx="').concat(F ? 4.9 : 4.4, '" ry="').concat(F ? 6.2 : 5.2, '" fill="url(#').concat(id, 'iris)"/>\n          <ellipse cx="86.5" cy="104" rx="').concat(race === "dragonkin" ? 0.8 : 1.9, '" ry="').concat(F ? 3.2 : 2.6, '" fill="#07070c"/>\n          <path d="M70 92H100V101Q86 98 70 103Z" fill="').concat(skinDeep, '" opacity=".35"/>\n        </g>\n        <circle cx="88" cy="101.6" r="1.3" fill="#fff"/>\n        <path d="').concat(F ? "M72.5 102Q83 94 95.5 101.2" : "M73 102.5Q84 96.5 95.5 101.8", '" stroke="').concat(line, '" stroke-width="').concat(F ? 2.6 : 2.3, '" fill="none" stroke-linecap="round"/>\n        <path d="').concat(F ? "M73 102L69.5 100.2" : "M73.5 102.5L70 101.6", '" stroke="').concat(line, '" stroke-width="').concat(F ? 1.8 : 1.4, '" stroke-linecap="round"/>\n        <path d="M79 107Q85 108.6 90 107.4" stroke="').concat(line, '" stroke-width=".8" fill="none" opacity=".55"/>\n        ').concat(glowEyes ? '<ellipse cx="86.5" cy="103.5" rx="8" ry="5" fill="'.concat(ec, '" opacity=".25"/><path d="M76 104L66 106" stroke="').concat(ec, '" stroke-width="1" opacity=".7"/>') : "", "\n      </g></g>");
+    const browD = F ? "M75 93.5Q85 90.5 95 93.5" : pick(["M74 92.5L96 95.5", "M74 94L96 94.5", "M75 91.5Q86 90 96 94"]);
+    const browC = st === "elder" ? mix(hair, "#ffffff", 0.3) : hairSh;
+    const browW = (F ? 1.6 : 2.3) * (st === "elder" || race === "orc" || race === "dwarf" ? 1.5 : young ? 0.8 : 1);
+    const brows = '<path d="'.concat(browD, '" stroke="').concat(browC, '" stroke-width="').concat(browW, '" fill="none" stroke-linecap="round"/>\n      <path d="').concat(browD, '" transform="translate(200 0) scale(-1 1)" stroke="').concat(browC, '" stroke-width="').concat(browW, '" fill="none" stroke-linecap="round"/>');
+    const mouth = young ? '<path d="M96 133Q100 137 104 133" stroke="'.concat(shade(skin, -0.45), '" stroke-width="1.4" fill="none" stroke-linecap="round"/><ellipse cx="82" cy="122" rx="6" ry="3" fill="#ff8a9a" opacity=".3"/><ellipse cx="118" cy="122" rx="6" ry="3" fill="#ff8a9a" opacity=".3"/>') : F ? '<path d="M95.5 133.5Q100 135 104.5 133.5" stroke="'.concat(shade(skin, -0.45), '" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M97 135.6Q100 136.8 103 135.6" stroke="#d4707e" stroke-width="1.4" fill="none" opacity=".6"/>') : '<path d="'.concat(pick(["M95 134L105 133.6", "M95 134.2Q101 135 105.5 132.8"]), '" stroke="').concat(shade(skin, -0.5), '" stroke-width="1.3" fill="none" stroke-linecap="round"/>');
+    const MASS = "M62 122C53 60 76 27 100 27C124 27 147 60 138 122C135 130 131 131 128 126L127 104L73 104L72 126C69 131 65 130 62 122Z";
+    const CAP = "M66 92C63 56 80 35 100 35C120 35 137 56 134 92C129 72 117 63 100 63C83 63 71 72 66 92Z";
+    const LOCK = back === "none" || back === "tail" ? "M70 80C64 96 65 112 69 122L72 110L75 118C75 104 75 92 77 84Z" : "M70 76C62 100 64 126 71 146L73 128L77 140C77 116 76 96 78 84Z";
+    const bangD = bangs(r, bangStyle);
+    let extra = "";
+    if (race === "beastkin") {
+      const fox = r() < 0.5;
+      extra += '<path d="M70 58L'.concat(fox ? 60 : 64, " ").concat(fox ? 16 : 24, 'L90 42Z" fill="').concat(hair, '" stroke="').concat(line, '" stroke-width=".9"/><path d="M73 52L66 28L84 42Z" fill="#e8a8b0" opacity=".7"/><path d="M130 58L').concat(fox ? 140 : 136, " ").concat(fox ? 16 : 24, 'L110 42Z" fill="').concat(hair, '" stroke="').concat(line, '" stroke-width=".9"/><path d="M127 52L134 28L116 42Z" fill="#e8a8b0" opacity=".7"/>');
+    }
+    if (race === "dragonkin") extra += '<path d="M76 54Q58 34 66 12Q70 30 84 46Z" fill="#2a2228" stroke="'.concat(ec, '" stroke-width="1"/><path d="M124 54Q142 34 134 12Q130 30 116 46Z" fill="#2a2228" stroke="').concat(ec, '" stroke-width="1"/>');
+    if (beard) extra += race === "dwarf" || st === "elder" ? '<path d="M70 112C71 150 86 174 100 178C114 174 129 150 130 112C122 128 112 134 100 134C88 134 78 128 70 112Z" fill="'.concat(hair, '" stroke="').concat(line, '" stroke-width=".9"/><path d="M84 132Q100 124 116 132Q108 128 100 130Q92 128 84 132Z" fill="').concat(shade(hair, 0.15), '"/><path d="M92 146L94 166M100 148V172M108 146L106 166" stroke="').concat(hairSh, '" stroke-width="1" opacity=".6"/>') : '<path d="M80 128Q100 150 120 128Q114 146 100 150Q86 146 80 128Z" fill="'.concat(hair, '" opacity=".85"/>');
+    const hairFront = st === "baby" ? '<path d="M74 70C76 52 88 46 100 46C112 46 124 52 126 70C118 60 110 58 100 58C90 58 82 60 74 70Z" fill="'.concat(hair, '"/><path d="M98 47Q104 36 111 42Q104 42 101 49Z" fill="').concat(hair, '" stroke="').concat(line, '" stroke-width=".8"/>') : '<path d="'.concat(bangD, '" fill="').concat(hair, '" stroke="').concat(line, '" stroke-width=".9" stroke-linejoin="round"/>\n      <path d="').concat(LOCK, '" fill="').concat(hair, '" stroke="').concat(line, '" stroke-width=".9"/><path d="').concat(LOCK, '" transform="translate(200 0) scale(-1 1)" fill="').concat(hair, '" stroke="').concat(line, '" stroke-width=".9"/>\n      <path d="').concat(CAP, '" fill="').concat(hair, '"/>\n      <path d="').concat(shine(r), '" stroke="').concat(hairHi, '" stroke-width="2.4" fill="none" opacity="').concat(light ? 0.55 : 0.4, '" stroke-linecap="round"/>\n      <path d="M131 76C138 96 137 118 132 132" stroke="').concat(ec, '" stroke-width="1.6" fill="none" opacity=".7"/>');
+    const massSvg = st === "baby" ? "" : '<path d="'.concat(MASS, '" fill="').concat(hair, '"/><path d="').concat(MASS, '" fill="none" stroke="').concat(line, '" stroke-width="1"/>\n      <path d="M72 82C80 68 90 64 100 64C110 64 120 68 128 82L128 104L72 104Z" fill="').concat(hairSh, '" opacity=".55"/>\n      <path d="M138 120C146 60 124 28 100 28" stroke="').concat(ec, '" stroke-width="2" fill="none" opacity=".55"/>');
+    const bangShadow = st === "baby" ? "" : '<clipPath id="'.concat(id, 'fc"><path d="').concat(faceD, '"/></clipPath><g clip-path="url(#').concat(id, 'fc)"><path d="').concat(bangD, '" fill="').concat(skinDeep, '" opacity=".35" transform="translate(-2 4)"/></g>');
+    let accSvg = "";
+    if (acc.scar) accSvg += '<path d="M112 90L118 116" stroke="#a04a52" stroke-width="1.6" stroke-linecap="round"/>';
+    if (acc.marks) accSvg += '<path d="M77 116L82 112L80 120M123 116L118 112L120 120" stroke="'.concat(ec, '" stroke-width="1.3" fill="none"/><path d="M100 64L97 70L100 76L103 70Z" fill="').concat(ec, '" opacity=".9"/>');
+    if (acc.earring) accSvg += '<path d="M66 114V122" stroke="'.concat(ec, '" stroke-width="1.4"/><circle cx="66" cy="123.5" r="1.8" fill="').concat(ec, '"/><path d="M134 114V122" stroke="').concat(ec, '" stroke-width="1.4"/><circle cx="134" cy="123.5" r="1.8" fill="').concat(ec, '"/>');
+    if (acc.hairpin) accSvg += '<path d="M120 58L140 48" stroke="#d9c9a0" stroke-width="2.4" stroke-linecap="round"/><circle cx="121" cy="57.5" r="3" fill="'.concat(ec, '"/>');
+    if (acc.mask) accSvg += '<path d="M76 120Q100 114 124 120L118 142L100 152L82 142Z" fill="#101219" stroke="'.concat(line, '" stroke-width="1"/><path d="M88 132H112" stroke="').concat(ec, '" stroke-width="1.3" opacity=".8"/>');
+    if (acc.earpiece) accSvg += '<path d="M131 100Q138 100 137 110Q136 116 131 116" fill="#151a24" stroke="'.concat(ec, '" stroke-width="1.2"/><circle cx="134" cy="107" r="1.6" fill="').concat(ec, '"/>');
+    const defs = '<defs>\n      <linearGradient id="'.concat(id, 'bg" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="').concat(pal.mid, '"/><stop offset=".5" stop-color="').concat(pal.dark, '"/><stop offset="1" stop-color="#040508"/></linearGradient>\n      <radialGradient id="').concat(id, 'aura"><stop offset="0" stop-color="').concat(ec, '" stop-opacity="').concat(aura, '"/><stop offset="1" stop-color="').concat(ec, '" stop-opacity="0"/></radialGradient>\n      <linearGradient id="').concat(id, 'iris" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="').concat(shade(iris, -0.5), '"/><stop offset=".55" stop-color="').concat(iris, '"/><stop offset="1" stop-color="').concat(shade(iris, 0.5), '"/></linearGradient>\n    </defs>');
+    const headT = st === "baby" ? "translate(100 118) scale(1.32) translate(-100 -96)" : st === "child" ? "translate(100 108) scale(1.14) translate(-100 -96)" : st === "teen" ? "translate(100 100) scale(1.04) translate(-100 -96)" : "";
+    const bodyT = st === "baby" ? "translate(100 240) scale(.62) translate(-100 -240)" : st === "child" ? "translate(100 240) scale(.8) translate(-100 -240)" : "";
+    const content = "".concat(defs).concat(bg, '<g transform="').concat(headT, '">').concat(backSvg, '</g><g transform="').concat(bodyT, '">').concat(body).concat(neck, '</g>\n      <g transform="').concat(headT, '">').concat(massSvg).concat(face).concat(feat).concat(bangShadow).concat(eyeOne(false)).concat(eyeOne(true)).concat(brows).concat(mouth).concat(extra).concat(hairFront).concat(accSvg, "</g>");
+    return { content, id, ring: RANKS[rank].color, ec };
+  }
+  const images = () => typeof PORTRAIT_IMAGES !== "undefined" && Array.isArray(PORTRAIT_IMAGES) ? PORTRAIT_IMAGES : [];
+  function imageFor(seed, gender) {
+    const list = images().filter((p) => !p.gender || p.gender === gender);
+    if (!list.length) return null;
+    return "assets/portraits/" + list[FX.hash(seed + "|img") % list.length].file;
+  }
+  return {
+    imageFor,
+    // 상반신 일러스트 카드
+    card(seed, gender, element, rankIdx, w = 200, opts = {}) {
+      const src = opts.race && opts.race !== "human" ? null : imageFor(seed, gender);
+      const ring = RANKS[rankIdx == null ? 0 : rankIdx].color;
+      if (src) return '<div class="portrait-img" style="width:'.concat(w, "px;--rc:").concat(ring, '"><img src="').concat(src, '" alt="캐릭터 일러스트" loading="lazy"></div>');
+      const p = make(seed, gender, element, rankIdx, opts);
+      const c = p.ring;
+      return '<svg xmlns="http://www.w3.org/2000/svg" class="portrait" width="'.concat(w, '" height="').concat(Math.round(w * 1.2), '" viewBox="0 0 200 240" role="img" aria-label="캐릭터 일러스트">').concat(p.content, '\n        <rect x="1" y="1" width="198" height="238" fill="none" stroke="').concat(c, '" stroke-width="1.5" opacity=".7"/>\n        <path d="M1 22V1H22M178 1H199V22M199 218V239H178M22 239H1V218" stroke="').concat(c, '" stroke-width="4" fill="none"/></svg>');
+    },
+    // 원형 얼굴 아이콘
+    avatar(seed, gender, element, rankIdx, size = 56, opts = {}) {
+      const src = opts.race && opts.race !== "human" ? null : imageFor(seed, gender);
+      if (src) return '<span class="avatar avatar-img" style="width:'.concat(size, "px;height:").concat(size, "px;--rc:").concat(RANKS[rankIdx == null ? 0 : rankIdx].color, '"><img src="').concat(src, '" alt=""></span>');
+      const p = make(seed, gender, element, rankIdx, opts);
+      const st = opts.age == null ? "adult" : ageStage(opts.age);
+      const [cy, rr] = st === "baby" ? [116, 70] : st === "child" ? [106, 62] : opts.race === "elf" || opts.race === "dragonkin" || opts.race === "beastkin" ? [90, 62] : [96, 56];
+      return '<svg xmlns="http://www.w3.org/2000/svg" class="avatar" width="'.concat(size, '" height="').concat(size, '" viewBox="').concat(100 - rr, " ").concat(cy - rr, " ").concat(rr * 2, " ").concat(rr * 2, '" role="img" aria-label="초상화">\n        <defs><clipPath id="').concat(p.id, 'c"><circle cx="100" cy="').concat(cy, '" r="').concat(rr - 1, '"/></clipPath></defs>\n        <g clip-path="url(#').concat(p.id, 'c)">').concat(p.content, '</g>\n        <circle cx="100" cy="').concat(cy, '" r="').concat(rr - 1.5, '" fill="none" stroke="').concat(p.ring, '" stroke-width="').concat(rr / 18, '"/></svg>');
+    }
+  };
+})();
+class MapView {
+  constructor(canvas, mini, handlers) {
+    this.cv = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.mini = mini;
+    this.mctx = mini ? mini.getContext("2d") : null;
+    this.h = handlers;
+    this.tile = 46;
+    this.camX = 0;
+    this.camY = 0;
+    this.reachData = null;
+    this.hover = -1;
+    this.token = null;
+    this.moving = false;
+    this.t = 0;
+    this.alive = true;
+    this.imgs = {};
+    this.fogPat = this.makeFogPattern();
+    this.bindInput();
+    this.resize();
+    this.ro = new ResizeObserver(() => this.resize());
+    this.ro.observe(this.cv.parentElement);
+    const loop = () => {
+      if (!this.alive) return;
+      this.t += 1;
+      this.draw();
+      this.raf = requestAnimationFrame(loop);
+    };
+    this.raf = requestAnimationFrame(loop);
+  }
+  destroy() {
+    this.alive = false;
+    cancelAnimationFrame(this.raf);
+    this.ro.disconnect();
+  }
+  makeFogPattern() {
+    const c = document.createElement("canvas");
+    c.width = c.height = 64;
+    const x = c.getContext("2d");
+    x.fillStyle = "#05070c";
+    x.fillRect(0, 0, 64, 64);
+    for (let i = 0; i < 220; i++) {
+      x.fillStyle = "rgba(120,150,190,".concat(Math.random() * 0.08, ")");
+      x.fillRect(Math.random() * 64 | 0, Math.random() * 64 | 0, 1, 1);
+    }
+    for (let y = 0; y < 64; y += 3) {
+      x.fillStyle = "rgba(0,0,0,.25)";
+      x.fillRect(0, y, 64, 1);
+    }
+    return this.ctx.createPattern(c, "repeat");
+  }
+  resize() {
+    const r = this.cv.parentElement.getBoundingClientRect();
+    this.dpr = Math.min(2, window.devicePixelRatio || 1);
+    this.w = r.width;
+    this.hgt = r.height;
+    this.cv.width = r.width * this.dpr;
+    this.cv.height = r.height * this.dpr;
+    this.cv.style.width = r.width + "px";
+    this.cv.style.height = r.height + "px";
+    if (this.w < 600 && this.tile > 40) this.tile = 38;
+  }
+  // 타일 좌표 <-> 화면 좌표
+  toScreen(x, y) {
+    return [(x - this.camX) * this.tile + this.w / 2, (y - this.camY) * this.tile + this.hgt / 2];
+  }
+  toTile(sx, sy) {
+    return [Math.floor((sx - this.w / 2) / this.tile + this.camX), Math.floor((sy - this.hgt / 2) / this.tile + this.camY)];
+  }
+  centerOn(x, y) {
+    this.camX = x + 0.5;
+    this.camY = y + 0.5;
+    this.clampCam();
+  }
+  clampCam() {
+    this.camX = Math.max(0, Math.min(WORLD.COLS, this.camX));
+    this.camY = Math.max(0, Math.min(WORLD.ROWS, this.camY));
+  }
+  zoom(f, sx = this.w / 2, sy = this.hgt / 2) {
+    const before = [(sx - this.w / 2) / this.tile + this.camX, (sy - this.hgt / 2) / this.tile + this.camY];
+    this.tile = Math.max(22, Math.min(80, this.tile * f));
+    this.camX = before[0] - (sx - this.w / 2) / this.tile;
+    this.camY = before[1] - (sy - this.hgt / 2) / this.tile;
+    this.clampCam();
+  }
+  setPlayerImage(svg) {
+    if (this.imgs.playerSrc === svg) return;
+    this.imgs.playerSrc = svg;
+    const im = new Image();
+    im.src = svg.startsWith("<") ? "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg) : svg;
+    this.imgs.player = im;
+  }
+  refresh() {
+    const p = G.player;
+    this.reachData = this.moving ? null : WORLD.reach(p.x, p.y, G.moveRange(), G.canJeju());
+    this.drawMini();
+  }
+  bindInput() {
+    const cv = this.cv;
+    let down = null, pinch = null;
+    const pts = /* @__PURE__ */ new Map();
+    cv.addEventListener("pointerdown", (e) => {
+      cv.setPointerCapture(e.pointerId);
+      pts.set(e.pointerId, [e.offsetX, e.offsetY]);
+      if (pts.size === 2) {
+        const [a, b] = [...pts.values()];
+        pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), tile: this.tile };
+        down = null;
+        return;
+      }
+      down = { x: e.offsetX, y: e.offsetY, cx: this.camX, cy: this.camY, moved: false };
+    });
+    cv.addEventListener("pointermove", (e) => {
+      if (pts.has(e.pointerId)) pts.set(e.pointerId, [e.offsetX, e.offsetY]);
+      if (pinch && pts.size === 2) {
+        const [a, b] = [...pts.values()];
+        const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+        this.zoom(pinch.tile * d / pinch.d / this.tile, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+        return;
+      }
+      if (down) {
+        const dx = e.offsetX - down.x, dy = e.offsetY - down.y;
+        if (Math.abs(dx) + Math.abs(dy) > 7) down.moved = true;
+        if (down.moved) {
+          this.camX = down.cx - dx / this.tile;
+          this.camY = down.cy - dy / this.tile;
+          this.clampCam();
+          this.drawMini();
+        }
+        return;
+      }
+      if (e.pointerType === "mouse") {
+        const [tx, ty] = this.toTile(e.offsetX, e.offsetY);
+        this.hover = WORLD.inb(tx, ty) ? WORLD.idx(tx, ty) : -1;
+        cv.style.cursor = this.reachData && this.reachData.dist.has(this.hover) && this.hover !== this.reachData.start ? "pointer" : "grab";
+      }
+    });
+    const up = (e) => {
+      pts.delete(e.pointerId);
+      if (pinch) {
+        if (pts.size < 2) pinch = null;
+        down = null;
+        return;
+      }
+      if (down && !down.moved) {
+        const [tx, ty] = this.toTile(e.offsetX, e.offsetY);
+        if (WORLD.inb(tx, ty)) this.h.onTap(tx, ty);
+      }
+      down = null;
+    };
+    cv.addEventListener("pointerup", up);
+    cv.addEventListener("pointercancel", (e) => {
+      pts.delete(e.pointerId);
+      down = null;
+      pinch = null;
+    });
+    cv.addEventListener("pointerleave", () => {
+      this.hover = -1;
+    });
+    cv.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      this.zoom(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.offsetX, e.offsetY);
+    }, { passive: false });
+    if (this.mini) this.mini.addEventListener("click", (e) => {
+      const r = this.mini.getBoundingClientRect();
+      this.camX = (e.clientX - r.left) / r.width * WORLD.COLS;
+      this.camY = (e.clientY - r.top) / r.height * WORLD.ROWS;
+      this.clampCam();
+      this.drawMini();
+    });
+  }
+  // 한 칸 사이를 부드럽게 이동 (걷기 연출)
+  tween(from, to, ms, done) {
+    this.moving = true;
+    this.reachData = null;
+    const t0 = performance.now();
+    const step = (now) => {
+      const k = ms <= 0 ? 1 : Math.min(1, (now - t0) / ms);
+      const e = k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
+      this.token = { x: from[0] + (to[0] - from[0]) * e, y: from[1] + (to[1] - from[1]) * e, walking: true };
+      if (k < 1) requestAnimationFrame(step);
+      else done();
+    };
+    requestAnimationFrame(step);
+  }
+  // 경로를 따라 토큰을 움직인다
+  animatePath(path, done) {
+    this.moving = true;
+    this.reachData = null;
+    const pts = path.map(WORLD.xy);
+    let i = 0;
+    const stepMs = FX.reduced ? 0 : 85;
+    const step = () => {
+      if (i >= pts.length) {
+        this.token = null;
+        this.moving = false;
+        done();
+        return;
+      }
+      this.token = { x: pts[i][0], y: pts[i][1] };
+      this.camX += (pts[i][0] + 0.5 - this.camX) * 0.35;
+      this.camY += (pts[i][1] + 0.5 - this.camY) * 0.35;
+      i++;
+      setTimeout(step, stepMs);
+    };
+    step();
+  }
+  // ---------- 그리기 ----------
+  draw() {
+    const c = this.ctx, s = this.tile, t = this.t;
+    if (!G.player) return;
+    if (this.token && this.token.walking) {
+      this.camX += (this.token.x + 0.5 - this.camX) * 0.1;
+      this.camY += (this.token.y + 0.5 - this.camY) * 0.1;
+    }
+    c.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    c.fillStyle = "#05080d";
+    c.fillRect(0, 0, this.w, this.hgt);
+    const [x0, y0] = this.toTile(0, 0), [x1, y1] = this.toTile(this.w, this.hgt);
+    const T = WORLD.T;
+    for (let y = Math.max(0, y0); y <= Math.min(WORLD.ROWS - 1, y1); y++) {
+      for (let x = Math.max(0, x0); x <= Math.min(WORLD.COLS - 1, x1); x++) {
+        const [px, py] = this.toScreen(x, y);
+        const i = WORLD.idx(x, y), ty = WORLD.tiles[i];
+        this.drawTile(ty, px, py, s, x, y);
+        if (!G.fog[i]) {
+          c.globalAlpha = 0.86;
+          this.drawFog(px, py, s, x, y);
+          c.globalAlpha = 1;
+        }
+      }
+    }
+    c.strokeStyle = "rgba(70,120,160,.10)";
+    c.lineWidth = 1;
+    c.beginPath();
+    for (let x = Math.max(0, x0); x <= Math.min(WORLD.COLS, x1 + 1); x++) {
+      const [px] = this.toScreen(x, 0);
+      c.moveTo(px + 0.5, 0);
+      c.lineTo(px + 0.5, this.hgt);
+    }
+    for (let y = Math.max(0, y0); y <= Math.min(WORLD.ROWS, y1 + 1); y++) {
+      const [, py] = this.toScreen(0, y);
+      c.moveTo(0, py + 0.5);
+      c.lineTo(this.w, py + 0.5);
+    }
+    c.stroke();
+    const rd = this.reachData;
+    if (rd && !this.moving && !UI.ctx) {
+      const pulse = 0.08 + Math.sin(t / 20) * 0.025;
+      for (const [i] of rd.dist) {
+        if (i === rd.start) continue;
+        const [x, y] = WORLD.xy(i);
+        const [px, py] = this.toScreen(x, y);
+        if (px < -s || py < -s || px > this.w || py > this.hgt) continue;
+        c.fillStyle = "rgba(150,240,230,".concat(pulse, ")");
+        c.fillRect(px + 1, py + 1, s - 2, s - 2);
+      }
+      c.strokeStyle = "rgba(150,240,230,.55)";
+      c.lineWidth = 1.5;
+      c.beginPath();
+      for (const [i] of rd.dist) {
+        const [x, y] = WORLD.xy(i);
+        const [px, py] = this.toScreen(x, y);
+        const has = (dx, dy) => WORLD.inb(x + dx, y + dy) && rd.dist.has(WORLD.idx(x + dx, y + dy));
+        if (!has(0, -1)) {
+          c.moveTo(px, py);
+          c.lineTo(px + s, py);
+        }
+        if (!has(0, 1)) {
+          c.moveTo(px, py + s);
+          c.lineTo(px + s, py + s);
+        }
+        if (!has(-1, 0)) {
+          c.moveTo(px, py);
+          c.lineTo(px, py + s);
+        }
+        if (!has(1, 0)) {
+          c.moveTo(px + s, py);
+          c.lineTo(px + s, py + s);
+        }
+      }
+      c.stroke();
+      if (this.hover >= 0 && rd.dist.has(this.hover) && this.hover !== rd.start) {
+        const path = WORLD.pathTo(rd, this.hover);
+        c.strokeStyle = "#ffb547";
+        c.lineWidth = 3;
+        c.setLineDash([6, 5]);
+        c.beginPath();
+        path.forEach((i, k) => {
+          const [x, y] = WORLD.xy(i);
+          const [px2, py2] = this.toScreen(x + 0.5, y + 0.5);
+          k ? c.lineTo(px2, py2) : c.moveTo(px2, py2);
+        });
+        c.stroke();
+        c.setLineDash([]);
+        const [hx, hy] = WORLD.xy(this.hover);
+        const [px, py] = this.toScreen(hx, hy);
+        const days = WORLD.daysFor(rd.dist.get(this.hover));
+        this.chip(px + s / 2, py - 6, "".concat(days, "일"), "#ffb547", "#1a1205");
+      }
+    }
+    if (this.walkPath && this.walkPath.length) {
+      c.strokeStyle = "rgba(255,181,71,.75)";
+      c.lineWidth = 2.5;
+      c.setLineDash([5, 6]);
+      c.lineDashOffset = -t / 2;
+      c.beginPath();
+      const pos = this.token || { x: G.player.x, y: G.player.y };
+      let [sx, sy] = this.toScreen(pos.x + 0.5, pos.y + 0.5);
+      c.moveTo(sx, sy);
+      for (const i of this.walkPath) {
+        const [x, y] = WORLD.xy(i);
+        [sx, sy] = this.toScreen(x + 0.5, y + 0.5);
+        c.lineTo(sx, sy);
+      }
+      c.stroke();
+      c.setLineDash([]);
+      const last = this.walkPath[this.walkPath.length - 1];
+      const [lx, ly] = WORLD.xy(last);
+      const [px, py] = this.toScreen(lx + 0.5, ly + 0.5);
+      c.strokeStyle = "#ffb547";
+      c.lineWidth = 2;
+      c.beginPath();
+      c.arc(px, py, s * 0.3, 0, Math.PI * 2);
+      c.stroke();
+    }
+    this.drawObjects();
+    this.drawCities();
+    this.drawPlayer();
+    const g = c.createRadialGradient(this.w / 2, this.hgt / 2, Math.min(this.w, this.hgt) * 0.35, this.w / 2, this.hgt / 2, Math.max(this.w, this.hgt) * 0.75);
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(1, "rgba(0,0,0,.55)");
+    c.fillStyle = g;
+    c.fillRect(0, 0, this.w, this.hgt);
+  }
+  drawFog(px, py, s) {
+    const c = this.ctx;
+    c.save();
+    c.translate(px, py);
+    c.fillStyle = this.fogPat;
+    c.fillRect(0, 0, s, s);
+    c.restore();
+  }
+  drawTile(ty, px, py, s, x, y) {
+    const c = this.ctx, T = WORLD.T, r = WORLD.h2(x, y, 5), t = this.t;
+    if (ty === T.SEA || ty === T.BRIDGE) {
+      c.fillStyle = "#071019";
+      c.fillRect(px, py, s, s);
+      if (r < 0.22) {
+        c.strokeStyle = "rgba(70,140,190,.18)";
+        c.lineWidth = 1;
+        c.beginPath();
+        const yy = py + s * (0.3 + r * 2);
+        c.moveTo(px + s * 0.2, yy);
+        c.quadraticCurveTo(px + s * 0.4, yy - 3, px + s * 0.6, yy);
+        c.quadraticCurveTo(px + s * 0.75, yy + 3, px + s * 0.85, yy);
+        c.stroke();
+      }
+      if (ty === T.BRIDGE) {
+        c.fillStyle = "rgba(70,224,208,.10)";
+        c.fillRect(px + s * 0.3, py, s * 0.4, s);
+        c.strokeStyle = "rgba(70,224,208,.8)";
+        c.setLineDash([4, 4]);
+        c.lineDashOffset = -t / 3;
+        c.beginPath();
+        c.moveTo(px + s / 2, py);
+        c.lineTo(px + s / 2, py + s);
+        c.stroke();
+        c.setLineDash([]);
+      }
+      return;
+    }
+    if (ty === T.NORTH) {
+      c.fillStyle = "#0c0f15";
+      c.fillRect(px, py, s, s);
+      c.strokeStyle = "rgba(255,90,110,.10)";
+      c.lineWidth = 2;
+      c.beginPath();
+      for (let k = -s; k < s; k += 8) {
+        c.moveTo(px + k, py + s);
+        c.lineTo(px + k + s, py);
+      }
+      c.save();
+      c.beginPath();
+      c.rect(px, py, s, s);
+      c.clip();
+      c.beginPath();
+      for (let k = -s; k < s; k += 8) {
+        c.moveTo(px + k, py + s);
+        c.lineTo(px + k + s, py);
+      }
+      c.stroke();
+      c.restore();
+      return;
+    }
+    const n = WORLD.noise(x * 0.5, y * 0.5, 7);
+    const base = ty === T.CITY ? 18 : 14 + n * 6;
+    c.fillStyle = "hsl(205, 22%, ".concat(base * 0.6, "%)");
+    c.fillRect(px, py, s, s);
+    const sea = (dx, dy) => {
+      if (!WORLD.inb(x + dx, y + dy)) return false;
+      const t2 = WORLD.type(x + dx, y + dy);
+      return t2 === T.SEA || t2 === T.BRIDGE;
+    };
+    c.strokeStyle = "rgba(70,224,208,.55)";
+    c.lineWidth = 1.5;
+    c.beginPath();
+    if (sea(0, -1)) {
+      c.moveTo(px, py + 0.5);
+      c.lineTo(px + s, py + 0.5);
+    }
+    if (sea(0, 1)) {
+      c.moveTo(px, py + s - 0.5);
+      c.lineTo(px + s, py + s - 0.5);
+    }
+    if (sea(-1, 0)) {
+      c.moveTo(px + 0.5, py);
+      c.lineTo(px + 0.5, py + s);
+    }
+    if (sea(1, 0)) {
+      c.moveTo(px + s - 0.5, py);
+      c.lineTo(px + s - 0.5, py + s);
+    }
+    c.stroke();
+    if (ty === T.MOUNTAIN) {
+      const k = 0.15 + r * 0.1;
+      c.fillStyle = "#26364a";
+      c.beginPath();
+      c.moveTo(px + s * k, py + s * 0.88);
+      c.lineTo(px + s * 0.48, py + s * 0.16);
+      c.lineTo(px + s * (0.85 - k / 2), py + s * 0.88);
+      c.fill();
+      c.fillStyle = "#3a5068";
+      c.beginPath();
+      c.moveTo(px + s * 0.48, py + s * 0.16);
+      c.lineTo(px + s * (0.85 - k / 2), py + s * 0.88);
+      c.lineTo(px + s * 0.55, py + s * 0.88);
+      c.fill();
+      c.fillStyle = "#20303f";
+      c.beginPath();
+      c.moveTo(px + s * 0.5, py + s * 0.9);
+      c.lineTo(px + s * 0.74, py + s * 0.45);
+      c.lineTo(px + s * 0.98, py + s * 0.9);
+      c.fill();
+      c.strokeStyle = "rgba(140,190,230,.35)";
+      c.lineWidth = 1;
+      c.beginPath();
+      c.moveTo(px + s * 0.36, py + s * 0.38);
+      c.lineTo(px + s * 0.48, py + s * 0.16);
+      c.lineTo(px + s * 0.6, py + s * 0.38);
+      c.stroke();
+    } else if (ty === T.RUIN) {
+      for (let k = 0; k < 3; k++) {
+        const bx = px + s * (0.12 + k * 0.28 + WORLD.h2(x, y, k) * 0.05), bh = s * (0.2 + WORLD.h2(x, y, k + 3) * 0.45), bw = s * 0.2;
+        c.fillStyle = "#1b2633";
+        c.fillRect(bx, py + s * 0.88 - bh, bw, bh);
+        c.fillStyle = "#2c3b4d";
+        c.beginPath();
+        c.moveTo(bx, py + s * 0.88 - bh);
+        c.lineTo(bx + bw, py + s * 0.88 - bh + bw * 0.6);
+        c.lineTo(bx + bw, py + s * 0.88 - bh);
+        c.fill();
+      }
+      if (r < 0.18) {
+        const a = 0.5 + Math.sin(t / 7 + r * 40) * 0.3;
+        c.fillStyle = "rgba(255,140,60,".concat(a, ")");
+        c.fillRect(px + s * 0.7, py + s * 0.75, 3, 3);
+      }
+    } else if (ty === T.ETHER) {
+      const a = 0.22 + Math.sin(t / 30 + r * 10) * 0.08;
+      const g = c.createRadialGradient(px + s / 2, py + s / 2, 1, px + s / 2, py + s / 2, s * 0.75);
+      g.addColorStop(0, "rgba(197,120,255,".concat(a + 0.15, ")"));
+      g.addColorStop(1, "rgba(197,120,255,0)");
+      c.fillStyle = g;
+      c.fillRect(px, py, s, s);
+      const sx = px + s * (0.2 + (r * 7 + t / 90) % 1 * 0.6), sy = py + s * (0.8 - (r * 13 + t / 60) % 1 * 0.6);
+      c.fillStyle = "rgba(230,200,255,.8)";
+      c.fillRect(sx, sy, 2, 2);
+    } else if (ty === T.PLAIN) {
+      if (r < 0.3) {
+        c.fillStyle = "rgba(120,160,190,.10)";
+        c.fillRect(px + s * r * 2, py + s * 0.6, s * 0.25, 1.5);
+      }
+    } else if (ty === T.CITY) {
+      c.fillStyle = "rgba(70,224,208,.06)";
+      c.fillRect(px, py, s, s);
+      for (let k = 0; k < 4; k++) {
+        const bw = s * 0.17, bx = px + s * 0.08 + k * s * 0.22, bh = s * (0.3 + WORLD.h2(x, y, k + 11) * 0.55);
+        c.fillStyle = "#152231";
+        c.fillRect(bx, py + s * 0.92 - bh, bw, bh);
+        c.fillStyle = "rgba(70,224,208,.35)";
+        c.fillRect(bx, py + s * 0.92 - bh, bw, 1.5);
+        for (let wy = py + s * 0.92 - bh + 4; wy < py + s * 0.88; wy += 5) {
+          if (WORLD.h2(k, Math.round(wy), x + y) < 0.45) {
+            c.fillStyle = WORLD.h2(k, Math.round(wy), 3) < 0.25 ? "rgba(255,181,71,.85)" : "rgba(150,220,255,.6)";
+            c.fillRect(bx + 2, wy, bw - 4 > 2 ? 2 : 1, 2);
+          }
+        }
+      }
+    }
+  }
+  chip(cx, cy, text, color, bg) {
+    const c = this.ctx;
+    c.font = '600 11px "Chakra Petch", "IBM Plex Sans KR", sans-serif';
+    const w = c.measureText(text).width + 10;
+    c.fillStyle = bg || "rgba(8,12,18,.85)";
+    c.fillRect(cx - w / 2, cy - 8, w, 16);
+    c.strokeStyle = color;
+    c.lineWidth = 1;
+    c.strokeRect(cx - w / 2 + 0.5, cy - 7.5, w - 1, 15);
+    c.fillStyle = color;
+    c.textAlign = "center";
+    c.textBaseline = "middle";
+    c.fillText(text, cx, cy + 0.5);
+  }
+  drawObjects() {
+    const c = this.ctx, s = this.tile, t = this.t;
+    const vis = (x, y) => G.revealed(x, y);
+    for (const n of G.npcs) {
+      if (!n.alive || n.isCompanion) continue;
+      const [x, y] = UI.npcPos(n);
+      if (!vis(x, y) || G.objAt(x, y)) continue;
+      const [px, py] = this.toScreen(x + 0.5, y + 0.5);
+      if (px < -s || py < -s || px > this.w + s || py > this.hgt + s) continue;
+      const col = ELEMENTS[n.element].color;
+      c.save();
+      c.translate(px + s * 0.22, py - s * 0.18);
+      c.rotate(Math.PI / 4);
+      c.fillStyle = "#0a0f16";
+      c.fillRect(-s * 0.11, -s * 0.11, s * 0.22, s * 0.22);
+      c.strokeStyle = col;
+      c.lineWidth = n.met ? 2 : 1.2;
+      c.strokeRect(-s * 0.11, -s * 0.11, s * 0.22, s * 0.22);
+      if (n.relation <= -30) {
+        c.fillStyle = "#ff5a6e";
+        c.fillRect(-s * 0.05, -s * 0.05, s * 0.1, s * 0.1);
+      }
+      c.restore();
+    }
+    for (const m of G.mobs) {
+      if (!vis(m.x, m.y)) continue;
+      const [px, py] = this.toScreen(m.x + 0.5, m.y + 0.5);
+      if (px < -s || py < -s || px > this.w + s || py > this.hgt + s) continue;
+      const col = ELEMENTS[m.elem].color, bob = Math.sin(t / 18 + m.id) * 1.5;
+      c.fillStyle = "rgba(0,0,0,.45)";
+      c.beginPath();
+      c.ellipse(px, py + s * 0.32, s * 0.28, s * 0.08, 0, 0, Math.PI * 2);
+      c.fill();
+      c.fillStyle = "#1d0e12";
+      c.beginPath();
+      c.arc(px, py + bob, s * 0.3, 0, Math.PI * 2);
+      c.fill();
+      c.strokeStyle = col;
+      c.lineWidth = 2;
+      c.stroke();
+      c.strokeStyle = col;
+      c.lineWidth = 2.2;
+      c.lineCap = "round";
+      c.beginPath();
+      for (let k = -1; k <= 1; k++) {
+        c.moveTo(px - s * 0.12 + k * s * 0.1, py - s * 0.14 + bob);
+        c.lineTo(px + s * 0.04 + k * s * 0.1, py + s * 0.14 + bob);
+      }
+      c.stroke();
+      c.lineCap = "butt";
+      this.chip(px, py + s * 0.48, "".concat(RANKS[m.tier].key, "·").concat(m.count), RANKS[m.tier].color);
+    }
+    for (const g of G.mapGates) {
+      if (!vis(g.x, g.y)) continue;
+      const [px, py] = this.toScreen(g.x + 0.5, g.y + 0.5);
+      if (px < -s * 2 || py < -s * 2 || px > this.w + s * 2 || py > this.hgt + s * 2) continue;
+      const col = g.final ? "#ff4f6a" : RANKS[g.tier].color;
+      const sc = g.final ? 1.6 : 1;
+      const glow = c.createRadialGradient(px, py, 1, px, py, s * 0.8 * sc);
+      glow.addColorStop(0, g.final ? "rgba(255,79,106,.55)" : "rgba(214,92,255,.5)");
+      glow.addColorStop(1, "rgba(214,92,255,0)");
+      c.fillStyle = glow;
+      c.beginPath();
+      c.arc(px, py, s * 0.8 * sc, 0, Math.PI * 2);
+      c.fill();
+      for (let k = 0; k < 3; k++) {
+        c.save();
+        c.translate(px, py);
+        c.rotate(t / (40 + k * 15) * (k % 2 ? -1 : 1));
+        c.strokeStyle = k === 1 ? "#d65cff" : col;
+        c.lineWidth = 2 - k * 0.4;
+        c.setLineDash([s * 0.25, s * 0.12]);
+        c.beginPath();
+        c.ellipse(0, 0, s * (0.2 + k * 0.07) * sc, s * (0.32 + k * 0.07) * sc, 0, 0, Math.PI * 2);
+        c.stroke();
+        c.restore();
+      }
+      c.setLineDash([]);
+      c.fillStyle = "#fff";
+      c.beginPath();
+      c.ellipse(px, py, s * 0.06 * sc, s * 0.16 * sc, 0, 0, Math.PI * 2);
+      c.fill();
+      this.chip(px, py + s * 0.5 * sc + 4, g.final ? "원초" : g.mission ? "임무·".concat(RANKS[g.tier].key) : "".concat(RANKS[g.tier].key, "급"), g.mission ? "#ffb547" : col);
+    }
+  }
+  drawCities() {
+    const c = this.ctx, s = this.tile;
+    for (const reg of REGIONS) {
+      const [x, y] = WORLD.cityPos[reg.id];
+      const [px, py] = this.toScreen(x + 0.5, y - 0.6);
+      if (px < -200 || py < -60 || px > this.w + 200 || py > this.hgt + 60) continue;
+      const known = G.revealed(x, y);
+      if (G.cityBreak && G.cityBreak(reg.id)) {
+        const [bx, by] = this.toScreen(x + 0.5, y + 0.5);
+        const pr = this.t % 60 / 60;
+        c.strokeStyle = "rgba(255,79,106,".concat(1 - pr, ")");
+        c.lineWidth = 3;
+        c.beginPath();
+        c.arc(bx, by, s * (0.6 + pr * 1.4), 0, Math.PI * 2);
+        c.stroke();
+      }
+      c.font = "700 ".concat(s > 34 ? 13 : 11, 'px "IBM Plex Sans KR", sans-serif');
+      const name = reg.name;
+      const w = c.measureText(name).width + 14;
+      c.fillStyle = known ? "rgba(8,14,22,.88)" : "rgba(8,14,22,.6)";
+      c.fillRect(px - w / 2, py - 10, w, 20);
+      c.fillStyle = known ? reg.guild ? GUILDS[reg.guild].color : "#46e0d0" : "#3a4658";
+      c.fillRect(px - w / 2, py + 8, w, 2);
+      c.fillStyle = known ? "#e3e8f1" : "#6b7790";
+      c.textAlign = "center";
+      c.textBaseline = "middle";
+      c.fillText(name, px, py + 0.5);
+      const dangerY = py - 16;
+      if (known && s > 30) {
+        c.fillStyle = ["#6bdc8b", "#9fdc6b", "#f0b35b", "#ff8a4c", "#ff4f6a"][reg.danger - 1];
+        for (let k = 0; k < reg.danger; k++) c.fillRect(px - reg.danger * 4 + k * 8 + 1, dangerY, 6, 3);
+      }
+    }
+  }
+  drawPlayer() {
+    const c = this.ctx, s = this.tile, p = G.player;
+    const pos = this.token || { x: p.x, y: p.y };
+    let [px, py] = this.toScreen(pos.x + 0.5, pos.y + 0.5);
+    if (pos.walking) py -= Math.abs(Math.sin((pos.x + pos.y) % 1 * Math.PI)) * s * 0.12;
+    const R = s * 0.42;
+    const ring = RANKS[p.rankIdx].color;
+    const pulse = (Math.sin(this.t / 15) + 1) / 2;
+    c.strokeStyle = "rgba(70,224,208,".concat(0.5 - pulse * 0.4, ")");
+    c.lineWidth = 2;
+    c.beginPath();
+    c.arc(px, py, R + 4 + pulse * 6, 0, Math.PI * 2);
+    c.stroke();
+    c.fillStyle = "rgba(0,0,0,.5)";
+    c.beginPath();
+    c.ellipse(px, py + R * 0.95, R * 0.9, R * 0.25, 0, 0, Math.PI * 2);
+    c.fill();
+    c.save();
+    c.beginPath();
+    c.arc(px, py, R, 0, Math.PI * 2);
+    c.clip();
+    if (this.imgs.player && this.imgs.player.complete) c.drawImage(this.imgs.player, px - R, py - R, R * 2, R * 2);
+    else {
+      c.fillStyle = "#46e0d0";
+      c.fill();
+    }
+    c.restore();
+    c.strokeStyle = ring;
+    c.lineWidth = 3;
+    c.beginPath();
+    c.arc(px, py, R, 0, Math.PI * 2);
+    c.stroke();
+    const comp = G.companion();
+    if (comp) {
+      c.fillStyle = ELEMENTS[comp.element].color;
+      c.beginPath();
+      c.arc(px + R * 0.9, py + R * 0.75, R * 0.28, 0, Math.PI * 2);
+      c.fill();
+      c.strokeStyle = "#05080d";
+      c.lineWidth = 2;
+      c.stroke();
+    }
+  }
+  drawMini() {
+    const m = this.mctx;
+    if (!m || !G.player) return;
+    const W = this.mini.width, H = this.mini.height, sx = W / WORLD.COLS, sy = H / WORLD.ROWS, T = WORLD.T;
+    m.fillStyle = "#04060a";
+    m.fillRect(0, 0, W, H);
+    for (let y = 0; y < WORLD.ROWS; y++) for (let x = 0; x < WORLD.COLS; x++) {
+      const i = WORLD.idx(x, y), ty = WORLD.tiles[i];
+      if (ty === T.SEA) continue;
+      const known = G.fog[i];
+      m.fillStyle = ty === T.NORTH ? "#121722" : !known ? "#141b26" : ty === T.CITY ? "#46e0d0" : ty === T.MOUNTAIN ? "#2f4258" : ty === T.ETHER ? "#5a3a80" : ty === T.BRIDGE ? "#1f5a5a" : "#22303f";
+      m.fillRect(x * sx, y * sy, Math.ceil(sx), Math.ceil(sy));
+    }
+    for (const g of G.mapGates) if (G.revealed(g.x, g.y)) {
+      m.fillStyle = g.final ? "#ff4f6a" : "#d65cff";
+      m.fillRect(g.x * sx - 1, g.y * sy - 1, sx + 2, sy + 2);
+    }
+    m.fillStyle = "#ffb547";
+    m.fillRect(G.player.x * sx - 2, G.player.y * sy - 2, sx + 4, sy + 4);
+    const vw = this.w / this.tile, vh = this.hgt / this.tile;
+    m.strokeStyle = "rgba(227,232,241,.7)";
+    m.lineWidth = 1;
+    m.strokeRect((this.camX - vw / 2) * sx, (this.camY - vh / 2) * sy, vw * sx, vh * sy);
+  }
+}
+const G = new Game();
+const $app = document.getElementById("app");
+const $modal = document.getElementById("modal");
+const $box = document.getElementById("modal-box");
+const $toast = document.getElementById("toast");
+const TYPE_NAME = { dmg: "단일", aoe: "전체", heal: "회복", buff: "강화", shield: "방어", crit: "치명", pierce: "관통", multi: "연타", dot: "중독", stun: "기절", drain: "흡혈", debuff: "약화", taunt: "도발", shield_all: "파티 방어", buff_all: "파티 강화", heal_ally: "아군 치유", heal_all: "전체 치유", revive: "부활", summon: "소환", evade: "회피" };
+const UI = {
+  screen: "title",
+  create: null,
+  ctx: null,
+  // 전투 문맥
+  stopTitle: null,
+  // ---------- 공통 ----------
+  toast(msg) {
+    if (!msg) return;
+    $toast.textContent = fixJosa(msg);
+    $toast.classList.remove("hidden");
+    clearTimeout(this._tt);
+    this._tt = setTimeout(() => $toast.classList.add("hidden"), 2600);
+  },
+  modal(html, cls = "") {
+    if (!cls.includes("sheet")) this.sheet = null;
+    $box.className = "modal-box " + cls;
+    $box.innerHTML = fixJosa(html);
+    $modal.classList.remove("hidden");
+  },
+  closeModal() {
+    this.sheet = null;
+    $modal.classList.add("hidden");
+    $box.innerHTML = "";
+  },
+  modalOpen() {
+    return !$modal.classList.contains("hidden");
+  },
+  bar(cls, v, max) {
+    const w = max > 0 ? Math.max(0, Math.min(100, v / max * 100)) : 0;
+    return '<div class="bar '.concat(cls, '"><i style="width:').concat(w, '%"></i></div>');
+  },
+  elemTag(e) {
+    if (!e) return '<span class="tag">무속성</span>';
+    const E = ELEMENTS[e];
+    return '<span class="tag el" style="--c:'.concat(E.color, '">').concat(FX.elemIcon(e, 12), " ").concat(E.name, "</span>");
+  },
+  clsTag(cls, adv = 0) {
+    const c = classById(cls);
+    const g = CLASS_GROUPS[c.g];
+    return '<span class="tag cls" style="--c:'.concat(g.color, '">').concat(className(cls, adv), "</span>");
+  },
+  rankTag(r, s) {
+    const R = RANKS[r];
+    return '<span class="tag rank" style="--c:'.concat(R.color, '">').concat(s == null ? R.key + "급" : rankLabel(r, s), "</span>");
+  },
+  rift(tier) {
+    return '<span class="rift" style="--c:'.concat(RANKS[tier].color, '" aria-hidden="true"><i></i></span>');
+  },
+  slotIcon(slot, color) {
+    const P = {
+      weapon: '<path d="M5 19 17 7l2-4 2 2-4 2L5 19zM4 16l4 4M3 21l2-2" />',
+      armor: '<path d="M7 3 4 6v6c0 5 4 8 8 9 4-1 8-4 8-9V6l-3-3-5 2z"/><path d="M12 5v15"/>',
+      acc: '<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/><rect x="10" y="10" width="4" height="4"/>'
+    };
+    return '<span class="slot-ico" style="--c:'.concat(color, '"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">').concat(P[slot], "</svg></span>");
+  },
+  npcLook(n) {
+    return { age: Math.floor(n.ageMonths / 12), race: n.race || "human" };
+  },
+  npcAvatar(n, size) {
+    return FX.avatar("npc" + n.id + n.name, n.gender, n.element, n.rankIdx, size, this.npcLook(n));
+  },
+  npcPortrait(n, w) {
+    return FX.portrait("npc" + n.id + n.name, n.gender, n.element, n.rankIdx, w, this.npcLook(n));
+  },
+  playerAvatar(size) {
+    const p = G.player;
+    return FX.avatar(p.look, p.gender, p.element, p.rankIdx, size, { age: G.ageYears(), race: p.race || "human" });
+  },
+  playerPortrait(w) {
+    const p = G.player;
+    return FX.portrait(p.look, p.gender, p.element, p.rankIdx, w, { age: G.ageYears(), race: p.race || "human" });
+  },
+  raceTag(n) {
+    const r = n.race || "human";
+    return r === "human" ? "" : '<span class="tag race">'.concat(RACES[r].name, "</span>");
+  },
+  render() {
+    if (this.screen !== "title" && this.stopTitle) {
+      this.stopTitle();
+      this.stopTitle = null;
+    }
+    if (this.screen !== "game" && this.map) {
+      this.map.destroy();
+      this.map = null;
+    }
+    if (this.screen === "title") return this.renderTitle();
+    if (this.screen === "create") return this.renderCreate();
+    if (this.screen === "mode") return this.renderMode ? this.renderMode() : this.startCreate();
+    if (this.screen === "story-setup") return this.renderStorySetup();
+    if (this.screen === "prologue") return this.renderPrologue();
+    if (this.screen === "pro-result") return this.renderProResult();
+    this.renderGame();
+  },
+  // ---------- 타이틀 ----------
+  renderTitle() {
+    if (this.stopTitle) {
+      this.stopTitle();
+      this.stopTitle = null;
+    }
+    $app.innerHTML = '\n      <div class="title-screen">\n        <canvas id="title-cv" aria-hidden="true"></canvas>\n        <div class="title-inner">\n          <div class="logo-en">GATE CHRONICLE</div>\n          <h1 class="logo">게이트 크로니클</h1>\n          <div class="logo-sub">각성 연대기</div>\n          <div class="title-ver">v'.concat(GAME_VERSION, '</div>\n          <p class="sub">2087년, 대붕괴로부터 20년.<br>한반도 곳곳에 열린 게이트, 그리고 각성자들.<br>한정된 수명 안에서 얼마나 높이 오를 수 있는가.</p>\n          <div class="btns">\n            <button class="primary big" data-act="new">새로운 각성</button>\n            ').concat(Game.hasSave() ? '<button class="big" data-act="continue">이어하기</button>' : "", '\n            <button class="ghost" data-act="help">게임 안내</button>\n          </div>\n        </div>\n      </div>');
+    this.stopTitle = FX.title(document.getElementById("title-cv"));
+  },
+  helpHtml() {
+    return '<h3>게임 안내</h3>\n      <p>귀곡팔황식 자유 성장 헌터 RPG입니다. 모든 행동은 시간을 소모하고, 세계는 당신과 무관하게 흘러갑니다.</p>\n      <ul class="help">\n        <li><b>각성 등급</b>: F → E → D → C → B → A → S → SS. 각 등급은 초기·중기·후기로 나뉩니다.</li>\n        <li><b>에테르</b>: 수련·게이트·가르침으로 쌓고, 후기를 채우면 <b>돌파</b>를 시도합니다. 실패하면 내상을 입습니다.</li>\n        <li><b>수명</b>: 에테르 오염으로 평균 수명은 60세. 등급이 오를수록 수명이 늘어나며, 수명이 다하면 게임이 끝납니다.</li>\n        <li><b>속성 상성</b>: 염 → 빙 → 뇌 → 강 → 영 → 염. 상성이면 피해 1.5배, 역상성이면 0.7배입니다.</li>\n        <li><b>인물</b>: 다른 각성자들도 수련하고, 돌파하고, 늙고, 죽습니다. 친해지면 가르침을 받거나 동료로 삼을 수 있습니다.</li>\n        <li><b>대련</b>은 체력 소모 없이 겨루는 친선전이고, <b>생사결</b>은 지면 죽습니다.</li>\n        <li><b>길드</b>: 명성이 쌓이면 지역 길드에 가입해 월급과 임무를 받을 수 있습니다.</li>\n        <li><b>최종 목표</b>: S급이 되어 제주 격리 섬의 <b>원초의 게이트</b>를 닫으십시오.</li>\n      </ul>\n      <div class="row end"><button data-act="modal-close">닫기</button></div>';
+  },
+  // ---------- 캐릭터 생성 ----------
+  rollCreate() {
+    const c = this.create;
+    const pool = TRAITS.slice();
+    const clash = { genius: "slow_learner", slow_learner: "genius", lucky: "cursed", cursed: "lucky", charisma: "loner", loner: "charisma" };
+    c.traits = [];
+    while (c.traits.length < 3) {
+      const t = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+      if (clash[t.id] && c.traits.includes(clash[t.id])) continue;
+      c.traits.push(t.id);
+    }
+    c.talent = RNG.int(2, 8);
+    c.rolls--;
+    const seen = /* @__PURE__ */ new Set();
+    c.classes = [];
+    while (c.classes.length < 3) {
+      const id = rollClass();
+      if (!seen.has(id)) {
+        seen.add(id);
+        c.classes.push(id);
+      }
+    }
+    c.cls = c.classes[0];
+  },
+  startCreate() {
+    this.create = { name: this.lastName(), gender: "M", bg: "student", element: "fire", rolls: 6, look: Math.random().toString(36).slice(2) };
+    this.rollCreate();
+    this.screen = "create";
+    this.render();
+  },
+  renderCreate() {
+    const c = this.create;
+    const negIds = ["cursed", "frail", "slow_learner", "reckless"];
+    $app.innerHTML = '\n    <div class="create">\n      <div class="create-head">\n        <div class="eyebrow">국가 각성자 관리국 · 신규 등록</div>\n        <h2>각성자 등록서</h2>\n      </div>\n      <div class="create-grid">\n        <div class="panel id-preview">\n          <div class="id-card">\n            <div class="id-top"><span>KAMA</span><span>각성자 등록증</span></div>\n            <div class="id-body">\n              <div class="id-photo">'.concat(FX.portrait(c.look, c.gender, c.element, 0, 110), '</div>\n              <div class="id-info">\n                <div class="id-name">').concat(c.name || "이름 미기재", '</div>\n                <div class="dim">').concat(BACKGROUNDS.find((b) => b.id === c.bg).name, "</div>\n                <div>").concat(this.elemTag(c.element), " ").concat(this.clsTag(c.cls), '</div>\n                <div class="id-rank" style="--c:').concat(RANKS[0].color, '">F</div>\n              </div>\n            </div>\n          </div>\n          <button class="ghost full" data-act="c-look">외형 바꾸기</button>\n        </div>\n        <div class="panel">\n          <div class="row">\n            <div class="grow"><label class="sec-title" for="in-name">이름</label><div class="name-row"><input id="in-name" type="text" maxlength="8" placeholder="이름을 입력" value="').concat(c.name, '"><button class="icon-btn dice" data-act="name-dice" aria-label="무작위 이름">').concat(this.diceIcon(), '</button></div></div>\n            <div><div class="sec-title">성별</div>\n              <div class="row">\n                <button class="choice ').concat(c.gender === "M" ? "sel" : "", '" data-act="c-gender" data-v="M">남성</button>\n                <button class="choice ').concat(c.gender === "F" ? "sel" : "", '" data-act="c-gender" data-v="F">여성</button>\n              </div></div>\n          </div>\n          <div class="sec"><div class="sec-title">출신</div>\n            <div class="choice-grid">').concat(BACKGROUNDS.map((b) => '\n              <button class="choice '.concat(c.bg === b.id ? "sel" : "", '" data-act="c-bg" data-v="').concat(b.id, '"><b>').concat(b.name, '</b><span class="dim">').concat(b.desc, '</span><span class="dim small">시작: ').concat(regionById(b.region).name, "</span></button>")).join(""), '\n            </div></div>\n          <div class="sec"><div class="sec-title">에테르 속성 · 같은 속성 스킬 위력 +20%</div>\n            <div class="choice-grid elems">').concat(ELEMENT_KEYS.map((k) => {
+      const E = ELEMENTS[k];
+      const sk = SKILLS.find((s) => s.elem === k && s.rankReq === 0);
+      return '\n              <button class="choice elem-choice '.concat(c.element === k ? "sel" : "", '" style="--c:').concat(E.color, '" data-act="c-elem" data-v="').concat(k, '">').concat(FX.elemIcon(k, 26), "<b>").concat(E.name, '</b><span class="dim small">').concat(sk.name, "<br>").concat(ELEMENTS[E.counter].name, "에 강함</span></button>");
+    }).join(""), '\n            </div></div>\n          <div class="sec"><div class="row between"><div class="sec-title">각성 판정 · 직업 후보</div><span class="small dim">다시 측정하면 직업 후보도 바뀐다</span></div>\n            <div class="choice-grid cls-grid">').concat(c.classes.map((id) => {
+      const k = classById(id);
+      const g = CLASS_GROUPS[k.g];
+      return '\n              <button class="choice cls-choice '.concat(c.cls === id ? "sel" : "", '" style="--c:').concat(g.color, '" data-act="c-cls" data-v="').concat(id, '">\n                <span class="row between"><b>').concat(k.name, '</b><span class="tag rar r').concat(k.r, '">').concat(CLASS_RARITY[k.r], '</span></span>\n                <span class="small" style="color:').concat(g.color, '">').concat(g.name, " · 전직 ").concat(k.adv.join(" → "), '</span>\n                <span class="dim small">').concat(k.desc, '</span>\n                <span class="small">').concat(k.skills.map((x) => x[0]).join(" · "), "</span></button>");
+    }).join(""), '</div></div>\n          <div class="sec"><div class="row between"><div class="sec-title">선천 자질</div><button class="ghost" data-act="c-roll" ').concat(c.rolls <= 0 ? "disabled" : "", ">다시 측정 · ").concat(c.rolls, '회</button></div>\n            <div class="talent">재능 <div class="pips">').concat(Array.from({ length: 10 }, (_, i) => '<i class="'.concat(i < c.talent ? "on" : "", '"></i>')).join(""), '</div><b class="').concat(c.talent >= 7 ? "good" : c.talent <= 3 ? "bad" : "", '">').concat(c.talent, '</b></div>\n            <div class="cards traits">').concat(c.traits.map((id) => {
+      const t = traitById(id);
+      return '<div class="trait '.concat(negIds.includes(id) ? "neg" : "", '"><b>').concat(t.name, '</b><span class="dim">').concat(t.desc, "</span></div>");
+    }).join(""), '</div>\n          </div>\n          <div class="row end sec">\n            <button class="ghost" data-act="to-title">돌아가기</button>\n            <button class="primary" data-act="c-start">각성 시작</button>\n          </div>\n        </div>\n      </div>\n    </div>');
+    const inp = document.getElementById("in-name");
+    inp.addEventListener("input", () => {
+      c.name = inp.value;
+      const n = document.querySelector(".id-name");
+      if (n) n.textContent = c.name || "이름 미기재";
+    });
+  },
+  // ---------- 게임 화면 (월드맵 + HUD) ----------
+  renderGame() {
+    const p = G.player;
+    if (!document.getElementById("world")) {
+      if (this.map) this.map.destroy();
+      $app.innerHTML = '\n        <div class="world" id="world">\n          <canvas id="map-cv" aria-label="월드맵. 빛나는 칸을 눌러 이동합니다."></canvas>\n          <nav class="hud hud-tl" id="hud-tl"></nav>\n          <aside class="hud hud-tr" id="hud-tr"></aside>\n          <div class="hud hud-zoom">\n            <button class="icon-btn" data-act="zoom-in" aria-label="확대">+</button>\n            <button class="icon-btn" data-act="zoom-out" aria-label="축소">−</button>\n            <button class="icon-btn" data-act="zoom-me" aria-label="내 위치">'.concat(FX.icon("pin", 16), '</button>\n          </div>\n          <div class="hud hud-bottom">\n            <section class="hud-card" id="hud-card"></section>\n            <section class="hud-actions" id="hud-actions"></section>\n            <div class="hud-mini"><canvas id="mini" width="144" height="232" aria-label="미니맵"></canvas></div>\n          </div>\n          <div class="hud hud-tip hidden" id="hud-tip"></div>\n        </div>');
+      this.map = new MapView(document.getElementById("map-cv"), document.getElementById("mini"), { onTap: (x, y) => this.onTap(x, y) });
+      this.map.centerOn(p.x, p.y);
+    }
+    document.getElementById("hud-tl").innerHTML = this.hudMenu();
+    document.getElementById("hud-tr").innerHTML = fixJosa(this.hudObjective());
+    document.getElementById("hud-card").innerHTML = fixJosa(this.hudCard());
+    document.getElementById("hud-actions").innerHTML = fixJosa(this.hudActions());
+    this.map.setPlayerImage(PORTRAIT.imageFor(p.look, p.gender) || this.playerAvatar(128));
+    this.map.refresh();
+  },
+  hudMenu() {
+    const city = G.onCity();
+    const item = (k, label, icon, dis) => '<button class="menu-btn" data-act="sheet" data-v="'.concat(k, '" ').concat(dis ? "disabled" : "", ">").concat(icon, "<span>").concat(label, "</span></button>");
+    const ic = (d) => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'.concat(d, "</svg>");
+    return [
+      item("char", "정보", ic('<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>')),
+      item("skills", "스킬", ic('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>')),
+      item("party", "파티", ic('<circle cx="7" cy="9" r="3"/><circle cx="17" cy="9" r="3"/><circle cx="12" cy="6" r="3"/><path d="M2 20c.8-3 2.6-4.5 5-4.5M22 20c-.8-3-2.6-4.5-5-4.5M7 20c.8-3.5 2.6-5 5-5s4.2 1.5 5 5"/>')),
+      item("people", "인물", ic('<circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c1-3.5 3.5-5 7-5s6 1.5 7 5M15 15c3 0 5 1.5 6 4"/>')),
+      item("guild", "길드", ic('<path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6z"/>')),
+      item("quest", "의뢰", ic('<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/>')),
+      item("log", "연대기", ic('<path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h4"/>'))
+    ].join("");
+  },
+  goalText() {
+    const p = G.player;
+    let hint = "";
+    if (p.rankIdx >= 7 && p.stage === 2) hint = "정점에 올랐다. 이제 무엇을 할지는 당신의 몫이다.";
+    else if (p.stage === 2 && p.ether >= stageReq(p.rankIdx, 2)) {
+      if (!G.hasCatalyst()) {
+        let have = 0;
+        for (let t = p.rankIdx; t < 8; t++) have += G.coreCount(t);
+        hint = "돌파 준비: 공방에서 ".concat(RANKS[p.rankIdx].key, "급 각성 촉매 제작 (코어 ").concat(Math.min(have, 5), "/5)");
+      } else hint = "".concat(RANKS[p.rankIdx + 1].key, "급 돌파 준비 완료");
+    } else {
+      const pct = p.stage < 2 ? Math.round(p.stage / 3 * 100 + p.ether / stageReq(p.rankIdx, p.stage) * 33) : Math.round(66 + p.ether / stageReq(p.rankIdx, 2) * 34);
+      hint = "".concat(RANKS[Math.min(7, p.rankIdx + 1)].key, "급까지 ").concat(Math.min(99, pct), "%");
+    }
+    return '<span class="amb">'.concat(rankLabel(p.rankIdx, p.stage), " · ").concat(className(p.cls, p.clsAdv), '</span><div class="obj-sub">').concat(hint, "</div>");
+  },
+  hudObjective() {
+    const p = G.player;
+    const dist = (o) => Math.max(Math.abs(o.x - p.x), Math.abs(o.y - p.y));
+    const gates = G.mapGates.filter((g) => G.revealed(g.x, g.y) && (g.final || g.tier <= p.rankIdx + 1)).sort((a, b) => dist(a) - dist(b));
+    const mobs = G.mobs.filter((m) => G.revealed(m.x, m.y) && m.tier <= p.rankIdx).sort((a, b) => dist(a) - dist(b));
+    const last = G.logs[0];
+    return '<div class="obj">\n        <div class="obj-title">현재 상황</div>\n        <div class="obj-goal">'.concat(this.goalText(), "</div>\n        ").concat(gates[0] ? '<button class="obj-link" data-act="focus" data-v="'.concat(gates[0].x, ",").concat(gates[0].y, '">').concat(this.rift(gates[0].tier), " 가까운 게이트 · ").concat(G.gateName(gates[0]), " · ").concat(dist(gates[0]), "칸</button>") : '<div class="obj-sub">탐색하면 게이트를 찾을 수 있다.</div>', "\n        ").concat(p.quests.slice(0, 2).map((q) => '<button class="obj-link" data-act="sheet" data-v="quest">'.concat(q.status === "done" ? "✔" : "▸", " ").concat(q.title, "</button>")).join(""), "\n        ").concat(mobs[0] ? '<button class="obj-link" data-act="focus" data-v="'.concat(mobs[0].x, ",").concat(mobs[0].y, '"><span class="mob-dot" style="--c:').concat(ELEMENTS[mobs[0].elem].color, '"></span> 토벌 대상 · ').concat(mobs[0].name, " · ").concat(dist(mobs[0]), "칸</button>") : "", "\n      </div>\n      ").concat(last ? '<div class="obj news '.concat(last.type, '"><span class="dim">').concat(last.date, "</span> ").concat(last.text, "</div>") : "");
+  },
+  hudCard() {
+    const p = G.player;
+    const req = stageReq(p.rankIdx, p.stage);
+    const R = RANKS[p.rankIdx];
+    const left = G.maxLife() - G.ageYears();
+    return '<div class="card-portrait" style="--rc:'.concat(R.color, '">').concat(this.playerAvatar(78), '<span class="card-rank" style="--c:').concat(R.color, '"><b>').concat(R.key, '</b></span></div>\n      <div class="card-body">\n        <div class="card-name"><b>').concat(p.name, '</b> <span class="small dim">').concat(rankLabel(p.rankIdx, p.stage), " · ").concat(className(p.cls, p.clsAdv), "</span> ").concat(FX.elemIcon(p.element, 13), '</div>\n        <div class="card-date num">').concat(G.fullDate(), ' · <span class="').concat(left <= 5 ? "bad" : "", '">').concat(G.ageYears(), "세 / ").concat(G.maxLife(), '</span></div>\n        <div class="card-bars">\n          <div class="cb"><span>체력</span>').concat(this.bar("hp", p.hp, p.maxHp), '<span class="num">').concat(fmt(p.hp), "/").concat(fmt(p.maxHp), '</span></div>\n          <div class="cb"><span>정신</span>').concat(this.bar("mp", p.mp, p.maxMp), '<span class="num">').concat(fmt(p.mp), "/").concat(fmt(p.maxMp), '</span></div>\n          <div class="cb"><span>에테르</span>').concat(this.bar("ether", p.ether, req), '<span class="num">').concat(fmt(p.ether), "/").concat(fmt(req), '</span></div>\n        </div>\n        <div class="card-res num"><span class="amber">').concat(FX.icon("coin", 13), " ").concat(fmt(p.money), "</span><span>").concat(FX.icon("star", 13), " ").concat(fmt(p.fame), "</span>").concat(p.injured > 0 ? '<span class="bad">부상 '.concat(p.injured, "개월</span>") : "", "</div>\n        ").concat(G.party().length ? '<button class="party-row" data-act="sheet" data-v="party">'.concat(G.party().map((n) => '<span class="pm" title="'.concat(n.name, " · ").concat(className(n.cls), '">').concat(this.npcAvatar(n, 26), "</span>")).join(""), '<span class="small dim">파티 ').concat(G.partySize(), "/5</span></button>") : "", "\n      </div>");
+  },
+  hudActions() {
+    const p = G.player;
+    const reg = G.region();
+    const city = G.onCity();
+    const terrain = WORLD.T_NAME[WORLD.type(p.x, p.y)];
+    const est = Math.floor(15 * RANKS[p.rankIdx].mult * reg.ether * (1 + p.talent * 0.08) * (1 + G.mod("train")) * (p.guild === "cheongryong" ? 1.15 : 1) * (p.injured > 0 ? 0.5 : 1) * (G.onEther() ? 1.4 : 1));
+    const obj = G.objAt(p.x, p.y);
+    const maxed = p.rankIdx === RANKS.length - 1 && p.stage === 2;
+    return '<div class="act-where"><b>'.concat(city ? city.name : reg.name, '</b> <span class="dim small">').concat(city ? "도시" : terrain, " · 위험 ").concat("◆".repeat(reg.danger)).concat(G.onEther() ? " · 수련 효율 +40%" : "", '</span></div>\n      <div class="act-btns">\n        ').concat(obj ? obj.kind === "gate" ? '<button class="danger" data-act="gate" data-v="'.concat(obj.id, '">').concat(FX.icon("gate"), " 게이트 진입</button>") : '<button class="danger" data-act="mob" data-v="'.concat(obj.id, '">토벌</button>') : "", "\n        ").concat(city ? '<button class="primary" data-act="city">'.concat(FX.icon("pin"), " ").concat(city.name, " 들어가기</button>") : "", "\n        ").concat(!maxed && G.canBreakthrough() ? '<button class="'.concat(G.hasCatalyst() ? "primary" : "", ' bt-btn" data-act="breakthrough">').concat(RANKS[p.rankIdx + 1].key, "급 돌파 ").concat(G.hasCatalyst() ? '<span class="num">'.concat(G.btChance(), "%</span>") : '<span class="dim-in">촉매 필요</span>', "</button>") : "", '\n        <button data-act="train">').concat(FX.icon("train"), ' 수련 <span class="dim-in">1개월 +').concat(fmt(est), '</span></button>\n        <button data-act="rest">').concat(FX.icon("rest"), ' 휴식 <span class="dim-in">1개월</span></button>\n\n      </div>\n      <div class="act-hint small dim">빛나는 칸을 눌러 이동 · 한 칸 ').concat(WORLD.DAYS_PER_COST, "일 · 이동력 ").concat(G.moveRange(), "</div>");
+  },
+  // NPC의 지도 위치 (매달 도시 근처에서 바뀜)
+  npcPos(n) {
+    const key = "".concat(n.id, ":").concat(G.monthKey(), ":").concat(n.region);
+    this._np = this._np || {};
+    const c = this._np[n.id];
+    if (c && c.key === key) return c.pos;
+    this._near = this._near || {};
+    if (!this._near[n.region]) {
+      const [cx, cy] = WORLD.cityPos[n.region];
+      this._near[n.region] = (WORLD.regionTiles[n.region] || []).filter((i) => {
+        const [x, y] = WORLD.xy(i);
+        return Math.abs(x - cx) <= 4 && Math.abs(y - cy) <= 4;
+      });
+    }
+    const pool = this._near[n.region].length ? this._near[n.region] : WORLD.regionTiles[n.region];
+    const pos = WORLD.xy(pool[FX.hash(key) % pool.length]);
+    this._np[n.id] = { key, pos };
+    return pos;
+  },
+  npcsAt(x, y) {
+    return G.npcs.filter((n) => n.alive && !n.isCompanion && (([a, b]) => a === x && b === y)(this.npcPos(n)));
+  },
+  // ---------- 지도 입력 ----------
+  hideTip() {
+    const t = document.getElementById("hud-tip");
+    if (t) t.classList.add("hidden");
+  },
+  showTip(x, y) {
+    const tip = document.getElementById("hud-tip");
+    if (!tip) return;
+    const p = G.player;
+    const known = G.revealed(x, y);
+    const ty = WORLD.type(x, y);
+    const reg = WORLD.regionAt(x, y);
+    const city = WORLD.cityAt(x, y);
+    const d = Math.max(Math.abs(x - p.x), Math.abs(y - p.y));
+    let body = "";
+    if (!known) body = '<div class="dim">신호가 닿지 않는 미탐색 지역이다. 가까이 가면 드러난다.</div>';
+    else {
+      const obj = G.objAt(x, y);
+      if (obj && obj.kind === "gate") body += '<div class="tip-obj">'.concat(this.rift(obj.tier), "<div><b>").concat(G.gateName(obj), '</b><div class="small">').concat(this.rankTag(obj.tier), " ").concat(this.elemTag(obj.elem), " 난이도 ").concat(this.gateRisk(obj.tier), "</div></div></div>");
+      if (obj && obj.kind === "mob") body += '<div class="tip-obj"><span class="mob-dot big" style="--c:'.concat(ELEMENTS[obj.elem].color, '"></span><div><b>').concat(obj.name, " 무리 ×").concat(obj.count, '</b><div class="small">').concat(this.rankTag(obj.tier), " ").concat(this.elemTag(obj.elem), " 난이도 ").concat(this.gateRisk(obj.tier), "</div></div></div>");
+      const ns = this.npcsAt(x, y);
+      for (const n of ns) body += '<div class="tip-obj">'.concat(this.npcAvatar(n, 34), '<div class="grow"><b>').concat(n.name, '</b> <span class="small dim">').concat(n.met ? relationLabel(n.relation) : "처음 보는 각성자", '</span><div class="small">').concat(this.rankTag(n.rankIdx, n.stage), " ").concat(this.elemTag(n.element), "</div></div>\n        ").concat(n.region === p.region ? '<button class="sm" data-act="sheet" data-v="npc:'.concat(n.id, '">교류</button>') : "", "</div>");
+      if (x === p.x && y === p.y && !body) body = '<div class="dim small">현재 위치</div>';
+    }
+    const title = city ? city.name : reg ? "".concat(reg.name, " · ").concat(WORLD.T_NAME[ty]) : WORLD.T_NAME[ty];
+    tip.innerHTML = fixJosa('<div class="row between"><b>'.concat(known ? title : "미탐색 지역", '</b><button class="icon-btn sm" data-act="tip-close" aria-label="닫기">×</button></div>\n      ').concat(d ? '<div class="small dim">현재 위치에서 '.concat(d, "칸").concat(ty === WORLD.T.SEA || ty === WORLD.T.NORTH ? " · 진입 불가" : !G.canJeju() && reg && reg.id === "jeju" ? " · S급 이상 출입 가능" : "", "</div>") : "").concat(body));
+    tip.classList.remove("hidden");
+  },
+  onTap(x, y) {
+    if (this.walking) {
+      this.walking.stop = true;
+      this.toast("다음 칸에서 멈춘다.");
+      return;
+    }
+    if (this.ctx || this.modalOpen() || !this.map || this.map.moving || G.over) return;
+    const rd = this.map.reachData;
+    const i = WORLD.idx(x, y);
+    this.hideTip();
+    if (rd && rd.dist.has(i) && i !== rd.start) return this.walk(WORLD.pathTo(rd, i).slice(1));
+    this.showTip(x, y);
+  },
+  // 한 칸씩 걸으며 시간이 흐르고, 길 위에서 일이 생기면 멈춘다
+  walk(steps) {
+    const w = this.walking = { steps, i: 0, stop: false, days: 0 };
+    this.map.walkPath = steps.slice();
+    const next = () => {
+      if (this.walking !== w) return;
+      if (w.stop || w.i >= w.steps.length || G.over) return this.endWalk();
+      const p = G.player;
+      const from = [p.x, p.y];
+      const to = WORLD.xy(w.steps[w.i++]);
+      const diag = from[0] !== to[0] && from[1] !== to[1];
+      const ms = FX.reduced ? 0 : (WORLD.type(to[0], to[1]) === WORLD.T.MOUNTAIN ? 330 : 210) * (diag ? 1.25 : 1);
+      this.map.walkPath = w.steps.slice(w.i);
+      this.map.tween(from, to, ms, () => {
+        if (this.walking !== w) return;
+        const res = G.walkStep(to[0], to[1], diag);
+        w.days += res.days;
+        let stop = res.stop;
+        if (!stop) {
+          const ns = this.npcsAt(to[0], to[1]).filter((n) => n.region === G.player.region);
+          if (ns.length && RNG.chance(0.45)) {
+            const n = ns[0];
+            G.queue.push(n.nemesis === "player" || n.relation <= -30 && RNG.chance(0.6) ? { type: "ambush", npcId: n.id } : { type: "story", id: "road_meet", npc: n.id });
+            stop = true;
+          }
+        }
+        this.renderHud();
+        if (stop) w.stop = true;
+        next();
+      });
+    };
+    next();
+  },
+  endWalk() {
+    const w = this.walking;
+    this.walking = null;
+    this.map.walkPath = null;
+    this.map.token = null;
+    this.map.moving = false;
+    const p = G.player;
+    G.save();
+    this.renderGame();
+    if (w && w.days) this.toast("".concat(w.days, "일 동안 걸었다.").concat(w.i < w.steps.length && !G.over ? " 걸음을 멈췄다." : ""));
+    if (G.over || G.queue.length) return this.processQueue();
+    const obj = G.objAt(p.x, p.y);
+    if (obj) return this.encounter(obj);
+    if (G.onCity()) {
+      if (RNG.chance(0.35)) {
+        const ev = G.pickStory("city");
+        if (ev) {
+          G.queue.push(ev);
+          return this.processQueue();
+        }
+      }
+      return this.openCity();
+    }
+    if (this.npcsAt(p.x, p.y).length) this.showTip(p.x, p.y);
+  },
+  // 걷는 동안 가벼운 HUD 갱신 (지도는 그대로)
+  renderHud() {
+    const el = (id) => document.getElementById(id);
+    if (!el("hud-card")) return;
+    el("hud-card").innerHTML = fixJosa(this.hudCard());
+    el("hud-tr").innerHTML = fixJosa(this.hudObjective());
+    this.map.drawMini();
+  },
+  encounter(obj) {
+    if (obj.kind === "gate") {
+      return this.modal('<div class="enc">'.concat(FX.eventArt("gate_surge"), '<div class="eyebrow">게이트 감지 · ').concat(G.fullDate(), "</div><h3>").concat(G.gateName(obj), '</h3>\n        <div class="row">').concat(this.rankTag(obj.tier), " ").concat(this.elemTag(obj.elem), " ").concat(obj.mission ? '<span class="tag amber">길드 임무</span>' : "", ' <span class="small">난이도 ').concat(this.gateRisk(obj.tier), '</span></div>\n        <p class="dim">').concat(obj.final ? "4개 구역. 도주할 수 없다." : "3개 구역 · 공략에 약 10일 소요. 구역 사이에 철수할 수 있다.", '</p></div>\n        <div class="row end"><button class="ghost" data-act="modal-close">나중에</button><button class="primary" data-act="gate" data-v="').concat(obj.id, '">진입한다</button></div>'));
+    }
+    const sample = { name: obj.name, elem: obj.elem, shape: obj.shape };
+    return this.modal('<div class="enc mob-enc"><div class="mob-portrait" style="--c:'.concat(ELEMENTS[obj.elem].color, '">').concat(FX.monster(sample, 130), '</div>\n      <div><div class="eyebrow bad">괴수 조우</div><h3>').concat(obj.name, " 무리 ×").concat(obj.count, '</h3><div class="row">').concat(this.rankTag(obj.tier), " ").concat(this.elemTag(obj.elem), ' <span class="small">난이도 ').concat(this.gateRisk(obj.tier), '</span></div></div></div>\n      <div class="row end"><button class="ghost" data-act="modal-close">물러난다</button><button class="danger" data-act="mob" data-v="').concat(obj.id, '">토벌한다</button></div>'));
+  },
+  // ---------- 메뉴 창 ----------
+  openSheet(name) {
+    this.sheet = name;
+    this.modal(this.sheetHtml(), "sheet");
+    this.sheet = name;
+  },
+  sheetHtml() {
+    const name = this.sheet || "char";
+    if (name.startsWith("npc:")) {
+      const n = G.npcById(+name.slice(4));
+      return '<div class="sheet-head"><h3>교류</h3><button class="icon-btn" data-act="modal-close" aria-label="닫기">×</button></div>'.concat(n ? '<div class="npc-sheet">'.concat(UI.npcPortrait(n, 180)).concat(this.npcCard(n, n.alive && n.region === G.player.region), "</div>") : "");
+    }
+    const tabs = [["char", "정보"], ["skills", "스킬"], ["party", "파티"], ["people", "인물"], ["quest", "의뢰"], ["guild", "길드"], ["log", "연대기"]];
+    let body = "";
+    switch (name) {
+      case "quest":
+        body = this.questsHtml();
+        break;
+      case "party":
+        body = this.partyHtml();
+        break;
+      case "people":
+        body = this.peopleHtml();
+        break;
+      case "skills":
+        body = this.skillsHtml();
+        break;
+      case "guild":
+        body = this.guildHtml();
+        break;
+      case "log":
+        body = '<div class="panel">'.concat(this.rightHtml(), "</div>");
+        break;
+      default:
+        body = this.charHtml();
+    }
+    return '<div class="sheet-head"><nav class="tabs">'.concat(tabs.map(([k, n]) => '<button class="'.concat(name === k ? "on" : "", '" data-act="sheet" data-v="').concat(k, '">').concat(n, "</button>")).join(""), '</nav>\n      <button class="icon-btn" data-act="modal-close" aria-label="닫기">×</button></div><div class="sheet-body">').concat(body, "</div>");
+  },
+  partyHtml() {
+    const p = G.player;
+    const mem = G.party();
+    const card = (name, cls, adv, rank, stage, av, extra, right) => '<div class="item-row">'.concat(av, '<div class="grow"><b>').concat(name, "</b> ").concat(this.clsTag(cls, adv), " ").concat(this.rankTag(rank, stage), '<div class="small dim">').concat(classById(cls).desc).concat(extra ? " · " + extra : "", "</div></div>").concat(right || "", "</div>");
+    return '<div class="panel"><h3>파티 · '.concat(G.partySize(), '/5</h3>\n      <p class="dim small">관계 50 이상인 인물에게 파티 합류를 청하거나, 도시의 용병 사무소에서 고용할 수 있습니다. 전투에서 동료는 직업과 성격대로 스스로 싸웁니다. 혼자서도 충분히 강하다면 파티는 필수가 아닙니다. 적의 규모는 파티 인원에 맞춰 커집니다.</p>\n      <div class="cards">').concat(card(p.name, p.cls, p.clsAdv, p.rankIdx, p.stage, this.playerAvatar(40), "나"), "\n      ").concat(mem.map((n) => card(n.name, n.cls, n.rankIdx >= 6 ? 2 : n.rankIdx >= 3 ? 1 : 0, n.rankIdx, n.stage, this.npcAvatar(n, 40), "성격 ".concat(persById(n.personality).name, " · ").concat(n.merc ? "용병 계약 ".concat(n.merc.until - G.monthKey(), "개월 남음") : "관계 ".concat(relationLabel(n.relation))), '<button class="sm ghost" data-act="party-out" data-v="'.concat(n.id, '">내보내기</button>'))).join(""), "\n      ").concat(Array.from({ length: 4 - mem.length }, () => '<div class="item-row empty-slot"><div class="grow dim small">빈 자리</div></div>').join(""), "</div></div>");
+  },
+  questsHtml() {
+    const p = G.player;
+    const row = (q) => '<div class="item-row '.concat(q.status === "done" ? "hl" : "", '"><div class="grow"><b>').concat(q.title, '</b><div class="small dim">').concat(q.kind === "npc" ? "".concat((G.npcById(q.npc) || { name: "?" }).name, "의 부탁 · 남은 기한 ").concat(q.deadline - G.monthKey(), "개월") : "".concat(regionById(q.from).name, " 협회 의뢰 · ").concat(this.questStatus(q)), "</div></div></div>");
+    return '<div class="panel"><h3>진행 중인 일</h3><p class="dim small">협회 의뢰는 각 도시의 의뢰소에서 받고 보고합니다. 아는 사람들의 부탁은 메시지로 찾아옵니다.</p>\n      <div class="cards">'.concat(p.quests.map(row).join("") || '<div class="dim">맡은 일이 없다. 도시의 협회 의뢰소를 찾아가 보자.</div>', "</div></div>");
+  },
+  rightHtml() {
+    const logs = G.logs.slice(0, 50).map((l) => '<div class="l '.concat(l.type, '"><span class="d">').concat(l.date, "</span>").concat(l.text, "</div>")).join("");
+    const rum = G.rumors.slice(0, 30).map((l) => '<div class="l"><span class="d">'.concat(l.date, "</span>").concat(l.text, "</div>")).join("") || '<div class="dim">아직 들려오는 소문이 없다.</div>';
+    return '<div class="log-cols"><div><div class="sec-title">연대기</div><div class="logs">'.concat(logs, '</div></div>\n      <div><div class="sec-title">헌터 커뮤니티 소문</div><div class="logs rumors">').concat(rum, "</div></div></div>");
+  },
+  gateRisk(tier) {
+    const d = tier - G.player.rankIdx;
+    if (d <= -2) return '<span class="risk r0">여유</span>';
+    if (d === -1) return '<span class="risk r1">쉬움</span>';
+    if (d === 0) return '<span class="risk r2">적정</span>';
+    if (d === 1) return '<span class="risk r3">위험</span>';
+    return '<span class="risk r4">자살 행위</span>';
+  },
+  equipStats(it) {
+    const parts = [];
+    if (it.atk) parts.push("공격 +".concat(it.atk));
+    if (it.def) parts.push("방어 +".concat(it.def));
+    if (it.hp) parts.push("체력 +".concat(it.hp));
+    if (it.mp) parts.push("정신력 +".concat(it.mp));
+    if (it.spd) parts.push("속도 +".concat(it.spd));
+    if (it.luck) parts.push("운 +".concat(it.luck));
+    return parts.join(" · ");
+  },
+  equipName(it) {
+    return '<b style="color:'.concat(RARITY[it.rarity].color, '">').concat(it.name, '</b> <span class="tag">').concat(RARITY[it.rarity].name, "</span>");
+  },
+  slotName(s) {
+    return { weapon: "무기", armor: "방어구", acc: "장신구" }[s];
+  },
+  equipRow(it, right, extra = "") {
+    return '<div class="item-row">'.concat(this.slotIcon(it.slot, RARITY[it.rarity].color), '<div class="grow">').concat(this.equipName(it), ' <span class="dim small">').concat(this.slotName(it.slot), '</span><div class="small dim">').concat(this.equipStats(it)).concat(extra, "</div></div>").concat(right, "</div>");
+  },
+  shopHtml() {
+    const s = G.getShop();
+    const p = G.player;
+    const pm = G.priceMul();
+    const price = (v) => '<span class="num">'.concat(fmt(v), "</span>");
+    return '<div class="panel">\n      <h3>'.concat(G.region().name, ' 상점가</h3>\n      <p class="dim">상품은 매달 바뀝니다.').concat(pm < 1 ? " 할인 적용 중 ×".concat(pm.toFixed(2), ".") : "").concat(G.region().id === "busan" ? " 암시장이라 가격이 들쭉날쭉하다." : "", '</p>\n      <div class="sec"><div class="sec-title">소모품</div><div class="cards">').concat(CONSUMABLES.map((c) => '\n        <div class="item-row"><span class="slot-ico" style="--c:var(--ether)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 3h6M10 3v5L5 18a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-10V3"/><path d="M7 15h10"/></svg></span>\n        <div class="grow"><b>'.concat(c.name, '</b> <span class="dim small">보유 ').concat(p.items[c.id] || 0, '</span><div class="small dim">').concat(c.desc, '</div></div>\n        <button class="sm" data-act="buy-item" data-v="').concat(c.id, '">').concat(FX.icon("coin", 13), " ").concat(price(c.price * pm), "</button></div>")).join(""), '</div></div>\n      <div class="sec"><div class="sec-title">장비</div><div class="cards">').concat(s.equips.map((it) => this.equipRow(it, '<button class="sm" data-act="buy-equip" data-v="'.concat(it.uid, '">').concat(FX.icon("coin", 13), " ").concat(price(it.value * pm), "</button>"))).join("") || '<div class="dim">매진</div>', '</div></div>\n      <div class="sec"><div class="sec-title">스킬 데이터</div><div class="cards">').concat(s.skills.map((id) => {
+      const sk = skillById(id);
+      const own = p.skills.includes(id);
+      return '\n        <div class="item-row"><span class="slot-ico" style="--c:'.concat(sk.elem ? ELEMENTS[sk.elem].color : "#9aa6b8", '">').concat(FX.elemIcon(sk.elem, 20), '</span>\n        <div class="grow"><b>').concat(sk.name, "</b> ").concat(this.rankTag(sk.rankReq), ' <span class="tag">').concat(TYPE_NAME[sk.type], '</span><div class="small dim">').concat(sk.desc, " · 정신력 ").concat(sk.mp, "</div></div>\n        ").concat(own ? '<span class="dim small">습득함</span>' : '<button class="sm" data-act="buy-skill" data-v="'.concat(id, '" ').concat(sk.rankReq > p.rankIdx ? "disabled" : "", ">").concat(FX.icon("coin", 13), " ").concat(price(sk.price * pm), "</button>"), "</div>");
+    }).join(""), '</div></div>\n      <div class="sec"><div class="sec-title">보유 장비 판매 · 40%</div><div class="cards">').concat(p.inventory.map((it) => this.equipRow(it, '<button class="sm ghost" data-act="sell" data-v="'.concat(it.uid, '">').concat(price(it.value * 0.4), " 판매</button>"))).join("") || '<div class="dim">판매할 장비가 없다.</div>', "</div></div>\n    </div>");
+  },
+  npcCard(n, here) {
+    const pers = persById(n.personality);
+    const rel = n.relation;
+    const mk = G.monthKey();
+    let btns = "";
+    if (here && n.alive && n.child) {
+      btns = '<div class="row npc-btns">\n        <button class="sm" data-act="npc-talk" data-v="'.concat(n.id, '" ').concat(n.lastTalk === mk ? "disabled" : "", ">").concat(ageStage(Math.floor(n.ageMonths / 12)) === "baby" ? "어르기" : "말 걸기", '</button>\n        <button class="sm" data-act="npc-gift" data-v="').concat(n.id, '">선물 <span class="num">').concat(fmt(G.giftCost(n)), "</span></button>\n      </div>");
+    } else if (here && n.alive) {
+      btns = '<div class="row npc-btns">\n        <button class="sm" data-act="npc-talk" data-v="'.concat(n.id, '" ').concat(n.lastTalk === mk ? "disabled" : "", '>대화</button>\n        <button class="sm" data-act="npc-gift" data-v="').concat(n.id, '">선물 <span class="num">').concat(fmt(G.giftCost(n)), '</span></button>\n        <button class="sm" data-act="npc-spar" data-v="').concat(n.id, '" ').concat(n.lastSpar === mk || n.isCompanion ? "disabled" : "", ">대련</button>\n        ").concat(G.canTeach(n) ? '<button class="sm" data-act="npc-teach" data-v="'.concat(n.id, '">가르침 · 1개월</button>') : "", "\n        ").concat((G.player.disciples || []).includes(n.id) ? '<button class="sm" data-act="teach-disciple" data-v="'.concat(n.id, '">제자 지도 · 1개월</button>') : "", "\n        ").concat(G.canRecruit(n) ? '<button class="sm primary" data-act="npc-recruit" data-v="'.concat(n.id, '">파티 초대</button>') : "", "\n        ").concat(n.isCompanion ? '<button class="sm ghost" data-act="party-out" data-v="'.concat(n.id, '">파티에서 빼기</button>') : '<button class="sm danger" data-act="npc-duel" data-v="'.concat(n.id, '">생사결</button>'), "\n      </div>");
+    }
+    return '<div class="npc-card '.concat(n.alive ? "" : "dead", '">\n      <div class="npc-top">\n        ').concat(this.npcAvatar(n, 52), '\n        <div class="grow">\n          <div class="row between"><b>').concat(n.name, "</b><span>").concat(this.bondTag(n)).concat(n.isCompanion ? '<span class="tag good">동료</span>' : "", '</span></div>\n          <div class="small dim">').concat(n.gender === "M" ? "남" : "여", " · ").concat(Math.floor(n.ageMonths / 12), "세").concat(n.child ? " · ".concat(AGE_NAME[ageStage(Math.floor(n.ageMonths / 12))]) : "", " · ").concat(pers.name).concat(n.child ? "" : " · ".concat(n.guild ? GUILDS[n.guild].name : "무소속"), " ").concat(this.raceTag(n), '</div>\n          <div class="row small">').concat(n.child ? '<span class="tag">비각성</span>' : "".concat(this.rankTag(n.rankIdx, n.stage), " ").concat(this.clsTag(n.cls || "swordsman", n.rankIdx >= 6 ? 2 : n.rankIdx >= 3 ? 1 : 0), " ").concat(this.elemTag(n.element)), "</div>\n        </div>\n      </div>\n      ").concat(!here ? '<div class="small dim">'.concat(n.alive ? regionById(n.region).name : "사망 · ".concat(n.death.date, " · ").concat(n.death.cause), "</div>") : "", '\n      <div class="rel-line"><span class="small">관계 <b class="').concat(rel < 0 ? "bad" : rel >= 30 ? "good" : "", '">').concat(relationLabel(rel), '</b> <span class="num dim">').concat(rel, "</span></span>").concat(G.canTeach(n) ? '<span class="small good">스승 가능</span>' : "", '</div>\n      <div class="rel-bar"><i class="').concat(rel < 0 ? "neg" : "", '" style="').concat(rel < 0 ? "right:50%;width:".concat(-rel / 2, "%") : "left:50%;width:".concat(rel / 2, "%"), '"></i></div>\n      ').concat(btns, "</div>");
+  },
+  bondTag(n) {
+    const p = G.player;
+    const t = [];
+    if (p.spouse === n.id) t.push("배우자");
+    if (p.partner === n.id) t.push("연인");
+    if (p.master === n.id) t.push("스승");
+    if ((p.disciples || []).includes(n.id)) t.push("제자");
+    if (n.family) t.push("혈육");
+    if (n.nemesis === "player") t.push("원수");
+    const sp = n.spouse && n.spouse !== -1 ? G.npcById(n.spouse) : null;
+    const pt = n.partner && n.partner !== -1 ? G.npcById(n.partner) : null;
+    const extra = sp ? '<span class="small dim">'.concat(sp.name, "의 배우자 </span>") : pt ? '<span class="small dim">'.concat(pt.name, "의 연인 </span>") : "";
+    return extra + t.map((x) => '<span class="tag '.concat(x === "원수" ? "bad" : "amber", '">').concat(x, "</span>")).join("");
+  },
+  peopleHtml() {
+    const here = [...G.npcsHere(), ...G.npcs.filter((n) => n.alive && n.child && n.region === G.player.region)].sort((a, b) => b.isCompanion - a.isCompanion || a.child - b.child || b.relation - a.relation || b.rankIdx - a.rankIdx);
+    const known = G.npcs.filter((n) => n.met && (n.region !== G.player.region || !n.alive)).sort((a, b) => b.alive - a.alive || b.relation - a.relation);
+    return '<div class="panel"><h3>'.concat(G.region().name, '의 각성자들</h3>\n      <p class="dim">대화와 선물로 관계를 쌓으세요. 관계 40 이상이면 상위 등급자에게 가르침을, 50 이상이면 파티 초대를 할 수 있습니다. 관계가 -30 이하면 기습당할 수 있습니다.</p>\n      <div class="npc-grid">').concat(here.map((n) => this.npcCard(n, true)).join("") || '<div class="dim">이 지역엔 아무도 없다.</div>', '</div>\n      <div class="sec"><div class="sec-title">알고 지낸 인물</div>\n      <div class="npc-grid">').concat(known.map((n) => this.npcCard(n, false)).join("") || '<div class="dim">다른 지역의 지인이 없다.</div>', "</div></div></div>");
+  },
+  charHtml() {
+    const p = G.player;
+    const bg = BACKGROUNDS.find((b) => b.id === p.bg);
+    return '<div class="panel">\n      <div class="char-head">'.concat(UI.playerPortrait(150), "<div><h3>").concat(p.name, '</h3><div class="dim">').concat(p.gender === "M" ? "남" : "여", " · ").concat(G.ageYears(), "세 · ").concat(bg.name, '</div><div class="row">').concat(this.rankTag(p.rankIdx, p.stage), " ").concat(this.clsTag(p.cls, p.clsAdv), " ").concat(this.elemTag(p.element), '</div></div></div>\n      <div class="sec"><div class="sec-title">직업</div>').concat((() => {
+      const k = classById(p.cls);
+      const g = CLASS_GROUPS[k.g];
+      return '<div class="trait" style="border-left-color:'.concat(g.color, '"><b>').concat(className(p.cls, p.clsAdv), ' <span class="small" style="color:').concat(g.color, '">').concat(g.name, " · ").concat(CLASS_RARITY[k.r], '</span></b><span class="dim">').concat(k.desc, '</span><span class="small">전직 단계: ').concat([k.name, ...k.adv].map((n, i) => i === p.clsAdv ? '<b class="amber">'.concat(n, "</b>") : n).join(" → "), ' (C급, S급에서 전직 시험)</span><span class="small dim">직업 스킬: ').concat(k.skills.map((x, i) => "".concat(x[0], "(").concat(RANKS[[0, 2, 5][i]].key, "급)")).join(" · "), "</span></div>");
+    })(), '</div>\n      <div class="sec"><div class="sec-title">선천 특성</div><div class="cards traits">').concat(p.traits.map((id) => {
+      const t = traitById(id);
+      return '<div class="trait"><b>'.concat(t.name, '</b><span class="dim">').concat(t.desc, "</span></div>");
+    }).join(""), '</div></div>\n      <div class="sec"><div class="sec-title">장착 장비</div><div class="cards">').concat(["weapon", "armor", "acc"].map((s) => {
+      const it = p.equip[s];
+      return it ? this.equipRow(it, '<button class="sm ghost" data-act="unequip" data-v="'.concat(s, '">해제</button>')) : '<div class="item-row">'.concat(this.slotIcon(s, "#3a4560"), '<div class="grow dim">').concat(this.slotName(s), " 없음</div></div>");
+    }).join(""), '</div></div>\n      <div class="sec"><div class="sec-title">가방</div><div class="cards">').concat(p.inventory.map((it) => {
+      const cur = p.equip[it.slot];
+      return this.equipRow(it, '<button class="sm" data-act="equip" data-v="'.concat(it.uid, '">장착</button>'), cur ? "<br>현재: ".concat(this.equipStats(cur)) : "");
+    }).join("") || '<div class="dim">비어 있다.</div>', '</div></div>\n      <div class="sec"><div class="sec-title">소모품</div><div class="cards">').concat(CONSUMABLES.filter((c) => p.items[c.id]).map((c) => '\n        <div class="item-row"><div class="grow"><b>'.concat(c.name, '</b> <span class="num">×').concat(p.items[c.id], '</span> <span class="dim small">').concat(c.desc, '</span></div><button class="sm" data-act="use-item" data-v="').concat(c.id, '">사용</button></div>')).join("") || '<div class="dim">없음</div>', '</div></div>\n      <div class="sec"><div class="sec-title">인연</div><div class="npc-strip">').concat(this.bondsHtml(), '</div></div>\n      <div class="sec"><div class="sec-title">유물 · 각성 촉매 · 코어</div><div class="cards">\n        ').concat(p.relics.map((r) => {
+      const R = relicById(r.id);
+      return '<div class="item-row"><div class="grow"><b style="color:'.concat(RARITY[r.grade].color, '">').concat(R.name, '</b> <span class="tag">').concat(RARITY[r.grade].name, '</span><div class="small dim">돌파 때 바치면 ').concat(R.desc, " 영구 상승</div></div></div>");
+    }).join(""), "\n        ").concat(Object.keys(p.items).filter((k) => k.startsWith("cat") && p.items[k] > 0).map((k) => '<div class="item-row hl"><div class="grow"><b>'.concat(RANKS[+k.slice(3)].key, "급 각성 촉매</b> ×").concat(p.items[k], "</div></div>")).join(""), '\n        <div class="small dim">').concat(Object.keys(p.mats).filter((k) => p.mats[k] > 0).map((k) => "".concat(coreName(+k.slice(1)), " ").concat(p.mats[k])).join(" · ") || "코어 없음", " · 협회 공적 ").concat(p.merit, "</div>\n        ").concat(Object.keys(p.relicBonus || {}).length ? '<div class="small">유물 누적 효과: '.concat(Object.entries(p.relicBonus).map(([k, v]) => "".concat({ hp: "체력", atk: "공격", def: "방어", spd: "속도", mp: "정신력", luck: "운", train: "수련", life: "수명" }[k], " +").concat(k === "life" ? Math.round(v) + "년" : Math.round(v * 100) + "%")).join(", "), "</div>") : "", '\n      </div></div>\n      <div class="sec"><div class="sec-title">인생 기록</div><div class="logs">').concat(p.lifeEvents.slice().reverse().map((e) => '<div class="l major"><span class="d">'.concat(e.date, " · ").concat(e.age, "세</span>").concat(e.text, "</div>")).join(""), '</div></div>\n      <div class="sec"><div class="sec-title">생애 통계</div><div class="stat-grid">\n        <div><span class="dim">공략 게이트</span><b class="num">').concat(p.record.gates, '</b></div><div><span class="dim">처치 괴수</span><b class="num">').concat(p.record.kills, '</b></div>\n        <div><span class="dim">돌파 성공</span><b class="num">').concat(p.record.breakthroughs, '</b></div><div><span class="dim">돌파 실패</span><b class="num">').concat(p.record.fails, '</b></div>\n        <div><span class="dim">생사결 승리</span><b class="num">').concat(p.record.npcKills, '</b></div><div><span class="dim">수명 손상</span><b class="num">').concat(p.lifePenalty, "년</b></div>\n      </div></div></div>");
+  },
+  bondsHtml() {
+    const p = G.player;
+    const list = [];
+    const add = (id, label) => {
+      const n = id != null && G.npcById(id);
+      if (n) list.push([n, label]);
+    };
+    add(p.spouse, "배우자");
+    add(p.partner, "연인");
+    add(p.master, "스승");
+    (p.disciples || []).forEach((id) => add(id, "제자"));
+    (p.children || []).forEach((id) => add(id, "자녀"));
+    G.npcs.filter((n) => n.family).forEach((n) => list.push([n, "혈육"]));
+    G.adults().filter((n) => n.nemesis === "player").forEach((n) => list.push([n, "원수"]));
+    return list.map(([n, label]) => '<button class="npc-chip '.concat(n.alive ? "" : "dead", '" data-act="sheet" data-v="npc:').concat(n.id, '">').concat(this.npcAvatar(n, 40), "<span><b>").concat(n.name, '</b><span class="small ').concat(label === "원수" ? "bad" : "dim", '">').concat(label).concat(n.alive ? n.child ? " · ".concat(Math.floor(n.ageMonths / 12), "세") : " · ".concat(RANKS[n.rankIdx].key, "급") : " · 故", "</span></span></button>")).join("") || '<span class="dim small">아직 깊은 인연이 없다.</span>';
+  },
+  skillsHtml() {
+    const p = G.player;
+    return '<div class="panel"><h3>스킬</h3><p class="dim">전투에 가져갈 스킬을 최대 5개까지 장착합니다. 직업 스킬은 등급이 오르면 자동으로 익힙니다. 같은 속성 스킬은 위력 +20%.</p>\n      <div class="cards">'.concat(p.skills.map((id) => {
+      const sk = skillById(id);
+      const on = p.equipSkills.includes(id);
+      return '\n        <div class="item-row '.concat(on ? "equipped" : "", '"><span class="slot-ico" style="--c:').concat(ELEMENTS[sk.elem === "self" ? p.element : sk.elem] ? ELEMENTS[sk.elem === "self" ? p.element : sk.elem].color : "#9aa6b8", '">').concat(FX.elemIcon(sk.elem === "self" ? p.element : sk.elem, 20), '</span>\n          <div class="grow"><b>').concat(sk.name, '</b> <span class="tag">').concat(TYPE_NAME[sk.type] || "특수", "</span>").concat(sk.cls ? " ".concat(this.clsTag(sk.cls)) : "", '<div class="small dim">').concat(sk.desc, " · 위력 ").concat(sk.power, " · 정신력 ").concat(sk.mp, "</div></div>\n          ").concat(id === "strike" ? '<span class="dim small">기본</span>' : '<button class="sm '.concat(on ? "primary" : "", '" data-act="toggle-skill" data-v="').concat(id, '" ').concat(!on && p.equipSkills.length >= 5 ? "disabled" : "", ">").concat(on ? "장착 중" : "장착", "</button>"), "</div>");
+    }).join(""), "</div></div>");
+  },
+  guildHtml() {
+    const p = G.player;
+    const reg = G.region();
+    let cur = "";
+    if (p.guild) {
+      const g = GUILDS[p.guild];
+      const next = GUILD_RANKS[p.guildRank + 1];
+      const home = REGIONS.find((r) => r.guild === p.guild);
+      cur = '<div class="guild-card" style="--c:'.concat(g.color, '"><div class="guild-crest">').concat(FX.elemIcon(g.elem, 34), '</div><div class="grow"><h3>').concat(g.name, '</h3><p class="dim">').concat(g.desc, "</p>\n        <div>직위 <b>").concat(GUILD_RANKS[p.guildRank].name, '</b> · 공헌도 <span class="num">').concat(p.contrib).concat(next ? " / ".concat(next.req) : "", "</span>").concat(next ? ' <span class="dim">다음: '.concat(next.name, "</span>") : "", "</div>\n        ").concat(next ? this.bar("ether", p.contrib, next.req) : "", '\n        <div class="dim small">월급 ').concat(fmt(40 * RANKS[p.rankIdx].mult * (1 + p.guildRank)), " 크레딧 · 본부(").concat(home.name, ") 상점 20% 할인 · 본부에서 길드 임무 게이트가 열립니다.").concat(p.guild === "cheongryong" ? " · 수련 효율 +15%" : "", '</div>\n        <div class="row sec"><button class="danger sm" data-act="guild-leave">탈퇴</button></div></div></div>');
+    } else if (reg.guild) {
+      const g = GUILDS[reg.guild];
+      cur = '<div class="guild-card" style="--c:'.concat(g.color, '"><div class="guild-crest">').concat(FX.elemIcon(g.elem, 34), '</div><div class="grow"><h3>').concat(g.name, '</h3><p class="dim">').concat(g.desc, '</p>\n        <div>가입 조건: 명성 <span class="num">').concat(g.fameReq, '</span> · 현재 <span class="num">').concat(p.fame, '</span></div>\n        <div class="row sec"><button class="primary" data-act="guild-join" ').concat(p.fame < g.fameReq ? "disabled" : "", ">가입 신청</button></div></div></div>");
+    } else cur = '<p class="dim">이 지역엔 길드 본부가 없다.</p>';
+    return '<div class="panel"><h3>길드</h3>'.concat(cur, '\n      <div class="sec"><div class="sec-title">5대 세력</div><div class="cards">').concat(Object.entries(GUILDS).map(([id, g]) => {
+      const home = REGIONS.find((r) => r.guild === id);
+      return '\n        <div class="item-row"><span class="slot-ico" style="--c:'.concat(g.color, '">').concat(FX.elemIcon(g.elem, 20), '</span><div class="grow"><b style="color:').concat(g.color, '">').concat(g.name, '</b> <span class="dim small">본부 ').concat(home.name, " · 명성 ").concat(g.fameReq, ' 필요</span><div class="small dim">').concat(g.desc, "</div></div></div>");
+    }).join(""), "</div></div></div>");
+  },
+  // ---------- 큐 처리 (이벤트, 기습, 게임오버) ----------
+  processQueue() {
+    if (this.modalOpen()) return;
+    const q = G.queue.shift();
+    if (!q) return;
+    if (q.type === "gameover") return this.showGameOver();
+    if (q.type === "victory") return this.showVictory();
+    if (q.type === "event") return this.showEvent(EVENTS.find((e) => e.id === q.id));
+    if (q.type === "ambush") {
+      const n = G.npcById(q.npcId);
+      if (!n || !n.alive) return this.processQueue();
+      this.modal('<div class="ambush">'.concat(UI.npcPortrait(n, 120), '<div><div class="eyebrow bad">기습</div><h3>').concat(n.name, '</h3><div class="row small">').concat(this.rankTag(n.rankIdx, n.stage), " ").concat(this.elemTag(n.element), "</div></div></div>\n        <p>").concat(n.name, '이(가) 살기를 띠고 덤벼든다. "여기서 끝장을 내주마!"</p>\n        <div class="row end"><button class="danger" data-act="ambush-fight" data-v="').concat(n.id, '">맞서 싸운다</button></div>'));
+      return;
+    }
+    if (q.type === "spar") {
+      const n = G.npcById(q.npcId);
+      if (n && n.alive) this.startSpar(n);
+      else this.processQueue();
+    }
+  },
+  showEvent(ev) {
+    this.curEvent = ev;
+    this.modal("".concat(FX.eventArt(ev.id), '<div class="eyebrow">사건 · ').concat(G.dateStr(), " · ").concat(G.region().name, '</div><p class="event-text">').concat(ev.text, '</p>\n      <div class="cards">').concat(ev.choices.map((c, i) => '<button class="choice-btn" data-act="ev-choice" data-v="'.concat(i, '">').concat(c.text, "</button>")).join(""), "</div>"), "event-box");
+  },
+  lifeSummary() {
+    const p = G.player;
+    return '<div class="stat-grid sec">\n      <div><span class="dim">최종 등급</span><b>'.concat(rankLabel(p.rankIdx, p.stage), '</b></div><div><span class="dim">나이</span><b class="num">').concat(G.ageYears(), '세</b></div>\n      <div><span class="dim">공략 게이트</span><b class="num">').concat(p.record.gates, '</b></div><div><span class="dim">처치 괴수</span><b class="num">').concat(p.record.kills, '</b></div>\n      <div><span class="dim">명성</span><b class="num">').concat(fmt(p.fame), '</b></div><div><span class="dim">재산</span><b class="num">').concat(fmt(p.money), "</b></div>\n    </div>");
+  },
+  showGameOver() {
+    this.modal('<div class="ending dead-end">'.concat(UI.playerPortrait(160), '<div class="eyebrow">').concat(G.over.date, "</div><h2>각성자 ").concat(G.player.name, ", 잠들다</h2><p>").concat(G.over.reason, "</p></div>").concat(this.lifeSummary(), '\n      <div class="sec-title sec">인생 기록</div><div class="logs life-log">').concat(G.player.lifeEvents.map((e) => '<div class="l"><span class="d">'.concat(e.age, "세</span>").concat(e.text, "</div>")).join(""), '</div>\n      <p class="dim">당신의 이름은 헌터 커뮤니티의 추모 게시판에 오래 남았다.</p>\n      ').concat(this.heirs().length ? '<div class="sec-title sec">뒤를 이을 사람</div><div class="cards">'.concat(this.heirs().map((n) => '<button class="choice-btn" data-act="succeed" data-v="'.concat(n.id, '">').concat(this.npcAvatar(n, 32), " ").concat(n.name, " · ").concat(RANKS[n.rankIdx].key, "급 · ").concat(Math.floor(n.ageMonths / 12), "세로 이어 간다</button>")).join(""), "</div>") : "", '\n      <div class="row end"><button class="').concat(this.heirs().length ? "ghost" : "primary", '" data-act="to-title">타이틀로</button></div>'));
+  },
+  showVictory() {
+    this.modal('<div class="ending win-end">'.concat(UI.playerPortrait(160), '<div class="eyebrow">').concat(G.dateStr(), "</div><h2>원초의 게이트 봉인</h2>\n      <p>심연의 군주가 쓰러지고, 20년간 한반도를 뒤덮었던 에테르 폭풍이 잦아들었다. 사람들은 ").concat(G.player.name, "의 이름을 영웅으로 기억할 것이다.</p></div>").concat(this.lifeSummary(), '\n      <p class="dim">남은 수명 동안 계속 살아갈 수 있습니다.</p>\n      <div class="row end"><button class="primary" data-act="modal-close">계속하기</button></div>'));
+  },
+  // ---------- 전투 ----------
+  allyUnits() {
+    return [G.playerUnit(), ...G.party().map((n) => G.npcUnit(n, "ally"))];
+  },
+  startGate(id) {
+    const gate = G.mapGates.find((g) => g.id === +id);
+    if (!gate || gate.cleared) return;
+    this.hideTip();
+    this.ctx = { kind: "gate", gate, rooms: G.gateRooms(gate), roomIdx: 0, loot: { money: 0, ether: 0, kills: 0 } };
+    this.startRoom();
+  },
+  startRoom() {
+    const c = this.ctx;
+    const last = c.roomIdx === c.rooms.length - 1;
+    c.combat = new Combat(G, {
+      allies: this.allyUnits(),
+      enemies: c.rooms[c.roomIdx],
+      canFlee: !c.gate.final,
+      title: "".concat(G.gateName(c.gate), " · ").concat(last ? "보스 구역" : "구역 ".concat(c.roomIdx + 1))
+    });
+    c.elem = c.gate.elem;
+    this.openCombat();
+  },
+  startMob(id) {
+    const mob = G.mobs.find((m) => m.id === +id);
+    if (!mob) return;
+    this.hideTip();
+    this.ctx = { kind: "mob", mob, elem: mob.elem, combat: new Combat(G, { allies: this.allyUnits(), enemies: G.mobRoom(mob), canFlee: true, title: "".concat(mob.name, " 무리 토벌") }) };
+    this.openCombat();
+  },
+  startSpar(n) {
+    const u = G.npcUnit(n, "enemy");
+    const me = G.playerUnit();
+    me.hp = me.maxHp;
+    me.mp = me.maxMp;
+    this.ctx = { kind: "spar", npcId: n.id, elem: n.element, combat: new Combat(G, { allies: [me], enemies: [u], canFlee: false, spar: true, title: "".concat(n.name, "와(과)의 대련") }) };
+    this.openCombat();
+  },
+  startDuel(n, ambush) {
+    const u = G.npcUnit(n, "enemy");
+    this.ctx = { kind: "duel", npcId: n.id, elem: n.element, combat: new Combat(G, { allies: this.allyUnits(), enemies: [u], canFlee: true, title: "".concat(ambush ? "기습 · " : "").concat(n.name, "와(과)의 생사결") }) };
+    this.openCombat();
+  },
+  unitSprite(u, size) {
+    if (u.isPlayer) return this.playerAvatar(size);
+    if (u.portrait) return FX.avatar(u.portrait.seed, u.portrait.gender, u.portrait.elem, u.tier || 0, size);
+    if (u.npcId) {
+      const n = G.npcById(u.npcId);
+      return this.npcAvatar(n, size);
+    }
+    return FX.monster(u, size);
+  },
+  unitEl(u) {
+    const c = this.ctx;
+    const foes = c.combat.units.filter((x) => x.side === "enemy" && !x.summon);
+    const foeSize = foes.length >= 4 ? 78 : foes.length >= 3 ? 92 : 120;
+    const cls = u.cls ? '<span class="tag cls tiny" style="--c:'.concat(CLASS_GROUPS[classById(u.cls).g].color, '">').concat(className(u.cls, u.clsAdv || 0)).concat(u.pers ? " · " + persById(u.pers).name : "", "</span>") : "";
+    if (u.side === "enemy") return '<div class="foe '.concat(u.boss ? "boss" : "", " ").concat(u.summon ? "summoned" : "", '" id="u-').concat(u.id, '" data-act="c-target" data-v="').concat(u.id, '">\n        <div class="fx-host"><div class="sprite">').concat(this.unitSprite(u, u.summon ? 70 : u.boss ? Math.round(foeSize * 1.35) : foeSize), '</div><div class="reticle"></div></div>\n        <div class="foe-name">').concat(u.name, " ").concat(FX.elemIcon(u.elem, 12), '</div>\n        <div class="bar hp"><i></i></div><div class="bar atb mini"><i></i></div><div class="foe-hp num small"></div><div class="status small"></div></div>');
+    if (u.summon) return '<div class="ally summon" id="u-'.concat(u.id, '"><div class="fx-host">').concat(FX.monster({ name: u.name, elem: u.elem, shape: u.shape }, 40), '</div>\n        <div class="grow"><div class="row between"><b class="small">').concat(u.name, '</b><span class="status small"></span></div><div class="bar hp"><i></i></div><div class="small num hp-t"></div><div class="bar atb mini"><i></i></div></div></div>');
+    return '<div class="ally '.concat(u.isPlayer ? "me" : "", '" id="u-').concat(u.id, '">\n        <div class="fx-host">').concat(this.unitSprite(u, 44), '</div>\n        <div class="grow"><div class="row between"><b>').concat(u.name, '</b><span class="status small"></span></div>').concat(cls, '\n          <div class="bar hp"><i></i></div><div class="bar mp"><i></i></div>\n          <div class="row between small num"><span class="hp-t"></span><span class="mp-t dim"></span></div>\n          <div class="bar atb"><i></i></div></div></div>');
+  },
+  openCombat() {
+    const c = this.ctx;
+    const cb = c.combat;
+    c.disp = JSON.parse(JSON.stringify(cb.initial));
+    c.played = 0;
+    c.playing = false;
+    const ec = ELEMENTS[c.elem] ? ELEMENTS[c.elem].color : "#46e0d0";
+    const rooms = c.kind === "gate" ? '<div class="room-dots">'.concat(c.rooms.map((_, i) => '<i class="'.concat(i < c.roomIdx ? "done" : i === c.roomIdx ? "now" : "", " ").concat(i === c.rooms.length - 1 ? "boss" : "", '"></i>')).join(""), "</div>") : "";
+    this.modal('<div class="cb-head"><h3>'.concat(cb.title, "</h3>").concat(rooms, '<span class="dim small num" id="cb-round"></span></div>\n      <div class="stage" id="stage" style="--ec:').concat(ec, '">\n        <div class="foes" id="foes"></div>\n        <div class="allies" id="allies"></div>\n      </div>\n      <div class="clog" id="clog"></div>\n      <div id="cb-ctrl"></div>'), "combat-box");
+    c.speed = this.combatSpeed || 1;
+    this.refreshUnits();
+    this.renderControls();
+    this.combatLoop();
+  },
+  refreshUnits() {
+    const c = this.ctx;
+    if (!c) return;
+    const cb = c.combat;
+    for (const u of cb.units) {
+      let el = document.getElementById("u-" + u.id);
+      if (!el) {
+        const host = document.getElementById(u.side === "enemy" ? "foes" : "allies");
+        if (!host) continue;
+        host.insertAdjacentHTML("beforeend", fixJosa(this.unitEl(u)));
+        el = document.getElementById("u-" + u.id);
+        if (!c.disp[u.id]) c.disp[u.id] = { hp: u.hp, mp: u.mp };
+      }
+      const d = c.disp[u.id] || { hp: u.hp, mp: u.mp };
+      const hb = el.querySelector(".bar.hp > i"), mb = el.querySelector(".bar.mp > i");
+      if (hb) hb.style.width = Math.max(0, Math.min(100, d.hp / u.maxHp * 100)) + "%";
+      if (mb) mb.style.width = Math.max(0, Math.min(100, d.mp / u.maxMp * 100)) + "%";
+      const hpT = el.querySelector(".hp-t");
+      if (hpT) hpT.textContent = "HP ".concat(Math.max(0, Math.round(d.hp)), "/").concat(u.maxHp);
+      const mpT = el.querySelector(".mp-t");
+      if (mpT) mpT.textContent = "MP ".concat(Math.round(d.mp));
+      const fh = el.querySelector(".foe-hp");
+      if (fh) fh.textContent = "".concat(Math.max(0, Math.round(d.hp)), " / ").concat(u.maxHp);
+      const st = el.querySelector(".status");
+      if (st) st.innerHTML = [u.fled ? '<span class="tag tiny bad">도주</span>' : "", u.tauntT ? '<span class="tag tiny amber">도발</span>' : "", u.stun ? '<span class="tag tiny bad">기절</span>' : "", u.poison ? '<span class="tag tiny" style="color:#9be36b">중독</span>' : "", u.evadeT ? '<span class="tag tiny">회피</span>' : "", u.buffs.atkT ? '<span class="tag tiny good">공↑</span>' : "", u.buffs.defT && u.buffs.def > 0 ? '<span class="tag tiny good">방↑</span>' : "", u.buffs.def < 0 ? '<span class="tag tiny bad">방↓</span>' : ""].join("");
+      el.classList.toggle("dead", d.hp <= 0 && !u.alive || !!u.fled);
+      el.classList.toggle("target", cb.target === u && u.alive);
+    }
+    const r = document.getElementById("cb-round");
+    if (r) r.textContent = "".concat(cb.actions, "번째 행동");
+    this.drawGauges();
+  },
+  appendLog(l) {
+    if (!l.t) return;
+    const box = document.getElementById("clog");
+    if (!box) return;
+    const d = document.createElement("div");
+    d.className = l.cls;
+    d.textContent = l.t;
+    box.appendChild(d);
+    while (box.children.length > 40) box.firstChild.remove();
+    box.scrollTop = box.scrollHeight;
+  },
+  // 전투 이벤트 하나를 화면에 연출하고 다음까지 기다릴 시간(ms)을 돌려준다
+  applyEvent(l) {
+    const c = this.ctx;
+    const ev = l.ev;
+    this.appendLog(l);
+    if (!ev) return l.t ? 260 : 0;
+    const el = (id) => document.getElementById("u-" + id);
+    const color = (e) => e && ELEMENTS[e] ? ELEMENTS[e].color : "#e3e8f1";
+    switch (ev.k) {
+      case "cast": {
+        if (c.disp[ev.src]) c.disp[ev.src].mp = ev.mp;
+        const s = el(ev.src);
+        if (s) {
+          FX.pulse(s, ev.side === "ally" ? "lunge-up" : "lunge-down", 320);
+          if (ev.name) FX.floatText(s.querySelector(".fx-host"), ev.name, "skill");
+        }
+        this.refreshUnits();
+        return 150;
+      }
+      case "dmg": {
+        c.disp[ev.dst].hp = ev.hp;
+        const t = el(ev.dst);
+        if (t) {
+          const host = t.querySelector(".fx-host");
+          t.style.setProperty("--hc", color(ev.elem));
+          FX.pulse(t, "hit", 420);
+          FX.floatText(host, (ev.crit ? "치명 " : "") + ev.amt, (ev.crit ? "crit " : "") + (ev.eff ? "eff" : "") + (t.classList.contains("ally") ? " hurt" : ""));
+          FX.burst(host, color(ev.elem), ev.crit ? 16 : 9);
+          if (ev.crit) {
+            const st = document.getElementById("stage");
+            if (st) FX.pulse(st, "quake", 380);
+          }
+        }
+        this.refreshUnits();
+        return 430;
+      }
+      case "down": {
+        const t = el(ev.dst);
+        if (t) t.classList.add("dead");
+        this.refreshUnits();
+        return 300;
+      }
+      case "miss": {
+        const t = el(ev.dst);
+        if (t) FX.floatText(t.querySelector(".fx-host"), "회피", "heal");
+        return 260;
+      }
+      case "note":
+        this.refreshUnits();
+        return 220;
+      case "say": {
+        const t = el(ev.src);
+        if (t) FX.floatText(t.querySelector(".fx-host"), ev.text, "say");
+        return 360;
+      }
+      case "cover": {
+        const t = el(ev.src);
+        if (t) {
+          FX.pulse(t, "glow", 600);
+          FX.floatText(t.querySelector(".fx-host"), "엄호!", "skill");
+        }
+        return 300;
+      }
+      case "flee": {
+        const t = el(ev.src);
+        if (t) t.classList.add("dead");
+        this.refreshUnits();
+        return 360;
+      }
+      case "summon": {
+        this.refreshUnits();
+        const t = el(ev.dst);
+        if (t) {
+          FX.pulse(t, "glow", 600);
+          FX.burst(t.querySelector(".fx-host"), "#c58cff", 12);
+        }
+        return 380;
+      }
+      case "aoe": {
+        const st = document.getElementById("stage");
+        if (st) {
+          st.style.setProperty("--fc", color(ev.elem));
+          FX.pulse(st, "flash", 500);
+        }
+        return 260;
+      }
+      case "heal":
+      case "mp":
+      case "buff": {
+        if (ev.hp != null && c.disp[ev.dst]) c.disp[ev.dst].hp = ev.hp;
+        if (ev.revive) {
+          const t2 = el(ev.dst);
+          if (t2) t2.classList.remove("dead");
+        }
+        if (ev.mp != null && c.disp[ev.dst]) c.disp[ev.dst].mp = ev.mp;
+        const t = el(ev.dst);
+        if (t) {
+          FX.pulse(t, "glow", 600);
+          FX.floatText(t.querySelector(".fx-host"), ev.k === "heal" ? "+".concat(ev.amt) : ev.k === "mp" ? "MP" : "강화", "heal");
+        }
+        this.refreshUnits();
+        return 360;
+      }
+      default:
+        return 200;
+    }
+  },
+  play() {
+    const c = this.ctx;
+    if (!c || c.playing) return;
+    const cb = c.combat;
+    const evs = cb.log.slice(c.played);
+    c.played = cb.log.length;
+    if (!evs.length) return this.afterPlay();
+    c.playing = true;
+    this.renderControls();
+    let i = 0;
+    const speed = cb.auto ? 0.55 : 1;
+    const step = () => {
+      if (this.ctx !== c) return;
+      if (i >= evs.length) {
+        c.playing = false;
+        return this.afterPlay();
+      }
+      let wait = 200;
+      try {
+        wait = this.applyEvent(evs[i++]);
+      } catch (e) {
+        i++;
+        if (window.console) console.error("연출 오류", e);
+      }
+      setTimeout(step, FX.reduced ? 0 : wait * speed);
+    };
+    step();
+  },
+  afterPlay() {
+    const c = this.ctx;
+    if (!c) return;
+    const cb = c.combat;
+    for (const u of cb.units) c.disp[u.id] = { hp: u.hp, mp: u.mp };
+    this.refreshUnits();
+    this.renderControls();
+  },
+  // ATB 루프: 연출 중이거나 내 차례면 시간이 멈춘다
+  combatLoop() {
+    const c = this.ctx;
+    if (!c) return;
+    const cb = c.combat;
+    let last = performance.now();
+    const frame = (now) => {
+      if (this.ctx !== c || !document.getElementById("stage")) return;
+      const dt = Math.min(0.1, (now - last) / 1e3) * (c.speed || 1);
+      last = now;
+      if (!c.playing && !cb.result) try {
+        if (cb.waiting) {
+          if (cb.auto) {
+            cb.autoStep();
+            this.play();
+          }
+        } else {
+          const ready = cb.tick(FX.reduced ? 1 : dt);
+          this.drawGauges();
+          if (ready) {
+            const r = cb.takeTurn(ready);
+            this.drawGauges();
+            if (r === "wait") this.renderControls();
+            else this.play();
+          }
+        }
+      } catch (e) {
+        if (window.console) console.error("전투 진행 오류", e);
+        c.playing = false;
+      }
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  },
+  drawGauges() {
+    const c = this.ctx;
+    if (!c) return;
+    const cb = c.combat;
+    for (const u of cb.units) {
+      const el = document.getElementById("u-" + u.id);
+      if (!el) continue;
+      const g = el.querySelector(".atb > i");
+      if (g) g.style.width = Math.min(100, u.atb) + "%";
+      el.classList.toggle("ready", u.isPlayer && cb.waiting);
+      el.classList.toggle("acting", cb.active === u && c.playing);
+    }
+  },
+  renderControls() {
+    const c = this.ctx;
+    if (!c) return;
+    const cb = c.combat;
+    const box = document.getElementById("cb-ctrl");
+    if (!box) return;
+    if (cb.result && !c.playing) {
+      box.innerHTML = fixJosa(this.combatResultHtml());
+      return;
+    }
+    const p = cb.player;
+    const lock = c.playing || cb.auto || !cb.waiting;
+    const hint = cb.auto ? "자동 전투 중" : cb.waiting && !c.playing ? '<b class="amber">내 차례!</b> 시간이 멈췄다. 적을 눌러 대상을 고르고 커맨드를 입력하세요.' : "게이지가 차는 중… 내 게이지가 가득 차면 시간이 멈춥니다.";
+    box.innerHTML = fixJosa('<div class="skill-btns">'.concat(p.skills.map((id) => {
+      const sk = skillById(id);
+      return '<button class="skill-btn" style="--c:'.concat(sk.elem ? ELEMENTS[sk.elem].color : "#9aa6b8", '" data-act="c-skill" data-v="').concat(id, '" ').concat(sk.mp > p.mp || lock ? "disabled" : "", ">\n        ").concat(FX.elemIcon(sk.elem, 18), "<span><b>").concat(sk.name, '</b><span class="small dim">MP ').concat(sk.mp, " · ").concat(TYPE_NAME[sk.type], "</span></span></button>");
+    }).join(""), '</div>\n      <div class="row ctrl-row">\n        ').concat(["potion", "mana"].map((id) => '<button class="sm" data-act="c-item" data-v="'.concat(id, '" ').concat(!G.player.items[id] || lock ? "disabled" : "", ">").concat(CONSUMABLES.find((x) => x.id === id).name, ' <span class="num">×').concat(G.player.items[id] || 0, "</span></button>")).join(""), '\n        <span class="grow"></span>\n        <button class="sm" data-act="c-speed">').concat((c.speed || 1) === 1 ? "1배속" : "2배속", '</button>\n        <button class="sm ').concat(cb.auto ? "primary" : "", '" data-act="c-auto">').concat(cb.auto ? "자동 중지" : "자동 전투", "</button>\n        ").concat(cb.canFlee ? '<button class="sm danger" data-act="c-flee" '.concat(lock ? "disabled" : "", ">도주</button>") : "", '\n      </div>\n      <div class="small dim cb-hint">').concat(hint, "</div>"));
+  },
+  combatResultHtml() {
+    var _a;
+    const c = this.ctx;
+    const cb = c.combat;
+    if (c.kind === "gate") {
+      if (cb.result === "win") {
+        if (!c.counted) {
+          c.counted = true;
+          for (const k of cb.kills) {
+            const r = G.monsterReward(k);
+            c.loot.money += r.money;
+            c.loot.ether += r.ether;
+            c.loot.kills++;
+            ((_a = c.loot).list || (_a.list = [])).push(k);
+          }
+        }
+        const last = c.roomIdx === c.rooms.length - 1;
+        return '<div class="result win"><b>구역 제압</b> <span class="small">누적 보상 <span class="num">'.concat(fmt(c.loot.money), '</span> 크레딧 · 에테르 <span class="num">').concat(fmt(c.loot.ether), '</span></span></div>\n          <div class="row end">').concat(last ? '<button class="primary" data-act="g-finish" data-v="clear">게이트 클리어</button>' : "".concat(c.gate.final ? "" : '<button class="ghost" data-act="g-finish" data-v="retreat">철수 · 보상 챙기기</button>', '<button class="primary" data-act="g-next">다음 구역으로</button>'), "</div>");
+      }
+      if (cb.result === "flee") return '<div class="row end"><button data-act="g-finish" data-v="retreat">게이트 밖으로</button></div>';
+      return '<div class="result lose"><b>쓰러졌다</b></div><div class="row end"><button class="danger" data-act="g-finish" data-v="lose">의식이 멀어진다…</button></div>';
+    }
+    const label = cb.result === "win" ? '<div class="result win"><b>승리</b></div>' : cb.result === "flee" ? '<div class="result"><b>이탈</b></div>' : '<div class="result lose"><b>패배</b></div>';
+    return "".concat(label, '<div class="row end"><button class="primary" data-act="c-done">확인</button></div>');
+  },
+  combatAction(fn) {
+    const c = this.ctx;
+    if (!c || c.playing) return;
+    fn(c.combat);
+    this.refreshUnits();
+    this.play();
+  },
+  finishGate(result) {
+    const c = this.ctx;
+    const cb = c.combat;
+    const lost = result === "lose" ? [] : G.partyCasualties(cb.units);
+    const lines = G.finishGate(c.gate, result, c.loot, cb.player.hp, cb.player.mp);
+    if (lost.length) lines.push('<span class="bad">'.concat(lost.join(", "), "이(가) 쓰러져 돌아오지 못했다…</span>"));
+    this.ctx = null;
+    this.renderGame();
+    this.modal('<div class="eyebrow">'.concat(G.gateName(c.gate), "</div><h3>").concat(result === "clear" ? "게이트 공략 완료" : result === "retreat" ? "철수" : "패배", "</h3>").concat(lines.map((l) => "<p>".concat(l, "</p>")).join(""), '\n      <div class="row end"><button class="primary" data-act="modal-close">확인</button></div>'));
+  },
+  finishPersonalCombat() {
+    const c = this.ctx;
+    const cb = c.combat;
+    if (c.kind === "story") return this.finishStoryFight();
+    if (c.kind === "tourney") return this.finishTourney();
+    const n = G.npcById(c.npcId);
+    let msg = "";
+    if (c.kind === "mob") {
+      const lost = G.partyCasualties(cb.units);
+      const lines = G.finishMob(c.mob, cb.result, cb.kills, cb.player.hp, cb.player.mp);
+      if (lost.length) lines.push('<span class="bad">'.concat(lost.join(", "), "이(가) 쓰러져 돌아오지 못했다…</span>"));
+      this.ctx = null;
+      this.closeModal();
+      this.renderGame();
+      if (G.over) return this.processQueue();
+      return this.modal('<div class="eyebrow">'.concat(c.mob.name, " 무리</div><h3>").concat(cb.result === "win" ? "토벌 완료" : cb.result === "flee" ? "이탈" : "패배", "</h3>").concat(lines.map((l) => "<p>".concat(l, "</p>")).join(""), '<div class="row end"><button class="primary" data-act="modal-close">확인</button></div>'));
+    }
+    if (c.kind === "spar") msg = G.finishSpar(n, cb.result === "win");
+    else if (cb.result === "flee") {
+      G.player.hp = Math.max(1, cb.player.hp);
+      G.player.mp = cb.player.mp;
+      G.changeRel(n, -5);
+      msg = "간신히 도망쳤다.";
+    } else msg = G.finishDuel(n, cb.result === "win", cb.player.hp, cb.player.mp);
+    this.ctx = null;
+    G.save();
+    this.closeModal();
+    this.renderGame();
+    if (G.over) return this.processQueue();
+    this.toast(msg);
+    this.processQueue();
+  },
+  // ---------- 행동 처리 ----------
+  after(msg) {
+    if (this.screen === "game") this.renderGame();
+    if (this.sheet && this.modalOpen()) {
+      const keep = this.sheet;
+      $box.innerHTML = fixJosa(this.sheetHtml());
+      this.sheet = keep;
+    }
+    if (msg) this.toast(msg);
+    this.processQueue();
+  },
+  handle(act, v) {
+    const c = this.create;
+    switch (act) {
+      case "new":
+        this.screen = "mode";
+        return this.render();
+      case "continue":
+        if (!G.load()) {
+          this.toast("저장 데이터를 불러오지 못했다.");
+          return this.render();
+        }
+        this.screen = "game";
+        this.render();
+        return;
+      case "help":
+        return this.modal(this.helpHtml());
+      case "to-title":
+        this.closeModal();
+        this.screen = "title";
+        this.ctx = null;
+        return this.render();
+      case "to-title-confirm":
+        return this.modal('<h3>타이틀로 돌아갈까요?</h3><p class="dim">진행 상황은 매달 자동 저장됩니다.</p><div class="row end"><button class="ghost" data-act="modal-close">취소</button><button class="primary" data-act="to-title">타이틀로</button></div>');
+      case "modal-close":
+        this.closeModal();
+        return this.after();
+      // 생성
+      case "c-gender":
+        c.gender = v;
+        return this.render();
+      case "c-bg":
+        c.bg = v;
+        return this.render();
+      case "c-elem":
+        c.element = v;
+        return this.render();
+      case "c-cls":
+        c.cls = v;
+        return this.render();
+      case "c-look":
+        c.look = Math.random().toString(36).slice(2);
+        return this.render();
+      case "c-roll":
+        if (c.rolls > 0) this.rollCreate();
+        return this.render();
+      case "c-start": {
+        const name = (c.name || "").trim();
+        if (!name) return this.toast("이름을 입력하세요.");
+        G.newGame({ name, gender: c.gender, bg: c.bg, element: c.element, talent: c.talent, traits: c.traits, look: c.look, cls: c.cls });
+        this.saveName(name);
+        G.save();
+        this.screen = "game";
+        this.render();
+        return this.modal('<div class="ending">'.concat(UI.playerPortrait(160), '<div class="eyebrow">').concat(G.dateStr(), " · ").concat(G.region().name, "</div><h2>각성</h2></div>\n          <p>평범했던 ").concat(name, "의 몸에 처음으로 에테르가 흘렀다. 관리국의 측정 결과는 <b>F급</b>. 가장 낮은 등급이지만, 당신에겐 아직 ").concat(G.maxLife() - G.ageYears(), '년의 수명이 남아 있다.</p>\n          <p class="dim">정해진 길은 없다. 도시에 들어가 의뢰를 받고, 사람을 만나고, 게이트에서 코어를 모아 각성 촉매를 만들어라. 어떻게 살지는 당신이 정한다.</p><div class="row end"><button class="primary" data-act="modal-close">시작</button></div>'));
+      }
+      // 게임
+      case "sheet":
+        return this.openSheet(v);
+      case "tip-close":
+        return this.hideTip();
+      case "zoom-in":
+        this.map && this.map.zoom(1.2);
+        return this.map && this.map.drawMini();
+      case "zoom-out":
+        this.map && this.map.zoom(1 / 1.2);
+        return this.map && this.map.drawMini();
+      case "zoom-me":
+        this.map && this.map.centerOn(G.player.x, G.player.y);
+        return this.map && this.map.drawMini();
+      case "focus": {
+        const [fx, fy] = v.split(",").map(Number);
+        this.map.centerOn(fx, fy);
+        this.map.drawMini();
+        return this.showTip(fx, fy);
+      }
+      case "mob":
+        this.closeModal();
+        return this.startMob(v);
+      case "train":
+        G.train();
+        return this.after();
+      case "rest":
+        G.rest();
+        return this.after();
+      case "breakthrough": {
+        const r = G.breakthrough();
+        if (!r) return;
+        this.renderGame();
+        return FX.breakthrough(r.ok, G.player.rankIdx, () => {
+          this.renderGame();
+          this.modal('<h3 class="'.concat(r.ok ? "good" : "bad", '">').concat(r.ok ? "돌파 성공" : "돌파 실패", '</h3><p class="dim">성공률 ').concat(r.chance, "%</p><p>").concat(r.msg, '</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>'));
+        });
+      }
+      case "gate":
+        this.closeModal();
+        return this.startGate(v);
+      case "buy-item":
+        return this.after(G.buyItem(v));
+      case "buy-equip":
+        return this.after(G.buyEquip(v));
+      case "buy-skill":
+        return this.after(G.buySkill(v));
+      case "sell":
+        return this.after(G.sellEquip(v));
+      case "equip":
+        G.equipItem(v);
+        return this.after("장착했다.");
+      case "unequip":
+        G.unequip(v);
+        return this.after();
+      case "use-item":
+        return this.after(G.useItem(v));
+      case "toggle-skill":
+        G.toggleSkill(v);
+        return this.after();
+      case "guild-join":
+        return this.after(G.joinGuild());
+      case "guild-leave":
+        return this.after(G.leaveGuild());
+      case "npc-talk":
+        return this.after(G.talk(+v));
+      case "npc-gift":
+        return this.after(G.gift(+v));
+      case "npc-teach":
+        return this.after(G.teach(+v));
+      case "npc-recruit":
+        return this.after(G.recruit(+v));
+      case "npc-dismiss":
+        return this.after(G.dismiss());
+      case "party-out":
+        return this.after(G.dismiss(+v));
+      case "npc-spar": {
+        const n = G.npcById(+v);
+        if (n) this.startSpar(n);
+        return;
+      }
+      case "npc-duel": {
+        const n = G.npcById(+v);
+        return this.modal('<div class="ambush">'.concat(UI.npcPortrait(n, 120), '<div><div class="eyebrow bad">생사결</div><h3>').concat(n.name, '</h3><div class="row small">').concat(this.rankTag(n.rankIdx, n.stage), " ").concat(this.elemTag(n.element), '</div></div></div>\n          <p>목숨을 건 결투를 신청합니다. 패배하면 <b>죽습니다</b>. 선량한 인물을 해치면 명성이 크게 떨어집니다.</p>\n          <div class="row end"><button class="ghost" data-act="modal-close">취소</button><button class="danger" data-act="duel-go" data-v="').concat(n.id, '">결투한다</button></div>'));
+      }
+      case "duel-go": {
+        const n = G.npcById(+v);
+        G.changeRel(n, -40);
+        n.met = true;
+        return this.startDuel(n, false);
+      }
+      case "ambush-fight": {
+        const n = G.npcById(+v);
+        return this.startDuel(n, true);
+      }
+      case "ev-choice": {
+        const ch = this.curEvent.choices[+v];
+        const res = ch.effect(G);
+        G.recalc();
+        G.player.fame = Math.max(0, G.player.fame);
+        G.save();
+        this.renderGame();
+        return this.modal("".concat(FX.eventArt(this.curEvent.id), '<p class="event-text">').concat(res, '</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>'), "event-box");
+      }
+      // 전투
+      case "c-skill":
+        return this.combatAction((cb) => cb.playerSkill(v));
+      case "c-item":
+        return this.combatAction((cb) => cb.playerItem(v));
+      case "c-flee":
+        return this.combatAction((cb) => cb.playerFlee());
+      case "c-target": {
+        const cx = this.ctx;
+        if (!cx || cx.combat.result) return;
+        cx.combat.setTarget(v);
+        return this.refreshUnits();
+      }
+      case "c-auto": {
+        const cx = this.ctx;
+        if (!cx) return;
+        cx.combat.toggleAuto();
+        this.renderControls();
+        return;
+      }
+      case "c-speed": {
+        const cx = this.ctx;
+        if (!cx) return;
+        cx.speed = this.combatSpeed = (cx.speed || 1) === 1 ? 2 : 1;
+        return this.renderControls();
+      }
+      case "c-done":
+        return this.finishPersonalCombat();
+      case "g-next": {
+        const c2 = this.ctx;
+        const cb = c2.combat;
+        G.player.hp = cb.player.hp;
+        G.player.mp = cb.player.mp;
+        G.player.hp = Math.min(G.player.maxHp, G.player.hp + Math.floor(G.player.maxHp * 0.1));
+        c2.roomIdx++;
+        c2.counted = false;
+        return this.startRoom();
+      }
+      case "g-finish":
+        return this.finishGate(v);
+    }
+  }
+};
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-act]");
+  if (!el) return;
+  UI.handle(el.dataset.act, el.dataset.v);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const el = e.target.closest && e.target.closest("g[data-act]");
+  if (!el) return;
+  e.preventDefault();
+  UI.handle(el.dataset.act, el.dataset.v);
+});
+{
+  const v = document.createElement("div");
+  v.className = "ver";
+  v.textContent = "v" + GAME_VERSION;
+  v.setAttribute("aria-label", "게임 버전 " + GAME_VERSION);
+  document.body.appendChild(v);
+}
+UI.render();
+const FAC_ICON = {
+  inn: '<path d="M3 20V9l9-5 9 5v11"/><path d="M7 20v-6h10v6M7 14h10"/>',
+  merc: '<circle cx="9" cy="8" r="3.5"/><path d="M2 20c1-3.5 3.5-5 7-5s6 1.5 7 5M16 4l2 2 4-4M17 12h5"/>',
+  market: '<path d="M3 9h18l-1.5 11h-15zM8 9V6a4 4 0 0 1 8 0v3"/>',
+  board: '<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  tavern: '<path d="M6 3h9v7a4.5 4.5 0 0 1-9 0zM15 5h2a2 2 0 0 1 0 4h-2M8 21h5M10.5 15v6"/>',
+  workshop: '<path d="M14 6l4 4-9 9H5v-4zM16 4l4 4"/>',
+  archive: '<path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/>',
+  transit: '<rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M8 21l2-4M16 21l-2-4"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/>',
+  auction: '<path d="M14 4l6 6-3 3-6-6zM11 7l-7 7 3 3 7-7M3 21h10"/>',
+  guild: '<path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6z"/>'
+};
+const facIcon = (id, size = 22) => '<svg width="'.concat(size, '" height="').concat(size, '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">').concat(FAC_ICON[id] || "", "</svg>");
+Object.assign(UI, {
+  // ---------- 도시 ----------
+  citySkyline(reg) {
+    const r = FX.rng(FX.hash(reg.id));
+    const brk = G.cityBreak(reg.id);
+    const gc = reg.guild ? GUILDS[reg.guild].color : "#46e0d0";
+    let b = "";
+    let x = 0;
+    while (x < 400) {
+      const w = 14 + r() * 30, h = 30 + r() * (BIG_CITIES.includes(reg.id) ? 110 : 70);
+      b += '<rect x="'.concat(x.toFixed(0), '" y="').concat((150 - h).toFixed(0), '" width="').concat(w.toFixed(0), '" height="').concat(h.toFixed(0), '" fill="#0b111b"/>');
+      for (let wy = 150 - h + 6; wy < 146; wy += 7) for (let wx = x + 3; wx < x + w - 3; wx += 6) if (r() < 0.3) b += '<rect x="'.concat(wx.toFixed(0), '" y="').concat(wy.toFixed(0), '" width="2" height="3" fill="').concat(r() < 0.2 ? "#ffb547" : "#9fd8ff", '" opacity=".7"/>');
+      x += w + 2;
+    }
+    const dome = reg.id === "gangnam" ? '<path d="M60 150A140 120 0 0 1 340 150" fill="none" stroke="#46e0d0" stroke-width="1.5" opacity=".45" stroke-dasharray="6 4"/>' : "";
+    return '<svg class="city-sky" viewBox="0 0 400 150" preserveAspectRatio="xMidYMax slice" aria-hidden="true">\n      <defs><linearGradient id="sk-'.concat(reg.id, '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="').concat(brk ? "#3a0a14" : "#0b1626", '"/><stop offset="1" stop-color="').concat(brk ? "#a0203a" : gc, '" stop-opacity="').concat(brk ? 0.7 : 0.25, '"/></linearGradient></defs>\n      <rect width="400" height="150" fill="url(#sk-').concat(reg.id, ')"/>').concat(dome, "\n      ").concat(brk ? '<ellipse cx="300" cy="40" rx="26" ry="38" fill="none" stroke="#ff4f6a" stroke-width="3" stroke-dasharray="8 5"/><ellipse cx="300" cy="40" rx="10" ry="20" fill="#ff4f6a" opacity=".6"/>' : "", "\n      ").concat(b, "</svg>");
+  },
+  openCity(fac) {
+    const city = G.onCity();
+    if (!city) return;
+    this.cityFac = fac || null;
+    this.sheet = "city";
+    this.modal(this.cityHtml(), "sheet city-box");
+    this.sheet = "city";
+  },
+  cityHtml() {
+    const reg = G.onCity() || G.region();
+    const p = G.player;
+    const facs = FACILITIES.filter((f2) => (!f2.big || BIG_CITIES.includes(reg.id)) && (!f2.guildOnly || reg.guild));
+    const brk = G.cityBreak(reg.id);
+    const rep = G.rep(reg.id);
+    const head = '<div class="city-hero">'.concat(this.citySkyline(reg), '\n      <div class="city-title"><div class="eyebrow">').concat("◆".repeat(reg.danger), " 위험도 · ").concat(reg.guild ? GUILDS[reg.guild].name + " 본부" : "독립 도시", "</div><h2>").concat(reg.name, '</h2>\n        <div class="small">').concat(G.repLabel(rep), ' · 평판 <b class="num">').concat(rep, '</b> · 협회 공적 <b class="num">').concat(p.merit, "</b> · ").concat(FX.icon("coin", 13), ' <b class="num">').concat(fmt(p.money), '</b></div></div>\n      <button class="icon-btn city-close" data-act="modal-close" aria-label="도시에서 나가기">×</button></div>\n      ').concat(brk ? '<div class="break-banner"><b>게이트 브레이크 발생</b> · 괴수가 시내로 쏟아지고 있다. <button class="danger sm" data-act="break-fight">방어전 참가</button></div>' : "");
+    if (!this.cityFac) {
+      const npcs = G.npcsHere().filter((n) => !n.isCompanion);
+      return "".concat(head, '<div class="city-body">\n        <div class="fac-grid">').concat(facs.map((f2) => '<button class="fac-tile" data-act="city-fac" data-v="'.concat(f2.id, '">').concat(facIcon(f2.id, 26), "<b>").concat(f2.id === "guild" ? GUILDS[reg.guild].name : f2.name, '</b><span class="small dim">').concat(f2.desc, "</span></button>")).join(""), '</div>\n        <div class="sec-title sec">이 도시의 각성자 · ').concat(npcs.length, '명</div>\n        <div class="npc-strip">').concat(npcs.map((n) => '<button class="npc-chip" data-act="sheet" data-v="npc:'.concat(n.id, '">').concat(this.npcAvatar(n, 40), "<span><b>").concat(n.name, '</b><span class="small dim">').concat(RANKS[n.rankIdx].key, "급 ").concat(className(n.cls || "swordsman"), " · ").concat(n.met ? relationLabel(n.relation) : "처음 봄", "</span></span></button>")).join("") || '<span class="dim">아무도 없다.</span>', "</div>\n      </div>");
+    }
+    const f = FACILITIES.find((x) => x.id === this.cityFac);
+    return "".concat(head, '<div class="city-body"><div class="fac-head"><button class="sm ghost" data-act="city-fac" data-v="">← 시설 목록</button><h3>').concat(facIcon(f.id), " ").concat(f.id === "guild" ? GUILDS[reg.guild].name : f.name, "</h3></div>").concat(this.facilityHtml(f.id, reg), "</div>");
+  },
+  facilityHtml(id, reg) {
+    const p = G.player;
+    const pm = G.priceMul();
+    const price = (v) => '<span class="num">'.concat(fmt(v), "</span>");
+    switch (id) {
+      case "inn":
+        return '<div class="panel"><p>깨끗한 캡슐과 에테르 안정 수조. 하룻밤이면 몸이 새것 같다.</p>\n        <div class="row"><button class="primary" data-act="inn">'.concat(FX.icon("rest"), " 5일 숙박 · ").concat(price(G.innCost()), ' 크레딧</button></div>\n        <p class="small dim">체력과 정신력을 모두 회복하고, 부상 기간이 1개월 줄어든다.</p></div>');
+      case "market": {
+        const s = G.getShop();
+        const coresOwned = Object.keys(p.mats).filter((k) => p.mats[k] > 0).map((k) => +k.slice(1)).sort((a, b) => a - b);
+        return '<div class="cards">\n          '.concat(BIG_CITIES.includes(reg.id) ? '<div class="item-row hl"><span class="slot-ico" style="--c:var(--amber)">'.concat(facIcon("workshop", 20), '</span><div class="grow"><b>').concat(RANKS[p.rankIdx].key, '급 각성 촉매</b> <span class="small dim">보유 ').concat(p.items[G.catalystKey()] || 0, '</span><div class="small dim">돌파에 반드시 필요하다. 공방에서 직접 만들면 더 싸다.</div></div><button class="sm" data-act="buy-catalyst">').concat(FX.icon("coin", 13), " ").concat(price(G.catalystPrice() * pm), "</button></div>") : "", "\n          ").concat(CONSUMABLES.map((c) => '<div class="item-row"><div class="grow"><b>'.concat(c.name, '</b> <span class="dim small">보유 ').concat(p.items[c.id] || 0, " · ").concat(c.desc, '</span></div><button class="sm" data-act="buy-item" data-v="').concat(c.id, '">').concat(FX.icon("coin", 13), " ").concat(price(c.price * pm), "</button></div>")).join(""), '\n          <div class="sec-title sec">장비 · 매달 입고</div>\n          ').concat(s.equips.map((it) => this.equipRow(it, '<button class="sm" data-act="buy-equip" data-v="'.concat(it.uid, '">').concat(FX.icon("coin", 13), " ").concat(price(it.value * pm), "</button>"))).join("") || '<div class="dim">매진</div>', '\n          <div class="sec-title sec">괴수 코어 매입</div>\n          ').concat(coresOwned.map((t) => '<div class="item-row"><div class="grow"><b>'.concat(coreName(t), "</b> ×").concat(p.mats["c" + t], '</div><button class="sm ghost" data-act="sell-cores" data-v="').concat(t, '">전부 판매 · ').concat(price(Math.round(18 * RANKS[t].mult ** 1.6) * p.mats["c" + t]), "</button></div>")).join("") || '<div class="dim small">팔 코어가 없다.</div>', '\n          <div class="sec-title sec">보유 장비 판매 · 40%</div>\n          ').concat(p.inventory.map((it) => this.equipRow(it, '<button class="sm ghost" data-act="sell" data-v="'.concat(it.uid, '">').concat(price(it.value * 0.4), " 판매</button>"))).join("") || '<div class="dim small">판매할 장비가 없다.</div>', "\n        </div>");
+      }
+      case "board": {
+        const list = G.board(reg.id);
+        const mine = p.quests.filter((q) => q.kind === "bounty");
+        return '<p class="small dim">의뢰는 매달 바뀐다. 완료한 의뢰는 받은 도시의 의뢰소에 보고해야 보상을 받는다. 동시에 4개까지.</p>\n          <div class="sec-title">이번 달 게시물</div><div class="cards">'.concat(list.map((q) => '<div class="item-row"><span class="slot-ico" style="--c:'.concat(RANKS[q.tier].color, '">').concat(facIcon("board", 20), '</span>\n            <div class="grow"><b>').concat(q.title, '</b><div class="small dim">보상 ').concat(fmt(q.money), " 크레딧 · 공적 +").concat(q.merit, " · 평판 +").concat(q.repGain, " · 기한 ").concat(q.months, "개월</div></div>\n            ").concat(q.taken ? '<span class="small dim">수락함</span>' : '<button class="sm" data-act="accept-bounty" data-v="'.concat(q.id, '">수락</button>'), "</div>")).join(""), '</div>\n          <div class="sec-title sec">진행 중인 의뢰</div><div class="cards">').concat(mine.map((q) => '<div class="item-row '.concat(q.status === "done" || q.type === "deliver" ? "hl" : "", '"><div class="grow"><b>').concat(q.title, '</b><div class="small dim">').concat(regionById(q.from).name, " 의뢰소 · ").concat(this.questStatus(q), "</div></div>\n            ").concat((q.status === "done" || q.type === "deliver") && q.from === reg.id ? '<button class="sm primary" data-act="claim-bounty" data-v="'.concat(q.id, '">보고</button>') : "", "</div>")).join("") || '<div class="dim small">없음</div>', "</div>");
+      }
+      case "tavern": {
+        const used = p.tavern[reg.id] === G.monthKey();
+        const buffs = p.buffs.filter((b) => b.until >= G.monthKey());
+        return '<p>지글지글 꼼장어, 김 오르는 어묵탕. 헌터들의 웃음소리가 시끄럽다.</p>\n          <div class="cards">'.concat(DRINKS.map((d) => '<div class="item-row"><div class="grow"><b>'.concat(d.name, '</b><div class="small dim">').concat(d.desc, '</div></div>\n            <button class="sm" data-act="drink" data-v="').concat(d.id, '" ').concat(d.effect === "social" && used ? "disabled" : "", ">").concat(FX.icon("coin", 13), " ").concat(price(G.drinkPrice(d)), "</button></div>")).join(""), "</div>\n          ").concat(buffs.length ? '<div class="sec-title sec">지금 받는 기운</div>'.concat(buffs.map((b) => '<div class="small">'.concat(b.name, " · ").concat(G.monthKey() === b.until ? "이번 달까지" : "".concat(b.until - G.monthKey() + 1, "개월 남음"), "</div>")).join("")) : "", '\n          <div class="sec-title sec">옆자리에서 들려오는 이야기</div><div class="logs">').concat(G.rumors.slice(0, 4).map((r) => '<div class="l"><span class="d">'.concat(r.date, "</span>").concat(r.text, "</div>")).join("") || '<div class="dim">조용한 밤이다.</div>', "</div>");
+      }
+      case "workshop": {
+        const coreList = Object.keys(p.mats).filter((k) => p.mats[k] > 0).map((k) => "".concat(coreName(+k.slice(1)), " ").concat(p.mats[k])).join(" · ") || "없음";
+        return '<p class="small dim">보유 코어: '.concat(coreList, '. 높은 등급 코어는 낮은 등급 재료를 대신할 수 있다.</p>\n          <div class="cards">').concat(RECIPES.map((rc) => {
+          const t = G.recipeTier(rc);
+          return '<div class="item-row '.concat(rc.out === "catalyst" ? "hl" : "", '"><div class="grow"><b>').concat(rc.out === "catalyst" ? "".concat(RANKS[t].key, "급 ") : "").concat(rc.name, "</b> ×").concat(rc.n, '\n            <div class="small dim">').concat(coreName(t), " ").concat(rc.cores, "개 + ").concat(fmt(G.recipeCost(rc)), " 크레딧").concat(rc.out === "catalyst" ? " · 돌파에 반드시 필요" : "", '</div></div>\n            <button class="sm" data-act="craft" data-v="').concat(rc.id, '">제작</button></div>');
+        }).join(""), "</div>");
+      }
+      case "archive": {
+        const sks = G.archiveSkills();
+        return '<p class="small dim">스킬 데이터는 크레딧과 협회 공적으로 교환한다. 상위 스킬은 이 도시의 평판이 있어야 열람할 수 있다. 목록은 매년 바뀐다.</p>\n          <div class="cards">'.concat(sks.map((id2) => {
+          const sk = skillById(id2);
+          const own = p.skills.includes(id2);
+          const rq = G.skillRepReq(sk);
+          return '<div class="item-row"><span class="slot-ico" style="--c:'.concat(sk.elem ? ELEMENTS[sk.elem].color : "#9aa6b8", '">').concat(FX.elemIcon(sk.elem, 20), '</span>\n            <div class="grow"><b>').concat(sk.name, "</b> ").concat(this.rankTag(sk.rankReq), ' <span class="tag">').concat(TYPE_NAME[sk.type], '</span><div class="small dim">').concat(sk.desc, " · 정신력 ").concat(sk.mp).concat(rq ? " · 평판 ".concat(rq, " 필요") : "", "</div></div>\n            ").concat(own ? '<span class="small dim">습득함</span>' : '<button class="sm" data-act="learn" data-v="'.concat(id2, '" ').concat(sk.rankReq > p.rankIdx ? "disabled" : "", ">").concat(price(sk.price * pm * G.cityPriceMul(reg.id)), " · 공적 ").concat(G.skillMerit(sk), "</button>"), "</div>");
+        }).join(""), "</div>");
+      }
+      case "transit": {
+        const dests = p.visited.filter((id2) => id2 !== reg.id);
+        return '<p class="small dim">한 번이라도 가 본 도시로 이틀 만에 이동한다.</p><div class="cards">'.concat(dests.map((id2) => {
+          const r = regionById(id2);
+          return '<div class="item-row"><div class="grow"><b>'.concat(r.name, '</b> <span class="small dim">').concat("◆".repeat(r.danger)).concat(G.cityBreak(id2) ? ' · <span class="bad">게이트 브레이크</span>' : "", '</span></div>\n            <button class="sm" data-act="transit" data-v="').concat(id2, '" ').concat(id2 === "jeju" && !G.canJeju() ? "disabled" : "", ">").concat(price(G.transitCost(id2)), " 크레딧</button></div>");
+        }).join("") || '<div class="dim">아직 가 본 다른 도시가 없다.</div>', "</div>");
+      }
+      case "auction": {
+        if (!G.auctionOpen()) return "<p>정기 경매는 매년 ".concat(SAGA.auctionMonth, "월에 열린다. 유물과 전설 장비가 오른다.</p>");
+        return '<p class="small dim">입찰은 한 번뿐이다. 다른 입찰자의 최고가를 넘어야 낙찰된다.</p><div class="cards">'.concat(G.auctionLots().map((l) => '<div class="item-row '.concat(l.done ? "" : "hl", '"><div class="grow"><b>').concat(l.kind === "relic" ? "".concat(RARITY[l.grade].name, " 유물 [").concat(relicById(l.id).name, "]") : l.item.name, '</b>\n          <div class="small dim">').concat(l.kind === "relic" ? "돌파 때 바치면 ".concat(relicById(l.id).desc, " 영구 상승") : this.equipStats(l.item), " · 시작가 ").concat(fmt(l.base), "</div></div>\n          ").concat(l.done ? '<span class="small dim">종료</span>' : '<span class="row">'.concat([1, 1.3, 1.7].map((m) => '<button class="sm" data-act="bid" data-v="'.concat(l.uid, "|").concat(m, '">').concat(fmt(l.base * m), "</button>")).join(""), "</span>"), "</div>")).join(""), "</div>");
+      }
+      case "guild":
+        return this.guildHtml();
+      case "merc": {
+        const list = G.mercsFor(reg.id);
+        return '<p class="small dim">이번 달 계약 가능한 헌터들. 3개월 계약이며, 관계가 깊어지면 계약이 끝나도 남을 수 있다. 파티 '.concat(G.partySize(), '/5.</p>\n          <div class="cards">').concat(list.map((n, i) => '<div class="item-row">'.concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, "</b> ").concat(this.clsTag(n.cls, n.rankIdx >= 6 ? 2 : n.rankIdx >= 3 ? 1 : 0), " ").concat(this.rankTag(n.rankIdx, n.stage), " ").concat(this.elemTag(n.element), '\n            <div class="small dim">').concat(classById(n.cls).desc, " · 성격 ").concat(persById(n.personality).name, "</div></div>\n            ").concat(n.hired ? '<span class="small dim">계약됨</span>' : '<button class="sm" data-act="hire" data-v="'.concat(i, '" ').concat(G.party().length >= 4 ? "disabled" : "", ">").concat(FX.icon("coin", 13), " ").concat(price(G.mercFee(n)), "</button>"), "</div>")).join(""), "</div>");
+      }
+      default:
+        return "";
+    }
+  },
+  questStatus(q) {
+    if (q.type === "deliver") return "코어 ".concat(Math.min(G.coreCount(q.tier), q.n), "/").concat(q.n, " 보유 · 의뢰소에서 바로 납품");
+    if (q.status === "done") return '<span class="good">완료 · 보고 필요</span>';
+    const left = q.deadline - G.monthKey();
+    const prog = q.type === "hunt" ? "".concat(q.progress, "/").concat(q.n) : q.type === "courier" ? "".concat(regionById(q.dest).name, " 도착 시 완료") : "진행 중";
+    return "".concat(prog, " · 남은 기한 ").concat(left, "개월");
+  },
+  // ---------- 스토리 사건 ----------
+  showStory(q) {
+    const ev = G.storyById(q.id);
+    if (!ev) return this.processQueue();
+    const c = G.storyCtx(q);
+    if (ev.npc && !c.npc && ev.trigger !== "system") return this.processQueue();
+    G.markSeen(ev.id);
+    this.curStory = { ev, c, q };
+    const text = G.storyFill(typeof ev.text === "function" ? ev.text(G, c) : ev.text, c);
+    const art = c.npc ? '<div class="story-portrait">'.concat(UI.npcPortrait(c.npc, 130), "<div><b>").concat(c.npc.name, '</b><div class="small">').concat(this.rankTag(c.npc.rankIdx, c.npc.stage), " ").concat(this.elemTag(c.npc.element), '</div><div class="small dim">').concat(c.npc.met ? "관계 ".concat(relationLabel(c.npc.relation), " (").concat(c.npc.relation, ")") : "처음 보는 인물", "</div></div></div>") : FX.eventArt(ev.id.replace(/^base_/, ""));
+    const choices = ev.choices.map((ch, i) => ({ ch, i })).filter(({ ch }) => !ch.when || ch.when(G, c));
+    this.modal("".concat(art, '<div class="eyebrow">').concat(ev.chain ? "기연" : "사건", " · ").concat(G.fullDate(), " · ").concat(G.region().name, '</div>\n      <p class="event-text">').concat(text.replace(/\n/g, "<br>"), '</p>\n      <div class="cards">').concat(choices.map(({ ch, i }) => '<button class="choice-btn" data-act="story-choice" data-v="'.concat(i, '">').concat(G.storyFill(ch.text, c), "</button>")).join(""), "</div>"), "event-box");
+  },
+  storyChoice(i) {
+    const { ev, c } = this.curStory;
+    const res = ev.choices[i].do(G, c);
+    G.recalc();
+    G.player.fame = Math.max(0, G.player.fame);
+    G.save();
+    this.renderGame();
+    this.modal("".concat(c.npc ? "" : FX.eventArt(ev.id.replace(/^base_/, "")), '<p class="event-text">').concat(G.storyFill(res, c).replace(/\n/g, "<br>"), '</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>'), "event-box");
+  },
+  // ---------- NPC 부탁 ----------
+  showRequest(q) {
+    const rq = REQUESTS[q.kind];
+    const c = G.storyCtx(q);
+    if (!rq || !c.npc || !c.npc.alive) return this.processQueue();
+    this.curReq = { rq, c, q };
+    const text = rq.text(G, c);
+    this.modal('<div class="story-portrait">'.concat(UI.npcPortrait(c.npc, 130), '<div><div class="eyebrow">메시지 · ').concat(G.fullDate(), "</div><b>").concat(c.npc.name, '</b><div class="small">').concat(this.rankTag(c.npc.rankIdx, c.npc.stage), " · ").concat(regionById(c.npc.region).name, '</div><div class="small dim">관계 ').concat(relationLabel(c.npc.relation), " (").concat(c.npc.relation, ')</div></div></div>\n      <p class="event-text">').concat(fixJosa(text).replace(/\n/g, "<br>"), '</p>\n      <div class="cards"><button class="choice-btn" data-act="req" data-v="1">').concat(rq.accept, '</button><button class="choice-btn" data-act="req" data-v="0">').concat(rq.decline || "거절한다", "</button></div>"), "event-box");
+  },
+  answerRequest(yes) {
+    const { rq, c } = this.curReq;
+    const res = yes ? rq.onAccept(G, c) : rq.onDecline(G, c);
+    G.save();
+    this.renderGame();
+    this.modal('<p class="event-text">'.concat(fixJosa(res), '</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>'), "event-box");
+  },
+  // ---------- 스토리 전투 ----------
+  storyEnemies(spec) {
+    if (spec.mirror) {
+      const u = G.playerUnit();
+      return [__spreadProps(__spreadValues({}, u), { id: "mirror", name: "그림자", side: "enemy", isPlayer: false, portrait: { seed: G.player.look, gender: G.player.gender, elem: G.player.element }, tier: G.player.rankIdx })];
+    }
+    const m = spec.mobs;
+    const list = [];
+    for (let k = 0; k < m.n; k++) {
+      const mon = G.makeMonster(Math.max(0, Math.min(7, m.tier)), !!m.boss && k === 0, m.elem);
+      if (m.shape) mon.shape = m.shape;
+      if (m.elem) mon.elem = m.elem;
+      if (m.human) {
+        mon.name = k === 0 && m.name ? m.name : RNG.pick(["무장 헌터", "조직원", "신도", "청소부", "용병", "암살자"]);
+        mon.portrait = { seed: "h" + Math.random(), gender: RNG.chance(0.6) ? "M" : "F", elem: mon.elem };
+      } else if (k === 0 && m.name) mon.name = m.name;
+      else if (m.shape) mon.name = spec.title;
+      list.push(mon);
+    }
+    return list;
+  },
+  startStoryFight(spec) {
+    const allies = this.allyUnits();
+    if (spec.ally) {
+      const u = G.npcUnit({ id: -77, name: spec.ally.name, rankIdx: spec.ally.rank, stage: 1, element: spec.ally.elem }, "ally");
+      delete u.npcId;
+      u.portrait = { seed: "ally" + spec.ally.name, gender: "M", elem: spec.ally.elem };
+      allies.push(u);
+    }
+    this.ctx = { kind: "story", spec, elem: spec.mobs && spec.mobs.elem || G.player.element, combat: new Combat(G, { allies, enemies: this.storyEnemies(spec), canFlee: !spec.lethal, spar: !!spec.spar, title: spec.title }) };
+    this.openCombat();
+  },
+  finishStoryFight() {
+    const c = this.ctx;
+    const cb = c.combat;
+    const spec = c.spec;
+    const p = G.player;
+    if (!spec.spar) {
+      p.hp = Math.max(1, cb.player.hp);
+      p.mp = cb.player.mp;
+    }
+    let text = "";
+    if (cb.result === "win") {
+      const w = spec.win || {};
+      text = (w.text || "승리했다.") + G.gain(w.gain || {});
+      text += [...G.lootFromKills(cb.kills.filter((k) => !k.portrait), false)].map((l) => " ".concat(l)).join("");
+      p.record.kills += cb.kills.length;
+      if (w.chain) G.chainNext(w.chain);
+      if (w.chainEnd) G.chainEnd(w.chainEnd);
+      if (w.life) G.lifeEvent(w.life);
+      if (w.after) w.after(G);
+    } else if (cb.result === "lose" && spec.lethal) {
+      this.ctx = null;
+      this.closeModal();
+      G.gameOver("".concat(spec.title, "에서 쓰러져 다시 일어나지 못했다."));
+      this.renderGame();
+      return this.processQueue();
+    } else {
+      const l = spec.lose || {};
+      text = (cb.result === "flee" ? "물러났다. " : "") + (l.text || "패배했다. 간신히 목숨은 건졌다.") + G.gain(l.gain || (cb.result === "flee" ? {} : { injure: 2 }));
+      if (l.chainEnd) G.chainEnd(l.chainEnd);
+      if (l.after) l.after(G);
+    }
+    if (!spec.spar && cb.result !== "flee") {
+      const lost = G.partyCasualties(cb.units);
+      if (lost.length) text += " ".concat(lost.join(", "), "이(가) 쓰러져 돌아오지 못했다…");
+    }
+    this.ctx = null;
+    G.save();
+    this.closeModal();
+    this.renderGame();
+    this.modal('<div class="eyebrow">'.concat(spec.title, '</div><p class="event-text">').concat(fixJosa(text), '</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>'), "event-box");
+  },
+  // ---------- 헌터 대회 ----------
+  startTournament() {
+    const p = G.player;
+    const pool = G.adults().filter((n) => !n.isCompanion && Math.abs(n.rankIdx - p.rankIdx) <= 1).sort((a, b) => a.rankIdx - b.rankIdx || a.stage - b.stage);
+    if (pool.length < 3) return this.processQueue();
+    const picks = [pool[Math.floor(pool.length * 0.3)], pool[Math.floor(pool.length * 0.65)], pool[pool.length - 1]];
+    this.tourney = { round: 0, foes: picks.map((n) => n.id) };
+    this.modal("".concat(FX.eventArt("duel_challenge"), '<div class="eyebrow">').concat(G.year, '년 전국 헌터 대회 · 강남 돔 아레나</div><h3>대진표가 나왔다</h3>\n      <div class="cards">').concat(picks.map((n, i) => '<div class="item-row">'.concat(this.npcAvatar(n, 36), '<div class="grow"><b>').concat(["1회전", "준결승", "결승"][i], " · ").concat(n.name, '</b> <span class="small">').concat(this.rankTag(n.rankIdx, n.stage), "</span></div></div>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="modal-close">기권한다</button><button class="primary" data-act="tourney-go">입장한다</button></div>'), "event-box");
+  },
+  tourneyRound() {
+    const t = this.tourney;
+    const n = G.npcById(t.foes[t.round]);
+    const u = G.npcUnit(n, "enemy");
+    const me = G.playerUnit();
+    me.hp = me.maxHp;
+    me.mp = me.maxMp;
+    this.ctx = { kind: "tourney", npcId: n.id, elem: n.element, combat: new Combat(G, { allies: [me], enemies: [u], canFlee: false, spar: true, title: "전국 헌터 대회 ".concat(["1회전", "준결승", "결승"][t.round], " · ").concat(n.name) }) };
+    this.openCombat();
+  },
+  finishTourney() {
+    const t = this.tourney;
+    const cb = this.ctx.combat;
+    const n = G.npcById(t.foes[t.round]);
+    n.met = true;
+    this.ctx = null;
+    this.closeModal();
+    if (cb.result === "win") {
+      t.round++;
+      if (t.round < 3) {
+        G.player.fame += 5;
+        this.renderGame();
+        return this.modal('<p class="event-text">'.concat(n.name, '을(를) 꺾었다! 관중석이 들끓는다. 다음 상대가 기다린다.</p><div class="row end"><button class="primary" data-act="tourney-go">다음 경기</button></div>'), "event-box");
+      }
+      const gain2 = G.gain({ money: 2500, fame: 35, relic: 2, merit: 20 });
+      G.lifeEvent("".concat(G.year, "년 전국 헌터 대회에서 우승했다."));
+      G.rumor("".concat(G.year, "년 전국 헌터 대회 우승자는 ").concat(G.player.name, "! 결승에서 ").concat(n.name, "을(를) 꺾었다."));
+      G.save();
+      this.renderGame();
+      return this.modal("".concat(UI.playerPortrait(150), '<div class="eyebrow">전국 헌터 대회</div><h2>우승</h2><p class="event-text">트로피가 손에 쥐어졌다. 플래시 세례가 쏟아진다.').concat(gain2, '</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>'), "event-box");
+    }
+    const gain = G.gain({ fame: 3 + t.round * 5, money: 200 * (t.round + 1) });
+    G.save();
+    this.renderGame();
+    this.modal('<p class="event-text">'.concat(["1회전", "준결승", "결승"][t.round], "에서 ").concat(n.name, "에게 졌다. 그래도 이름을 알렸다.").concat(gain, '</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>'), "event-box");
+  },
+  // ---------- 돌파 ----------
+  openBreakthrough() {
+    const p = G.player;
+    this.btSel = this.btSel || [];
+    const has = G.hasCatalyst();
+    const slots = G.relicSlots();
+    const t = p.rankIdx;
+    const need = RECIPES.find((r) => r.id === "catalyst");
+    let coreHave = 0;
+    for (let k = t; k < 8; k++) coreHave += G.coreCount(k);
+    this.modal('<div class="eyebrow">경지 돌파</div><h3>'.concat(RANKS[t].key, "급 → ").concat(RANKS[t + 1].key, '급</h3>\n      <p>성공률 <b class="num">').concat(G.btChance(), '%</b>. 실패하면 에테르 절반을 잃고 수명이 1년 줄어든다.</p>\n      <div class="item-row ').concat(has ? "hl" : "", '"><div class="grow"><b>').concat(RANKS[t].key, '급 각성 촉매</b> <span class="small">').concat(has ? '<span class="good">보유</span>' : '<span class="bad">없음</span>', '</span>\n        <div class="small dim">필수 재료. 공방에서 ').concat(coreName(t), " ").concat(need.cores, "개(보유 ").concat(coreHave, ')와 크레딧으로 만들거나, 강남·부산·대구 마켓에서 산다.</div></div></div>\n      <div class="sec-title sec">유물 바치기 · 최대 ').concat(slots, '개 · 성공하면 영구 능력치</div>\n      <div class="cards">').concat(p.relics.map((r) => {
+      const R = relicById(r.id);
+      const on = this.btSel.includes(r.uid);
+      const v = G.relicValue(r);
+      return '<button class="choice-btn '.concat(on ? "on" : "", '" data-act="bt-relic" data-v="').concat(r.uid, '"><b style="color:').concat(RARITY[r.grade].color, '">').concat(R.name, "</b> ").concat(RARITY[r.grade].name, " · ").concat(R.desc, " +").concat(R.stat === "life" ? Math.round(v) + "년" : Math.round(v * 100) + "%", "</button>");
+    }).join("") || '<div class="dim small">가진 유물이 없다. 게이트 보스, 경매, 사건에서 얻을 수 있다.</div>', '</div>\n      <div class="row end"><button class="ghost" data-act="modal-close">나중에</button><button class="primary" data-act="bt-go" ').concat(has ? "" : "disabled", ">돌파한다</button></div>"));
+  },
+  // ---------- 계승 ----------
+  heirs() {
+    const p = G.player;
+    return (p.children || []).map((id) => G.npcById(id)).filter((n) => n && n.alive && n.ageMonths >= 18 * 12);
+  },
+  succeed(id) {
+    const old = G.player;
+    const n = G.npcById(id);
+    const p = G.player = __spreadProps(__spreadValues({}, old), {
+      name: n.name,
+      gender: n.gender,
+      element: n.element,
+      look: "heir" + n.id + n.name,
+      rankIdx: n.rankIdx,
+      stage: n.stage,
+      ether: 0,
+      ageMonths: n.ageMonths,
+      lifePenalty: 0,
+      lifeBonus: 0,
+      money: Math.round(old.money * 0.6),
+      fame: Math.round(old.fame * 0.3),
+      merit: Math.round(old.merit * 0.5),
+      region: n.region,
+      guild: null,
+      guildRank: 0,
+      contrib: 0,
+      companion: null,
+      injured: 0,
+      partner: null,
+      spouse: null,
+      master: null,
+      disciples: [],
+      children: [],
+      loans: [],
+      quests: [],
+      buffs: [],
+      relicBonus: {},
+      lifeEvents: [],
+      record: { gates: 0, kills: 0, npcKills: 0, breakthroughs: 0, fails: 0 },
+      equip: __spreadValues({}, old.equip),
+      skills: ["strike", SKILLS.find((s) => s.elem === n.element && s.rankReq === 0).id],
+      equipSkills: [SKILLS.find((s) => s.elem === n.element && s.rankReq === 0).id],
+      license: "".concat(G.year, "-").concat(String(RNG.int(1e3, 9999)))
+    });
+    [p.x, p.y] = WORLD.cityPos[p.region];
+    G.npcs = G.npcs.filter((x) => x !== n);
+    for (const o of G.npcs) if (o.nemesis === "player") o.nemesis = RNG.chance(0.5) ? "player" : null;
+    G.over = null;
+    G.queue = [];
+    G.recalc();
+    p.hp = p.maxHp;
+    p.mp = p.maxMp;
+    G.lifeEvent("부모 ".concat(old.name, "의 뒤를 이었다."));
+    G.rumor("故 ".concat(old.name, "의 자녀 ").concat(p.name, "이(가) 헌터로서 첫발을 내디뎠다."));
+    G.save();
+    this.closeModal();
+    this.renderGame();
+    this.map.centerOn(p.x, p.y);
+    this.modal("".concat(UI.playerPortrait(150), '<div class="eyebrow">').concat(G.fullDate(), '</div><h2>계승</h2><p class="event-text">').concat(p.name, '은(는) 부모가 남긴 장비와 유물, 그리고 원한과 인연을 함께 물려받았다.</p><div class="row end"><button class="primary" data-act="modal-close">시작</button></div>'), "event-box");
+  }
+});
+{
+  const base = UI.processQueue;
+  UI.processQueue = function() {
+    if (this.modalOpen()) return;
+    const q = G.queue[0];
+    if (!q) return;
+    const own = ["story", "request", "toast", "storyfight", "tournament", "mobAmbush"];
+    if (!own.includes(q.type)) return base.call(this);
+    G.queue.shift();
+    if (q.type === "story") return this.showStory(q);
+    if (q.type === "request") return this.showRequest(q);
+    if (q.type === "toast") {
+      this.toast(q.text);
+      return this.processQueue();
+    }
+    if (q.type === "storyfight") return this.startStoryFight(q.spec);
+    if (q.type === "tournament") return this.startTournament();
+    if (q.type === "mobAmbush") {
+      const mob = G.mobs.find((m) => m.id === q.mobId);
+      if (!mob) return this.processQueue();
+      return this.modal('<div class="enc mob-enc"><div class="mob-portrait" style="--c:'.concat(ELEMENTS[mob.elem].color, '">').concat(FX.monster({ name: mob.name, elem: mob.elem, shape: mob.shape }, 130), '</div>\n        <div><div class="eyebrow bad">기습 · ').concat(G.fullDate(), "</div><h3>").concat(mob.name, " 무리 ×").concat(mob.count, '</h3><div class="row">').concat(this.rankTag(mob.tier), " ").concat(this.elemTag(mob.elem), ' <span class="small">난이도 ').concat(this.gateRisk(mob.tier), '</span></div>\n        <p class="dim">길을 가던 중 근처를 배회하던 무리가 냄새를 맡고 덮쳐 왔다.</p></div></div>\n        <div class="row end"><button class="ghost" data-act="mob-flee" data-v="').concat(mob.id, '">달아난다</button><button class="danger" data-act="mob" data-v="').concat(mob.id, '">맞서 싸운다</button></div>'));
+    }
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function(act, v) {
+    switch (act) {
+      case "city":
+        this.hideTip();
+        return this.openCity();
+      case "city-fac":
+        this.cityFac = v || null;
+        $box.innerHTML = fixJosa(this.cityHtml());
+        return;
+      case "inn":
+        return this.afterCity(G.stayInn());
+      case "drink":
+        return this.afterCity(G.drink(v));
+      case "craft":
+        return this.afterCity(G.craft(v));
+      case "learn":
+        return this.afterCity(G.learnFromArchive(v));
+      case "buy-catalyst":
+        return this.afterCity(G.buyCatalyst());
+      case "sell-cores":
+        return this.afterCity(G.sellCores(+v));
+      case "accept-bounty":
+        return this.afterCity(G.acceptBounty(v));
+      case "claim-bounty":
+        return this.afterCity(G.claimBounty(v));
+      case "transit": {
+        const r = G.transit(v);
+        this.closeModal();
+        this.renderGame();
+        this.map.centerOn(G.player.x, G.player.y);
+        this.toast(r);
+        if (G.onCity()) this.openCity();
+        return this.processQueue();
+      }
+      case "bid": {
+        const [uid, m] = v.split("|");
+        return this.afterCity(G.bid(uid, +m));
+      }
+      case "break-fight": {
+        const g = G.breakGate(G.region().id);
+        if (!g) return;
+        this.closeModal();
+        this.ctx = { kind: "gate", gate: g, rooms: G.gateRooms(g), roomIdx: 0, loot: { money: 0, ether: 0, kills: 0, list: [] } };
+        return this.startRoom();
+      }
+      case "story-choice":
+        return this.storyChoice(+v);
+      case "req":
+        return this.answerRequest(v === "1");
+      case "tourney-go":
+        return this.tourneyRound();
+      case "breakthrough":
+        this.btSel = [];
+        return this.openBreakthrough();
+      case "bt-relic": {
+        const s = this.btSel;
+        if (s.includes(v)) this.btSel = s.filter((x) => x !== v);
+        else if (s.length < G.relicSlots()) s.push(v);
+        return this.openBreakthrough();
+      }
+      case "bt-go": {
+        const r = G.breakthroughWith(this.btSel || []);
+        if (!r) return;
+        this.closeModal();
+        this.renderGame();
+        return FX.breakthrough(r.ok, G.player.rankIdx, () => {
+          this.renderGame();
+          this.modal('<h3 class="'.concat(r.ok ? "good" : "bad", '">').concat(r.ok ? "돌파 성공" : "돌파 실패", '</h3><p class="dim">성공률 ').concat(r.chance, "%</p><p>").concat(r.msg, '</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>'));
+        });
+      }
+      case "teach-disciple":
+        return this.after(G.teachDisciple(+v));
+      case "succeed":
+        return this.succeed(+v);
+      case "hire":
+        return this.afterCity(G.hireMerc(G.region().id, +v));
+      case "mob-flee": {
+        const mob = G.mobs.find((m) => m.id === +v);
+        if (!mob) return this.closeModal();
+        const chance = Math.max(0.2, Math.min(0.9, 0.55 + (G.player.spd - 9 * Math.sqrt(RANKS[mob.tier].mult)) / 40));
+        if (RNG.chance(chance)) {
+          this.closeModal();
+          this.toast("간신히 따돌렸다.");
+          return this.processQueue();
+        }
+        this.toast("따돌리지 못했다!");
+        this.closeModal();
+        return this.startMob(mob.id);
+      }
+      default:
+        return baseHandle.call(this, act, v);
+    }
+  };
+}
+UI.afterCity = function(msg) {
+  this.renderGame();
+  if (this.modalOpen() && this.sheet === "city") {
+    $box.innerHTML = fixJosa(this.cityHtml());
+    this.sheet = "city";
+  }
+  if (msg) this.toast(msg);
+  if (!this.modalOpen()) this.processQueue();
+};
+const NAME_KEY = "gate_chronicle_last_name";
+Object.assign(UI, {
+  lastName() {
+    try {
+      return localStorage.getItem(NAME_KEY) || "";
+    } catch (e) {
+      return "";
+    }
+  },
+  saveName(n) {
+    try {
+      localStorage.setItem(NAME_KEY, n);
+    } catch (e) {
+    }
+  },
+  randomName(gender) {
+    return RNG.pick(SURNAMES) + RNG.pick(gender === "F" ? GIVEN_F : GIVEN_M);
+  },
+  diceIcon() {
+    return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.3" fill="currentColor"/><circle cx="16" cy="8" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="8" cy="16" r="1.3" fill="currentColor"/><circle cx="16" cy="16" r="1.3" fill="currentColor"/></svg>';
+  },
+  // ---------- 시작 방식 ----------
+  renderMode() {
+    $app.innerHTML = '<div class="create mode-screen">\n      <div class="create-head"><div class="eyebrow">새로운 각성</div><h2>어떻게 시작할까요</h2></div>\n      <div class="mode-grid">\n        <button class="mode-card primary-card" data-act="mode-story">\n          <span class="eyebrow">추천</span><b>이야기로 각성</b>\n          <span>이름과 성별만 정하고 이야기를 따라갑니다. 출신은 운명에 맡기고, 각성의 순간에 내린 선택들이 속성·직업·재능·특성을 정합니다.</span>\n          <span class="small dim">약 20장면 · 5~10분</span></button>\n        <button class="mode-card" data-act="mode-manual">\n          <b>직접 설정</b>\n          <span>출신, 속성, 직업 후보, 특성을 직접 고릅니다.</span>\n          <span class="small dim">바로 시작</span></button>\n      </div>\n      <div class="row end"><button class="ghost" data-act="to-title">돌아가기</button></div>\n    </div>';
+  },
+  // ---------- 이야기 준비: 이름, 성별 ----------
+  renderStorySetup() {
+    const s = this.pro;
+    $app.innerHTML = '<div class="create">\n      <div class="create-head"><div class="eyebrow">각성 전야</div><h2>당신은 누구입니까</h2></div>\n      <div class="create-grid">\n        <div class="panel id-preview">'.concat(FX.portrait(s.look, s.gender, null, 0, 240), '<button class="ghost full" data-act="ps-look">외형 바꾸기</button></div>\n        <div class="panel">\n          <label class="sec-title" for="in-name">이름</label>\n          <div class="name-row"><input id="in-name" type="text" maxlength="8" placeholder="이름을 입력" value="').concat(s.name, '"><button class="icon-btn dice" data-act="name-dice" aria-label="무작위 이름">').concat(this.diceIcon(), '</button></div>\n          <div class="sec"><div class="sec-title">성별</div><div class="row">\n            <button class="choice ').concat(s.gender === "M" ? "sel" : "", '" data-act="ps-gender" data-v="M">남성</button>\n            <button class="choice ').concat(s.gender === "F" ? "sel" : "", '" data-act="ps-gender" data-v="F">여성</button></div></div>\n          <p class="dim sec">출신은 정할 수 없습니다. 어떤 삶에서 시작할지는 이야기가 정합니다.</p>\n          <div class="row end"><button class="ghost" data-act="new">뒤로</button><button class="primary" data-act="ps-start">이야기 시작</button></div>\n        </div>\n      </div></div>');
+    const inp = document.getElementById("in-name");
+    inp.addEventListener("input", () => {
+      s.name = inp.value;
+    });
+  },
+  // ---------- 프롤로그 진행 ----------
+  proLeadElem() {
+    const e = this.pro.sc.e;
+    let best = null, bv = 0;
+    for (const k of ELEMENT_KEYS) if ((e[k] || 0) > bv) {
+      bv = e[k];
+      best = k;
+    }
+    return best;
+  },
+  proFill(t) {
+    return fixJosa(String(t).replace(/\{name\}/g, this.pro.name).replace(/\{friend\}/g, this.pro.friend.name));
+  },
+  renderPrologue() {
+    const s = this.pro;
+    const sc = PROLOGUE[s.id];
+    if (!document.getElementById("pro-cv")) {
+      $app.innerHTML = '<div class="prologue"><canvas id="pro-cv" aria-hidden="true"></canvas><div class="pro-inner"><aside class="pro-side" id="pro-side"></aside><section class="pro-scene" id="pro-scene"></section></div></div>';
+      this.stopPro = FX.title(document.getElementById("pro-cv"));
+    }
+    const lead = this.proLeadElem();
+    const bg = BACKGROUNDS.find((b) => b.id === s.bg);
+    document.getElementById("pro-side").innerHTML = fixJosa("".concat(FX.portrait(s.look, s.gender, lead, 0, 200), '\n      <div class="pro-name">').concat(s.name, '</div>\n      <div class="small dim">').concat(bg.name, " · ").concat(regionById(bg.region).name, "</div>\n      ").concat(lead ? '<div class="small">'.concat(this.elemTag(lead), " 기운이 감돈다</div>") : '<div class="small dim">아직 아무것도 깨어나지 않았다</div>', '\n      <div class="pro-steps">').concat(Array.from({ length: 20 }, (_, i) => '<i class="'.concat(i < s.step ? "on" : i === s.step ? "now" : "", '"></i>')).join(""), "</div>"));
+    const el = document.getElementById("pro-scene");
+    el.innerHTML = '<div class="eyebrow">'.concat(s.step === 0 ? "출신 · ".concat(bg.name) : "장면 ".concat(s.step + 1), "</div><h2>").concat(this.proFill(sc.title), '</h2>\n      <div class="pro-text">').concat(this.proFill(sc.text).split("\n").map((l) => l ? "<p>".concat(l, "</p>") : "").join(""), '</div>\n      <div class="cards pro-choices">').concat(this.proShown(s.id).map((i) => '<button class="choice-btn" data-act="pro-choice" data-v="'.concat(i, '">').concat(this.proFill(sc.choices[i].text), "</button>")).join(""), "</div>");
+    el.classList.remove("fade-in");
+    void el.offsetWidth;
+    el.classList.add("fade-in");
+    el.scrollTop = 0;
+  },
+  // 선택지가 많은 장면은 그중 3개만 보여 준다 (무엇이 나올지도 운명)
+  proShown(id) {
+    const s = this.pro;
+    s.shown = s.shown || {};
+    if (!s.shown[id]) {
+      const idx = PROLOGUE[id].choices.map((_, i) => i);
+      for (let i = idx.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [idx[i], idx[j]] = [idx[j], idx[i]];
+      }
+      s.shown[id] = idx.slice(0, 3).sort((a, b) => a - b);
+    }
+    return s.shown[id];
+  },
+  proChoose(i) {
+    const s = this.pro;
+    const ch = PROLOGUE[s.id].choices[i];
+    for (const k of ["e", "g", "c", "t"]) for (const [x, v] of Object.entries(ch[k] || {})) s.sc[k][x] = (s.sc[k][x] || 0) + v;
+    s.sc.talent += ch.talent || 0;
+    s.sc.luck += ch.luck || 0;
+    s.friendBonus += ch.friend || 0;
+    s.log.push(this.proFill(ch.text));
+    s.step++;
+    if (!ch.next) {
+      s.result = resolvePrologue(s.sc);
+      this.screen = "pro-result";
+      return this.render();
+    }
+    s.id = ch.next;
+    this.renderPrologue();
+  },
+  // ---------- 각성 결과 ----------
+  renderProResult() {
+    const s = this.pro;
+    const r = s.result;
+    const k = classById(r.cls);
+    const g = CLASS_GROUPS[k.g];
+    const bg = BACKGROUNDS.find((b) => b.id === s.bg);
+    const negIds = ["cursed", "frail", "slow_learner", "reckless"];
+    const talent = Math.max(1, r.talent + (bg.talent || 0) + r.traits.reduce((a, t) => a + (traitById(t).mods.talent || 0), 0));
+    document.getElementById("pro-side").innerHTML = fixJosa("".concat(FX.portrait(s.look, s.gender, r.element, 0, 200), '<div class="pro-name">').concat(s.name, '</div><div class="small dim">').concat(bg.name, "</div>"));
+    const el = document.getElementById("pro-scene");
+    el.innerHTML = fixJosa('<div class="eyebrow">국가 각성자 관리국 · 판정 결과</div><h2>각성</h2>\n      <div class="result-grid">\n        <div class="res-item"><span class="sec-title">출신</span><b>'.concat(bg.name, '</b><span class="small dim">').concat(bg.desc, '</span></div>\n        <div class="res-item"><span class="sec-title">속성</span><b>').concat(this.elemTag(r.element), '</b><span class="small dim">').concat(ELEMENTS[r.element].name, " → ").concat(ELEMENTS[ELEMENTS[r.element].counter].name, '에 강함</span></div>\n        <div class="res-item wide" style="border-color:').concat(g.color, '"><span class="sec-title">직업</span><b style="color:').concat(g.color, '">').concat(k.name, ' <span class="tag rar r').concat(k.r, '">').concat(CLASS_RARITY[k.r], '</span></b><span class="small" style="color:').concat(g.color, '">').concat(g.name, " · 전직 ").concat(k.adv.join(" → "), '</span><span class="small dim">').concat(k.desc, '</span><span class="small">').concat(k.skills.map((x) => x[0]).join(" · "), '</span></div>\n        <div class="res-item"><span class="sec-title">재능</span><div class="talent"><div class="pips">').concat(Array.from({ length: 10 }, (_, i) => '<i class="'.concat(i < talent ? "on" : "", '"></i>')).join(""), "</div><b>").concat(talent, '</b></div></div>\n        <div class="res-item"><span class="sec-title">소꿉친구</span><b>').concat(s.friend.name, '</b><span class="small dim">당신을 ').concat(s.friendBonus >= 30 ? "누구보다 믿는다" : s.friendBonus >= 15 ? "걱정하고 응원한다" : "여전히 곁에 있다", '</span></div>\n      </div>\n      <div class="sec-title sec">선천 특성</div><div class="cards traits">').concat(r.traits.map((id) => {
+      const t = traitById(id);
+      return '<div class="trait '.concat(negIds.includes(id) ? "neg" : "", '"><b>').concat(t.name, '</b><span class="dim">').concat(t.desc, "</span></div>");
+    }).join(""), '</div>\n      <div class="sec-title sec">당신이 내린 선택</div><div class="logs pro-log">').concat(s.log.map((l, i) => '<div class="l"><span class="d">'.concat(i + 1, "</span>").concat(l, "</div>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="pro-restart">처음부터 다시</button><button class="primary" data-act="pro-begin">이 운명으로 시작</button></div>'));
+    el.classList.remove("fade-in");
+    void el.offsetWidth;
+    el.classList.add("fade-in");
+    el.scrollTop = 0;
+  },
+  beginFromPrologue() {
+    const s = this.pro;
+    const r = s.result;
+    G.newGame({ name: s.name, gender: s.gender, bg: s.bg, element: r.element, talent: r.talent, traits: r.traits, look: s.look, cls: r.cls });
+    const p = G.player;
+    const f = G.makeNpc(true);
+    f.name = s.friend.name;
+    f.gender = s.friend.gender;
+    f.rankIdx = 0;
+    f.stage = 0;
+    f.ageMonths = p.ageMonths + RNG.int(-6, 6);
+    f.region = p.region;
+    f.met = true;
+    f.relation = Math.min(90, 35 + s.friendBonus);
+    f.personality = RNG.pick(["kind", "just", "kind"]);
+    f.links = {};
+    f.disciples = [];
+    f.parents = [];
+    f.friendhood = true;
+    G.npcs.push(f);
+    G.lifeEvent("게이트 브레이크 속에서 각성했다. 소꿉친구 ".concat(f.name, "이(가) 곁에 있었다."));
+    G.save();
+    this.saveName(s.name);
+    if (this.stopPro) {
+      this.stopPro();
+      this.stopPro = null;
+    }
+    this.screen = "game";
+    this.render();
+    this.modal('<div class="ending">'.concat(UI.playerPortrait(160), '<div class="eyebrow">').concat(G.dateStr(), " · ").concat(G.region().name, "</div><h2>헌터 ").concat(p.name, "</h2></div>\n      <p>").concat(className(p.cls), " · ").concat(ELEMENTS[p.element].name, ' 속성 · F급. 지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.</p>\n      <p class="dim">소꿉친구 ').concat(f.name, "은(는) ").concat(G.region().name, '에 있습니다. 인물 창에서 만날 수 있습니다.</p>\n      <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>'));
+  }
+});
+{
+  const baseRender = UI.render;
+  UI.render = function() {
+    if (!["prologue", "pro-result"].includes(this.screen) && this.stopPro) {
+      this.stopPro();
+      this.stopPro = null;
+    }
+    if (this.screen === "pro-result") {
+      if (!document.getElementById("pro-cv")) {
+        this.screen = "prologue";
+        const keep = this.pro.id;
+        this.renderPrologue();
+        this.pro.id = keep;
+        this.screen = "pro-result";
+      }
+      return this.renderProResult();
+    }
+    return baseRender.call(this);
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function(act, v) {
+    switch (act) {
+      case "mode-story": {
+        const gender = "M";
+        this.pro = { name: this.lastName(), gender, look: Math.random().toString(36).slice(2), bg: null, friend: null, id: null, sc: null, step: 0, friendBonus: 0, log: [] };
+        this.screen = "story-setup";
+        return this.render();
+      }
+      case "mode-manual":
+        return this.startCreate();
+      case "name-dice": {
+        const inp = document.getElementById("in-name");
+        const target = this.screen === "story-setup" ? this.pro : this.create;
+        target.name = this.randomName(target.gender);
+        if (inp) inp.value = target.name;
+        const n = document.querySelector(".id-name");
+        if (n) n.textContent = target.name;
+        return;
+      }
+      case "ps-gender":
+        this.pro.gender = v;
+        return this.render();
+      case "ps-look":
+        this.pro.look = Math.random().toString(36).slice(2);
+        return this.render();
+      case "ps-start": {
+        const s = this.pro;
+        s.name = (s.name || "").trim();
+        if (!s.name) return this.toast("이름을 입력하세요.");
+        this.saveName(s.name);
+        s.bg = RNG.pick(BACKGROUNDS).id;
+        const fg = RNG.chance(0.5) ? "M" : "F";
+        s.friend = { name: this.randomName(fg), gender: fg };
+        s.id = PROLOGUE_START[s.bg];
+        s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 };
+        s.step = 0;
+        s.friendBonus = 0;
+        s.log = [];
+        s.shown = {};
+        this.screen = "prologue";
+        return this.render();
+      }
+      case "pro-choice":
+        return this.proChoose(+v);
+      case "pro-restart": {
+        const s = this.pro;
+        s.bg = RNG.pick(BACKGROUNDS).id;
+        s.id = PROLOGUE_START[s.bg];
+        s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 };
+        s.step = 0;
+        s.friendBonus = 0;
+        s.log = [];
+        s.shown = {};
+        this.screen = "prologue";
+        return this.renderPrologue();
+      }
+      case "pro-begin":
+        return this.beginFromPrologue();
+      default:
+        return baseHandle.call(this, act, v);
+    }
+  };
+}

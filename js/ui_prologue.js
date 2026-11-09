@@ -66,9 +66,19 @@ Object.assign(UI, {
     const el = document.getElementById('pro-scene');
     el.innerHTML = `<div class="eyebrow">${s.step === 0 ? `출신 · ${bg.name}` : `장면 ${s.step + 1}`}</div><h2>${this.proFill(sc.title)}</h2>
       <div class="pro-text">${this.proFill(sc.text).split('\n').map((l) => (l ? `<p>${l}</p>` : '')).join('')}</div>
-      <div class="cards pro-choices">${sc.choices.map((c, i) => `<button class="choice-btn" data-act="pro-choice" data-v="${i}">${this.proFill(c.text)}</button>`).join('')}</div>`;
+      <div class="cards pro-choices">${this.proShown(s.id).map((i) => `<button class="choice-btn" data-act="pro-choice" data-v="${i}">${this.proFill(sc.choices[i].text)}</button>`).join('')}</div>`;
     el.classList.remove('fade-in'); void el.offsetWidth; el.classList.add('fade-in');
     el.scrollTop = 0;
+  },
+  // 선택지가 많은 장면은 그중 3개만 보여 준다 (무엇이 나올지도 운명)
+  proShown(id) {
+    const s = this.pro; s.shown = s.shown || {};
+    if (!s.shown[id]) {
+      const idx = PROLOGUE[id].choices.map((_, i) => i);
+      for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+      s.shown[id] = idx.slice(0, 3).sort((a, b) => a - b);
+    }
+    return s.shown[id];
   },
   proChoose(i) {
     const s = this.pro; const ch = PROLOGUE[s.id].choices[i];
@@ -157,11 +167,11 @@ Object.assign(UI, {
         s.bg = RNG.pick(BACKGROUNDS).id;
         const fg = RNG.chance(0.5) ? 'M' : 'F';
         s.friend = { name: this.randomName(fg), gender: fg };
-        s.id = PROLOGUE_START[s.bg]; s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 }; s.step = 0; s.friendBonus = 0; s.log = [];
+        s.id = PROLOGUE_START[s.bg]; s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 }; s.step = 0; s.friendBonus = 0; s.log = []; s.shown = {};
         this.screen = 'prologue'; return this.render();
       }
       case 'pro-choice': return this.proChoose(+v);
-      case 'pro-restart': { const s = this.pro; s.bg = RNG.pick(BACKGROUNDS).id; s.id = PROLOGUE_START[s.bg]; s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 }; s.step = 0; s.friendBonus = 0; s.log = []; this.screen = 'prologue'; return this.renderPrologue(); }
+      case 'pro-restart': { const s = this.pro; s.bg = RNG.pick(BACKGROUNDS).id; s.id = PROLOGUE_START[s.bg]; s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 }; s.step = 0; s.friendBonus = 0; s.log = []; s.shown = {}; this.screen = 'prologue'; return this.renderPrologue(); }
       case 'pro-begin': return this.beginFromPrologue();
       default: return baseHandle.call(this, act, v);
     }

@@ -870,7 +870,8 @@ const UI = {
     const step = () => {
       if (this.ctx !== c) return;
       if (i >= evs.length) { c.playing = false; return this.afterPlay(); }
-      const wait = this.applyEvent(evs[i++]);
+      let wait = 200;
+      try { wait = this.applyEvent(evs[i++]); } catch (e) { i++; if (window.console) console.error('연출 오류', e); }
       setTimeout(step, FX.reduced ? 0 : wait * speed);
     };
     step();
@@ -890,7 +891,7 @@ const UI = {
     const frame = (now) => {
       if (this.ctx !== c || !document.getElementById('stage')) return;
       const dt = Math.min(0.1, (now - last) / 1000) * (c.speed || 1); last = now;
-      if (!c.playing && !cb.result) {
+      if (!c.playing && !cb.result) try {
         if (cb.waiting) {
           if (cb.auto) { cb.autoStep(); this.play(); }
         } else {
@@ -903,7 +904,7 @@ const UI = {
             else this.play();
           }
         }
-      }
+      } catch (e) { if (window.console) console.error('전투 진행 오류', e); c.playing = false; }
       requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);

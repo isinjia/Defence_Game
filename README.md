@@ -18,6 +18,16 @@ python3 tools/bump_version.py
 
 `js/data.js` 의 버전과 `index.html` 의 캐시 방지용 버전 표시가 함께 바뀝니다.
 
+## 빌드
+
+`index.html` 은 빌드된 `dist/game.js` 와 `dist/style.css` 만 불러옵니다. 소스(`js/`, `css/`)를 고친 뒤에는 빌드해야 반영됩니다.
+
+```bash
+bash tools/build.sh
+```
+
+빌드는 소스 스크립트를 하나로 합치고, 구형 휴대폰 브라우저(iOS 11, Chrome 61 이상)도 읽을 수 있는 문법으로 변환합니다. esbuild 를 npx 로 내려받아 씁니다.
+
 ## 로컬 실행
 
 빌드 없이 정적 파일로 동작합니다.
