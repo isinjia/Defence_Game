@@ -776,10 +776,14 @@ function resolvePrologue(sc, rng = Math.random) {
   const luck = (sc.luck || 0) + talent * 0.4;
   // 직업: 가장 높은 계열에서, 직업 점수와 희귀도 운을 함께 본다
   const groups = Object.keys(CLASS_GROUPS).filter((g) => g !== 'hidden');
-  const grp = top(sc.g, groups);
+  // 각성 속성이 그 속성 친화 직업(c.elem, 4-10) 쪽으로 계열·직업을 끌어당긴다. 친화 속성이 없는 직업 데이터에서는 영향 없음
+  const affine = (c) => c.elem === element || (Array.isArray(c.elems) && c.elems.includes(element));
+  const gsc = { ...sc.g };
+  for (const g of groups) if (CLASSES.some((c) => c.g === g && c.r < 3 && affine(c))) gsc[g] = (gsc[g] || 0) + 1.5;
+  const grp = top(gsc, groups);
   const pool = CLASSES.filter((c) => c.g === grp && c.r < 3);
   const rare = [10, 4 + luck * 0.6, 1 + luck * 0.4];
-  const weights = pool.map((c) => rare[c.r] * (1 + (sc.c[c.id] || 0) * 1.5));
+  const weights = pool.map((c) => rare[c.r] * (1 + (sc.c[c.id] || 0) * 1.5) * (affine(c) ? 2.5 : 1));
   let r = rng() * weights.reduce((a, b) => a + b, 0), best = pool[0];
   for (let i = 0; i < pool.length; i++) { r -= weights[i]; if (r < 0) { best = pool[i]; break; } }
   // 마지막 장면에서 드러난 힘(운명)은 대개 그대로 직업이 된다. 희귀할수록 조금 덜 확실하다
