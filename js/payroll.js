@@ -55,6 +55,17 @@ Object.assign(Game.prototype, {
     const pk = this.payPerksText(this.payPerks(gid, pr));
     return `${T.label}: 월급 약 ${fmt(sal)} 크레딧 + 게이트 전리품 성과급 ${k === 'kama' ? '' : '약 '}${inc}%${pr ? ' · <b>유망주 대우</b>(계약금·월급 우대)' : ''}${pk ? ` · ${pk}` : ''}`;
   },
+  // 권유 장면 ⓘ(aff_flow.js UI.INFO.guild)에 붙는 짧은 한 줄. 플레이어 등급·재능(유망주)에 따라 달라진다
+  contractTerms(gid) {
+    const k = this.payKind(gid); if (!k) return '';
+    const T = PAY_TERMS[k];
+    if (k === 'kama') return `월급 ${fmt(this.payBase(gid))}(적음) + 성과급 ${Math.round(T.inc[0] * 100)}%(매우 짬) · 부상 보상·유족 보상금·매달 공적 · 의무 복무 ${KAMA_SERVICE}개월`;
+    const pr = this.isProspect();
+    const sal = Math.round(this.payBase(gid) * (pr ? 1.4 : 1));
+    const inc = Math.round(((T.inc[0] + T.inc[1]) / 2) * 100);
+    const sign = Math.round(sal * 6 * T.sign * (pr ? (k === 'big' ? 2.5 : 1.5) : 1));
+    return `월급 ${fmt(sal)} + 성과급 약 ${inc}%${sign ? ` · 계약금 약 ${fmt(sign)}` : ''}${pr ? ` · 유망주 지원(${k === 'big' ? '훈련비·장비' : '장비'})` : ''}`;
+  },
   payInit() {
     const p = this.player; if (!p) return;
     p.pay ??= { pool: 0, mk: this.monthKey(), last: null, gearYear: -1 };
