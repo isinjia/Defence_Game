@@ -340,7 +340,7 @@ const UI = {
     if (!known) body = '<div class="dim">신호가 닿지 않는 미탐색 지역이다. 가까이 가면 드러난다.</div>';
     else {
       const obj = G.objAt(x, y);
-      if (obj && obj.kind === 'gate') body += `<div class="tip-obj">${this.rift(obj.tier)}<div><b>${G.gateName(obj)}</b><div class="small">${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)} 난이도 ${this.gateRisk(obj.tier)}</div></div></div>`;
+      if (obj && obj.kind === 'gate') body += `<div class="tip-obj">${this.rift(obj.tier)}<div><b>${G.gateName(obj)}</b><div class="small">${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)} 난이도 ${this.gateRisk(obj.tier + (obj.variant === 'red' ? 1 : 0))}</div></div></div>`;
       if (obj && obj.kind === 'mob') body += `<div class="tip-obj"><span class="mob-dot big" style="--c:${elemColor(obj.elem)}"></span><div><b>${obj.name} 무리 ×${obj.count}</b><div class="small">${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)} 난이도 ${this.gateRisk(obj.tier)}</div></div></div>`;
       const ns = this.npcsAt(x, y);
       for (const n of ns) body += `<div class="tip-obj">${this.npcAvatar(n, 34)}<div class="grow"><b>${n.name}</b> <span class="small dim">${n.met ? relationLabel(n.relation) : '처음 보는 각성자'}</span><div class="small">${this.rankTag(n.rankIdx, n.stage)} ${this.elemTag(n.element)}</div></div>
@@ -424,7 +424,7 @@ const UI = {
   encounter(obj) {
     if (obj.kind === 'gate') {
       return this.modal(`<div class="enc">${FX.eventArt('gate_surge')}<div class="eyebrow">게이트 감지 · ${G.fullDate()}</div><h3>${G.gateName(obj)}</h3>
-        <div class="row">${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)} ${obj.mission ? '<span class="tag amber">길드 임무</span>' : ''}${obj.bid ? '<span class="tag amber">길드 낙찰</span>' : ''}${obj.variant === 'red' ? '<span class="tag bad">레드 게이트</span>' : ''} <span class="small">난이도 ${this.gateRisk(obj.tier)}</span></div>
+        <div class="row">${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)} ${obj.mission ? '<span class="tag amber">길드 임무</span>' : ''}${obj.bid ? '<span class="tag amber">길드 낙찰</span>' : ''}${obj.variant === 'red' ? '<span class="tag bad">레드 게이트</span>' : ''} <span class="small">난이도 ${this.gateRisk(obj.tier + (obj.variant === 'red' ? 1 : 0))}</span></div>
         <p class="dim">${obj.final ? '4개 구역. 도주할 수 없다.' : obj.variant === 'red' ? '<span class="bad">붉게 물든 게이트. 들어가면 공략 전까지 나올 수 없다. 4개 구역, 철수·도주 불가. 패배하면 구조대도 들어올 수 없다.</span> 대신 보상이 크다.' : '3개 구역 · 공략에 약 10일 소요. 구역 사이에 철수할 수 있다.'}</p>
 </div>
         <div class="row end"><button class="ghost" data-act="modal-close">나중에</button><button class="${obj.variant === 'red' ? 'danger' : 'primary'}" data-act="gate" data-v="${obj.id}">진입한다</button></div>`);

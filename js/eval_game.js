@@ -146,3 +146,9 @@ if (typeof Game !== 'undefined' && Game.prototype.newGame) {
     return r;
   };
 }
+
+// 10) 레드 게이트가 '쉬움'으로 표시되고 체력을 거의 안 잃고 깨지던 문제: 레드는 괴수가 한 등급 위(표시도 한 등급 위로, ui.js gateRisk 호출부).
+if (typeof GateRun !== 'undefined' && GateRun.tier) {
+  const baseTier = GateRun.tier;
+  GateRun.tier = function (gate) { const t = baseTier.call(this, gate); return gate && gate.variant === 'red' && !gate.final ? Math.min(7, t + 1) : t; };
+}
