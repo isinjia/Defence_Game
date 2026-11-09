@@ -66,7 +66,7 @@ Object.assign(UI, {
       <div class="pro-steps">${Array.from({ length: 8 }, (_, i) => `<i class="${i < s.step ? 'on' : i === s.step ? 'now' : ''}"></i>`).join('')}</div>`);
     const el = document.getElementById('pro-scene');
     el.innerHTML = `<div class="eyebrow">${s.step === 0 ? `출신 · ${bg.name}` : `장면 ${s.step + 1}`}</div><h2>${this.proFill(sc.title)}</h2>
-      ${s.step === 1 && s.introTitle && !/^(gb_|gate_break)/.test(s.id) ? `<p class="pro-gap dim small">— 「${s.introTitle}」 그 뒤 —${typeof PRO_HOOKS !== 'undefined' && PRO_HOOKS[s.introId] ? `<br>${this.proFill(PRO_HOOKS[s.introId])}` : ''}</p>` : ''}
+      ${s.step === 1 && s.introTitle ? `<p class="pro-gap dim small">— 「${s.introTitle}」 그 뒤 —${(() => { const ch = typeof PRO_HOOKS_CH !== 'undefined' && PRO_HOOKS_CH[s.introId + ':' + s.introPick]; const h = ch || (!/^(gb_|gate_break)/.test(s.id) && typeof PRO_HOOKS !== 'undefined' && PRO_HOOKS[s.introId]); return h ? `<br>${this.proFill(h)}` : ''; })()}</p>` : ''}
       <div class="pro-text">${this.proFill(proSceneText(sc, s.flags)).split('\n').map((l) => (l ? `<p>${l}</p>` : '')).join('')}</div>
       <div class="cards pro-choices">${this.proShown(s.id).map((i) => `<button class="choice-btn" data-act="pro-choice" data-v="${i}">${this.proFill(sc.choices[i].text)}</button>`).join('')}</div>`;
     el.classList.remove('fade-in'); void el.offsetWidth; el.classList.add('fade-in');
@@ -88,7 +88,7 @@ Object.assign(UI, {
     for (const k of ['e', 'g', 'c', 't']) for (const [x, v] of Object.entries(ch[k] || {})) s.sc[k][x] = (s.sc[k][x] || 0) + v;
     s.sc.talent += ch.talent || 0; s.sc.luck += ch.luck || 0; s.friendBonus += ch.friend || 0;
     s.log.push(this.proFill(ch.text));
-    if (s.step === 0) { s.introTitle = PROLOGUE[s.id].title; s.introId = s.id; }
+    if (s.step === 0) { s.introTitle = PROLOGUE[s.id].title; s.introId = s.id; s.introPick = i; }
     s.step++;
     // 마지막 선택이 끝나면 결과를 보여 주지 않고 바로 헌터 자격 시험으로 간다. 판정 결과는 시험이 끝난 뒤에 공개된다
     if (!ch.next) { s.result = resolvePrologue(s.sc); return this.handle('pro-begin'); }
@@ -199,4 +199,69 @@ Object.assign(UI, {
       default: return baseHandle.call(this, act, v);
     }
   };
+}
+
+// 꿈 갈래: 예지몽·수면 연구 길이면 신당(dream_2) 대신 그 길로
+{
+  const baseChoose = UI.proChoose;
+  UI.proChoose = function (i) {
+    const r = baseChoose.call(this, i);
+    const s = this.pro;
+    if (s && s.id === 'dream_2' && s.flags) {
+      const alt = s.flags.dream_seer ? 'dseer_2' : s.flags.dream_sleep ? 'dsleep_2' : null;
+      if (alt && PROLOGUE[alt]) { s.id = alt; this.renderPrologue(); }
+    }
+    return r;
+  };
+}
+
+// ---------- 속성은 각성하는 순간에 (docs/프롤로그_점검.md 2) ----------
+// 각성 장면(모든 선택지가 속성 3점 이상) 밖의 선택은 속성이 아니라 "성향(lean)"만 쌓는다.
+// 각성 장면에서는 다섯 모습을 모두 보여 주고, 성향에 맞는 둘을 먼저 "끌린다"로 표시한다. 고른 모습이 속성이 된다.
+const PRO_BODY = { fire: '손끝이 뜨겁다. 심장이 북처럼 뛴다.', bolt: '머리카락이 곤두서고 손끝에서 따닥 소리가 난다.', ice: '숨결이 하얗게 맺힌다. 손끝이 차갑다.', steel: '살갗 아래가 단단하게 굳는다. 발이 땅에 박힌다.', spirit: '귓가에 누군가의 숨소리가 겹쳐 들린다.' };
+function proIsAwaken(id) { const sc = PROLOGUE[id]; return !!(sc && sc.choices.length && sc.choices.every((c) => c.e && Math.max(...Object.values(c.e)) >= 3)); }
+{
+  const baseShown = UI.proShown;
+  UI.proShown = function (id) {
+    if (!proIsAwaken(id)) return baseShown.call(this, id);
+    const s = this.pro; const lean = (s.sc && s.sc.lean) || {};
+    s.shownAw ||= {}; if (s.shownAw[id]) return s.shownAw[id];
+    const elOf = (c) => Object.keys(c.e).sort((a, b) => c.e[b] - c.e[a])[0];
+    const idx = PROLOGUE[id].choices.map((_, i) => i);
+    const score = (i) => (lean[elOf(PROLOGUE[id].choices[i])] || 0) + Math.random() * 0.1;
+    return (s.shownAw[id] = idx.sort((a, b) => score(b) - score(a)));
+  };
+  const baseRender = UI.renderPrologue;
+  UI.renderPrologue = function () {
+    const r = baseRender.call(this);
+    const s = this.pro;
+    if (s && proIsAwaken(s.id)) {
+      const lean = (s.sc && s.sc.lean) || {};
+      const top = Object.entries(lean).sort((a, b) => b[1] - a[1]).filter(([, v]) => v > 0).slice(0, 2).map(([k]) => k);
+      for (const b of document.querySelectorAll('#pro-scene [data-act="pro-choice"]')) {
+        const c = PROLOGUE[s.id].choices[+b.dataset.v]; const el = Object.keys(c.e).sort((a, x) => c.e[x] - c.e[a])[0];
+        if (top.includes(el)) b.insertAdjacentHTML('beforeend', ' <span class="small amber">· 몸이 끌린다</span>');
+      }
+      const hint = document.querySelector('#pro-scene .pro-choices'); if (hint) hint.insertAdjacentHTML('beforebegin', '<p class="small dim">어떤 힘이 깨어날지는 당신이 고른다. 이것이 당신의 속성이 된다.</p>');
+    }
+    if (s && s.bodyNote) { const t = document.querySelector('#pro-scene .pro-text'); if (t) t.insertAdjacentHTML('afterbegin', `<p class="small amber">${s.bodyNote}</p>`); s.bodyNote = null; }
+    return r;
+  };
+  const baseChoose = UI.proChoose;
+  UI.proChoose = function (i) {
+    const s = this.pro; const id = s.id; const ch = PROLOGUE[id] && PROLOGUE[id].choices[i];
+    const aw = proIsAwaken(id);
+    if (ch && ch.e && !aw) {
+      // 성향만: 기본 처리 뒤 속성 점수에서 빼고 성향으로 옮긴다
+      s.sc.lean ||= {};
+      for (const [x, v] of Object.entries(ch.e)) s.sc.lean[x] = (s.sc.lean[x] || 0) + v;
+    }
+    if (ch && aw) { const el = Object.keys(ch.e).sort((a, b) => ch.e[b] - ch.e[a])[0]; s.bodyNote = PRO_BODY[el] || null; }
+    const before = ch && ch.e && !aw ? { ...s.sc.e } : null;
+    const r = baseChoose.call(this, i);
+    if (before && this.pro === s && s.sc) { for (const [x, v] of Object.entries(ch.e)) s.sc.e[x] = Math.max(0, (s.sc.e[x] || 0) - v); }
+    return r;
+  };
+  // 옆 화면의 "기운"은 성향과 각성 결과를 함께 본다
+  UI.proLeadElem = function () { const s = this.pro; const e = s.sc.e || {}; const l = s.sc.lean || {}; let best = null, bv = 0; for (const k of ELEMENT_KEYS) { const v = (e[k] || 0) * 3 + (l[k] || 0); if (v > bv) { bv = v; best = k; } } return best; };
 }
