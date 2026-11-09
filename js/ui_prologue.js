@@ -16,7 +16,7 @@ Object.assign(UI, {
         <button class="mode-card primary-card" data-act="mode-story">
           <span class="eyebrow">추천</span><b>이야기로 각성</b>
           <span>이름과 성별만 정하고 이야기를 따라갑니다. 출신은 운명에 맡기고, 각성의 순간에 내린 선택들이 속성·직업·재능·특성을 정합니다.</span>
-          <span class="small dim">8장면 · 3~5분</span></button>
+          <span class="small dim">출신별 이야기 50가지 · 8장면 · 3~5분</span></button>
         <button class="mode-card" data-act="mode-manual">
           <b>직접 설정</b>
           <span>출신, 속성, 직업 후보, 특성을 직접 고릅니다.</span>
@@ -167,11 +167,11 @@ Object.assign(UI, {
         s.bg = RNG.pick(BACKGROUNDS).id;
         const fg = RNG.chance(0.5) ? 'M' : 'F';
         s.friend = { name: this.randomName(fg), gender: fg };
-        s.id = PROLOGUE_START[s.bg]; s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 }; s.step = 0; s.friendBonus = 0; s.log = []; s.shown = {};
+        s.id = RNG.pick(PROLOGUE_START[s.bg]); s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 }; s.step = 0; s.friendBonus = 0; s.log = []; s.shown = {};
         this.screen = 'prologue'; return this.render();
       }
       case 'pro-choice': return this.proChoose(+v);
-      case 'pro-restart': { const s = this.pro; s.bg = RNG.pick(BACKGROUNDS).id; s.id = PROLOGUE_START[s.bg]; s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 }; s.step = 0; s.friendBonus = 0; s.log = []; s.shown = {}; this.screen = 'prologue'; return this.renderPrologue(); }
+      case 'pro-restart': { const s = this.pro; s.bg = RNG.pick(BACKGROUNDS).id; s.id = RNG.pick(PROLOGUE_START[s.bg]); s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 }; s.step = 0; s.friendBonus = 0; s.log = []; s.shown = {}; this.screen = 'prologue'; return this.renderPrologue(); }
       case 'pro-begin': return this.beginFromPrologue();
       default: return baseHandle.call(this, act, v);
     }

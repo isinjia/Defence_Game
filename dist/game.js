@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.06";
+const GAME_VERSION = "0.07";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -842,290 +842,516 @@ function rollClass(rng = Math.random) {
   return list[Math.floor(rng() * list.length)].id;
 }
 const PROLOGUE = {
-  // ---------- 출신별 도입 (출신마다 2장면) ----------
+  // ---------- 1. 출신별 도입 (출신마다 1장면) ----------
   chaebol_1: {
     title: "강남, 펜트하우스",
-    text: '대리석 식탁 위로 샹들리에 빛이 쏟아진다. 아버지가 와인잔을 내려놓는다.\n\n"백호 시큐리티 지분 일부를 네 앞으로 돌렸다. 각성자가 아니어도 괜찮다. 각성자를 부리는 쪽에 서면 되니까."\n\n창밖, 강남 돔 너머로 게이트 하나가 희미하게 깜빡인다.',
+    text: '대리석 식탁 위로 샹들리에 빛이 쏟아진다. 아버지가 와인잔을 내려놓는다.\n\n"백호 시큐리티 지분 일부를 네 앞으로 돌렸다. 각성자가 아니어도 괜찮다. 각성자를 부리는 쪽에 서면 되니까."\n\n창밖, 강남 돔 너머로 게이트 하나가 희미하게 깜빡인다. 그날 밤 {friend}에게서 문자가 온다. "폐상가 쪽 하늘 봤어? 이상해."',
     choices: [
-      { text: '"전 부리는 쪽이 되기 싫어요." 자리를 박차고 일어난다', e: { fire: 2 }, g: { fighter: 2 }, t: { berserk: 1 }, next: "chaebol_2" },
-      { text: "고개를 끄덕이며 아버지의 계획을 듣는다", e: { steel: 2 }, g: { guard: 1, support: 1 }, t: { merchant: 2 }, next: "chaebol_2" },
-      { text: "대답 대신 창밖의 게이트를 오래 바라본다", e: { spirit: 2 }, g: { mage: 1, esper: 1 }, t: { mana_sense: 1 }, next: "chaebol_2" }
-    ]
-  },
-  chaebol_2: {
-    title: "경호 실장",
-    text: '집안 경호를 맡은 한 실장은 B급 헌터 출신이다. 아무도 없는 지하 주차장에서 그가 묻는다.\n\n"작은 회장님, 아니, {name}. 정말로 배우고 싶습니까? 회장님은 모르게 해야 합니다."',
-    choices: [
-      { text: "목검을 집어 든다", e: { fire: 1, steel: 1 }, g: { fighter: 3 }, c: { swordsman: 2, lancer: 1 }, next: "common_1" },
-      { text: '"사람을 지키는 법을 알려 주세요"', e: { steel: 2 }, g: { guard: 3 }, c: { guardian: 2 }, t: { iron_body: 1 }, next: "common_1" },
-      { text: "그의 총을 가리킨다", e: { bolt: 2 }, g: { shooter: 3 }, c: { gunslinger: 2 }, next: "common_1" }
+      { text: '"전 부리는 쪽이 되기 싫어요." 자리를 박차고 일어난다', e: { fire: 1 }, g: { fighter: 2 }, c: { swordsman: 1 }, t: { berserk: 1 }, next: "gate_break" },
+      { text: "고개를 끄덕이며 아버지의 계획을 듣는다", e: { steel: 1 }, g: { guard: 1, support: 1 }, t: { merchant: 2 }, next: "gate_break" },
+      { text: "대답 대신 창밖의 게이트를 오래 바라본다", e: { spirit: 1 }, g: { mage: 1, esper: 1 }, t: { mana_sense: 1 }, next: "gate_break" },
+      { text: "경호 실장의 총을 떠올린다. 배워 두고 싶다", e: { bolt: 1 }, g: { shooter: 2 }, c: { gunslinger: 1 }, t: { quick: 1 }, next: "gate_break" }
     ]
   },
   orphan_1: {
     title: "희망의 집",
-    text: "보육원의 아침은 늘 전쟁이다. 동생 여섯의 도시락을 싸고, 열이 나는 원장 할머니께 죽을 쑤고 나면 해가 중천이다.\n\n냉장고가 비었다. 통장도 비었다.",
+    text: '보육원의 아침은 늘 전쟁이다. 동생 여섯의 도시락을 싸고, 열이 나는 원장 할머니께 죽을 쑤고 나면 해가 중천이다. 냉장고도, 통장도 비었다.\n\n오후에는 재개발 용역들이 대문을 걷어차고 갔다. 저녁 무렵 {friend}가 찾아와 말한다. "폐상가 쪽 하늘, 아까부터 보랏빛이야."',
     choices: [
-      { text: "오늘도 새벽 택배 상하차를 뛴다", e: { steel: 2 }, g: { guard: 1, fighter: 1 }, t: { iron_body: 2 }, next: "orphan_2" },
-      { text: "동생들을 먼저 먹이고 굶는다", e: { spirit: 1, ice: 1 }, g: { support: 2 }, t: { charisma: 1 }, talent: 1, next: "orphan_2" },
-      { text: "마트에서 몰래 몇 개 챙겨 나온다", e: { bolt: 2 }, g: { shadow: 3 }, t: { quick: 1, lucky: 1 }, next: "orphan_2" }
-    ]
-  },
-  orphan_2: {
-    title: "철거 용역",
-    text: "재개발 조합이 보낸 용역 깡패들이 보육원 대문을 걷어찬다. 동생들이 울며 당신 뒤에 숨는다. 할머니가 비틀거리며 나오신다.",
-    choices: [
-      { text: "대문 앞을 몸으로 막아선다", e: { fire: 1, steel: 1 }, g: { guard: 2, fighter: 1 }, t: { iron_body: 1 }, next: "common_1" },
-      { text: "우두머리와 차분히 협상한다", e: { spirit: 1, ice: 1 }, g: { support: 1, esper: 2 }, t: { charisma: 2 }, next: "common_1" },
-      { text: "뒷문으로 빠져나가 그들의 차량 블랙박스를 빼 온다", e: { bolt: 1, ice: 1 }, g: { shadow: 3 }, t: { quick: 1 }, next: "common_1" }
+      { text: "대문 앞을 몸으로 막아섰던 손이 아직 떨린다", e: { steel: 1 }, g: { guard: 2 }, t: { iron_body: 2 }, next: "gate_break" },
+      { text: "동생들을 먼저 먹이고 오늘도 굶는다", e: { ice: 1 }, g: { support: 2 }, t: { charisma: 1 }, talent: 1, next: "gate_break" },
+      { text: "용역 차량의 블랙박스를 몰래 빼 온다", e: { bolt: 1 }, g: { shadow: 2 }, c: { thief: 1 }, t: { quick: 1, lucky: 1 }, next: "gate_break" }
     ]
   },
   soldier_1: {
-    title: "휴전선, 새벽 3시",
-    text: 'GOP 경계 근무. 철책 너머 북쪽 하늘에 보랏빛 줄이 그어진다. 통신 두절 구역에서 무언가 이쪽을 보고 있다.\n\n옆 초소 후임이 떨리는 목소리로 묻는다. "병장님… 저거 뭡니까?"',
-    choices: [
-      { text: "규정대로 즉시 상황 보고", e: { steel: 2 }, g: { guard: 2 }, t: { iron_body: 1 }, next: "soldier_2" },
-      { text: "야간 투시경을 들고 철책 쪽으로 간다", e: { fire: 2 }, g: { fighter: 2 }, t: { reckless: 1 }, next: "soldier_2" },
-      { text: "총구를 겨누고 숨을 고른다", e: { ice: 2 }, g: { shooter: 3 }, c: { sniper: 2 }, next: "soldier_2" }
-    ]
-  },
-  soldier_2: {
     title: "전역 신고",
-    text: "전역하는 날. 위병소를 나서는데 자꾸 박 상병 얼굴이 떠오른다. 작년 게이트 경계 작전에서 돌아오지 못한 녀석.\n\n주머니 속 녀석의 군번줄이 차갑다.",
+    text: '전역하는 날. 위병소를 나서는데 자꾸 박 상병 얼굴이 떠오른다. 작년 게이트 경계 작전에서 돌아오지 못한 녀석. 주머니 속 녀석의 군번줄이 차갑다.\n\n집에 오니 {friend}가 기다리고 있다. "전역 축하해. 그런데 저기 폐상가 하늘, 좀 이상하지 않아?"',
     choices: [
-      { text: '"네 몫까지 싸운다." 헌터 등록 안내서를 챙긴다', e: { fire: 2 }, g: { fighter: 2 }, t: { berserk: 1 }, next: "common_1" },
-      { text: "녀석의 가족을 찾아가 군번줄을 전한다", e: { spirit: 1, ice: 1 }, g: { support: 2 }, t: { charisma: 1 }, next: "common_1" },
-      { text: "모든 걸 잊으려 혼자 술을 마신다", e: { ice: 1 }, g: { shadow: 1, mage: 1 }, t: { loner: 2 }, next: "common_1" }
+      { text: '"네 몫까지 싸운다." 헌터 등록 안내서를 챙긴다', e: { fire: 1 }, g: { fighter: 2 }, c: { lancer: 1 }, t: { berserk: 1 }, next: "gate_break" },
+      { text: "녀석의 가족을 찾아가 군번줄을 전한다", e: { spirit: 1 }, g: { support: 2 }, t: { charisma: 1 }, next: "gate_break" },
+      { text: "총구를 겨누던 감각을 떠올리며 숨을 고른다", e: { ice: 1 }, g: { shooter: 2 }, c: { sniper: 1 }, t: { loner: 1 }, next: "gate_break" }
     ]
   },
   subject_1: {
     title: "하얀 방",
-    text: '꿈을 꾼다. 하얀 방, 하얀 가운, 손목의 바코드. "피험자 12번, 에테르 주입 7차." 바늘이 들어오고, 세상이 뒤집힌다.\n\n깨어나도 손목엔 여전히 바코드 흉터가 있다.',
+    text: '꿈을 꾼다. 하얀 방, 하얀 가운, 손목의 바코드. "피험자 12번, 에테르 주입 7차." 바늘이 들어오고, 세상이 뒤집힌다.\n\n연구소가 폐쇄된 지 2년. 깨어나도 손목엔 바코드 흉터가 있고, 요즘은 형광등이 저절로 깜빡인다. {friend}가 창밖을 가리킨다. "저 보랏빛, 너도 보여?"',
     choices: [
-      { text: "이를 악물고 고통을 견디는 기억", e: { steel: 2 }, g: { guard: 1, fighter: 1 }, t: { iron_body: 2 }, next: "subject_2" },
-      { text: "연구원의 생각이 들렸던 기억", e: { spirit: 3 }, g: { esper: 3 }, c: { telepath: 2 }, next: "subject_2" },
-      { text: "벽 너머로 몸이 미끄러졌던 기억", e: { bolt: 2 }, g: { esper: 2, shadow: 1 }, c: { teleporter: 2 }, next: "subject_2" }
-    ]
-  },
-  subject_2: {
-    title: "보호소",
-    text: "연구소가 폐쇄된 지 2년. 보호 시설에서 평범한 척 살고 있다. 그런데 요즘 손끝이 따끔거린다. 컵이 저절로 미끄러지고, 형광등이 깜빡인다.",
-    choices: [
-      { text: "아무에게도 들키지 않게 숨긴다", e: { ice: 2 }, g: { shadow: 2 }, t: { loner: 1 }, next: "common_1" },
-      { text: "밤마다 몰래 힘을 시험해 본다", e: { bolt: 1, spirit: 1 }, g: { esper: 2, mage: 1 }, c: { telekinetic: 2 }, talent: 1, next: "common_1" },
-      { text: "시설 의사에게 털어놓는다", e: { spirit: 1 }, g: { support: 2 }, t: { charisma: 1 }, next: "common_1" }
+      { text: "이를 악물고 고통을 견디던 기억", e: { steel: 1 }, g: { guard: 1, fighter: 1 }, t: { iron_body: 2 }, next: "gate_break" },
+      { text: "연구원의 생각이 들렸던 기억", e: { spirit: 1 }, g: { esper: 2 }, c: { telepath: 2 }, next: "gate_break" },
+      { text: "벽 너머로 몸이 미끄러졌던 기억", e: { bolt: 1 }, g: { esper: 1, shadow: 1 }, c: { teleporter: 2 }, next: "gate_break" },
+      { text: "아무 기억도 없는 척, 힘을 숨기며 산다", e: { ice: 1 }, g: { shadow: 2 }, c: { telekinetic: 1 }, t: { loner: 1 }, next: "gate_break" }
     ]
   },
   student_1: {
-    title: "조별 과제",
-    text: '대학 2학년, 교양 수업 조별 과제. 단톡방은 사흘째 조용하다. 마감은 내일 아침 9시.\n\n소꿉친구 {friend}만 "나 뭐 하면 돼?"라고 물어 온다.',
-    choices: [
-      { text: "역할을 나누고 전화를 돌린다", e: { spirit: 1, steel: 1 }, g: { support: 2, guard: 1 }, t: { charisma: 2 }, next: "student_2" },
-      { text: "그냥 혼자 밤새 다 한다", e: { ice: 2 }, g: { mage: 2 }, t: { loner: 1, mana_sense: 1 }, next: "student_2" },
-      { text: "{friend}랑 PC방으로 도망간다", e: { bolt: 2 }, g: { shadow: 1, shooter: 1 }, t: { lucky: 1 }, next: "student_2" }
-    ]
-  },
-  student_2: {
     title: "편의점 야간",
-    text: '새벽 2시 편의점. 취한 손님이 계산대를 내리치며 소리친다. "야, 내가 누군지 알아? 나 D급 헌터야!" 팔뚝에 협회 문신이 보인다.',
+    text: '대학 2학년. 조별 과제는 혼자 떠안았고, 새벽에는 편의점 야간 근무다. 취한 손님이 계산대를 내리치며 소리친다. "나 D급 헌터야!"\n\n손님이 나가고 나서야 {friend}의 문자를 본다. "폐상가 쪽 하늘 갈라졌대. 너 거기 근처잖아."',
     choices: [
-      { text: '눈을 똑바로 보며 "나가 주세요"', e: { fire: 2 }, g: { fighter: 2 }, t: { reckless: 1 }, next: "common_1" },
-      { text: "꾹 참고 정중하게 응대한다", e: { steel: 1, ice: 1 }, g: { guard: 2 }, t: { iron_body: 1 }, next: "common_1" },
-      { text: "몰래 휴대폰으로 녹화해 신고한다", e: { bolt: 1 }, g: { shooter: 1, shadow: 1 }, t: { quick: 1 }, next: "common_1" }
+      { text: '눈을 똑바로 보며 "나가 주세요"라고 했었다', e: { fire: 1 }, g: { fighter: 2 }, t: { reckless: 1 }, next: "gate_break" },
+      { text: "과제를 하며 게이트 논문을 뒤적이던 참이다", e: { ice: 1 }, g: { mage: 2 }, t: { genius: 1, mana_sense: 1 }, next: "gate_break" },
+      { text: "몰래 휴대폰으로 녹화해 신고해 두었다", e: { bolt: 1 }, g: { shooter: 1, shadow: 1 }, t: { quick: 1 }, next: "gate_break" },
+      { text: "{friend}에게 바로 전화를 건다", e: { spirit: 1 }, g: { support: 1, summon: 1 }, t: { charisma: 1 }, friend: 5, next: "gate_break" }
     ]
   },
-  // ---------- 공통 ----------
-  common_1: {
-    title: "대붕괴 20주기",
-    text: '3월 1일. 대붕괴 20주기 추모일. 방송은 하루 종일 그날의 영상을 튼다. 제주 하늘이 찢어지던 장면.\n\n{friend}에게서 문자가 온다. "광화문 추모식 같이 갈래?"',
-    choices: [
-      { text: "함께 촛불을 들러 간다", e: { spirit: 1, fire: 1 }, g: { support: 1, east: 1 }, t: { charisma: 1 }, next: "common_2" },
-      { text: "혼자 방에서 그날의 기록을 찾아본다", e: { ice: 1, spirit: 1 }, g: { mage: 2 }, t: { mana_sense: 1 }, next: "common_2" },
-      { text: '"그런 거 안 가." 헬스장으로 간다', e: { fire: 1, steel: 1 }, g: { fighter: 2 }, t: { iron_body: 1 }, next: "common_2" }
-    ]
-  },
-  common_2: {
-    title: "소문",
-    text: '헌터 커뮤니티에 글이 올라왔다. "우리 동네 폐상가 지하에 미등록 게이트 열림ㅋㅋ 쬐끄만 거라 F급도 안 될 듯"\n\n{friend}가 링크를 보내며 덧붙인다. "가 볼래? 진짜면 신고 포상금 나온대."',
-    choices: [
-      { text: '"가 보자." 손전등을 챙긴다', e: { fire: 1 }, g: { fighter: 1, shadow: 1 }, t: { reckless: 1 }, next: "path_explore" },
-      { text: '"위험해." 협회에 신고만 한다', e: { steel: 1 }, g: { guard: 1, support: 1 }, next: "path_report" },
-      { text: '"관심 없어." 일찍 잠자리에 든다', e: { ice: 1 }, g: { mage: 1 }, next: "path_home" }
-    ]
-  },
-  path_explore: {
-    title: "폐상가 지하",
-    text: '곰팡내 나는 지하 주차장. 천장에 손바닥만 한 균열이 떠 있다. 보랏빛이 숨 쉬듯 커졌다 작아진다.\n\n{friend}가 소매를 붙잡는다. "야… 이거 점점 커지는 거 같은데?"',
-    choices: [
-      { text: "앞장서서 균열에 다가간다", e: { fire: 2 }, g: { fighter: 2 }, c: { berserker: 1 }, next: "break_1" },
-      { text: "{friend}의 손을 잡고 뒤로 물러선다", e: { spirit: 1, steel: 1 }, g: { guard: 1, support: 1 }, next: "break_1" },
-      { text: "휴대폰으로 균열을 촬영한다", e: { bolt: 2 }, g: { shooter: 1, esper: 1 }, t: { lucky: 1 }, next: "break_1" }
-    ]
-  },
-  path_report: {
-    title: "무시당한 신고",
-    text: '협회 콜센터 직원이 하품 섞인 목소리로 말한다. "네, 접수됐고요. F급 이하는 대기 순번이 3주예요."\n\n그날 밤, 창밖에서 사이렌이 울린다. 폐상가 쪽 하늘이 보랏빛으로 물들었다.',
-    choices: [
-      { text: "그럴 줄 알았다. 운동화를 신고 뛰어나간다", e: { fire: 1, bolt: 1 }, g: { fighter: 1, guard: 1 }, next: "break_1" },
-      { text: "{friend}에게 전화부터 건다", e: { spirit: 1, bolt: 1 }, g: { support: 2 }, t: { charisma: 1 }, next: "break_1" },
-      { text: "대피소로 가는 사람들을 안내한다", e: { steel: 2 }, g: { guard: 2 }, next: "break_1" }
-    ]
-  },
-  path_home: {
-    title: "갈라진 하늘",
-    text: "잠결에 창문이 덜컹거린다. 눈을 뜨자 방 안이 보랏빛이다. 창밖, 폐상가 쪽 하늘이 찢어져 있다. 휴대폰에 재난 문자가 쏟아진다.\n\n[긴급] 게이트 브레이크 발생. 즉시 대피하십시오.",
-    choices: [
-      { text: "{friend}의 집 쪽으로 달린다", e: { fire: 1, spirit: 1 }, g: { support: 1, fighter: 1 }, next: "break_1" },
-      { text: "침착하게 비상 가방을 챙긴다", e: { ice: 2 }, g: { mage: 1, guard: 1 }, t: { mana_sense: 1 }, next: "break_1" },
-      { text: "창밖을 멍하니 바라본다. 저 빛이 부르는 것 같다", e: { spirit: 1, ice: 1 }, g: { esper: 1, east: 1 }, next: "break_1" }
-    ]
-  },
-  break_1: {
+  // ---------- 2. 게이트 브레이크 ----------
+  gate_break: {
     title: "게이트 브레이크",
-    text: "골목으로 괴수들이 쏟아져 나온다. 개만 한 것, 사람만 한 것, 그리고 2층 높이의 무언가.\n\n버스 정류장 아래, 일곱 살쯤 된 아이가 넘어져 울고 있다. 괴수 하나가 고개를 돌린다.",
+    text: "재난 문자가 쏟아진다. [긴급] 게이트 브레이크 발생. 즉시 대피하십시오.\n\n{friend}와 함께 골목에 나서자 괴수들이 쏟아져 나온다. 버스 정류장 아래, 일곱 살쯤 된 아이가 넘어져 울고 있다. 괴수 하나가 고개를 돌린다.",
     choices: [
-      { text: "아이에게 달려가 끌어안는다", e: { steel: 2 }, g: { guard: 3 }, c: { paladin: 1, guardian: 1 }, t: { iron_body: 1 }, next: "break_2" },
-      { text: "돌을 던져 괴수를 자기 쪽으로 유인한다", e: { fire: 1, bolt: 1 }, g: { fighter: 1, shadow: 2 }, t: { quick: 1 }, next: "break_2" },
-      { text: '"여기요!" 주변 어른들을 큰 소리로 부른다', e: { spirit: 1 }, g: { support: 2, summon: 1 }, t: { charisma: 1 }, next: "break_2" }
+      { text: "아이에게 달려가 끌어안는다", e: { steel: 1 }, g: { guard: 2 }, c: { paladin: 1, guardian: 1 }, t: { iron_body: 1 }, next: "gear" },
+      { text: "돌을 던져 괴수를 자기 쪽으로 유인한다", e: { bolt: 1 }, g: { shadow: 1, fighter: 1 }, t: { quick: 1 }, next: "gear" },
+      { text: '"여기요!" 주변 어른들을 큰 소리로 부른다', e: { spirit: 1 }, g: { support: 1, summon: 1 }, t: { charisma: 1 }, next: "gear" },
+      { text: "{friend}에게 아이를 맡기고 괴수 앞을 막아선다", e: { fire: 1 }, g: { fighter: 2 }, t: { reckless: 1 }, friend: 10, next: "gear" },
+      { text: "괴수의 걸음을 세며 빈틈을 기다린다", e: { ice: 1 }, g: { mage: 1, shooter: 1 }, t: { mana_sense: 1 }, next: "gear" }
     ]
   },
-  break_2: {
+  // ---------- 3. 쓰러진 헌터 ----------
+  gear: {
     title: "쓰러진 헌터",
-    text: '골목 끝에 출동한 헌터가 쓰러져 있다. E급 배지. 피가 멎지 않는다. 그가 손을 뻗어 떨어진 장비를 가리킨다.\n\n"…쓸 줄 알면… 써…"',
+    text: '골목 끝에 출동한 헌터가 쓰러져 있다. E급 배지. 피가 멎지 않는다. 그가 손을 뻗어 흩어진 장비를 가리킨다.\n\n"…쓸 줄 알면… 써…"',
     choices: [
-      { text: "에테르 블레이드를 줍는다", e: { fire: 1 }, g: { fighter: 2 }, c: { swordsman: 2, dualblade: 1 }, next: "break_3" },
-      { text: "권총을 줍는다", e: { bolt: 1 }, g: { shooter: 2 }, c: { gunslinger: 2, archer: 1 }, next: "break_3" },
-      { text: "그의 품에서 빛나는 부적 뭉치를 꺼낸다", e: { spirit: 1 }, g: { east: 3 }, c: { taoist: 2, shaman: 1 }, next: "break_3" },
-      { text: "아무것도 줍지 않는다. 그의 상처부터 누른다", e: { ice: 1 }, g: { support: 3 }, c: { healer: 2 }, next: "break_3" }
+      { text: "에테르 블레이드를 줍는다", g: { fighter: 2 }, c: { swordsman: 2, dualblade: 1 }, next: "voice" },
+      { text: "권총을 줍는다", g: { shooter: 2 }, c: { gunslinger: 2, archer: 1 }, next: "voice" },
+      { text: "그의 품에서 빛나는 부적 뭉치를 꺼낸다", g: { east: 2 }, c: { taoist: 2, shaman: 1 }, next: "voice" },
+      { text: "아무것도 줍지 않는다. 그의 상처부터 누른다", g: { support: 2 }, c: { healer: 2, priest: 1 }, talent: 1, next: "voice" },
+      { text: "찌그러진 방패를 들어 올린다", g: { guard: 2 }, c: { guardian: 2 }, t: { iron_body: 1 }, next: "voice" },
+      { text: "굴러다니는 마력석을 주머니에 넣는다", g: { mage: 1, support: 1 }, c: { alchemist: 1, elementalist: 1 }, t: { merchant: 1 }, next: "voice" }
     ]
   },
-  break_3: {
-    title: "마주침",
-    text: "2층 높이의 괴수가 골목을 막아선다. 비늘 사이로 용암 같은 빛이 흐른다. 뒤에는 아이와 {friend}가 있다.\n\n도망칠 곳은 없다.",
-    choices: [
-      { text: "정면으로 마주 선다. 이상하게 손바닥이 뜨겁다", e: { fire: 3 }, g: { fighter: 1 }, next: "break_4" },
-      { text: "괴수의 움직임을 읽는다. 머리가 차갑게 식는다", e: { ice: 3 }, g: { mage: 1, shooter: 1 }, next: "break_4" },
-      { text: "번개처럼 옆으로 몸을 던진다", e: { bolt: 3 }, g: { shadow: 1 }, next: "break_4" },
-      { text: "발을 땅에 박는다. 절대 비켜서지 않겠다", e: { steel: 3 }, g: { guard: 1 }, next: "break_4" },
-      { text: "눈을 감는다. 괴수의 분노가 들린다", e: { spirit: 3 }, g: { esper: 1 }, next: "break_4" }
-    ]
-  },
-  break_4: {
+  // ---------- 4. 어둠 속 목소리 (직업 계열) ----------
+  voice: {
     title: "어둠",
-    text: '괴수의 꼬리가 옆구리를 후려쳤다. 몸이 벽에 처박힌다. 숨이 쉬어지지 않는다. 세상이 조용해진다.\n\n어둠 속에서 누군가 묻는다.\n\n"무엇을 원하나."',
+    text: '2층 높이의 괴수가 골목을 막아선다. 꼬리가 옆구리를 후려치고, 몸이 벽에 처박힌다. 숨이 쉬어지지 않는다. 세상이 조용해진다.\n\n어둠 속에서 누군가 묻는다.\n\n"무엇을 원하나."',
     choices: [
-      { text: '"전부 부숴 버릴 힘."', e: { fire: 2 }, g: { fighter: 3 }, c: { berserker: 2 }, t: { berserk: 1 }, next: "awaken" },
-      { text: '"뒤에 있는 사람들을 지킬 힘."', e: { steel: 2 }, g: { guard: 3 }, c: { guardian: 1, paladin: 1 }, next: "awaken" },
-      { text: '"살아남을 힘. 그거면 돼."', e: { bolt: 1, ice: 1 }, g: { shadow: 3 }, c: { assassin: 2, thief: 1 }, t: { lucky: 1 }, next: "awaken" },
-      { text: '"이게 대체 뭔지 이해하고 싶다."', e: { ice: 1, spirit: 1 }, g: { mage: 3 }, c: { elementalist: 2 }, t: { genius: 1 }, talent: 1, next: "awaken" },
-      { text: '"혼자가 아니면 좋겠다."', e: { spirit: 1, bolt: 1 }, g: { summon: 3 }, c: { summoner: 1, tamer: 2 }, next: "awaken" }
+      { text: '"전부 부숴 버릴 힘."', g: { fighter: 3 }, c: { berserker: 2 }, t: { berserk: 1 }, next: "awaken" },
+      { text: '"뒤에 있는 사람들을 지킬 힘."', g: { guard: 3 }, c: { guardian: 1, paladin: 1 }, next: "awaken" },
+      { text: '"살아남을 힘. 그거면 돼."', g: { shadow: 3 }, c: { assassin: 1, thief: 1 }, t: { lucky: 1 }, next: "awaken" },
+      { text: '"닿지 않는 곳까지 꿰뚫을 힘."', g: { shooter: 3 }, c: { archer: 1, sniper: 1 }, next: "awaken" },
+      { text: '"이게 대체 뭔지 이해하고 싶다."', g: { mage: 3 }, c: { elementalist: 1 }, t: { genius: 1 }, talent: 1, next: "awaken" },
+      { text: '"혼자가 아니면 좋겠다."', g: { summon: 3 }, c: { tamer: 1, summoner: 1 }, next: "awaken" },
+      { text: '"아무도 죽지 않게 해 줘."', g: { support: 3 }, c: { healer: 1, priest: 1 }, t: { charisma: 1 }, next: "awaken" },
+      { text: '"이 머릿속의 소리를 다스리고 싶다."', g: { esper: 3 }, c: { telekinetic: 1, telepath: 1 }, next: "awaken" },
+      { text: '"옛사람들이 싸우던 방식을 알려 줘."', g: { east: 3 }, c: { taoist: 1, shaman: 1 }, t: { mana_sense: 1 }, next: "awaken" }
     ]
   },
+  // ---------- 5. 각성 (속성) ----------
   awaken: {
     title: "각성",
     text: "심장이 다시 뛴다. 아니, 무언가 다른 것이 뛴다. 혈관을 따라 낯선 힘이 쏟아진다.\n\n당신은 일어선다.",
     choices: [
-      { text: "온몸이 불길처럼 타오른다", e: { fire: 3 }, next: "first_fight" },
-      { text: "살갗 위로 전류가 튄다", e: { bolt: 3 }, next: "first_fight" },
-      { text: "숨결이 하얗게 얼어붙는다", e: { ice: 3 }, next: "first_fight" },
-      { text: "피부가 강철처럼 단단해진다", e: { steel: 3 }, next: "first_fight" },
-      { text: "수많은 목소리가 머릿속에 울린다", e: { spirit: 3 }, next: "first_fight" }
+      { text: "온몸이 불길처럼 타오른다", e: { fire: 4 }, next: "first_fight" },
+      { text: "살갗 위로 전류가 튄다", e: { bolt: 4 }, next: "first_fight" },
+      { text: "숨결이 하얗게 얼어붙는다", e: { ice: 4 }, next: "first_fight" },
+      { text: "피부가 강철처럼 단단해진다", e: { steel: 4 }, next: "first_fight" },
+      { text: "수많은 목소리가 머릿속에 울린다", e: { spirit: 4 }, next: "first_fight" }
     ]
   },
+  // ---------- 6. 첫 싸움 (직업) ----------
   first_fight: {
     title: "첫 싸움",
     text: "괴수가 다시 덤벼든다. 하지만 이번엔 보인다. 놈의 움직임이, 빈틈이, 그리고 내 안의 힘을 쓰는 법이.",
     choices: [
-      { text: "맨몸으로 파고들어 주먹을 꽂는다", g: { fighter: 2 }, c: { monk: 3 }, next: "aftermath" },
-      { text: "거리를 벌리고 힘을 쏘아 보낸다", g: { mage: 1, shooter: 1, esper: 1 }, c: { elementalist: 1, telekinetic: 1 }, next: "aftermath" },
-      { text: "그림자처럼 등 뒤로 돌아 급소를 찌른다", g: { shadow: 3 }, c: { assassin: 2 }, next: "aftermath" },
-      { text: '{friend}와 사람들에게 외친다. "내가 신호하면 동시에!"', g: { support: 2, summon: 1 }, c: { bard: 2 }, t: { charisma: 1 }, next: "aftermath" },
-      { text: '괴수의 눈을 똑바로 보며 "멈춰"라고 명령한다', g: { esper: 2, summon: 1 }, c: { telepath: 1, tamer: 1 }, next: "aftermath" }
+      { text: "맨몸으로 파고들어 주먹을 꽂는다", g: { fighter: 2 }, c: { monk: 3 }, next: "rooftop" },
+      { text: "부러진 신호등 기둥을 창처럼 꼬나쥔다", g: { fighter: 2 }, c: { lancer: 3 }, next: "rooftop" },
+      { text: "거리를 벌리고 힘을 쏘아 보낸다", g: { mage: 1, shooter: 1 }, c: { elementalist: 2, archer: 1 }, next: "rooftop" },
+      { text: "그림자처럼 등 뒤로 돌아 급소를 찌른다", g: { shadow: 2 }, c: { assassin: 3 }, next: "rooftop" },
+      { text: '{friend}와 사람들에게 외친다. "내가 신호하면 동시에!"', g: { support: 2 }, c: { bard: 3 }, t: { charisma: 1 }, friend: 10, next: "night_dream" },
+      { text: '괴수의 눈을 똑바로 보며 "멈춰"라고 명령한다', g: { esper: 1, summon: 1 }, c: { telepath: 2, tamer: 2 }, next: "night_dream" },
+      { text: "손바닥 위로 빛을 모아 방패처럼 펼친다", g: { guard: 2 }, c: { paladin: 3 }, next: "night_dream" },
+      { text: "손을 뻗자 부서진 차가 허공으로 떠오른다", g: { esper: 2 }, c: { telekinetic: 3 }, next: "night_dream" }
     ]
   },
-  aftermath: {
-    title: "쓰러진 괴수",
-    text: "괴수가 무너진다. 거리가 조용해진다. 아이가 울음을 터뜨리고, {friend}가 다리에 힘이 풀려 주저앉는다.\n\n멀리서 협회 진압팀의 헬기 소리가 들린다. 손이 떨린다. 이게 내가 한 일인가.",
-    choices: [
-      { text: "{friend}에게 다가가 손을 내민다", t: { charisma: 1 }, friend: 15, next: "hospital" },
-      { text: "괴수의 사체에서 빛나는 코어를 뽑아 든다", t: { merchant: 1 }, g: { shadow: 1 }, next: "hospital" },
-      { text: "쓰러진 헌터에게 달려간다", g: { support: 1 }, c: { healer: 1, priest: 2 }, next: "hospital" }
-    ]
-  },
-  hospital: {
-    title: "헌터 전문 병원",
-    text: '하얀 천장. 소독약 냄새. 옆 침대에서 붕대를 감은 노인이 웃는다.\n\n"며칠 만에 깼구먼. 젊은이 덕에 우리 손주가 살았어. 각성 직후엔 몸이 제멋대로일 거야. 잘 다스려."',
-    choices: [
-      { text: "노인에게 에테르 다스리는 법을 묻는다", talent: 1, t: { mana_sense: 1 }, g: { east: 1 }, next: "night_dream" },
-      { text: "링거를 뽑고 바로 몸을 움직여 본다", t: { reckless: 1, iron_body: 1 }, g: { fighter: 1 }, next: "night_dream" },
-      { text: "창밖을 보며 조용히 생각을 정리한다", t: { loner: 1 }, g: { mage: 1 }, next: "night_dream" }
-    ]
-  },
+  // ---------- 7. 희귀 직업 갈래 ----------
   night_dream: {
     title: "병실의 밤",
-    text: "그날 밤, 이상한 꿈을 꾼다. 끝없는 벌판에 무언가가 서 있다. 그것이 당신을 향해 천천히 고개를 돌린다.",
+    text: "헌터 전문 병원. 며칠 만에 깨어난 그날 밤, 이상한 꿈을 꾼다. 끝없는 벌판에 무언가가 서 있다. 그것이 당신을 향해 천천히 고개를 돌린다.",
     choices: [
-      { text: "빛으로 된 짐승. 다가와 손을 핥는다", e: { bolt: 1 }, g: { summon: 3 }, c: { summoner: 2, tamer: 2 }, next: "rooftop" },
-      { text: "방울을 든 무녀. 춤을 추며 무언가를 부른다", e: { spirit: 2 }, g: { east: 3 }, c: { shaman: 3 }, next: "rooftop" },
-      { text: "거꾸로 도는 거대한 시계", e: { ice: 1, bolt: 1 }, g: { mage: 2, esper: 1 }, c: { chronomancer: 3, seer: 2 }, talent: 1, next: "rooftop" },
-      { text: "구름을 뚫고 선 거인", e: { steel: 2 }, g: { guard: 3 }, c: { giant: 3 }, t: { iron_body: 1 }, next: "rooftop" },
-      { text: "해골들이 무릎 꿇은 왕좌", e: { spirit: 1, ice: 1 }, g: { summon: 2, mage: 1 }, c: { necromancer: 3, warlock: 2 }, next: "rooftop" }
+      { text: "빛으로 된 짐승. 다가와 손을 핥는다", g: { summon: 2 }, c: { summoner: 3, tamer: 1 }, next: "verdict" },
+      { text: "방울을 든 무녀. 춤을 추며 무언가를 부른다", g: { east: 2 }, c: { shaman: 3 }, next: "verdict" },
+      { text: "거꾸로 도는 거대한 시계", g: { mage: 2 }, c: { chronomancer: 4 }, talent: 1, next: "verdict" },
+      { text: "구름을 뚫고 선 거인", g: { guard: 2 }, c: { giant: 4 }, t: { iron_body: 1 }, next: "verdict" },
+      { text: "해골들이 무릎 꿇은 왕좌", g: { summon: 2 }, c: { necromancer: 4 }, next: "verdict" },
+      { text: "검은 계약서를 내미는 그림자", g: { mage: 2 }, c: { warlock: 4 }, t: { cursed: 1 }, next: "verdict" },
+      { text: "아직 오지 않은 내일이 보이는 눈동자", g: { esper: 2 }, c: { seer: 4 }, t: { lucky: 1 }, next: "verdict" },
+      { text: "빛의 날개를 펼친 누군가가 손을 얹는다", g: { support: 2 }, c: { priest: 3 }, next: "verdict" }
     ]
   },
   rooftop: {
     title: "병원 옥상",
-    text: "퇴원 전날 밤, 몰래 옥상에 올라간다. 아무도 없다. 손을 펼친다. 이번엔 의지대로 힘을 꺼내 볼 생각이다.",
+    text: "퇴원 전날 밤, 몰래 병원 옥상에 올라간다. 아무도 없다. 손을 펼친다. 이번엔 의지대로 힘을 꺼내 볼 생각이다.",
     choices: [
-      { text: "두 손에 칼날 같은 기운을 모은다", g: { fighter: 2 }, c: { dualblade: 3, swordmonk: 2 }, next: "friend_visit" },
-      { text: "멀리 옥탑 물탱크를 겨눠 한 점으로 쏜다", g: { shooter: 3 }, c: { archer: 2, sniper: 3 }, next: "friend_visit" },
-      { text: "그림자 속으로 녹아들었다 나온다", g: { shadow: 2, esper: 1 }, c: { teleporter: 3, assassin: 1 }, next: "friend_visit" },
-      { text: "손끝에서 녹색 독기가 피어오른다", g: { shadow: 3 }, c: { poisoner: 3 }, next: "friend_visit" },
-      { text: "빈 공간에 빛의 벽을 세운다", g: { mage: 2, guard: 1 }, c: { warder: 3 }, next: "friend_visit" },
-      { text: "주머니 속 약병들이 반응하며 끓어오른다", g: { support: 2 }, c: { alchemist: 3 }, t: { mana_sense: 1 }, next: "friend_visit" }
+      { text: "두 손에 칼날 같은 기운을 모은다", g: { fighter: 2 }, c: { dualblade: 4 }, next: "verdict" },
+      { text: "맨손에 검기를 두르고 정좌한다", g: { east: 2 }, c: { swordmonk: 4 }, next: "verdict" },
+      { text: "멀리 옥탑 물탱크를 겨눠 한 점으로 쏜다", g: { shooter: 2 }, c: { sniper: 4 }, next: "verdict" },
+      { text: "그림자 속으로 녹아들었다 반대편에서 나온다", g: { esper: 2 }, c: { teleporter: 4 }, next: "verdict" },
+      { text: "손끝에서 녹색 독기가 피어오른다", g: { shadow: 2 }, c: { poisoner: 4 }, next: "verdict" },
+      { text: "빈 공간에 빛의 벽을 세운다", g: { mage: 2 }, c: { warder: 4 }, next: "verdict" },
+      { text: "주머니 속 약병들이 반응하며 끓어오른다", g: { support: 2 }, c: { alchemist: 4 }, t: { mana_sense: 1 }, next: "verdict" },
+      { text: "빈 손에 부적 한 장이 저절로 그려진다", g: { east: 2 }, c: { taoist: 3 }, next: "verdict" }
     ]
   },
-  friend_visit: {
-    title: "병문안",
-    text: '{friend}가 귤 한 봉지를 들고 왔다. 눈이 퉁퉁 부어 있다.\n\n"너 진짜… 바보야? 죽는 줄 알았잖아." 그러다 작게 덧붙인다. "…고마워. 근데 이제 너 헌터 되는 거야?"',
-    choices: [
-      { text: '"응. 이번엔 내가 지킬 차례야."', friend: 20, t: { charisma: 1 }, next: "measure" },
-      { text: '"모르겠어. 좀 무서워."', friend: 10, talent: 1, next: "measure" },
-      { text: '"너도 각성하면 같이 하자."', friend: 25, g: { summon: 1, support: 1 }, next: "measure" }
-    ]
-  },
-  measure: {
-    title: "관리국 측정실",
-    text: '국가 각성자 관리국 지부. 원통형 측정기 안에 들어선다. 기술자가 말한다. "힘 빼시고요. 에테르를 자연스럽게 흘려 보내세요."\n\n유리 너머로 수십 명의 신규 각성자가 순번을 기다린다.',
-    choices: [
-      { text: "숨을 고르고 차분히 흘려 보낸다", talent: 1, next: "verdict" },
-      { text: "있는 힘껏 쏟아붓는다", luck: 1, t: { reckless: 1 }, next: "measure_burst" },
-      { text: "일부러 힘을 숨긴다", t: { lucky: 1 }, g: { shadow: 1 }, next: "verdict" }
-    ]
-  },
-  measure_burst: {
-    title: "측정기 폭주",
-    text: '측정기 계기판이 붉게 치솟더니 퍽 소리와 함께 화면이 꺼진다. 기술자들이 웅성거린다.\n\n"이거… 재측정해야겠는데요? 아니, 잠깐만. 이 수치 다시 띄워 봐."',
-    choices: [
-      { text: "태연한 척한다", luck: 2, next: "verdict" },
-      { text: '"죄송합니다…" 고개를 숙인다', talent: 1, next: "verdict" }
-    ]
-  },
+  // ---------- 8. 관리국 판정 (재능·특성) ----------
   verdict: {
-    title: "판정",
-    text: '심사관이 결과지를 넘긴다. "축하합니다. 정식 각성자로 등록됩니다. 등급은 F. 다들 F에서 시작해요."\n\n그가 펜을 멈춘다. "마지막 질문입니다. 헌터가 되려는 이유가 뭡니까?"',
+    title: "관리국 판정",
+    text: '국가 각성자 관리국 지부. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}가 눈이 퉁퉁 부은 채 손을 흔든다.\n\n심사관이 말한다. "등급은 F부터 시작합니다. 마지막으로, 헌터가 되려는 이유가 뭡니까?"',
     choices: [
-      { text: '"사람을 지키고 싶어서요."', t: { charisma: 1 }, g: { guard: 1 }, next: "first_morning" },
-      { text: '"돈이요. 솔직히."', t: { merchant: 2 }, next: "first_morning" },
-      { text: '"얼마나 강해질 수 있는지 알고 싶어서요."', talent: 1, t: { berserk: 1 }, g: { fighter: 1 }, next: "first_morning" },
-      { text: '"게이트가 왜 열렸는지 알아내려고요."', t: { mana_sense: 1 }, g: { mage: 1, esper: 1 }, next: "first_morning" }
+      { text: '숨을 고르고 차분히 에테르를 흘려 보낸다. "사람을 지키고 싶어서요."', talent: 1, t: { charisma: 1 }, friend: 15, next: null },
+      { text: "측정기에 있는 힘껏 쏟아붓는다. 계기판이 터진다", luck: 2, t: { reckless: 1, berserk: 1 }, next: null },
+      { text: '일부러 힘을 숨긴다. "돈이요. 솔직히."', t: { merchant: 2, lucky: 1 }, next: null },
+      { text: '"게이트가 왜 열렸는지 알아내려고요."', talent: 1, t: { mana_sense: 1, genius: 1 }, next: null },
+      { text: '유리 너머 {friend}를 본다. "저 녀석 옆에 서 있으려고요."', t: { charisma: 1, iron_body: 1 }, friend: 25, next: null }
     ]
-  },
-  first_morning: {
-    title: "첫 아침",
-    text: '협회 등록증이 나왔다. 손바닥만 한 카드에 이름과 F라는 글자가 박혀 있다.\n\n휴대폰이 울린다. {friend}다. "오늘 첫 출근이지? 파이팅. 살아서 와."\n\n문을 연다. 게이트가 숨 쉬는 도시로.',
-    choices: [{ text: "첫발을 내딛는다", next: null }]
   }
 };
-const PROLOGUE_START = { chaebol: "chaebol_1", orphan: "orphan_1", soldier: "soldier_1", subject: "subject_1", student: "student_1" };
+const PRO_INTRO = (title, text, next, ch) => ({
+  title,
+  text,
+  choices: ch.map(([t, e, g, c, tr, x]) => __spreadProps(__spreadValues(__spreadValues(__spreadValues({ text: t, e: { [e]: 1 }, g }, c ? { c } : {}), tr ? { t: tr } : {}), x || {}), { next }))
+});
+Object.assign(PROLOGUE, {
+  // ===== 재벌가 자제 (강남) =====
+  chaebol_2: PRO_INTRO("귀국", '런던에서 6년. 귀국 다음 날, 집안 사람들은 아무도 공항에 나오지 않았다. 비서가 건넨 쪽지에는 "저녁 7시, 이사회 만찬"이라고만 적혀 있다.\n\n짐도 풀기 전에 {friend}이(가) 문자를 보낸다. "왔으면 연락을 하지! 오늘 강변 불꽃 축제야. 나와."', "gb_festival", [
+    ["만찬을 건너뛰고 {friend}에게 간다", "fire", { fighter: 1, support: 1 }, null, { charisma: 1 }, { friend: 5 }],
+    ["만찬에 나가 삼촌들의 눈빛을 하나하나 읽는다", "ice", { esper: 1, shadow: 1 }, { telepath: 1 }, { mana_sense: 1 }],
+    ["유학 시절 배운 펜싱 감각을 떠올린다", "bolt", { fighter: 2 }, { swordsman: 1, dualblade: 1 }, { quick: 1 }],
+    ["아무에게도 연락하지 않고 혼자 한강을 걷는다", "spirit", { mage: 1, east: 1 }, null, { loner: 1 }]
+  ]),
+  chaebol_3: PRO_INTRO("에테르 경매장", '청담동 지하 경매장. 조명이 꺼지고, 유리관 속 붉은 코어 하나가 무대에 오른다. "A급 화염룡의 심장. 시작가 40억."\n\n아버지 대신 앉은 자리. 패들을 쥔 손에 땀이 찬다. 그때 유리관 속 코어가 당신 쪽으로 맥박치듯 빛난다.', "gb_market", [
+    ["패들을 높이 든다. 저건 내 것이어야 한다", "fire", { mage: 1, fighter: 1 }, null, { reckless: 1 }],
+    ["입찰가를 계산하며 상대들의 지갑을 가늠한다", "steel", { support: 1, guard: 1 }, { alchemist: 1 }, { merchant: 2 }],
+    ["코어의 맥박 소리에 귀를 기울인다", "spirit", { esper: 2 }, { seer: 1 }, { mana_sense: 1 }],
+    ["경매장 뒷문의 경비 배치를 눈여겨본다", "ice", { shadow: 2 }, { thief: 1 }, { quick: 1 }]
+  ]),
+  chaebol_4: PRO_INTRO("한강 요트 파티", '사촌이 연 요트 파티. 샴페인 잔이 부딪히고, 누군가 B급 헌터 연예인과 셀카를 찍는다. 갑판 끝에서 {friend}이(가) 어색하게 서 있다. 당신이 초대한 유일한 손님이다.\n\n"야, 나 여기 있어도 돼?"', "gb_festival", [
+    ["{friend} 옆에 서서 같이 야경을 본다", "spirit", { support: 2 }, { bard: 1 }, { charisma: 1 }, { friend: 10 }],
+    ["헌터 연예인에게 다가가 대놓고 실력을 묻는다", "fire", { fighter: 2 }, { berserker: 1 }, { reckless: 1 }],
+    ["사촌의 거래 이야기를 엿듣는다", "bolt", { shadow: 1, esper: 1 }, null, { merchant: 1 }],
+    ["물 아래에서 무언가 꿈틀거리는 걸 본다", "ice", { summon: 1, mage: 1 }, { tamer: 1 }, { mana_sense: 1 }]
+  ]),
+  chaebol_5: PRO_INTRO("후계 구도", '이복형이 이사회에서 웃으며 말한다. "막내는 아직 어리잖아요. 백호 시큐리티는 제가 맡겠습니다."\n\n회의가 끝나고, 형의 경호원이 엘리베이터 앞을 막아선다. "오늘은 지하철로 가시죠, 도련님. 차가 없답니다."', "gb_subway", [
+    ["경호원을 똑바로 보며 비키라고 한다", "steel", { guard: 1, fighter: 1 }, { paladin: 1 }, { iron_body: 1 }],
+    ["웃으며 지하철을 탄다. 갚아 줄 날은 따로 있다", "ice", { shadow: 2 }, { assassin: 1 }, { loner: 1 }],
+    ['형에게 쪽지를 남긴다. "다음 이사회에서 봐요."', "bolt", { support: 1, shooter: 1 }, null, { charisma: 1 }],
+    ["어머니가 남긴 부적 지갑을 꽉 쥔다", "spirit", { east: 2 }, { taoist: 1 }, null, { luck: 1 }]
+  ]),
+  chaebol_6: PRO_INTRO("재단 봉사", '가문 재단의 홍보 행사. 소아 병동에 장난감을 나눠 주고 사진을 찍으면 끝이다. 그런데 창가 침대의 아이가 사진기 대신 당신을 빤히 본다.\n\n"형아는… 누나는… 아니, 헌터예요?" 아이의 팔에는 게이트 화상 자국이 있다.', "gb_hospital", [
+    ["카메라를 치우고 아이 옆에 앉는다", "spirit", { support: 2 }, { healer: 1, priest: 1 }, { charisma: 1 }],
+    ['"아직은. 근데 될 거야." 약속한다', "fire", { fighter: 1, guard: 1 }, { paladin: 1 }, { berserk: 1 }],
+    ["화상 자국의 치료 기록을 몰래 들여다본다", "ice", { mage: 1, support: 1 }, { alchemist: 1 }, { genius: 1 }],
+    ["행사가 끝나자마자 차에 오른다", "steel", { guard: 1, shadow: 1 }, null, { loner: 1 }]
+  ]),
+  chaebol_7: PRO_INTRO("비밀 훈련장", '집에는 요가 학원에 간다고 했다. 실제로는 역삼동 지하의 사설 헌터 훈련장. 은퇴한 A급 교관이 목검으로 당신의 정강이를 친다.\n\n"돈 많은 애들은 사흘 버티면 오래 버틴 거야. 넌 몇 주째지?"', "gate_break", [
+    ['"석 달째요." 다시 목검을 든다', "steel", { fighter: 2 }, { swordsman: 2 }, { iron_body: 1 }],
+    ["교관의 발놀림을 그대로 따라 한다", "bolt", { fighter: 1, shadow: 1 }, { dualblade: 1 }, { quick: 1 }],
+    ["사격장 쪽에서 들리는 총성이 더 끌린다", "ice", { shooter: 2 }, { sniper: 1 }, null],
+    ["교관이 명상하는 걸 보고 옆에 앉는다", "spirit", { east: 1, mage: 1 }, { swordmonk: 1 }, { mana_sense: 1 }]
+  ]),
+  chaebol_8: PRO_INTRO("상견례", '호텔 일식당. 상대 집안은 대형 길드의 오너 일가다. 어른들이 "두 집안이 손을 잡으면"으로 시작하는 말을 주고받는다. 맞은편의 정략 상대도 당신만큼 지루한 얼굴이다.\n\n휴대폰이 진동한다. {friend}의 문자다. "너희 집 단지 앞 하늘 봤어?"', "gb_apartment", [
+    ['"저 이 결혼 안 합니다." 일어선다', "fire", { fighter: 1, guard: 1 }, null, { reckless: 1, berserk: 1 }],
+    ['상대에게 몰래 쪽지를 건넨다. "같이 나갈래요?"', "bolt", { support: 1, shadow: 1 }, { bard: 1 }, { charisma: 1 }],
+    ["조용히 웃으며 끝까지 자리를 지킨다", "ice", { mage: 1, guard: 1 }, { warder: 1 }, { merchant: 1 }],
+    ["창밖 하늘의 빛이 마음에 걸린다", "spirit", { esper: 1, mage: 1 }, { seer: 1 }, { mana_sense: 1 }]
+  ]),
+  chaebol_9: PRO_INTRO("압류 딱지", '아버지 회사가 부도났다. 펜트하우스 가구마다 빨간 압류 딱지가 붙는다. 어제까지 굽신대던 집사들이 한 명씩 짐을 싼다.\n\n남은 건 카드 한 장과, 끝까지 남은 {friend}의 전화 한 통. "우리 집 와. 라면은 있어."', "gb_market", [
+    ["{friend}네 집으로 간다. 자존심은 나중 문제다", "spirit", { support: 1, summon: 1 }, null, { charisma: 1 }, { friend: 10 }],
+    ["압류 전에 금고 속 유물 하나를 챙겨 나온다", "bolt", { shadow: 2 }, { thief: 1 }, { lucky: 1 }],
+    ["채권자들 앞에서 아버지를 대신해 고개를 든다", "steel", { guard: 2 }, { guardian: 1 }, { iron_body: 1 }],
+    ["헌터 등록 안내서를 검색한다. 돈은 다시 벌면 된다", "fire", { fighter: 1, shooter: 1 }, null, { merchant: 1 }]
+  ]),
+  chaebol_10: PRO_INTRO("창업주의 유언", '할머니의 병실. 백호그룹을 세운 사람이 산소 호흡기 너머로 손짓한다. 다른 손주들은 복도에서 변호사와 이야기 중이다.\n\n"얘야, 우리 집안 사람들은 다 돈을 봐. 너는… 사람을 봐라." 할머니가 낡은 호신 부적 하나를 쥐여 준다.', "gb_hospital", [
+    ["부적을 목에 건다", "spirit", { east: 2 }, { shaman: 1 }, { mana_sense: 1 }],
+    ["할머니 손을 잡고 마지막까지 곁을 지킨다", "ice", { support: 2 }, { priest: 1 }, { charisma: 1 }, { talent: 1 }],
+    ["복도로 나가 변호사들을 쫓아낸다", "fire", { guard: 1, fighter: 1 }, null, { berserk: 1 }],
+    ["유언장 사본을 몰래 찍어 둔다", "bolt", { shadow: 1, esper: 1 }, null, { quick: 1 }]
+  ]),
+  // ===== 보육원 출신 (전주) =====
+  orphan_2: PRO_INTRO("배달 라이더", '하루 마흔 건. 비 오는 날은 단가가 500원 오른다. 헬멧 속으로 빗물이 샌다. 시장 골목 순대국집 사장님이 늘 하던 대로 국물 한 그릇을 쥐여 준다.\n\n"오늘은 일찍 들어가라. 하늘이 수상하다." 다음 배달지는 시장 한복판이다.', "gb_market", [
+    ["콜 하나만 더. 오토바이 시동을 건다", "bolt", { shadow: 1, fighter: 1 }, null, { quick: 2 }],
+    ["국물을 다 비우고 사장님께 꾸벅 인사한다", "spirit", { support: 2 }, null, { charisma: 1 }],
+    ["골목 지름길을 머릿속에 다시 그린다", "ice", { shadow: 2 }, { thief: 1 }, { lucky: 1 }],
+    ["빗속에서 헬멧을 벗고 하늘을 노려본다", "fire", { fighter: 2 }, { berserker: 1 }, { reckless: 1 }]
+  ]),
+  orphan_3: PRO_INTRO("고물상", '보육원을 나와 고물상 할아버지 밑에서 일한 지 1년. 오늘 들어온 폐기물 더미에 깨진 헌터 장비가 섞여 있다. 금이 간 방패, 탄창 빠진 권총, 녹슨 부적 상자.\n\n할아버지가 말한다. "쓸 만한 거 하나 골라 가. 월급 대신이다."', "gate_break", [
+    ["금이 간 방패를 고친다", "steel", { guard: 2 }, { guardian: 1 }, { iron_body: 1 }],
+    ["권총을 분해해서 닦는다", "bolt", { shooter: 2 }, { gunslinger: 1 }, { genius: 1 }],
+    ["녹슨 부적 상자를 연다", "spirit", { east: 2 }, { taoist: 1 }, { mana_sense: 1 }],
+    ["장비보다 고철 값이 낫다. 몽땅 판다", "ice", { support: 1, shadow: 1 }, { alchemist: 1 }, { merchant: 2 }]
+  ]),
+  orphan_4: PRO_INTRO("퇴소하는 날", "열아홉 살. 보육원을 떠나는 날이다. 자립정착금 통장 하나와 이불 보따리. 원장 할머니가 대문 앞에서 끝내 울음을 참는다.\n\n새로 얻은 원룸은 낡은 아파트 단지 꼭대기 층. {friend}이(가) 이삿짐을 같이 들어 준다.", "gb_apartment", [
+    ["돌아보지 않고 걷는다. 울면 못 간다", "ice", { shadow: 1, mage: 1 }, null, { loner: 1 }],
+    ["동생들 한 명 한 명을 안아 준다", "spirit", { support: 2 }, { bard: 1 }, { charisma: 1 }],
+    ['"돈 벌어서 꼭 다시 올게요." 약속한다', "fire", { fighter: 2 }, null, { berserk: 1 }, { talent: 1 }],
+    ["이삿짐을 혼자 다 짊어진다", "steel", { guard: 2 }, { giant: 1 }, { iron_body: 1 }, { friend: 5 }]
+  ]),
+  orphan_5: PRO_INTRO("한옥마을 기념품 가게", "주말 한옥마을은 관광객으로 붐빈다. 가게 사장님은 손님 앞에서만 웃는다. 진열대 구석, 아무도 사지 않는 낡은 방울 하나가 오늘따라 혼자 울린다.\n\n밖에서는 등불 축제 준비가 한창이다.", "gb_festival", [
+    ["방울을 집어 든다. 손끝이 찌릿하다", "spirit", { east: 2 }, { shaman: 2 }, null],
+    ["관광객에게 한옥 이야기를 맛깔나게 풀어 판다", "fire", { support: 1, esper: 1 }, { bard: 1 }, { charisma: 1, merchant: 1 }],
+    ["사장님의 장부가 이상하다는 걸 눈치챈다", "ice", { mage: 1, shadow: 1 }, null, { genius: 1 }],
+    ["축제 무대 설치를 도우러 나간다", "steel", { guard: 1, fighter: 1 }, null, { iron_body: 1 }]
+  ]),
+  orphan_6: PRO_INTRO("친부모의 소식", '모르는 번호로 전화가 왔다. "대학병원 사회복지팀입니다. 친어머니 되시는 분이… 많이 위독하세요. 찾고 계셨답니다."\n\n19년 동안 한 번도 찾지 않던 사람이다. {friend}이(가) 말없이 버스 시간표를 찾아 준다.', "gb_hospital", [
+    ["병원으로 간다. 얼굴이라도 보고 싶다", "spirit", { support: 1, esper: 1 }, { telepath: 1 }, { charisma: 1 }],
+    ["전화를 끊는다. 내 가족은 보육원에 있다", "ice", { shadow: 1, mage: 1 }, null, { loner: 1 }],
+    ["병원 앞까지 가서 한참을 서성인다", "bolt", { summon: 1, esper: 1 }, null, { mana_sense: 1 }],
+    ["따지고 싶은 말을 수첩에 잔뜩 적어 간다", "fire", { fighter: 1, shooter: 1 }, null, { reckless: 1 }]
+  ]),
+  orphan_7: PRO_INTRO("태권도장", '보육원 시절부터 다닌 태권도장. 이제는 사범 보조로 아이들을 가르친다. 관장님이 기왓장 다섯 장을 쌓으며 말한다.\n\n"체육대회 시범이다. 근처 학교 운동장. 실수하면 애들 앞에서 망신이야."', "gb_school", [
+    ["기왓장을 일곱 장으로 늘린다", "fire", { fighter: 2 }, { monk: 2 }, { berserk: 1 }],
+    ["아이들 줄을 세우고 하나하나 자세를 잡아 준다", "steel", { guard: 1, support: 1 }, { paladin: 1 }, { charisma: 1 }],
+    ["돌려차기 연습만 백 번 더 한다", "bolt", { fighter: 1, shadow: 1 }, { lancer: 1 }, { quick: 1 }],
+    ["호흡과 단전 수련법을 따로 묻는다", "spirit", { east: 2 }, { swordmonk: 1 }, { mana_sense: 1 }]
+  ]),
+  orphan_8: PRO_INTRO("병원비", '보육원 막내 지우가 원인 모를 열에 시달린다. 에테르 과민증. 치료제는 한 병에 80만 원. 통장에는 23만 원.\n\n응급실 복도에서 {friend}이(가) 편의점 김밥을 내민다. "일단 먹어. 방법은 같이 찾자."', "gb_hospital", [
+    ["지우 곁에서 밤새 이마를 식혀 준다", "ice", { support: 2 }, { healer: 2 }, null, { friend: 5 }],
+    ["사채 전단지를 집어 든다", "fire", { shadow: 1, fighter: 1 }, null, { reckless: 1, cursed: 1 }],
+    ["약제실 재고 목록을 훔쳐본다", "bolt", { shadow: 1, support: 1 }, { alchemist: 1, poisoner: 1 }, { quick: 1 }],
+    ["병원 기도실에 처음으로 들어가 본다", "spirit", { support: 1, east: 1 }, { priest: 1 }, null, { luck: 1 }]
+  ]),
+  orphan_9: PRO_INTRO("뒷골목", '"보육원 애들은 손버릇이 나쁘다니까." 편의점 점장이 CCTV도 안 보고 당신을 범인으로 몬다. 해고 통보.\n\n밤거리를 걷는데, 골목 안쪽에서 진짜 범인 셋이 낄낄대며 담배를 나눠 피운다.', "gate_break", [
+    ["곧장 걸어가 멱살을 잡는다", "fire", { fighter: 2 }, { berserker: 1 }, { berserk: 1 }],
+    ["휴대폰으로 녀석들의 자백을 녹음한다", "bolt", { shooter: 1, shadow: 1 }, null, { quick: 1 }],
+    ["그냥 지나친다. 싸워 봐야 내 손해다", "ice", { shadow: 1, mage: 1 }, null, { loner: 1 }],
+    ["맞아도 쓰러지지 않을 각오로 막아선다", "steel", { guard: 2 }, null, { iron_body: 2 }]
+  ]),
+  orphan_10: PRO_INTRO("원장 할머니", '원장 할머니의 장례식. 조문객은 대부분 보육원을 거쳐 간 아이들이다. 헌터가 된 형도, 경찰이 된 누나도 왔다.\n\n영정 앞에서 할머니가 늘 하던 말이 떠오른다. "우리 집 애들은 남을 지키는 애들로 크는 거여."', "gb_apartment", [
+    ["상주 자리를 지키며 조문객을 맞는다", "steel", { guard: 1, support: 1 }, { guardian: 1 }, { charisma: 1 }],
+    ["헌터가 된 형에게 각성하는 법을 묻는다", "fire", { fighter: 1, shooter: 1 }, null, { berserk: 1 }, { talent: 1 }],
+    ["할머니가 아끼던 묵주를 손에 감는다", "spirit", { support: 1, east: 1 }, { priest: 1 }, null],
+    ["장례식장 뒤에서 혼자 운다. 아무도 못 보게", "ice", { mage: 1, shadow: 1 }, null, { loner: 1 }]
+  ]),
+  // ===== 특수부대 전역 (인천) =====
+  soldier_2: PRO_INTRO("UDT의 바다", '전역 한 달 전, 인천 앞바다 야간 침투 훈련. 수심 20미터, 손전등 불빛 너머로 무언가 거대한 눈이 떴다 감겼다. 보고서에는 "이상 없음"이라고 썼다.\n\n전역하고 처음 맞는 주말, {friend}이(가) 월미도 축제에 가자고 조른다.', "gb_festival", [
+    ["바다를 등지고 앉는다. 그 눈이 떠오른다", "ice", { mage: 1, esper: 1 }, { seer: 1 }, { mana_sense: 1 }],
+    ["{friend}와(과) 놀이기구 줄을 선다. 오늘은 쉰다", "spirit", { support: 1, summon: 1 }, null, { charisma: 1 }, { friend: 5 }],
+    ["잠수칼을 아직도 허리에 차고 다닌다", "steel", { fighter: 1, shadow: 1 }, { assassin: 1 }, { iron_body: 1 }],
+    ["다시 바다로 들어가 확인하고 싶다", "fire", { fighter: 2 }, null, { reckless: 1 }]
+  ]),
+  soldier_3: PRO_INTRO("고공 강하", "꿈에서 또 그날로 돌아간다. 고도 4천 미터, 낙하산이 펼쳐지지 않았다. 예비산을 당기기까지 3초. 그 3초 동안 바람 속에서 누군가 웃는 소리를 들었다.\n\n잠에서 깨니 창밖이 이상하게 붉다.", "gate_break", [
+    ["그 3초를 매일 다시 센다. 아직 살아 있다", "bolt", { shadow: 1, esper: 1 }, { teleporter: 1 }, { quick: 1, lucky: 1 }],
+    ["바람 속 웃음소리를 떠올린다", "spirit", { esper: 1, summon: 1 }, null, { mana_sense: 1 }],
+    ["군장을 꾸려 둔다. 습관이다", "steel", { guard: 1, shooter: 1 }, null, { iron_body: 1 }],
+    ["창문을 열고 붉은 하늘을 마주 본다", "fire", { fighter: 2 }, { lancer: 1 }, { berserk: 1 }]
+  ]),
+  soldier_4: PRO_INTRO("의무 부사관", "특전사 의무 부사관. 지혈대를 감으며 세었던 숫자들이 아직 손에 남아 있다. 하나, 둘, 셋, 살렸다. 넷, 다섯, 못 살렸다.\n\n전역 후 들어간 병원 응급실. 오늘도 사이렌이 끊이지 않는다.", "gb_hospital", [
+    ["응급실로 뛰어 들어간다", "ice", { support: 2 }, { healer: 2 }, { iron_body: 1 }],
+    ["못 살린 이름들을 하나씩 되뇐다", "spirit", { support: 1, mage: 1 }, { necromancer: 1, priest: 1 }, null],
+    ["약품 배합표를 외운다. 더 빨리, 더 정확히", "bolt", { support: 1, mage: 1 }, { alchemist: 1 }, { genius: 1 }],
+    ["수술 가위를 쥐는 손이 칼을 쥐던 손과 같다", "steel", { shadow: 1, fighter: 1 }, { poisoner: 1 }, { loner: 1 }]
+  ]),
+  soldier_5: PRO_INTRO("인질 구출", "707 대테러 특임대. 마지막 작전은 지하철 객차 인질 구출이었다. 진입 2초 전, 테러범의 눈이 보랏빛으로 빛났다. 미등록 각성자였다.\n\n전역 후에도 지하철을 탈 때마다 숨을 참는다.", "gb_subway", [
+    ["객차 출입문 위치부터 확인한다. 버릇이다", "steel", { guard: 1, shooter: 1 }, null, { iron_body: 1 }],
+    ["그때 그 각성자의 눈을 떠올린다", "spirit", { esper: 2 }, { telepath: 1 }, { mana_sense: 1 }],
+    ["권총 대신 손에 쥔 교통카드를 만지작거린다", "bolt", { shooter: 2 }, { gunslinger: 2 }, { quick: 1 }],
+    ["숨을 참지 않기로 한다. 정면으로 본다", "fire", { fighter: 1, guard: 1 }, null, { berserk: 1 }]
+  ]),
+  soldier_6: PRO_INTRO("경비업체", '전역 후 취업한 아파트 경비업체. 특수부대 출신이라며 팀장 자리를 줬지만, 하는 일은 택배 정리와 주차 단속이다.\n\n입주민 대표가 소리친다. "그 군인 출신 양반, 엘리베이터 고장은 언제 고쳐요?"', "gb_apartment", [
+    ["묵묵히 공구함을 든다", "steel", { guard: 2 }, { guardian: 1 }, { iron_body: 1 }],
+    ["단지 CCTV를 모조리 다시 배치한다", "ice", { shooter: 1, mage: 1 }, { warder: 1 }, { genius: 1 }],
+    ["관리비 횡령 정황을 찾아낸다", "bolt", { shadow: 2 }, null, { quick: 1 }],
+    ["꼬마 입주민들과 순찰을 돌며 친해진다", "spirit", { support: 1, summon: 1 }, { tamer: 1 }, { charisma: 1 }]
+  ]),
+  soldier_7: PRO_INTRO("탐색 구조대", "공군 탐색 구조대. 헬기에서 줄 하나로 내려가 사람을 끌어 올렸다. 마지막 구조 현장은 게이트 근처 산이었고, 줄 끝에 매달린 건 사람이 아니었다.\n\n오늘 아침, 그 산 쪽 하늘에서 같은 냄새가 난다.", "gate_break", [
+    ["로프와 카라비너를 챙긴다", "steel", { guard: 1, support: 1 }, { paladin: 1 }, { iron_body: 1 }],
+    ["그날 줄 끝의 그것을 떠올린다. 아직 무섭다", "ice", { mage: 1, summon: 1 }, { necromancer: 1 }, { loner: 1 }],
+    ["구조대 동기들에게 비상 연락을 돌린다", "bolt", { support: 2 }, null, { charisma: 1 }],
+    ["높은 데서 내려다보면 다 보인다. 옥상으로 간다", "fire", { shooter: 2 }, { archer: 1 }, { quick: 1 }]
+  ]),
+  soldier_8: PRO_INTRO("차이나타운 주방", '전역 후 차이나타운 중식당 주방. 칼질 하나는 부대에서 배운 것보다 빠르다. 주방장이 웍을 돌리며 말한다.\n\n"너 칼 잡는 거 보면 사람 많이 다뤄 본 손이야. 오늘은 시장 가서 재료 좀 떼 와라."', "gb_market", [
+    ["양손에 식칼을 쥐고 손목을 풀어 본다", "steel", { fighter: 2 }, { dualblade: 2 }, null],
+    ["웍의 불길을 오래 들여다본다", "fire", { mage: 1, fighter: 1 }, { elementalist: 1 }, { berserk: 1 }],
+    ["시장 상인들과 흥정하는 게 생각보다 재밌다", "spirit", { support: 1, esper: 1 }, null, { merchant: 2 }],
+    ["주방장의 말에 대꾸하지 않는다", "ice", { shadow: 2 }, { assassin: 1 }, { loner: 1 }]
+  ]),
+  soldier_9: PRO_INTRO("저격 교관", "전역 직전까지 저격 교관이었다. 800미터 밖 표적의 흔들림까지 읽던 눈. 그런데 요즘은 가끔 표적 너머의 것까지 보인다. 아직 일어나지 않은 움직임 같은 것.\n\n사격장 청소를 마치고 나오는데 하늘에 금이 가 있다.", "gate_break", [
+    ["조준경 없이도 보이는 그것을 믿어 본다", "spirit", { esper: 1, shooter: 1 }, { seer: 1 }, { mana_sense: 1 }],
+    ["숨을 멈추고 거리를 잰다. 800, 600, 400", "ice", { shooter: 2 }, { sniper: 2 }, null],
+    ["교관 시절 후배들에게 연락을 돌린다", "bolt", { support: 1, shooter: 1 }, null, { charisma: 1 }],
+    ["사격장 무기고 열쇠가 아직 주머니에 있다", "steel", { shooter: 1, guard: 1 }, { gunslinger: 1 }, { reckless: 1 }]
+  ]),
+  soldier_10: PRO_INTRO("징계", '게이트 봉쇄 작전. "민간인이 남아 있어도 철문을 닫아라." 그 명령을 어기고 문을 다시 열었다. 일곱 명이 살았고, 당신은 징계를 받고 조용히 전역했다.\n\n지하철역 앞에서 그때 살린 아이의 엄마가 알아보고 고개를 숙인다.', "gb_subway", [
+    ['"또 그 상황이 와도 똑같이 합니다."', "fire", { guard: 2 }, { paladin: 2 }, { berserk: 1 }],
+    ["쑥스럽게 손을 흔들고 지나간다", "spirit", { support: 1, guard: 1 }, null, { charisma: 1 }],
+    ["명령을 내린 지휘관의 이름을 아직 기억한다", "ice", { shadow: 2 }, null, { loner: 1 }],
+    ["그 철문의 무게를 손바닥이 기억한다", "steel", { guard: 1, fighter: 1 }, { giant: 1 }, { iron_body: 1 }]
+  ]),
+  // ===== 연구소 실험체 (대전) =====
+  subject_2: PRO_INTRO("지하 7층", '대덕 연구단지 지하 7층, "이카루스 계획". 탈출하던 밤의 기억은 조각뿐이다. 깨진 유리, 울리는 경보, 그리고 마지막 문 앞에서 당신의 손을 놓은 누군가.\n\n지금도 지하철역 계단을 내려갈 때면 숨이 막힌다.', "gb_subway", [
+    ["계단을 한 칸씩 세며 내려간다. 이겨 낸다", "steel", { guard: 1, fighter: 1 }, null, { iron_body: 1 }],
+    ["손을 놓은 그 사람이 누구였는지 떠올리려 애쓴다", "spirit", { esper: 2 }, { telepath: 1 }, { mana_sense: 1 }],
+    ["출구 위치부터 확인한다", "bolt", { esper: 1, shadow: 1 }, { teleporter: 2 }, { quick: 1 }],
+    ["지하가 싫다. 그냥 버스를 탄다", "ice", { shadow: 1, mage: 1 }, null, { loner: 1 }]
+  ]),
+  subject_3: PRO_INTRO("13번과의 약속", '옆방 피험자 13번. 벽을 두드려 모스 부호로 이야기했다. "나가면 성심당 튀김소보로 같이 먹자." 13번은 연구소 폐쇄 전날 사라졌다.\n\n빵 봉투를 들고 나오는데, 길 건너에 13번과 똑같은 바코드 흉터를 가진 사람이 지나간다.', "gate_break", [
+    ["쫓아간다", "bolt", { shadow: 1, esper: 1 }, null, { quick: 1 }],
+    ["벽을 두드리듯 손가락으로 신호를 보낸다", "spirit", { esper: 2 }, { telepath: 2 }, null],
+    ["빵 봉투를 꽉 쥐고 멀리서 지켜본다", "ice", { shadow: 2 }, null, { loner: 1 }],
+    ['불러 세운다. "13번!"', "fire", { fighter: 1, summon: 1 }, null, { reckless: 1 }]
+  ]),
+  subject_4: PRO_INTRO("도와준 연구원", '탈출한 밤, 연구원 하나가 몰래 비상문 카드를 쥐여 줬다. 그 사람은 지금 대학병원 신경과 의사다. 매달 진료라는 이름으로 당신을 만난다.\n\n"요즘 수치가 이상하게 올라가. 무슨 일 있었어?"', "gb_hospital", [
+    ["솔직히 털어놓는다. 꿈에서 목소리가 들린다고", "spirit", { esper: 1, support: 1 }, { seer: 1 }, { charisma: 1 }],
+    ["괜찮다고 거짓말한다", "ice", { shadow: 2 }, null, { loner: 1 }],
+    ["수치 그래프를 들여다보며 직접 계산해 본다", "bolt", { mage: 2 }, { chronomancer: 1 }, { genius: 1 }],
+    ["진료실 창문 유리가 손끝에서 녹아내린다", "fire", { mage: 1, esper: 1 }, { elementalist: 1 }, { reckless: 1 }]
+  ]),
+  subject_5: PRO_INTRO("위탁 가정", '연구소 폐쇄 후 배정된 위탁 가정. 아파트 12층, 다정한 부부와 열 살짜리 동생. 처음 가져 본 내 방이다.\n\n그런데 밤마다 동생이 말한다. "{name}, 너 어젯밤에 자는데 침대가 떠 있었어."', "gb_apartment", [
+    ["동생에게 비밀로 해 달라고 새끼손가락을 건다", "spirit", { support: 1, esper: 1 }, null, { charisma: 1 }],
+    ["밤마다 침대를 붙잡고 잔다. 들키면 끝이다", "steel", { guard: 1, esper: 1 }, { telekinetic: 1 }, { iron_body: 1 }],
+    ["일부러 더 띄워 본다. 얼마나 되는지", "bolt", { esper: 2 }, { telekinetic: 2 }, { reckless: 1 }],
+    ["짐을 싼다. 이 집에 폐를 끼칠 수 없다", "ice", { shadow: 1, mage: 1 }, null, { loner: 1 }]
+  ]),
+  subject_6: PRO_INTRO("감시 요원", '매달 첫째 주 화요일, 회색 양복의 관리국 요원이 찾아온다. 시장 국밥집에서 마주 앉아 같은 질문을 한다.\n\n"특이 사항은요?" "없어요." 요원이 국밥을 반쯤 남기고 일어선다. "다음 달엔 진짜 대답을 기대할게요."', "gb_market", [
+    ["요원의 뒤를 몰래 밟는다", "bolt", { shadow: 2 }, { thief: 1 }, { quick: 1 }],
+    ["요원의 생각을 읽어 보려 집중한다", "spirit", { esper: 2 }, { telepath: 1 }, { mana_sense: 1 }],
+    ["남은 국밥을 다 먹는다. 아까우니까", "steel", { guard: 1, fighter: 1 }, null, { iron_body: 1 }],
+    ["다음 달엔 진짜로 대답해 주기로 한다", "fire", { support: 1, fighter: 1 }, null, { charisma: 1 }]
+  ]),
+  subject_7: PRO_INTRO("0시 축제", '빵집 아르바이트를 마치고 나오니 0시 축제가 한창이다. 사람들 사이를 걷는데 귓가에 실험실에서 듣던 목소리가 속삭인다.\n\n"곧 열린다. 네가 문이야." 옆에서 {friend}이(가) 솜사탕을 내민다. "왜 그래, 얼굴이 하얘."', "gb_festival", [
+    ['목소리에게 마음속으로 묻는다. "넌 누구야?"', "spirit", { esper: 1, summon: 1 }, { summoner: 1 }, { mana_sense: 1 }],
+    ["{friend}의 손을 잡는다. 혼자 있기 싫다", "fire", { support: 1, guard: 1 }, null, { charisma: 1 }, { friend: 10 }],
+    ["축제장 출구 위치를 하나하나 확인한다", "ice", { shadow: 1, mage: 1 }, { warder: 1 }, { quick: 1 }],
+    ["목소리를 무시한다. 솜사탕을 받는다", "steel", { guard: 1, fighter: 1 }, null, { lucky: 1 }]
+  ]),
+  subject_8: PRO_INTRO("잃어버린 일기장", '실험 이전의 기억이 없다. 그런데 오늘 보호 시설 창고에서 자기 이름이 적힌 일기장을 찾았다. 마지막 장에는 어린 글씨로 이렇게 적혀 있다.\n\n"과학관 견학. 내일은 대학 캠퍼스에서 마술쇼를 한대."', "gb_school", [
+    ["일기장 속 캠퍼스를 찾아간다", "bolt", { mage: 1, esper: 1 }, { chronomancer: 1 }, { mana_sense: 1 }],
+    ["한 장 한 장 소리 내어 읽는다", "spirit", { mage: 1, support: 1 }, { seer: 1 }, { mana_sense: 1 }],
+    ["일기장을 덮는다. 지금의 내가 중요하다", "steel", { guard: 1, fighter: 1 }, null, { iron_body: 1 }],
+    ["일기장에 끼워진 사진 속 아이들을 찾아 나선다", "ice", { shadow: 1, esper: 1 }, null, { genius: 1 }]
+  ]),
+  subject_9: PRO_INTRO("정기 검진", '석 달에 한 번, 후유증 검진. MRI 기계 안에 누우면 실험실의 기억이 밀려온다. 오늘은 기계가 세 번이나 멈췄다.\n\n기사가 투덜댄다. "이상하네, 이 환자만 들어가면 자기장이 튀어요."', "gb_hospital", [
+    ["자기장이 튀는 순간을 느껴 본다", "bolt", { esper: 1, mage: 1 }, { elementalist: 1 }, { mana_sense: 1 }],
+    ["눈을 감고 숫자를 세며 버틴다", "steel", { guard: 2 }, null, { iron_body: 2 }],
+    ["기계 안의 차가운 공기에 몸을 맡긴다", "ice", { mage: 2 }, { warder: 1 }, null],
+    ["옆 검사실 환자의 고통이 전해진다", "spirit", { support: 1, esper: 1 }, { healer: 1 }, { charisma: 1 }]
+  ]),
+  subject_10: PRO_INTRO("책임자", "연구소 책임자 한 박사. 재판에서 무죄를 받고 지금은 대형 길드의 고문이다. 오늘 그의 강연이 있다는 기사를 봤다.\n\n주머니 속 손이 떨린다. 분노인지, 공포인지 모르겠다.", "gate_break", [
+    ["강연장 맨 앞줄에 앉는다", "fire", { fighter: 2 }, { berserker: 1 }, { berserk: 1 }],
+    ["그의 동선을 조사한다. 서두르지 않는다", "ice", { shadow: 2 }, { assassin: 2 }, { loner: 1 }],
+    ["다른 피험자들을 모아 증언을 준비한다", "spirit", { support: 1, summon: 1 }, null, { charisma: 1 }],
+    ["가지 않는다. 그 사람 때문에 내 삶을 쓰지 않겠다", "steel", { guard: 1, mage: 1 }, null, { lucky: 1 }]
+  ]),
+  // ===== 평범한 대학생 (광주) =====
+  student_2: PRO_INTRO("육상부", '체육교육과 2학년, 육상부. 100미터 기록이 석 달째 제자리다. 코치가 스톱워치를 내던진다. "너 각성자 애들이랑 같은 트랙 뛰면 꼴찌야."\n\n운동장 끝, 체육관 지붕 위로 보랏빛이 스친다.', "gb_school", [
+    ["한 번 더 뛴다. 다리가 터져도", "bolt", { fighter: 1, shadow: 1 }, null, { quick: 2 }],
+    ['코치에게 대든다. "각성자랑 왜 비교해요?"', "fire", { fighter: 2 }, { monk: 1 }, { reckless: 1 }],
+    ["창던지기 쪽으로 종목을 바꿔 볼까 생각한다", "steel", { fighter: 1, shooter: 1 }, { lancer: 2 }, null],
+    ["트랙에 누워 하늘을 본다", "spirit", { mage: 1, esper: 1 }, null, { mana_sense: 1 }]
+  ]),
+  student_3: PRO_INTRO("졸업 전시", '미대 졸업 전시 준비. 캔버스 앞에서 사흘째 붓을 못 댔다. 그리고 싶은 건 대붕괴 날의 하늘인데, 그 색을 본 적이 없다.\n\n{friend}이(가) 커피를 들고 들어온다. "쉬엄쉬엄 해. 오늘 시내에서 비엔날레 축제래."', "gb_festival", [
+    ["눈을 감고 떠오르는 색을 그냥 칠한다", "spirit", { mage: 1, esper: 1 }, { seer: 1 }, { mana_sense: 1 }],
+    ["캔버스를 찢고 처음부터 다시", "fire", { mage: 1, fighter: 1 }, { elementalist: 1 }, { berserk: 1 }],
+    ["{friend}을(를) 모델로 앉힌다", "ice", { support: 1, summon: 1 }, { bard: 1 }, null, { friend: 10 }],
+    ["붓 대신 조각칼을 든다", "steel", { fighter: 1, guard: 1 }, null, { genius: 1 }]
+  ]),
+  student_4: PRO_INTRO("에테르 공학 동아리", '공대 에테르 공학 동아리. 폐코어로 소형 발전기를 만드는 중이다. 오늘 밤, 처음으로 전구에 불이 들어왔다. 그리고 동아리방 형광등이 전부 터졌다.\n\n선배가 소리친다. "야! 차단기 내려!"', "gb_school", [
+    ["차단기 대신 코어를 맨손으로 잡는다", "bolt", { mage: 1, esper: 1 }, { elementalist: 1 }, { reckless: 1 }],
+    ["측정값을 노트에 미친 듯이 적는다", "ice", { mage: 2 }, { chronomancer: 1 }, { genius: 1 }],
+    ["후배들을 먼저 밖으로 내보낸다", "steel", { guard: 1, support: 1 }, { warder: 1 }, { charisma: 1 }],
+    ["코어 찌꺼기로 다른 걸 만들 수 있을 것 같다", "fire", { support: 1, mage: 1 }, { alchemist: 2 }, null]
+  ]),
+  student_5: PRO_INTRO("복학생", "군대를 다녀오니 동기들은 다 졸업반이다. 강의실 맨 뒷줄, 아는 얼굴이 하나도 없다. 등록금 고지서는 가방 속에서 구겨져 있다.\n\n지하철 1호선, 퇴근 시간. 옆자리 사람이 갑자기 코피를 쏟는다.", "gb_subway", [
+    ["휴지를 꺼내 건네고 고개를 받쳐 준다", "ice", { support: 2 }, { healer: 1 }, null],
+    ["비상 버튼을 누르고 승무원을 부른다", "bolt", { support: 1, guard: 1 }, null, { quick: 1 }],
+    ["그 사람 손목의 에테르 반응 팔찌를 본다", "spirit", { esper: 1, mage: 1 }, null, { mana_sense: 1 }],
+    ["군대에서 배운 대로 주변을 정리한다", "steel", { guard: 2 }, { guardian: 1 }, { iron_body: 1 }]
+  ]),
+  student_6: PRO_INTRO("휴학, 그리고 카페", '휴학계를 냈다. 양동시장 골목 작은 카페에서 하루 열 시간 일한다. 사장님은 헌터들이 단골이라며 자랑한다.\n\n오늘도 카운터 앞에서 헌터들이 떠든다. "남구 쪽 균열 수치가 미쳤대. 오늘내일 터진다."', "gb_market", [
+    ["헌터들 이야기에 귀를 쫑긋 세운다", "spirit", { esper: 1, shooter: 1 }, null, { mana_sense: 1 }],
+    ['"그거 신고 안 해요?" 끼어든다', "fire", { guard: 1, fighter: 1 }, null, { reckless: 1 }],
+    ["헌터들 주문을 외워 두고 친해진다", "bolt", { support: 1, shadow: 1 }, { bard: 1 }, { charisma: 1 }],
+    ["커피 원두 배합을 바꿔 본다. 손님들이 좋아한다", "ice", { support: 2 }, { alchemist: 1 }, { merchant: 1 }]
+  ]),
+  student_7: PRO_INTRO("간호 실습", '간호학과 실습 첫 주. 헌터 전문 병동에 배정됐다. 침대마다 붕대, 비명, 그리고 묘하게 따뜻한 에테르의 냄새.\n\n수간호사가 말한다. "여기선 겁먹으면 환자가 먼저 알아. 웃어."', "gb_hospital", [
+    ["웃는다. 손은 떨려도", "spirit", { support: 2 }, { healer: 2 }, { charisma: 1 }],
+    ["붕대 감는 손이 남들보다 두 배 빠르다", "bolt", { support: 1, shadow: 1 }, null, { quick: 1 }],
+    ["환자의 상처에서 나는 에테르 냄새를 구분해 본다", "ice", { support: 1, mage: 1 }, { alchemist: 1, poisoner: 1 }, { mana_sense: 1 }],
+    ["난동 부리는 환자를 온몸으로 붙잡는다", "steel", { guard: 2 }, null, { iron_body: 1 }]
+  ]),
+  student_8: PRO_INTRO("옆집", '대학가 원룸 단지. 옆집에는 밤마다 고양이 수십 마리가 드나드는 이상한 사람이 산다. 오늘은 그 집 문이 열려 있고, 고양이들이 일제히 당신을 본다.\n\n{friend}이(가) 속삭인다. "야, 저 집 사람 헌터래. 은퇴한."', "gb_apartment", [
+    ["고양이 한 마리를 쓰다듬는다. 따라온다", "spirit", { summon: 2 }, { tamer: 2 }, null],
+    ["문을 두드려 인사한다", "fire", { support: 1, summon: 1 }, null, { charisma: 1 }],
+    ["문틈으로 집 안을 들여다본다", "bolt", { shadow: 2 }, { thief: 1 }, { quick: 1 }],
+    ["조용히 문을 닫아 준다", "ice", { guard: 1, mage: 1 }, null, { loner: 1 }]
+  ]),
+  student_9: PRO_INTRO("밴드 공연", "밴드 동아리 정기 공연. 무대 뒤에서 기타 줄을 갈다가 손끝이 베였다. 피가 줄에 스며들자 앰프에서 이상한 소리가 난다. 화음 같기도, 울음 같기도 한.\n\n무대는 금남로 거리 축제 한복판이다.", "gb_festival", [
+    ["그 소리 그대로 첫 곡을 시작한다", "spirit", { support: 2 }, { bard: 2 }, { charisma: 1 }],
+    ["드럼 박자에 맞춰 심장이 뛴다", "fire", { fighter: 1, support: 1 }, { monk: 1 }, { berserk: 1 }],
+    ["앰프 회로를 열어 본다", "bolt", { mage: 1, shooter: 1 }, null, { genius: 1 }],
+    ["무대 공포증에 숨을 고른다", "ice", { mage: 1, esper: 1 }, null, { loner: 1 }]
+  ]),
+  student_10: PRO_INTRO("각성 준비반", '헌터 지망생 동아리 "각성 준비반". 오늘 에테르 적성 검사 결과가 나왔다. 동기들은 하나둘 "잠재 B" "잠재 C"를 받았다. 당신의 종이엔 "측정 불가".\n\n선배가 어깨를 두드린다. "기계 고장일 거야. 다음에 다시 해."', "gate_break", [
+    ["측정 불가라는 글자를 오래 바라본다", "spirit", { esper: 1, mage: 1 }, { seer: 1 }, { mana_sense: 1 }, { luck: 1 }],
+    ["동아리를 그만둔다", "ice", { shadow: 1, mage: 1 }, null, { loner: 1 }],
+    ["다음 달 재검사를 위해 체력 훈련부터 한다", "steel", { fighter: 1, guard: 1 }, null, { iron_body: 1 }],
+    ["검사 기계를 몰래 다시 켜 본다", "bolt", { shadow: 1, esper: 1 }, null, { reckless: 1 }],
+    ["선배의 방식대로 사격 동아리부터 들어간다", "fire", { shooter: 2 }, { archer: 1 }, null]
+  ]),
+  // ---------- 2. 게이트 브레이크 (장소 변형) ----------
+  gb_subway: {
+    title: "지하철역 게이트 브레이크",
+    text: "열차가 터널 한가운데서 멈춘다. 비상등이 켜지고, 앞 칸에서 비명이 번진다. 승강장 벽이 보랏빛으로 찢어졌다.\n\n{friend}의 전화가 끊긴다. 계단 아래, 엄마 손을 놓친 아이가 울고 있다. 철로 위로 무언가 기어 온다.",
+    choices: [
+      { text: "아이를 안고 계단을 거슬러 오른다", e: { steel: 1 }, g: { guard: 2 }, c: { guardian: 1 }, t: { iron_body: 1 }, next: "gear" },
+      { text: "소화기를 뽑아 괴수의 눈에 분사한다", e: { ice: 1 }, g: { fighter: 1, shooter: 1 }, t: { quick: 1 }, next: "gear" },
+      { text: '"다들 이쪽으로!" 비상구 쪽으로 사람들을 이끈다', e: { spirit: 1 }, g: { support: 2 }, t: { charisma: 1 }, next: "gear" },
+      { text: "끊어진 전선을 괴수 쪽으로 던진다", e: { bolt: 1 }, g: { mage: 1, shadow: 1 }, t: { reckless: 1 }, next: "gear" },
+      { text: "쇠파이프를 들고 괴수 앞을 막는다", e: { fire: 1 }, g: { fighter: 2 }, c: { lancer: 1 }, next: "gear" }
+    ]
+  },
+  gb_school: {
+    title: "캠퍼스 게이트 브레이크",
+    text: '운동장 한가운데 하늘이 찢어진다. 스프링클러가 터지고, 건물마다 대피 방송이 울린다. 교정에 견학 온 초등학생들이 줄지어 서 있다.\n\n{friend}이(가) 손짓한다. "강당으로! 거기가 대피소야!" 그런데 괴수 하나가 이미 강당 문 앞에 있다.',
+    choices: [
+      { text: "아이들을 등 뒤로 숨기고 막아선다", e: { steel: 1 }, g: { guard: 2 }, c: { paladin: 1 }, t: { iron_body: 1 }, next: "gear" },
+      { text: "과학관에서 본 화학약품 위치를 떠올린다", e: { ice: 1 }, g: { mage: 1, support: 1 }, c: { alchemist: 1 }, t: { genius: 1 }, next: "gear" },
+      { text: "옥상으로 올라가 괴수의 위치를 알린다", e: { bolt: 1 }, g: { shooter: 2 }, t: { quick: 1 }, next: "gear" },
+      { text: "아이들에게 노래를 부르게 하며 침착하게 이끈다", e: { spirit: 1 }, g: { support: 2 }, c: { bard: 1 }, t: { charisma: 1 }, friend: 5, next: "gear" },
+      { text: "야구 배트를 집어 든다", e: { fire: 1 }, g: { fighter: 2 }, t: { berserk: 1 }, next: "gear" }
+    ]
+  },
+  gb_market: {
+    title: "시장 게이트 브레이크",
+    text: "좌판이 뒤집히고 과일이 굴러간다. 시장 지붕 위로 보랏빛 균열이 번진다. 생선 가게 수조가 깨지며 물과 함께 이빨 달린 무언가가 쏟아진다.\n\n{friend}이(가) 상인 할머니를 부축하고 있다. 골목 안쪽에서 아이 울음소리가 들린다.",
+    choices: [
+      { text: "좌판 철판을 방패 삼아 골목으로 들어간다", e: { steel: 1 }, g: { guard: 2 }, c: { guardian: 1 }, next: "gear" },
+      { text: "가스통 밸브를 잠그러 뛰어간다", e: { fire: 1 }, g: { support: 1, fighter: 1 }, t: { reckless: 1 }, next: "gear" },
+      { text: "상인들에게 골목 지도를 그려 가며 길을 알린다", e: { spirit: 1 }, g: { support: 1, summon: 1 }, t: { charisma: 1 }, friend: 5, next: "gear" },
+      { text: "얼음 창고 문을 열어 괴수를 가둔다", e: { ice: 1 }, g: { mage: 1, shadow: 1 }, t: { genius: 1 }, next: "gear" },
+      { text: "지붕 위로 올라가 괴수를 유인한다", e: { bolt: 1 }, g: { shadow: 2 }, t: { quick: 1 }, next: "gear" }
+    ]
+  },
+  gb_hospital: {
+    title: "병원 게이트 브레이크",
+    text: '정전. 비상 발전기가 돌기까지 30초. 복도 끝 중환자실 창문이 보랏빛으로 물든다. 산소 호흡기 경보음이 일제히 울린다.\n\n{friend}이(가) 휠체어를 밀며 달려온다. "엘리베이터 멈췄어! 위층에 애들이 있어!"',
+    choices: [
+      { text: "환자를 업고 비상계단을 오른다", e: { steel: 1 }, g: { guard: 1, support: 1 }, t: { iron_body: 1 }, next: "gear" },
+      { text: "산소통 밸브를 하나하나 수동으로 연다", e: { ice: 1 }, g: { support: 2 }, c: { healer: 1 }, next: "gear" },
+      { text: "복도 끝 괴수를 향해 소독용 알코올병을 던진다", e: { fire: 1 }, g: { fighter: 1, shooter: 1 }, t: { reckless: 1 }, next: "gear" },
+      { text: "발전기실로 뛰어가 수동으로 시동을 건다", e: { bolt: 1 }, g: { mage: 1, guard: 1 }, t: { quick: 1 }, next: "gear" },
+      { text: "겁에 질린 아이들에게 괜찮다고 말해 준다", e: { spirit: 1 }, g: { support: 1, summon: 1 }, c: { priest: 1 }, t: { charisma: 1 }, friend: 5, next: "gear" }
+    ]
+  },
+  gb_festival: {
+    title: "축제 게이트 브레이크",
+    text: "불꽃이 터지던 하늘에, 불꽃이 아닌 것이 터졌다. 보랏빛 균열. 환호성이 비명으로 바뀐다. 사람들이 출구로 몰리며 서로를 밀친다.\n\n{friend}의 손이 인파 속에서 미끄러진다. 무대 앞, 미아 방송 팻말을 든 아이가 홀로 서 있다.",
+    choices: [
+      { text: "인파를 거슬러 아이에게 간다", e: { steel: 1 }, g: { guard: 2 }, t: { iron_body: 1 }, next: "gear" },
+      { text: "무대 마이크를 잡고 대피 방향을 외친다", e: { spirit: 1 }, g: { support: 2 }, c: { bard: 1 }, t: { charisma: 1 }, next: "gear" },
+      { text: "{friend}의 손을 놓치지 않고 끝까지 붙잡는다", e: { ice: 1 }, g: { guard: 1, summon: 1 }, friend: 10, next: "gear" },
+      { text: "불꽃 발사대를 괴수 쪽으로 돌린다", e: { fire: 1 }, g: { shooter: 2 }, t: { reckless: 1 }, next: "gear" },
+      { text: "인파 사이를 번개처럼 빠져나가 길을 튼다", e: { bolt: 1 }, g: { shadow: 1, fighter: 1 }, t: { quick: 1 }, next: "gear" }
+    ]
+  },
+  gb_apartment: {
+    title: "아파트 단지 게이트 브레이크",
+    text: '단지 놀이터 위 하늘이 갈라진다. 경비실 확성기가 지직거리고, 베란다마다 사람들이 고개를 내민다. 주차장 쪽에서 자동차 경보음이 줄줄이 울린다.\n\n{friend}이(가) 소리친다. "1층에 할머니랑 애 혼자 있는 집 있잖아!"',
+    choices: [
+      { text: "그 집으로 뛰어가 현관문을 부순다", e: { steel: 1 }, g: { guard: 2 }, c: { guardian: 1 }, t: { iron_body: 1 }, next: "gear" },
+      { text: "놀이터의 괴수를 향해 화분을 던진다", e: { fire: 1 }, g: { fighter: 2 }, t: { berserk: 1 }, next: "gear" },
+      { text: "단지 단톡방에 대피 경로를 올린다", e: { bolt: 1 }, g: { support: 1, shooter: 1 }, t: { quick: 1 }, next: "gear" },
+      { text: "옥상 물탱크 밸브를 열어 계단을 얼음판으로 만든다", e: { ice: 1 }, g: { mage: 1, shadow: 1 }, t: { genius: 1 }, next: "gear" },
+      { text: "짖는 개들이 한 방향을 가리킨다. 따라간다", e: { spirit: 1 }, g: { summon: 2 }, c: { tamer: 1 }, friend: 5, next: "gear" }
+    ]
+  }
+});
+const PROLOGUE_START = Object.fromEntries(["chaebol", "orphan", "soldier", "subject", "student"].map((bg) => [bg, Array.from({ length: 10 }, (_, i) => "".concat(bg, "_").concat(i + 1))]));
 function resolvePrologue(sc, rng = Math.random) {
   const top = (o, keys) => {
     let best2 = keys[0], bv = -1;
@@ -8951,6 +9177,493 @@ UI.afterCity = function(msg) {
   if (msg) this.toast(msg);
   if (!this.modalOpen()) this.processQueue();
 };
+const CREW_NAMES = ["새벽", "검은 늑대", "청람", "불꽃놀이", "은방울", "북극성", "철새", "모래시계", "반딧불", "해오름", "돌고래", "무지개 다리", "첫눈", "등대", "까마귀", "한낮"];
+const CREW_STYLES = {
+  steady: { name: "안전 제일", desc: "무리하지 않는다. 등급에 맞는 게이트만 고른다.", tier: -1, gate: 0.45, hunt: 0.2, escort: 0.1, train: 0.25 },
+  greedy: { name: "수익 우선", desc: "돈 되는 일이면 어디든 간다.", tier: 0, gate: 0.4, hunt: 0.15, escort: 0.35, train: 0.1 },
+  bold: { name: "공격적", desc: "한 단계 높은 게이트에 도전한다.", tier: 1, gate: 0.6, hunt: 0.25, escort: 0.05, train: 0.1 },
+  mentor: { name: "육성형", desc: "신입을 키우는 데 공을 들인다. 훈련이 잦다.", tier: -1, gate: 0.35, hunt: 0.15, escort: 0.05, train: 0.45 }
+};
+const CREW_SHARE = 0.75;
+Object.assign(Game.prototype, {
+  crew() {
+    return this.player.crew || null;
+  },
+  crewLeader() {
+    const c = this.crew();
+    const n = c && this.npcById(c.leader);
+    return n && n.alive ? n : null;
+  },
+  isCrewMember(n) {
+    const c = this.crew();
+    return !!(c && n && n.crewOf === c.id);
+  },
+  crewTier() {
+    const c = this.crew();
+    const L = this.crewLeader();
+    if (!c || !L) return this.player.rankIdx;
+    const base = Math.min(L.rankIdx, this.player.rankIdx + 1);
+    return Math.max(0, Math.min(6, base + CREW_STYLES[c.style].tier + (RNG.chance(0.3) ? 0 : 0)));
+  },
+  // ---------- 모집 게시판 (헌터넷) ----------
+  crewBoard(regionId) {
+    var _a, _b;
+    const key = this.monthKey();
+    (_b = (_a = this.world).crewBoards) != null ? _b : _a.crewBoards = {};
+    let b = this.world.crewBoards[regionId];
+    if (!b || key - b.key >= 2) {
+      const list = [];
+      for (let i = 0; i < 2; i++) {
+        const L = this.makeCrewListing(regionId);
+        if (L) list.push(L);
+      }
+      b = this.world.crewBoards[regionId] = { key, list };
+    }
+    b.list = b.list.filter((L) => {
+      const n = this.npcById(L.leader);
+      return n && n.alive && !n.isCompanion;
+    });
+    return b.list;
+  },
+  makeCrewListing(regionId, leaderNpc) {
+    const pr = this.player.rankIdx;
+    const used = new Set(Object.values(this.world.crewBoards || {}).flatMap((b) => b.list.flatMap((L) => [L.leader, ...L.members])));
+    const free = (n) => n.alive && !n.child && !n.isCompanion && !used.has(n.id) && n.region === regionId && n.relation > -20 && n.nemesis !== "player";
+    const fresh = (rank) => {
+      var _a, _b, _c;
+      const n = this.makeNpc(false);
+      n.rankIdx = Math.max(0, Math.min(7, rank));
+      n.stage = RNG.int(0, 2);
+      n.region = regionId;
+      n.ageMonths = (21 + n.rankIdx * 4 + RNG.int(0, 9)) * 12;
+      n.lifespan = Math.max(n.lifespan, Math.floor(n.ageMonths / 12) + 15);
+      (_a = n.links) != null ? _a : n.links = {};
+      (_b = n.disciples) != null ? _b : n.disciples = [];
+      (_c = n.parents) != null ? _c : n.parents = [];
+      this.npcs.push(n);
+      return n;
+    };
+    let leader = leaderNpc;
+    if (!leader) {
+      const cands = this.npcs.filter((n) => free(n) && n.rankIdx >= pr && n.rankIdx <= pr + 2);
+      leader = cands.length && RNG.chance(0.7) ? RNG.pick(cands) : fresh(pr + RNG.int(0, 1));
+    }
+    used.add(leader.id);
+    const size = RNG.int(1, 3);
+    const members = [];
+    for (let i = 0; i < size; i++) {
+      const pool = this.npcs.filter((n) => free(n) && !used.has(n.id) && Math.abs(n.rankIdx - leader.rankIdx) <= 1 && n.rankIdx <= leader.rankIdx);
+      const m = pool.length && RNG.chance(0.5) ? RNG.pick(pool) : fresh(leader.rankIdx - RNG.int(0, 1));
+      used.add(m.id);
+      members.push(m.id);
+    }
+    const have = new Set([leader, ...members.map((id) => this.npcById(id))].map((n) => classById(n.cls).g));
+    const roles = ["guard", "support", "fighter", "shooter", "mage", "shadow", "esper", "summon", "east"];
+    const want = roles.find((g) => !have.has(g)) || RNG.pick(roles);
+    const style = leader.personality === "greedy" ? "greedy" : leader.personality === "warlike" ? "bold" : leader.personality === "kind" ? RNG.pick(["mentor", "steady"]) : RNG.pick(Object.keys(CREW_STYLES));
+    return {
+      id: "crew" + Math.random().toString(36).slice(2, 8),
+      name: "".concat(RNG.pick(CREW_NAMES), " 파티"),
+      leader: leader.id,
+      members,
+      want,
+      style,
+      minRank: Math.max(0, leader.rankIdx - 1),
+      region: regionId
+    };
+  },
+  crewApply(L) {
+    const p = this.player;
+    const leader = this.npcById(L.leader);
+    if (!leader || !leader.alive) return "모집이 이미 끝났다.";
+    if (p.crew) return "이미 소속된 파티가 있다.";
+    if (p.rankIdx < L.minRank) return "".concat(leader.name, ': "').concat(RANKS[L.minRank].key, '급부터 받아요. 조금 더 크고 와요."');
+    const fit = classById(p.cls).g === L.want;
+    const chance = (fit ? 0.9 : 0.55) + leader.relation / 200 + Math.min(p.fame, 100) / 400;
+    if (L.tried === this.monthKey()) return "".concat(leader.name, "은(는) 이번 달엔 더 이상 지원을 받지 않는다.");
+    if (!RNG.chance(chance)) {
+      L.tried = this.monthKey();
+      return "".concat(leader.name, ': "미안해요. 이번엔 ').concat(CLASS_GROUPS[L.want].name, ' 계열을 찾고 있어서요." (불합격)');
+    }
+    return this.crewJoin(L);
+  },
+  crewJoin(L) {
+    const p = this.player;
+    const leader = this.npcById(L.leader);
+    const left = this.party().filter((n) => !n.crewOf);
+    for (const n of left) this.dismiss(n.id);
+    p.crew = { id: L.id, name: L.name, leader: L.leader, style: L.style, since: this.monthKey(), trust: 50, done: 0, missed: 0, plan: null, nextPlan: this.monthKey() };
+    p.party = [];
+    for (const id of [L.leader, ...L.members]) {
+      const n = this.npcById(id);
+      if (!n || !n.alive) continue;
+      n.isCompanion = true;
+      n.crewOf = L.id;
+      n.met = true;
+      n.merc = null;
+      n.relation = Math.max(n.relation, 20);
+      n.region = p.region;
+      p.party.push(n.id);
+    }
+    for (const b of Object.values(this.world.crewBoards || {})) b.list = b.list.filter((x) => x.id !== L.id);
+    this.lifeEvent("".concat(leader.name, "이(가) 이끄는 ").concat(L.name, "에 정식 파티원으로 들어갔다."));
+    return "".concat(leader.name, ': "환영해요. 오늘부터 ').concat(L.name, ' 정식 파티원이에요. 일정은 내가 잡아서 연락할게요."').concat(left.length ? " (기존 동료 ".concat(left.map((n) => n.name).join(", "), "와(과)는 헤어졌다)") : "");
+  },
+  crewLeave(why) {
+    const p = this.player;
+    const c = p.crew;
+    if (!c) return "";
+    for (const n of this.npcs) if (n.crewOf === c.id) {
+      n.crewOf = null;
+      n.isCompanion = false;
+      if (why === "quit") this.changeRel(n, -8);
+    }
+    p.party = (p.party || []).filter((id) => {
+      const n = this.npcById(id);
+      return n && n.isCompanion;
+    });
+    p.crew = null;
+    const text = why === "kicked" ? "".concat(c.name, "에서 밀려났다.") : why === "disband" ? "".concat(c.name, "이(가) 해체되었다.") : "".concat(c.name, "을(를) 떠났다.");
+    this.lifeEvent(text);
+    return text;
+  },
+  crewTrust(d) {
+    const c = this.crew();
+    if (c) c.trust = Math.max(0, Math.min(100, c.trust + d));
+  },
+  // ---------- 리더의 일정 ----------
+  crewMakePlan() {
+    const c = this.crew();
+    const L = this.crewLeader();
+    const p = this.player;
+    const st = CREW_STYLES[c.style];
+    if (p.rankIdx >= L.rankIdx + 2 && !c.offeredLead) {
+      c.offeredLead = true;
+      return { kind: "handover" };
+    }
+    const t = this.crewTier();
+    const reach = (rid) => rid !== "jeju" || p.rankIdx >= 6;
+    const kind = RNG.weighted(["gate", "hunt", "escort", "train"], [st.gate, st.hunt, st.escort, st.train]);
+    const day = RNG.int(Math.min(28, this.day + 2), 29);
+    if (kind === "gate") {
+      let gates = this.mapGates.filter((g) => !g.final && !g.mission && !g.cleared && reach(g.region) && g.tier >= t - 1 && g.tier <= t);
+      gates.sort((a, b) => regionDist(p.region, a.region) - regionDist(p.region, b.region));
+      let gate = gates[0];
+      if (!gate || regionDist(p.region, gate.region) > 3) {
+        const pos = this.randomFreeTile(p.region);
+        if (pos) {
+          gate = { id: this.nextObjId++, kind: "gate", x: pos[0], y: pos[1], region: p.region, tier: t, theme: RNG.pick(GATE_THEMES), elem: RNG.pick(ELEMENT_KEYS), born: this.monthKey(), crew: true };
+          this.mapGates.push(gate);
+        }
+      }
+      if (gate) return { kind: "gate", gateId: gate.id, day };
+    }
+    if (kind === "hunt") {
+      const mobs = this.mobs.filter((m) => reach(m.region) && m.tier >= t - 1 && m.tier <= t + 1).sort((a, b) => regionDist(p.region, a.region) - regionDist(p.region, b.region));
+      if (mobs[0] && regionDist(p.region, mobs[0].region) <= 3) return { kind: "hunt", mobId: mobs[0].id, day };
+    }
+    if (kind === "escort" || kind === "hunt") return { kind: "escort", tier: t, pay: Math.round(260 * RANKS[t].mult ** 1.3), day };
+    return { kind: "train", day };
+  },
+  crewPlanText(plan) {
+    const L = this.crewLeader();
+    const c = this.crew();
+    const when = "".concat(this.month, "월 ").concat(plan.day, "일");
+    switch (plan.kind) {
+      case "gate": {
+        const g = this.mapGates.find((x) => x.id === plan.gateId);
+        if (!g) return null;
+        const far = g.region === this.player.region ? "" : " 이동은 파티 차량으로. ".concat(regionById(g.region).name, "까지 같이 가요.");
+        return { title: "게이트 공략 일정", text: '"'.concat(when, ", ").concat(regionById(g.region).name, "의 ").concat(this.gateName(g), "에 들어갑니다.").concat(far, ' 보상은 리더 몫과 공용 경비를 빼고 나눠요."'), accept: "참가한다", tag: this.gateName(g) };
+      }
+      case "hunt": {
+        const m = this.mobs.find((x) => x.id === plan.mobId);
+        if (!m) return null;
+        return { title: "토벌 일정", text: '"'.concat(when, ", ").concat(regionById(m.region).name, "에 나타난 ").concat(m.name, ' 무리를 정리하러 갑니다. 협회 토벌 수당이 붙어 있어요."'), accept: "참가한다", tag: "".concat(m.name, " ×").concat(m.count) };
+      }
+      case "escort":
+        return { title: "호위 의뢰", text: '"'.concat(when, ", 에테르 결정 운송 차량 호위 의뢰를 받았어요. 보수는 1인당 ").concat(fmt(plan.pay), ' 크레딧. 요즘 길목에 약탈 헌터가 나온다니까 각오는 해 두고요."'), accept: "참가한다", tag: "호위" };
+      case "train":
+        return { title: "합동 훈련", text: '"'.concat(when, "부터 한 달은 합동 훈련이에요. 연계 동작부터 다시 맞춰 봅시다. ").concat(c.style === "mentor" ? "신입은 내가 직접 봐 줄게요." : "빠지면 손발이 안 맞아요.", '"'), accept: "훈련에 나간다", tag: "훈련" };
+      case "handover":
+        return { title: "리더 교대", text: "".concat(L.name, '이(가) 조용히 말한다. "솔직히 말할게요. 이제 이 파티에서 제일 강한 건 당신이에요. 리더를 맡아 줄래요? 아니면… 더 큰 데로 가도 붙잡진 않을게요."'), accept: "리더를 맡는다", decline: "지금처럼 지낸다", tag: "리더 교대" };
+      default:
+        return null;
+    }
+  },
+  crewMonthly() {
+    const c = this.crew();
+    if (!c) return this.crewInviteRoll();
+    if (!this.crewLeader()) return this.crewSuccession();
+    for (const n of this.party()) if (n.crewOf === c.id && RNG.chance(0.5)) this.changeRel(n, 1);
+    if (this.monthKey() < c.nextPlan || c.plan) return;
+    c.plan = this.crewMakePlan();
+    c.nextPlan = this.monthKey() + 1;
+    if (c.plan && this.crewPlanText(c.plan)) this.queue.push({ type: "crewPlan" });
+    else c.plan = null;
+  },
+  crewSuccession() {
+    const c = this.crew();
+    const heirs = this.party().filter((n) => n.crewOf === c.id).sort((a, b) => b.rankIdx - a.rankIdx);
+    if (!heirs.length) {
+      this.queue.push({ type: "toast", text: this.crewLeave("disband") });
+      return;
+    }
+    c.leader = heirs[0].id;
+    const t = "리더를 잃은 ".concat(c.name, "을(를) ").concat(heirs[0].name, "이(가) 이어받았다.");
+    this.log(t, "bad");
+    this.queue.push({ type: "toast", text: t });
+  },
+  crewInviteRoll() {
+    const p = this.player;
+    if (p.crewInvite && this.monthKey() - p.crewInvite.at < 2) return;
+    p.crewInvite = null;
+    if (!RNG.chance(0.06 + Math.min(p.fame, 120) / 1500)) return;
+    const known = this.npcsHere().filter((n) => n.met && n.relation >= 25 && !n.isCompanion && n.rankIdx >= p.rankIdx);
+    const L = this.makeCrewListing(p.region, known.length ? RNG.pick(known) : null);
+    if (!L) return;
+    p.crewInvite = __spreadProps(__spreadValues({}, L), { at: this.monthKey() });
+    this.queue.push({ type: "crewInvite" });
+  }
+});
+{
+  const GP = Game.prototype;
+  const baseMonth = GP.advanceMonth;
+  GP.advanceMonth = function(n = 1, opts = {}) {
+    const before = this.monthKey();
+    baseMonth.call(this, n, opts);
+    if (!this.over && this.player && this.monthKey() !== before) this.crewMonthly();
+  };
+  const baseRecruit = GP.canRecruit;
+  GP.canRecruit = function(n) {
+    return !this.crew() && baseRecruit.call(this, n);
+  };
+  const baseDismiss = GP.dismiss;
+  GP.dismiss = function(id) {
+    const n = id != null ? this.npcById(id) : this.companion();
+    if (n && this.isCrewMember(n)) return "".concat(n.name, "은(는) ").concat(this.crew().name, "의 파티원이다. 파티 구성은 리더가 정한다.");
+    return baseDismiss.call(this, id);
+  };
+  const baseHire = GP.hireMerc;
+  GP.hireMerc = function(r, i) {
+    if (this.crew()) return "소속 파티가 있는 동안에는 용병을 따로 고용할 수 없다.";
+    return baseHire.call(this, r, i);
+  };
+  const baseKill = GP.killNpc;
+  GP.killNpc = function(n, cause, killer) {
+    baseKill.call(this, n, cause, killer);
+    if (n.crewOf) n.crewOf = null;
+  };
+  const baseInit = GP.initSandbox;
+  GP.initSandbox = function() {
+    var _a, _b;
+    baseInit.call(this);
+    (_b = (_a = this.world).crewBoards) != null ? _b : _a.crewBoards = {};
+    const c = this.player.crew;
+    if (c) for (const id of this.player.party) {
+      const n = this.npcById(id);
+      if (n && n.crewOf === c.id) n.isCompanion = true;
+    }
+  };
+}
+Object.assign(UI, {
+  crewHtml() {
+    const p = G.player;
+    const c = G.crew();
+    if (c) {
+      const L = G.crewLeader();
+      const st = CREW_STYLES[c.style];
+      const planT = c.plan && G.crewPlanText(c.plan);
+      return '<div class="panel"><h3>소속 파티 · '.concat(c.name, '</h3>\n        <p class="small">리더 <b>').concat(L ? L.name : "공석", "</b> ").concat(L ? this.rankTag(L.rankIdx, L.stage) : "", " · 방침 <b>").concat(st.name, '</b> <span class="dim">').concat(st.desc, '</span></p>\n        <div class="row small"><span class="dim">신뢰</span><div class="grow">').concat(this.bar("ether", c.trust, 100), '</div><b class="num">').concat(c.trust, '</b></div>\n        <p class="small dim">함께한 일정 ').concat(c.done, "회 · 빠진 일정 ").concat(c.missed, "회 · ").concat(G.monthKey() - c.since, "개월째. 리더가 매달 일정을 잡아 연락한다. 자주 빠지면 신뢰가 떨어져 파티에서 밀려난다. 게이트 보상은 ").concat(Math.round(CREW_SHARE * 100), "%를 받는다.</p>\n        ").concat(planT ? '<p class="small">지금 잡힌 일정: <b>'.concat(planT.tag, '</b> <button class="sm primary" data-act="crew-plan-open">일정 보기</button></p>') : '<p class="small dim">다음 일정은 다음 달 초에 연락이 온다.</p>', '\n        <div class="row end"><button class="sm ghost" data-act="crew-leave">파티 탈퇴</button></div></div>');
+    }
+    const reg = G.region();
+    const list = G.crewBoard(reg.id);
+    const row = (L, i) => {
+      const n = G.npcById(L.leader);
+      const st = CREW_STYLES[L.style];
+      const mem = L.members.map((id) => G.npcById(id)).filter(Boolean);
+      return '<div class="item-row">'.concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(L.name, '</b> <span class="small dim">리더 ').concat(n.name, "</span> ").concat(this.rankTag(n.rankIdx, n.stage), '\n        <div class="small dim">').concat(st.name, " · 파티원 ").concat(mem.map((m) => "".concat(m.name, "(").concat(className(m.cls), ")")).join(", "), " · ").concat(RANKS[L.minRank].key, '급 이상 · <span class="').concat(classById(p.cls).g === L.want ? "good" : "", '">').concat(CLASS_GROUPS[L.want].name, ' 계열 우대</span></div></div>\n        <button class="sm primary" data-act="crew-apply" data-v="').concat(i, '">지원</button></div>');
+    };
+    return '<div class="panel"><h3>파티 모집 · '.concat(reg.name, '</h3>\n      <p class="dim small">헌터넷 모집 게시판. 다른 헌터가 이끄는 파티에 정식 파티원으로 들어가면 리더가 일정을 잡고, 함께 게이트에 들어간다. 지금 동료와는 헤어지게 된다.</p>\n      <div class="cards">').concat(list.map(row).join("") || '<div class="dim small">이 지역에는 지금 모집 중인 파티가 없다.</div>', "</div></div>");
+  },
+  showCrewPlan() {
+    const c = G.crew();
+    const L = G.crewLeader();
+    const t = c && c.plan && L && G.crewPlanText(c.plan);
+    if (!t) {
+      if (c) c.plan = null;
+      return this.processQueue();
+    }
+    const rest = c.plan.kind === "handover";
+    this.modal('<div class="story-portrait">'.concat(UI.npcPortrait(L, 130), '<div><div class="eyebrow">').concat(c.name, " · ").concat(G.fullDate(), "</div><b>").concat(L.name, '</b> <span class="small dim">리더</span><div class="small">').concat(this.rankTag(L.rankIdx, L.stage), '</div><div class="small dim">신뢰 ').concat(c.trust, "</div></div></div>\n      <h3>").concat(t.title, '</h3><p class="event-text">').concat(fixJosa(t.text), '</p>\n      <div class="cards"><button class="choice-btn" data-act="crew-plan" data-v="1">').concat(t.accept, '</button>\n      <button class="choice-btn" data-act="crew-plan" data-v="0">').concat(t.decline || "이번엔 빠진다 (신뢰 하락)", "</button>\n      ").concat(rest ? "" : '<button class="choice-btn" data-act="crew-plan" data-v="later">나중에 답한다</button>', "</div>"), "event-box");
+  },
+  showCrewInvite() {
+    const p = G.player;
+    const L = p.crewInvite;
+    const n = L && G.npcById(L.leader);
+    if (!n || !n.alive || p.crew) return this.processQueue();
+    const mem = L.members.map((id) => G.npcById(id)).filter(Boolean);
+    this.modal('<div class="story-portrait">'.concat(UI.npcPortrait(n, 130), '<div><div class="eyebrow">메시지 · ').concat(G.fullDate(), "</div><b>").concat(n.name, '</b><div class="small">').concat(this.rankTag(n.rankIdx, n.stage), " · ").concat(L.name, ' 리더</div></div></div>\n      <p class="event-text">"').concat(p.name, " 씨 맞죠? 요즘 활약 들었어요. 우리 ").concat(L.name, "에 정식 파티원으로 들어올래요? 지금 ").concat(mem.map((m) => m.name).join(", "), '이(가) 같이 뛰고 있어요. 일정은 내가 잡고, 보상은 공정하게 나눠요."</p>\n      <div class="cards"><button class="choice-btn" data-act="crew-invite" data-v="1">들어간다').concat(G.party().length ? " (지금 동료와는 헤어진다)" : "", '</button><button class="choice-btn" data-act="crew-invite" data-v="0">정중히 거절한다</button></div>'), "event-box");
+  },
+  answerCrewPlan(v) {
+    const c = G.crew();
+    if (!c || !c.plan) {
+      this.closeModal();
+      return this.after();
+    }
+    const plan = c.plan;
+    const L = G.crewLeader();
+    if (v === "later") {
+      this.closeModal();
+      return this.after("일정은 파티 화면에서 다시 볼 수 있다.");
+    }
+    c.plan = null;
+    if (plan.kind === "handover") {
+      this.closeModal();
+      if (v !== "1") {
+        G.changeRel(L, 5);
+        return this.after("".concat(L.name, ': "알았어요. 그래도 고마워요."'));
+      }
+      const name = c.name;
+      for (const n of G.party()) if (n.crewOf === c.id) n.crewOf = null;
+      G.player.crew = null;
+      G.lifeEvent("".concat(name, "의 리더가 되었다."));
+      return this.after("이제 ".concat(name, "의 리더다. 파티원 구성과 일정은 당신이 정한다."));
+    }
+    if (v !== "1") {
+      c.missed++;
+      G.crewTrust(-12);
+      G.changeRel(L, -4);
+      this.closeModal();
+      if (c.trust <= 0) return this.after("".concat(L.name, ': "미안하지만 같이 가기는 어렵겠어요." ') + G.crewLeave("kicked"));
+      return this.after("".concat(L.name, ': "알겠어요. 이번엔 우리끼리 갈게요." (신뢰 -12)'));
+    }
+    c.done++;
+    G.crewTrust(6);
+    this.closeModal();
+    const p = G.player;
+    const travel = (region, x, y) => {
+      const d = regionDist(p.region, region);
+      p.x = x;
+      p.y = y;
+      p.region = region;
+      G.reveal(x, y, 4);
+      G.syncParty();
+      G.advanceDays(Math.max(1, plan.day - G.day) + d * 2, { noSave: true });
+    };
+    if (plan.kind === "gate") {
+      const g = G.mapGates.find((x) => x.id === plan.gateId);
+      if (!g) return this.after("도착해 보니 이미 다른 파티가 게이트를 닫은 뒤였다.");
+      travel(g.region, g.x, g.y);
+      if (G.over) return this.after();
+      this.renderGame();
+      if (this.map) this.map.centerOn(p.x, p.y);
+      this.startGate(g.id);
+      if (this.ctx && this.ctx.kind === "gate") this.ctx.crewRaid = true;
+      return;
+    }
+    if (plan.kind === "hunt") {
+      const m = G.mobs.find((x) => x.id === plan.mobId);
+      if (!m) return this.after("목표 무리는 이미 흩어진 뒤였다.");
+      travel(m.region, m.x, m.y);
+      if (G.over) return this.after();
+      this.renderGame();
+      if (this.map) this.map.centerOn(p.x, p.y);
+      return this.startMob(m.id);
+    }
+    if (plan.kind === "escort") {
+      G.advanceDays(Math.max(1, plan.day - G.day), { noSave: true });
+      G.storyFight({
+        title: "".concat(c.name, " · 운송 차량 호위"),
+        mobs: { tier: plan.tier, n: 2, human: true },
+        spar: false,
+        win: { text: "약탈 헌터들을 쫓아냈다. 화물은 무사히 도착했다.", gain: { money: plan.pay, fame: 1 }, after: (g) => {
+          g.crewTrust(4);
+          for (const n of g.party()) g.changeRel(n, 2);
+        } },
+        lose: { text: "화물 일부를 빼앗겼다. 리더가 보수를 깎았다.", gain: { money: Math.round(plan.pay * 0.2), injure: 1 }, after: (g) => g.crewTrust(-3) }
+      });
+      return this.after();
+    }
+    const gain = G.trainGain(1.6);
+    G.addEther(gain);
+    for (const n of G.party()) G.changeRel(n, 3);
+    G.log("".concat(c.name, "과(와) 한 달 동안 합동 훈련을 했다. 에테르 +").concat(fmt(gain)), "good");
+    G.advanceMonth(1, { eventChance: 0.1 });
+    return this.after("합동 훈련을 마쳤다. 에테르 +".concat(fmt(gain), ", 파티원과의 관계가 깊어졌다."));
+  }
+});
+{
+  const basePartyHtml = UI.partyHtml;
+  UI.partyHtml = function() {
+    let html = basePartyHtml.call(this);
+    for (const n of G.party()) {
+      if (!G.isCrewMember(n)) continue;
+      const tag = n.id === G.crew().leader ? '<span class="tag">리더</span>' : '<span class="tag">파티원</span>';
+      html = html.replace('<button class="sm ghost" data-act="party-out" data-v="'.concat(n.id, '">내보내기</button>'), tag);
+    }
+    return this.crewHtml() + html;
+  };
+  const baseQueue = UI.processQueue;
+  UI.processQueue = function() {
+    if (this.modalOpen()) return;
+    const q = G.queue[0];
+    if (q && q.type === "crewPlan") {
+      G.queue.shift();
+      return this.showCrewPlan();
+    }
+    if (q && q.type === "crewInvite") {
+      G.queue.shift();
+      return this.showCrewInvite();
+    }
+    return baseQueue.call(this);
+  };
+  const baseFinishGate = UI.finishGate;
+  UI.finishGate = function(result) {
+    const c = this.ctx;
+    if (c && c.crewRaid && result !== "lose") c.loot.money = Math.round(c.loot.money * CREW_SHARE);
+    baseFinishGate.call(this, result);
+    if (c && c.crewRaid && G.crew()) {
+      if (result === "clear") {
+        G.crewTrust(4);
+        for (const n of G.party()) G.changeRel(n, 2);
+      }
+      if (result === "retreat") G.crewTrust(-2);
+      this.toast(result === "lose" ? "파티원들이 당신을 업고 나왔다." : "파티 분배: 리더 몫과 공용 경비를 빼고 ".concat(Math.round(CREW_SHARE * 100), "%를 받았다."));
+      G.save();
+    }
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function(act, v) {
+    switch (act) {
+      case "crew-apply": {
+        const L = G.crewBoard(G.region().id)[+v];
+        if (!L) return;
+        return this.after(G.crewApply(L));
+      }
+      case "crew-leave":
+        return this.after(G.crewLeave("quit"));
+      case "crew-plan":
+        return this.answerCrewPlan(v);
+      case "crew-plan-open":
+        this.closeModal();
+        return this.showCrewPlan();
+      case "crew-invite": {
+        const p = G.player;
+        const L = p.crewInvite;
+        p.crewInvite = null;
+        this.closeModal();
+        if (!L) return this.after();
+        if (v === "1") return this.after(G.crewJoin(L));
+        const n = G.npcById(L.leader);
+        if (n) G.changeRel(n, -2);
+        return this.after("정중히 거절했다.");
+      }
+      default:
+        return baseHandle.call(this, act, v);
+    }
+  };
+}
 const NAME_KEY = "gate_chronicle_last_name";
 Object.assign(UI, {
   lastName() {
@@ -8974,7 +9687,7 @@ Object.assign(UI, {
   },
   // ---------- 시작 방식 ----------
   renderMode() {
-    $app.innerHTML = '<div class="create mode-screen">\n      <div class="create-head"><div class="eyebrow">새로운 각성</div><h2>어떻게 시작할까요</h2></div>\n      <div class="mode-grid">\n        <button class="mode-card primary-card" data-act="mode-story">\n          <span class="eyebrow">추천</span><b>이야기로 각성</b>\n          <span>이름과 성별만 정하고 이야기를 따라갑니다. 출신은 운명에 맡기고, 각성의 순간에 내린 선택들이 속성·직업·재능·특성을 정합니다.</span>\n          <span class="small dim">약 20장면 · 5~10분</span></button>\n        <button class="mode-card" data-act="mode-manual">\n          <b>직접 설정</b>\n          <span>출신, 속성, 직업 후보, 특성을 직접 고릅니다.</span>\n          <span class="small dim">바로 시작</span></button>\n      </div>\n      <div class="row end"><button class="ghost" data-act="to-title">돌아가기</button></div>\n    </div>';
+    $app.innerHTML = '<div class="create mode-screen">\n      <div class="create-head"><div class="eyebrow">새로운 각성</div><h2>어떻게 시작할까요</h2></div>\n      <div class="mode-grid">\n        <button class="mode-card primary-card" data-act="mode-story">\n          <span class="eyebrow">추천</span><b>이야기로 각성</b>\n          <span>이름과 성별만 정하고 이야기를 따라갑니다. 출신은 운명에 맡기고, 각성의 순간에 내린 선택들이 속성·직업·재능·특성을 정합니다.</span>\n          <span class="small dim">출신별 이야기 50가지 · 8장면 · 3~5분</span></button>\n        <button class="mode-card" data-act="mode-manual">\n          <b>직접 설정</b>\n          <span>출신, 속성, 직업 후보, 특성을 직접 고릅니다.</span>\n          <span class="small dim">바로 시작</span></button>\n      </div>\n      <div class="row end"><button class="ghost" data-act="to-title">돌아가기</button></div>\n    </div>';
   },
   // ---------- 이야기 준비: 이름, 성별 ----------
   renderStorySetup() {
@@ -9007,7 +9720,7 @@ Object.assign(UI, {
     }
     const lead = this.proLeadElem();
     const bg = BACKGROUNDS.find((b) => b.id === s.bg);
-    document.getElementById("pro-side").innerHTML = fixJosa("".concat(FX.portrait(s.look, s.gender, lead, 0, 200), '\n      <div class="pro-name">').concat(s.name, '</div>\n      <div class="small dim">').concat(bg.name, " · ").concat(regionById(bg.region).name, "</div>\n      ").concat(lead ? '<div class="small">'.concat(this.elemTag(lead), " 기운이 감돈다</div>") : '<div class="small dim">아직 아무것도 깨어나지 않았다</div>', '\n      <div class="pro-steps">').concat(Array.from({ length: 20 }, (_, i) => '<i class="'.concat(i < s.step ? "on" : i === s.step ? "now" : "", '"></i>')).join(""), "</div>"));
+    document.getElementById("pro-side").innerHTML = fixJosa("".concat(FX.portrait(s.look, s.gender, lead, 0, 200), '\n      <div class="pro-name">').concat(s.name, '</div>\n      <div class="small dim">').concat(bg.name, " · ").concat(regionById(bg.region).name, "</div>\n      ").concat(lead ? '<div class="small">'.concat(this.elemTag(lead), " 기운이 감돈다</div>") : '<div class="small dim">아직 아무것도 깨어나지 않았다</div>', '\n      <div class="pro-steps">').concat(Array.from({ length: 8 }, (_, i) => '<i class="'.concat(i < s.step ? "on" : i === s.step ? "now" : "", '"></i>')).join(""), "</div>"));
     const el = document.getElementById("pro-scene");
     el.innerHTML = '<div class="eyebrow">'.concat(s.step === 0 ? "출신 · ".concat(bg.name) : "장면 ".concat(s.step + 1), "</div><h2>").concat(this.proFill(sc.title), '</h2>\n      <div class="pro-text">').concat(this.proFill(sc.text).split("\n").map((l) => l ? "<p>".concat(l, "</p>") : "").join(""), '</div>\n      <div class="cards pro-choices">').concat(this.proShown(s.id).map((i) => '<button class="choice-btn" data-act="pro-choice" data-v="'.concat(i, '">').concat(this.proFill(sc.choices[i].text), "</button>")).join(""), "</div>");
     el.classList.remove("fade-in");
@@ -9151,7 +9864,7 @@ Object.assign(UI, {
         s.bg = RNG.pick(BACKGROUNDS).id;
         const fg = RNG.chance(0.5) ? "M" : "F";
         s.friend = { name: this.randomName(fg), gender: fg };
-        s.id = PROLOGUE_START[s.bg];
+        s.id = RNG.pick(PROLOGUE_START[s.bg]);
         s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 };
         s.step = 0;
         s.friendBonus = 0;
@@ -9165,7 +9878,7 @@ Object.assign(UI, {
       case "pro-restart": {
         const s = this.pro;
         s.bg = RNG.pick(BACKGROUNDS).id;
-        s.id = PROLOGUE_START[s.bg];
+        s.id = RNG.pick(PROLOGUE_START[s.bg]);
         s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 };
         s.step = 0;
         s.friendBonus = 0;
