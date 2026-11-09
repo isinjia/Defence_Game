@@ -1,0 +1,5 @@
+/* 평가 보정: 정보 시트 탭 9개가 한 줄 가로 넘김이라 길드·연대기·도감이 안 보이던 문제 → 좁은 화면은 5칸 두 줄 */
+@media (max-width: 640px) {
+  .sheet-head .tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; overflow: visible; }
+  .sheet-head .tabs button { padding: 6px 2px; min-height: 36px; white-space: nowrap; font-size: 13px; text-align: center; justify-content: center; }
+}
