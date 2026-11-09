@@ -94,3 +94,14 @@ if (typeof Game !== 'undefined') {
     return baseDays.call(this, n, opts);
   };
 }
+
+// 5) 길드·보호국 소속인데 게이트 결과에 '무소속 파티 분배'와 '소속 규정: 귀속'이 함께 나오던 모순(독립 평가).
+//    balance.js 주석대로 소속(월급제+성과급)이면 자유 파티 분배를 하지 않는다.
+if (typeof Game !== 'undefined' && Game.prototype.shareMates) {
+  const baseShare = Game.prototype.shareMates;
+  Game.prototype.shareMates = function () {
+    const p = this.player;
+    if (p && p.guild && this.payKind && this.payKind(p.guild)) return [];
+    return baseShare.call(this);
+  };
+}
