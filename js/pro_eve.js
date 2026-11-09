@@ -53,9 +53,9 @@ Object.assign(PROLOGUE, {
     ['말없이 할아버지 등을 밀어 드린다', { t: { charisma: 1, lucky: 1 }, luck: 1 }],
     ['못 들은 척 수건을 뒤집어쓰고 먼저 나온다', { t: { loner: 1 }, flag: 'hope_free' }],
   ]),
-  eve_pcbang: EV('PC방 밤샘', '등록 축하한다며 게임 친구들이 PC방으로 불러냈다. 자정, 컵라면 다섯 개. 화면 속 내 캐릭터는 만렙인데, 현실의 나는 이제 막 1레벨이다.\n\n옆자리 친구가 묻는다. "야, 진짜 괴수랑 싸우면 어떤 느낌이냐?"', [
-    ['"몰라. 근데 손이 먼저 움직이더라."', { t: { quick: 1, berserk: 1 } }],
-    ['밤새 공략 영상을 틀어 놓고 친구들과 동선을 짜 본다', { talent: 1, t: { genius: 1 }, flag: 'hope_guild' }],
+  eve_pcbang: EV('PC방 밤샘', '등록 축하한다며 게임 친구들이 PC방으로 불러냈다. 자정, 컵라면 다섯 개. 화면 속 내 캐릭터는 만렙인데, 현실의 나는 이제 막 1레벨이다.\n\n옆자리 친구가 묻는다. "야, 각성하면 뭐가 달라져? 진짜 게임처럼 막 강해지는 느낌이냐?"', [
+    ['"몰라. 그냥… 몸이 내 몸 같지가 않아. 손이 생각보다 먼저 움직여."', { t: { quick: 1, berserk: 1 } }],
+    ['밤새 헌터 공략 영상을 틀어 놓고 친구들과 동선을 짜 본다', { talent: 1, t: { genius: 1 }, flag: 'hope_guild' }],
     ['"너희도 언젠가 깨어나면 같이 하자." 반쯤 진심으로', { t: { charisma: 1 }, friend: 10, flag: 'hope_free' }],
     ['새벽 세 시에 먼저 일어난다. 내일부터는 진짜 게임이다', { t: { iron_body: 1 } }],
   ]),
@@ -65,11 +65,11 @@ Object.assign(PROLOGUE, {
     ['간호사가 자리를 비운 사이 자기 차트를 몰래 읽어 본다', { t: { genius: 1, quick: 1 }, flag: 'hope_kama' }],
     ['"괜찮아요." 웃으며 소매를 내린다. 팔에 처음 보는 무늬가 있다', { luck: 1, t: { loner: 1 } }],
   ]),
-  eve_rooftop: EV('옥상', '밤 열한 시, 빌라 옥상. 아무도 없는 데서 한 번은 제대로 써 보고 싶었다. 빨래 건조대와 고추 화분 사이에 선다.\n\n심호흡. 손끝이 뜨거워진다.', [
-    ['힘을 끝까지 끌어올려 본다. 화분 하나가 터진다', { talent: 1, t: { berserk: 1 }, luck: -1 }],
+  eve_rooftop: EV('밤의 뒷산', '밤 열한 시, 동네 뒷산 약수터 위 공터. 가로등 하나 없는 데서 한 번은 제대로 써 보고 싶었다. 운동 기구 몇 개와 쓰러진 소나무 사이에 선다.\n\n심호흡. 손끝이 뜨거워진다.', [
+    ['힘을 끝까지 끌어올려 본다. 쓰러진 소나무 둥치가 쪼개진다', { talent: 1, t: { berserk: 1 }, luck: -1 }],
     ['딱 반만 쓰고 멈추는 연습을 한 시간 한다', { t: { mana_sense: 1, longevity: 1 }, flag: 'hope_kama' }],
-    ['옥상 난간 위를 눈 감고 걸어 본다', { t: { quick: 1, reckless: 1 } }],
-    ['{friend}을(를) 불러 올려 보여 준다. "봐, 이거."', { friend: 15, t: { charisma: 1 }, flag: 'hope_free' }],
+    ['바위 능선을 눈 감고 끝까지 걸어 본다', { t: { quick: 1, reckless: 1 } }],
+    ['{friend}을(를) 불러내 보여 준다. "봐, 이거."', { friend: 15, t: { charisma: 1 }, flag: 'hope_free' }],
   ]),
   eve_lastshift: EV('알바 마지막 날', '삼 년 다닌 김밥집 마지막 근무. 사장님이 앞치마를 받아 들고 한참 만지작거린다. "헌터 된다며. 다치면 언제든 와. 김밥은 평생 공짜다."', [
     ['마지막으로 김밥 백 줄을 말고 간다', { t: { iron_body: 1, glutton: 1 }, luck: 1 }],
@@ -119,11 +119,11 @@ Object.assign(PROLOGUE, {
     ['멈춰 서서 심장 소리를 듣는다. 이게 각성이구나', { talent: 1, t: { mana_sense: 1 } }],
     ['다음 주부터 혼자 뛰기로 한다. 눈에 띄면 피곤해진다', { t: { loner: 1, longevity: 1 }, flag: 'hope_kama' }],
   ]),
-  eve_photo: EV('증명사진관', '헌터 자격증에 붙일 증명사진. 사진관 아저씨가 셔터를 누르다 고개를 든다. "학생, 눈 좀 덜 빛나게 할 수 없어? 플래시가 튀어."', [
-    ['"이렇게요?" 힘을 꾹 눌러 본다. 다섯 번째에 성공한다', { talent: 1, t: { longevity: 1, mana_sense: 1 } }],
-    ['"그냥 그대로 찍어 주세요. 이게 저예요."', { t: { charisma: 1, reckless: 1 }, flag: 'hope_guild' }],
-    ['보정 없이, 제일 무뚝뚝한 표정으로 찍는다', { t: { loner: 1, iron_body: 1 }, flag: 'hope_free' }],
-    ['아저씨가 덤으로 한 장 더 찍어 준다. "엄마 드려."', { luck: 1, t: { lucky: 1 }, friend: 5 }],
+  eve_secondhand: EV('중고 거래', '시험 준비금이 모자라 중고 거래 앱에 게임기와 기타를 올렸다. 약속 장소 지하철역 3번 출구. 게임기를 사러 온 사람은 헌터 조끼를 입은 중년 아저씨다. 상자를 열어 보던 아저씨가 고개를 든다. "학생도 이번에 등록했지? 눈빛 보니 알겠네."', [
+    ['"어떻게 아셨어요?" 아저씨 얘기를 한참 듣는다', { talent: 1, t: { mana_sense: 1 }, flag: 'hope_kama' }],
+    ['"그럼 좀 깎아 드릴게요. 대신 첫 게이트 팁 하나만요."', { t: { merchant: 1, charisma: 1 }, luck: 1 }],
+    ['기타는 팔지 않기로 한다. 이건 남겨 둔다', { t: { lucky: 1 }, friend: 5, flag: 'hope_free' }],
+    ['돈만 받고 바로 돌아선다. 낯선 헌터와 엮이기 싫다', { t: { loner: 1, quick: 1 } }],
   ]),
   eve_memorial: EV('대붕괴 추모비', '시청 앞 대붕괴 추모비. 이름이 빽빽하게 새겨진 검은 돌. 매년 이맘때면 국화가 쌓인다. 처음으로, 이 돌 앞에서 다른 마음이 든다.', [
     ['국화 한 송이를 놓고 이름 하나하나를 읽는다', { t: { lucky: 1, mana_sense: 1 }, flag: 'hope_kama' }],
@@ -132,4 +132,4 @@ Object.assign(PROLOGUE, {
     ['옆에서 울던 낯선 아이에게 손수건을 건넨다', { luck: 1, t: { charisma: 1 }, flag: 'hope_free' }],
   ]),
 });
-PRO_EVE.push('eve_bath', 'eve_pcbang', 'eve_checkup', 'eve_rooftop', 'eve_lastshift', 'eve_karaoke', 'eve_fortune', 'eve_subway', 'eve_loan', 'eve_cat', 'eve_teacher', 'eve_run', 'eve_photo', 'eve_memorial');
+PRO_EVE.push('eve_bath', 'eve_pcbang', 'eve_checkup', 'eve_rooftop', 'eve_lastshift', 'eve_karaoke', 'eve_fortune', 'eve_subway', 'eve_loan', 'eve_cat', 'eve_teacher', 'eve_run', 'eve_secondhand', 'eve_memorial');
