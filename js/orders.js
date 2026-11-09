@@ -230,6 +230,15 @@ Object.assign(UI, {
     if (!c || !c.combat || !c.combat.units || c.combat.result) { if (svg) svg.remove(); return; }
     const cb = c.combat; const p = cb.player; const L = cb.leader();
     const myTurn = cb.waiting && !c.playing && !c.orderFor;
+    // 머리 위 오더 아이콘: 동료든 나든 같은 모양 (내 것은 내 차례 동안)
+    for (const u of cb.units) {
+      if (u.side !== 'ally') continue;
+      const el = document.getElementById('u-' + u.id); if (!el) continue;
+      let tag = el.querySelector('.order-tag');
+      const osk = u.order && u.order.skill && (!u.isPlayer || myTurn) && skillById(u.order.skill);
+      if (osk && !tag) { el.insertAdjacentHTML('afterbegin', '<span class="order-tag"></span>'); tag = el.querySelector('.order-tag'); }
+      if (tag) { tag.innerHTML = osk ? `${FX.elemIcon(osk.elem, 11)}${osk.name}` : ''; tag.style.display = osk ? '' : 'none'; tag.title = osk ? `오더: ${osk.name}` : ''; }
+    }
     // ① ② NPC 리더가 나에게 내린 오더
     if (p && p.order && myTurn && L && !L.isPlayer) {
       const lf = document.getElementById('u-' + L.id);
@@ -251,7 +260,8 @@ Object.assign(UI, {
     const lines = [];
     const sr = stage.getBoundingClientRect();
     for (const u of cb.units) {
-      if (u.side !== 'ally' || u.isPlayer || !u.order || u.order.by !== 'player' || !u.order.target) continue;
+      if (u.side !== 'ally' || !u.order || !u.order.target) continue;
+      if (u.isPlayer && !myTurn) continue;
       const a = document.getElementById('u-' + u.id); const b = document.getElementById('u-' + u.order.target);
       if (!a || !b) continue;
       const ra = (a.querySelector('.fx-host') || a).getBoundingClientRect(); const rb = (b.querySelector('.fx-host') || b).getBoundingClientRect();
@@ -318,10 +328,6 @@ Object.assign(UI, {
       const el = document.getElementById('u-' + u.id); if (!el) continue;
       el.classList.toggle('leader', u.id === c.combat.leaderId);
       el.classList.toggle('ordering', u.id === c.orderFor);
-      let tag = el.querySelector('.order-tag');
-      const osk = u.order && !u.isPlayer && u.order.skill && skillById(u.order.skill);
-      if (osk && !tag) { el.insertAdjacentHTML('afterbegin', '<span class="order-tag"></span>'); tag = el.querySelector('.order-tag'); }
-      if (tag) { tag.innerHTML = osk ? `${FX.elemIcon(osk.elem, 11)}${osk.name}` : ''; tag.style.display = osk ? '' : 'none'; tag.title = osk ? `오더: ${osk.name}` : ''; }
       let crown = el.querySelector('.lead-tag');
       if (u.id === c.combat.leaderId && !crown) el.insertAdjacentHTML('afterbegin', '<span class="lead-tag">리더</span>');
       if (u.id !== c.combat.leaderId && crown) crown.remove();
