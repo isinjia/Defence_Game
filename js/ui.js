@@ -755,14 +755,13 @@ const UI = {
         <div class="fx-host"><div class="sprite">${this.unitSprite(u, u.summon ? 70 : u.boss ? Math.round(foeSize * 1.35) : foeSize)}</div><div class="reticle"></div></div>
         <div class="foe-name">${u.name} ${FX.elemIcon(u.elem, 12)}</div>
         <div class="bar hp"><i></i></div><div class="bar atb mini"><i></i></div><div class="foe-hp num small"></div><div class="status small"></div></div>`;
-    if (u.summon) return `<div class="ally summon" id="u-${u.id}"><div class="fx-host">${FX.monster({ name: u.name, elem: u.elem, shape: u.shape }, 40)}</div>
-        <div class="grow"><div class="row between"><b class="small">${u.name}</b><span class="status small"></span></div><div class="bar-row"><div class="bar hp"><i></i></div><span class="hp-t num"></span></div><div class="bar atb mini"><i></i></div></div></div>`;
-    return `<div class="ally ${u.isPlayer ? 'me' : ''}" id="u-${u.id}" data-act="c-ally" data-v="${u.id}">
-        <div class="fx-host">${this.unitSprite(u, 44)}</div>
-        <div class="grow"><div class="row between"><b>${u.name}</b><span class="status small"></span></div>${cls}
-          <div class="bar-row"><div class="bar hp"><i></i></div><span class="hp-t num"></span></div>
-          <div class="bar-row"><div class="bar mp"><i></i></div><span class="mp-t num"></span></div>
-          <div class="bar atb"><i></i></div></div></div>`;
+    // 아군도 괴수처럼 전장 위의 인물로 (전열·후열)
+    const bars = `<div class="bar-row"><div class="bar hp"><i></i></div><span class="hp-t num"></span></div>${u.summon ? '' : '<div class="bar-row"><div class="bar mp"><i></i></div><span class="mp-t num"></span></div>'}<div class="bar atb mini"><i></i></div>`;
+    if (u.summon) return `<div class="ally fig summon" id="u-${u.id}"><div class="fx-host"><div class="sprite">${FX.monster({ name: u.name, elem: u.elem, shape: u.shape }, 52)}</div></div>
+        <div class="fig-name"><b>${u.name}</b></div>${bars}<div class="status small"></div></div>`;
+    return `<div class="ally fig ${u.isPlayer ? 'me' : ''}" id="u-${u.id}" data-act="c-ally" data-v="${u.id}">
+        <div class="fx-host"><div class="sprite">${this.unitSprite(u, 58)}</div><div class="reticle"></div></div>
+        <div class="fig-name"><b>${u.name}</b></div>${cls}${bars}<div class="status small"></div></div>`;
   },
 
   openCombat() {

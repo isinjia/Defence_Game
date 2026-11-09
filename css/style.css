@@ -576,6 +576,39 @@ button.item-row { width: 100%; text-align: left; }
 .obj-row .obj-link { flex: 1; min-width: 0; }
 .obj-go { flex: none; font-size: 12.5px; padding: 5px 10px; min-height: 32px; }
 .travel-chip { border-color: var(--amber) !important; color: var(--amber); font-weight: 600; }
+
+/* ---------- 아군을 전장 위 인물로 ---------- */
+.ally-rows .allies { display: flex; justify-content: center; align-items: flex-start; flex-wrap: wrap; gap: 6px 10px; }
+.ally.fig { flex: none; width: 112px; display: grid; justify-items: center; gap: 2px; padding: 4px 4px 5px; background: transparent; border: 1px solid transparent; border-left-width: 1px; border-radius: 6px; position: relative; }
+.ally.fig .fx-host { position: relative; }
+.ally.fig .sprite { line-height: 0; }
+.ally.fig .sprite .avatar, .ally.fig .sprite svg { width: 58px; height: 58px; }
+.ally.fig.summon .sprite svg { width: 52px; height: 52px; }
+.ally.fig .fig-name { font-size: 12.5px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
+.ally.fig .tag.cls { font-size: 10px; padding: 0 4px; margin: 0; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ally.fig .bar-row { width: 100%; margin-top: 1px; }
+.ally.fig .bar.atb.mini { width: 100%; }
+.ally.fig.me .fig-name b { color: var(--amber); }
+.ally.fig.ready { border-color: var(--amber); background: rgba(255, 181, 71, .08); box-shadow: 0 0 14px rgba(255, 181, 71, .3); }
+.ally.fig.summon { opacity: .95; }
+.ally.fig.dead { opacity: .35; filter: grayscale(1); }
+.ally-rows .row-tag { text-align: center; }
+@media (max-width: 640px) {
+  .ally.fig { width: 31%; max-width: 118px; padding: 3px 2px 4px; }
+  .ally.fig .sprite .avatar, .ally.fig .sprite svg { width: 50px; height: 50px; }
+  .ally.fig .tag.cls { display: none; }
+  .ally.fig .hp-t, .ally.fig .mp-t { min-width: 3.9em; font-size: 9.5px; }
+}
+
+/* ---------- 전투 오더 ---------- */
+.ally.fig .lead-tag { position: absolute; top: 0; left: 2px; font-size: 10px; font-weight: 700; color: #1a1205; background: var(--amber); padding: 0 4px; border-radius: 3px; z-index: 2; }
+.ally.fig .order-tag { position: absolute; top: 0; right: 2px; max-width: 70%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 10px; color: #8cc4ff; background: #0d1a2a; border: 1px solid #8cc4ff88; padding: 0 4px; border-radius: 3px; z-index: 2; }
+.ally.fig.leader { border-color: #ffb54755; }
+.order-panel .skill-btns { margin: 4px 0; }
+.lead-order { border: 1px solid #8cc4ff88; border-left: 3px solid #8cc4ff; background: #0d1a2a; padding: 6px 10px; margin-bottom: 6px; font-size: 13px; }
+.skill-btn.ordered { box-shadow: inset 0 0 0 2px #8cc4ff; }
+.ally.fig.ordering { border-color: #8cc4ff; background: rgba(140, 196, 255, .1); box-shadow: 0 0 14px rgba(140, 196, 255, .35); }
+
 @media (max-width: 640px) {
   .hud-tr .obj-row + .obj-link, .hud-tr .obj-row + .obj-row, .hud-tr .obj-link + .obj-row { display: none; }
 }
