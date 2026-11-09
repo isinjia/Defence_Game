@@ -123,7 +123,10 @@ if (typeof Game !== 'undefined' && Game.prototype.shareMates) {
 if (typeof Game !== 'undefined' && Game.prototype.nbCheck) {
   const baseNb = Game.prototype.nbCheck;
   Game.prototype.nbCheck = function (...a) {
+    const nb0 = this.player && this.player.notebook; const i0 = nb0 && nb0.i;
     const r = baseNb.apply(this, a);
+    // 과제를 마쳤는데 위쪽 '수첩 n/6' 줄이 다음 화면 갱신까지 그대로이던 문제(3차 평가): 바로 고쳐 그린다
+    if (nb0 && nb0.i !== i0 && typeof UI !== 'undefined' && UI.hudQuests) setTimeout(() => { try { const tr = document.getElementById('hud-tr'); if (tr) { const fold = tr.querySelector('.fold-obj-btn'); tr.innerHTML = fixJosa(UI.hudQuests()); if (fold) tr.prepend(fold); } } catch (e) { /* 무시 */ } }, 0);
     const seen = new Set();
     this.queue = (this.queue || []).filter((q) => { if (!q || q.type !== 'story' || !/^nb_/.test(q.id || '')) return true; const k = q.id; if (seen.has(k)) return false; seen.add(k); return true; });
     return r;
