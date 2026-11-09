@@ -130,6 +130,9 @@ const { chromium, devices } = require('playwright');
       n.relation = 90; p.sworn = [n.id];
       const m = { id: 88101, kind: 'mob', x: p.x, y: p.y, region: p.region, tier: 0, elem: 'fire', name: '점검 쥐', shape: 'beast', count: 2, born: G.monthKey() };
       G.mobs.push(m); UI.startMob(m.id);
+      // 전투 흐름(원소 반응 등)에 기대지 않게: 적은 쓰러지지 않고, 내 차례가 먼저 온다
+      const cb = UI.ctx.combat;
+      for (const u of cb.units) { if (u.side === 'enemy') { u.hp = u.maxHp = 99999; } else u.atb = u.isPlayer ? 100 : 0; }
     });
     await page.waitForFunction(() => UI.ctx && UI.ctx.combat && UI.ctx.combat.waiting && !UI.ctx.playing, null, { timeout: 30000 });
     const r = await ev(() => {
