@@ -530,3 +530,27 @@ button.item-row { width: 100%; text-align: left; }
 
 /* 전투 로그 대신 무대와 조작부 사이 간격 */
 .combat-box #cb-ctrl { margin-top: 8px; }
+
+/* ---------- 게이트 층 지도 ---------- */
+.gmap-box .cb-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.gmap-stat { margin: 4px 0 8px; gap: 8px; flex-wrap: wrap; }
+.gmap-note { border-left: 3px solid var(--ether); background: #0e1a24; padding: 8px 10px; margin-bottom: 8px; font-size: 13.5px; line-height: 1.5; }
+.gmap-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11.5px; color: var(--dim, #9aa6b8); margin-bottom: 6px; }
+.gmap-legend .gl { display: inline-flex; align-items: center; gap: 4px; }
+.gmap-legend .gl i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); display: inline-block; }
+.gmap { position: relative; margin: 4px 14px 10px; background: radial-gradient(ellipse at 50% 100%, #142033 0%, #0a0f18 70%); border: 1px solid var(--line); }
+.gmap-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.gnode svg, .gnode-name { pointer-events: none; }
+.gmap-lines line { stroke: #2a3a52; stroke-width: 2; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
+.gmap-lines line.on { stroke: var(--amber); stroke-dasharray: none; }
+.gnode { position: absolute; transform: translate(-50%, -50%); width: 42px; height: 42px; border-radius: 50%; padding: 0; justify-content: center; align-items: center; display: flex;
+  background: #0d1420; border: 2px solid color-mix(in srgb, var(--c) 45%, transparent); color: color-mix(in srgb, var(--c) 60%, #556); z-index: 1; }
+.gnode.boss { width: 56px; height: 56px; }
+.gnode.can { color: var(--c); border-color: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent), 0 0 16px color-mix(in srgb, var(--c) 45%, transparent); animation: gpulse 1.4s ease-in-out infinite; }
+.gnode.done { background: color-mix(in srgb, var(--c) 30%, #0d1420); color: #fff; border-color: var(--c); }
+.gnode.past { opacity: .35; }
+.gnode:disabled { cursor: default; }
+.gnode-name { position: absolute; top: 100%; margin-top: 2px; font-size: 11px; white-space: nowrap; color: var(--c); font-weight: 700; text-shadow: 0 1px 3px #000; }
+@keyframes gpulse { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--c) 12%, transparent), 0 0 24px color-mix(in srgb, var(--c) 65%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .gnode.can { animation: none; } }
+.gnode:active:not(:disabled) { transform: translate(-50%, calc(-50% + 1px)); }
