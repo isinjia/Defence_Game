@@ -149,6 +149,17 @@ const { chromium, devices } = require('playwright');
     await closeAll(); await ev(() => { UI.ctx = null; });
     if (r) throw new Error(r);
   });
+  await step('전투 A-γ: 역할 구성 보너스 (파티 창 · 계산)', async () => {
+    const r = await ev(() => {
+      UI.handle('sheet', 'party'); const ok = !!document.querySelector('#modal-box .pb-line'); UI.closeModal();
+      if (!ok) return '파티 창에 역할 구성 줄 없음';
+      const pb = partyBonusOf([{ cls: CLASSES.find((c) => c.role === 'tank').id, row: 'front' }, { cls: CLASSES.find((c) => c.role === 'support').id, row: 'back' }, { cls: CLASSES.find((c) => c.role === 'melee').id, row: 'front' }]);
+      if (!pb.full || !pb.form || !(pb.red > 0)) return '균형·정석 진형 판정이 틀림';
+      return '';
+    });
+    await closeAll();
+    if (r) throw new Error(r);
+  });
   await step('지도 탐험: 탐사 지점·탐사 기록·차량 대여소·재앙·북부', async () => {
     const r = await ev(() => {
       if (!G.sites || !G.sites().length) return '탐사 지점 없음';
