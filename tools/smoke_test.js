@@ -258,6 +258,8 @@ const { chromium, devices } = require('playwright');
   for (const r of results) console.log(`${r.ok ? '통과' : '실패'}  ${r.name}${r.ok ? '' : '  — ' + r.err}`);
   const fails = results.filter((r) => !r.ok).length;
   console.log(`\n${results.length - fails}/${results.length} 통과${pageErrors.length ? `, 페이지 오류 ${pageErrors.length}건` : ''}`);
+  // 파일 크기 보고 (늘어나는 추세를 보이게, 4-15)
+  try { const fs = require('fs'); const kb = (f) => { try { return Math.round(fs.statSync(path.resolve(__dirname, '..', f)).size / 1024) + 'KB'; } catch (e) { return '-'; } }; console.log(`파일 크기: game.js ${kb('dist/game.js')} · fx3d.js ${kb('dist/fx3d.js')} (늦게 불러옴) · style.css ${kb('dist/style.css')}`); } catch (e) { /* 무시 */ }
   if (pageErrors.length) console.log([...new Set(pageErrors)].slice(0, 8).map((e) => '  · ' + e.slice(0, 200)).join('\n'));
   // 전투 한 화면 검사: 파티 5명 + 적 여러 마리로 내 차례 화면이 스크롤 없이 들어가는지 (docs/구현_대기목록.md 4-0)
   // 지금은 경고만 낸다. STRICT_COMBAT_FIT=1 이면 실패로 친다.
