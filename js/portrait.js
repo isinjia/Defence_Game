@@ -44,7 +44,7 @@ const PORTRAIT = (() => {
     return `M${f(76 + off)} ${f(50)}Q${f(84 + off)} ${f(42)} ${f(93 + off)} ${f(40)}M${f(104 + off)} ${f(39)}Q${f(113 + off)} ${f(40)} ${f(119 + off)} ${f(45)}`;
   }
 
-  function make(seed, gender, element, rankIdx) {
+  function make(seed, gender, element, rankIdx, opts = {}) {
     const r = FX.rng(FX.hash(seed + '|wt'));
     const pick = (a) => a[Math.floor(r() * a.length)];
     const id = FX.uid();
@@ -52,16 +52,27 @@ const PORTRAIT = (() => {
     const ec = element && ELEMENTS[element] ? ELEMENTS[element].color : '#46e0d0';
     const rank = rankIdx == null ? 0 : rankIdx;
     const F = gender === 'F';
-    const skin = pick(SKIN);
-    const hair = r() < 0.1 ? shade(ec, -0.45) : pick(HAIR);
+    const years = opts.age == null ? 25 : opts.age;
+    const st = typeof ageStage === 'function' ? ageStage(years) : 'adult';
+    const race = opts.race || 'human';
+    const young = st === 'baby' || st === 'child';
+    const old = st === 'elder' || st === 'middle';
+    const RSKIN = { orc: ['#7f9c5c', '#6f8c4f', '#8aa86a', '#627e48'], elf: ['#f6ece4', '#f1e6de', '#ece2dc'], dwarf: ['#eab99c', '#dca386', '#e5ad90'], dragonkin: ['#efdccb', '#e6cfbd'] };
+    const RHAIR = { orc: ['#141414', '#24201c', '#3a2a20'], elf: ['#e9ebf0', '#e6d39a', '#cfd8b8', '#b9c6d8'], dwarf: ['#8a3a1e', '#a8582a', '#5a3a22', '#c0682e'], dragonkin: ['#3a1a1e', '#14141a', '#5a2026'] };
+    const skin = RSKIN[race] ? pick(RSKIN[race]) : pick(SKIN);
+    let hair = RHAIR[race] ? pick(RHAIR[race]) : r() < 0.1 ? shade(ec, -0.45) : pick(HAIR);
+    // 나이가 들수록 머리가 센다
+    if (st === 'middle') hair = mix(hair, '#a9a9b0', 0.3);
+    if (st === 'elder') hair = mix(hair, '#e4e4ea', Math.min(0.92, 0.55 + (years - 65) / 40));
     const light = hex2(hair).reduce((a, b) => a + b, 0) > 450;
     const outfit = pick(OUTFIT);
-    const glowEyes = rank >= 4 || r() < 0.12;
+    const glowEyes = !young && (rank >= 4 || r() < 0.12);
     const iris = glowEyes ? ec : pick(EYES);
-    const bangStyle = F ? pick(['curtain', 'swept', 'cover', 'curtain']) : pick(['swept', 'spiky', 'cover', 'curtain', 'swept']);
-    const back = F ? pick(['long', 'long', 'pony', 'bob']) : pick(['none', 'none', 'nape', 'tail']);
+    const bangStyle = young ? pick(['curtain', 'swept']) : F ? pick(['curtain', 'swept', 'cover', 'curtain']) : pick(['swept', 'spiky', 'cover', 'curtain', 'swept']);
+    const back = st === 'baby' ? 'none' : st === 'child' ? (F ? pick(['bob', 'pony']) : 'none') : F ? pick(['long', 'long', 'pony', 'bob']) : pick(['none', 'none', 'nape', 'tail']);
     const outfitKind = pick(['coat', 'hanbok', 'mandarin', 'tactical']);
-    const acc = { earpiece: r() < 0.18, scar: !F && r() < 0.2, marks: rank >= 5 || r() < 0.12, earring: F ? r() < 0.45 : r() < 0.2, mask: !F && r() < 0.1, hairpin: F && r() < 0.35 };
+    const acc = young ? { hairpin: F && r() < 0.5 } : { earpiece: r() < 0.18, scar: !F && r() < 0.2, marks: rank >= 5 || r() < 0.12, earring: F ? r() < 0.45 : r() < 0.2, mask: !F && race === 'human' && r() < 0.1, hairpin: F && r() < 0.35 };
+    const beard = race === 'dwarf' ? (!F || r() < 0.15) : !F && (st === 'elder' ? r() < 0.45 : st === 'middle' ? r() < 0.2 : 0);
 
     const skinSh = mix(skin, '#8a5a6a', 0.28), skinDeep = mix(skin, '#5a3040', 0.45);
     const hairHi = light ? '#ffffff' : shade(hair, 0.45), hairSh = light ? shade(hair, -0.3) : shade(hair, -0.5);
@@ -86,10 +97,13 @@ const PORTRAIT = (() => {
     const backSvg = BACK[back] ? `<path d="${BACK[back]}" fill="${hair}"/><path d="${BACK[back]}" fill="none" stroke="${line}" stroke-width="1"/>` : '';
 
     // ---- 의상
-    const cloth = outfit, clothSh = shade(outfit, outfit === '#f0eee8' ? -0.25 : -0.45), clothHi = shade(outfit, outfit === '#f0eee8' ? 0.3 : 0.18);
+    const babyCol = pick(['#f2c6d0', '#c6dcf2', '#f2e6b8', '#cfe8c8']);
+    const cloth = st === 'baby' ? babyCol : st === 'child' ? pick(['#3a5a8a', '#8a3a4a', '#4a7a5a', '#6a4a8a']) : outfit, clothSh = shade(outfit, outfit === '#f0eee8' ? -0.25 : -0.45), clothHi = shade(outfit, outfit === '#f0eee8' ? 0.3 : 0.18);
     let body = `<path d="M22 240C26 206 50 186 84 178L116 178C150 186 174 206 178 240Z" fill="${cloth}"/>
       <path d="M22 240C26 206 50 186 84 178L92 190C70 200 56 216 52 240Z" fill="${clothSh}"/>`;
-    if (outfitKind === 'coat') body += `
+    if (st === 'baby') body += `<circle cx="100" cy="200" r="5" fill="#fff" opacity=".8"/><path d="M84 186Q100 196 116 186" stroke="#fff" stroke-width="3" fill="none" opacity=".7"/>`;
+    else if (st === 'child') body += `<path d="M84 178Q100 190 116 178" stroke="${clothHi}" stroke-width="4" fill="none"/><rect x="88" y="206" width="24" height="14" rx="3" fill="${clothHi}" opacity=".6"/>`;
+    else if (outfitKind === 'coat') body += `
       <path d="M70 164L84 200L100 212L116 200L130 164L140 176L126 214L100 226L74 214L60 176Z" fill="${clothSh}" stroke="${line}" stroke-width="1"/>
       <path d="M140 176L126 214L100 226" stroke="${ec}" stroke-width="1.4" fill="none" opacity=".8"/>
       <path d="M100 226V240" stroke="${line}" stroke-width="1.5"/>`;
@@ -110,13 +124,17 @@ const PORTRAIT = (() => {
       <rect x="112" y="216" width="22" height="9" fill="${clothSh}"/><rect x="115" y="219" width="7" height="2" fill="${ec}"/>`;
 
     // ---- 목과 얼굴 (V라인)
-    const faceD = F
-      ? 'M71 92C71 64 84 50 100 50C116 50 129 64 129 92C129 112 124 128 115 140L100 153L85 140C76 128 71 112 71 92Z'
+    const faceD = young ? 'M68 92C68 62 82 48 100 48C118 48 132 62 132 92C132 118 121 136 100 143C79 136 68 118 68 92Z'
+      : race === 'orc' ? 'M66 88C66 60 82 46 100 46C118 46 134 60 134 88C134 112 132 130 121 142L100 151L79 142C68 130 66 112 66 88Z'
+      : race === 'dwarf' ? 'M67 92C67 62 82 48 100 48C118 48 133 62 133 92C133 116 125 134 100 143C75 134 67 116 67 92Z'
+      : F ? 'M71 92C71 64 84 50 100 50C116 50 129 64 129 92C129 112 124 128 115 140L100 153L85 140C76 128 71 112 71 92Z'
       : 'M70 90C70 62 84 48 100 48C116 48 130 62 130 90C130 112 125 128 116 140L100 155L84 140C75 128 70 112 70 90Z';
     const neck = `<path d="M89 134L111 134L113 182Q100 188 87 182Z" fill="${skin}"/>
       <path d="M89 140L100 156L111 140L112 162Q100 170 88 162Z" fill="${skinSh}"/>
       <path d="M89 134L111 134L113 182Q100 188 87 182Z" fill="none" stroke="${skinDeep}" stroke-width=".8" opacity=".6"/>`;
-    const ears = `<path d="M70 98Q63 96 64 106Q66 116 72 116Z" fill="${skinSh}"/><path d="M130 98Q137 96 136 106Q134 116 128 116Z" fill="${skin}"/>`;
+    const ears = race === 'elf' ? `<path d="M71 98L44 76Q52 96 64 110Q68 116 72 116Z" fill="${skinSh}" stroke="${skinDeep}" stroke-width=".8"/><path d="M129 98L156 76Q148 96 136 110Q132 116 128 116Z" fill="${skin}" stroke="${skinDeep}" stroke-width=".8"/>`
+      : race === 'beastkin' ? '' : race === 'orc' ? `<path d="M70 96L58 90Q60 106 72 116Z" fill="${skinSh}"/><path d="M130 96L142 90Q140 106 128 116Z" fill="${skin}"/>`
+      : `<path d="M70 98Q63 96 64 106Q66 116 72 116Z" fill="${skinSh}"/><path d="M130 98Q137 96 136 106Q134 116 128 116Z" fill="${skin}"/>`;
     const face = `${ears}<path d="${faceD}" fill="${skin}"/>
       <path d="M71 92C71 112 76 128 85 140L100 153L92 141C82 128 77 112 77 94Z" fill="${skinSh}"/>
       <path d="M129 92C129 112 124 128 115 140L113 138C121 126 126 110 127 92Z" fill="${ec}" opacity=".45"/>
@@ -124,14 +142,21 @@ const PORTRAIT = (() => {
       ${F ? `<ellipse cx="83" cy="121" rx="6" ry="2.4" fill="#ff8a9a" opacity=".22"/><ellipse cx="117" cy="121" rx="6" ry="2.4" fill="#ff8a9a" opacity=".22"/>` : ''}
       <path d="M101 113L98.5 121L102 121.5" stroke="${skinDeep}" stroke-width="1.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
 
+    let feat = '';
+    if (old) feat += `<path d="M92 121Q88 128 91 135M108 121Q112 128 109 135" stroke="${skinDeep}" stroke-width="${st === 'elder' ? 1.1 : 0.8}" fill="none" opacity=".6" stroke-linecap="round"/>`;
+    if (st === 'elder') feat += `<path d="M70 104l-5 -2M70 107l-5 1M130 104l5 -2M130 107l5 1M77 110Q85 114 92 110M108 110Q115 114 123 110" stroke="${skinDeep}" stroke-width=".9" fill="none" opacity=".6" stroke-linecap="round"/>`;
+    if (race === 'orc' && !young) feat += `<path d="M90 140L87 127L94 136Z" fill="#f2ead2" stroke="#8a7a5a" stroke-width=".6"/><path d="M110 140L113 127L106 136Z" fill="#f2ead2" stroke="#8a7a5a" stroke-width=".6"/><path d="M96 118Q100 122 104 118" stroke="${skinDeep}" stroke-width="1.4" fill="none"/>`;
+    if (race === 'dragonkin') feat += `<path d="M120 112q4 -2 6 1M118 118q4 -2 6 1M74 112q4 -3 6 0" stroke="${ec}" stroke-width="1.2" fill="none" opacity=".8"/>`;
     // ---- 눈 (가늘고 날카로운 눈매)
     const sc = F ? 'M76 104Q84 96.5 94.5 101.5Q87 108.5 77.5 106.5Z' : 'M76 104Q85 98.5 94.5 102Q87 107.5 77.5 105.5Z';
-    const eyeOne = (flip) => `<g ${flip ? 'transform="translate(200 0) scale(-1 1)"' : ''}>
+    // 아이 눈은 세로로 크게, 가로는 조금만 (가로로 키우면 두 눈이 이어져 안경처럼 보인다)
+    const eyeK = st === 'baby' ? 'translate(84 104) scale(1.12 1.45) translate(-86 -104)' : st === 'child' ? 'translate(85 104) scale(1.08 1.28) translate(-86 -104)' : st === 'elder' ? 'translate(86 104) scale(1 .82) translate(-86 -104)' : '';
+    const eyeOne = (flip) => `<g ${flip ? 'transform="translate(200 0) scale(-1 1)"' : ''}><g transform="${eyeK}">
         <path d="${sc}" fill="#f8f7fb"/>
         <clipPath id="${id}e${flip ? 1 : 0}"><path d="${sc}"/></clipPath>
         <g clip-path="url(#${id}e${flip ? 1 : 0})">
           <ellipse cx="86.5" cy="103.5" rx="${F ? 4.9 : 4.4}" ry="${F ? 6.2 : 5.2}" fill="url(#${id}iris)"/>
-          <ellipse cx="86.5" cy="104" rx="1.9" ry="${F ? 3.2 : 2.6}" fill="#07070c"/>
+          <ellipse cx="86.5" cy="104" rx="${race === 'dragonkin' ? 0.8 : 1.9}" ry="${F ? 3.2 : 2.6}" fill="#07070c"/>
           <path d="M70 92H100V101Q86 98 70 103Z" fill="${skinDeep}" opacity=".35"/>
         </g>
         <circle cx="88" cy="101.6" r="1.3" fill="#fff"/>
@@ -139,11 +164,13 @@ const PORTRAIT = (() => {
         <path d="${F ? 'M73 102L69.5 100.2' : 'M73.5 102.5L70 101.6'}" stroke="${line}" stroke-width="${F ? 1.8 : 1.4}" stroke-linecap="round"/>
         <path d="M79 107Q85 108.6 90 107.4" stroke="${line}" stroke-width=".8" fill="none" opacity=".55"/>
         ${glowEyes ? `<ellipse cx="86.5" cy="103.5" rx="8" ry="5" fill="${ec}" opacity=".25"/><path d="M76 104L66 106" stroke="${ec}" stroke-width="1" opacity=".7"/>` : ''}
-      </g>`;
+      </g></g>`;
     const browD = F ? 'M75 93.5Q85 90.5 95 93.5' : pick(['M74 92.5L96 95.5', 'M74 94L96 94.5', 'M75 91.5Q86 90 96 94']);
-    const brows = `<path d="${browD}" stroke="${hairSh}" stroke-width="${F ? 1.6 : 2.3}" fill="none" stroke-linecap="round"/>
-      <path d="${browD}" transform="translate(200 0) scale(-1 1)" stroke="${hairSh}" stroke-width="${F ? 1.6 : 2.3}" fill="none" stroke-linecap="round"/>`;
-    const mouth = F
+    const browC = st === 'elder' ? mix(hair, '#ffffff', 0.3) : hairSh;
+    const browW = (F ? 1.6 : 2.3) * (st === 'elder' || race === 'orc' || race === 'dwarf' ? 1.5 : young ? 0.8 : 1);
+    const brows = `<path d="${browD}" stroke="${browC}" stroke-width="${browW}" fill="none" stroke-linecap="round"/>
+      <path d="${browD}" transform="translate(200 0) scale(-1 1)" stroke="${browC}" stroke-width="${browW}" fill="none" stroke-linecap="round"/>`;
+    const mouth = young ? `<path d="M96 133Q100 137 104 133" stroke="${shade(skin, -0.45)}" stroke-width="1.4" fill="none" stroke-linecap="round"/><ellipse cx="82" cy="122" rx="6" ry="3" fill="#ff8a9a" opacity=".3"/><ellipse cx="118" cy="122" rx="6" ry="3" fill="#ff8a9a" opacity=".3"/>` : F
       ? `<path d="M95.5 133.5Q100 135 104.5 133.5" stroke="${shade(skin, -0.45)}" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M97 135.6Q100 136.8 103 135.6" stroke="#d4707e" stroke-width="1.4" fill="none" opacity=".6"/>`
       : `<path d="${pick(['M95 134L105 133.6', 'M95 134.2Q101 135 105.5 132.8'])}" stroke="${shade(skin, -0.5)}" stroke-width="1.3" fill="none" stroke-linecap="round"/>`;
 
@@ -152,17 +179,23 @@ const PORTRAIT = (() => {
     const CAP = 'M66 92C63 56 80 35 100 35C120 35 137 56 134 92C129 72 117 63 100 63C83 63 71 72 66 92Z';
     const LOCK = (back === 'none' || back === 'tail') ? 'M70 80C64 96 65 112 69 122L72 110L75 118C75 104 75 92 77 84Z' : 'M70 76C62 100 64 126 71 146L73 128L77 140C77 116 76 96 78 84Z';
     const bangD = bangs(r, bangStyle);
+    let extra = '';
+    if (race === 'beastkin') { const fox = r() < 0.5; extra += `<path d="M70 58L${fox ? 60 : 64} ${fox ? 16 : 24}L90 42Z" fill="${hair}" stroke="${line}" stroke-width=".9"/><path d="M73 52L66 28L84 42Z" fill="#e8a8b0" opacity=".7"/><path d="M130 58L${fox ? 140 : 136} ${fox ? 16 : 24}L110 42Z" fill="${hair}" stroke="${line}" stroke-width=".9"/><path d="M127 52L134 28L116 42Z" fill="#e8a8b0" opacity=".7"/>`; }
+    if (race === 'dragonkin') extra += `<path d="M76 54Q58 34 66 12Q70 30 84 46Z" fill="#2a2228" stroke="${ec}" stroke-width="1"/><path d="M124 54Q142 34 134 12Q130 30 116 46Z" fill="#2a2228" stroke="${ec}" stroke-width="1"/>`;
+    if (beard) extra += race === 'dwarf' || st === 'elder'
+      ? `<path d="M70 112C71 150 86 174 100 178C114 174 129 150 130 112C122 128 112 134 100 134C88 134 78 128 70 112Z" fill="${hair}" stroke="${line}" stroke-width=".9"/><path d="M84 132Q100 124 116 132Q108 128 100 130Q92 128 84 132Z" fill="${shade(hair, 0.15)}"/><path d="M92 146L94 166M100 148V172M108 146L106 166" stroke="${hairSh}" stroke-width="1" opacity=".6"/>`
+      : `<path d="M80 128Q100 150 120 128Q114 146 100 150Q86 146 80 128Z" fill="${hair}" opacity=".85"/>`;
     // 앞머리·옆머리를 먼저 그리고 윗머리로 뿌리를 덮어, 앞머리와 윗머리 사이에 선이 생기지 않게 한다
-    const hairFront = `<path d="${bangD}" fill="${hair}" stroke="${line}" stroke-width=".9" stroke-linejoin="round"/>
+    const hairFront = st === 'baby' ? `<path d="M74 70C76 52 88 46 100 46C112 46 124 52 126 70C118 60 110 58 100 58C90 58 82 60 74 70Z" fill="${hair}"/><path d="M98 47Q104 36 111 42Q104 42 101 49Z" fill="${hair}" stroke="${line}" stroke-width=".8"/>` : `<path d="${bangD}" fill="${hair}" stroke="${line}" stroke-width=".9" stroke-linejoin="round"/>
       <path d="${LOCK}" fill="${hair}" stroke="${line}" stroke-width=".9"/><path d="${LOCK}" transform="translate(200 0) scale(-1 1)" fill="${hair}" stroke="${line}" stroke-width=".9"/>
       <path d="${CAP}" fill="${hair}"/>
       <path d="${shine(r)}" stroke="${hairHi}" stroke-width="2.4" fill="none" opacity="${light ? 0.55 : 0.4}" stroke-linecap="round"/>
       <path d="M131 76C138 96 137 118 132 132" stroke="${ec}" stroke-width="1.6" fill="none" opacity=".7"/>`;
-    const massSvg = `<path d="${MASS}" fill="${hair}"/><path d="${MASS}" fill="none" stroke="${line}" stroke-width="1"/>
+    const massSvg = st === 'baby' ? '' : `<path d="${MASS}" fill="${hair}"/><path d="${MASS}" fill="none" stroke="${line}" stroke-width="1"/>
       <path d="M72 82C80 68 90 64 100 64C110 64 120 68 128 82L128 104L72 104Z" fill="${hairSh}" opacity=".55"/>
       <path d="M138 120C146 60 124 28 100 28" stroke="${ec}" stroke-width="2" fill="none" opacity=".55"/>`;
     // 앞머리가 이마에 드리우는 그림자
-    const bangShadow = `<clipPath id="${id}fc"><path d="${faceD}"/></clipPath><g clip-path="url(#${id}fc)"><path d="${bangD}" fill="${skinDeep}" opacity=".35" transform="translate(-2 4)"/></g>`;
+    const bangShadow = st === 'baby' ? '' : `<clipPath id="${id}fc"><path d="${faceD}"/></clipPath><g clip-path="url(#${id}fc)"><path d="${bangD}" fill="${skinDeep}" opacity=".35" transform="translate(-2 4)"/></g>`;
 
     // ---- 장신구
     let accSvg = '';
@@ -178,7 +211,11 @@ const PORTRAIT = (() => {
       <radialGradient id="${id}aura"><stop offset="0" stop-color="${ec}" stop-opacity="${aura}"/><stop offset="1" stop-color="${ec}" stop-opacity="0"/></radialGradient>
       <linearGradient id="${id}iris" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${shade(iris, -0.5)}"/><stop offset=".55" stop-color="${iris}"/><stop offset="1" stop-color="${shade(iris, 0.5)}"/></linearGradient>
     </defs>`;
-    const content = `${defs}${bg}${backSvg}${body}${neck}${massSvg}${face}${bangShadow}${eyeOne(false)}${eyeOne(true)}${brows}${mouth}${hairFront}${accSvg}`;
+    // 아이는 머리를 크게, 몸을 작게 (아기는 더 과장)
+    const headT = st === 'baby' ? 'translate(100 118) scale(1.32) translate(-100 -96)' : st === 'child' ? 'translate(100 108) scale(1.14) translate(-100 -96)' : st === 'teen' ? 'translate(100 100) scale(1.04) translate(-100 -96)' : '';
+    const bodyT = st === 'baby' ? 'translate(100 240) scale(.62) translate(-100 -240)' : st === 'child' ? 'translate(100 240) scale(.8) translate(-100 -240)' : '';
+    const content = `${defs}${bg}<g transform="${headT}">${backSvg}</g><g transform="${bodyT}">${body}${neck}</g>
+      <g transform="${headT}">${massSvg}${face}${feat}${bangShadow}${eyeOne(false)}${eyeOne(true)}${brows}${mouth}${extra}${hairFront}${accSvg}</g>`;
     return { content, id, ring: RANKS[rank].color, ec };
   }
 
@@ -193,25 +230,28 @@ const PORTRAIT = (() => {
   return {
     imageFor,
     // 상반신 일러스트 카드
-    card(seed, gender, element, rankIdx, w = 200) {
-      const src = imageFor(seed, gender);
+    card(seed, gender, element, rankIdx, w = 200, opts = {}) {
+      const src = opts.race && opts.race !== 'human' ? null : imageFor(seed, gender);
       const ring = RANKS[rankIdx == null ? 0 : rankIdx].color;
       if (src) return `<div class="portrait-img" style="width:${w}px;--rc:${ring}"><img src="${src}" alt="캐릭터 일러스트" loading="lazy"></div>`;
-      const p = make(seed, gender, element, rankIdx);
+      const p = make(seed, gender, element, rankIdx, opts);
       const c = p.ring;
       return `<svg xmlns="http://www.w3.org/2000/svg" class="portrait" width="${w}" height="${Math.round(w * 1.2)}" viewBox="0 0 200 240" role="img" aria-label="캐릭터 일러스트">${p.content}
         <rect x="1" y="1" width="198" height="238" fill="none" stroke="${c}" stroke-width="1.5" opacity=".7"/>
         <path d="M1 22V1H22M178 1H199V22M199 218V239H178M22 239H1V218" stroke="${c}" stroke-width="4" fill="none"/></svg>`;
     },
     // 원형 얼굴 아이콘
-    avatar(seed, gender, element, rankIdx, size = 56) {
-      const src = imageFor(seed, gender);
+    avatar(seed, gender, element, rankIdx, size = 56, opts = {}) {
+      const src = opts.race && opts.race !== 'human' ? null : imageFor(seed, gender);
       if (src) return `<span class="avatar avatar-img" style="width:${size}px;height:${size}px;--rc:${RANKS[rankIdx == null ? 0 : rankIdx].color}"><img src="${src}" alt=""></span>`;
-      const p = make(seed, gender, element, rankIdx);
-      return `<svg xmlns="http://www.w3.org/2000/svg" class="avatar" width="${size}" height="${size}" viewBox="44 40 112 112" role="img" aria-label="초상화">
-        <defs><clipPath id="${p.id}c"><circle cx="100" cy="96" r="55"/></clipPath></defs>
+      const p = make(seed, gender, element, rankIdx, opts);
+      // 아이는 머리가 크고 아래에 있어서 자르는 영역을 맞춘다
+      const st = opts.age == null ? 'adult' : ageStage(opts.age);
+      const [cy, rr] = st === 'baby' ? [116, 70] : st === 'child' ? [106, 62] : opts.race === 'elf' || opts.race === 'dragonkin' || opts.race === 'beastkin' ? [90, 62] : [96, 56];
+      return `<svg xmlns="http://www.w3.org/2000/svg" class="avatar" width="${size}" height="${size}" viewBox="${100 - rr} ${cy - rr} ${rr * 2} ${rr * 2}" role="img" aria-label="초상화">
+        <defs><clipPath id="${p.id}c"><circle cx="100" cy="${cy}" r="${rr - 1}"/></clipPath></defs>
         <g clip-path="url(#${p.id}c)">${p.content}</g>
-        <circle cx="100" cy="96" r="54.5" fill="none" stroke="${p.ring}" stroke-width="3"/></svg>`;
+        <circle cx="100" cy="${cy}" r="${rr - 1.5}" fill="none" stroke="${p.ring}" stroke-width="${rr / 18}"/></svg>`;
     },
   };
 })();

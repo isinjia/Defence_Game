@@ -483,3 +483,4 @@ p { margin: 6px 0; }
 /* 버전 표시 */
 .ver { position: fixed; right: max(4px, env(safe-area-inset-right, 0px)); bottom: max(1px, env(safe-area-inset-bottom, 0px)); z-index: 50; font-family: var(--font-num); font-size: 10px; letter-spacing: .06em; color: var(--dim); opacity: .75; pointer-events: none; }
 .title-ver { font-family: var(--font-num); font-size: 12px; letter-spacing: .2em; color: var(--ether); opacity: .8; margin-top: 2px; }
+.tag.race { color: #9be36b; border-color: #9be36b55; }

@@ -427,3 +427,22 @@ S({ id: 'road_meet', trigger: 'system', npc: 'here', text: (g, c) => c.npc && c.
     { text: '대련을 청한다', when: (g, c) => c.npc.lastSpar !== g.monthKey(), do: (g, c) => { g.queue.unshift({ type: 'spar', npcId: c.npc.id }); return '"좋지!"'; } },
     { text: '모른 척 지나간다', do: () => '발소리가 멀어졌다.' },
   ] });
+
+// ---------- 이계 종족 ----------
+S({ id: 'race_orc_workers', city: true, text: '공사 현장 앞. 안전모를 쓴 오크 노동자들에게 현장 소장이 소리친다. "니들은 이계 출신이라 일당 반이야! 싫으면 꺼져!" 한 오크가 주먹을 쥐었다 편다.',
+  choices: [
+    { text: '소장에게 따진다', do: (g) => '소장은 당신의 협회 배지를 보고 꼬리를 내렸다. 오크들이 고개 숙여 인사했다. "이 은혜, 잊지 않겠다."' + g.gain({ rep: 4, fame: 3 }) },
+    { text: '오크들에게 협회 노동 상담 창구를 알려 준다', do: (g) => '며칠 뒤 그들이 정당한 임금을 받았다는 소식을 들었다.' + g.gain({ merit: 3, rep: 3 }) },
+    { text: '남의 일이다', do: () => '등 뒤에서 무거운 한숨 소리가 들렸다.' },
+  ] });
+S({ id: 'race_elf_camp', field: true, text: '숲가에 엘프 난민촌이 있다. 불탄 고향에서 건너온 이들이다. 늙은 엘프가 시든 묘목을 쓰다듬으며 말한다. "이 세계의 흙은 거칠군요. 그래도 언젠가 자라겠지요."',
+  choices: [
+    { text: '물자를 나눠 준다', do: (g) => '엘프들이 오래된 노래로 답례했다. 마음이 맑아졌다.' + g.gain({ money: -80, ether: 25 }) },
+    { text: '엘프의 수련법을 묻는다', do: (g) => '"에테르는 강물과 같지요. 거스르지 마세요." 수천 년 된 지혜였다.' + g.gain({ ether: 35 }) },
+    { text: '지나간다', do: () => '바람에 낯선 노래가 실려 왔다.' },
+  ] });
+S({ id: 'race_dwarf_forge', region: ['ulsan', 'suwon'], city: true, text: '드워프 대장장이의 공방. 수염을 땋은 장인이 망치를 내려놓는다. "인간 헌터로군. 그 무기, 균형이 엉망이야. 코어 몇 개 내면 제대로 손봐 주지."',
+  choices: [
+    { text: '코어 3개를 맡긴다', when: (g) => g.coreCount(g.player.rankIdx) >= 3, do: (g) => { g.player.mats['c' + g.player.rankIdx] -= 3; return '불꽃이 튀고, 드워프식 무기가 태어났다.' + g.gain({ equip: 1 }); } },
+    { text: '드워프식 단조를 구경한다', do: (g) => '망치질 소리에 맞춰 에테르가 정돈되는 느낌이었다.' + g.gain({ ether: 15 }) },
+  ] });

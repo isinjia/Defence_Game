@@ -155,7 +155,7 @@ Object.assign(UI, {
     G.markSeen(ev.id);
     this.curStory = { ev, c, q };
     const text = G.storyFill(typeof ev.text === 'function' ? ev.text(G, c) : ev.text, c);
-    const art = c.npc ? `<div class="story-portrait">${FX.portrait('npc' + c.npc.id + c.npc.name, c.npc.gender, c.npc.element, c.npc.rankIdx, 130)}<div><b>${c.npc.name}</b><div class="small">${this.rankTag(c.npc.rankIdx, c.npc.stage)} ${this.elemTag(c.npc.element)}</div><div class="small dim">${c.npc.met ? `관계 ${relationLabel(c.npc.relation)} (${c.npc.relation})` : '처음 보는 인물'}</div></div></div>` : FX.eventArt(ev.id.replace(/^base_/, ''));
+    const art = c.npc ? `<div class="story-portrait">${UI.npcPortrait(c.npc, 130)}<div><b>${c.npc.name}</b><div class="small">${this.rankTag(c.npc.rankIdx, c.npc.stage)} ${this.elemTag(c.npc.element)}</div><div class="small dim">${c.npc.met ? `관계 ${relationLabel(c.npc.relation)} (${c.npc.relation})` : '처음 보는 인물'}</div></div></div>` : FX.eventArt(ev.id.replace(/^base_/, ''));
     const choices = ev.choices.map((ch, i) => ({ ch, i })).filter(({ ch }) => !ch.when || ch.when(G, c));
     this.modal(`${art}<div class="eyebrow">${ev.chain ? '기연' : '사건'} · ${G.fullDate()} · ${G.region().name}</div>
       <p class="event-text">${text.replace(/\n/g, '<br>')}</p>
@@ -175,7 +175,7 @@ Object.assign(UI, {
     if (!rq || !c.npc || !c.npc.alive) return this.processQueue();
     this.curReq = { rq, c, q };
     const text = rq.text(G, c);
-    this.modal(`<div class="story-portrait">${FX.portrait('npc' + c.npc.id + c.npc.name, c.npc.gender, c.npc.element, c.npc.rankIdx, 130)}<div><div class="eyebrow">메시지 · ${G.fullDate()}</div><b>${c.npc.name}</b><div class="small">${this.rankTag(c.npc.rankIdx, c.npc.stage)} · ${regionById(c.npc.region).name}</div><div class="small dim">관계 ${relationLabel(c.npc.relation)} (${c.npc.relation})</div></div></div>
+    this.modal(`<div class="story-portrait">${UI.npcPortrait(c.npc, 130)}<div><div class="eyebrow">메시지 · ${G.fullDate()}</div><b>${c.npc.name}</b><div class="small">${this.rankTag(c.npc.rankIdx, c.npc.stage)} · ${regionById(c.npc.region).name}</div><div class="small dim">관계 ${relationLabel(c.npc.relation)} (${c.npc.relation})</div></div></div>
       <p class="event-text">${fixJosa(text).replace(/\n/g, '<br>')}</p>
       <div class="cards"><button class="choice-btn" data-act="req" data-v="1">${rq.accept}</button><button class="choice-btn" data-act="req" data-v="0">${rq.decline || '거절한다'}</button></div>`, 'event-box');
   },
@@ -273,7 +273,7 @@ Object.assign(UI, {
       G.lifeEvent(`${G.year}년 전국 헌터 대회에서 우승했다.`);
       G.rumor(`${G.year}년 전국 헌터 대회 우승자는 ${G.player.name}! 결승에서 ${n.name}을(를) 꺾었다.`);
       G.save(); this.renderGame();
-      return this.modal(`${FX.portrait(G.player.look, G.player.gender, G.player.element, G.player.rankIdx, 150)}<div class="eyebrow">전국 헌터 대회</div><h2>우승</h2><p class="event-text">트로피가 손에 쥐어졌다. 플래시 세례가 쏟아진다.${gain}</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>`, 'event-box');
+      return this.modal(`${UI.playerPortrait(150)}<div class="eyebrow">전국 헌터 대회</div><h2>우승</h2><p class="event-text">트로피가 손에 쥐어졌다. 플래시 세례가 쏟아진다.${gain}</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>`, 'event-box');
     }
     const gain = G.gain({ fame: 3 + t.round * 5, money: 200 * (t.round + 1) });
     G.save(); this.renderGame();
@@ -318,7 +318,7 @@ Object.assign(UI, {
     G.rumor(`故 ${old.name}의 자녀 ${p.name}이(가) 헌터로서 첫발을 내디뎠다.`);
     G.save();
     this.closeModal(); this.renderGame(); this.map.centerOn(p.x, p.y);
-    this.modal(`${FX.portrait(p.look, p.gender, p.element, p.rankIdx, 150)}<div class="eyebrow">${G.fullDate()}</div><h2>계승</h2><p class="event-text">${p.name}은(는) 부모가 남긴 장비와 유물, 그리고 원한과 인연을 함께 물려받았다.</p><div class="row end"><button class="primary" data-act="modal-close">시작</button></div>`, 'event-box');
+    this.modal(`${UI.playerPortrait(150)}<div class="eyebrow">${G.fullDate()}</div><h2>계승</h2><p class="event-text">${p.name}은(는) 부모가 남긴 장비와 유물, 그리고 원한과 인연을 함께 물려받았다.</p><div class="row end"><button class="primary" data-act="modal-close">시작</button></div>`, 'event-box');
   },
 });
 

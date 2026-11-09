@@ -116,7 +116,7 @@ Object.assign(UI, {
     this.saveName(s.name);
     if (this.stopPro) { this.stopPro(); this.stopPro = null; }
     this.screen = 'game'; this.render();
-    this.modal(`<div class="ending">${FX.portrait(p.look, p.gender, p.element, 0, 160)}<div class="eyebrow">${G.dateStr()} · ${G.region().name}</div><h2>헌터 ${p.name}</h2></div>
+    this.modal(`<div class="ending">${UI.playerPortrait(160)}<div class="eyebrow">${G.dateStr()} · ${G.region().name}</div><h2>헌터 ${p.name}</h2></div>
       <p>${className(p.cls)} · ${ELEMENTS[p.element].name} 속성 · F급. 지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.</p>
       <p class="dim">소꿉친구 ${f.name}은(는) ${G.region().name}에 있습니다. 인물 창에서 만날 수 있습니다.</p>
       <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>`);

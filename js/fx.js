@@ -52,8 +52,8 @@ const FX = {
   },
 
   // ---------- 인물 초상화 (portrait.js) ----------
-  avatar(seed, gender, element, rankIdx, size = 56) { return PORTRAIT.avatar(seed, gender, element, rankIdx, size); },
-  portrait(seed, gender, element, rankIdx, w = 200) { return PORTRAIT.card(seed, gender, element, rankIdx, w); },
+  avatar(seed, gender, element, rankIdx, size = 56, opts) { return PORTRAIT.avatar(seed, gender, element, rankIdx, size, opts); },
+  portrait(seed, gender, element, rankIdx, w = 200, opts) { return PORTRAIT.card(seed, gender, element, rankIdx, w, opts); },
 
   // ---------- 괴수 스프라이트 ----------
   monster(mon, size = 110) {

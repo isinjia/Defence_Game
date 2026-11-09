@@ -93,6 +93,26 @@ class Game {
     for (const n of this.npcs) { n.links ??= {}; n.disciples ??= []; n.parents ??= []; }
     // 처음 몇 년치 인간관계를 미리 굴려 세계에 사연을 만든다
     for (let i = 0; i < 24; i++) this.simulateSociety();
+    // 은퇴를 앞둔 노인 헌터들 (에테르 덕에 일반인보다 오래 산다)
+    for (const n of this.npcs.filter((x) => !x.child && RNG.chance(0.13))) {
+      const age = RNG.int(62, 84);
+      n.ageMonths = age * 12 + RNG.int(0, 11); n.lifespan = Math.max(n.lifespan, age + RNG.int(3, 14));
+    }
+    // 부부에게 이미 자란 아이들
+    for (const a of this.adults().filter((x) => x.spouse && x.id < x.spouse)) {
+      if (!RNG.chance(0.55)) continue;
+      const b = this.npcById(a.spouse); if (!b) continue;
+      const c = this.makeNpc(true, RNG.chance(0.5) ? a.race : b.race); c.child = true; c.parents = [a.id, b.id]; c.region = a.region;
+      c.ageMonths = RNG.int(0, 16) * 12 + RNG.int(0, 11); if (c.race === 'human' && a.race === 'human') c.name = a.name[0] + c.name.slice(1);
+      this.npcs.push(c);
+    }
+    // 홀로 아이를 키우는 헌터들
+    for (const a of this.adults().filter((x) => x.ageMonths >= 26 * 12 && x.ageMonths <= 55 * 12 && !x.spouse)) {
+      if (!RNG.chance(0.14)) continue;
+      const c = this.makeNpc(true, a.race); c.child = true; c.parents = [a.id]; c.region = a.region;
+      c.ageMonths = RNG.int(0, 15) * 12 + RNG.int(0, 11); if (c.race === 'human') c.name = a.name[0] + c.name.slice(1);
+      this.npcs.push(c);
+    }
     this.rumors = [];
     this.lifeEvent(`${regionById(this.player.region).name}에서 각성했다.`);
     this.log(`${this.dateStr()}, ${this.player.name}은(는) ${regionById(this.player.region).name}에서 각성했다.`, 'major');
@@ -492,11 +512,13 @@ class Game {
   }
 
   // ---------- NPC ----------
-  makeNpc(young) {
+  makeNpc(young, race) {
     const gender = RNG.chance(0.5) ? 'M' : 'F';
-    const name = RNG.pick(SURNAMES) + RNG.pick(gender === 'M' ? GIVEN_M : GIVEN_F);
+    race = race || rollRace();
+    const name = race === 'human' ? RNG.pick(SURNAMES) + RNG.pick(gender === 'M' ? GIVEN_M : GIVEN_F) : RNG.pick(RACES[race].names[gender]);
     const rankIdx = young ? RNG.weighted([0, 1], [80, 20]) : RNG.weighted([0, 1, 2, 3, 4, 5, 6], [26, 24, 18, 13, 10, 6, 3]);
-    const lifespan = BASE_LIFESPAN + RANKS[rankIdx].life + RNG.int(-8, 8);
+    const raceLife = { elf: 35, dwarf: 15, dragonkin: 25, orc: -5, beastkin: -5 }[race] || 0;
+    const lifespan = BASE_LIFESPAN + RANKS[rankIdx].life + raceLife + RNG.int(-8, 8);
     let ageYears = young ? RNG.int(18, 22) : Math.min(lifespan - 3, 19 + rankIdx * 5 + RNG.int(0, 15));
     const guildIds = Object.keys(GUILDS);
     return {
@@ -508,7 +530,8 @@ class Game {
       guild: rankIdx >= 1 && RNG.chance(0.35) ? RNG.pick(guildIds) : null,
       lastTalk: -1, lastSpar: -1, met: false, isCompanion: false, death: null,
       links: {}, disciples: [], parents: [], partner: null, spouse: null, master: null, child: false,
-      cls: rollClass(),
+      cls: race !== 'human' && RACES[race].groups.length && RNG.chance(0.6) ? RNG.pick(CLASSES.filter((c) => RACES[race].groups.includes(c.g) && c.r < 3)).id : rollClass(),
+      race,
     };
   }
 
@@ -694,7 +717,8 @@ class Game {
     const cls = n.cls || 'swordsman';
     const adv = n.rankIdx >= 6 ? 2 : n.rankIdx >= 3 ? 1 : 0;
     const m = statMult(n.rankIdx, n.stage) * 1.12;
-    const cm = (k) => 1 + this.classMod(cls, adv, k);
+    const rm = (n.race && RACES[n.race]) ? RACES[n.race].mods : {};
+    const cm = (k) => 1 + this.classMod(cls, adv, k) + (rm[k] || 0);
     const skills = ['strike', ...SKILLS.filter((s) => s.cls === cls && s.rankReq <= n.rankIdx).map((s) => s.id), ...SKILLS.filter((s) => !s.cls && s.elem === n.element && s.rankReq <= n.rankIdx && s.price).map((s) => s.id).slice(-1)];
     return {
       id: 'npc' + n.id, npcId: n.id, name: n.name, side, cls, clsAdv: adv, pers: n.personality,

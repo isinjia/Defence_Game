@@ -119,7 +119,7 @@ Object.assign(Game.prototype, {
     if (p.spouse && RNG.chance(0.035) && this.ageYears() < 55) {
       const sp = this.npcById(p.spouse);
       if (sp && sp.alive) {
-        const c = this.makeNpc(true); c.ageMonths = 0; c.child = true; c.parents = [-1, sp.id]; c.region = p.region;
+        const c = this.makeNpc(true, RNG.chance(0.5) ? (p.race || 'human') : sp.race); c.ageMonths = 0; c.child = true; c.parents = [-1, sp.id]; c.region = p.region;
         c.name = p.name[0] + c.name.slice(1); c.met = true; c.relation = 80; c.element = RNG.chance(0.5) ? p.element : sp.element;
         this.npcs.push(c); (p.children ||= []).push(c.id);
         this.lifeEvent(`${sp.name}와(과)의 사이에서 아이 ${c.name}이(가) 태어났다.`);

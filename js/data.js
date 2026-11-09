@@ -1,5 +1,5 @@
 // 게임 버전 (화면 오른쪽 아래에 표시)
-const GAME_VERSION = '0.04';
+const GAME_VERSION = '0.05';
 
 // ===== 게이트 크로니클: 데이터 정의 =====
 // 귀곡팔황의 "경지"를 각성 등급으로, "오행"을 에테르 속성으로 옮겼다.
@@ -307,3 +307,29 @@ const SAGA = {
   tournamentMonth: 9, tournamentCity: 'gangnam', tournamentEvery: 3,
   auctionMonth: 5,
 };
+
+// ===== 이계 종족 =====
+// 대붕괴 뒤 게이트 너머에서 건너와 한반도에 정착한 종족들. 일부는 각성자로 등록해 헌터로 활동한다.
+const RACES = {
+  human: { name: '인간', w: 70, mods: {}, groups: [] },
+  orc: { name: '오크', w: 7, mods: { hp: 0.2, atk: 0.12, mp: -0.15 }, groups: ['fighter', 'guard'], desc: '강철 같은 근육과 엄니. 이계 전쟁에서 밀려나 건너온 전사 종족.',
+    names: { M: ['우르그', '고르박', '카르둠', '브루나크', '타가르', '모르가쉬', '라즈곤', '두르크'], F: ['무르가', '라즈가', '오르샤', '가르나', '우르사', '타르카'] } },
+  elf: { name: '엘프', w: 7, mods: { spd: 0.15, mp: 0.15, hp: -0.1 }, groups: ['shooter', 'mage', 'support'], desc: '긴 귀와 긴 수명. 숲이 불탄 세계에서 건너온 난민.',
+    names: { M: ['실바렌', '엘라딘', '페아노르', '갈리엔', '아르웬도', '리안델'], F: ['세리안', '엘리네', '이스릴', '나엘리', '루시엔', '아마리스'] } },
+  dwarf: { name: '드워프', w: 6, mods: { def: 0.2, hp: 0.12, spd: -0.1 }, groups: ['guard', 'fighter', 'support'], desc: '작고 단단하다. 울산 용광로에서 일하는 장인이 많다.',
+    names: { M: ['두르간', '브로크', '토린바', '그림달', '발두르', '하르곤'], F: ['디스나', '헬가', '브룬힐', '마그라', '토라', '이델가'] } },
+  beastkin: { name: '수인', w: 7, mods: { spd: 0.2, atk: 0.08, def: -0.05 }, groups: ['shadow', 'fighter'], desc: '짐승의 귀와 감각. 늑대족, 여우족, 고양이족이 섞여 산다.',
+    names: { M: ['카야', '로웬', '티그로', '하울', '바로크', '세이른'], F: ['루나', '미야', '코하', '레이나', '시엘', '아라'] } },
+  dragonkin: { name: '용인', w: 3, mods: { atk: 0.12, def: 0.12, hp: 0.1 }, groups: ['fighter', 'mage'], desc: '뿔과 비늘. 수가 적고 자존심이 높다.',
+    names: { M: ['드라칸', '바르토스', '이그니르', '세라드', '카이렌'], F: ['이리스', '베라딘', '세레스', '아샤라', '니르바'] } },
+};
+const RACE_KEYS = Object.keys(RACES);
+function rollRace(rng = Math.random) {
+  const tot = RACE_KEYS.reduce((a, k) => a + RACES[k].w, 0);
+  let r = rng() * tot;
+  for (const k of RACE_KEYS) { r -= RACES[k].w; if (r < 0) return k; }
+  return 'human';
+}
+// 나이대: 초상화와 상호작용에 쓰인다
+function ageStage(years) { return years < 4 ? 'baby' : years < 13 ? 'child' : years < 18 ? 'teen' : years < 50 ? 'adult' : years < 65 ? 'middle' : 'elder'; }
+const AGE_NAME = { baby: '아기', child: '어린이', teen: '청소년', adult: '성인', middle: '중년', elder: '노인' };

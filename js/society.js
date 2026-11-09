@@ -18,7 +18,7 @@ Object.assign(Game.prototype, {
     if (p.companion) { if (!p.party.includes(p.companion)) p.party.push(p.companion); p.companion = null; }
     this.world ??= { breaks: [], boards: {}, auctions: {}, lastTournament: 0, archives: {} };
     this.flags.chains ??= {}; this.flags.chainAt ??= {}; this.flags.seen ??= {}; this.flags.story ??= {};
-    for (const n of this.npcs) { n.links ??= {}; n.disciples ??= []; n.parents ??= []; n.cls ??= rollClass(); }
+    for (const n of this.npcs) { n.links ??= {}; n.disciples ??= []; n.parents ??= []; n.cls ??= rollClass(); n.race ??= 'human'; }
   },
 
   // ---------- 용병 사무소 ----------
@@ -430,8 +430,8 @@ Object.assign(Game.prototype, {
         if (notable(a, b)) this.rumor(`${a.name}와(과) ${b.name}이(가) 결혼식을 올렸다. 하객 명단에 S급이 둘이나 있었다는 소문이다.`);
         if (a.met && a.relation >= 30) this.queue.push({ type: 'story', id: 'npc_wedding', npc: a.id });
       } else if (a.spouse === b.id && a.ageMonths < 45 * 12 && RNG.chance(0.04)) {
-        const c = this.makeNpc(true); c.ageMonths = 0; c.child = true; c.parents = [a.id, b.id]; c.region = a.region;
-        c.surname = a.name[0]; c.name = a.name[0] + c.name.slice(1); c.lifespan += 2;
+        const c = this.makeNpc(true, RNG.chance(0.5) ? a.race : b.race); c.ageMonths = 0; c.child = true; c.parents = [a.id, b.id]; c.region = a.region;
+        if (c.race === 'human' && a.race === 'human') c.name = a.name[0] + c.name.slice(1); c.lifespan += 2;
         this.npcs.push(c);
         if (notable(a, b)) this.rumor(`${a.name}·${b.name} 부부가 아이를 얻었다. 이름은 ${c.name}.`);
       } else if (Math.abs(a.rankIdx - b.rankIdx) >= 2 && L >= 40 && RNG.chance(0.12)) {

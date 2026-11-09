@@ -43,8 +43,12 @@ const UI = {
     };
     return `<span class="slot-ico" style="--c:${color}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[slot]}</svg></span>`;
   },
-  npcAvatar(n, size) { return FX.avatar('npc' + n.id + n.name, n.gender, n.element, n.rankIdx, size); },
-  playerAvatar(size) { const p = G.player; return FX.avatar(p.look, p.gender, p.element, p.rankIdx, size); },
+  npcLook(n) { return { age: Math.floor(n.ageMonths / 12), race: n.race || 'human' }; },
+  npcAvatar(n, size) { return FX.avatar('npc' + n.id + n.name, n.gender, n.element, n.rankIdx, size, this.npcLook(n)); },
+  npcPortrait(n, w) { return FX.portrait('npc' + n.id + n.name, n.gender, n.element, n.rankIdx, w, this.npcLook(n)); },
+  playerAvatar(size) { const p = G.player; return FX.avatar(p.look, p.gender, p.element, p.rankIdx, size, { age: G.ageYears(), race: p.race || 'human' }); },
+  playerPortrait(w) { const p = G.player; return FX.portrait(p.look, p.gender, p.element, p.rankIdx, w, { age: G.ageYears(), race: p.race || 'human' }); },
+  raceTag(n) { const r = n.race || 'human'; return r === 'human' ? '' : `<span class="tag race">${RACES[r].name}</span>`; },
 
   render() {
     if (this.screen !== 'title' && this.stopTitle) { this.stopTitle(); this.stopTitle = null; }
@@ -212,7 +216,7 @@ const UI = {
     document.getElementById('hud-tr').innerHTML = fixJosa(this.hudObjective());
     document.getElementById('hud-card').innerHTML = fixJosa(this.hudCard());
     document.getElementById('hud-actions').innerHTML = fixJosa(this.hudActions());
-    this.map.setPlayerImage(PORTRAIT.imageFor(p.look, p.gender) || FX.avatar(p.look, p.gender, p.element, p.rankIdx, 128));
+    this.map.setPlayerImage(PORTRAIT.imageFor(p.look, p.gender) || this.playerAvatar(128));
     this.map.refresh();
   },
 
@@ -430,7 +434,7 @@ const UI = {
     const name = this.sheet || 'char';
     if (name.startsWith('npc:')) {
       const n = G.npcById(+name.slice(4));
-      return `<div class="sheet-head"><h3>교류</h3><button class="icon-btn" data-act="modal-close" aria-label="닫기">×</button></div>${n ? `<div class="npc-sheet">${FX.portrait('npc' + n.id + n.name, n.gender, n.element, n.rankIdx, 180)}${this.npcCard(n, n.alive && n.region === G.player.region)}</div>` : ''}`;
+      return `<div class="sheet-head"><h3>교류</h3><button class="icon-btn" data-act="modal-close" aria-label="닫기">×</button></div>${n ? `<div class="npc-sheet">${UI.npcPortrait(n, 180)}${this.npcCard(n, n.alive && n.region === G.player.region)}</div>` : ''}`;
     }
     const tabs = [['char', '정보'], ['skills', '스킬'], ['party', '파티'], ['people', '인물'], ['quest', '의뢰'], ['guild', '길드'], ['log', '연대기']];
     let body = '';
@@ -516,7 +520,12 @@ const UI = {
     const rel = n.relation;
     const mk = G.monthKey();
     let btns = '';
-    if (here && n.alive) {
+    if (here && n.alive && n.child) {
+      btns = `<div class="row npc-btns">
+        <button class="sm" data-act="npc-talk" data-v="${n.id}" ${n.lastTalk === mk ? 'disabled' : ''}>${ageStage(Math.floor(n.ageMonths / 12)) === 'baby' ? '어르기' : '말 걸기'}</button>
+        <button class="sm" data-act="npc-gift" data-v="${n.id}">선물 <span class="num">${fmt(G.giftCost(n))}</span></button>
+      </div>`;
+    } else if (here && n.alive) {
       btns = `<div class="row npc-btns">
         <button class="sm" data-act="npc-talk" data-v="${n.id}" ${n.lastTalk === mk ? 'disabled' : ''}>대화</button>
         <button class="sm" data-act="npc-gift" data-v="${n.id}">선물 <span class="num">${fmt(G.giftCost(n))}</span></button>
@@ -532,8 +541,8 @@ const UI = {
         ${this.npcAvatar(n, 52)}
         <div class="grow">
           <div class="row between"><b>${n.name}</b><span>${this.bondTag(n)}${n.isCompanion ? '<span class="tag good">동료</span>' : ''}</span></div>
-          <div class="small dim">${n.gender === 'M' ? '남' : '여'} · ${Math.floor(n.ageMonths / 12)}세 · ${pers.name} · ${n.guild ? GUILDS[n.guild].name : '무소속'}</div>
-          <div class="row small">${this.rankTag(n.rankIdx, n.stage)} ${this.clsTag(n.cls || 'swordsman', n.rankIdx >= 6 ? 2 : n.rankIdx >= 3 ? 1 : 0)} ${this.elemTag(n.element)}</div>
+          <div class="small dim">${n.gender === 'M' ? '남' : '여'} · ${Math.floor(n.ageMonths / 12)}세${n.child ? ` · ${AGE_NAME[ageStage(Math.floor(n.ageMonths / 12))]}` : ''} · ${pers.name}${n.child ? '' : ` · ${n.guild ? GUILDS[n.guild].name : '무소속'}`} ${this.raceTag(n)}</div>
+          <div class="row small">${n.child ? '<span class="tag">비각성</span>' : `${this.rankTag(n.rankIdx, n.stage)} ${this.clsTag(n.cls || 'swordsman', n.rankIdx >= 6 ? 2 : n.rankIdx >= 3 ? 1 : 0)} ${this.elemTag(n.element)}`}</div>
         </div>
       </div>
       ${!here ? `<div class="small dim">${n.alive ? regionById(n.region).name : `사망 · ${n.death.date} · ${n.death.cause}`}</div>` : ''}
@@ -552,7 +561,7 @@ const UI = {
   },
 
   peopleHtml() {
-    const here = G.npcsHere().sort((a, b) => b.isCompanion - a.isCompanion || b.relation - a.relation || b.rankIdx - a.rankIdx);
+    const here = [...G.npcsHere(), ...G.npcs.filter((n) => n.alive && n.child && n.region === G.player.region)].sort((a, b) => b.isCompanion - a.isCompanion || a.child - b.child || b.relation - a.relation || b.rankIdx - a.rankIdx);
     const known = G.npcs.filter((n) => n.met && (n.region !== G.player.region || !n.alive)).sort((a, b) => b.alive - a.alive || b.relation - a.relation);
     return `<div class="panel"><h3>${G.region().name}의 각성자들</h3>
       <p class="dim">대화와 선물로 관계를 쌓으세요. 관계 40 이상이면 상위 등급자에게 가르침을, 50 이상이면 파티 초대를 할 수 있습니다. 관계가 -30 이하면 기습당할 수 있습니다.</p>
@@ -564,7 +573,7 @@ const UI = {
   charHtml() {
     const p = G.player; const bg = BACKGROUNDS.find((b) => b.id === p.bg);
     return `<div class="panel">
-      <div class="char-head">${FX.portrait(p.look, p.gender, p.element, p.rankIdx, 150)}<div><h3>${p.name}</h3><div class="dim">${p.gender === 'M' ? '남' : '여'} · ${G.ageYears()}세 · ${bg.name}</div><div class="row">${this.rankTag(p.rankIdx, p.stage)} ${this.clsTag(p.cls, p.clsAdv)} ${this.elemTag(p.element)}</div></div></div>
+      <div class="char-head">${UI.playerPortrait(150)}<div><h3>${p.name}</h3><div class="dim">${p.gender === 'M' ? '남' : '여'} · ${G.ageYears()}세 · ${bg.name}</div><div class="row">${this.rankTag(p.rankIdx, p.stage)} ${this.clsTag(p.cls, p.clsAdv)} ${this.elemTag(p.element)}</div></div></div>
       <div class="sec"><div class="sec-title">직업</div>${(() => { const k = classById(p.cls); const g = CLASS_GROUPS[k.g]; return `<div class="trait" style="border-left-color:${g.color}"><b>${className(p.cls, p.clsAdv)} <span class="small" style="color:${g.color}">${g.name} · ${CLASS_RARITY[k.r]}</span></b><span class="dim">${k.desc}</span><span class="small">전직 단계: ${[k.name, ...k.adv].map((n, i) => (i === p.clsAdv ? `<b class="amber">${n}</b>` : n)).join(' → ')} (C급, S급에서 전직 시험)</span><span class="small dim">직업 스킬: ${k.skills.map((x, i) => `${x[0]}(${RANKS[[0, 2, 5][i]].key}급)`).join(' · ')}</span></div>`; })()}</div>
       <div class="sec"><div class="sec-title">선천 특성</div><div class="cards traits">${p.traits.map((id) => { const t = traitById(id); return `<div class="trait"><b>${t.name}</b><span class="dim">${t.desc}</span></div>`; }).join('')}</div></div>
       <div class="sec"><div class="sec-title">장착 장비</div><div class="cards">${['weapon', 'armor', 'acc'].map((s) => { const it = p.equip[s]; return it
@@ -642,7 +651,7 @@ const UI = {
     if (q.type === 'ambush') {
       const n = G.npcById(q.npcId);
       if (!n || !n.alive) return this.processQueue();
-      this.modal(`<div class="ambush">${FX.portrait('npc' + n.id + n.name, n.gender, n.element, n.rankIdx, 120)}<div><div class="eyebrow bad">기습</div><h3>${n.name}</h3><div class="row small">${this.rankTag(n.rankIdx, n.stage)} ${this.elemTag(n.element)}</div></div></div>
+      this.modal(`<div class="ambush">${UI.npcPortrait(n, 120)}<div><div class="eyebrow bad">기습</div><h3>${n.name}</h3><div class="row small">${this.rankTag(n.rankIdx, n.stage)} ${this.elemTag(n.element)}</div></div></div>
         <p>${n.name}이(가) 살기를 띠고 덤벼든다. "여기서 끝장을 내주마!"</p>
         <div class="row end"><button class="danger" data-act="ambush-fight" data-v="${n.id}">맞서 싸운다</button></div>`);
       return;
@@ -665,14 +674,14 @@ const UI = {
     </div>`;
   },
   showGameOver() {
-    this.modal(`<div class="ending dead-end">${FX.portrait(G.player.look, G.player.gender, G.player.element, G.player.rankIdx, 160)}<div class="eyebrow">${G.over.date}</div><h2>각성자 ${G.player.name}, 잠들다</h2><p>${G.over.reason}</p></div>${this.lifeSummary()}
+    this.modal(`<div class="ending dead-end">${UI.playerPortrait(160)}<div class="eyebrow">${G.over.date}</div><h2>각성자 ${G.player.name}, 잠들다</h2><p>${G.over.reason}</p></div>${this.lifeSummary()}
       <div class="sec-title sec">인생 기록</div><div class="logs life-log">${G.player.lifeEvents.map((e) => `<div class="l"><span class="d">${e.age}세</span>${e.text}</div>`).join('')}</div>
       <p class="dim">당신의 이름은 헌터 커뮤니티의 추모 게시판에 오래 남았다.</p>
       ${this.heirs().length ? `<div class="sec-title sec">뒤를 이을 사람</div><div class="cards">${this.heirs().map((n) => `<button class="choice-btn" data-act="succeed" data-v="${n.id}">${this.npcAvatar(n, 32)} ${n.name} · ${RANKS[n.rankIdx].key}급 · ${Math.floor(n.ageMonths / 12)}세로 이어 간다</button>`).join('')}</div>` : ''}
       <div class="row end"><button class="${this.heirs().length ? 'ghost' : 'primary'}" data-act="to-title">타이틀로</button></div>`);
   },
   showVictory() {
-    this.modal(`<div class="ending win-end">${FX.portrait(G.player.look, G.player.gender, G.player.element, G.player.rankIdx, 160)}<div class="eyebrow">${G.dateStr()}</div><h2>원초의 게이트 봉인</h2>
+    this.modal(`<div class="ending win-end">${UI.playerPortrait(160)}<div class="eyebrow">${G.dateStr()}</div><h2>원초의 게이트 봉인</h2>
       <p>심연의 군주가 쓰러지고, 20년간 한반도를 뒤덮었던 에테르 폭풍이 잦아들었다. 사람들은 ${G.player.name}의 이름을 영웅으로 기억할 것이다.</p></div>${this.lifeSummary()}
       <p class="dim">남은 수명 동안 계속 살아갈 수 있습니다.</p>
       <div class="row end"><button class="primary" data-act="modal-close">계속하기</button></div>`);
@@ -1028,7 +1037,7 @@ const UI = {
         G.save();
         this.screen = 'game';
         this.render();
-        return this.modal(`<div class="ending">${FX.portrait(G.player.look, G.player.gender, G.player.element, G.player.rankIdx, 160)}<div class="eyebrow">${G.dateStr()} · ${G.region().name}</div><h2>각성</h2></div>
+        return this.modal(`<div class="ending">${UI.playerPortrait(160)}<div class="eyebrow">${G.dateStr()} · ${G.region().name}</div><h2>각성</h2></div>
           <p>평범했던 ${name}의 몸에 처음으로 에테르가 흘렀다. 관리국의 측정 결과는 <b>F급</b>. 가장 낮은 등급이지만, 당신에겐 아직 ${G.maxLife() - G.ageYears()}년의 수명이 남아 있다.</p>
           <p class="dim">정해진 길은 없다. 도시에 들어가 의뢰를 받고, 사람을 만나고, 게이트에서 코어를 모아 각성 촉매를 만들어라. 어떻게 살지는 당신이 정한다.</p><div class="row end"><button class="primary" data-act="modal-close">시작</button></div>`);
       }
@@ -1070,7 +1079,7 @@ const UI = {
       case 'npc-spar': { const n = G.npcById(+v); if (n) this.startSpar(n); return; }
       case 'npc-duel': {
         const n = G.npcById(+v);
-        return this.modal(`<div class="ambush">${FX.portrait('npc' + n.id + n.name, n.gender, n.element, n.rankIdx, 120)}<div><div class="eyebrow bad">생사결</div><h3>${n.name}</h3><div class="row small">${this.rankTag(n.rankIdx, n.stage)} ${this.elemTag(n.element)}</div></div></div>
+        return this.modal(`<div class="ambush">${UI.npcPortrait(n, 120)}<div><div class="eyebrow bad">생사결</div><h3>${n.name}</h3><div class="row small">${this.rankTag(n.rankIdx, n.stage)} ${this.elemTag(n.element)}</div></div></div>
           <p>목숨을 건 결투를 신청합니다. 패배하면 <b>죽습니다</b>. 선량한 인물을 해치면 명성이 크게 떨어집니다.</p>
           <div class="row end"><button class="ghost" data-act="modal-close">취소</button><button class="danger" data-act="duel-go" data-v="${n.id}">결투한다</button></div>`);
       }
