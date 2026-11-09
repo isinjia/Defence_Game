@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.45";
+const GAME_VERSION = "0.46";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -1007,33 +1007,33 @@ const PROLOGUE = {
     textBy: { arc_late: '본원 3층 등록과. 검진, 유도 시술, 적성 실기까지 끝났다. 남은 건 서류 마지막 장과 형식적인 확인 측정 한 번이다. 복도 의자에서 {friend}이(가) {?friend_hurt:아직 빨간 눈으로 손을 흔든다|국밥은 네가 사라며 손가락으로 브이를 그린다}.\n\n담당관이 펜을 돌린다. "등급은 협회 실기 시험 뒤에 확정돼요. 마지막 칸만 남았네요. 헌터가 되려는 이유가 뭡니까?"', arc_ill: '퇴원 다음 주, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_crime: '인질극 진술서에 서명한 다음 날, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_storm: '폭풍이 지나가고 도시에 전기가 돌아온 날, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_wild: '산에서 내려온 지 일주일, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_tour: '체험관 사고 조사가 끝난 날, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_friend: '조사실을 나온 지 사흘 뒤, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_nest: '게이트에서 돌아온 지 열흘 뒤, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_gb: '퇴원하는 날 오후, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_dream: '굿판이 끝난 뒤 처음 맞는 평일, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_relic: '구슬이 몸에 스며든 지 보름 뒤, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_drug: '해독 치료를 마친 다음 날, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_duel: '시장이 다시 문을 연 다음 날, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"' },
     text: '국가 각성자 관리국 지부. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"',
     choices: [
-      { text: '숨을 고르고 차분히 에테르를 흘려 보낸다. "사람을 지키고 싶어서요."', talent: 1, t: { charisma: 1 }, friend: 15, next: null },
-      { text: '대답 대신 측정기에 힘껏 쏟아붓는다. 경고음 사이로 말한다. "말로는 잘 못 해서요."', luck: 2, t: { reckless: 1, berserk: 1 }, next: null },
-      { text: '일부러 힘을 숨긴다. "돈이요. 솔직히."', t: { merchant: 2, lucky: 1 }, next: null },
-      { text: '"게이트가 왜 열렸는지 알아내려고요."', talent: 1, t: { mana_sense: 1, genius: 1 }, next: null },
-      { text: '유리 너머 {friend}을(를) 본다. "저 녀석 옆에 서 있으려고요."', t: { charisma: 1, iron_body: 1 }, friend: 25, next: null }
+      { text: '숨을 고르고 차분히 에테르를 흘려 보낸다. "사람을 지키고 싶어서요."', talent: 1, t: { charisma: 1 }, friend: 15, flag: "hope_kama", next: null },
+      { text: '대답 대신 측정기에 힘껏 쏟아붓는다. 경고음 사이로 말한다. "말로는 잘 못 해서요."', luck: 2, t: { reckless: 1, berserk: 1 }, flag: "hope_free", next: null },
+      { text: '일부러 힘을 숨긴다. "돈이요. 솔직히."', t: { merchant: 2, lucky: 1 }, flag: "hope_guild", next: null },
+      { text: '"게이트가 왜 열렸는지 알아내려고요."', talent: 1, t: { mana_sense: 1, genius: 1 }, flag: "hope_guild", next: null },
+      { text: '유리 너머 {friend}을(를) 본다. "저 녀석 옆에 서 있으려고요."', t: { charisma: 1, iron_body: 1 }, friend: 25, flag: "hope_free", next: null }
     ]
   },
   verdict_guild: {
     title: "길드 면접",
     text: '관리국 등록을 마친 다음 날, 모르는 번호로 전화가 온다. "현무 중공업 각성자단 신인 발굴팀입니다. 소문 듣고 연락드렸어요."\n\n중공업 본사 28층 면접실. 정장 차림의 스카우터 셋이 태블릿을 넘기며 묻는다. "등급도 아직 안 나온 신입한테 우리가 왜 투자해야 하죠?"',
     choices: [
-      { text: '"등급 나오기 전이니까요. 제일 싸게 살 수 있을 때잖아요."', t: { merchant: 1, charisma: 1 }, luck: 1, next: null },
-      { text: "말 대신 손바닥 위로 에테르를 끌어올린다. 태블릿 화면이 지직거린다", talent: 1, t: { mana_sense: 1, reckless: 1 }, next: null },
-      { text: '"투자 말고 계약서부터 보여 주세요."', t: { genius: 1 }, talent: 1, next: null },
-      { text: '"길드는 아직 생각 없어요. 같이 다닐 사람이 있어서요." {friend}의 얼굴이 떠오른다', t: { charisma: 1 }, friend: 20, next: null },
-      { text: '면접 내내 창밖만 본다. "다음에 제가 부르면 오세요."', t: { loner: 1, berserk: 1 }, luck: 2, next: null }
+      { text: '"등급 나오기 전이니까요. 제일 싸게 살 수 있을 때잖아요."', t: { merchant: 1, charisma: 1 }, luck: 1, flag: "hope_guild", next: null },
+      { text: "말 대신 손바닥 위로 에테르를 끌어올린다. 태블릿 화면이 지직거린다", talent: 1, t: { mana_sense: 1, reckless: 1 }, flag: "hope_guild", next: null },
+      { text: '"투자 말고 계약서부터 보여 주세요."', t: { genius: 1 }, talent: 1, flag: "hope_guild", next: null },
+      { text: '"길드는 아직 생각 없어요. 같이 다닐 사람이 있어서요." {friend}의 얼굴이 떠오른다', t: { charisma: 1 }, friend: 20, flag: "hope_free", next: null },
+      { text: '면접 내내 창밖만 본다. "다음에 제가 부르면 오세요."', t: { loner: 1, berserk: 1 }, luck: 2, flag: "hope_free", next: null }
     ]
   },
   verdict_street: {
     title: "미등록 각성자",
     text: '관리국 대기 번호는 412번. 오늘 안엔 어림도 없다. 청사 앞 흡연 구역에서 모자를 눌러쓴 사람이 다가온다.\n\n"등록 대행해 드려요. 기록은 깨끗하게, 등급은 원하는 대로. 아니면… 아예 등록 안 하고 사는 법도 알려 드리고요."',
     choices: [
-      { text: "무시하고 412번 표를 꼭 쥔 채 다시 줄을 선다", talent: 1, t: { iron_body: 1 }, next: null },
-      { text: '"얼마예요?" 일단 조건부터 듣는다', t: { merchant: 2 }, luck: 1, next: null },
-      { text: "브로커의 손목 문신을 기억해 둔다. 언젠가 쓸모가 있겠지", t: { quick: 1, lucky: 1 }, next: null },
-      { text: '{friend}에게 전화한다. "나 오늘 늦어. 그래도 정식으로 할게."', t: { charisma: 1 }, friend: 15, next: null },
-      { text: "브로커의 멱살을 잡고 관리국 경비를 부른다", t: { berserk: 1, reckless: 1 }, talent: 1, next: null }
+      { text: "무시하고 412번 표를 꼭 쥔 채 다시 줄을 선다", talent: 1, t: { iron_body: 1 }, flag: "hope_kama", next: null },
+      { text: '"얼마예요?" 일단 조건부터 듣는다', t: { merchant: 2 }, luck: 1, flag: ["hope_free", "broker"], next: null },
+      { text: "브로커의 손목 문신을 기억해 둔다. 언젠가 쓸모가 있겠지", t: { quick: 1, lucky: 1 }, flag: ["hope_free", "broker"], next: null },
+      { text: '{friend}에게 전화한다. "나 오늘 늦어. 그래도 정식으로 할게."', t: { charisma: 1 }, friend: 15, flag: "hope_free", next: null },
+      { text: "브로커의 멱살을 잡고 관리국 경비를 부른다", t: { berserk: 1, reckless: 1 }, talent: 1, flag: "hope_kama", next: null }
     ]
   }
 };
@@ -4985,6 +4985,7 @@ Object.assign(Game.prototype, {
     f.seenN[id] = (f.seenN[id] || 0) + 1;
     const ev = this.storyById(id);
     if (ev && !["system", "debut", "calendar"].includes(ev.trigger)) f.lastStory = this.monthKey();
+    if (ev && ev.trigger !== "system") f.lastAny = this.monthKey();
   },
   chainNext(id) {
     this.flags.chains[id] = (this.flags.chains[id] || 0) + 1;
@@ -12144,7 +12145,7 @@ Object.assign(UI, {
     const ex = this.exam;
     const mates = ex.ids.map((id) => G.npcById(id)).filter(Boolean);
     const R = RANKS[G.player.rankIdx];
-    this.modal('<div class="eyebrow">헌터 자격 시험 · 결과</div><h3><span class="tag rank" style="--c:'.concat(R.color, '">').concat(R.key, '급</span> 헌터 자격증 발급</h3>\n      <p class="event-text">').concat(fixJosa(ex.text), "</p>\n      ").concat(ex.reveal ? '<div class="sec-title sec">협회 등급 측정</div><p class="event-text">'.concat(fixJosa(ex.reveal.text), "</p>") : "", '\n      <p class="event-text">시험장을 나서자 임시 파티원들이 당신을 바라본다. "…우리, 이대로 같이 다녀 볼래?"</p>\n      <div class="sec-title sec">함께할 동료를 고르세요 <span class="small dim">(눌러서 선택·해제)</span></div>\n      <div class="cards">').concat(mates.map((n) => '<button class="item-row choice-btn '.concat(ex.pick.has(n.id) ? "on" : "", '" data-act="exam-pick" data-v="').concat(n.id, '">').concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, '</b>\n        <div><span class="tag cls tiny" style="--c:').concat(groupColor(classById(n.cls).g), '">').concat(className(n.cls), '</span> <span class="small dim">').concat(persById(n.personality).name, '</span></div></div><b class="').concat(ex.pick.has(n.id) ? "amber" : "dim", '">').concat(ex.pick.has(n.id) ? "함께" : "각자", "</b></button>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="exam-solo">혼자 시작한다</button><button class="primary" data-act="exam-party" ').concat(ex.pick.size ? "" : "disabled", ">").concat(ex.pick.size === mates.length ? "이 파티로 시작한다" : "".concat(ex.pick.size, "명과 시작한다"), "</button></div>"), "event-box");
+    this.modal('<div class="eyebrow">헌터 자격 시험 · 결과</div><h3><span class="tag rank" style="--c:'.concat(R.color, '">').concat(R.key, '급</span> 헌터 자격증 발급</h3>\n      <p class="event-text">').concat(fixJosa(ex.text), "</p>\n      ").concat(ex.reveal ? '<div class="sec-title sec">협회 등급 측정</div><p class="event-text">'.concat(fixJosa(ex.reveal.text), "</p>") : "", '\n      <p class="event-text">시험장을 나서자 임시 파티원들이 당신을 바라본다. "…우리, 연락처라도 주고받을까? 어디로 뽑힐지는 모르지만."</p>\n      <div class="sec-title sec">연락처를 교환할 동기 <span class="small dim">(눌러서 선택·해제 · 측정 뒤 같은 곳에 뽑히면 첫 파티 후보가 된다)</span></div>\n      <div class="cards">').concat(mates.map((n) => '<button class="item-row choice-btn '.concat(ex.pick.has(n.id) ? "on" : "", '" data-act="exam-pick" data-v="').concat(n.id, '">').concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, '</b>\n        <div><span class="tag cls tiny" style="--c:').concat(groupColor(classById(n.cls).g), '">').concat(className(n.cls), '</span> <span class="small dim">').concat(persById(n.personality).name, '</span></div></div><b class="').concat(ex.pick.has(n.id) ? "amber" : "dim", '">').concat(ex.pick.has(n.id) ? "함께" : "각자", "</b></button>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="exam-solo">교환하지 않는다</button><button class="primary" data-act="exam-party" ').concat(ex.pick.size ? "" : "disabled", ">").concat("".concat(ex.pick.size, "명과 연락처 교환"), "</button></div>"), "event-box");
   },
   endExam(ids) {
     const p = G.player;
@@ -13305,7 +13306,7 @@ const dn = (g) => {
 };
 const npcOf = (g) => g.npcById(g.player.debut.npc) || { name: "그 사람" };
 const guildPair = (g) => {
-  const ks = Object.keys(GUILDS).filter((k) => k !== "jujak" && k !== "kama");
+  const ks = Object.keys(GUILDS).filter((k) => k !== "jujak" && k !== "kama" && k !== g.player.guild);
   return [ks[g.player.debut.at % ks.length], ks[(g.player.debut.at + 1) % ks.length]];
 };
 D("star", 0, {
@@ -13417,9 +13418,13 @@ D("star", 4, {
 D("rising", 0, {
   text: (g) => '지역 뉴스 끝자락에 한 줄이 실렸다. "'.concat(regionById(g.player.region).name, ", 올해 첫 ").concat(RANKS[g.player.rankIdx].key, '급 신규 등록." 오후에 중소 길드 두 곳에서 문자가 왔다.\n\n"수습 3개월, 숙소 제공." 거창하진 않지만 현실적인 조건이다.'),
   choices: [
-    { text: "주작 프리랜서 연합 수습으로 들어간다", do: (g) => {
+    { text: "주작 프리랜서 연합 수습으로 들어간다", when: (g) => !g.player.guild, do: (g) => {
       dn(g);
       return "숙소는 좁았지만 선배들이 밥을 사 줬다." + g.debutJoinGuild("jujak", 400);
+    } },
+    { text: "지금 소속에 집중하겠다고 답한다", when: (g) => !!g.player.guild, do: (g) => {
+      dn(g);
+      return "".concat(GUILDS[g.player.guild].name, ' 사수에게 이야기했더니 "잘 생각했다"며 웃었다.') + g.gain({ ether: 20 });
     } },
     { text: "답장하지 않고 혼자 해 본다", do: (g) => {
       dn(g);
@@ -13698,7 +13703,7 @@ D("bottom", 4, {
     if (this.judgmentHtml) {
       const p = G.player;
       const mates = G.party().map((n) => n.name);
-      this.modal("".concat(this.judgmentHtml(), '\n        <p class="sec">').concat(mates.length ? "".concat(mates.join(", "), "와(과) 함께 첫발을 내딛는다.") : "당분간은 혼자다. 시험 동기들은 인물 창에서 다시 만날 수 있다.", "</p>\n        ").concat((() => {
+      this.modal("".concat(this.judgmentHtml(), '\n        <p class="sec">').concat(mates.length ? "".concat(mates.join(", "), "와(과) 함께 첫발을 내딛는다.") : "시험 동기들과 연락처를 나눴다. 어디에 소속될지, 누구와 첫 파티를 꾸릴지는 측정 결과가 정한다.", "</p>\n        ").concat((() => {
         const L = G.npcs.filter((n) => n.examLeader && n.alive).pop();
         return L ? '<p class="small">시험 리더였던 선임 '.concat(L.name, "이(가) 연락처를 건넸다. 인물 창에서 다시 만날 수 있다.</p>") : "";
       })(), '\n        <p class="dim">지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.</p>\n        <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>'), "pro-judge");
@@ -15946,6 +15951,12 @@ Object.assign(Game.prototype, {
 });
 (() => {
   const P = Game.prototype;
+  const baseDebut = P.debutStart;
+  if (baseDebut) P.debutStart = function() {
+    baseDebut.call(this);
+    const d = this.player.debut;
+    if (d && d.start == null) d.start = this.monthKey();
+  };
   const baseMonth = P.advanceMonth;
   P.advanceMonth = function(n = 1, opts = {}) {
     if (opts.eventChance && this.flags) opts = __spreadProps(__spreadValues({}, opts), { eventChance: Math.min(0.9, opts.eventChance * this.storyPace()) });
@@ -15953,7 +15964,24 @@ Object.assign(Game.prototype, {
   };
   const baseMonthly = P.storyMonthly;
   P.storyMonthly = function() {
+    var _a;
     baseMonthly.call(this);
+    const d = this.player.debut;
+    if (d && d.start != null && this.monthKey() - d.start < 12 && this.monthKey() - ((_a = this.flags.lastAny) != null ? _a : d.start) >= 2 && !this.queue.some((q) => q.type === "story" || q.type === "request")) {
+      const ev = this.pickStory("month");
+      if (ev) {
+        this.queue.push(ev);
+        return;
+      }
+      if (this.pickRequest) {
+        const r = this.pickRequest();
+        if (r) {
+          this.queue.push(r);
+          this.flags.lastAny = this.monthKey();
+          return;
+        }
+      }
+    }
     if (this.storyCalendar()) return;
     if (!this.inDebut() && this.storyQuiet() >= STORY_QUIET_MAX && !this.queue.some((q) => q.type === "story")) {
       const ev = this.pickStory("month");
@@ -18580,3 +18608,626 @@ Object.assign(Game.prototype, {
     }
   };
 }
+const GUILD_FIT = {
+  baekho: { g: ["guard", "shooter"], bg: ["chaebol", "soldier"], e: "steel", r: "gangnam" },
+  cheongryong: { g: ["mage", "esper", "summon"], bg: ["subject", "student"], e: "spirit", r: "daejeon" },
+  hyeonmu: { g: ["fighter", "east"], bg: ["student", "orphan"], e: "ice", r: "ulsan" },
+  jujak: { g: ["shadow", "support"], bg: ["orphan"], e: "fire", r: "gwangju" }
+};
+function guildFitOrder(grp, bg, elem, region) {
+  const sc = Object.entries(GUILD_FIT).map(([id, f]) => [id, (f.g.includes(grp) ? 2 : 0) + (f.bg.includes(bg) ? 2 : 0) + (f.r === region ? 1 : 0) + (f.e === elem ? 1 : 0) + Math.random() * 0.5]);
+  return sc.sort((a, b) => b[1] - a[1]).map(([id]) => id);
+}
+const VG_SCENE = {
+  baekho: { title: "백호 타워 보안 브리핑실", text: '관리국 등록을 마친 다음 날, 검은 세단이 집 앞에 선다. "백호 시큐리티 인재 확보팀입니다."\n\n강남 백호 타워 41층 보안 브리핑실. 각 잡힌 제복 차림의 교관이 장비 지급 목록부터 내민다. "방탄 내피, 전술 장갑, 통신기. 수습 기간 지급품입니다. 우리 일은 규율이 반이에요. 등급도 안 나온 신입이 그걸 지킬 수 있겠습니까?"\n\n교관이 덧붙인다. "물론 계약은 협회 측정 뒤입니다. 등급 나오면 다시 연락드리죠."' },
+  cheongryong: { title: "청룡 연구소 측정실", text: '관리국 등록을 마친 다음 날, 연구소 로고가 찍힌 메일이 온다. "청룡 연구소 각성자 협력 프로그램 안내."\n\n대전 연구소 지하 측정실. 면접이라기보다 실험에 가깝다. 흰 가운의 연구원이 머리에 전극을 붙이며 말한다. "편하게 계세요. 에테르 파형만 좀 볼게요. 흥미로운 패턴이 나오면… 우리가 먼저 데려가야죠."\n\n연구원이 모니터에서 눈을 떼지 않는다. "정식 제안은 협회 측정 뒤에 드릴게요."' },
+  hyeonmu: { title: "현무 중공업 면접실", text: '관리국 등록을 마친 다음 날, 모르는 번호로 전화가 온다. "현무 중공업 각성자단 신인 발굴팀입니다. 소문 듣고 연락드렸어요."\n\n중공업 본사 28층 면접실. 정장 차림의 스카우터 셋이 태블릿을 넘기며 묻는다. "등급도 아직 안 나온 신입한테 우리가 왜 투자해야 하죠?"\n\n가운데 스카우터가 덧붙인다. "물론 등급 나오면 다시 연락드리죠. 그때까진 가계약입니다."' },
+  jujak: { title: "광주 포차 2층 연합 사무실", text: '관리국 등록을 마친 다음 날, 메신저로 링크 하나가 온다. "주작 프리랜서 연합. 밥은 사 줌."\n\n광주 금남로 포차 2층. 연합 사무실이라기엔 소주 박스가 너무 많다. 계약서 대신 소주잔이 놓인다. 연합 간사가 웃는다. "우린 누구나 환영이야. 근데 같이 일하려면 서로 알아야지. 한 잔 받고, 너 얘기 좀 해 봐."\n\n"등급? 그건 나오면 그때 보고."' }
+};
+const VG_CHOICES = [
+  { text: '"등급 나오기 전이니까요. 제일 싸게 살 수 있을 때잖아요."', t: { merchant: 1, charisma: 1 }, luck: 1, flag: "hope_guild", next: null },
+  { text: "말 대신 손바닥 위로 에테르를 끌어올린다. 주변 기계가 지직거린다", talent: 1, t: { mana_sense: 1, reckless: 1 }, flag: "hope_guild", next: null },
+  { text: '"투자 말고 계약서부터 보여 주세요."', t: { genius: 1 }, talent: 1, flag: "hope_guild", next: null },
+  { text: '"길드는 아직 생각 없어요. 같이 다닐 사람이 있어서요." {friend}의 얼굴이 떠오른다', t: { charisma: 1 }, friend: 20, flag: "hope_free", next: null },
+  { text: '내내 창밖만 본다. "다음에 제가 부르면 오세요."', t: { loner: 1, berserk: 1 }, luck: 2, flag: "hope_free", next: null }
+];
+for (const id of Object.keys(VG_SCENE)) {
+  PROLOGUE["vg_" + id] = __spreadProps(__spreadValues({}, VG_SCENE[id]), { choices: [...VG_CHOICES, { text: '"다른 길드 이야기도 들어 보겠습니다."', luck: 1, next: "vg_second" }] });
+  PROLOGUE["vg2_" + id] = __spreadProps(__spreadValues({}, VG_SCENE[id]), { choices: VG_CHOICES });
+}
+PROLOGUE.vg_second = PROLOGUE.vg2_hyeonmu;
+Object.assign(UI, {
+  // 프롤로그 지금까지의 점수로 면접 볼 길드 순서
+  proGuildOrder() {
+    const s = this.pro;
+    const sc = s.sc;
+    const top = (o, keys) => {
+      let best = keys[0], bv = -1;
+      for (const k of keys) if ((o[k] || 0) > bv) {
+        bv = o[k] || 0;
+        best = k;
+      }
+      return best;
+    };
+    const grp = top(sc.g, Object.keys(CLASS_GROUPS).filter((g) => g !== "hidden"));
+    const elem = top(sc.e, ELEMENT_KEYS);
+    const bg = BACKGROUNDS.find((b) => b.id === s.bg) || {};
+    let order = guildFitOrder(grp, s.bg, elem, bg.region);
+    if (s.bg === "subject") order = ["cheongryong", ...order.filter((x) => x !== "cheongryong")];
+    return order;
+  }
+});
+Object.assign(Game.prototype, {
+  // 판정 장면에서 고른 희망 (프롤로그 플래그 또는 출신)
+  setHope(flags, hopeGuild) {
+    const p = this.player;
+    flags = flags || {};
+    let hope = flags.hope_kama ? "kama" : flags.hope_guild ? "guild" : flags.hope_free ? "free" : null;
+    if (!hope) hope = p.bg === "soldier" ? "kama" : p.bg === "subject" || p.bg === "chaebol" ? "guild" : "free";
+    if (!hopeGuild) {
+      const grp = classById(p.cls).g;
+      const bg = BACKGROUNDS.find((b) => b.id === p.bg) || {};
+      hopeGuild = p.bg === "subject" ? "cheongryong" : guildFitOrder(grp, p.bg, p.element, bg.region)[0];
+    }
+    p.origin = { hope, hopeGuild, aff: null, broker: !!flags.broker, mentor: null };
+  },
+  affJoin(id, rank = 0) {
+    const p = this.player;
+    if (p.guild && p.guild !== id && this.crewLeave && p.crew) this.crewLeave("quit");
+    p.guild = id;
+    p.guildRank = rank;
+    p.contrib = rank >= 1 ? GUILD_RANKS[1].req : 0;
+    if (p.origin) p.origin.aff = id === "kama" ? "kama" : "guild";
+    this.lifeEvent("".concat(GUILDS[id].name, "에 ").concat(GUILD_RANKS[rank].name, "(으)로 들어갔다."));
+  },
+  affTier() {
+    const d = this.player.debut;
+    return d ? d.tier : this.debutTier();
+  },
+  // 측정 결과와 희망으로 첫 소속 사건을 고른다
+  affEventId() {
+    const o = this.player.origin;
+    if (!o) return null;
+    const t = this.affTier();
+    if (o.hope === "guild") return "aff_guild_" + t;
+    if (o.hope === "kama") return t === "star" ? "aff_kama_star" : t === "bottom" ? "aff_kama_bottom" : "aff_kama";
+    return null;
+  },
+  otherGuild(not) {
+    const ks = Object.keys(GUILD_FIT).filter((k) => k !== not);
+    return ks[this.monthKey() % ks.length];
+  }
+});
+const AFF = (id, ev) => S(__spreadValues({ id, trigger: "system" }, ev));
+const gName = (id) => GUILDS[id].name;
+const hopeG = (g) => g.player.origin && g.player.origin.hopeGuild || "jujak";
+const afterAff = (g) => {
+  g.queue.unshift({ type: "firstParty" });
+  return "";
+};
+AFF("aff_guild_star", {
+  text: (g) => {
+    const a = hopeG(g);
+    const b = g.otherGuild(a);
+    return "측정 결과가 나온 지 한 시간. 면접을 봤던 ".concat(gName(a), '에서 전화가 온다. "계약서 준비해 뒀습니다. 오늘 바로 뵙죠."\n\n10분 뒤, ').concat(gName(b), "에서도 연락이 왔다. 계약금 숫자가 하나 더 붙어 있다.");
+  },
+  choices: [
+    { text: "면접 본 길드에 정식 입단한다", do: (g) => {
+      g.affJoin(hopeG(g), 1);
+      afterAff(g);
+      return '"역시 우리 눈이 맞았어요." 계약서에 서명했다.' + g.gain({ money: 1200, fame: 3 });
+    } },
+    { text: "더 높은 계약금 쪽으로 간다", do: (g) => {
+      const b = g.otherGuild(hopeG(g));
+      g.flags.story.snubbedBy = hopeG(g);
+      g.affJoin(b, 1);
+      afterAff(g);
+      return "".concat(gName(b), '에 정식 입단했다. 면접을 봤던 스카우터는 "아쉽네요"라고만 했다.') + g.gain({ money: 1800 });
+    } },
+    { text: "둘 다 미루고 혼자 시작한다", do: (g) => {
+      g.player.origin.aff = "free";
+      afterAff(g);
+      return '"후회하실 텐데요." 그래도 길드들은 계속 연락해 올 것이다.' + g.gain({ fame: 2 });
+    } }
+  ]
+});
+AFF("aff_guild_rising", {
+  text: (g) => "측정 다음 날, 면접을 봤던 ".concat(gName(hopeG(g)), '에서 문자가 온다.\n\n"측정 결과 확인했습니다. 수습 3개월로 시작해 보시죠. 숙소는 제공합니다. 정식 계약은 그 뒤에 이야기하고요."'),
+  choices: [
+    { text: "수습으로 들어간다", do: (g) => {
+      g.affJoin(hopeG(g), 0);
+      afterAff(g);
+      return '수습 단원 명찰을 받았다. 이름 옆에 "수습" 두 글자가 작게 박혀 있다.' + g.gain({ money: 300 });
+    } },
+    { text: "정중히 거절하고 혼자 해 본다", do: (g) => {
+      g.player.origin.aff = "free";
+      afterAff(g);
+      return '"그럼 나중에 다시 보죠." 문은 완전히 닫히지 않았다.' + g.gain({ ether: 20 });
+    } }
+  ]
+});
+AFF("aff_guild_normal", {
+  text: (g) => "측정 결과가 나온 지 사흘. ".concat(gName(hopeG(g)), '에서는 연락이 없다. 면접 때 받은 명함 번호로 걸어 보니 "담당자가 자리에 없습니다"만 돌아온다.\n\n대신 주작 프리랜서 연합 단톡방에서 초대 링크가 왔다. "등급 상관없음. 밥은 사 줌."'),
+  choices: [
+    { text: "주작 연합 수습으로 들어간다", when: (g) => hopeG(g) !== "jujak", do: (g) => {
+      g.flags.story.snubbedBy = hopeG(g);
+      g.affJoin("jujak", 0);
+      afterAff(g);
+      return '포차 2층 사무실. 간사가 소주잔을 내밀었다. "어디서 거절당했지? 괜찮아. 우리도 다 그랬어."' + g.gain({ money: 150 });
+    } },
+    { text: "주작 연합 수습으로 들어간다", when: (g) => hopeG(g) === "jujak", do: (g) => {
+      g.affJoin("jujak", 0);
+      afterAff(g);
+      return '면접 때 그 간사가 다시 소주잔을 내밀었다. "등급? 그건 나오면 그때 본다고 했잖아."' + g.gain({ money: 150 });
+    } },
+    { text: "어디에도 들어가지 않는다", do: (g) => {
+      g.flags.story.snubbedBy = hopeG(g);
+      g.player.origin.aff = "free";
+      afterAff(g);
+      return "명함을 서랍에 넣었다. 언젠가 저쪽에서 다시 전화하게 만들겠다." + g.gain({ ether: 20 });
+    } }
+  ]
+});
+AFF("aff_guild_bottom", {
+  text: (g) => "측정 결과가 나오고 일주일. ".concat(gName(hopeG(g)), '은(는) 물론이고, 어디서도 연락이 없다. 면접 때 받은 명함은 이제 없는 번호라고 나온다.\n\n대신 모르는 번호로 문자가 한 통 온다. "F급 하위 맞으시죠? 등록 대행했던 사람 소개로 연락드려요. 쉬운 일 있는데."'),
+  choices: [
+    { text: "일단 들어 본다", do: (g) => {
+      g.flags.story.snubbedBy = hopeG(g);
+      g.flags.story.brokerLink = true;
+      g.player.origin.aff = "free";
+      afterAff(g);
+      return '"게이트 사체 운반, 무등록 현장이요. 현금으로 드려요." 찜찜했지만 통장 잔고가 더 찜찜했다.' + g.gain({ money: 200, merit: -2 });
+    } },
+    { text: "답장하지 않는다", do: (g) => {
+      g.flags.story.snubbedBy = hopeG(g);
+      g.player.origin.aff = "free";
+      afterAff(g);
+      return "휴대폰을 엎어 두었다. 결국 남은 건 소꿉친구와 나뿐이다." + g.gain({ hp: 0.3 });
+    } }
+  ]
+});
+AFF("aff_kama_star", {
+  text: '측정 결과가 나온 날 저녁, 관리국 인사과에서 직접 전화가 온다. "특별 채용 대상자로 선정되셨습니다. 연수는 면제, 바로 현장 배치입니다. 대신 국가 소집에는 우선 응하셔야 합니다."\n\n같은 시각, 길드 스카우터들의 문자도 쌓이기 시작한다.',
+  choices: [
+    { text: "관리국 특채를 받아들인다", do: (g) => {
+      g.affJoin("kama", 1);
+      afterAff(g);
+      return "관리국 신분증을 받았다. 엘리트 코스의 첫날이다." + g.gain({ merit: 20, fame: 4 });
+    } },
+    { text: "길드 쪽도 들어 보겠다며 미룬다", do: (g) => {
+      g.player.origin.aff = "free";
+      afterAff(g);
+      return '"자리는 오래 비워 두지 않습니다." 인사과 직원이 담담하게 말했다.' + g.gain({ fame: 2 });
+    } }
+  ]
+});
+AFF("aff_kama", {
+  text: '협회 측정이 끝나고 관리국에서 우편이 왔다. "신규 등록 각성자 연수 안내. 등급과 관계없이 모든 신규 등록자는 3개월간 관리국 연수를 받을 수 있습니다."\n\n412번 표를 쥐고 줄을 서던 날이 떠오른다.',
+  choices: [
+    { text: "연수에 들어간다", do: (g) => {
+      g.affJoin("kama", 0);
+      afterAff(g);
+      return '연수 첫날, 담당 주무관이 두꺼운 매뉴얼을 나눠 줬다. "외우라는 거 아닙니다. 죽지 말라는 거예요."' + g.gain({ merit: 6 });
+    } },
+    { text: "연수 없이 혼자 시작한다", do: (g) => {
+      g.player.origin.aff = "free";
+      afterAff(g);
+      return "안내문을 접었다. 정식 등록은 했으니 그걸로 됐다.";
+    } }
+  ]
+});
+AFF("aff_kama_bottom", {
+  text: '측정관이 결과지와 함께 안내문 한 장을 건넨다. "관리국 연수는 등급과 관계없이 받으실 수 있습니다. 다만… F급 하위는 현장보다 지원 업무 위주로 배정됩니다."\n\n잡일이라는 뜻이다. 그래도 국가가 쳐 주는 마지막 안전망이다.',
+  choices: [
+    { text: "그래도 연수에 들어간다", do: (g) => {
+      g.affJoin("kama", 0);
+      afterAff(g);
+      return "첫 배정은 게이트 봉쇄선 차량 통제였다. 그래도 관리국 조끼를 입었다." + g.gain({ merit: 4 });
+    } },
+    { text: "혼자 해 보겠다", do: (g) => {
+      g.player.origin.aff = "free";
+      afterAff(g);
+      return "안내문을 돌려줬다. 측정관은 말리지 않았다.";
+    } }
+  ]
+});
+S({
+  id: "aff_regret",
+  once: true,
+  minRank: 3,
+  when: (g) => g.flags.story.snubbedBy && g.player.guild !== g.flags.story.snubbedBy,
+  weight: 4,
+  text: (g) => "".concat(gName(g.flags.story.snubbedBy), '의 이름으로 꽃바구니가 도착했다. 카드에는 이렇게 적혀 있다.\n\n"측정 때는 저희가 실수했습니다. ').concat(RANKS[g.player.rankIdx].key, "급 헌터 ").concat(g.player.name, ' 님을 정식으로 모시고 싶습니다. 조건은 원하시는 대로."'),
+  choices: [
+    { text: "정중하게 거절한다", do: (g) => {
+      g.rumor("".concat(gName(g.flags.story.snubbedBy), ", ").concat(g.player.name, ' 영입 실패. "신입 때 놓친 인재"라는 뒷말.'));
+      return '"그때 그 전화, 기억합니다." 그 한마디로 충분했다.' + g.gain({ fame: 6 });
+    } },
+    { text: "조건을 듣고 옮긴다", do: (g) => {
+      const id = g.flags.story.snubbedBy;
+      g.affJoin(id, 1);
+      return "".concat(gName(id), "에 정식 단원으로 들어갔다. 계약금이 측정 때 들었던 금액의 열 배였다.") + g.gain({ money: 2500, fame: 3 });
+    } }
+  ]
+});
+Object.assign(Game.prototype, {
+  examMateFates() {
+    for (const n of this.npcs) {
+      if (!n.examMate || n.mateFate) continue;
+      n.mateFate = true;
+      n.rankIdx = RNG.chance(0.3) ? 1 : 0;
+      const r = RNG.next();
+      if (n.rankIdx >= 1) n.guild = r < 0.5 ? RNG.pick(Object.keys(GUILD_FIT)) : r < 0.8 ? "kama" : null;
+      else n.guild = r < 0.15 ? "jujak" : r < 0.5 ? "kama" : null;
+    }
+  },
+  newcomer(guild, near) {
+    const p = this.player;
+    const n = this.makeNpc(true, RNG.chance(0.8) ? "human" : void 0);
+    n.rankIdx = Math.max(0, Math.min(7, p.rankIdx + (near ? 0 : RNG.int(-1, 0))));
+    n.stage = RNG.int(0, 1);
+    n.region = p.region;
+    n.met = true;
+    n.relation = 30;
+    n.guild = guild;
+    n.ageMonths = p.ageMonths + RNG.int(-24, 36);
+    n.links = {};
+    n.disciples = [];
+    n.parents = [];
+    n.cohort = true;
+    this.npcs.push(n);
+    return n;
+  },
+  // 소속이 정하는 첫 파티 후보
+  firstPartyCands() {
+    const p = this.player;
+    const o = p.origin || {};
+    const aff = o.aff || "free";
+    const mates = this.npcs.filter((n) => n.examMate && n.alive);
+    const out = [];
+    if (aff === "guild" || aff === "kama") {
+      const g = p.guild;
+      for (const n of mates) if (n.guild === g) out.push(n);
+      while (out.length < 3) out.push(this.newcomer(g, aff === "guild"));
+    } else {
+      for (const n of mates) if (!n.guild) out.push(n);
+      const f = this.npcs.find((n) => n.friendhood && n.alive);
+      if (f && f.rankIdx >= 1) out.unshift(f);
+      if (!out.length) out.push(this.newcomer(null, false));
+    }
+    return out.slice(0, 4);
+  }
+});
+Object.assign(UI, {
+  showFirstParty() {
+    var _a;
+    const p = G.player;
+    const o = p.origin || {};
+    const cands = this.fpCands || (this.fpCands = G.firstPartyCands().map((n) => n.id));
+    (_a = this.fpPick) != null ? _a : this.fpPick = new Set(cands.filter((id) => {
+      const n = G.npcById(id);
+      return n && (n.examContact || n.friendhood || n.cohort);
+    }));
+    const list = cands.map((id) => G.npcById(id)).filter(Boolean);
+    const aff = o.aff || "free";
+    const head = aff === "guild" ? "".concat(GUILDS[p.guild].name, "이(가) 같은 기수 신입들로 첫 파티를 붙여 준다. 시험 동기 중 같은 곳에 뽑힌 사람이 있으면 먼저 들어온다.") : aff === "kama" ? "관리국 연수 동기 조가 편성됐다. 시험 동기 중 관리국을 고른 사람이 있으면 같은 조다." : "아무 데도 뽑히지 않은 사람들. 남겨진 사람들끼리 시작하는 파티다.";
+    const tag = (n) => n.friendhood ? "소꿉친구" : n.examMate ? "시험 동기".concat(n.examContact ? " · 연락처 교환" : "") : aff === "kama" ? "연수 동기" : "같은 기수";
+    this.modal(fixJosa('<div class="eyebrow">'.concat(G.dateStr(), ' · 첫 파티 편성</div><h3>함께 시작할 사람들</h3>\n      <p class="event-text">').concat(head, '</p>\n      <div class="cards">').concat(list.map((n) => '<button class="item-row choice-btn '.concat(this.fpPick.has(n.id) ? "on" : "", '" data-act="fp-pick" data-v="').concat(n.id, '">').concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, "</b> ").concat(this.rankTag(n.rankIdx, n.stage), '\n        <div><span class="tag cls tiny" style="--c:').concat(groupColor(classById(n.cls).g), '">').concat(className(n.cls), '</span> <span class="small dim">').concat(tag(n), " · ").concat(persById(n.personality).name, '</span></div></div><b class="').concat(this.fpPick.has(n.id) ? "amber" : "dim", '">').concat(this.fpPick.has(n.id) ? "함께" : "—", "</b></button>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="fp-done" data-v="0">혼자 시작한다</button><button class="primary" data-act="fp-done" data-v="1" ').concat(this.fpPick.size ? "" : "disabled", ">이 파티로 시작한다</button></div>")), "event-box");
+  },
+  firstPartyDone(yes) {
+    const p = G.player;
+    const joined = [];
+    for (const id of yes ? [...this.fpPick] : []) {
+      const n = G.npcById(id);
+      if (!n || G.party().length >= 4) continue;
+      n.isCompanion = true;
+      n.region = p.region;
+      (p.party || (p.party = [])).includes(n.id) || p.party.push(n.id);
+      n.relation = Math.max(n.relation, 55);
+      joined.push(n.name);
+    }
+    this.fpCands = null;
+    this.fpPick = null;
+    if (joined.length) G.lifeEvent("".concat(joined.join(", "), "와(과) 첫 파티를 꾸렸다."));
+    G.nbStart();
+    G.save();
+    this.closeModal();
+    this.renderGame();
+    this.toast(joined.length ? "".concat(joined.join(", "), "와(과) 함께 시작한다.") : "당분간은 혼자다.");
+    return this.processQueue();
+  }
+});
+const NB_TASKS = [
+  { id: "gate", name: "가까운 게이트 하나 공략하기", why: "게이트를 닫으면 코어가 나온다. 코어가 모든 것의 재료다." },
+  { id: "take", name: "도시 의뢰소에서 협회 의뢰 하나 받기", why: "의뢰는 돈과 협회 공적, 도시 평판을 준다." },
+  { id: "report", name: "의뢰를 끝내고 의뢰소에 보고하기", why: "받은 도시 의뢰소에 보고해야 보상이 나온다." },
+  { id: "craft", name: "공방에서 무엇이든 하나 만들기", why: "코어는 공방에서 회복제·장비·각성 촉매가 된다." },
+  { id: "train", name: "한 달 수련해 에테르 채우기", why: "에테르가 차야 다음 단계, 그리고 돌파로 갈 수 있다." },
+  { id: "break", name: "각성 촉매로 첫 돌파", why: "코어 → 촉매 → 돌파. 이 게임의 큰 고리다." }
+];
+const NB_VOICE = {
+  baekho: { who: "사수", give: (t) => '"신입, 이번 주 과제다. '.concat(t, '. 보고는 간결하게."'), done: '"확인했다. 다음 과제 하달한다."', nag: '"과제가 밀렸다. 백호에서 기한은 장식이 아니다."', pers: "cold" },
+  cheongryong: { who: "사수", give: (t) => '"다음 관찰 항목이에요. '.concat(t, '. 데이터가 쌓이면 보이는 게 있어요."'), done: '"좋은 데이터예요. 다음 단계로 가죠."', nag: '"관찰 기록이 비어 있네요. 실험은 기다려 주지 않아요."', pers: "just" },
+  hyeonmu: { who: "사수", give: (t) => '"이번 달 실적 목표. '.concat(t, '. 숫자로 증명해."'), done: '"실적 확인. 다음 목표 바로 간다."', nag: '"실적 미달이다. 이대로면 수습 평가 나쁘게 나간다."', pers: "greedy" },
+  jujak: { who: "사수", give: (t) => '"야, 막내! '.concat(t, '. 모르면 물어보고, 밥은 형/누나가 산다."'), done: '"오 잘했네! 다음 거 하자."', nag: '"요즘 얼굴 보기 힘들다? 바빠도 할 건 하자."', pers: "kind" },
+  kama: { who: "담당 주무관", give: (t) => '"신규 등록자 연수 과제입니다. '.concat(t, '. 완료하시면 공적이 기록됩니다."'), done: '"과제 완료 확인했습니다. 다음 과제 안내드립니다."', nag: '"연수 과제 기한이 지났습니다. 사유서 제출 바랍니다."', pers: "just" },
+  free: { who: "소꿉친구", give: (t) => '"나 좀 알아봤는데, 너 다음엔 이거 해 봐. '.concat(t, '. 진짜야, 다들 그렇게 시작한대."'), done: '"오, 했어? 대박. 그럼 다음은…"', nag: '"요즘 뭐 해? 걱정돼서 그래."', pers: null }
+};
+Object.assign(Game.prototype, {
+  nbVoiceKey() {
+    const p = this.player;
+    const o = p.origin || {};
+    if (o.aff === "kama" && p.guild === "kama") return "kama";
+    if (o.aff === "guild" && p.guild && NB_VOICE[p.guild]) return p.guild;
+    return "free";
+  },
+  nbMentor() {
+    const p = this.player;
+    const nb = p.notebook;
+    if (!nb) return null;
+    let n = nb.mentor != null ? this.npcById(nb.mentor) : null;
+    if (n && n.alive) return n;
+    const key = this.nbVoiceKey();
+    if (key === "free") {
+      n = this.npcs.find((x) => x.friendhood && x.alive);
+      if (n) nb.mentor = n.id;
+      return n || null;
+    }
+    n = this.makeNpc(false, "human");
+    n.rankIdx = key === "kama" ? Math.max(2, p.rankIdx + 1) : Math.min(7, p.rankIdx + 2);
+    n.stage = 1;
+    n.region = p.region;
+    n.met = true;
+    n.relation = 25;
+    n.guild = p.guild;
+    n.personality = NB_VOICE[key].pers || n.personality;
+    n.ageMonths = RNG.int(27, 40) * 12;
+    n.lifespan = Math.max(n.lifespan, 75);
+    n.links = {};
+    n.disciples = [];
+    n.parents = [];
+    n.mentorOf = true;
+    this.npcs.push(n);
+    nb.mentor = n.id;
+    if (p.origin) p.origin.mentor = n.id;
+    return n;
+  },
+  nbStart() {
+    const p = this.player;
+    if (p.notebook) return;
+    p.notebook = { i: 0, at: this.monthKey(), mentor: null, base: { gates: p.record.gates, br: p.record.breakthroughs, rank: p.rankIdx }, f: {}, nagAt: this.monthKey(), voice: this.nbVoiceKey() };
+    this.nbMentor();
+    this.queue.push({ type: "story", id: "nb_msg", npc: p.notebook.mentor });
+  },
+  nbTask() {
+    const nb = this.player.notebook;
+    return nb && nb.i < NB_TASKS.length ? NB_TASKS[nb.i] : null;
+  },
+  nbDone(t) {
+    const p = this.player;
+    const nb = p.notebook;
+    switch (t.id) {
+      case "gate":
+        return p.record.gates > nb.base.gates;
+      case "take":
+        return nb.f.take || p.quests.some((q) => q.kind === "bounty");
+      case "report":
+        return !!nb.f.report;
+      case "craft":
+        return !!nb.f.craft;
+      case "train":
+        return !!nb.f.train;
+      case "break":
+        return p.record.breakthroughs > nb.base.br || p.rankIdx > nb.base.rank;
+      default:
+        return false;
+    }
+  },
+  nbReward() {
+    const p = this.player;
+    const key = this.player.notebook.voice || this.nbVoiceKey();
+    const m = this.nbMentor();
+    if (key === "kama") return this.gain({ merit: 6, money: 80 });
+    if (key === "free") {
+      if (m) this.changeRel(m, 6);
+      p.items.potion = (p.items.potion || 0) + 1;
+      return this.gain({ money: 40 }) + " (응급 회복제 1개)";
+    }
+    p.contrib = (p.contrib || 0) + 25;
+    if (this.checkGuildRank) this.checkGuildRank([]);
+    return this.gain({ money: 120 }) + " (길드 공헌 +25)";
+  },
+  // 진행 확인: 끝난 과제는 보상, 다음 과제는 메시지로
+  nbCheck() {
+    const p = this.player;
+    const nb = p && p.notebook;
+    if (!nb || nb.i >= NB_TASKS.length || this.over) return;
+    const t = this.nbTask();
+    if (this.nbDone(t)) {
+      nb.i++;
+      nb.at = this.monthKey();
+      nb.nagAt = nb.at;
+      const r = this.nbReward();
+      this.log("첫 해 수첩: [".concat(t.name, "] 완료.").concat(r), "good");
+      if (nb.i >= NB_TASKS.length) {
+        this.lifeEvent("첫 해 수첩의 과제를 모두 마쳤다.");
+        this.queue.push({ type: "story", id: "nb_end", npc: nb.mentor });
+      } else this.queue.push({ type: "story", id: "nb_msg", npc: nb.mentor });
+      return;
+    }
+    if (this.monthKey() - nb.nagAt >= 3) {
+      nb.nagAt = this.monthKey();
+      const v = NB_VOICE[nb.voice] || NB_VOICE.free;
+      const m = this.nbMentor();
+      if (m && nb.voice !== "free") this.changeRel(m, -3);
+      this.log(fixJosa("".concat(m ? m.name : v.who, ": ").concat(v.nag)), nb.voice === "free" ? "" : "bad");
+    }
+  }
+});
+S({
+  id: "nb_msg",
+  trigger: "system",
+  npc: "here",
+  text: (g, c) => {
+    const t = g.nbTask();
+    const nb = g.player.notebook;
+    const v = NB_VOICE[nb.voice] || NB_VOICE.free;
+    const first = nb.i === 0;
+    return "".concat(first ? "".concat(c.npc ? c.npc.name : v.who, "에게서 메시지가 왔다. ").concat(nb.voice === "free" ? "" : "".concat(v.who, "로 배정된 사람이다."), "\n\n") : "".concat(c.npc ? c.npc.name : v.who, ": ").concat(v.done, "\n\n")).concat(v.give(t ? t.name : ""), "\n\n").concat(t ? "(".concat(t.why, ")") : "");
+  },
+  choices: [{ text: "알겠다고 답한다", do: (g) => "첫 해 수첩에 적어 두었다. 의뢰 창에서 언제든 다시 볼 수 있다." }]
+});
+S({
+  id: "nb_end",
+  trigger: "system",
+  npc: "here",
+  text: (g, c) => {
+    const v = g.player.notebook.voice;
+    return v === "free" ? "".concat(c.npc ? c.npc.name : "친구", '이(가) 치킨을 사 들고 왔다. "야, 너 진짜 헌터 다 됐다. 이제 내가 알려 줄 게 없네."') : v === "kama" ? '담당 주무관이 수료증을 건넨다. "연수 과정 수료를 축하드립니다. 이제부터는 정식 현장 요원입니다."' : "".concat(c.npc ? c.npc.name : "사수", '이(가) 어깨를 툭 친다. "수습 딱지 뗄 때 됐네. 이제부터는 네가 알아서 해."');
+  },
+  choices: [{ text: "고개를 숙여 인사한다", do: (g, c) => {
+    const p = g.player;
+    if (c.npc) g.changeRel(c.npc, 10);
+    if (p.guild && p.guildRank < 1 && (p.origin || {}).aff !== "free") {
+      p.contrib = Math.max(p.contrib || 0, GUILD_RANKS[1].req);
+      g.checkGuildRank && g.checkGuildRank([]);
+    }
+    return "첫 해 수첩을 덮었다. 이제 정해진 과제는 없다." + g.gain({ fame: 3, ether: 30 });
+  } }]
+});
+(() => {
+  const P = Game.prototype;
+  const wrapFlag = (name, key, ok) => {
+    const base = P[name];
+    if (!base) return;
+    P[name] = function(...a) {
+      const r = base.apply(this, a);
+      const nb = this.player && this.player.notebook;
+      if (nb && (!ok || ok(r))) nb.f[key] = true;
+      return r;
+    };
+  };
+  wrapFlag("acceptBounty", "take", (r) => typeof r === "string" && r.startsWith("의뢰 수락"));
+  wrapFlag("payBounty", "report");
+  wrapFlag("craft", "craft", (r) => typeof r === "string" && /만들었다/.test(r));
+  wrapFlag("train", "train");
+  const baseInit = P.initSandbox;
+  P.initSandbox = function() {
+    var _a, _b;
+    baseInit.call(this);
+    const p = this.player;
+    (_a = p.origin) != null ? _a : p.origin = null;
+    (_b = p.notebook) != null ? _b : p.notebook = null;
+  };
+  const baseChoose = UI.proChoose;
+  UI.proChoose = function(i) {
+    const s = this.pro;
+    const was = s.id;
+    const r = baseChoose.call(this, i);
+    if (s.id === "verdict_guild" && was !== "verdict_guild") {
+      s.vgOrder = this.proGuildOrder();
+      s.hopeGuild = s.vgOrder[0];
+      s.id = "vg_" + s.hopeGuild;
+      this.renderPrologue();
+    } else if (s.id === "vg_second") {
+      s.hopeGuild = (s.vgOrder || this.proGuildOrder())[1];
+      s.id = "vg2_" + s.hopeGuild;
+      this.renderPrologue();
+    }
+    return r;
+  };
+  const baseBegin = UI.beginFromPrologue;
+  UI.beginFromPrologue = function() {
+    const s = this.pro;
+    const r = baseBegin.call(this);
+    if (G.player) G.setHope(s.flags, s.hopeGuild);
+    return r;
+  };
+  const baseEnd = UI.endExam;
+  UI.endExam = function(ids) {
+    const p = G.player;
+    if (!p.origin) G.setHope(null, null);
+    for (const id of ids || []) {
+      const n = G.npcById(id);
+      if (n) {
+        n.examContact = true;
+        G.changeRel(n, 8);
+      }
+    }
+    G.examMateFates();
+    baseEnd.call(this, []);
+    const ev = G.affEventId();
+    if (ev) G.queue.unshift({ type: "story", id: ev });
+    else {
+      p.origin.aff = "free";
+      G.queue.unshift({ type: "firstParty" });
+    }
+  };
+  const baseQueue = UI.processQueue;
+  UI.processQueue = function() {
+    if (this.modalOpen()) return;
+    if (G.player && !G.over) G.nbCheck();
+    const q = G.queue[0];
+    if (q && q.type === "firstParty") {
+      G.queue.shift();
+      return this.showFirstParty();
+    }
+    return baseQueue.call(this);
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function(act, v) {
+    switch (act) {
+      case "fp-pick": {
+        const id = +v;
+        if (this.fpPick.has(id)) this.fpPick.delete(id);
+        else if (this.fpPick.size < 4) this.fpPick.add(id);
+        return this.showFirstParty();
+      }
+      case "fp-done":
+        return this.firstPartyDone(v === "1");
+      default:
+        return baseHandle.call(this, act, v);
+    }
+  };
+  const baseQuests = UI.questsHtml;
+  UI.questsHtml = function() {
+    const html = baseQuests.call(this);
+    const nb = G.player.notebook;
+    if (!nb || nb.i >= NB_TASKS.length) return html;
+    const v = NB_VOICE[nb.voice] || NB_VOICE.free;
+    const m = G.npcById(nb.mentor);
+    const go = (t) => {
+      if (!this.goBtn) return "";
+      if (t.id === "gate") {
+        const p = G.player;
+        const d = (o) => Math.max(Math.abs(o.x - p.x), Math.abs(o.y - p.y));
+        const gt = G.mapGates.filter((x) => G.revealed(x.x, x.y) && x.tier <= p.rankIdx + 1).sort((a, b) => d(a) - d(b))[0];
+        return gt ? '<button class="sm" data-act="travel-xy" data-v="'.concat(gt.x, ",").concat(gt.y, '">이동</button>') : "";
+      }
+      if (t.id === "report") {
+        const q = G.player.quests.find((x) => x.kind === "bounty" && x.status === "done");
+        return q ? this.goBtn(q.from) : "";
+      }
+      if (t.id === "take" || t.id === "craft") return G.onCity() ? "" : this.goBtn(this.nearestCity ? this.nearestCity() : G.player.region);
+      return "";
+    };
+    const rows = NB_TASKS.map((t, i) => '<div class="item-row '.concat(i === nb.i ? "hl" : "", '"><div class="grow"><b>').concat(i < nb.i ? "✔" : i === nb.i ? "▸" : "·", " ").concat(t.name, "</b>").concat(i === nb.i ? '<div class="small dim">'.concat(t.why, "</div>") : "", "</div>").concat(i === nb.i ? go(t) : "", "</div>")).join("");
+    return '<div class="panel"><h3>첫 해 수첩</h3><p class="dim small">'.concat(m ? "".concat(m.name, "(").concat(v.who, ")") : v.who, '이(가) 내려 준 과제. 하나씩 끝낼 때마다 다음 과제가 온다.</p><div class="cards">').concat(rows, "</div></div>") + html;
+  };
+})();
+Object.assign(UI, {
+  nearestCity() {
+    const p = G.player;
+    let best = p.region, bd = 1e9;
+    for (const r of REGIONS) {
+      if (r.id === "jeju") continue;
+      const [x, y] = WORLD.cityPos[r.id];
+      const d = Math.max(Math.abs(x - p.x), Math.abs(y - p.y));
+      if (d < bd) {
+        bd = d;
+        best = r.id;
+      }
+    }
+    return best;
+  }
+});

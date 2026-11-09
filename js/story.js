@@ -97,7 +97,7 @@ Object.assign(Game.prototype, {
   },
   storyById(id) { return STORY.find((e) => e.id === id); },
   storyCtx(q) { return { npc: q.npc != null ? this.npcById(q.npc) : null, victim: q.victim != null ? this.npcById(q.victim) : null, npc2: q.npc2 != null ? this.npcById(q.npc2) : null, extra: q.extra }; },
-  markSeen(id) { const f = this.flags; f.seen[id] = this.monthKey(); f.seenN ??= {}; f.seenN[id] = (f.seenN[id] || 0) + 1; const ev = this.storyById(id); if (ev && !['system', 'debut', 'calendar'].includes(ev.trigger)) f.lastStory = this.monthKey(); },
+  markSeen(id) { const f = this.flags; f.seen[id] = this.monthKey(); f.seenN ??= {}; f.seenN[id] = (f.seenN[id] || 0) + 1; const ev = this.storyById(id); if (ev && !['system', 'debut', 'calendar'].includes(ev.trigger)) f.lastStory = this.monthKey(); if (ev && ev.trigger !== 'system') f.lastAny = this.monthKey(); },
   chainNext(id) { this.flags.chains[id] = (this.flags.chains[id] || 0) + 1; this.flags.chainAt[id] = this.monthKey(); },
   chainSet(id, step) { this.flags.chains[id] = step; this.flags.chainAt[id] = this.monthKey(); },
   chainEnd(id) { this.flags.chains[id] = 99; },

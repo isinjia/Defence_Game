@@ -33,6 +33,8 @@ Object.assign(Game.prototype, {
 
 (() => {
   const P = Game.prototype;
+  const baseDebut = P.debutStart;
+  if (baseDebut) P.debutStart = function () { baseDebut.call(this); const d = this.player.debut; if (d && d.start == null) d.start = this.monthKey(); };
   const baseMonth = P.advanceMonth;
   P.advanceMonth = function (n = 1, opts = {}) {
     if (opts.eventChance && this.flags) opts = { ...opts, eventChance: Math.min(0.9, opts.eventChance * this.storyPace()) };
@@ -41,6 +43,13 @@ Object.assign(Game.prototype, {
   const baseMonthly = P.storyMonthly;
   P.storyMonthly = function () {
     baseMonthly.call(this);
+    // 첫 해: 최소 두 달에 한 번은 무언가 일어난다 (데뷔 사건 포함)
+    const d = this.player.debut;
+    if (d && d.start != null && this.monthKey() - d.start < 12 && this.monthKey() - (this.flags.lastAny ?? d.start) >= 2 && !this.queue.some((q) => q.type === 'story' || q.type === 'request')) {
+      const ev = this.pickStory('month');
+      if (ev) { this.queue.push(ev); return; }
+      if (this.pickRequest) { const r = this.pickRequest(); if (r) { this.queue.push(r); this.flags.lastAny = this.monthKey(); return; } }
+    }
     if (this.storyCalendar()) return;
     // 너무 오래 조용하면 하나는 일어난다
     if (!this.inDebut() && this.storyQuiet() >= STORY_QUIET_MAX && !this.queue.some((q) => q.type === 'story')) {

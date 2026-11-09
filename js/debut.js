@@ -57,7 +57,7 @@ Object.assign(Game.prototype, {
 const D = (tier, step, ev) => S({ id: `debut_${tier}_${step}`, trigger: 'debut', ...ev });
 const dn = (g) => { g.debutNext(); return ''; };
 const npcOf = (g) => g.npcById(g.player.debut.npc) || { name: '그 사람' };
-const guildPair = (g) => { const ks = Object.keys(GUILDS).filter((k) => k !== 'jujak' && k !== 'kama'); return [ks[g.player.debut.at % ks.length], ks[(g.player.debut.at + 1) % ks.length]]; };
+const guildPair = (g) => { const ks = Object.keys(GUILDS).filter((k) => k !== 'jujak' && k !== 'kama' && k !== g.player.guild); return [ks[g.player.debut.at % ks.length], ks[(g.player.debut.at + 1) % ks.length]]; };
 
 // ========== 주목받는 유망주 ==========
 D('star', 0, { text: (g) => `측정 결과가 나온 지 세 시간. 휴대폰이 쉬지 않고 울린다. 협회 홍보팀이 내일 아침 기자회견을 잡았다며 대본을 보내왔다.\n\n"${RANKS[g.player.rankIdx].key}급 신규 각성자, 올해 최대어." 포털 메인에 당신 얼굴이 걸려 있다. 댓글 수가 실시간으로 늘어난다.`,
@@ -96,7 +96,8 @@ D('star', 4, { text: (g) => `관리국에서 공문이 왔다. "귀하를 특별
 // ========== 기대주 ==========
 D('rising', 0, { text: (g) => `지역 뉴스 끝자락에 한 줄이 실렸다. "${regionById(g.player.region).name}, 올해 첫 ${RANKS[g.player.rankIdx].key}급 신규 등록." 오후에 중소 길드 두 곳에서 문자가 왔다.\n\n"수습 3개월, 숙소 제공." 거창하진 않지만 현실적인 조건이다.`,
   choices: [
-    { text: '주작 프리랜서 연합 수습으로 들어간다', do: (g) => { dn(g); return '숙소는 좁았지만 선배들이 밥을 사 줬다.' + g.debutJoinGuild('jujak', 400); } },
+    { text: '주작 프리랜서 연합 수습으로 들어간다', when: (g) => !g.player.guild, do: (g) => { dn(g); return '숙소는 좁았지만 선배들이 밥을 사 줬다.' + g.debutJoinGuild('jujak', 400); } },
+    { text: '지금 소속에 집중하겠다고 답한다', when: (g) => !!g.player.guild, do: (g) => { dn(g); return `${GUILDS[g.player.guild].name} 사수에게 이야기했더니 "잘 생각했다"며 웃었다.` + g.gain({ ether: 20 }); } },
     { text: '답장하지 않고 혼자 해 본다', do: (g) => { dn(g); return '조건 좋은 데가 또 오겠지. 그렇게 생각하기로 했다.' + g.gain({ ether: 30 }); } },
   ] });
 D('rising', 1, { text: '협회에서 "신인 육성 프로그램" 추천장이 왔다. 한 달 합숙, 은퇴한 A급 교관들이 직접 가르친다. 대신 그동안 수입은 없다.',
@@ -218,7 +219,7 @@ D('bottom', 4, { at: ['field', 'city'], text: '아무도 가지 않는 폐공장
     if (this.judgmentHtml) {
       const p = G.player; const mates = G.party().map((n) => n.name);
       this.modal(`${this.judgmentHtml()}
-        <p class="sec">${mates.length ? `${mates.join(', ')}와(과) 함께 첫발을 내딛는다.` : '당분간은 혼자다. 시험 동기들은 인물 창에서 다시 만날 수 있다.'}</p>
+        <p class="sec">${mates.length ? `${mates.join(', ')}와(과) 함께 첫발을 내딛는다.` : '시험 동기들과 연락처를 나눴다. 어디에 소속될지, 누구와 첫 파티를 꾸릴지는 측정 결과가 정한다.'}</p>
         ${(() => { const L = G.npcs.filter((n) => n.examLeader && n.alive).pop(); return L ? `<p class="small">시험 리더였던 선임 ${L.name}이(가) 연락처를 건넸다. 인물 창에서 다시 만날 수 있다.</p>` : ''; })()}
         <p class="dim">지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.</p>
         <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>`, 'pro-judge');
