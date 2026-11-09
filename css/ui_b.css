@@ -69,3 +69,26 @@
 .set-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
 .set-row input[type=range] { width: min(200px, 50%); accent-color: var(--amber); min-height: 32px; }
 .set-row button { min-width: 72px; justify-content: center; flex: none; }
+
+/* ---------- 전투 손맛: 체력 잔상 · 강약 · 멈춤 · 쓰러짐 ---------- */
+#stage .bar.hp { position: relative; }
+#stage .bar.hp > i { position: relative; z-index: 1; }
+#stage .bar.hp > b.gh { position: absolute; left: 0; top: 0; bottom: 0; background: #fff3; transition: width .45s ease-out; }
+#stage .bar.hp > b.gh.heal { background: #6bdc8b; transition: none; }
+#stage .bar.hp > b.gh.heal + i { transition: width .5s ease-out; }
+@keyframes shake { 0%, 100% { transform: none; } 25% { transform: translateX(calc(var(--sh, 1) * -6px)); } 50% { transform: translateX(calc(var(--sh, 1) * 5px)); } 75% { transform: translateX(calc(var(--sh, 1) * -3px)); } }
+.stage.hitstop .sprite, .stage.hitstop .fx-host, .stage.hitstop .float-num, .stage.hitstop .spark { animation-play-state: paused !important; }
+.stage.finale { animation: finale .9s ease-out; }
+@keyframes finale { 0% { transform: none; } 25% { transform: scale(1.05); } 100% { transform: none; } }
+.win-stamp { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: 5; font-family: var(--font-display); font-size: 34px; letter-spacing: .12em; color: var(--amber); text-shadow: 0 0 18px #000, 0 2px 0 #000; pointer-events: none; animation: stamp 1.4s ease-out forwards; white-space: nowrap; }
+@keyframes stamp { 0% { opacity: 0; transform: translate(-50%, -50%) scale(1.8); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; } }
+.foe.dying .fx-host { animation: dying .7s ease-in forwards; }
+@keyframes dying { 0% { transform: none; filter: brightness(2); } 100% { transform: scale(.6) translateY(10px); opacity: .2; filter: brightness(1) blur(2px); } }
+.ally.downed { animation: downed .9s ease-out; }
+@keyframes downed { 0% { transform: none; } 40% { transform: rotate(-3deg) translateY(2px); } 100% { transform: rotate(-1.5deg); } }
+.ally.dead { transform: rotate(-1.5deg); }
+.float-num.down-t { font-family: var(--font-body); font-size: 13px; color: var(--bad); font-weight: 700; }
+.core-drop { position: absolute; left: 50%; top: 50%; width: 10px; height: 14px; background: var(--c); clip-path: polygon(50% 0, 100% 40%, 50% 100%, 0 40%); box-shadow: 0 0 10px var(--c); z-index: 3; pointer-events: none; animation: coredrop 1.2s ease-out forwards; }
+.core-drop.big { width: 18px; height: 24px; }
+@keyframes coredrop { 0% { transform: translate(-50%, 0) scale(.4); opacity: 0; } 30% { transform: translate(-50%, -38px) scale(1.1); opacity: 1; } 60% { transform: translate(-50%, -26px) scale(1); opacity: 1; } 100% { transform: translate(-50%, -60px) scale(.7); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ally.dead { transform: none; } }

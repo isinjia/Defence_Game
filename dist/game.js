@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.48";
+const GAME_VERSION = "0.49";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -19862,5 +19862,131 @@ Object.assign(Game.prototype, {
       const [px, py] = this.toScreen(g.x + 0.5, g.y + 0.5);
       this.chip(px, py - this.tile * 0.75, "재앙", "#ff4f6a", "#1a0508");
     }
+  };
+}
+{
+  const unitOf = (c, id) => c && c.combat && c.combat.units.find((u) => u.id === id);
+  const colorOf = (e) => e && ELEMENTS[e] ? elemColor(e) : "#e3e8f1";
+  const pace = (c) => FX.reduced ? 0 : c && (c.combat.auto || (c.speed || 1) > 1) ? 0.4 : 1;
+  UI.hpGhosts = function() {
+    for (const bar of document.querySelectorAll("#stage .bar.hp")) {
+      const i = bar.querySelector(":scope > i");
+      if (!i) continue;
+      let g = bar.querySelector(":scope > b.gh");
+      const w = parseFloat(i.style.width);
+      if (isNaN(w)) continue;
+      if (!g) {
+        g = document.createElement("b");
+        g.className = "gh";
+        g.style.width = w + "%";
+        bar.insertBefore(g, i);
+        bar.dataset.w = w;
+        continue;
+      }
+      const prev = +bar.dataset.w;
+      if (Math.abs(w - prev) < 0.01) continue;
+      bar.dataset.w = w;
+      clearTimeout(g._t);
+      if (w < prev) {
+        g.classList.remove("heal");
+        g._t = setTimeout(() => {
+          g.style.width = w + "%";
+        }, FX.reduced ? 0 : 400);
+      } else {
+        g.classList.add("heal");
+        g.style.width = w + "%";
+      }
+    }
+  };
+  const baseRefresh = UI.refreshUnits;
+  UI.refreshUnits = function(...a) {
+    const r = baseRefresh.apply(this, a);
+    try {
+      this.hpGhosts();
+    } catch (e) {
+    }
+    return r;
+  };
+  const hitstop = (ms) => {
+    const st = document.getElementById("stage");
+    if (!st || FX.reduced || ms <= 0) return;
+    st.classList.add("hitstop");
+    clearTimeout(st._hs);
+    st._hs = setTimeout(() => st.classList.remove("hitstop"), ms);
+  };
+  const baseApply = UI.applyEvent;
+  UI.applyEvent = function(l) {
+    const c = this.ctx;
+    const ev = l && l.ev;
+    let wait = baseApply.call(this, l);
+    if (!ev || !c) return wait;
+    try {
+      const el = document.getElementById("u-" + (ev.dst != null ? ev.dst : ev.src));
+      const k = pace(c);
+      if (ev.k === "dmg" && el) {
+        const u = unitOf(c, ev.dst);
+        const ratio = u && u.maxHp ? Math.min(1, (ev.amt || 0) / u.maxHp) : 0.1;
+        const scale = ratio < 0.05 ? 0.8 : ratio < 0.12 ? 1 : ratio < 0.3 ? 1.2 : 1.45;
+        const host = el.querySelector(".fx-host");
+        const f = host && host.querySelector(".float-num:last-of-type");
+        if (f) f.style.fontSize = "calc(".concat(ev.crit ? 30 : 22, "px * ").concat(scale, ")");
+        el.style.setProperty("--sh", FX.reduced ? 0 : (0.5 + Math.min(1.5, ratio * 4)).toFixed(2));
+        if (ratio >= 0.3 && !ev.crit && !FX.reduced) {
+          const st = document.getElementById("stage");
+          if (st) FX.pulse(st, "quake", 380);
+        }
+        if (ev.crit || ratio >= 0.3) {
+          const ms = Math.round(90 * k);
+          hitstop(ms);
+          wait += ms;
+        }
+      } else if (ev.k === "down" && el) {
+        const u = unitOf(c, ev.dst);
+        const host = el.querySelector(".fx-host");
+        if (u && u.side === "enemy") {
+          FX.burst(host, colorOf(u.elem), u.boss ? 26 : 14);
+          FX.pulse(el, "dying", 700);
+          this.coreDrop(host, u);
+          const st = document.getElementById("stage");
+          if (u.boss && st) {
+            st.style.setProperty("--fc", colorOf(u.elem));
+            FX.pulse(st, "flash", 500);
+            if (!FX.reduced) FX.pulse(st, "quake", 380);
+          }
+          const left = c.combat.units.some((x) => x.side === "enemy" && x.alive && !x.fled && !x.summon);
+          if (!left) {
+            const ms = Math.round(220 * (k || 0.5));
+            hitstop(ms);
+            wait += ms;
+            if (st) {
+              if (!FX.reduced) FX.pulse(st, "finale", 900);
+              const v = document.createElement("div");
+              v.className = "win-stamp";
+              v.textContent = "전투 승리";
+              st.appendChild(v);
+              setTimeout(() => v.remove(), 1400);
+            }
+          } else {
+            const ms = Math.round(100 * k);
+            hitstop(ms);
+            wait += ms;
+          }
+        } else if (u) {
+          FX.pulse(el, "downed", 900);
+          if (host) FX.floatText(host, "전투 불능", "down-t");
+          wait += Math.round(120 * k);
+        }
+      }
+    } catch (e) {
+    }
+    return wait;
+  };
+  UI.coreDrop = function(host, u) {
+    if (!host) return;
+    const d = document.createElement("i");
+    d.className = "core-drop" + (u.boss ? " big" : "");
+    d.style.setProperty("--c", colorOf(u.elem));
+    host.appendChild(d);
+    setTimeout(() => d.remove(), 1200);
   };
 }
