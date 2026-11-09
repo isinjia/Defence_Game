@@ -99,3 +99,21 @@ if (typeof UI !== 'undefined' && UI.proFill) {
     return baseFill.call(this, t);
   };
 }
+
+// 3차 평가 '첫 30분': 시험 뒤 통지서·ID 카드·메시지 창이 연달아 떠 피로하다.
+// 첫 카드를 받은 직후 소속만 정해진 경우(등급은 그대로)에는 재발급 창 대신 알림 한 줄로 조용히 고쳐 준다.
+if (typeof UI !== 'undefined' && UI.showIdCard) {
+  const baseShow = UI.showIdCard;
+  UI.showIdCard = function (mode) {
+    try {
+      const p = G.player; const c = p && p.idCard;
+      if (mode === 'reissue' && c && (c.gen || 1) === 1 && c.rank === (p.official ?? p.rankIdx) && (c.guild || null) !== (p.guild || null)) {
+        G.issueIdCard();
+        const g = p.guild && GUILDS[p.guild] ? GUILDS[p.guild].name : '무소속';
+        this.toast(fixJosa(`헌터 ID 카드 소속이 ${g}(으)로 바뀌었다. 정보 탭에서 볼 수 있다.`));
+        return;
+      }
+    } catch (e) { /* 무시하고 원래 창 */ }
+    return baseShow.apply(this, arguments);
+  };
+}
