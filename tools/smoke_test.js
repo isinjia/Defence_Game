@@ -61,6 +61,10 @@ const { chromium, devices } = require('playwright');
   for (const s of ['char', 'gear', 'skills', 'party', 'people', 'quest', 'guild', 'hunter', 'log']) {
     await step(`시트 탭: ${s}`, async () => { await act('sheet', s); const len = await ev(() => document.getElementById('modal-box').innerHTML.length); if (len < 200) throw new Error('내용이 거의 없음'); await closeAll(); });
   }
+  await step('헌터 ID 카드 보기·뒤집기 (화면)', async () => {
+    await act('id-view'); const ok = await ev(() => !!document.getElementById('idc')); if (!ok) throw new Error('ID 카드 없음');
+    await act('id-flip'); await closeAll();
+  });
   await step('설정 창·지도 패널 접기 (화면)', async () => {
     await act('settings'); const ok = await ev(() => !!document.getElementById('set-vol')); if (!ok) throw new Error('설정 창 없음');
     await act('set-sfx'); await act('set-sfx'); await closeAll();

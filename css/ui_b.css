@@ -324,3 +324,73 @@
 @media (orientation: portrait) and (max-width: 640px) {
   body #dlg { justify-content: center; padding-bottom: calc(12vh + env(safe-area-inset-bottom, 0px)); background: radial-gradient(ellipse at 50% 55%, #04060ad9 0%, #04060a99 45%, #04060a40 80%, #0000 100%); }
 }
+
+/* ===== 판정 통지서 (종이 공문) ===== */
+.modal-box.doc-box { background: #0b1018; }
+.gc-doc { position: relative; background: #f3eee2; color: #2a2620; padding: 14px 14px 18px; border-radius: 3px; box-shadow: 0 12px 40px #000a, inset 0 0 40px #d9cfb7; font-size: 13px; animation: docup .55s cubic-bezier(.2, .9, .3, 1) both;
+  background-image: repeating-linear-gradient(0deg, #0000 0 22px, #00000008 22px 23px); }
+@keyframes docup { from { transform: translateY(60px) rotate(-1.5deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.doc-head { display: flex; gap: 10px; align-items: center; border-bottom: 2px solid #2a2620; padding-bottom: 8px; }
+.doc-logo { width: 34px; height: 34px; color: #1f3b6b; flex: none; }
+.doc-head b { font-size: 15px; letter-spacing: .1em; color: #1f3b6b; }
+.doc-meta { font-size: 10.5px; color: #6b6355; font-family: var(--font-num); }
+.doc-title { text-align: center; margin: 10px 0 8px; font-size: 18px; letter-spacing: .3em; color: #1d1a15; }
+.doc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.doc-table th, .doc-table td { border: 1px solid #8a7f6a; padding: 5px 6px; text-align: left; vertical-align: middle; }
+.doc-table th { background: #e4dcc8; width: 4.6em; font-weight: 700; color: #3a3428; white-space: nowrap; }
+.doc-table td svg { vertical-align: -2px; }
+.doc-grade { white-space: nowrap; }
+.doc-grade .ink { font-family: var(--font-num); font-size: 20px; white-space: nowrap; font-weight: 800; color: var(--c); -webkit-text-stroke: .5px #0005; opacity: 0; filter: blur(6px); display: inline-block; }
+.gc-doc.stamped .doc-grade .ink { animation: ink .9s ease-out .15s forwards; }
+@keyframes ink { 0% { opacity: 0; filter: blur(6px); transform: scale(1.3); } 100% { opacity: 1; filter: none; transform: none; } }
+.doc-sign { display: flex; gap: 8px; align-items: baseline; justify-content: flex-end; margin-top: 10px; font-size: 12px; color: #4a4336; }
+.doc-sig { font-family: 'Black Han Sans', var(--font-display); font-style: italic; font-size: 20px; color: #1f2a4a; transform: rotate(-6deg); display: inline-block; }
+.doc-stamp { position: absolute; right: 16px; bottom: 8px; width: 84px; height: 84px; border: 4px solid #d1262f; border-radius: 50%; color: #d1262f; display: grid; place-items: center; text-align: center; font-weight: 800; font-size: 12px; line-height: 1.25; letter-spacing: .05em; opacity: 0; transform: scale(2.6) rotate(-25deg); mix-blend-mode: multiply; box-shadow: inset 0 0 0 3px #f3eee2, inset 0 0 0 5px #d1262f; }
+.gc-doc.stamped .doc-stamp { animation: stamp-slam .32s cubic-bezier(.3, 1.6, .5, 1) forwards; }
+@keyframes stamp-slam { 0% { opacity: 0; transform: scale(2.6) rotate(-25deg); } 70% { opacity: .95; transform: scale(.94) rotate(-14deg); } 100% { opacity: .88; transform: scale(1) rotate(-14deg); } }
+.doc-btns { margin-top: 10px; }
+@media (max-width: 400px) { .doc-table { font-size: 11.5px; } .doc-table th { width: 4em; } .doc-title { font-size: 16px; letter-spacing: .2em; } }
+
+/* ===== 헌터 ID 카드 ===== */
+.idc-wrap { perspective: 900px; display: grid; place-items: center; margin: 10px 0 6px; }
+.idc-wrap.enter .idc { animation: idcin .9s cubic-bezier(.2, .8, .3, 1) backwards; }
+@keyframes idcin { 0% { transform: rotateY(-200deg) translateY(40px) scale(.6); opacity: 0; } 60% { opacity: 1; } 100% { transform: none; } }
+.idc { position: relative; width: min(85vw, 360px); aspect-ratio: 1.586; transform-style: preserve-3d; transition: transform .6s cubic-bezier(.3, .7, .3, 1); cursor: pointer; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
+.idc.flip { transform: rotateY(180deg); }
+.idc-face { position: absolute; inset: 0; border-radius: 14px; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; padding: 10px 12px; display: flex; flex-direction: column; box-shadow: 0 14px 40px #000b, inset 0 0 0 1px #ffffff30; }
+.idc-back { transform: rotateY(180deg); }
+.idc.plain .idc-face { background: linear-gradient(135deg, #e8ecf2, #b9c3d1); color: #17202e; }
+.idc.silver .idc-face { background: linear-gradient(135deg, #f4f6f9, #9aa3b0 45%, #e7ebf0 55%, #8a94a3); color: #121821; }
+.idc.gold .idc-face { background: linear-gradient(135deg, #fff1c2, #c8962e 45%, #ffe39a 55%, #a0721c); color: #2a1a02; }
+.idc.black .idc-face { background: linear-gradient(135deg, #2b2f36, #0b0d10 50%, #33373f); color: #e8ecf2; box-shadow: 0 14px 40px #000d, inset 0 0 0 1px #ffffff40, inset 0 0 0 3px #00000080; }
+.idc-top { display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; letter-spacing: .08em; opacity: .75; border-bottom: 1px solid currentColor; padding-bottom: 4px; }
+.idc-body { flex: 1; display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; margin-top: 6px; min-height: 0; }
+.idc-photo { width: 72px; height: 90px; border-radius: 6px; overflow: hidden; background: #fff8; display: grid; place-items: center; box-shadow: inset 0 0 0 1px #0003; }
+.idc-photo svg, .idc-photo img { width: 84px !important; height: auto !important; }
+.idc-info { min-width: 0; display: grid; gap: 2px; font-size: 11.5px; }
+.idc-info .small { font-size: 10px; }
+.idc-name { font-size: 18px; font-weight: 800; letter-spacing: .04em; }
+.idc-row { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.idc-row.dim { opacity: .7; }
+.idc-rank { font-family: var(--font-num); font-weight: 800; font-size: 44px; line-height: 1; color: var(--rc); -webkit-text-stroke: 1.5px #0008; text-shadow: 0 2px 0 #0006, 0 0 12px color-mix(in srgb, var(--rc) 60%, transparent); align-self: start; }
+.idc-holo { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: color-dodge; opacity: .55;
+  background: radial-gradient(circle at var(--hx, 30%) var(--hy, 30%), #ffffffcc 0%, #0000 35%), linear-gradient(115deg, #0000 20%, #ff6bd5 35%, #6bf0ff 45%, #fff36b 55%, #0000 70%);
+  background-size: 100% 100%, 260% 260%; background-position: 0 0, var(--hx, 30%) var(--hy, 30%); transition: background-position .2s; }
+.idc-wrap.enter .idc-holo { animation: holo 2.4s ease-in-out .9s 1; }
+@keyframes holo { 0% { background-position: 0 0, 0% 0%; } 100% { background-position: 0 0, 100% 100%; } }
+.idc-strip { height: 26px; margin: 4px -12px 8px; background: #111; }
+.idc-bar { display: flex; height: 34px; align-items: stretch; gap: 0; background: #fff; padding: 3px 6px; border-radius: 3px; width: fit-content; }
+.idc-bar i { display: block; background: #111; margin-right: 1px; }
+.idc-no { font-size: 11px; margin: 2px 0 4px; letter-spacing: .1em; }
+.idc-back p { font-size: 9.5px; line-height: 1.4; margin: 0 0 4px; opacity: .85; }
+.idc-sign { display: flex; gap: 8px; align-items: baseline; font-size: 10px; border-bottom: 1px solid currentColor; width: 60%; }
+.idc-sign i { font-family: 'Black Han Sans', var(--font-display); font-size: 15px; }
+.idc-call { margin-top: auto; opacity: .7; font-size: 9.5px; }
+.idc-tip { text-align: center; }
+.idc-mini { gap: 10px; }
+.idc-chip { display: grid; place-items: center; width: 40px; height: 26px; border-radius: 5px; font-weight: 800; font-family: var(--font-num); color: var(--rc); }
+.idc-chip.plain { background: linear-gradient(135deg, #e8ecf2, #b9c3d1); }
+.idc-chip.silver { background: linear-gradient(135deg, #f4f6f9, #9aa3b0); }
+.idc-chip.gold { background: linear-gradient(135deg, #fff1c2, #c8962e); }
+.idc-chip.black { background: linear-gradient(135deg, #2b2f36, #0b0d10); }
+@media (prefers-reduced-motion: reduce) { .idc { transition: none; } .gc-doc, .idc-wrap.enter .idc { animation: none; } }
