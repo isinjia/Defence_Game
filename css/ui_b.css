@@ -15,7 +15,6 @@
   .combat-box .skill-btn { padding: 6px 8px; }
   .combat-box .ctrl-row { margin: 6px 0 2px; gap: 4px; flex-wrap: wrap; }
 }
-#cb-coach .coach { margin: 0 0 6px; }
 @media (max-width: 640px) {
   .combat-box .skill-btns { gap: 4px; }
   .combat-box .skill-btn { padding: 5px 8px; min-height: 44px; }
@@ -25,7 +24,6 @@
   .combat-box .ctrl-row .grow { display: none; }
   .combat-box .ctrl-row button { flex: 1 1 auto; padding: 6px 4px; font-size: 12px; min-height: 40px; white-space: nowrap; justify-content: center; }
   .combat-box .cb-hint { font-size: 12px; margin-top: 2px; }
-  #cb-coach .coach { font-size: 12.5px; padding: 6px 8px; }
 }
 .combat-box #cb-ctrl:not(.cb-done) { max-height: 72vh; overflow: auto; }
 .combat-box #cb-ctrl.cb-done { position: static; box-shadow: none; }
@@ -152,3 +150,15 @@
   .rotate-hint svg { color: var(--ether); animation: rot 2.4s ease-in-out infinite; }
   @keyframes rot { 0%, 30% { transform: rotate(90deg); } 60%, 100% { transform: rotate(0); } }
 }
+
+/* 떠 있는 안내 말풍선 + 스포트라이트 */
+#coach-pop { position: fixed; left: 50%; transform: translateX(-50%); z-index: 26; width: min(420px, calc(100% - 24px)); cursor: pointer; display: grid; animation: coachin .25s ease-out; filter: drop-shadow(0 8px 24px #000c); }
+#coach-pop .coach-card { margin: 0; background: #2a200d; }
+#coach-pop .coach-close { position: absolute; right: 10px; top: 7px; font-size: 11px; }
+#coach-pop .coach-arrow { position: absolute; width: 14px; height: 14px; margin-left: -7px; background: #2a200d; border: 1px solid var(--amber); transform: rotate(45deg); }
+#coach-pop.arrow-up .coach-arrow { top: -7px; border-right: 0; border-bottom: 0; }
+#coach-pop.arrow-down .coach-arrow { bottom: -7px; border-left: 0; border-top: 0; }
+#coach-pop:not(.arrow-up):not(.arrow-down) .coach-arrow { display: none; }
+@keyframes coachin { from { opacity: 0; transform: translate(-50%, 6px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.coach-spot { position: relative; z-index: 2; outline: 2px solid var(--amber); outline-offset: 3px; box-shadow: 0 0 0 4px #ffb54733, 0 0 26px #ffb54766; animation: tutglow 1.2s ease-in-out infinite; }
+@media (max-width: 640px) { #coach-pop .coach { font-size: 12.5px; padding: 8px 10px; } }

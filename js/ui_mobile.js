@@ -30,14 +30,22 @@
     return baseHandle.call(this, act, v);
   };
 
-  // 조작 안내 상자는 고정 조작 영역이 아니라 무대 위로 옮긴다 (조작 영역을 낮게 유지)
+  // 조작 안내는 레이아웃에 박지 않고 떠 있는 말풍선으로 (분담표 4-2). 실제 그리기는 아래 coachPop.
   UI.liftCoach = function () {
-    const box = document.getElementById('cb-ctrl'); const stage = document.getElementById('stage'); if (!box || !stage) return;
-    let host = document.getElementById('cb-coach');
-    if (!host) { host = document.createElement('div'); host.id = 'cb-coach'; stage.parentNode.insertBefore(host, stage); }
-    const coach = box.querySelector('.coach');
-    host.innerHTML = '';
-    if (coach) host.appendChild(coach);
+    const box = document.getElementById('cb-ctrl'); if (!box) return;
+    const coach = box.querySelector('.coach'); if (coach) coach.remove();
+    const c = this.ctx;
+    if (!coach || !c || !c.combat || c.combat.result) return this.coachPop(null);
+    const label = (coach.querySelector('.eyebrow') || coach).textContent;
+    const cb = c.combat;
+    const myTurn = cb.waiting && !c.playing && !cb.auto;
+    // 1/3(게이지 설명)은 시간이 흐를 때도, 나머지는 내 차례(시간 정지)에만
+    if (!myTurn && !/1\/3/.test(label)) return this.coachPop(null);
+    let target = null;
+    if (/1\/3/.test(label)) target = document.getElementById('foes');
+    else if (/2\/3/.test(label)) target = c.sel ? document.getElementById('foes') : box.querySelector('.skill-btns');
+    else if (/3\/3/.test(label)) target = box.querySelector('.ctrl-row');
+    this.coachPop(coach, target, label + '|' + (c.sel || ''));
   };
 
   // 안내 문구: 대상이 기억돼 있으면 한 번에 발동된다는 것을 알려 준다
@@ -108,4 +116,53 @@
   const el = document.createElement('div'); el.className = 'rotate-hint';
   el.innerHTML = '<div><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg><b>세로로 돌려 주세요</b><span class="small dim">게이트 크로니클은 세로 화면에 맞춰져 있습니다.</span></div>';
   document.body.appendChild(el);
+}
+
+// ---------- 떠 있는 안내 말풍선 (전투 조작 안내, 게이트 탐색 리더 대사) ----------
+{
+  UI._coachShut = null; // 닫은 안내의 열쇠 (같은 안내는 다시 띄우지 않음, 다음 단계에서 다시)
+  UI.coachPop = function (node, target, key) {
+    let pop = document.getElementById('coach-pop');
+    for (const el of document.querySelectorAll('.coach-spot')) if (el !== target) el.classList.remove('coach-spot');
+    if (!node || (key && this._coachShut === key)) { if (pop) pop.remove(); if (!node && target) target.classList.remove('coach-spot'); return; }
+    if (!pop) { pop = document.createElement('div'); pop.id = 'coach-pop'; pop.setAttribute('role', 'status'); document.body.appendChild(pop); }
+    const same = pop._key === (key || '') && pop.childElementCount;
+    pop._key = key || '';
+    pop.innerHTML = '';
+    pop.style.animation = same ? 'none' : '';
+    node.classList.add('coach-card'); pop.appendChild(node);
+    pop.insertAdjacentHTML('beforeend', '<span class="coach-close small dim">눌러서 닫기</span><i class="coach-arrow"></i>');
+    pop.onclick = () => { this._coachShut = pop._key; pop.remove(); for (const el of document.querySelectorAll('.coach-spot')) el.classList.remove('coach-spot'); };
+    // 위치: 대상이 화면 아래쪽이면 말풍선은 대상 위에, 위쪽이면 대상 아래에
+    const vh = window.innerHeight, vw = window.innerWidth;
+    pop.className = '';
+    if (target) {
+      target.classList.add('coach-spot');
+      const r = target.getBoundingClientRect();
+      const ph = pop.offsetHeight || 90;
+      const below = r.top + r.height / 2 < vh / 2;
+      const top = below ? Math.min(vh - ph - 8, r.bottom + 12) : Math.max(8, r.top - ph - 12);
+      pop.style.top = top + 'px'; pop.style.bottom = '';
+      pop.classList.add(below ? 'arrow-up' : 'arrow-down');
+      const ax = Math.max(24, Math.min(vw - 24, r.left + r.width / 2));
+      const pr = pop.getBoundingClientRect();
+      pop.querySelector('.coach-arrow').style.left = Math.max(14, Math.min(pr.width - 14, ax - pr.left)) + 'px';
+    } else { pop.style.top = 'calc(12px + env(safe-area-inset-top, 0px))'; pop.style.bottom = ''; }
+  };
+  // 전투가 끝나거나 창이 바뀌면 말풍선 정리
+  const clear = () => { const p = document.getElementById('coach-pop'); if (p) p.remove(); for (const el of document.querySelectorAll('.coach-spot')) el.classList.remove('coach-spot'); };
+  const baseClose = UI.closeModal;
+  UI.closeModal = function (...a) { clear(); return baseClose.apply(this, a); };
+  const baseModal = UI.modal;
+  UI.modal = function (html, cls = '', ...a) {
+    clear();
+    const r = baseModal.call(this, html, cls, ...a);
+    // 게이트 탐색 리더 대사도 같은 말풍선으로
+    try {
+      const box = document.getElementById('modal-box');
+      const lead = box && !String(cls).includes('combat-box') && box.querySelector('.coach.lead-say');
+      if (lead) { lead.remove(); this.coachPop(lead, null, 'lead:' + lead.textContent.slice(0, 40)); }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
 }
