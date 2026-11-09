@@ -254,3 +254,14 @@ if (typeof UI !== 'undefined') {
   const baseStep = UI.affStep;
   UI.affStep = function (step) { if (step === 'solo') return this.affSolo(null); return baseStep.call(this, step); };
 }
+
+// 권유 선택지 ⓘ(길드 정보 카드)에 계약 조건 한 줄: E의 소속별 계약이 G.contractTerms(guildId) → 문자열 을 주면 그대로 보인다
+if (typeof UI !== 'undefined' && UI.INFO && UI.INFO.guild) {
+  const baseInfo = UI.INFO.guild;
+  UI.INFO.guild = function (id) {
+    const r = baseInfo.call(this, id);
+    if (!r || !G.contractTerms) return r;
+    const t = G.contractTerms(id); if (!t) return r;
+    return { ...r, body: `${r.body}<div class="ic-row"><span>계약 조건</span><b>${t}</b></div>` };
+  };
+}
