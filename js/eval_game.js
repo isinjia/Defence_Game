@@ -152,3 +152,22 @@ if (typeof GateRun !== 'undefined' && GateRun.tier) {
   const baseTier = GateRun.tier;
   GateRun.tier = function (gate) { const t = baseTier.call(this, gate); return gate && gate.variant === 'red' && !gate.final ? Math.min(7, t + 1) : t; };
 }
+
+// 11) 후반 크레딧 인플레이션(독립 평가: 70년에 900만~1,300만): 등급별 기준(30만 × 등급 배수)을 넘는 자산에 매달 1.5% '각성자 고소득 특별세'.
+//     초반·가난한 판에는 닿지 않고, 쌓아 두기만 한 돈을 깎아 투자·후원·장비로 쓰게 민다.
+const WEALTH_TAX = { base: 300000, rate: 0.015 };
+if (typeof Game !== 'undefined') {
+  const baseMonth = Game.prototype.advanceMonth;
+  Game.prototype.advanceMonth = function (n = 1, opts = {}) {
+    const r = baseMonth.call(this, n, opts);
+    try {
+      const p = this.player; if (!p || this.over) return r;
+      const thr = Math.round(WEALTH_TAX.base * RANKS[p.rankIdx].mult);
+      if (p.money > thr) {
+        const tax = Math.round((p.money - thr) * WEALTH_TAX.rate * n);
+        if (tax > 0) { p.money -= tax; p.taxPaid = (p.taxPaid || 0) + tax; this.log(`각성자 고소득 특별세 ${fmt(tax)} 크레딧 납부 (자산 ${fmt(thr)} 초과분의 ${WEALTH_TAX.rate * 100}%)`); }
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+}
