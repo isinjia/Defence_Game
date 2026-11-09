@@ -7,6 +7,7 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const files = ['js/data.js', 'js/game.js', 'js/data_classes.js', 'js/class_elem.js', 'js/prologue.js', 'js/pro_arcs_a.js', 'js/pro_arcs_b.js', 'js/pro_arcs_c.js', 'js/pro_hooks.js', 'js/pro_life.js'];
 const src = files.filter((f) => fs.existsSync(path.join(root, f))).map((f) => fs.readFileSync(path.join(root, f), 'utf8')).join('\n');
+const proAwakenPick = new Function(`${src}; return typeof proAwakenPick === 'function' ? proAwakenPick : null;`)();
 const { CE, P, PS, R, remember, CLASSES, pickBg } = new Function(`${src}; return { CE: typeof classElem === 'function' ? classElem : null, P: PROLOGUE, PS: PROLOGUE_START, R: resolvePrologue, remember: proRemember, CLASSES, pickBg: typeof proPickBg === 'function' ? proPickBg : null };`)();
 const LIFE = ['nap', 'cvs', 'game', 'bloom', 'quest', 'late'];
 const N = +process.argv[2] || 20000;
@@ -21,6 +22,7 @@ for (let i = 0; i < N; i++) {
     const scene = P[id]; const aw = isAwaken(id);
     // 화면과 같게: 선택지가 많으면 3개만 보인다 (각성 장면은 전부)
     let idx = scene.choices.map((_, k) => k); if (!aw && idx.length > 3) idx = idx.sort(() => Math.random() - 0.5).slice(0, 3);
+    if (aw && typeof proAwakenPick === 'function') idx = proAwakenPick(scene.choices, sc.lean);
     const ch = scene.choices[idx[Math.floor(Math.random() * idx.length)]];
     remember(sc, flags, id, ch);
     for (const k of ['g', 'c', 't']) for (const [x, v] of Object.entries(ch[k] || {})) sc[k][x] = (sc[k][x] || 0) + v;

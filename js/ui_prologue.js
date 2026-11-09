@@ -226,10 +226,7 @@ function proIsAwaken(id) { const sc = PROLOGUE[id]; return !!(sc && sc.choices.l
     if (!proIsAwaken(id)) return baseShown.call(this, id);
     const s = this.pro; const lean = (s.sc && s.sc.lean) || {};
     s.shownAw ||= {}; if (s.shownAw[id]) return s.shownAw[id];
-    const elOf = (c) => Object.keys(c.e).sort((a, b) => c.e[b] - c.e[a])[0];
-    const idx = PROLOGUE[id].choices.map((_, i) => i);
-    const score = (i) => (lean[elOf(PROLOGUE[id].choices[i])] || 0) + Math.random() * 0.1;
-    return (s.shownAw[id] = idx.sort((a, b) => score(b) - score(a)));
+    return (s.shownAw[id] = proAwakenPick(PROLOGUE[id].choices, lean));
   };
   const baseRender = UI.renderPrologue;
   UI.renderPrologue = function () {
@@ -242,7 +239,6 @@ function proIsAwaken(id) { const sc = PROLOGUE[id]; return !!(sc && sc.choices.l
         const c = PROLOGUE[s.id].choices[+b.dataset.v]; const el = Object.keys(c.e).sort((a, x) => c.e[x] - c.e[a])[0];
         if (top.includes(el)) b.insertAdjacentHTML('beforeend', ' <span class="small amber">· 몸이 끌린다</span>');
       }
-      const hint = document.querySelector('#pro-scene .pro-choices'); if (hint) hint.insertAdjacentHTML('beforebegin', '<p class="small dim">어떤 힘이 깨어날지는 당신이 고른다. 이것이 당신의 속성이 된다.</p>');
     }
     if (s && s.bodyNote) { const t = document.querySelector('#pro-scene .pro-text'); if (t) t.insertAdjacentHTML('afterbegin', `<p class="small amber">${s.bodyNote}</p>`); s.bodyNote = null; }
     return r;

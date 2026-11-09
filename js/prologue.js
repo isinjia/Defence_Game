@@ -808,3 +808,18 @@ function resolvePrologue(sc, rng = Math.random) {
   const rank = rollAwakenRank((sc.talent || 0) + (sc.luck || 0) * 0.7 + (talent >= 7 ? 1 : 0), rng);
   return { element, talent, cls: best.id, traits, rank };
 }
+
+// 각성 장면(속성 고르기): 6속성 중 3개만 보인다. 성·암은 잘 안 뜬다. 성향(lean)이 있는 속성은 조금 더 잘 뜬다.
+const PRO_AW_WEIGHT = { fire: 1, bolt: 1, water: 1, wood: 1, holy: 0.35, dark: 0.35 };
+function proAwakenPick(choices, lean = {}, rng = Math.random) {
+  const elOf = (c) => Object.keys(c.e).sort((a, b) => c.e[b] - c.e[a])[0];
+  const pool = choices.map((c, i) => ({ i, el: elOf(c) }));
+  const out = [];
+  while (out.length < 3 && pool.length) {
+    const w = pool.map((p) => (PRO_AW_WEIGHT[p.el] ?? 1) * (1 + 0.3 * Math.min(4, lean[p.el] || 0)));
+    let x = rng() * w.reduce((a, b) => a + b, 0), k = 0;
+    for (; k < pool.length - 1; k++) { x -= w[k]; if (x < 0) break; }
+    out.push(pool.splice(k, 1)[0]);
+  }
+  return out.sort((a, b) => (lean[b.el] || 0) - (lean[a.el] || 0)).map((p) => p.i);
+}
