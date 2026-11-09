@@ -130,11 +130,11 @@ Object.assign(Combat.prototype, {
         if (this.obeys(u, o)) {
           let t = o.target && this.units.find((x) => x.id === o.target && x.alive);
           if (!t && SKILL_AIM[sk.type] !== 'none') t = SKILL_AIM[sk.type] === 'ally' ? null : this.pickTarget(u);
-          if (Math.random() < 0.3) { const line = RNG.pick(['알겠어!', '맡겨 줘.', '오케이!', '바로 갑니다!']); this.push(`${u.name}: "${line}"`, '', { k: 'say', src: u.id, text: line }); }
+          if (Math.random() < 0.3) { const pn = this.game.npcById(u.npcId); const line = (pn && this.game.personaOrderLine && this.game.personaOrderLine(pn, true)) || RNG.pick(['알겠어!', '맡겨 줘.', '오케이!', '바로 갑니다!']); this.push(`${u.name}: "${line}"`, '', { k: 'say', src: u.id, text: line }); }
           this.noteOrder('obey', u, o);
           return this.useSkill(u, sk, t);
         }
-        const line = o.rate < 0 ? RNG.pick(['그건 아니지.', '지금 그걸 하라고?', '내 판단대로 할게.']) : RNG.pick(['잠깐, 내가 알아서 해.', '싫은데?', '…']);
+        const pn = this.game.npcById(u.npcId); const line = (pn && this.game.personaOrderLine && Math.random() < 0.7 && this.game.personaOrderLine(pn, false)) || (o.rate < 0 ? RNG.pick(['그건 아니지.', '지금 그걸 하라고?', '내 판단대로 할게.']) : RNG.pick(['잠깐, 내가 알아서 해.', '싫은데?', '…']));
         this.push(`${u.name}: "${line}"`, '', { k: 'say', src: u.id, text: line });
         this.noteOrder('ignore', u, o);
       }
