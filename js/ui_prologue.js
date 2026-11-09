@@ -16,7 +16,7 @@ Object.assign(UI, {
         <button class="mode-card primary-card" data-act="mode-story">
           <span class="eyebrow">추천</span><b>이야기로 각성</b>
           <span>이름과 성별만 정하고 이야기를 따라갑니다. 출신은 운명에 맡기고, 각성의 순간에 내린 선택들이 속성·직업·재능·특성을 정합니다.</span>
-          <span class="small dim">약 20장면 · 5~10분</span></button>
+          <span class="small dim">8장면 · 3~5분</span></button>
         <button class="mode-card" data-act="mode-manual">
           <b>직접 설정</b>
           <span>출신, 속성, 직업 후보, 특성을 직접 고릅니다.</span>
@@ -62,7 +62,7 @@ Object.assign(UI, {
       <div class="pro-name">${s.name}</div>
       <div class="small dim">${bg.name} · ${regionById(bg.region).name}</div>
       ${lead ? `<div class="small">${this.elemTag(lead)} 기운이 감돈다</div>` : '<div class="small dim">아직 아무것도 깨어나지 않았다</div>'}
-      <div class="pro-steps">${Array.from({ length: 20 }, (_, i) => `<i class="${i < s.step ? 'on' : i === s.step ? 'now' : ''}"></i>`).join('')}</div>`);
+      <div class="pro-steps">${Array.from({ length: 8 }, (_, i) => `<i class="${i < s.step ? 'on' : i === s.step ? 'now' : ''}"></i>`).join('')}</div>`);
     const el = document.getElementById('pro-scene');
     el.innerHTML = `<div class="eyebrow">${s.step === 0 ? `출신 · ${bg.name}` : `장면 ${s.step + 1}`}</div><h2>${this.proFill(sc.title)}</h2>
       <div class="pro-text">${this.proFill(sc.text).split('\n').map((l) => (l ? `<p>${l}</p>` : '')).join('')}</div>
