@@ -5,3 +5,9 @@
 }
 /* 지도 '탐사 %' 칩: 28px → 손가락으로 누를 수 있는 높이 */
 .explore-chip { min-height: 34px; padding-top: 6px; padding-bottom: 6px; }
+/* 도시 '이 도시의 각성자' 칩: 내용 길이 따라 들쭉날쭉 → 같은 폭 두 칸 */
+.npc-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.npc-strip .npc-chip { width: 100%; min-width: 0; text-align: left; }
+.npc-strip .npc-chip > span { min-width: 0; overflow: hidden; }
+.npc-strip .npc-chip .small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (min-width: 641px) { .npc-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
