@@ -126,7 +126,6 @@
 #world.fold-card .card-body > :not(.card-bars) { display: none; }
 #world.fold-card .card-bars .cb:nth-child(n+3) { display: none; }
 #world.fold-card .card-body { padding-top: 6px; padding-bottom: 6px; }
-.hud-tr { position: relative; }
 .fold-obj-btn { position: absolute; right: 4px; top: 4px; z-index: 2; width: 36px; height: 32px; min-height: 32px; padding: 0; justify-content: center; background: transparent; border-color: transparent; color: var(--dim); font-size: 14px; }
 #world.fold-obj .hud-tr > :not(:first-child):not(:nth-child(2)) { display: none; }
 #world.fold-obj .hud-tr .obj > :not(.obj-title) { display: none; }
@@ -430,3 +429,27 @@
 .combat-box.fit #cb-ctrl > .order-panel .skill-btn { min-height: 40px; height: 40px; }
 .combat-box.fit #cb-ctrl > .order-panel .row.between button { min-height: 32px; }
 @media (max-height: 600px) { .combat-box.fit #cb-ctrl:not(.cb-done) { height: calc(42px * 2 + 4px + 16px + env(safe-area-inset-bottom, 0px)); } }
+
+/* ===== 지도 HUD 정리: 메뉴 하나, 현재 퀘스트, 확대 버튼 없음 ===== */
+.hud-tl { display: flex !important; grid-template-columns: none !important; right: auto !important; }
+.menu-btn.menu-one { width: auto; min-width: 64px; min-height: 44px; flex-direction: row; gap: 6px; padding: 6px 12px; font-size: 13px; clip-path: var(--cut); }
+.menu-btn.menu-one span { display: inline !important; }
+.hud-zoom [data-act=zoom-in], .hud-zoom [data-act=zoom-out], .hud-zoom [data-act=zoom-me] { display: none !important; }
+@media (max-width: 640px) {
+  .hud-tr { top: calc(8px + env(safe-area-inset-top, 0px)) !important; left: 88px !important; right: 60px !important; width: auto !important; }
+  .hud-zoom { top: calc(8px + env(safe-area-inset-top, 0px)) !important; }
+  #world.fold-obj .hud-tr { left: 88px !important; }
+}
+.modal-box.menu-pop { width: min(420px, 100%); }
+.menu-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 8px 0; }
+.menu-grid .menu-btn { width: auto; min-height: 64px; flex-direction: column; justify-content: center; gap: 4px; font-size: 13px; clip-path: none; }
+.menu-grid .menu-btn span { display: block !important; }
+.menu-sub button { width: 100%; justify-content: center; }
+.hq { display: flex !important; align-items: center; gap: 6px; width: 100%; text-align: left; min-height: 36px; }
+.hq-mark { color: var(--amber); flex: none; width: 1em; text-align: center; }
+.hq-mark.done { color: var(--good); }
+.hq-t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hq-r { flex: none; font-size: 11px; color: var(--dim); }
+.hq.clue .hq-mark { color: #c58cff; }
+#hud-card .card-bars[data-act] { cursor: pointer; }
+@media (max-width: 640px) { .hud-tr .hq + .hq + .hq + .hq { display: none; } }
