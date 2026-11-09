@@ -83,7 +83,6 @@ class Game {
     this.reveal(this.player.x, this.player.y, 6);
     this.player.equip.weapon = this.makeEquipment('weapon', 0, 0);
     this.player.equip.armor = this.makeEquipment('armor', 0, 0);
-    this.player.ambition = opts.ambition || 'free';
     this.grantClassSkills();
     this.initSandbox();
     this.recalc();

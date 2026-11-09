@@ -1,0 +1,169 @@
+// ===== 게이트 크로니클: 시작 방식 선택과 각성 전야 =====
+
+const NAME_KEY = 'gate_chronicle_last_name';
+
+Object.assign(UI, {
+  lastName() { try { return localStorage.getItem(NAME_KEY) || ''; } catch (e) { return ''; } },
+  saveName(n) { try { localStorage.setItem(NAME_KEY, n); } catch (e) { /* 저장 불가 */ } },
+  randomName(gender) { return RNG.pick(SURNAMES) + RNG.pick(gender === 'F' ? GIVEN_F : GIVEN_M); },
+  diceIcon() { return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.3" fill="currentColor"/><circle cx="16" cy="8" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="8" cy="16" r="1.3" fill="currentColor"/><circle cx="16" cy="16" r="1.3" fill="currentColor"/></svg>'; },
+
+  // ---------- 시작 방식 ----------
+  renderMode() {
+    $app.innerHTML = `<div class="create mode-screen">
+      <div class="create-head"><div class="eyebrow">새로운 각성</div><h2>어떻게 시작할까요</h2></div>
+      <div class="mode-grid">
+        <button class="mode-card primary-card" data-act="mode-story">
+          <span class="eyebrow">추천</span><b>이야기로 각성</b>
+          <span>이름과 성별만 정하고 이야기를 따라갑니다. 출신은 운명에 맡기고, 각성의 순간에 내린 선택들이 속성·직업·재능·특성을 정합니다.</span>
+          <span class="small dim">약 20장면 · 5~10분</span></button>
+        <button class="mode-card" data-act="mode-manual">
+          <b>직접 설정</b>
+          <span>출신, 속성, 직업 후보, 특성을 직접 고릅니다.</span>
+          <span class="small dim">바로 시작</span></button>
+      </div>
+      <div class="row end"><button class="ghost" data-act="to-title">돌아가기</button></div>
+    </div>`;
+  },
+
+  // ---------- 이야기 준비: 이름, 성별 ----------
+  renderStorySetup() {
+    const s = this.pro;
+    $app.innerHTML = `<div class="create">
+      <div class="create-head"><div class="eyebrow">각성 전야</div><h2>당신은 누구입니까</h2></div>
+      <div class="create-grid">
+        <div class="panel id-preview">${FX.portrait(s.look, s.gender, null, 0, 240)}<button class="ghost full" data-act="ps-look">외형 바꾸기</button></div>
+        <div class="panel">
+          <label class="sec-title" for="in-name">이름</label>
+          <div class="name-row"><input id="in-name" type="text" maxlength="8" placeholder="이름을 입력" value="${s.name}"><button class="icon-btn dice" data-act="name-dice" aria-label="무작위 이름">${this.diceIcon()}</button></div>
+          <div class="sec"><div class="sec-title">성별</div><div class="row">
+            <button class="choice ${s.gender === 'M' ? 'sel' : ''}" data-act="ps-gender" data-v="M">남성</button>
+            <button class="choice ${s.gender === 'F' ? 'sel' : ''}" data-act="ps-gender" data-v="F">여성</button></div></div>
+          <p class="dim sec">출신은 정할 수 없습니다. 어떤 삶에서 시작할지는 이야기가 정합니다.</p>
+          <div class="row end"><button class="ghost" data-act="new">뒤로</button><button class="primary" data-act="ps-start">이야기 시작</button></div>
+        </div>
+      </div></div>`;
+    const inp = document.getElementById('in-name');
+    inp.addEventListener('input', () => { s.name = inp.value; });
+  },
+
+  // ---------- 프롤로그 진행 ----------
+  proLeadElem() { const e = this.pro.sc.e; let best = null, bv = 0; for (const k of ELEMENT_KEYS) if ((e[k] || 0) > bv) { bv = e[k]; best = k; } return best; },
+  proFill(t) { return fixJosa(String(t).replace(/\{name\}/g, this.pro.name).replace(/\{friend\}/g, this.pro.friend.name)); },
+  renderPrologue() {
+    const s = this.pro; const sc = PROLOGUE[s.id];
+    if (!document.getElementById('pro-cv')) {
+      $app.innerHTML = `<div class="prologue"><canvas id="pro-cv" aria-hidden="true"></canvas><div class="pro-inner"><aside class="pro-side" id="pro-side"></aside><section class="pro-scene" id="pro-scene"></section></div></div>`;
+      this.stopPro = FX.title(document.getElementById('pro-cv'));
+    }
+    const lead = this.proLeadElem();
+    const bg = BACKGROUNDS.find((b) => b.id === s.bg);
+    document.getElementById('pro-side').innerHTML = fixJosa(`${FX.portrait(s.look, s.gender, lead, 0, 200)}
+      <div class="pro-name">${s.name}</div>
+      <div class="small dim">${bg.name} · ${regionById(bg.region).name}</div>
+      ${lead ? `<div class="small">${this.elemTag(lead)} 기운이 감돈다</div>` : '<div class="small dim">아직 아무것도 깨어나지 않았다</div>'}
+      <div class="pro-steps">${Array.from({ length: 20 }, (_, i) => `<i class="${i < s.step ? 'on' : i === s.step ? 'now' : ''}"></i>`).join('')}</div>`);
+    const el = document.getElementById('pro-scene');
+    el.innerHTML = `<div class="eyebrow">${s.step === 0 ? `출신 · ${bg.name}` : `장면 ${s.step + 1}`}</div><h2>${this.proFill(sc.title)}</h2>
+      <div class="pro-text">${this.proFill(sc.text).split('\n').map((l) => (l ? `<p>${l}</p>` : '')).join('')}</div>
+      <div class="cards pro-choices">${sc.choices.map((c, i) => `<button class="choice-btn" data-act="pro-choice" data-v="${i}">${this.proFill(c.text)}</button>`).join('')}</div>`;
+    el.classList.remove('fade-in'); void el.offsetWidth; el.classList.add('fade-in');
+    el.scrollTop = 0;
+  },
+  proChoose(i) {
+    const s = this.pro; const ch = PROLOGUE[s.id].choices[i];
+    for (const k of ['e', 'g', 'c', 't']) for (const [x, v] of Object.entries(ch[k] || {})) s.sc[k][x] = (s.sc[k][x] || 0) + v;
+    s.sc.talent += ch.talent || 0; s.sc.luck += ch.luck || 0; s.friendBonus += ch.friend || 0;
+    s.log.push(this.proFill(ch.text));
+    s.step++;
+    if (!ch.next) { s.result = resolvePrologue(s.sc); this.screen = 'pro-result'; return this.render(); }
+    s.id = ch.next;
+    this.renderPrologue();
+  },
+
+  // ---------- 각성 결과 ----------
+  renderProResult() {
+    const s = this.pro; const r = s.result;
+    const k = classById(r.cls); const g = CLASS_GROUPS[k.g]; const bg = BACKGROUNDS.find((b) => b.id === s.bg);
+    const negIds = ['cursed', 'frail', 'slow_learner', 'reckless'];
+    const talent = Math.max(1, r.talent + (bg.talent || 0) + r.traits.reduce((a, t) => a + (traitById(t).mods.talent || 0), 0));
+    document.getElementById('pro-side').innerHTML = fixJosa(`${FX.portrait(s.look, s.gender, r.element, 0, 200)}<div class="pro-name">${s.name}</div><div class="small dim">${bg.name}</div>`);
+    const el = document.getElementById('pro-scene');
+    el.innerHTML = fixJosa(`<div class="eyebrow">국가 각성자 관리국 · 판정 결과</div><h2>각성</h2>
+      <div class="result-grid">
+        <div class="res-item"><span class="sec-title">출신</span><b>${bg.name}</b><span class="small dim">${bg.desc}</span></div>
+        <div class="res-item"><span class="sec-title">속성</span><b>${this.elemTag(r.element)}</b><span class="small dim">${ELEMENTS[r.element].name} → ${ELEMENTS[ELEMENTS[r.element].counter].name}에 강함</span></div>
+        <div class="res-item wide" style="border-color:${g.color}"><span class="sec-title">직업</span><b style="color:${g.color}">${k.name} <span class="tag rar r${k.r}">${CLASS_RARITY[k.r]}</span></b><span class="small" style="color:${g.color}">${g.name} · 전직 ${k.adv.join(' → ')}</span><span class="small dim">${k.desc}</span><span class="small">${k.skills.map((x) => x[0]).join(' · ')}</span></div>
+        <div class="res-item"><span class="sec-title">재능</span><div class="talent"><div class="pips">${Array.from({ length: 10 }, (_, i) => `<i class="${i < talent ? 'on' : ''}"></i>`).join('')}</div><b>${talent}</b></div></div>
+        <div class="res-item"><span class="sec-title">소꿉친구</span><b>${s.friend.name}</b><span class="small dim">당신을 ${s.friendBonus >= 30 ? '누구보다 믿는다' : s.friendBonus >= 15 ? '걱정하고 응원한다' : '여전히 곁에 있다'}</span></div>
+      </div>
+      <div class="sec-title sec">선천 특성</div><div class="cards traits">${r.traits.map((id) => { const t = traitById(id); return `<div class="trait ${negIds.includes(id) ? 'neg' : ''}"><b>${t.name}</b><span class="dim">${t.desc}</span></div>`; }).join('')}</div>
+      <div class="sec-title sec">당신이 내린 선택</div><div class="logs pro-log">${s.log.map((l, i) => `<div class="l"><span class="d">${i + 1}</span>${l}</div>`).join('')}</div>
+      <div class="row end"><button class="ghost" data-act="pro-restart">처음부터 다시</button><button class="primary" data-act="pro-begin">이 운명으로 시작</button></div>`);
+    el.classList.remove('fade-in'); void el.offsetWidth; el.classList.add('fade-in'); el.scrollTop = 0;
+  },
+  beginFromPrologue() {
+    const s = this.pro; const r = s.result;
+    G.newGame({ name: s.name, gender: s.gender, bg: s.bg, element: r.element, talent: r.talent, traits: r.traits, look: s.look, cls: r.cls });
+    // 소꿉친구가 실제 인물로 등장한다
+    const p = G.player; const f = G.makeNpc(true);
+    f.name = s.friend.name; f.gender = s.friend.gender; f.rankIdx = 0; f.stage = 0; f.ageMonths = p.ageMonths + RNG.int(-6, 6);
+    f.region = p.region; f.met = true; f.relation = Math.min(90, 35 + s.friendBonus); f.personality = RNG.pick(['kind', 'just', 'kind']);
+    f.links = {}; f.disciples = []; f.parents = []; f.friendhood = true;
+    G.npcs.push(f);
+    G.lifeEvent(`게이트 브레이크 속에서 각성했다. 소꿉친구 ${f.name}이(가) 곁에 있었다.`);
+    G.save();
+    this.saveName(s.name);
+    if (this.stopPro) { this.stopPro(); this.stopPro = null; }
+    this.screen = 'game'; this.render();
+    this.modal(`<div class="ending">${FX.portrait(p.look, p.gender, p.element, 0, 160)}<div class="eyebrow">${G.dateStr()} · ${G.region().name}</div><h2>헌터 ${p.name}</h2></div>
+      <p>${className(p.cls)} · ${ELEMENTS[p.element].name} 속성 · F급. 지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.</p>
+      <p class="dim">소꿉친구 ${f.name}은(는) ${G.region().name}에 있습니다. 인물 창에서 만날 수 있습니다.</p>
+      <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>`);
+  },
+});
+
+// 화면 전환과 입력 처리 확장
+{
+  const baseRender = UI.render;
+  UI.render = function () {
+    if (!['prologue', 'pro-result'].includes(this.screen) && this.stopPro) { this.stopPro(); this.stopPro = null; }
+    if (this.screen === 'pro-result') { if (!document.getElementById('pro-cv')) { this.screen = 'prologue'; const keep = this.pro.id; this.renderPrologue(); this.pro.id = keep; this.screen = 'pro-result'; } return this.renderProResult(); }
+    return baseRender.call(this);
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function (act, v) {
+    switch (act) {
+      case 'mode-story': {
+        const gender = 'M';
+        this.pro = { name: this.lastName(), gender, look: Math.random().toString(36).slice(2), bg: null, friend: null, id: null, sc: null, step: 0, friendBonus: 0, log: [] };
+        this.screen = 'story-setup'; return this.render();
+      }
+      case 'mode-manual': return this.startCreate();
+      case 'name-dice': {
+        const inp = document.getElementById('in-name');
+        const target = this.screen === 'story-setup' ? this.pro : this.create;
+        target.name = this.randomName(target.gender);
+        if (inp) inp.value = target.name;
+        const n = document.querySelector('.id-name'); if (n) n.textContent = target.name;
+        return;
+      }
+      case 'ps-gender': this.pro.gender = v; return this.render();
+      case 'ps-look': this.pro.look = Math.random().toString(36).slice(2); return this.render();
+      case 'ps-start': {
+        const s = this.pro; s.name = (s.name || '').trim();
+        if (!s.name) return this.toast('이름을 입력하세요.');
+        this.saveName(s.name);
+        s.bg = RNG.pick(BACKGROUNDS).id;
+        const fg = RNG.chance(0.5) ? 'M' : 'F';
+        s.friend = { name: this.randomName(fg), gender: fg };
+        s.id = PROLOGUE_START[s.bg]; s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 }; s.step = 0; s.friendBonus = 0; s.log = [];
+        this.screen = 'prologue'; return this.render();
+      }
+      case 'pro-choice': return this.proChoose(+v);
+      case 'pro-restart': { const s = this.pro; s.bg = RNG.pick(BACKGROUNDS).id; s.id = PROLOGUE_START[s.bg]; s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 }; s.step = 0; s.friendBonus = 0; s.log = []; this.screen = 'prologue'; return this.renderPrologue(); }
+      case 'pro-begin': return this.beginFromPrologue();
+      default: return baseHandle.call(this, act, v);
+    }
+  };
+}

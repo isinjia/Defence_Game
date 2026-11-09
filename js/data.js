@@ -254,16 +254,6 @@ const GUILD_RANKS = [
 
 // ===== 샌드박스 확장 데이터 =====
 
-// 인생 목표 (정해진 줄거리 대신 스스로 고르는 목표)
-const AMBITIONS = [
-  { id: 'apex', name: '정점의 헌터', desc: 'S급에 올라 원초의 게이트를 닫는다.', mods: { train: 0.08 } },
-  { id: 'wealth', name: '헌터 재벌', desc: '100만 크레딧을 모은다.', mods: { price: -0.1 } },
-  { id: 'guild', name: '길드의 기둥', desc: '길드 간부 자리에 오른다.', mods: { social: 0.15 } },
-  { id: 'family', name: '지킬 사람', desc: '배우자와 제자를 얻는다.', mods: { social: 0.25 } },
-  { id: 'hero', name: '국민 영웅', desc: '명성 600을 달성한다.', mods: { luck: 0.1 } },
-  { id: 'free', name: '자유인', desc: '정해진 목표 없이 마음 가는 대로 산다.', mods: {} },
-];
-
 // 유물 (돌파 때 바치면 영구 능력치를 얻는다)
 const RELICS = [
   { id: 'magma_heart', name: '용암의 심장', stat: 'hp', val: 0.06, desc: '체력' },

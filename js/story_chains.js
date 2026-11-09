@@ -169,11 +169,7 @@ S({ id: 'child_born', trigger: 'system', npc: 'here', text: '아이가 태어났
   choices: [
     { text: '"아빠/엄마가 지켜 줄게"', do: (g) => '세상이 조금 달라 보였다.' + g.gain({ hp: 1, fame: 3 }) },
   ] });
-S({ id: 'ambition_done', trigger: 'system', text: '평생 품어 온 목표를 이루었다. 이제 무엇을 위해 살 것인가.',
-  choices: [
-    { text: '새로운 목표를 찾는다', do: (g) => { g.player.ambition = 'free'; return '목표가 사라지자 오히려 자유로워졌다.' + g.gain({ ether: 50 }); } },
-    { text: '이룬 것을 지키며 산다', do: (g) => '지금 이대로도 충분하다.' + g.gain({ life: 2 }) },
-  ] });
+
 
 // ===== 전직 시험 (C급, S급 도달 시) =====
 S({ id: 'class_advance', trigger: 'system', text: (g) => { const p = g.player; const next = classById(p.cls).adv[p.clsAdv] || classById(p.cls).adv[1]; return `협회 본부에서 통지가 왔다. "${RANKS[p.rankIdx].key}급 도달을 축하합니다. [${className(p.cls, p.clsAdv)}] 계열 전직 시험 자격이 주어졌습니다. 합격 시 [${next}] 칭호가 부여됩니다."\n\n시험관은 같은 계열의 현역 헌터다. 실전 형식이다.`; },

@@ -305,7 +305,7 @@ Object.assign(UI, {
       money: Math.round(old.money * 0.6), fame: Math.round(old.fame * 0.3), merit: Math.round(old.merit * 0.5),
       region: n.region, guild: null, guildRank: 0, contrib: 0, companion: null, injured: 0,
       partner: null, spouse: null, master: null, disciples: [], children: [], loans: [], quests: [], buffs: [],
-      relicBonus: {}, ambition: 'free', achieved: [], lifeEvents: [], record: { gates: 0, kills: 0, npcKills: 0, breakthroughs: 0, fails: 0 },
+      relicBonus: {}, lifeEvents: [], record: { gates: 0, kills: 0, npcKills: 0, breakthroughs: 0, fails: 0 },
       equip: { ...old.equip }, skills: ['strike', SKILLS.find((s) => s.elem === n.element && s.rankReq === 0).id], equipSkills: [SKILLS.find((s) => s.elem === n.element && s.rankReq === 0).id],
       license: `${G.year}-${String(RNG.int(1000, 9999))}`,
     };

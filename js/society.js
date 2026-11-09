@@ -13,7 +13,7 @@ Object.assign(Game.prototype, {
     p.merit ??= 0; p.rep ??= {}; p.mats ??= {}; p.relics ??= []; p.relicBonus ??= {};
     p.buffs ??= []; p.visited ??= [p.region]; p.quests ??= []; p.disciples ??= [];
     p.partner ??= null; p.spouse ??= null; p.master ??= null; p.lifeEvents ??= [];
-    p.tavern ??= {}; p.ambition ??= 'free'; p.achieved ??= [];
+    p.tavern ??= {};
     p.cls ??= 'swordsman'; p.clsAdv ??= 0; p.party ??= [];
     if (p.companion) { if (!p.party.includes(p.companion)) p.party.push(p.companion); p.companion = null; }
     this.world ??= { breaks: [], boards: {}, auctions: {}, lastTournament: 0, archives: {} };
@@ -83,8 +83,6 @@ Object.assign(Game.prototype, {
   extraMod(key) {
     const p = this.player;
     let v = 0;
-    const amb = AMBITIONS.find((a) => a.id === p.ambition);
-    if (amb && amb.mods[key]) v += amb.mods[key];
     if (p.relicBonus && p.relicBonus[key]) v += p.relicBonus[key];
     const mk = this.monthKey();
     for (const b of p.buffs || []) if (b.stat === key && b.until >= mk) v += b.val;
@@ -503,8 +501,6 @@ Object.assign(Game.prototype, {
     p.buffs = p.buffs.filter((b) => b.until >= mk);
     this.expireMercs();
     this.expireQuests();
-    // 목표 달성 확인
-    this.checkAmbition();
   },
   cityBreak(regionId) { return this.world.breaks.find((b) => b.city === regionId); },
   breakGate(regionId) {
@@ -520,25 +516,4 @@ Object.assign(Game.prototype, {
     return '도시를 지켜 냈다. 협회 공적 +40, 명성 +15, 도시 평판 +40';
   },
 
-  // ---------- 인생 목표 ----------
-  ambitionDone() {
-    const p = this.player;
-    switch (p.ambition) {
-      case 'apex': return this.flags.won;
-      case 'wealth': return p.money >= 1000000;
-      case 'guild': return p.guildRank >= 3;
-      case 'family': return !!p.spouse && p.disciples.length > 0;
-      case 'hero': return p.fame >= 600;
-      default: return false;
-    }
-  },
-  checkAmbition() {
-    const p = this.player;
-    if (!p.achieved.includes(p.ambition) && this.ambitionDone()) {
-      p.achieved.push(p.ambition);
-      const a = AMBITIONS.find((x) => x.id === p.ambition);
-      this.lifeEvent(`평생의 목표 [${a.name}]을(를) 이루었다.`);
-      this.queue.push({ type: 'story', id: 'ambition_done' });
-    }
-  },
 });

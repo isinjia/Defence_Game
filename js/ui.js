@@ -51,6 +51,10 @@ const UI = {
     if (this.screen !== 'game' && this.map) { this.map.destroy(); this.map = null; }
     if (this.screen === 'title') return this.renderTitle();
     if (this.screen === 'create') return this.renderCreate();
+    if (this.screen === 'mode') return this.renderMode();
+    if (this.screen === 'story-setup') return this.renderStorySetup();
+    if (this.screen === 'prologue') return this.renderPrologue();
+    if (this.screen === 'pro-result') return this.renderProResult();
     this.renderGame();
   },
 
@@ -109,7 +113,7 @@ const UI = {
     c.cls = c.classes[0];
   },
   startCreate() {
-    this.create = { name: '', gender: 'M', bg: 'student', element: 'fire', rolls: 6, look: Math.random().toString(36).slice(2), ambition: 'apex' };
+    this.create = { name: this.lastName(), gender: 'M', bg: 'student', element: 'fire', rolls: 6, look: Math.random().toString(36).slice(2) };
     this.rollCreate();
     this.screen = 'create';
     this.render();
@@ -141,7 +145,7 @@ const UI = {
         </div>
         <div class="panel">
           <div class="row">
-            <div class="grow"><label class="sec-title" for="in-name">이름</label><input id="in-name" type="text" maxlength="8" placeholder="이름을 입력" value="${c.name}"></div>
+            <div class="grow"><label class="sec-title" for="in-name">이름</label><div class="name-row"><input id="in-name" type="text" maxlength="8" placeholder="이름을 입력" value="${c.name}"><button class="icon-btn dice" data-act="name-dice" aria-label="무작위 이름">${this.diceIcon()}</button></div></div>
             <div><div class="sec-title">성별</div>
               <div class="row">
                 <button class="choice ${c.gender === 'M' ? 'sel' : ''}" data-act="c-gender" data-v="M">남성</button>
@@ -163,8 +167,6 @@ const UI = {
                 <span class="small" style="color:${g.color}">${g.name} · 전직 ${k.adv.join(' → ')}</span>
                 <span class="dim small">${k.desc}</span>
                 <span class="small">${k.skills.map((x) => x[0]).join(' · ')}</span></button>`; }).join('')}</div></div>
-          <div class="sec"><div class="sec-title">인생 목표 · 언제든 바뀔 수 있다</div>
-            <div class="choice-grid">${AMBITIONS.map((a) => `<button class="choice ${c.ambition === a.id ? 'sel' : ''}" data-act="c-amb" data-v="${a.id}"><b>${a.name}</b><span class="dim small">${a.desc}</span></button>`).join('')}</div></div>
           <div class="sec"><div class="row between"><div class="sec-title">선천 자질</div><button class="ghost" data-act="c-roll" ${c.rolls <= 0 ? 'disabled' : ''}>다시 측정 · ${c.rolls}회</button></div>
             <div class="talent">재능 <div class="pips">${Array.from({ length: 10 }, (_, i) => `<i class="${i < c.talent ? 'on' : ''}"></i>`).join('')}</div><b class="${c.talent >= 7 ? 'good' : c.talent <= 3 ? 'bad' : ''}">${c.talent}</b></div>
             <div class="cards traits">${c.traits.map((id) => { const t = traitById(id); return `<div class="trait ${negIds.includes(id) ? 'neg' : ''}"><b>${t.name}</b><span class="dim">${t.desc}</span></div>`; }).join('')}</div>
@@ -230,16 +232,16 @@ const UI = {
 
   goalText() {
     const p = G.player;
-    const amb = AMBITIONS.find((x) => x.id === p.ambition) || AMBITIONS[AMBITIONS.length - 1];
     let hint = '';
-    if (p.stage === 2 && p.ether >= stageReq(p.rankIdx, 2) && p.rankIdx < 7) {
+    if (p.rankIdx >= 7 && p.stage === 2) hint = '정점에 올랐다. 이제 무엇을 할지는 당신의 몫이다.';
+    else if (p.stage === 2 && p.ether >= stageReq(p.rankIdx, 2)) {
       if (!G.hasCatalyst()) { let have = 0; for (let t = p.rankIdx; t < 8; t++) have += G.coreCount(t); hint = `돌파 준비: 공방에서 ${RANKS[p.rankIdx].key}급 각성 촉매 제작 (코어 ${Math.min(have, 5)}/5)`; }
       else hint = `${RANKS[p.rankIdx + 1].key}급 돌파 준비 완료`;
-    } else if (p.rankIdx < 7) {
+    } else {
       const pct = p.stage < 2 ? Math.round((p.stage / 3) * 100 + (p.ether / stageReq(p.rankIdx, p.stage)) * 33) : Math.round(66 + (p.ether / stageReq(p.rankIdx, 2)) * 34);
-      hint = `${RANKS[p.rankIdx + 1].key}급까지 ${Math.min(99, pct)}%`;
+      hint = `${RANKS[Math.min(7, p.rankIdx + 1)].key}급까지 ${Math.min(99, pct)}%`;
     }
-    return `<span class="amb">${amb.name}</span>${p.achieved.includes(amb.id) ? ' <span class="good small">달성</span>' : ''}<div class="obj-sub">${hint}</div>`;
+    return `<span class="amb">${rankLabel(p.rankIdx, p.stage)} · ${className(p.cls, p.clsAdv)}</span><div class="obj-sub">${hint}</div>`;
   },
   hudObjective() {
     const p = G.player;
@@ -248,7 +250,7 @@ const UI = {
     const mobs = G.mobs.filter((m) => G.revealed(m.x, m.y) && m.tier <= p.rankIdx).sort((a, b) => dist(a) - dist(b));
     const last = G.logs[0];
     return `<div class="obj">
-        <div class="obj-title">인생 목표</div>
+        <div class="obj-title">현재 상황</div>
         <div class="obj-goal">${this.goalText()}</div>
         ${gates[0] ? `<button class="obj-link" data-act="focus" data-v="${gates[0].x},${gates[0].y}">${this.rift(gates[0].tier)} 가까운 게이트 · ${G.gateName(gates[0])} · ${dist(gates[0])}칸</button>` : '<div class="obj-sub">탐색하면 게이트를 찾을 수 있다.</div>'}
         ${p.quests.slice(0, 2).map((q) => `<button class="obj-link" data-act="sheet" data-v="quest">${q.status === 'done' ? '✔' : '▸'} ${q.title}</button>`).join('')}
@@ -570,7 +572,6 @@ const UI = {
       <div class="sec"><div class="sec-title">가방</div><div class="cards">${p.inventory.map((it) => { const cur = p.equip[it.slot]; return this.equipRow(it, `<button class="sm" data-act="equip" data-v="${it.uid}">장착</button>`, cur ? `<br>현재: ${this.equipStats(cur)}` : ''); }).join('') || '<div class="dim">비어 있다.</div>'}</div></div>
       <div class="sec"><div class="sec-title">소모품</div><div class="cards">${CONSUMABLES.filter((c) => p.items[c.id]).map((c) => `
         <div class="item-row"><div class="grow"><b>${c.name}</b> <span class="num">×${p.items[c.id]}</span> <span class="dim small">${c.desc}</span></div><button class="sm" data-act="use-item" data-v="${c.id}">사용</button></div>`).join('') || '<div class="dim">없음</div>'}</div></div>
-      <div class="sec"><div class="sec-title">인생 목표</div>${(() => { const a = AMBITIONS.find((x) => x.id === p.ambition); return `<div class="trait"><b>${a.name}</b><span class="dim">${a.desc}</span>${p.achieved.length ? `<span class="good small">달성: ${p.achieved.map((id) => AMBITIONS.find((x) => x.id === id).name).join(', ')}</span>` : ''}</div>`; })()}</div>
       <div class="sec"><div class="sec-title">인연</div><div class="npc-strip">${this.bondsHtml()}</div></div>
       <div class="sec"><div class="sec-title">유물 · 각성 촉매 · 코어</div><div class="cards">
         ${p.relics.map((r) => { const R = relicById(r.id); return `<div class="item-row"><div class="grow"><b style="color:${RARITY[r.grade].color}">${R.name}</b> <span class="tag">${RARITY[r.grade].name}</span><div class="small dim">돌파 때 바치면 ${R.desc} 영구 상승</div></div></div>`; }).join('')}
@@ -1002,7 +1003,7 @@ const UI = {
   handle(act, v) {
     const c = this.create;
     switch (act) {
-      case 'new': return this.startCreate();
+      case 'new': this.screen = 'mode'; return this.render();
       case 'continue':
         if (!G.load()) { this.toast('저장 데이터를 불러오지 못했다.'); return this.render(); }
         this.screen = 'game'; this.render(); return;
@@ -1015,14 +1016,14 @@ const UI = {
       case 'c-gender': c.gender = v; return this.render();
       case 'c-bg': c.bg = v; return this.render();
       case 'c-elem': c.element = v; return this.render();
-      case 'c-amb': c.ambition = v; return this.render();
       case 'c-cls': c.cls = v; return this.render();
       case 'c-look': c.look = Math.random().toString(36).slice(2); return this.render();
       case 'c-roll': if (c.rolls > 0) this.rollCreate(); return this.render();
       case 'c-start': {
         const name = (c.name || '').trim();
         if (!name) return this.toast('이름을 입력하세요.');
-        G.newGame({ name, gender: c.gender, bg: c.bg, element: c.element, talent: c.talent, traits: c.traits, look: c.look, ambition: c.ambition, cls: c.cls });
+        G.newGame({ name, gender: c.gender, bg: c.bg, element: c.element, talent: c.talent, traits: c.traits, look: c.look, cls: c.cls });
+        this.saveName(name);
         G.save();
         this.screen = 'game';
         this.render();
