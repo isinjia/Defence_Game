@@ -59,7 +59,7 @@ class MapView {
     if (this.imgs.playerSrc === svg) return;
     this.imgs.playerSrc = svg;
     const im = new Image();
-    im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    im.src = svg.startsWith('<') ? 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) : svg;
     this.imgs.player = im;
   }
 

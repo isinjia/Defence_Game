@@ -88,6 +88,15 @@ p { margin: 6px 0; }
 .mob-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--c); background: #1d0e12; vertical-align: -1px; }
 .mob-dot.big { width: 30px; height: 30px; flex: none; }
 
+/* 캐릭터 일러스트 */
+.portrait, .portrait-img { display: block; flex: none; max-width: 100%; height: auto; }
+.portrait-img { aspect-ratio: 5 / 6; overflow: hidden; border: 2px solid var(--rc); background: #0a0f18; }
+.portrait-img img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 15%; display: block; }
+.avatar-img { display: inline-block; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 2px var(--rc); background: #0a0f18; }
+.avatar-img img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; display: block; }
+.npc-sheet { display: flex; gap: 14px; padding: 14px; align-items: flex-start; flex-wrap: wrap; }
+.npc-sheet > .npc-card { flex: 1 1 260px; }
+
 /* ---------- 타이틀 ---------- */
 .title-screen { position: relative; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; padding: 16px; }
 #title-cv { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -175,7 +184,6 @@ p { margin: 6px 0; }
 .sheet-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--panel-solid); z-index: 1; }
 .sheet-head h3 { margin: 0; }
 .sheet-body { padding: 14px; overflow: auto; flex: 1; }
-.modal-box.sheet > .npc-card { margin: 14px; }
 .tabs { display: flex; gap: 4px; flex-wrap: wrap; }
 .tabs button { border-radius: 3px; padding: 6px 12px; }
 .tabs button.on { border-color: var(--amber); color: var(--amber); background: #261c0c; }

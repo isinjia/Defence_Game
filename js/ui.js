@@ -124,7 +124,7 @@ const UI = {
           <div class="id-card">
             <div class="id-top"><span>KAMA</span><span>각성자 등록증</span></div>
             <div class="id-body">
-              <div class="id-photo">${FX.avatar(c.look, c.gender, c.element, 0, 96)}</div>
+              <div class="id-photo">${FX.portrait(c.look, c.gender, c.element, 0, 110)}</div>
               <div class="id-info">
                 <div class="id-name">${c.name || '이름 미기재'}</div>
                 <div class="dim">${BACKGROUNDS.find((b) => b.id === c.bg).name}</div>
@@ -196,7 +196,7 @@ const UI = {
     document.getElementById('hud-tr').innerHTML = fixJosa(this.hudObjective());
     document.getElementById('hud-card').innerHTML = fixJosa(this.hudCard());
     document.getElementById('hud-actions').innerHTML = fixJosa(this.hudActions());
-    this.map.setPlayerImage(FX.avatar(p.look, p.gender, p.element, p.rankIdx, 128));
+    this.map.setPlayerImage(PORTRAIT.imageFor(p.look, p.gender) || FX.avatar(p.look, p.gender, p.element, p.rankIdx, 128));
     this.map.refresh();
   },
 
@@ -358,7 +358,7 @@ const UI = {
     const name = this.sheet || 'char';
     if (name.startsWith('npc:')) {
       const n = G.npcById(+name.slice(4));
-      return `<div class="sheet-head"><h3>교류</h3><button class="icon-btn" data-act="modal-close" aria-label="닫기">×</button></div>${n ? this.npcCard(n, n.alive && n.region === G.player.region) : ''}`;
+      return `<div class="sheet-head"><h3>교류</h3><button class="icon-btn" data-act="modal-close" aria-label="닫기">×</button></div>${n ? `<div class="npc-sheet">${FX.portrait('npc' + n.id + n.name, n.gender, n.element, n.rankIdx, 180)}${this.npcCard(n, n.alive && n.region === G.player.region)}</div>` : ''}`;
     }
     const tabs = [['char', '정보'], ['skills', '스킬'], ['people', '인물'], ['guild', '길드'], ['shop', '상점'], ['log', '연대기']];
     let body = '';
@@ -464,7 +464,7 @@ const UI = {
   charHtml() {
     const p = G.player; const bg = BACKGROUNDS.find((b) => b.id === p.bg);
     return `<div class="panel">
-      <div class="char-head">${this.playerAvatar(96)}<div><h3>${p.name}</h3><div class="dim">${p.gender === 'M' ? '남' : '여'} · ${G.ageYears()}세 · ${bg.name}</div><div class="row">${this.rankTag(p.rankIdx, p.stage)} ${this.elemTag(p.element)}</div></div></div>
+      <div class="char-head">${FX.portrait(p.look, p.gender, p.element, p.rankIdx, 150)}<div><h3>${p.name}</h3><div class="dim">${p.gender === 'M' ? '남' : '여'} · ${G.ageYears()}세 · ${bg.name}</div><div class="row">${this.rankTag(p.rankIdx, p.stage)} ${this.elemTag(p.element)}</div></div></div>
       <div class="sec"><div class="sec-title">선천 특성</div><div class="cards traits">${p.traits.map((id) => { const t = traitById(id); return `<div class="trait"><b>${t.name}</b><span class="dim">${t.desc}</span></div>`; }).join('')}</div></div>
       <div class="sec"><div class="sec-title">장착 장비</div><div class="cards">${['weapon', 'armor', 'acc'].map((s) => { const it = p.equip[s]; return it
         ? this.equipRow(it, `<button class="sm ghost" data-act="unequip" data-v="${s}">해제</button>`)
@@ -521,7 +521,7 @@ const UI = {
     if (q.type === 'ambush') {
       const n = G.npcById(q.npcId);
       if (!n || !n.alive) return this.processQueue();
-      this.modal(`<div class="ambush">${this.npcAvatar(n, 96)}<div><div class="eyebrow bad">기습</div><h3>${n.name}</h3><div class="row small">${this.rankTag(n.rankIdx, n.stage)} ${this.elemTag(n.element)}</div></div></div>
+      this.modal(`<div class="ambush">${FX.portrait('npc' + n.id + n.name, n.gender, n.element, n.rankIdx, 120)}<div><div class="eyebrow bad">기습</div><h3>${n.name}</h3><div class="row small">${this.rankTag(n.rankIdx, n.stage)} ${this.elemTag(n.element)}</div></div></div>
         <p>${n.name}이(가) 살기를 띠고 덤벼든다. "여기서 끝장을 내주마!"</p>
         <div class="row end"><button class="danger" data-act="ambush-fight" data-v="${n.id}">맞서 싸운다</button></div>`);
       return;
@@ -544,12 +544,12 @@ const UI = {
     </div>`;
   },
   showGameOver() {
-    this.modal(`<div class="ending dead-end">${this.playerAvatar(110)}<div class="eyebrow">${G.over.date}</div><h2>각성자 ${G.player.name}, 잠들다</h2><p>${G.over.reason}</p></div>${this.lifeSummary()}
+    this.modal(`<div class="ending dead-end">${FX.portrait(G.player.look, G.player.gender, G.player.element, G.player.rankIdx, 160)}<div class="eyebrow">${G.over.date}</div><h2>각성자 ${G.player.name}, 잠들다</h2><p>${G.over.reason}</p></div>${this.lifeSummary()}
       <p class="dim">당신의 이름은 헌터 커뮤니티의 추모 게시판에 오래 남았다.</p>
       <div class="row end"><button class="primary" data-act="to-title">타이틀로</button></div>`);
   },
   showVictory() {
-    this.modal(`<div class="ending win-end">${this.playerAvatar(110)}<div class="eyebrow">${G.dateStr()}</div><h2>원초의 게이트 봉인</h2>
+    this.modal(`<div class="ending win-end">${FX.portrait(G.player.look, G.player.gender, G.player.element, G.player.rankIdx, 160)}<div class="eyebrow">${G.dateStr()}</div><h2>원초의 게이트 봉인</h2>
       <p>심연의 군주가 쓰러지고, 20년간 한반도를 뒤덮었던 에테르 폭풍이 잦아들었다. 사람들은 ${G.player.name}의 이름을 영웅으로 기억할 것이다.</p></div>${this.lifeSummary()}
       <p class="dim">남은 수명 동안 계속 살아갈 수 있습니다.</p>
       <div class="row end"><button class="primary" data-act="modal-close">계속하기</button></div>`);
@@ -841,7 +841,7 @@ const UI = {
         G.save();
         this.screen = 'game';
         this.render();
-        return this.modal(`<div class="ending">${this.playerAvatar(96)}<div class="eyebrow">${G.dateStr()} · ${G.region().name}</div><h2>각성</h2></div>
+        return this.modal(`<div class="ending">${FX.portrait(G.player.look, G.player.gender, G.player.element, G.player.rankIdx, 160)}<div class="eyebrow">${G.dateStr()} · ${G.region().name}</div><h2>각성</h2></div>
           <p>평범했던 ${name}의 몸에 처음으로 에테르가 흘렀다. 관리국의 측정 결과는 <b>F급</b>. 가장 낮은 등급이지만, 당신에겐 아직 ${G.maxLife() - G.ageYears()}년의 수명이 남아 있다.</p>
           <p class="dim">수련으로 에테르를 모으고, 게이트에서 실전을 쌓으십시오.</p><div class="row end"><button class="primary" data-act="modal-close">시작</button></div>`);
       }
@@ -882,7 +882,7 @@ const UI = {
       case 'npc-spar': { const n = G.npcById(+v); if (n) this.startSpar(n); return; }
       case 'npc-duel': {
         const n = G.npcById(+v);
-        return this.modal(`<div class="ambush">${this.npcAvatar(n, 80)}<div><div class="eyebrow bad">생사결</div><h3>${n.name}</h3><div class="row small">${this.rankTag(n.rankIdx, n.stage)} ${this.elemTag(n.element)}</div></div></div>
+        return this.modal(`<div class="ambush">${FX.portrait('npc' + n.id + n.name, n.gender, n.element, n.rankIdx, 120)}<div><div class="eyebrow bad">생사결</div><h3>${n.name}</h3><div class="row small">${this.rankTag(n.rankIdx, n.stage)} ${this.elemTag(n.element)}</div></div></div>
           <p>목숨을 건 결투를 신청합니다. 패배하면 <b>죽습니다</b>. 선량한 인물을 해치면 명성이 크게 떨어집니다.</p>
           <div class="row end"><button class="ghost" data-act="modal-close">취소</button><button class="danger" data-act="duel-go" data-v="${n.id}">결투한다</button></div>`);
       }

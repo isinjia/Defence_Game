@@ -1,0 +1,220 @@
+// ===== 게이트 크로니클: 캐릭터 일러스트 생성기 =====
+// 한국 웹툰 헌터물 그림체. 셀 음영, 갸름한 얼굴, 날카로운 눈매, 뾰족한 머리 결.
+// 시드에서 머리·눈·의상·장신구를 골라 상반신 SVG를 그린다. (viewBox 200×240)
+
+const PORTRAIT = (() => {
+  const clamp = (v) => Math.max(0, Math.min(255, Math.round(v)));
+  const hex2 = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const toHex = (r, g, b) => '#' + [r, g, b].map((v) => clamp(v).toString(16).padStart(2, '0')).join('');
+  const shade = (h, t) => { const [r, g, b] = hex2(h); return t >= 0 ? toHex(r + (255 - r) * t, g + (255 - g) * t, b + (255 - b) * t) : toHex(r * (1 + t), g * (1 + t), b * (1 + t)); };
+  const mix = (a, b, t) => { const A = hex2(a), B = hex2(b); return toHex(A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t, A[2] + (B[2] - A[2]) * t); };
+  const f = (n) => n.toFixed(1);
+
+  const SKIN = ['#f6e2d3', '#f1d8c5', '#ead0bb', '#e2c3aa', '#d6b394'];
+  const HAIR = ['#121219', '#121219', '#1b1a24', '#24202a', '#2f2420', '#3c2c24', '#1c2338', '#cfd3dc', '#e9ebf0', '#4a1f2c'];
+  const EYES = ['#3a2a22', '#2a2026', '#4a3426', '#262a36'];
+  const OUTFIT = ['#121722', '#16161c', '#1d1a22', '#161e22', '#22202a', '#f0eee8'];
+
+  // 앞머리: 헤어라인에서 뻗는 뾰족한 결 뭉치들
+  function bangs(r, style) {
+    const n = style === 'curtain' ? 6 : 7;
+    let d = '';
+    for (let k = 0; k < n; k++) {
+      const t0 = k / n, t1 = (k + 1) / n;
+      const ang = (t) => Math.PI * (1.06 - t * 1.12);
+      const rx = 34, ry = 30, cx = 100, cy = 78;
+      const x0 = cx + Math.cos(ang(t0)) * rx, y0 = cy - Math.sin(ang(t0)) * ry;
+      const x1 = cx + Math.cos(ang(t1)) * rx, y1 = cy - Math.sin(ang(t1)) * ry;
+      const mid = (t0 + t1) / 2;
+      let len = 30 + r() * 16;
+      let lean = (mid - 0.5) * 18 + (r() - 0.5) * 8;
+      if (style === 'curtain') { lean = (mid < 0.5 ? -1 : 1) * (10 + r() * 6); len = 26 + r() * 10 + Math.abs(mid - 0.5) * 30; }
+      if (style === 'swept') { lean = -12 - r() * 8; len = 28 + mid * 26; }
+      if (style === 'spiky') { len = 22 + r() * 14; lean = (mid - 0.5) * 30; }
+      if (style === 'cover' && k === (n >> 1) + 1) { len = 58; lean = 10; }
+      const mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+      const tx = mx + lean, ty = Math.min(my + len, 116);
+      d += `M${f(x0)} ${f(y0)}Q${f(x0 + (tx - x0) * 0.35 - 3)} ${f(y0 + (ty - y0) * 0.6)} ${f(tx)} ${f(ty)}Q${f(x1 + (tx - x1) * 0.4 + 3)} ${f(y1 + (ty - y1) * 0.55)} ${f(x1)} ${f(y1)}Z`;
+    }
+    return d;
+  }
+  // 머리 광택: 결을 따라 흐르는 가는 빛줄기
+  function shine(r) {
+    let d = '';
+    for (let k = 0; k < 4; k++) {
+      const x = 80 + k * 11 + r() * 4, y = 44 + Math.abs(k - 1.5) * 3;
+      d += `M${f(x)} ${f(y)}q${f(2 + r() * 2)} ${f(8 + r() * 6)} ${f(-1 + r() * 2)} ${f(16 + r() * 8)}`;
+    }
+    return d;
+  }
+
+  function make(seed, gender, element, rankIdx) {
+    const r = FX.rng(FX.hash(seed + '|wt'));
+    const pick = (a) => a[Math.floor(r() * a.length)];
+    const id = FX.uid();
+    const pal = FX.PAL[element] || FX.PAL.none;
+    const ec = element && ELEMENTS[element] ? ELEMENTS[element].color : '#46e0d0';
+    const rank = rankIdx == null ? 0 : rankIdx;
+    const F = gender === 'F';
+    const skin = pick(SKIN);
+    const hair = r() < 0.1 ? shade(ec, -0.45) : pick(HAIR);
+    const light = hex2(hair).reduce((a, b) => a + b, 0) > 450;
+    const outfit = pick(OUTFIT);
+    const glowEyes = rank >= 4 || r() < 0.12;
+    const iris = glowEyes ? ec : pick(EYES);
+    const bangStyle = F ? pick(['curtain', 'swept', 'cover', 'curtain']) : pick(['swept', 'spiky', 'cover', 'curtain', 'swept']);
+    const back = F ? pick(['long', 'long', 'pony', 'bob']) : pick(['none', 'none', 'nape', 'tail']);
+    const outfitKind = pick(['coat', 'hanbok', 'mandarin', 'tactical']);
+    const acc = { earpiece: r() < 0.18, scar: !F && r() < 0.2, marks: rank >= 5 || r() < 0.12, earring: F ? r() < 0.45 : r() < 0.2, mask: !F && r() < 0.1, hairpin: F && r() < 0.35 };
+
+    const skinSh = mix(skin, '#8a5a6a', 0.28), skinDeep = mix(skin, '#5a3040', 0.45);
+    const hairHi = light ? '#ffffff' : shade(hair, 0.45), hairSh = light ? shade(hair, -0.3) : shade(hair, -0.5);
+    const line = mix(hair, '#000000', 0.55);
+
+    // ---- 배경: 어두운 무드, 대각 광선, 등급 오라
+    const aura = 0.18 + rank * 0.06;
+    const bg = `<rect width="200" height="240" fill="url(#${id}bg)"/>
+      <path d="M-20 200L120 -20L150 -20L10 200ZM60 240L210 30L222 46L84 240Z" fill="${ec}" opacity=".07"/>
+      <circle cx="100" cy="104" r="${74 + rank * 5}" fill="url(#${id}aura)"/>
+      ${Array.from({ length: 4 + rank * 2 }, () => { const x = r() * 200, y = r() * 200, l = 4 + r() * 10; return `<path d="M${f(x)} ${f(y)}l${f(l * 0.4)} ${f(-l)}" stroke="${ec}" stroke-width="1" opacity="${(0.25 + r() * 0.5).toFixed(2)}"/>`; }).join('')}`;
+
+    // ---- 뒷머리
+    const BACK = {
+      none: '',
+      nape: 'M66 104C62 130 66 148 74 154L126 154C134 148 138 130 134 104Z',
+      tail: 'M118 64C150 70 158 120 150 176L146 162L142 178C140 140 138 104 116 82Z',
+      long: 'M64 98C56 150 62 200 50 240L72 228L84 240L100 230L116 240L128 228L150 240C138 200 144 150 136 98Z',
+      pony: 'M120 50C162 52 170 120 156 196L150 180L144 200C146 150 142 100 118 76Z',
+      bob: 'M62 100C58 128 62 150 68 162L80 154L90 164L100 156L110 164L120 154L132 162C138 150 142 128 138 100Z',
+    };
+    const backSvg = BACK[back] ? `<path d="${BACK[back]}" fill="${hair}"/><path d="${BACK[back]}" fill="none" stroke="${line}" stroke-width="1"/>` : '';
+
+    // ---- 의상
+    const cloth = outfit, clothSh = shade(outfit, outfit === '#f0eee8' ? -0.25 : -0.45), clothHi = shade(outfit, outfit === '#f0eee8' ? 0.3 : 0.18);
+    let body = `<path d="M22 240C26 206 50 186 84 178L116 178C150 186 174 206 178 240Z" fill="${cloth}"/>
+      <path d="M22 240C26 206 50 186 84 178L92 190C70 200 56 216 52 240Z" fill="${clothSh}"/>`;
+    if (outfitKind === 'coat') body += `
+      <path d="M70 164L84 200L100 212L116 200L130 164L140 176L126 214L100 226L74 214L60 176Z" fill="${clothSh}" stroke="${line}" stroke-width="1"/>
+      <path d="M140 176L126 214L100 226" stroke="${ec}" stroke-width="1.4" fill="none" opacity=".8"/>
+      <path d="M100 226V240" stroke="${line}" stroke-width="1.5"/>`;
+    else if (outfitKind === 'hanbok') body += `
+      <path d="M84 178L118 178L72 240L52 240Z" fill="${clothHi}"/>
+      <path d="M118 178L128 186L82 240L72 240Z" fill="${shade(ec, -0.35)}"/>
+      <path d="M119 179L76 238" stroke="#f4f1ea" stroke-width="3.2"/>
+      <path d="M84 178L100 206" stroke="${line}" stroke-width="1.2"/>
+      <path d="M96 212Q108 214 118 222M96 212Q100 226 96 238" stroke="${ec}" stroke-width="2" fill="none" opacity=".85"/>`;
+    else if (outfitKind === 'mandarin') body += `
+      <path d="M82 166Q100 172 118 166L120 184Q100 192 80 184Z" fill="${clothSh}" stroke="${line}" stroke-width="1"/>
+      <path d="M100 188V240" stroke="${line}" stroke-width="1.4"/>
+      ${[198, 210, 222, 234].map((y) => `<path d="M94 ${y}H106" stroke="${ec}" stroke-width="2.2" stroke-linecap="round"/><circle cx="100" cy="${y}" r="1.6" fill="${ec}"/>`).join('')}`;
+    else body += `
+      <path d="M76 172L100 192L124 172L128 188L100 206L72 188Z" fill="${clothSh}"/>
+      <path d="M50 214L84 198M150 214L116 198" stroke="${shade(outfit, 0.3)}" stroke-width="3"/>
+      <path d="M100 206V240" stroke="${ec}" stroke-width="1.6" opacity=".9"/>
+      <rect x="112" y="216" width="22" height="9" fill="${clothSh}"/><rect x="115" y="219" width="7" height="2" fill="${ec}"/>`;
+
+    // ---- 목과 얼굴 (V라인)
+    const faceD = F
+      ? 'M71 92C71 64 84 50 100 50C116 50 129 64 129 92C129 112 124 128 115 140L100 153L85 140C76 128 71 112 71 92Z'
+      : 'M70 90C70 62 84 48 100 48C116 48 130 62 130 90C130 112 125 128 116 140L100 155L84 140C75 128 70 112 70 90Z';
+    const neck = `<path d="M89 134L111 134L113 182Q100 188 87 182Z" fill="${skin}"/>
+      <path d="M89 140L100 156L111 140L112 162Q100 170 88 162Z" fill="${skinSh}"/>
+      <path d="M89 134L111 134L113 182Q100 188 87 182Z" fill="none" stroke="${skinDeep}" stroke-width=".8" opacity=".6"/>`;
+    const ears = `<path d="M70 98Q63 96 64 106Q66 116 72 116Z" fill="${skinSh}"/><path d="M130 98Q137 96 136 106Q134 116 128 116Z" fill="${skin}"/>`;
+    const face = `${ears}<path d="${faceD}" fill="${skin}"/>
+      <path d="M71 92C71 112 76 128 85 140L100 153L92 141C82 128 77 112 77 94Z" fill="${skinSh}"/>
+      <path d="M129 92C129 112 124 128 115 140L113 138C121 126 126 110 127 92Z" fill="${ec}" opacity=".45"/>
+      <path d="${faceD}" fill="none" stroke="${skinDeep}" stroke-width="1"/>
+      ${F ? `<ellipse cx="83" cy="121" rx="6" ry="2.4" fill="#ff8a9a" opacity=".22"/><ellipse cx="117" cy="121" rx="6" ry="2.4" fill="#ff8a9a" opacity=".22"/>` : ''}
+      <path d="M101 113L98.5 121L102 121.5" stroke="${skinDeep}" stroke-width="1.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+    // ---- 눈 (가늘고 날카로운 눈매)
+    const sc = F ? 'M76 104Q84 96.5 94.5 101.5Q87 108.5 77.5 106.5Z' : 'M76 104Q85 98.5 94.5 102Q87 107.5 77.5 105.5Z';
+    const eyeOne = (flip) => `<g ${flip ? 'transform="translate(200 0) scale(-1 1)"' : ''}>
+        <path d="${sc}" fill="#f8f7fb"/>
+        <clipPath id="${id}e${flip ? 1 : 0}"><path d="${sc}"/></clipPath>
+        <g clip-path="url(#${id}e${flip ? 1 : 0})">
+          <ellipse cx="86.5" cy="103.5" rx="${F ? 4.9 : 4.4}" ry="${F ? 6.2 : 5.2}" fill="url(#${id}iris)"/>
+          <ellipse cx="86.5" cy="104" rx="1.9" ry="${F ? 3.2 : 2.6}" fill="#07070c"/>
+          <path d="M70 92H100V101Q86 98 70 103Z" fill="${skinDeep}" opacity=".35"/>
+        </g>
+        <circle cx="88" cy="101.6" r="1.3" fill="#fff"/>
+        <path d="${F ? 'M72.5 102Q83 94 95.5 101.2' : 'M73 102.5Q84 96.5 95.5 101.8'}" stroke="${line}" stroke-width="${F ? 2.6 : 2.3}" fill="none" stroke-linecap="round"/>
+        <path d="${F ? 'M73 102L69.5 100.2' : 'M73.5 102.5L70 101.6'}" stroke="${line}" stroke-width="${F ? 1.8 : 1.4}" stroke-linecap="round"/>
+        <path d="M79 107Q85 108.6 90 107.4" stroke="${line}" stroke-width=".8" fill="none" opacity=".55"/>
+        ${glowEyes ? `<ellipse cx="86.5" cy="103.5" rx="8" ry="5" fill="${ec}" opacity=".25"/><path d="M76 104L66 106" stroke="${ec}" stroke-width="1" opacity=".7"/>` : ''}
+      </g>`;
+    const browD = F ? 'M75 93.5Q85 90.5 95 93.5' : pick(['M74 92.5L96 95.5', 'M74 94L96 94.5', 'M75 91.5Q86 90 96 94']);
+    const brows = `<path d="${browD}" stroke="${hairSh}" stroke-width="${F ? 1.6 : 2.3}" fill="none" stroke-linecap="round"/>
+      <path d="${browD}" transform="translate(200 0) scale(-1 1)" stroke="${hairSh}" stroke-width="${F ? 1.6 : 2.3}" fill="none" stroke-linecap="round"/>`;
+    const mouth = F
+      ? `<path d="M95.5 133.5Q100 135 104.5 133.5" stroke="${shade(skin, -0.45)}" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M97 135.6Q100 136.8 103 135.6" stroke="#d4707e" stroke-width="1.4" fill="none" opacity=".6"/>`
+      : `<path d="${pick(['M95 134L105 133.6', 'M95 134.2Q101 135 105.5 132.8'])}" stroke="${shade(skin, -0.5)}" stroke-width="1.3" fill="none" stroke-linecap="round"/>`;
+
+    // ---- 머리카락
+    const MASS = 'M62 120C54 60 76 28 100 28C124 28 146 60 138 120C135 128 131 130 129 126L130 90C128 70 116 60 100 60C84 60 72 70 70 90L71 126C69 130 65 128 62 120Z';
+    const CAP = 'M66 96C62 56 80 36 100 36C120 36 138 56 134 96C130 70 118 60 100 60C82 60 70 70 66 96Z';
+    const LOCK = (back === 'none' || back === 'tail') ? 'M70 80C64 96 65 112 69 122L72 110L75 118C75 104 75 92 77 84Z' : 'M70 76C62 100 64 126 71 146L73 128L77 140C77 116 76 96 78 84Z';
+    const bangD = bangs(r, bangStyle);
+    const hairFront = `<path d="${CAP}" fill="${hair}"/>
+      <path d="${bangD}" fill="${hair}" stroke="${line}" stroke-width=".9" stroke-linejoin="round"/>
+      <path d="${shine(r)}" stroke="${hairHi}" stroke-width="1.6" fill="none" opacity="${light ? 0.7 : 0.5}" stroke-linecap="round"/>
+      <path d="M68 70C76 54 90 46 100 45" stroke="${hairHi}" stroke-width="1.2" fill="none" opacity=".35"/>
+      <path d="${LOCK}" fill="${hair}" stroke="${line}" stroke-width=".9"/><path d="${LOCK}" transform="translate(200 0) scale(-1 1)" fill="${hair}" stroke="${line}" stroke-width=".9"/>
+      <path d="M131 76C138 96 137 118 132 132" stroke="${ec}" stroke-width="1.6" fill="none" opacity=".7"/>`;
+    const massSvg = `<path d="${MASS}" fill="${hair}"/><path d="${MASS}" fill="none" stroke="${line}" stroke-width="1"/>
+      <path d="M138 120C146 60 124 28 100 28" stroke="${ec}" stroke-width="2" fill="none" opacity=".55"/>`;
+    // 앞머리가 이마에 드리우는 그림자
+    const bangShadow = `<clipPath id="${id}fc"><path d="${faceD}"/></clipPath><g clip-path="url(#${id}fc)"><path d="${bangD}" fill="${skinDeep}" opacity=".35" transform="translate(-2 4)"/></g>`;
+
+    // ---- 장신구
+    let accSvg = '';
+    if (acc.scar) accSvg += `<path d="M112 90L118 116" stroke="#a04a52" stroke-width="1.6" stroke-linecap="round"/>`;
+    if (acc.marks) accSvg += `<path d="M77 116L82 112L80 120M123 116L118 112L120 120" stroke="${ec}" stroke-width="1.3" fill="none"/><path d="M100 64L97 70L100 76L103 70Z" fill="${ec}" opacity=".9"/>`;
+    if (acc.earring) accSvg += `<path d="M66 114V122" stroke="${ec}" stroke-width="1.4"/><circle cx="66" cy="123.5" r="1.8" fill="${ec}"/><path d="M134 114V122" stroke="${ec}" stroke-width="1.4"/><circle cx="134" cy="123.5" r="1.8" fill="${ec}"/>`;
+    if (acc.hairpin) accSvg += `<path d="M120 58L140 48" stroke="#d9c9a0" stroke-width="2.4" stroke-linecap="round"/><circle cx="121" cy="57.5" r="3" fill="${ec}"/>`;
+    if (acc.mask) accSvg += `<path d="M76 120Q100 114 124 120L118 142L100 152L82 142Z" fill="#101219" stroke="${line}" stroke-width="1"/><path d="M88 132H112" stroke="${ec}" stroke-width="1.3" opacity=".8"/>`;
+    if (acc.earpiece) accSvg += `<path d="M131 100Q138 100 137 110Q136 116 131 116" fill="#151a24" stroke="${ec}" stroke-width="1.2"/><circle cx="134" cy="107" r="1.6" fill="${ec}"/>`;
+
+    const defs = `<defs>
+      <linearGradient id="${id}bg" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="${pal.mid}"/><stop offset=".5" stop-color="${pal.dark}"/><stop offset="1" stop-color="#040508"/></linearGradient>
+      <radialGradient id="${id}aura"><stop offset="0" stop-color="${ec}" stop-opacity="${aura}"/><stop offset="1" stop-color="${ec}" stop-opacity="0"/></radialGradient>
+      <linearGradient id="${id}iris" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${shade(iris, -0.5)}"/><stop offset=".55" stop-color="${iris}"/><stop offset="1" stop-color="${shade(iris, 0.5)}"/></linearGradient>
+    </defs>`;
+    const content = `${defs}${bg}${backSvg}${body}${neck}${massSvg}${face}${bangShadow}${eyeOne(false)}${eyeOne(true)}${brows}${mouth}${hairFront}${accSvg}`;
+    return { content, id, ring: RANKS[rank].color, ec };
+  }
+
+  // assets/portraits/portraits.js 에 등록된 그림 파일이 있으면 우선 사용
+  const images = () => (typeof PORTRAIT_IMAGES !== 'undefined' && Array.isArray(PORTRAIT_IMAGES) ? PORTRAIT_IMAGES : []);
+  function imageFor(seed, gender) {
+    const list = images().filter((p) => !p.gender || p.gender === gender);
+    if (!list.length) return null;
+    return 'assets/portraits/' + list[FX.hash(seed + '|img') % list.length].file;
+  }
+
+  return {
+    imageFor,
+    // 상반신 일러스트 카드
+    card(seed, gender, element, rankIdx, w = 200) {
+      const src = imageFor(seed, gender);
+      const ring = RANKS[rankIdx == null ? 0 : rankIdx].color;
+      if (src) return `<div class="portrait-img" style="width:${w}px;--rc:${ring}"><img src="${src}" alt="캐릭터 일러스트" loading="lazy"></div>`;
+      const p = make(seed, gender, element, rankIdx);
+      const c = p.ring;
+      return `<svg xmlns="http://www.w3.org/2000/svg" class="portrait" width="${w}" height="${Math.round(w * 1.2)}" viewBox="0 0 200 240" role="img" aria-label="캐릭터 일러스트">${p.content}
+        <rect x="1" y="1" width="198" height="238" fill="none" stroke="${c}" stroke-width="1.5" opacity=".7"/>
+        <path d="M1 22V1H22M178 1H199V22M199 218V239H178M22 239H1V218" stroke="${c}" stroke-width="4" fill="none"/></svg>`;
+    },
+    // 원형 얼굴 아이콘
+    avatar(seed, gender, element, rankIdx, size = 56) {
+      const src = imageFor(seed, gender);
+      if (src) return `<span class="avatar avatar-img" style="width:${size}px;height:${size}px;--rc:${RANKS[rankIdx == null ? 0 : rankIdx].color}"><img src="${src}" alt=""></span>`;
+      const p = make(seed, gender, element, rankIdx);
+      return `<svg xmlns="http://www.w3.org/2000/svg" class="avatar" width="${size}" height="${size}" viewBox="44 40 112 112" role="img" aria-label="초상화">
+        <defs><clipPath id="${p.id}c"><circle cx="100" cy="96" r="55"/></clipPath></defs>
+        <g clip-path="url(#${p.id}c)">${p.content}</g>
+        <circle cx="100" cy="96" r="54.5" fill="none" stroke="${p.ring}" stroke-width="3"/></svg>`;
+    },
+  };
+})();

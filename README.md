@@ -47,11 +47,12 @@ python3 -m http.server 8000
 - `js/game.js` : 시간 흐름, 성장, NPC 시뮬레이션, 지도 오브젝트, 상점, 길드, 저장
 - `js/world.js` : 한반도 타일맵 생성, 지형, 지역 구분, 길찾기
 - `js/combat.js` : 속도 기반 턴제 전투와 AI, 연출용 이벤트 기록
-- `js/fx.js` : 초상화·괴수·사건 삽화를 SVG로 생성, 타이틀·돌파 연출
+- `js/fx.js` : 괴수·사건 삽화를 SVG로 생성, 타이틀·돌파 연출
+- `js/portrait.js` : 웹툰풍 캐릭터 일러스트 생성, 그림 파일이 있으면 우선 사용
 - `js/mapview.js` : 캔버스 월드맵 렌더러 (드래그, 확대, 미니맵)
 - `js/ui.js` : HUD, 메뉴 창, 전투 화면
 - `css/style.css` : SF 전술 HUD 스타일 (모바일 대응)
 
-이미지 파일은 쓰지 않습니다. 모든 그림은 코드로 그립니다.
+기본 그림은 모두 코드로 그립니다. 캐릭터 일러스트는 `assets/portraits/` 에 그림 파일을 넣으면 그 그림으로 바뀝니다. 방법과 생성 프롬프트는 `assets/portraits/README.md` 에 있습니다.
 
 진행 상황은 매달 브라우저 localStorage에 자동 저장됩니다.

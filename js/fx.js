@@ -51,49 +51,9 @@ const FX = {
     return `<svg ${s}>${P[name] || ''}</svg>`;
   },
 
-  // ---------- 인물 초상화 ----------
-  avatar(seed, gender, element, rankIdx, size = 56) {
-    const r = this.rng(this.hash(seed));
-    const pick = (a) => a[Math.floor(r() * a.length)];
-    const pal = this.PAL[element] || this.PAL.none;
-    const id = this.uid();
-    const skin = pick(['#f1d3bc', '#e8c3a3', '#d6a77f', '#b88560']);
-    const hair = pick(['#16161d', '#2b211c', '#4a3324', '#7a5a3a', '#b9b3c9', '#24365e', '#5e2430', pal.hi]);
-    const jacket = pick(['#1a2030', '#23202c', '#14242a', '#2a1f1a']);
-    const style = Math.floor(r() * 4);
-    const acc = Math.floor(r() * 5);
-    const long = gender === 'F' ? r() < 0.75 : r() < 0.12;
-    const ring = rankIdx != null ? RANKS[rankIdx].color : pal.hi;
-    let back = '';
-    if (long) back = `<path d="M18 28C16 12 48 12 46 28L49 50C43 47 21 47 15 50Z" fill="${hair}"/>`;
-    const fringes = [
-      `<path d="M20 28C19 15 27 12 32 12C39 12 45 16 44 28C42 21 37 18 31 19C26 19 22 22 20 28Z" fill="${hair}"/>`,
-      `<path d="M19 29 21 15 25 19 27 11 31 17 34 10 37 17 41 12 42 19 45 16 44 29C40 22 36 20 32 20S23 22 19 29Z" fill="${hair}"/>`,
-      `<path d="M20 30C18 16 26 12 33 12C41 12 46 17 44 26C38 24 32 19 30 15C28 21 24 25 20 30Z" fill="${hair}"/>`,
-      `<path d="M20 27C20 16 26 12 32 12S44 16 44 27C41 23 36 22 32 22S23 23 20 27Z" fill="${hair}"/><circle cx="32" cy="10" r="4.5" fill="${hair}"/>`,
-    ];
-    let accSvg = '';
-    if (acc === 1) accSvg = `<rect x="22" y="26" width="20" height="5" rx="2.5" fill="${pal.hi}" opacity=".85"/><rect x="22" y="26" width="20" height="5" rx="2.5" fill="url(#${id}v)"/>`;
-    else if (acc === 2) accSvg = `<path d="M37 31 41 37" stroke="#8a3a3a" stroke-width="1.4" stroke-linecap="round"/>`;
-    else if (acc === 3) accSvg = `<circle cx="21" cy="30" r="2.2" fill="${pal.hi}"/><path d="M21 32 25 37" stroke="${pal.hi}" stroke-width="1"/>`;
-    const eyes = acc === 1 ? '' : `<ellipse cx="27.5" cy="29" rx="1.6" ry="1.9" fill="#1a1a22"/><ellipse cx="36.5" cy="29" rx="1.6" ry="1.9" fill="#1a1a22"/><path d="M25 25.5h5M34 25.5h5" stroke="${hair}" stroke-width="1.3" stroke-linecap="round"/>`;
-    return `<svg xmlns="http://www.w3.org/2000/svg" class="avatar" width="${size}" height="${size}" viewBox="0 0 64 64" role="img" aria-label="초상화">
-      <defs><radialGradient id="${id}b" cx="50%" cy="40%" r="65%"><stop offset="0" stop-color="${pal.mid}"/><stop offset="1" stop-color="${pal.dark}"/></radialGradient>
-      <linearGradient id="${id}v" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-      <clipPath id="${id}c"><circle cx="32" cy="32" r="30"/></clipPath></defs>
-      <circle cx="32" cy="32" r="31" fill="url(#${id}b)"/>
-      <g clip-path="url(#${id}c)">
-        ${back}
-        <path d="M6 66C8 51 19 45 32 45S56 51 58 66Z" fill="${jacket}"/>
-        <path d="M24 46 32 55 40 46" fill="none" stroke="${pal.hi}" stroke-width="1.6" opacity=".9"/>
-        <rect x="28" y="37" width="8" height="9" rx="2" fill="${skin}"/>
-        <ellipse cx="32" cy="28" rx="11" ry="12.5" fill="${skin}"/>
-        ${eyes}<path d="M30 35.5q2 1.2 4 0" stroke="#7a4a3a" stroke-width="1" fill="none" stroke-linecap="round"/>
-        ${fringes[style]}${accSvg}
-      </g>
-      <circle cx="32" cy="32" r="30.5" fill="none" stroke="${ring}" stroke-width="2"/>
-    </svg>`;
-  },
+  // ---------- 인물 초상화 (portrait.js) ----------
+  avatar(seed, gender, element, rankIdx, size = 56) { return PORTRAIT.avatar(seed, gender, element, rankIdx, size); },
+  portrait(seed, gender, element, rankIdx, w = 200) { return PORTRAIT.card(seed, gender, element, rankIdx, w); },
 
   // ---------- 괴수 스프라이트 ----------
   monster(mon, size = 110) {
