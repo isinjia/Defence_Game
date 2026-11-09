@@ -121,7 +121,7 @@ const PROLOGUE = {
     ] },
 
   // ---------- 8. 관리국 판정 (재능·특성) ----------
-  verdict: { title: '관리국 판정', text: '국가 각성자 관리국 지부. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}가 눈이 퉁퉁 부은 채 손을 흔든다.\n\n심사관이 말한다. "등급은 F부터 시작합니다. 마지막으로, 헌터가 되려는 이유가 뭡니까?"',
+  verdict: { title: '관리국 판정', text: '국가 각성자 관리국 지부. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}가 눈이 퉁퉁 부은 채 손을 흔든다.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"',
     choices: [
       { text: '숨을 고르고 차분히 에테르를 흘려 보낸다. "사람을 지키고 싶어서요."', talent: 1, t: { charisma: 1 }, friend: 15, next: null },
       { text: '측정기에 있는 힘껏 쏟아붓는다. 계기판이 터진다', luck: 2, t: { reckless: 1, berserk: 1 }, next: null },
@@ -129,9 +129,9 @@ const PROLOGUE = {
       { text: '"게이트가 왜 열렸는지 알아내려고요."', talent: 1, t: { mana_sense: 1, genius: 1 }, next: null },
       { text: '유리 너머 {friend}를 본다. "저 녀석 옆에 서 있으려고요."', t: { charisma: 1, iron_body: 1 }, friend: 25, next: null },
     ] },
-  verdict_guild: { title: '길드 면접', text: '관리국 등록을 마친 다음 날, 모르는 번호로 전화가 온다. "청룡 길드 신인 발굴팀입니다. 소문 듣고 연락드렸어요."\n\n삼성동 길드 빌딩 28층 면접실. 정장 차림의 스카우터 셋이 태블릿을 넘기며 묻는다. "F급 신입한테 우리가 왜 투자해야 하죠?"',
+  verdict_guild: { title: '길드 면접', text: '관리국 등록을 마친 다음 날, 모르는 번호로 전화가 온다. "청룡 길드 신인 발굴팀입니다. 소문 듣고 연락드렸어요."\n\n삼성동 길드 빌딩 28층 면접실. 정장 차림의 스카우터 셋이 태블릿을 넘기며 묻는다. "등급도 아직 안 나온 신입한테 우리가 왜 투자해야 하죠?"',
     choices: [
-      { text: '"아직 F급이니까요. 제일 싸게 살 수 있을 때잖아요."', t: { merchant: 1, charisma: 1 }, luck: 1, next: null },
+      { text: '"등급 나오기 전이니까요. 제일 싸게 살 수 있을 때잖아요."', t: { merchant: 1, charisma: 1 }, luck: 1, next: null },
       { text: '말 대신 손바닥 위로 에테르를 끌어올린다. 태블릿 화면이 지직거린다', talent: 1, t: { mana_sense: 1, reckless: 1 }, next: null },
       { text: '"투자 말고 계약서부터 보여 주세요."', t: { genius: 1 }, talent: 1, next: null },
       { text: '"길드는 아직 생각 없어요. 같이 다닐 사람이 있어서요." {friend}의 얼굴이 떠오른다', t: { charisma: 1 }, friend: 20, next: null },
@@ -509,6 +509,16 @@ for (const [bg, pool] of Object.entries(PRO_ARC_POOL)) {
 
 const PROLOGUE_START = Object.fromEntries(['chaebol', 'orphan', 'soldier', 'subject', 'student'].map((bg) => [bg, Array.from({ length: 10 }, (_, i) => `${bg}_${i + 1}`)]));
 
+// 각성 등급: 대부분 F급이지만, 재능과 운이 따르면 더 높은 등급으로 각성하기도 한다.
+// 등급은 각성 직후에는 알 수 없고, 헌터 자격 시험이 끝난 뒤 협회가 측정해 알려 준다.
+function rollAwakenRank(score = 0, rng = Math.random) {
+  const s = Math.max(0, score);
+  const w = [Math.max(22, 62 - s * 6), 25 + s * 2, 9 + s * 2, 3 + s, 1 + s * 0.4];
+  let r = rng() * w.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < w.length; i++) { r -= w[i]; if (r < 0) return i; }
+  return 0;
+}
+
 // 쌓인 점수로 각성 결과를 정한다
 function resolvePrologue(sc, rng = Math.random) {
   const top = (o, keys) => { let best = keys[0], bv = -1; for (const k of keys) { const v = (o[k] || 0) + rng() * 0.5; if (v > bv) { bv = v; best = k; } } return best; };
@@ -529,5 +539,6 @@ function resolvePrologue(sc, rng = Math.random) {
   const ranked = Object.entries(sc.t).sort((a, b) => b[1] - a[1] + (rng() - 0.5) * 0.3).map(([k]) => k);
   for (const id of ranked) { if (traits.length >= 3) break; if (clash[id] && traits.includes(clash[id])) continue; if (traitById(id)) traits.push(id); }
   while (traits.length < 3) { const t = TRAITS[Math.floor(rng() * TRAITS.length)].id; if (!traits.includes(t) && !(clash[t] && traits.includes(clash[t]))) traits.push(t); }
-  return { element, talent, cls: best.id, traits };
+  const rank = rollAwakenRank((sc.talent || 0) + (sc.luck || 0) * 0.7 + (talent >= 7 ? 1 : 0), rng);
+  return { element, talent, cls: best.id, traits, rank };
 }

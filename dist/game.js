@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.12";
+const GAME_VERSION = "0.13";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -991,7 +991,7 @@ const PROLOGUE = {
   // ---------- 8. 관리국 판정 (재능·특성) ----------
   verdict: {
     title: "관리국 판정",
-    text: '국가 각성자 관리국 지부. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}가 눈이 퉁퉁 부은 채 손을 흔든다.\n\n심사관이 말한다. "등급은 F부터 시작합니다. 마지막으로, 헌터가 되려는 이유가 뭡니까?"',
+    text: '국가 각성자 관리국 지부. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}가 눈이 퉁퉁 부은 채 손을 흔든다.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"',
     choices: [
       { text: '숨을 고르고 차분히 에테르를 흘려 보낸다. "사람을 지키고 싶어서요."', talent: 1, t: { charisma: 1 }, friend: 15, next: null },
       { text: "측정기에 있는 힘껏 쏟아붓는다. 계기판이 터진다", luck: 2, t: { reckless: 1, berserk: 1 }, next: null },
@@ -1002,9 +1002,9 @@ const PROLOGUE = {
   },
   verdict_guild: {
     title: "길드 면접",
-    text: '관리국 등록을 마친 다음 날, 모르는 번호로 전화가 온다. "청룡 길드 신인 발굴팀입니다. 소문 듣고 연락드렸어요."\n\n삼성동 길드 빌딩 28층 면접실. 정장 차림의 스카우터 셋이 태블릿을 넘기며 묻는다. "F급 신입한테 우리가 왜 투자해야 하죠?"',
+    text: '관리국 등록을 마친 다음 날, 모르는 번호로 전화가 온다. "청룡 길드 신인 발굴팀입니다. 소문 듣고 연락드렸어요."\n\n삼성동 길드 빌딩 28층 면접실. 정장 차림의 스카우터 셋이 태블릿을 넘기며 묻는다. "등급도 아직 안 나온 신입한테 우리가 왜 투자해야 하죠?"',
     choices: [
-      { text: '"아직 F급이니까요. 제일 싸게 살 수 있을 때잖아요."', t: { merchant: 1, charisma: 1 }, luck: 1, next: null },
+      { text: '"등급 나오기 전이니까요. 제일 싸게 살 수 있을 때잖아요."', t: { merchant: 1, charisma: 1 }, luck: 1, next: null },
       { text: "말 대신 손바닥 위로 에테르를 끌어올린다. 태블릿 화면이 지직거린다", talent: 1, t: { mana_sense: 1, reckless: 1 }, next: null },
       { text: '"투자 말고 계약서부터 보여 주세요."', t: { genius: 1 }, talent: 1, next: null },
       { text: '"길드는 아직 생각 없어요. 같이 다닐 사람이 있어서요." {friend}의 얼굴이 떠오른다', t: { charisma: 1 }, friend: 20, next: null },
@@ -1391,6 +1391,16 @@ for (const [bg, pool] of Object.entries(PRO_ARC_POOL)) {
   }
 }
 const PROLOGUE_START = Object.fromEntries(["chaebol", "orphan", "soldier", "subject", "student"].map((bg) => [bg, Array.from({ length: 10 }, (_, i) => "".concat(bg, "_").concat(i + 1))]));
+function rollAwakenRank(score = 0, rng = Math.random) {
+  const s = Math.max(0, score);
+  const w = [Math.max(22, 62 - s * 6), 25 + s * 2, 9 + s * 2, 3 + s, 1 + s * 0.4];
+  let r = rng() * w.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < w.length; i++) {
+    r -= w[i];
+    if (r < 0) return i;
+  }
+  return 0;
+}
 function resolvePrologue(sc, rng = Math.random) {
   const top = (o, keys) => {
     let best2 = keys[0], bv = -1;
@@ -1431,7 +1441,8 @@ function resolvePrologue(sc, rng = Math.random) {
     const t = TRAITS[Math.floor(rng() * TRAITS.length)].id;
     if (!traits.includes(t) && !(clash[t] && traits.includes(clash[t]))) traits.push(t);
   }
-  return { element, talent, cls: best.id, traits };
+  const rank = rollAwakenRank((sc.talent || 0) + (sc.luck || 0) * 0.7 + (talent >= 7 ? 1 : 0), rng);
+  return { element, talent, cls: best.id, traits, rank };
 }
 Object.assign(PROLOGUE, {
   // ===================== 병상: 에테르 열병 =====================
@@ -2256,7 +2267,7 @@ class Game {
   }
   // ---------- 시작 / 저장 ----------
   newGame(opts) {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     const bg = BACKGROUNDS.find((b) => b.id === opts.bg);
     this.year = 2087;
     this.month = 3;
@@ -2317,6 +2328,7 @@ class Game {
     this.reveal(this.player.x, this.player.y, 6);
     this.player.equip.weapon = this.makeEquipment("weapon", 0, 0);
     this.player.equip.armor = this.makeEquipment("armor", 0, 0);
+    this.player.awakenRank = (_a = opts.awakenRank) != null ? _a : rollAwakenRank(0);
     this.grantClassSkills();
     this.initSandbox();
     this.recalc();
@@ -2325,9 +2337,9 @@ class Game {
     for (let i = 0; i < 55; i++) this.npcs.push(this.makeNpc(false));
     for (let i = 0; i < 3; i++) this.spawnMonthly();
     for (const n of this.npcs) {
-      (_a = n.links) != null ? _a : n.links = {};
-      (_b = n.disciples) != null ? _b : n.disciples = [];
-      (_c = n.parents) != null ? _c : n.parents = [];
+      (_b = n.links) != null ? _b : n.links = {};
+      (_c = n.disciples) != null ? _c : n.disciples = [];
+      (_d = n.parents) != null ? _d : n.parents = [];
     }
     for (let i = 0; i < 24; i++) this.simulateSociety();
     for (const n of this.npcs.filter((x) => !x.child && RNG.chance(0.13))) {
@@ -11076,7 +11088,7 @@ Object.assign(UI, {
   beginFromPrologue() {
     const s = this.pro;
     const r = s.result;
-    G.newGame({ name: s.name, gender: s.gender, bg: s.bg, element: r.element, talent: r.talent, traits: r.traits, look: s.look, cls: r.cls });
+    G.newGame({ name: s.name, gender: s.gender, bg: s.bg, element: r.element, talent: r.talent, traits: r.traits, look: s.look, cls: r.cls, awakenRank: r.rank });
     const p = G.player;
     const f = G.makeNpc(true);
     f.name = s.friend.name;
@@ -11093,7 +11105,7 @@ Object.assign(UI, {
     f.parents = [];
     f.friendhood = true;
     G.npcs.push(f);
-    G.lifeEvent("게이트 브레이크 속에서 각성했다. 소꿉친구 ".concat(f.name, "이(가) 곁에 있었다."));
+    G.lifeEvent("각성했다. 소꿉친구 ".concat(f.name, "이(가) 곁에 있었다."));
     G.save();
     this.saveName(s.name);
     if (this.stopPro) {
@@ -11102,7 +11114,7 @@ Object.assign(UI, {
     }
     this.screen = "game";
     this.render();
-    this.modal('<div class="ending">'.concat(UI.playerPortrait(160), '<div class="eyebrow">').concat(G.dateStr(), " · ").concat(G.region().name, "</div><h2>헌터 ").concat(p.name, "</h2></div>\n      <p>").concat(className(p.cls), " · ").concat(ELEMENTS[p.element].name, ' 속성 · F급. 지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.</p>\n      <p class="dim">소꿉친구 ').concat(f.name, "은(는) ").concat(G.region().name, '에 있습니다. 인물 창에서 만날 수 있습니다.</p>\n      <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>'));
+    this.modal('<div class="ending">'.concat(UI.playerPortrait(160), '<div class="eyebrow">').concat(G.dateStr(), " · ").concat(G.region().name, "</div><h2>헌터 ").concat(p.name, "</h2></div>\n      <p>").concat(className(p.cls), " · ").concat(ELEMENTS[p.element].name, ' 속성 · 등급 측정 전. 지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.</p>\n      <p class="dim">소꿉친구 ').concat(f.name, "은(는) ").concat(G.region().name, '에 있습니다. 인물 창에서 만날 수 있습니다.</p>\n      <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>'));
   }
 });
 {
@@ -11196,6 +11208,33 @@ const EXAM_ROLE_POOL = {
   caster: ["elementalist", "telekinetic", "taoist"],
   shadow: ["assassin", "thief"]
 };
+const EXAM_RANK_TEXT = [
+  '측정관이 화면을 돌려 보여 준다. "F급. 대부분 여기서 시작합니다. 실망할 것 없어요. S급도 처음엔 다 F였으니까."',
+  '측정관이 눈썹을 올린다. "E급이네요. 신규 각성자 중엔 위쪽입니다." 대기실의 동기들이 수군거린다.',
+  '측정기가 두 번 울린다. 측정관이 기록을 다시 확인하고 자리에서 일어난다. "D급. 신규 등록으로 D급은 이 지부에서 올해 처음입니다."',
+  '측정실 문이 열리고 협회 지부장이 직접 들어온다. "C급 신인이라… 오늘 오후부터 길드들 전화가 빗발칠 겁니다. 몸조심하세요. 좋은 뜻으로든 나쁜 뜻으로든."',
+  '측정기 화면이 붉게 깜빡인다. 아무도 말을 하지 않는다. 지부장이 누군가에게 전화를 건다. "본부죠? B급입니다. 신규 각성자가요. 네, 지금 당장요."'
+];
+Object.assign(Game.prototype, {
+  revealAwakenRank() {
+    const p = this.player;
+    if (p.rankRevealed) return null;
+    p.rankRevealed = true;
+    const r = Math.max(0, Math.min(4, p.awakenRank || 0));
+    if (r > p.rankIdx) {
+      p.rankIdx = r;
+      p.stage = 0;
+      this.recalc();
+      p.hp = p.maxHp;
+      p.mp = p.maxMp;
+    }
+    const fame = [0, 2, 6, 15, 30][r];
+    if (fame) p.fame += fame;
+    if (r >= 3) this.rumor("".concat(regionById(p.region).name, "에서 ").concat(RANKS[r].key, "급 신규 각성자 ").concat(p.name, "이(가) 나왔다는 소식에 길드들이 술렁인다."));
+    this.lifeEvent("협회 측정 결과 ".concat(RANKS[r].key, "급 각성자로 등록되었다."));
+    return { rank: r, text: EXAM_RANK_TEXT[r] + (fame ? " (명성 +".concat(fame, ")") : "") };
+  }
+});
 Object.assign(UI, {
   // 플레이어 역할에 맞춰 빈 자리를 채우는 임시 파티 3명
   examRoles() {
@@ -11286,7 +11325,8 @@ Object.assign(UI, {
     for (const n of mates) G.changeRel(n, win ? 22 : 12);
     G.player.hp = G.player.maxHp;
     G.player.mp = G.player.maxMp;
-    G.lifeEvent(win ? "헌터 자격 시험에 합격해 F급 헌터 자격증을 받았다." : "시험관의 개입으로 간신히 헌터 자격 시험을 통과했다.");
+    G.lifeEvent(win ? "헌터 자격 시험에 합격했다." : "시험관의 개입으로 간신히 헌터 자격 시험을 통과했다.");
+    ex.reveal = G.revealAwakenRank();
     ex.pick = new Set(ex.ids);
     ex.text = win ? '마지막 괴수가 쓰러지자 훈련용 게이트가 닫혔다. 시험관이 기록판에 무언가 적고는 고개를 끄덕였다. "전원 합격. 오늘부터 너희는 헌터다."' : '파티가 밀리자 시험관이 끼어들어 괴수를 베어 냈다. "…그래도 끝까지 버텼군. 합격은 합격이다. 대신 밖에서는 아무도 끼어들어 주지 않는다."';
     this.renderExamEnd();
@@ -11294,7 +11334,8 @@ Object.assign(UI, {
   renderExamEnd() {
     const ex = this.exam;
     const mates = ex.ids.map((id) => G.npcById(id)).filter(Boolean);
-    this.modal('<div class="eyebrow">헌터 자격 시험 · 결과</div><h3>F급 헌터 자격증 발급</h3>\n      <p class="event-text">'.concat(fixJosa(ex.text), '</p>\n      <p class="event-text">시험장을 나서자 임시 파티원들이 당신을 바라본다. "…우리, 이대로 같이 다녀 볼래?"</p>\n      <div class="sec-title sec">함께할 동료를 고르세요 <span class="small dim">(눌러서 선택·해제)</span></div>\n      <div class="cards">').concat(mates.map((n) => '<button class="item-row choice-btn '.concat(ex.pick.has(n.id) ? "on" : "", '" data-act="exam-pick" data-v="').concat(n.id, '">').concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, '</b>\n        <div><span class="tag cls tiny" style="--c:').concat(CLASS_GROUPS[classById(n.cls).g].color, '">').concat(className(n.cls), '</span> <span class="small dim">').concat(persById(n.personality).name, '</span></div></div><b class="').concat(ex.pick.has(n.id) ? "amber" : "dim", '">').concat(ex.pick.has(n.id) ? "함께" : "각자", "</b></button>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="exam-solo">혼자 시작한다</button><button class="primary" data-act="exam-party" ').concat(ex.pick.size ? "" : "disabled", ">").concat(ex.pick.size === mates.length ? "이 파티로 시작한다" : "".concat(ex.pick.size, "명과 시작한다"), "</button></div>"), "event-box");
+    const R = RANKS[G.player.rankIdx];
+    this.modal('<div class="eyebrow">헌터 자격 시험 · 결과</div><h3><span class="tag rank" style="--c:'.concat(R.color, '">').concat(R.key, '급</span> 헌터 자격증 발급</h3>\n      <p class="event-text">').concat(fixJosa(ex.text), "</p>\n      ").concat(ex.reveal ? '<div class="sec-title sec">협회 등급 측정</div><p class="event-text">'.concat(fixJosa(ex.reveal.text), "</p>") : "", '\n      <p class="event-text">시험장을 나서자 임시 파티원들이 당신을 바라본다. "…우리, 이대로 같이 다녀 볼래?"</p>\n      <div class="sec-title sec">함께할 동료를 고르세요 <span class="small dim">(눌러서 선택·해제)</span></div>\n      <div class="cards">').concat(mates.map((n) => '<button class="item-row choice-btn '.concat(ex.pick.has(n.id) ? "on" : "", '" data-act="exam-pick" data-v="').concat(n.id, '">').concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, '</b>\n        <div><span class="tag cls tiny" style="--c:').concat(CLASS_GROUPS[classById(n.cls).g].color, '">').concat(className(n.cls), '</span> <span class="small dim">').concat(persById(n.personality).name, '</span></div></div><b class="').concat(ex.pick.has(n.id) ? "amber" : "dim", '">').concat(ex.pick.has(n.id) ? "함께" : "각자", "</b></button>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="exam-solo">혼자 시작한다</button><button class="primary" data-act="exam-party" ').concat(ex.pick.size ? "" : "disabled", ">").concat(ex.pick.size === mates.length ? "이 파티로 시작한다" : "".concat(ex.pick.size, "명과 시작한다"), "</button></div>"), "event-box");
   },
   endExam(ids) {
     const p = G.player;
@@ -11317,7 +11358,7 @@ Object.assign(UI, {
     this.closeModal();
     this.renderGame();
     const friend = G.npcs.find((n) => n.friendhood && n.alive);
-    this.modal('<div class="ending">'.concat(UI.playerPortrait(160), '<div class="eyebrow">').concat(G.dateStr(), " · ").concat(G.region().name, "</div><h2>헌터 ").concat(p.name, "</h2></div>\n      <p>").concat(className(p.cls), " · ").concat(ELEMENTS[p.element].name, " 속성 · F급. ").concat(joined.length ? "".concat(joined.join(", "), "와(과) 함께 첫발을 내딛는다.") : "당분간은 혼자다. 시험 동기들은 인물 창에서 다시 만날 수 있다.", '</p>\n      <p class="dim">지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.').concat(friend ? " 소꿉친구 ".concat(friend.name, "은(는) ").concat((REGIONS.find((r) => r.id === friend.region) || G.region()).name, "에 있습니다.") : "", '</p>\n      <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>'));
+    this.modal('<div class="ending">'.concat(UI.playerPortrait(160), '<div class="eyebrow">').concat(G.dateStr(), " · ").concat(G.region().name, "</div><h2>헌터 ").concat(p.name, "</h2></div>\n      <p>").concat(className(p.cls), " · ").concat(ELEMENTS[p.element].name, " 속성 · ").concat(RANKS[p.rankIdx].key, "급. ").concat(joined.length ? "".concat(joined.join(", "), "와(과) 함께 첫발을 내딛는다.") : "당분간은 혼자다. 시험 동기들은 인물 창에서 다시 만날 수 있다.", '</p>\n      <p class="dim">지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.').concat(friend ? " 소꿉친구 ".concat(friend.name, "은(는) ").concat((REGIONS.find((r) => r.id === friend.region) || G.region()).name, "에 있습니다.") : "", '</p>\n      <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>'));
   }
 });
 {
@@ -11363,7 +11404,8 @@ Object.assign(UI, {
       case "exam-skip":
         this.exam.pick = new Set(this.exam.ids);
         this.exam.text = "실기 시험은 무난히 끝났다. 시험관이 기록판에 합격 도장을 찍었다.";
-        G.lifeEvent("헌터 자격 시험에 합격해 F급 헌터 자격증을 받았다.");
+        G.lifeEvent("헌터 자격 시험에 합격했다.");
+        this.exam.reveal = G.revealAwakenRank();
         return this.renderExamEnd();
       case "exam-pick": {
         const ex = this.exam;

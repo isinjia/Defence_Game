@@ -83,6 +83,7 @@ class Game {
     this.reveal(this.player.x, this.player.y, 6);
     this.player.equip.weapon = this.makeEquipment('weapon', 0, 0);
     this.player.equip.armor = this.makeEquipment('armor', 0, 0);
+    this.player.awakenRank = opts.awakenRank ?? rollAwakenRank(0);
     this.grantClassSkills();
     this.initSandbox();
     this.recalc();

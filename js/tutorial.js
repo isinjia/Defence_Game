@@ -10,6 +10,28 @@ const EXAM_ROLE_POOL = {
   shadow: ['assassin', 'thief'],
 };
 
+// 시험이 끝나면 협회가 각성 등급을 측정해 알려 준다. 대부분 F급이지만 아닐 수도 있다
+const EXAM_RANK_TEXT = [
+  '측정관이 화면을 돌려 보여 준다. "F급. 대부분 여기서 시작합니다. 실망할 것 없어요. S급도 처음엔 다 F였으니까."',
+  '측정관이 눈썹을 올린다. "E급이네요. 신규 각성자 중엔 위쪽입니다." 대기실의 동기들이 수군거린다.',
+  '측정기가 두 번 울린다. 측정관이 기록을 다시 확인하고 자리에서 일어난다. "D급. 신규 등록으로 D급은 이 지부에서 올해 처음입니다."',
+  '측정실 문이 열리고 협회 지부장이 직접 들어온다. "C급 신인이라… 오늘 오후부터 길드들 전화가 빗발칠 겁니다. 몸조심하세요. 좋은 뜻으로든 나쁜 뜻으로든."',
+  '측정기 화면이 붉게 깜빡인다. 아무도 말을 하지 않는다. 지부장이 누군가에게 전화를 건다. "본부죠? B급입니다. 신규 각성자가요. 네, 지금 당장요."',
+];
+Object.assign(Game.prototype, {
+  revealAwakenRank() {
+    const p = this.player; if (p.rankRevealed) return null;
+    p.rankRevealed = true;
+    const r = Math.max(0, Math.min(4, p.awakenRank || 0));
+    if (r > p.rankIdx) { p.rankIdx = r; p.stage = 0; this.recalc(); p.hp = p.maxHp; p.mp = p.maxMp; }
+    const fame = [0, 2, 6, 15, 30][r];
+    if (fame) p.fame += fame;
+    if (r >= 3) this.rumor(`${regionById(p.region).name}에서 ${RANKS[r].key}급 신규 각성자 ${p.name}이(가) 나왔다는 소식에 길드들이 술렁인다.`);
+    this.lifeEvent(`협회 측정 결과 ${RANKS[r].key}급 각성자로 등록되었다.`);
+    return { rank: r, text: EXAM_RANK_TEXT[r] + (fame ? ` (명성 +${fame})` : '') };
+  },
+});
+
 Object.assign(UI, {
   // 플레이어 역할에 맞춰 빈 자리를 채우는 임시 파티 3명
   examRoles() {
@@ -92,7 +114,8 @@ Object.assign(UI, {
     const win = cb.result === 'win';
     for (const n of mates) G.changeRel(n, win ? 22 : 12);
     G.player.hp = G.player.maxHp; G.player.mp = G.player.maxMp;
-    G.lifeEvent(win ? '헌터 자격 시험에 합격해 F급 헌터 자격증을 받았다.' : '시험관의 개입으로 간신히 헌터 자격 시험을 통과했다.');
+    G.lifeEvent(win ? '헌터 자격 시험에 합격했다.' : '시험관의 개입으로 간신히 헌터 자격 시험을 통과했다.');
+    ex.reveal = G.revealAwakenRank();
     ex.pick = new Set(ex.ids);
     ex.text = win
       ? '마지막 괴수가 쓰러지자 훈련용 게이트가 닫혔다. 시험관이 기록판에 무언가 적고는 고개를 끄덕였다. "전원 합격. 오늘부터 너희는 헌터다."'
@@ -101,8 +124,10 @@ Object.assign(UI, {
   },
   renderExamEnd() {
     const ex = this.exam; const mates = ex.ids.map((id) => G.npcById(id)).filter(Boolean);
-    this.modal(`<div class="eyebrow">헌터 자격 시험 · 결과</div><h3>F급 헌터 자격증 발급</h3>
+    const R = RANKS[G.player.rankIdx];
+    this.modal(`<div class="eyebrow">헌터 자격 시험 · 결과</div><h3><span class="tag rank" style="--c:${R.color}">${R.key}급</span> 헌터 자격증 발급</h3>
       <p class="event-text">${fixJosa(ex.text)}</p>
+      ${ex.reveal ? `<div class="sec-title sec">협회 등급 측정</div><p class="event-text">${fixJosa(ex.reveal.text)}</p>` : ''}
       <p class="event-text">시험장을 나서자 임시 파티원들이 당신을 바라본다. "…우리, 이대로 같이 다녀 볼래?"</p>
       <div class="sec-title sec">함께할 동료를 고르세요 <span class="small dim">(눌러서 선택·해제)</span></div>
       <div class="cards">${mates.map((n) => `<button class="item-row choice-btn ${ex.pick.has(n.id) ? 'on' : ''}" data-act="exam-pick" data-v="${n.id}">${this.npcAvatar(n, 40)}<div class="grow"><b>${n.name}</b>
@@ -122,7 +147,7 @@ Object.assign(UI, {
     this.closeModal(); this.renderGame();
     const friend = G.npcs.find((n) => n.friendhood && n.alive);
     this.modal(`<div class="ending">${UI.playerPortrait(160)}<div class="eyebrow">${G.dateStr()} · ${G.region().name}</div><h2>헌터 ${p.name}</h2></div>
-      <p>${className(p.cls)} · ${ELEMENTS[p.element].name} 속성 · F급. ${joined.length ? `${joined.join(', ')}와(과) 함께 첫발을 내딛는다.` : '당분간은 혼자다. 시험 동기들은 인물 창에서 다시 만날 수 있다.'}</p>
+      <p>${className(p.cls)} · ${ELEMENTS[p.element].name} 속성 · ${RANKS[p.rankIdx].key}급. ${joined.length ? `${joined.join(', ')}와(과) 함께 첫발을 내딛는다.` : '당분간은 혼자다. 시험 동기들은 인물 창에서 다시 만날 수 있다.'}</p>
       <p class="dim">지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.${friend ? ` 소꿉친구 ${friend.name}은(는) ${(REGIONS.find((r) => r.id === friend.region) || G.region()).name}에 있습니다.` : ''}</p>
       <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>`);
   },
@@ -156,7 +181,7 @@ Object.assign(UI, {
         return r;
       }
       case 'exam-go': this.closeModal(); return this.startExamFight();
-      case 'exam-skip': this.exam.pick = new Set(this.exam.ids); this.exam.text = '실기 시험은 무난히 끝났다. 시험관이 기록판에 합격 도장을 찍었다.'; G.lifeEvent('헌터 자격 시험에 합격해 F급 헌터 자격증을 받았다.'); return this.renderExamEnd();
+      case 'exam-skip': this.exam.pick = new Set(this.exam.ids); this.exam.text = '실기 시험은 무난히 끝났다. 시험관이 기록판에 합격 도장을 찍었다.'; G.lifeEvent('헌터 자격 시험에 합격했다.'); this.exam.reveal = G.revealAwakenRank(); return this.renderExamEnd();
       case 'exam-pick': { const ex = this.exam; const id = +v; if (ex.pick.has(id)) ex.pick.delete(id); else ex.pick.add(id); return this.renderExamEnd(); }
       case 'exam-party': return this.endExam([...this.exam.pick]);
       case 'exam-solo': return this.endExam([]);

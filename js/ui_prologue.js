@@ -114,20 +114,20 @@ Object.assign(UI, {
   },
   beginFromPrologue() {
     const s = this.pro; const r = s.result;
-    G.newGame({ name: s.name, gender: s.gender, bg: s.bg, element: r.element, talent: r.talent, traits: r.traits, look: s.look, cls: r.cls });
+    G.newGame({ name: s.name, gender: s.gender, bg: s.bg, element: r.element, talent: r.talent, traits: r.traits, look: s.look, cls: r.cls, awakenRank: r.rank });
     // 소꿉친구가 실제 인물로 등장한다
     const p = G.player; const f = G.makeNpc(true);
     f.name = s.friend.name; f.gender = s.friend.gender; f.rankIdx = 0; f.stage = 0; f.ageMonths = p.ageMonths + RNG.int(-6, 6);
     f.region = p.region; f.met = true; f.relation = Math.min(90, 35 + s.friendBonus); f.personality = RNG.pick(['kind', 'just', 'kind']);
     f.links = {}; f.disciples = []; f.parents = []; f.friendhood = true;
     G.npcs.push(f);
-    G.lifeEvent(`게이트 브레이크 속에서 각성했다. 소꿉친구 ${f.name}이(가) 곁에 있었다.`);
+    G.lifeEvent(`각성했다. 소꿉친구 ${f.name}이(가) 곁에 있었다.`);
     G.save();
     this.saveName(s.name);
     if (this.stopPro) { this.stopPro(); this.stopPro = null; }
     this.screen = 'game'; this.render();
     this.modal(`<div class="ending">${UI.playerPortrait(160)}<div class="eyebrow">${G.dateStr()} · ${G.region().name}</div><h2>헌터 ${p.name}</h2></div>
-      <p>${className(p.cls)} · ${ELEMENTS[p.element].name} 속성 · F급. 지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.</p>
+      <p>${className(p.cls)} · ${ELEMENTS[p.element].name} 속성 · 등급 측정 전. 지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.</p>
       <p class="dim">소꿉친구 ${f.name}은(는) ${G.region().name}에 있습니다. 인물 창에서 만날 수 있습니다.</p>
       <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>`);
   },
