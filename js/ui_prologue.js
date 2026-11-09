@@ -187,14 +187,14 @@ Object.assign(UI, {
         const s = this.pro; s.name = (s.name || '').trim();
         if (!s.name) return this.toast('이름을 입력하세요.');
         this.saveName(s.name);
-        s.bg = RNG.pick(BACKGROUNDS).id;
+        s.bg = RNG.pick(BACKGROUNDS.filter((b) => PROLOGUE_START[b.id])).id;
         const fg = RNG.chance(0.5) ? 'M' : 'F';
         s.friend = { name: this.randomName(fg), gender: fg, job: RNG.pick(PRO_FRIEND_JOBS) };
         s.id = RNG.pick(PROLOGUE_START[s.bg]); s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 }; s.step = 0; s.friendBonus = 0; s.log = []; s.shown = {};
         this.screen = 'prologue'; return this.render();
       }
       case 'pro-choice': return this.proChoose(+v);
-      case 'pro-restart': { const s = this.pro; s.bg = RNG.pick(BACKGROUNDS).id; s.id = RNG.pick(PROLOGUE_START[s.bg]); s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 }; s.step = 0; s.friendBonus = 0; s.log = []; s.shown = {}; this.screen = 'prologue'; return this.renderPrologue(); }
+      case 'pro-restart': { const s = this.pro; s.bg = RNG.pick(BACKGROUNDS.filter((b) => PROLOGUE_START[b.id])).id; s.id = RNG.pick(PROLOGUE_START[s.bg]); s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 }; s.step = 0; s.friendBonus = 0; s.log = []; s.shown = {}; this.screen = 'prologue'; return this.renderPrologue(); }
       case 'pro-begin': return this.beginFromPrologue();
       default: return baseHandle.call(this, act, v);
     }
