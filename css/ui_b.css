@@ -471,3 +471,9 @@
 .ic-row span { color: var(--dim); flex: none; }
 .ic-row b { text-align: right; font-weight: 600; }
 .ic-row .unk { color: var(--dim); font-weight: 400; }
+
+/* 프롤로그: 휴대폰 세로에서는 장면 상자가 아래로 늘어나지 않고 화면 가운데에 */
+@media (max-width: 720px) {
+  .pro-inner { align-content: safe center; grid-template-rows: auto auto; }
+  .pro-scene { align-self: start; max-height: none; }
+}
