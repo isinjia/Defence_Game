@@ -40,7 +40,8 @@ const BAL = {
     const note = [];
     if (result !== 'lose' && loot) {
       const mates = this.shareMates();
-      if (!this.party().length) {
+      const affiliated = this.payKind && this.payKind(p.guild); // 길드·보호국 소속은 전리품이 귀속되므로 솔로 보너스 없음
+      if (!this.party().length && !affiliated) {
         loot.money = Math.round(loot.money * BAL.soloMoney); loot.ether = Math.round(loot.ether * BAL.soloEther);
         note.push('홀로 공략한 덕에 전리품을 독차지했다. (크레딧 +10%, 에테르 +15%)');
       } else if (mates.length) {
