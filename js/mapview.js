@@ -118,6 +118,19 @@ class MapView {
     });
   }
 
+  // 한 칸 사이를 부드럽게 이동 (걷기 연출)
+  tween(from, to, ms, done) {
+    this.moving = true; this.reachData = null;
+    const t0 = performance.now();
+    const step = (now) => {
+      const k = ms <= 0 ? 1 : Math.min(1, (now - t0) / ms);
+      const e = k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
+      this.token = { x: from[0] + (to[0] - from[0]) * e, y: from[1] + (to[1] - from[1]) * e, walking: true };
+      if (k < 1) requestAnimationFrame(step); else done();
+    };
+    requestAnimationFrame(step);
+  }
+
   // 경로를 따라 토큰을 움직인다
   animatePath(path, done) {
     this.moving = true; this.reachData = null;
@@ -138,6 +151,7 @@ class MapView {
   draw() {
     const c = this.ctx, s = this.tile, t = this.t;
     if (!G.player) return;
+    if (this.token && this.token.walking) { this.camX += (this.token.x + 0.5 - this.camX) * 0.1; this.camY += (this.token.y + 0.5 - this.camY) * 0.1; }
     c.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     c.fillStyle = '#05080d'; c.fillRect(0, 0, this.w, this.hgt);
     const [x0, y0] = this.toTile(0, 0), [x1, y1] = this.toTile(this.w, this.hgt);
@@ -186,6 +200,16 @@ class MapView {
         const days = WORLD.daysFor(rd.dist.get(this.hover));
         this.chip(px + s / 2, py - 6, `${days}일`, '#ffb547', '#1a1205');
       }
+    }
+    // 남은 경로
+    if (this.walkPath && this.walkPath.length) {
+      c.strokeStyle = 'rgba(255,181,71,.75)'; c.lineWidth = 2.5; c.setLineDash([5, 6]); c.lineDashOffset = -t / 2; c.beginPath();
+      const pos = this.token || { x: G.player.x, y: G.player.y };
+      let [sx, sy] = this.toScreen(pos.x + 0.5, pos.y + 0.5); c.moveTo(sx, sy);
+      for (const i of this.walkPath) { const [x, y] = WORLD.xy(i); [sx, sy] = this.toScreen(x + 0.5, y + 0.5); c.lineTo(sx, sy); }
+      c.stroke(); c.setLineDash([]);
+      const last = this.walkPath[this.walkPath.length - 1]; const [lx, ly] = WORLD.xy(last); const [px, py] = this.toScreen(lx + 0.5, ly + 0.5);
+      c.strokeStyle = '#ffb547'; c.lineWidth = 2; c.beginPath(); c.arc(px, py, s * 0.3, 0, Math.PI * 2); c.stroke();
     }
     this.drawObjects();
     this.drawCities();
@@ -358,7 +382,8 @@ class MapView {
   drawPlayer() {
     const c = this.ctx, s = this.tile, p = G.player;
     const pos = this.token || { x: p.x, y: p.y };
-    const [px, py] = this.toScreen(pos.x + 0.5, pos.y + 0.5);
+    let [px, py] = this.toScreen(pos.x + 0.5, pos.y + 0.5);
+    if (pos.walking) py -= Math.abs(Math.sin(((pos.x + pos.y) % 1) * Math.PI)) * s * 0.12;
     const R = s * 0.42;
     const ring = RANKS[p.rankIdx].color;
     const pulse = (Math.sin(this.t / 15) + 1) / 2;

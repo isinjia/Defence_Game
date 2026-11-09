@@ -72,6 +72,7 @@ class Game {
       money: bg.money, fame: bg.fame || 0, region: bg.region,
       guild: null, guildRank: 0, contrib: 0,
       skills: ['strike', startSkill.id], equipSkills: [startSkill.id],
+      cls: opts.cls || 'swordsman', clsAdv: 0, party: [],
       equip: { weapon: null, armor: null, acc: null },
       inventory: [], items: { potion: 3, mana: 2 },
       btBonus: 0, companion: null, injured: 0,
@@ -83,6 +84,7 @@ class Game {
     this.player.equip.weapon = this.makeEquipment('weapon', 0, 0);
     this.player.equip.armor = this.makeEquipment('armor', 0, 0);
     this.player.ambition = opts.ambition || 'free';
+    this.grantClassSkills();
     this.initSandbox();
     this.recalc();
     this.player.hp = this.player.maxHp; this.player.mp = this.player.maxMp;
@@ -131,6 +133,7 @@ class Game {
     const bg = BACKGROUNDS.find((b) => b.id === p.bg);
     v += bg.mods[key] || 0;
     if (p.relicBonus) v += this.extraMod(key);
+    if (p.cls) v += this.classMod(p.cls, p.clsAdv || 0, key);
     return v;
   }
 
@@ -156,6 +159,32 @@ class Game {
     p.hp = Math.min(p.hp, p.maxHp); p.mp = Math.min(p.mp, p.maxMp);
   }
 
+  classMod(cls, adv, key) {
+    const c = classById(cls);
+    let v = (c.mods[key] || 0) * (1 + 0.3 * adv);
+    if (['hp', 'atk', 'def', 'mp'].includes(key)) v += 0.06 * adv;
+    return v;
+  }
+  // 등급에 맞는 직업 스킬을 자동으로 익힌다
+  grantClassSkills() {
+    const p = this.player; const got = [];
+    for (const sk of SKILLS) {
+      if (sk.cls !== p.cls || sk.rankReq > p.rankIdx || p.skills.includes(sk.id)) continue;
+      p.skills.push(sk.id); got.push(sk.name);
+      if (p.equipSkills.length < 5) p.equipSkills.push(sk.id);
+    }
+    return got;
+  }
+  setClass(cls, why) {
+    const p = this.player; const old = className(p.cls, p.clsAdv);
+    p.skills = p.skills.filter((id) => !(skillById(id) || {}).cls);
+    p.equipSkills = p.equipSkills.filter((id) => !(skillById(id) || {}).cls);
+    p.cls = cls;
+    const got = this.grantClassSkills();
+    this.recalc();
+    this.lifeEvent(`${why || '각성'}: 직업이 [${old}]에서 [${className(cls, p.clsAdv)}](으)로 바뀌었다.`);
+    return got;
+  }
   maxLife() {
     const p = this.player;
     return BASE_LIFESPAN + RANKS[p.rankIdx].life + this.mod('life') + p.lifeBonus - p.lifePenalty;
@@ -247,6 +276,9 @@ class Game {
       this.recalc();
       p.hp = p.maxHp; p.mp = p.maxMp;
       msg = `돌파 성공! ${RANKS[p.rankIdx].name}이 되었다. 수명이 늘어났다.`;
+      const learned = this.grantClassSkills();
+      if (learned.length) msg += ` 새 직업 스킬: ${learned.join(', ')}.`;
+      if ((p.rankIdx >= 3 && p.clsAdv < 1) || (p.rankIdx >= 6 && p.clsAdv < 2)) this.queue.push({ type: 'story', id: 'class_advance' });
       this.log(msg, 'major');
       if (p.rankIdx >= 4) this.rumor(`신예 ${p.name}이(가) ${RANKS[p.rankIdx].name}에 올랐다는 소식에 업계가 술렁인다.`);
     } else {
@@ -292,8 +324,7 @@ class Game {
     }
     const city = this.onCity();
     if (city) { this.reveal(p.x, p.y, 5); this.visitCity(city.id); this.questEvent('arrive', { region: city.id }); }
-    const comp = this.companion();
-    if (comp) comp.region = p.region;
+    this.syncParty();
     const days = WORLD.daysFor(cost);
     this.advanceDays(days, { eventChance: 0.3 });
     return days;
@@ -302,9 +333,36 @@ class Game {
     this.day += n;
     while (this.day > 30 && !this.over) {
       this.day -= 30;
-      this.advanceMonth(1, opts);
+      this.advanceMonth(1, { ...opts, noSave: opts.noSave });
     }
-    this.save();
+    if (!opts.noSave) this.save();
+  }
+
+  // 지도에서 한 칸 걷기. 시간이 흐르고, 길 위에서 일이 생기면 stop 을 돌려준다.
+  walkStep(x, y, diag) {
+    const p = this.player;
+    const t = WORLD.type(x, y);
+    const days = Math.max(1, Math.round(WORLD.T_COST[t] * (diag ? 1.4 : 1) * WORLD.DAYS_PER_COST));
+    p.x = x; p.y = y;
+    this.reveal(x, y, 3);
+    const reg = WORLD.regionAt(x, y);
+    if (reg && reg.id !== p.region) { p.region = reg.id; this.log(`${reg.name}에 들어섰다.`); }
+    this.syncParty();
+    const city = this.onCity();
+    if (city) { this.reveal(x, y, 5); this.visitCity(city.id); this.questEvent('arrive', { region: city.id }); }
+    const before = this.queue.length;
+    this.advanceDays(days, { eventChance: 0.3, noSave: true });
+    if (this.over) return { stop: true, days };
+    let stop = this.queue.length > before || !!city;
+    if (!city && !stop) {
+      // 노상 사건
+      if (RNG.chance(0.03)) { const ev = this.pickStory('road') || this.pickStory('month'); if (ev) { this.queue.push(ev); stop = true; } }
+      // 근처 괴수 무리의 기습
+      const mob = !stop && this.mobs.find((m) => Math.max(Math.abs(m.x - x), Math.abs(m.y - y)) === 1);
+      if (mob && RNG.chance(Math.max(0.12, 0.3 + (mob.tier - p.rankIdx) * 0.1))) { this.queue.push({ type: 'mobAmbush', mobId: mob.id }); stop = true; }
+    }
+    if (this.objAt(x, y)) stop = true;
+    return { stop, days, city };
   }
 
   // 매달 지도 위 게이트와 괴수 무리 갱신
@@ -360,7 +418,7 @@ class Game {
       if (k === 0) { const tpl = MONSTERS.find((t) => t.name === mob.name); if (tpl) { m.name = tpl.name; m.shape = tpl.shape; m.elem = tpl.elem; } }
       list.push(m);
     }
-    return list;
+    return this.scaleForParty(list, mob.tier);
   }
   finishMob(mob, result, kills, hpLeft, mpLeft) {
     const p = this.player;
@@ -423,7 +481,7 @@ class Game {
       const ev = this.pickStory();
       if (ev) this.queue.push(ev);
     }
-    this.save();
+    if (!opts.noSave) this.save();
   }
 
   gameOver(reason) {
@@ -451,17 +509,21 @@ class Game {
       guild: rankIdx >= 1 && RNG.chance(0.35) ? RNG.pick(guildIds) : null,
       lastTalk: -1, lastSpar: -1, met: false, isCompanion: false, death: null,
       links: {}, disciples: [], parents: [], partner: null, spouse: null, master: null, child: false,
+      cls: rollClass(),
     };
   }
 
   npcById(id) { return this.npcs.find((n) => n.id === id); }
   npcsHere() { return this.npcs.filter((n) => n.alive && !n.child && n.region === this.player.region); }
-  companion() { const id = this.player.companion; return id ? this.npcById(id) : null; }
+  party() { const p = this.player; return (p.party || []).map((id) => this.npcById(id)).filter((n) => n && n.alive); }
+  companion() { return this.party()[0] || null; }
+  partySize() { return 1 + this.party().length; }
+  syncParty() { for (const n of this.party()) n.region = this.player.region; }
   npcRankLabel(n) { return rankLabel(n.rankIdx, n.stage); }
 
   killNpc(n, cause, killer) {
     n.alive = false; n.death = { date: this.dateStr(), cause };
-    if (n.isCompanion) { n.isCompanion = false; this.player.companion = null; }
+    if (n.isCompanion) { n.isCompanion = false; if (this.player) this.player.party = (this.player.party || []).filter((x) => x !== n.id); }
     const p = this.player;
     if (p && p.partner === n.id) { p.partner = null; this.lifeEvent(`연인 ${n.name}을(를) 잃었다.`); }
     if (p && p.spouse === n.id) { p.spouse = null; this.lifeEvent(`배우자 ${n.name}을(를) 잃었다.`); }
@@ -600,7 +662,7 @@ class Game {
     this.advanceMonth(1, { eventChance: 0.1 });
     return msg + ' (명성 +2, 협회 공적 +3)';
   }
-  canRecruit(n) { return !n.isCompanion && n.relation >= 60 && !this.player.companion; }
+  canRecruit(n) { return !n.isCompanion && !n.child && n.relation >= 50 && this.party().length < 4; }
   recruit(id) {
     const n = this.npcById(id);
     if (!n || !this.canRecruit(n)) return '';
@@ -609,14 +671,14 @@ class Game {
       this.changeRel(n, -3);
       return `${n.name}: "아직은 네가 날 따라올 실력이 아닌 것 같아." (거절)`;
     }
-    n.isCompanion = true; p.companion = n.id; n.region = p.region;
-    this.log(`${n.name}이(가) 동료가 되었다.`, 'good');
-    return `${n.name}: "좋아, 함께 가자." 동료가 되었다!`;
+    n.isCompanion = true; (p.party ||= []).push(n.id); n.region = p.region;
+    this.log(`${n.name}이(가) 파티에 합류했다.`, 'good');
+    return `${n.name}: "좋아, 함께 가자." 파티에 합류했다!`;
   }
-  dismiss() {
-    const c = this.companion(); if (!c) return '';
-    c.isCompanion = false; this.player.companion = null;
-    this.log(`${c.name}와(과) 각자의 길을 가기로 했다.`);
+  dismiss(id) {
+    const p = this.player; const c = id != null ? this.npcById(id) : this.companion(); if (!c) return '';
+    c.isCompanion = false; p.party = (p.party || []).filter((x) => x !== c.id); c.merc = null;
+    this.log(`${c.name}이(가) 파티를 떠났다.`);
     return `${c.name}와(과) 헤어졌다.`;
   }
 
@@ -624,20 +686,32 @@ class Game {
   playerUnit() {
     const p = this.player;
     return {
-      id: 'player', name: p.name, side: 'ally', isPlayer: true,
+      id: 'player', name: p.name, side: 'ally', isPlayer: true, cls: p.cls, clsAdv: p.clsAdv,
       hp: p.hp, maxHp: p.maxHp, mp: p.mp, maxMp: p.maxMp, atk: p.atk, def: p.def, spd: p.spd, luck: p.luck,
       elem: p.element, skills: ['strike', ...p.equipSkills], affinity: p.element,
     };
   }
   npcUnit(n, side) {
-    const m = statMult(n.rankIdx, n.stage) * 1.15;
-    const skills = ['strike', ...SKILLS.filter((s) => s.elem === n.element && s.rankReq <= n.rankIdx).map((s) => s.id).slice(-3)];
+    const cls = n.cls || 'swordsman';
+    const adv = n.rankIdx >= 6 ? 2 : n.rankIdx >= 3 ? 1 : 0;
+    const m = statMult(n.rankIdx, n.stage) * 1.12;
+    const cm = (k) => 1 + this.classMod(cls, adv, k);
+    const skills = ['strike', ...SKILLS.filter((s) => s.cls === cls && s.rankReq <= n.rankIdx).map((s) => s.id), ...SKILLS.filter((s) => !s.cls && s.elem === n.element && s.rankReq <= n.rankIdx && s.price).map((s) => s.id).slice(-1)];
     return {
-      id: 'npc' + n.id, npcId: n.id, name: n.name, side,
-      hp: Math.round(100 * m), maxHp: Math.round(100 * m), mp: Math.round(50 * m), maxMp: Math.round(50 * m),
-      atk: Math.round(20 * m), def: Math.round(8 * m), spd: Math.round(10 * Math.sqrt(m)), luck: 10,
+      id: 'npc' + n.id, npcId: n.id, name: n.name, side, cls, clsAdv: adv, pers: n.personality,
+      hp: Math.round(100 * m * cm('hp')), maxHp: Math.round(100 * m * cm('hp')), mp: Math.round(50 * m * cm('mp')), maxMp: Math.round(50 * m * cm('mp')),
+      atk: Math.round(20 * m * cm('atk')), def: Math.round(8 * m * cm('def')), spd: Math.round(10 * Math.sqrt(m) * cm('spd')), luck: Math.round(10 * cm('luck')),
       elem: n.element, skills, affinity: n.element, rankText: this.npcRankLabel(n),
     };
+  }
+  // 파티 인원에 맞춰 적 규모를 키운다 (혼자면 그대로)
+  scaleForParty(list, tier) {
+    const n = this.partySize();
+    if (n <= 1) return list;
+    for (const e of list) { e.maxHp = e.hp = Math.round(e.hp * (1 + 0.28 * (n - 1))); e.atk = Math.round(e.atk * (1 + 0.05 * (n - 1))); }
+    const extra = n >= 4 ? 2 : n >= 2 ? 1 : 0;
+    for (let i = 0; i < extra && list.length < 6; i++) list.push(this.makeMonster(tier, false, list[0] && list[0].elem));
+    return list;
   }
   makeMonster(tier, boss, prefElem) {
     let pool = MONSTERS.filter((m) => Math.abs(m.tier - tier) <= 1);
@@ -679,7 +753,7 @@ class Game {
         const cnt = i === 0 ? RNG.int(1, 2) : RNG.int(2, 3);
         for (let k = 0; k < cnt; k++) enemies.push(this.makeMonster(gate.tier, false, gate.elem));
       }
-      rooms.push(enemies);
+      rooms.push(this.scaleForParty(enemies, gate.tier));
     }
     return rooms;
   }

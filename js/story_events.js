@@ -352,3 +352,78 @@ S({ id: 'arrive_npc_greet', trigger: 'city', npc: 'friendHere', text: '{city}에
     { text: '같이 밥을 먹는다', do: (g, c) => '국밥 한 그릇에 근황을 나눴다.' + g.gain({ rel: 6, hp: 0.2 }, c) },
     { text: '바빠서 다음에 보자고 한다', do: (g, c) => '"그래, 연락해!"' },
   ] });
+
+// ---------- 길 위에서 (이동 중 발생) ----------
+S({ id: 'road_merchant', trigger: 'road', text: '먼지를 뒤집어쓴 행상 트럭이 길가에 서 있다. "헌터 양반! 회복제 싸게 줄게, 코어도 사고!"',
+  choices: [
+    { text: '회복제를 산다', do: (g) => g.player.money >= 60 ? '시중가의 반값이었다.' + g.gain({ money: -60 / RANKS[g.player.rankIdx].mult, item: ['potion', 2] }) : '돈이 모자랐다.' },
+    { text: '코어를 넘긴다', do: (g) => { const t = g.player.rankIdx; const n = g.coreCount(t); if (!n) return '팔 코어가 없었다.'; g.player.mats['c' + t] = 0; return `${n}개를 넘겼다. 시세보다 조금 쳐줬다.` + g.gain({ money: 22 * n }); } },
+    { text: '그냥 지나간다', do: () => '트럭 확성기에서 트로트가 흘러나왔다.' },
+  ] });
+S({ id: 'road_hitchhiker', trigger: 'road', text: '배낭을 멘 청년이 엄지를 든다. "다음 도시까지만 같이 가요! 혼자 걷기 무서워서요."',
+  choices: [
+    { text: '함께 걷는다', do: (g) => g.roll(0.75) ? '수다스러운 청년이었다. 헤어지며 지도에 없는 샘 위치를 알려 줬다.' + (g.reveal(g.player.x, g.player.y, 7), '') + g.gain({ fame: 1 }) : '밤중에 청년이 짐을 뒤지다 들켜 도망쳤다. 각성자 강도였다.' + g.gain({ money: -80 }) },
+    { text: '거절한다', do: () => '청년은 실망한 얼굴로 다음 행인을 기다렸다.' },
+  ] });
+S({ id: 'road_checkpoint', trigger: 'road', minRank: 1, text: '길 한복판에 바리케이드. 완장 찬 사내들이 막아선다. "여긴 우리 구역이야. 통행세 내고 가."',
+  choices: [
+    { text: '통행세를 낸다', do: (g) => '지갑이 가벼워졌다.' + g.gain({ money: -60 }) },
+    { text: '뚫고 지나간다', do: (g) => { g.storyFight({ title: '불법 검문소', mobs: { tier: Math.max(0, g.player.rankIdx - 1), n: 3, human: true }, win: { text: '바리케이드가 무너졌다. 근처 주민들이 박수를 쳤다.', gain: { rep: 5, money: 80 } } }); return '사내들이 쇠파이프를 들었다.'; } },
+    { text: '돌아간다', do: (g) => { g.advanceDays(4, { noSave: true }); return '나흘을 돌아갔다.'; } },
+  ] });
+S({ id: 'road_bridge', trigger: 'road', text: '앞의 다리가 반쯤 무너져 있다. 아래는 에테르로 탁해진 강물. 우회로는 한참 돌아간다.',
+  choices: [
+    { text: '에테르를 발에 모아 뛰어넘는다', do: (g) => g.roll(0.5 + g.player.spd / 150) ? '가뿐히 건넜다.' + g.gain({ ether: 8 }) : '발을 헛디뎌 강물에 빠졌다. 겨우 기어 나왔다.' + g.gain({ hp: -0.35 }) },
+    { text: '우회한다', do: (g) => { g.advanceDays(5, { noSave: true }); return '닷새를 돌아갔다.'; } },
+    { text: '다리를 보수하고 간다', do: (g) => { g.advanceDays(3, { noSave: true }); return '사흘에 걸쳐 임시 다리를 놓았다. 뒤에 오는 사람들이 고마워할 것이다.' + g.gain({ rep: 4, fame: 2 }); } },
+  ] });
+S({ id: 'road_storm', trigger: 'road', text: '지평선 너머 보랏빛 벽이 다가온다. 에테르 폭풍이다. 바람에 섞인 빛가루가 피부를 따끔하게 찌른다.',
+  choices: [
+    { text: '폭풍을 정면으로 맞는다', do: (g) => g.roll(0.45) ? '폭풍의 에테르를 고스란히 흡수했다.' + g.gain({ ether: 40, hp: -0.2 }) : '폭풍에 휩쓸려 정신을 잃었다.' + g.gain({ hp: -0.5, injure: 1 }) },
+    { text: '폐건물에 숨는다', do: (g) => { g.advanceDays(3, { noSave: true }); return '사흘 뒤에야 폭풍이 지나갔다.'; } },
+  ] });
+S({ id: 'road_camp', trigger: 'road', text: '모닥불 연기가 보인다. 헌터 몇이 야영 중이다. "같이 불 쬐고 가요. 오늘 밤은 길어요."',
+  choices: [
+    { text: '하룻밤 신세 진다', do: (g) => '라면을 끓여 먹으며 근처 게이트 정보를 나눴다. 주변 지형이 머릿속에 그려졌다.' + (g.reveal(g.player.x, g.player.y, 8), '') + g.gain({ hp: 0.5 }) },
+    { text: '인사만 하고 간다', do: () => '불빛이 등 뒤로 멀어졌다.' },
+  ] });
+S({ id: 'road_wreck', trigger: 'road', text: '도로 옆 구덩이에 처박힌 협회 장갑차. 문이 뜯겨 있고, 안에 물자 상자가 보인다. 핏자국은 없다.',
+  choices: [
+    { text: '상자를 연다', do: (g) => { const r = RNG.next(); if (r < 0.5) return '응급 물자가 들어 있었다.' + g.gain({ item: ['potion', 2], item2: null }); if (r < 0.8) return '봉인된 코어 상자였다.' + g.gain({ core: [0, 3] }); g.storyFight({ title: '장갑차에 숨어 있던 것', mobs: { tier: g.player.rankIdx, n: 1, boss: true }, win: { text: '괴수를 쓰러뜨리자 차량 깊숙한 곳에서 유물이 나왔다.', gain: { relic: true } } }); return '상자가 꿈틀거렸다.'; } },
+    { text: '협회에 위치를 신고한다', do: (g) => '수거 팀이 고맙다고 했다.' + g.gain({ merit: 5 }) },
+  ] });
+S({ id: 'road_bandits', trigger: 'road', minRank: 1, text: '버려진 휴게소에서 복면을 쓴 각성자들이 튀어나온다. "가진 거 다 내놔. 코어도!"',
+  choices: [
+    { text: '싸운다', do: (g) => { g.storyFight({ title: '노상강도', mobs: { tier: g.player.rankIdx, n: 2, human: true }, win: { text: '강도들을 포박해 협회에 넘겼다. 현상금이 걸려 있던 놈들이었다.', gain: { money: 250, merit: 8 } }, lose: { text: '두들겨 맞고 지갑을 털렸다.', gain: { money: -200, injure: 1 } } }); return '먼저 움직였다.'; } },
+    { text: '돈을 내준다', do: (g) => '목숨값 치고는 싸다고 생각하기로 했다.' + g.gain({ money: -150 }) },
+  ] });
+S({ id: 'road_signal', trigger: 'road', text: '무전기에서 잡음 섞인 구조 신호가 들린다. "…여기 세 명… 고립… 게이트 균열이…" 좌표는 이 근처다.',
+  choices: [
+    { text: '신호를 따라간다', do: (g) => { if (g.roll(0.6)) { g.storyFight({ title: '고립된 헌터들을 포위한 괴수', mobs: { tier: g.player.rankIdx, n: 3 }, win: { text: '세 사람을 구해 냈다. 다들 당신 이름을 몇 번이고 되뇌었다.', gain: { fame: 8, merit: 8, rep: 5 } } }); return '괴수의 포효가 가까워진다.'; } return '도착했을 땐 아무도 없었다. 무전기만 덩그러니 남아 있었다.'; } },
+    { text: '협회에 전달만 한다', do: (g) => '구조대가 출동했다는 답이 왔다.' + g.gain({ merit: 2 }) },
+  ] });
+S({ id: 'road_shrine', trigger: 'road', field: true, text: '고갯마루에 오래된 서낭당이 있다. 오색 천이 바람에 날리고, 돌무더기 위에 동전과 코어 조각이 놓여 있다. 대붕괴 뒤에도 누군가 계속 찾아온 모양이다.',
+  choices: [
+    { text: '돌 하나를 얹고 빈다', do: (g) => { const p = g.player; p.buffs = p.buffs.filter((b) => b.stat !== 'luck'); p.buffs.push({ stat: 'luck', val: 1, until: g.monthKey() + 2, name: '서낭당의 가호' }); g.recalc(); return '마음이 차분해졌다. (3개월간 운 +10)'; } },
+    { text: '코어 조각을 슬쩍한다', do: (g) => g.roll(0.5) ? '아무 일도 없었다.' + g.gain({ core: [-1, 2] }) : '내려오는 길에 발목을 접질렸다. 우연일까.' + g.gain({ core: [-1, 2], hp: -0.3 }) },
+  ] });
+S({ id: 'road_view', trigger: 'road', field: true, text: '언덕 위에서 내려다보니 멀리 무너진 도시와 그 위로 걸린 게이트 몇 개가 보인다. 이상하게 아름답다.',
+  choices: [
+    { text: '잠시 앉아 쉬어 간다', do: (g) => '바람이 땀을 식혀 줬다.' + g.gain({ hp: 0.3 }) },
+    { text: '게이트 위치를 지도에 표시한다', do: (g) => '주변 지형이 한눈에 들어왔다.' + (g.reveal(g.player.x, g.player.y, 9), '') },
+  ] });
+S({ id: 'road_stray', trigger: 'road', text: '덤불 속에서 강아지만 한 새끼 괴수가 낑낑거린다. 다리를 다쳤다. 어미는 보이지 않는다.',
+  choices: [
+    { text: '다리를 치료해 준다', do: (g) => '새끼는 한참 당신을 따라오다 숲으로 사라졌다. 며칠 뒤 그 길엔 괴수가 얼씬도 하지 않았다.' + g.gain({ ether: 10 }) },
+    { text: '처치한다', do: (g) => '코어는 작았다. 뒷맛이 썼다.' + g.gain({ core: [-1, 1] }) },
+    { text: '그냥 둔다', do: () => '낑낑거리는 소리가 오래 따라왔다.' },
+  ] });
+
+// 길에서 아는 사람을 만났을 때 (시스템 호출)
+S({ id: 'road_meet', trigger: 'system', npc: 'here', text: (g, c) => c.npc && c.npc.met ? '길 위에서 {npc}와(과) 마주쳤다. "어? 여기서 다 보네!"' : '길 위에서 낯선 각성자와 마주쳤다. 등급표를 보니 {npc}. 서로 경계하며 걸음을 멈췄다.',
+  choices: [
+    { text: '인사를 나눈다', do: (g, c) => (c.npc.personality === 'cold' ? '{npc}은(는) 고개만 까딱했다.' : '짧게 근황을 나눴다.') + g.gain({ rel: c.npc.personality === 'cold' ? 1 : 4 }, c) },
+    { text: '같은 방향이면 함께 걷는다', do: (g, c) => { g.advanceDays(2, { noSave: true }); return '이틀을 함께 걸었다. 길이 짧게 느껴졌다.' + g.gain({ rel: 9 }, c); } },
+    { text: '대련을 청한다', when: (g, c) => c.npc.lastSpar !== g.monthKey(), do: (g, c) => { g.queue.unshift({ type: 'spar', npcId: c.npc.id }); return '"좋지!"'; } },
+    { text: '모른 척 지나간다', do: () => '발소리가 멀어졌다.' },
+  ] });

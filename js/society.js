@@ -14,9 +14,64 @@ Object.assign(Game.prototype, {
     p.buffs ??= []; p.visited ??= [p.region]; p.quests ??= []; p.disciples ??= [];
     p.partner ??= null; p.spouse ??= null; p.master ??= null; p.lifeEvents ??= [];
     p.tavern ??= {}; p.ambition ??= 'free'; p.achieved ??= [];
+    p.cls ??= 'swordsman'; p.clsAdv ??= 0; p.party ??= [];
+    if (p.companion) { if (!p.party.includes(p.companion)) p.party.push(p.companion); p.companion = null; }
     this.world ??= { breaks: [], boards: {}, auctions: {}, lastTournament: 0, archives: {} };
     this.flags.chains ??= {}; this.flags.chainAt ??= {}; this.flags.seen ??= {}; this.flags.story ??= {};
-    for (const n of this.npcs) { n.links ??= {}; n.disciples ??= []; n.parents ??= []; }
+    for (const n of this.npcs) { n.links ??= {}; n.disciples ??= []; n.parents ??= []; n.cls ??= rollClass(); }
+  },
+
+  // ---------- 용병 사무소 ----------
+  mercsFor(regionId) {
+    const key = this.monthKey(); this.world.mercs ??= {};
+    let m = this.world.mercs[regionId];
+    if (!m || m.key !== key) {
+      const list = [];
+      const pr = this.player.rankIdx;
+      const groups = Object.keys(CLASS_GROUPS).filter((g) => g !== 'hidden').sort(() => Math.random() - 0.5).slice(0, 4);
+      for (let i = 0; i < 4; i++) {
+        const n = this.makeNpc(false);
+        const pool = CLASSES.filter((c) => c.g === groups[i] && c.r < 3); n.cls = RNG.pick(pool).id;
+        n.rankIdx = Math.max(0, Math.min(7, pr + RNG.int(-1, 0))); n.stage = RNG.int(0, 2);
+        n.ageMonths = (22 + n.rankIdx * 4 + RNG.int(0, 10)) * 12; n.region = regionId; n.hireable = true; n.personality = RNG.pick(['kind', 'greedy', 'cold', 'just']);
+        list.push(n);
+      }
+      m = this.world.mercs[regionId] = { key, list };
+    }
+    return m.list;
+  },
+  mercFee(n) { return Math.round(180 * RANKS[n.rankIdx].mult ** 1.6 * (classById(n.cls).r + 1) ** 0.5); },
+  hireMerc(regionId, idx) {
+    const p = this.player; const list = this.mercsFor(regionId); const n = list[idx];
+    if (!n || n.hired) return '';
+    if (this.party().length >= 4) return '파티는 최대 5명이다.';
+    const fee = this.mercFee(n);
+    if (p.money < fee) return '크레딧이 부족하다.';
+    p.money -= fee; n.hired = true; n.hireable = false;
+    n.met = true; n.relation = 10; n.isCompanion = true; n.merc = { until: this.monthKey() + 3 };
+    n.links ??= {}; n.disciples ??= []; n.parents ??= [];
+    this.npcs.push(n); p.party.push(n.id);
+    return `${n.name}(${className(n.cls)})을(를) 3개월 계약으로 고용했다.`;
+  },
+  expireMercs() {
+    const mk = this.monthKey();
+    for (const n of this.party()) {
+      if (n.merc && mk >= n.merc.until) {
+        if (n.relation >= 40) { n.merc = null; this.log(`계약이 끝났지만 ${n.name}은(는) 남기로 했다. "돈 때문만은 아니었으니까."`, 'good'); }
+        else { this.dismiss(n.id); this.log(`${n.name}의 용병 계약이 끝났다.`); }
+      }
+    }
+  },
+  // 쓰러진 파티원은 낮은 확률로 목숨을 잃는다
+  partyCasualties(units) {
+    const lost = [];
+    for (const u of units) {
+      if (!u.npcId || u.alive) continue;
+      const n = this.npcById(u.npcId);
+      if (u.fled) { if (n) { this.changeRel(n, -6); this.log(`${n.name}은(는) 전투 중 달아났다. 서로 어색해졌다.`, 'bad'); } continue; }
+      if (n && RNG.chance(0.08)) { this.killNpc(n, '전투 중 전사'); lost.push(n.name); this.lifeEvent(`동료 ${n.name}이(가) 전투에서 쓰러져 돌아오지 못했다.`); }
+    }
+    return lost;
   },
 
   lifeEvent(text) {
@@ -209,7 +264,7 @@ Object.assign(Game.prototype, {
     p.money -= c;
     [p.x, p.y] = WORLD.cityPos[regionId];
     p.region = regionId; this.reveal(p.x, p.y, 5);
-    const comp = this.companion(); if (comp) comp.region = regionId;
+    this.syncParty();
     this.advanceDays(2, { eventChance: 0.05 });
     return `고속 이동망으로 ${regionById(regionId).name}에 도착했다.`;
   },
@@ -444,8 +499,9 @@ Object.assign(Game.prototype, {
     }
     if (this.month === SAGA.tournamentMonth - 1 && this.year % SAGA.tournamentEvery === 0) this.rumor(`다음 달 ${regionById(SAGA.tournamentCity).name}에서 전국 헌터 대회가 열린다.`);
     if (this.month === SAGA.auctionMonth - 1) this.rumor('다음 달 강남·부산·대구 경매장에서 정기 경매가 열린다.');
-    // 버프 만료
+    // 버프 만료, 용병 계약
     p.buffs = p.buffs.filter((b) => b.until >= mk);
+    this.expireMercs();
     this.expireQuests();
     // 목표 달성 확인
     this.checkAmbition();

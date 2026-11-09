@@ -385,3 +385,40 @@ p { margin: 6px 0; }
   .fac-tile .small { display: none; }
   .story-portrait .portrait, .story-portrait .portrait-img { width: 96px !important; height: auto; }
 }
+
+/* ---------- 직업, 파티 ---------- */
+.tag.cls { color: var(--c); border-color: color-mix(in srgb, var(--c) 45%, transparent); }
+.tag.tiny { font-size: 10.5px; padding: 0 5px; }
+.tag.rar { font-family: var(--font-num); }
+.tag.rar.r1 { color: #6fb8ff; border-color: #6fb8ff66; }
+.tag.rar.r2 { color: #c58cff; border-color: #c58cff66; }
+.tag.rar.r3 { color: var(--bad); border-color: #ff5a6e66; }
+.cls-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.cls-choice { border-left: 3px solid var(--c); gap: 4px; }
+.cls-choice.sel { border-color: var(--c); background: color-mix(in srgb, var(--c) 12%, #0c121b); box-shadow: inset 0 0 0 1px var(--c); }
+.party-row { background: transparent; border: 0; padding: 2px 0 0; gap: 4px; justify-content: flex-start; }
+.party-row .pm { display: inline-flex; }
+.empty-slot { border-style: dashed; opacity: .6; }
+.allies { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 6px; }
+.ally { flex: none; padding: 6px 8px; gap: 8px; }
+.ally.me { border-left-color: var(--amber); }
+.ally.summon { border-left-color: #c58cff; opacity: .95; }
+.ally .tag.cls { margin: 2px 0; display: inline-block; }
+.status { display: inline-flex; gap: 2px; flex-wrap: wrap; justify-content: flex-end; }
+.float-num.skill { font-family: var(--font-body); font-size: 13px; color: var(--amber); top: -6px; font-weight: 700; }
+.float-num.say { font-family: var(--font-body); font-size: 12.5px; font-weight: 600; color: #fff; background: rgba(10, 15, 23, .92); border: 1px solid var(--line-hi); border-radius: 10px; padding: 2px 8px; top: -18px; text-shadow: none; animation-duration: 1.6s; }
+.foe.summoned { width: 100px; }
+@media (max-width: 640px) {
+  .allies { grid-template-columns: 1fr 1fr; gap: 4px; }
+  .ally { padding: 4px 6px; gap: 6px; }
+  .ally .fx-host .avatar, .ally .fx-host svg { width: 30px; height: 30px; }
+  .ally b { font-size: 12.5px; }
+  .ally .tag.cls, .ally .mp-t, .ally .bar.mp { display: none; }
+  .ally .hp-t { font-size: 10.5px; }
+  .foes { min-height: 110px; gap: 4px 8px; }
+  .foe { width: 84px; }
+  .foe .sprite svg { width: 64px; height: 64px; }
+  .foe.boss .sprite svg { width: 92px; height: 92px; }
+  .clog { height: 64px; }
+  .skill-btns { grid-template-columns: 1fr 1fr; }
+}

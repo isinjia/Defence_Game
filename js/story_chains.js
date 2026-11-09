@@ -22,7 +22,7 @@ S({ id: 'cult_2', chain: 'cult', step: 2, text: '보름이 다가온다. 의식 
 S({ id: 'cult_3', chain: 'cult', step: 3, gap: 3, minRank: 2, text: '무명에게서 직접 연락이 왔다. 가면을 벗은 그는 대붕괴 당시 관리국 수석 연구원이었다. "게이트는 재앙이 아니야. 진화의 문이다. 정부는 그걸 독점하려고 거짓말을 했지. 마지막 의식을 함께하자. 아니면 막아 보든가."',
   choices: [
     { text: '그를 막는다', do: (g) => { g.storyFight({ title: '균열교 교주 무명', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true, human: true, elem: 'spirit', name: '[교주] 무명' }, win: { text: '무명이 무릎을 꿇었다. "…그래도 문은 언젠가 열린다." 그가 남긴 수첩에는 제주에 관한 메모가 빼곡했다.', gain: { fame: 30, merit: 30, relic: 2 }, life: '균열교 교주 무명을 쓰러뜨렸다.', chainEnd: 'cult' } }); return '무명이 손을 펼치자 공간이 찢어졌다.'; } },
-    { text: '그의 사도가 된다', when: (g) => g.flags.story.cultist, do: (g) => { g.chainEnd('cult'); g.flags.story.apostle = true; g.lifeEvent('균열교의 사도가 되었다.'); g.rumor(`충격: 유명 헌터 ${g.player.name}, 균열교 사도로 활동 정황.`); return '무명이 당신 이마에 손을 얹었다. 금지된 지식이 흘러들었다. 세상의 시선은 차가워졌다.' + g.gain({ relic: 3, ether: 200, fame: -60, merit: -60 }); } },
+    { text: '그의 사도가 된다', when: (g) => g.flags.story.cultist, do: (g) => { g.chainEnd('cult'); g.flags.story.apostle = true; g.lifeEvent('균열교의 사도가 되었다.'); g.rumor(`충격: 유명 헌터 ${g.player.name}, 균열교 사도로 활동 정황.`); g.setClass('apostle', '히든 직업 각성'); return '무명이 당신 이마에 손을 얹었다. 금지된 지식이 흘러들었다. 히든 직업 [심연의 사도]. 세상의 시선은 차가워졌다.' + g.gain({ relic: 3, ether: 200, fame: -60, merit: -60 }); } },
     { text: '외면한다', do: (g) => { g.chainEnd('cult'); g.rumor('균열교가 다시 활동을 시작했다는 제보가 이어진다.'); return '전화를 끊었다. 그 뒤로 균열교 소식은 뉴스에서만 들었다.'; } },
   ] });
 
@@ -67,8 +67,8 @@ S({ id: 'voice_3', chain: 'voice', step: 3, minRank: 5, gap: 3, text: '제주 �
   choices: [{ text: '노인의 말을 새긴다', do: (g) => { g.chainNext('voice'); return '문 너머에도 누군가 있다.' + g.gain({ ether: 60 }); } }] });
 S({ id: 'voice_4', chain: 'voice', step: 4, region: 'jeju', minRank: 6, text: '한라산 정상, 원초의 게이트 앞. 꿈속의 목소리가 이번엔 또렷하다. "너는 열쇠다. 문을 닫으면 저편의 우리도 끝난다. 문을 열어 두면 이편의 너희가 끝난다. 선택해."',
   choices: [
-    { text: '"닫겠다"', do: (g) => { g.flags.story.voiceEnd = 'seal'; g.chainEnd('voice'); g.player.relicBonus.atk = (g.player.relicBonus.atk || 0) + 0.15; g.recalc(); return '목소리가 슬프게 웃었다. "…고마워. 우리도 그걸 원했어." 문의 약점이 보이기 시작했다. (공격 영구 +15%)'; } },
-    { text: '"함께 사는 길은 없나"', do: (g) => { g.flags.story.voiceEnd = 'bridge'; g.chainEnd('voice'); g.player.relicBonus.def = (g.player.relicBonus.def || 0) + 0.15; g.recalc(); return '긴 침묵. "…그런 질문을 한 건 네가 처음이야." 문이 조금 잦아들었다. (방어 영구 +15%)'; } },
+    { text: '"닫겠다"', do: (g) => { g.flags.story.voiceEnd = 'seal'; g.chainEnd('voice'); g.setClass('gatekeeper', '히든 직업 각성'); g.player.relicBonus.atk = (g.player.relicBonus.atk || 0) + 0.15; g.recalc(); return '목소리가 슬프게 웃었다. "…고마워. 우리도 그걸 원했어." 문의 약점이 보이기 시작했다. (공격 영구 +15%)'; } },
+    { text: '"함께 사는 길은 없나"', do: (g) => { g.flags.story.voiceEnd = 'bridge'; g.chainEnd('voice'); g.setClass('gatekeeper', '히든 직업 각성'); g.player.relicBonus.def = (g.player.relicBonus.def || 0) + 0.15; g.recalc(); return '긴 침묵. "…그런 질문을 한 건 네가 처음이야." 문이 조금 잦아들었다. (방어 영구 +15%)'; } },
   ] });
 
 // ===== 4. 피험자 7번 (연구소 실험체 출신) =====
@@ -84,7 +84,7 @@ S({ id: 'sub_2', chain: 'subject', step: 2, minRank: 2, text: '좌표는 울산 
 S({ id: 'sub_3', chain: 'subject', step: 3, text: '실험의 책임자가 화상 통화를 걸어 왔다. "12번, 너는 우리 최고의 성공작이야. 돌아오면 S급까지 보장하지. 수명도."',
   choices: [
     { text: '모든 걸 폭로한다', do: (g) => { g.chainEnd('subject'); g.lifeEvent('강제 각성 실험을 세상에 알렸다.'); g.rumor('관리국 강제 각성 실험 폭로 파문. 책임자 긴급 체포.'); return '책임자는 체포됐다. 당신의 과거도 뉴스에 실렸지만, 후회는 없다.' + g.gain({ fame: 40, talent: 1 }); } },
-    { text: '거래에 응한다', do: (g) => { g.chainEnd('subject'); g.lifeEvent('연구소와 다시 손을 잡았다.'); return '주사 한 방. 몸속 에테르 회로가 다시 짜였다.' + g.gain({ catalyst: 1, life: 6, fame: -15 }); } },
+    { text: '거래에 응한다', do: (g) => { g.chainEnd('subject'); g.lifeEvent('연구소와 다시 손을 잡았다.'); g.setClass('heir', '히든 직업 각성'); return '주사 한 방. 몸속 에테르 회로가 다시 짜였다. 히든 직업 [대붕괴의 아이].' + g.gain({ catalyst: 1, life: 6, fame: -15 }); } },
   ] });
 
 // ===== 5. 포차 사장님 =====
@@ -98,7 +98,10 @@ S({ id: 'pocha_2', chain: 'pocha', step: 2, gap: 2, minRank: 2, text: '긴급 �
     { text: '그의 선택을 존중한다', do: (g) => { g.chainEnd('pocha'); g.rumor('은퇴한 1세대 S급 \'흑염\', 백골룡과 동귀어진.'); return '며칠 뒤, 포차 자리에 꽃이 쌓였다.'; } },
   ] });
 S({ id: 'pocha_3', chain: 'pocha', step: 3, trigger: 'city', text: '포차가 다시 문을 열었다. 흑염이 낡은 검집을 내민다. "나는 이제 진짜 은퇴다. 이건 네가 써. 그리고… 내 기술도 좀 가르쳐 줄게."',
-  choices: [{ text: '두 손으로 받는다', do: (g) => { g.chainEnd('pocha'); g.lifeEvent('1세대 S급 흑염의 검을 물려받았다.'); return '흑염의 검과 기술을 이어받았다.' + g.gain({ skill: true, relic: 3, equip: 1 }); } }] });
+  choices: [
+    { text: '두 손으로 받는다', do: (g) => { g.chainEnd('pocha'); g.lifeEvent('1세대 S급 흑염의 검을 물려받았다.'); g.setClass('blackflame', '히든 직업 각성'); return '검을 쥐는 순간 검은 불꽃이 손목을 타고 올랐다. 히든 직업 [흑염검사]에 각성했다.' + g.gain({ relic: 3, equip: 1 }); } },
+    { text: '검만 받고 내 길을 간다', do: (g) => { g.chainEnd('pocha'); g.lifeEvent('1세대 S급 흑염의 검을 물려받았다.'); return '"그래, 네 방식대로 가라." 흑염이 웃었다.' + g.gain({ skill: true, relic: 3, equip: 1 }); } },
+  ] });
 
 // ===== 6. 고철 드론 누리 =====
 S({ id: 'nuri_0', chain: 'nuri', step: 0, field: true, text: '폐허 더미 속에서 손바닥만 한 드론이 깜빡인다. 스피커에서 갈라진 소리가 난다. "도…와…줘…"',
@@ -116,7 +119,7 @@ S({ id: 'nuri_2', chain: 'nuri', step: 2, gap: 2, text: '누리가 말을 꽤 �
 S({ id: 'nuri_3', chain: 'nuri', step: 3, gap: 4, minRank: 3, text: '누리가 처음으로 망설이며 말한다. "기억이 돌아왔어. 나는 게이트 너머에서 온 탐사기야. 저편 사람들이 이쪽을 이해하려고 보냈어. 이제… 돌아가서 보고해야 해."',
   choices: [
     { text: '돌려보낸다', do: (g) => { g.chainEnd('nuri'); g.lifeEvent('누리를 게이트 너머로 돌려보냈다.'); return '누리는 마지막으로 당신 뺨에 부딪혔다. "인간은 싸우지만, 너 같은 인간도 있다고 말할게." 남은 자리에 빛나는 결정이 떨어져 있었다.' + g.gain({ relic: 3 }); } },
-    { text: '"남아 줘"', do: (g) => { g.chainEnd('nuri'); g.player.relicBonus.train = (g.player.relicBonus.train || 0) + 0.08; g.recalc(); g.lifeEvent('누리가 곁에 남기로 했다.'); return '누리는 오래 깜빡이다 대답했다. "…응. 보고서는 천천히 써도 되겠지." (수련 효율 영구 +8%)'; } },
+    { text: '"남아 줘"', do: (g) => { g.chainEnd('nuri'); g.player.relicBonus.train = (g.player.relicBonus.train || 0) + 0.08; g.recalc(); g.lifeEvent('누리가 곁에 남기로 했다.'); g.setClass('machinist', '히든 직업 각성'); return '히든 직업 [기계 교감자]에 각성했다. ' + '누리는 오래 깜빡이다 대답했다. "…응. 보고서는 천천히 써도 되겠지." (수련 효율 영구 +8%)'; } },
   ] });
 
 // ===== 7. 부산 암시장 =====
@@ -171,3 +174,12 @@ S({ id: 'ambition_done', trigger: 'system', text: '평생 품어 온 목표를 �
     { text: '새로운 목표를 찾는다', do: (g) => { g.player.ambition = 'free'; return '목표가 사라지자 오히려 자유로워졌다.' + g.gain({ ether: 50 }); } },
     { text: '이룬 것을 지키며 산다', do: (g) => '지금 이대로도 충분하다.' + g.gain({ life: 2 }) },
   ] });
+
+// ===== 전직 시험 (C급, S급 도달 시) =====
+S({ id: 'class_advance', trigger: 'system', text: (g) => { const p = g.player; const next = classById(p.cls).adv[p.clsAdv] || classById(p.cls).adv[1]; return `협회 본부에서 통지가 왔다. "${RANKS[p.rankIdx].key}급 도달을 축하합니다. [${className(p.cls, p.clsAdv)}] 계열 전직 시험 자격이 주어졌습니다. 합격 시 [${next}] 칭호가 부여됩니다."\n\n시험관은 같은 계열의 현역 헌터다. 실전 형식이다.`; },
+  choices: [
+    { text: '시험에 응한다', do: (g) => { const p = g.player; g.storyFight({ title: '전직 시험', mobs: { tier: p.rankIdx, n: 1, boss: true, human: true, name: '[시험관] 협회 수석 헌터' }, spar: true, win: { text: '시험관이 검을 거두며 고개를 끄덕였다. "합격."', after: (gg) => { gg.player.clsAdv = Math.min(2, gg.player.clsAdv + 1); gg.recalc(); gg.lifeEvent(`전직 시험에 합격해 [${className(gg.player.cls, gg.player.clsAdv)}]이(가) 되었다.`); } }, lose: { text: '불합격. 다음 기회에 다시 도전할 수 있다.', gain: {}, after: (gg) => gg.queue.push({ type: 'story', id: 'class_advance_retry' }) } }); return '시험장 문이 열렸다.'; } },
+    { text: '나중에 응시한다', do: (g) => { g.flags.story.advPending = true; return '협회 의뢰소에서 언제든 응시할 수 있다.'; } },
+  ] });
+S({ id: 'class_advance_retry', trigger: 'month', when: (g) => { const p = g.player; return (p.rankIdx >= 3 && p.clsAdv < 1) || (p.rankIdx >= 6 && p.clsAdv < 2); }, weight: 3, text: '협회에서 전직 시험 재응시 안내가 왔다.',
+  choices: [{ text: '다시 도전한다', do: (g) => { g.queue.unshift({ type: 'story', id: 'class_advance' }); return '마음을 다잡았다.'; } }, { text: '아직 아니다', do: () => '조금 더 단련하기로 했다.' }] });

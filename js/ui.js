@@ -6,7 +6,7 @@ const $modal = document.getElementById('modal');
 const $box = document.getElementById('modal-box');
 const $toast = document.getElementById('toast');
 
-const TYPE_NAME = { dmg: '단일', aoe: '전체', heal: '회복', buff: '강화', shield: '방어' };
+const TYPE_NAME = { dmg: '단일', aoe: '전체', heal: '회복', buff: '강화', shield: '방어', crit: '치명', pierce: '관통', multi: '연타', dot: '중독', stun: '기절', drain: '흡혈', debuff: '약화', taunt: '도발', shield_all: '파티 방어', buff_all: '파티 강화', heal_ally: '아군 치유', heal_all: '전체 치유', revive: '부활', summon: '소환', evade: '회피' };
 
 const UI = {
   screen: 'title',
@@ -32,6 +32,7 @@ const UI = {
   modalOpen() { return !$modal.classList.contains('hidden'); },
   bar(cls, v, max) { const w = max > 0 ? Math.max(0, Math.min(100, (v / max) * 100)) : 0; return `<div class="bar ${cls}"><i style="width:${w}%"></i></div>`; },
   elemTag(e) { if (!e) return '<span class="tag">무속성</span>'; const E = ELEMENTS[e]; return `<span class="tag el" style="--c:${E.color}">${FX.elemIcon(e, 12)} ${E.name}</span>`; },
+  clsTag(cls, adv = 0) { const c = classById(cls); const g = CLASS_GROUPS[c.g]; return `<span class="tag cls" style="--c:${g.color}">${className(cls, adv)}</span>`; },
   rankTag(r, s) { const R = RANKS[r]; return `<span class="tag rank" style="--c:${R.color}">${s == null ? R.key + '급' : rankLabel(r, s)}</span>`; },
   rift(tier) { return `<span class="rift" style="--c:${RANKS[tier].color}" aria-hidden="true"><i></i></span>`; },
   slotIcon(slot, color) {
@@ -103,6 +104,9 @@ const UI = {
     }
     c.talent = RNG.int(2, 8);
     c.rolls--;
+    const seen = new Set(); c.classes = [];
+    while (c.classes.length < 3) { const id = rollClass(); if (!seen.has(id)) { seen.add(id); c.classes.push(id); } }
+    c.cls = c.classes[0];
   },
   startCreate() {
     this.create = { name: '', gender: 'M', bg: 'student', element: 'fire', rolls: 6, look: Math.random().toString(36).slice(2), ambition: 'apex' };
@@ -128,7 +132,7 @@ const UI = {
               <div class="id-info">
                 <div class="id-name">${c.name || '이름 미기재'}</div>
                 <div class="dim">${BACKGROUNDS.find((b) => b.id === c.bg).name}</div>
-                <div>${this.elemTag(c.element)}</div>
+                <div>${this.elemTag(c.element)} ${this.clsTag(c.cls)}</div>
                 <div class="id-rank" style="--c:${RANKS[0].color}">F</div>
               </div>
             </div>
@@ -152,6 +156,13 @@ const UI = {
             <div class="choice-grid elems">${ELEMENT_KEYS.map((k) => { const E = ELEMENTS[k]; const sk = SKILLS.find((s) => s.elem === k && s.rankReq === 0); return `
               <button class="choice elem-choice ${c.element === k ? 'sel' : ''}" style="--c:${E.color}" data-act="c-elem" data-v="${k}">${FX.elemIcon(k, 26)}<b>${E.name}</b><span class="dim small">${sk.name}<br>${ELEMENTS[E.counter].name}에 강함</span></button>`; }).join('')}
             </div></div>
+          <div class="sec"><div class="row between"><div class="sec-title">각성 판정 · 직업 후보</div><span class="small dim">다시 측정하면 직업 후보도 바뀐다</span></div>
+            <div class="choice-grid cls-grid">${c.classes.map((id) => { const k = classById(id); const g = CLASS_GROUPS[k.g]; return `
+              <button class="choice cls-choice ${c.cls === id ? 'sel' : ''}" style="--c:${g.color}" data-act="c-cls" data-v="${id}">
+                <span class="row between"><b>${k.name}</b><span class="tag rar r${k.r}">${CLASS_RARITY[k.r]}</span></span>
+                <span class="small" style="color:${g.color}">${g.name} · 전직 ${k.adv.join(' → ')}</span>
+                <span class="dim small">${k.desc}</span>
+                <span class="small">${k.skills.map((x) => x[0]).join(' · ')}</span></button>`; }).join('')}</div></div>
           <div class="sec"><div class="sec-title">인생 목표 · 언제든 바뀔 수 있다</div>
             <div class="choice-grid">${AMBITIONS.map((a) => `<button class="choice ${c.ambition === a.id ? 'sel' : ''}" data-act="c-amb" data-v="${a.id}"><b>${a.name}</b><span class="dim small">${a.desc}</span></button>`).join('')}</div></div>
           <div class="sec"><div class="row between"><div class="sec-title">선천 자질</div><button class="ghost" data-act="c-roll" ${c.rolls <= 0 ? 'disabled' : ''}>다시 측정 · ${c.rolls}회</button></div>
@@ -209,6 +220,7 @@ const UI = {
     return [
       item('char', '정보', ic('<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>')),
       item('skills', '스킬', ic('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>')),
+      item('party', '파티', ic('<circle cx="7" cy="9" r="3"/><circle cx="17" cy="9" r="3"/><circle cx="12" cy="6" r="3"/><path d="M2 20c.8-3 2.6-4.5 5-4.5M22 20c-.8-3-2.6-4.5-5-4.5M7 20c.8-3.5 2.6-5 5-5s4.2 1.5 5 5"/>')),
       item('people', '인물', ic('<circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c1-3.5 3.5-5 7-5s6 1.5 7 5M15 15c3 0 5 1.5 6 4"/>')),
       item('guild', '길드', ic('<path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6z"/>')),
       item('quest', '의뢰', ic('<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/>')),
@@ -252,14 +264,15 @@ const UI = {
     const left = G.maxLife() - G.ageYears();
     return `<div class="card-portrait" style="--rc:${R.color}">${this.playerAvatar(78)}<span class="card-rank" style="--c:${R.color}"><b>${R.key}</b></span></div>
       <div class="card-body">
-        <div class="card-name"><b>${p.name}</b> <span class="small dim">${rankLabel(p.rankIdx, p.stage)}</span> ${FX.elemIcon(p.element, 13)}</div>
+        <div class="card-name"><b>${p.name}</b> <span class="small dim">${rankLabel(p.rankIdx, p.stage)} · ${className(p.cls, p.clsAdv)}</span> ${FX.elemIcon(p.element, 13)}</div>
         <div class="card-date num">${G.fullDate()} · <span class="${left <= 5 ? 'bad' : ''}">${G.ageYears()}세 / ${G.maxLife()}</span></div>
         <div class="card-bars">
           <div class="cb"><span>체력</span>${this.bar('hp', p.hp, p.maxHp)}<span class="num">${fmt(p.hp)}/${fmt(p.maxHp)}</span></div>
           <div class="cb"><span>정신</span>${this.bar('mp', p.mp, p.maxMp)}<span class="num">${fmt(p.mp)}/${fmt(p.maxMp)}</span></div>
           <div class="cb"><span>에테르</span>${this.bar('ether', p.ether, req)}<span class="num">${fmt(p.ether)}/${fmt(req)}</span></div>
         </div>
-        <div class="card-res num"><span class="amber">${FX.icon('coin', 13)} ${fmt(p.money)}</span><span>${FX.icon('star', 13)} ${fmt(p.fame)}</span>${p.injured > 0 ? `<span class="bad">부상 ${p.injured}개월</span>` : ''}${p.companion ? `<span>동료 ${G.companion().name}</span>` : ''}</div>
+        <div class="card-res num"><span class="amber">${FX.icon('coin', 13)} ${fmt(p.money)}</span><span>${FX.icon('star', 13)} ${fmt(p.fame)}</span>${p.injured > 0 ? `<span class="bad">부상 ${p.injured}개월</span>` : ''}</div>
+        ${G.party().length ? `<button class="party-row" data-act="sheet" data-v="party">${G.party().map((n) => `<span class="pm" title="${n.name} · ${className(n.cls)}">${this.npcAvatar(n, 26)}</span>`).join('')}<span class="small dim">파티 ${G.partySize()}/5</span></button>` : ''}
       </div>`;
   },
 
@@ -324,25 +337,71 @@ const UI = {
   },
 
   onTap(x, y) {
+    // 걷는 중에 누르면 다음 칸에서 멈춘다
+    if (this.walking) { this.walking.stop = true; this.toast('다음 칸에서 멈춘다.'); return; }
     if (this.ctx || this.modalOpen() || !this.map || this.map.moving || G.over) return;
-    const p = G.player; const rd = this.map.reachData; const i = WORLD.idx(x, y);
+    const rd = this.map.reachData; const i = WORLD.idx(x, y);
     this.hideTip();
-    if (rd && rd.dist.has(i) && i !== rd.start) {
-      const path = WORLD.pathTo(rd, i); const cost = rd.dist.get(i);
-      this.map.animatePath(path, () => {
-        const days = G.moveAlong(path, cost);
-        this.renderGame();
-        const obj = G.objAt(p.x, p.y);
-        if (G.onCity() && RNG.chance(0.35)) { const ev = G.pickStory('city'); if (ev) G.queue.push(ev); }
-        if (G.queue.length) return this.processQueue();
-        if (obj) return this.encounter(obj);
-        if (G.onCity()) return this.openCity();
-        if (this.npcsAt(p.x, p.y).length) this.showTip(p.x, p.y);
-        if (days) this.toast(`${days}일이 흘렀다.`);
-      });
-      return;
-    }
+    if (rd && rd.dist.has(i) && i !== rd.start) return this.walk(WORLD.pathTo(rd, i).slice(1));
     this.showTip(x, y);
+  },
+
+  // 한 칸씩 걸으며 시간이 흐르고, 길 위에서 일이 생기면 멈춘다
+  walk(steps) {
+    const w = this.walking = { steps, i: 0, stop: false, days: 0 };
+    this.map.walkPath = steps.slice();
+    const next = () => {
+      if (this.walking !== w) return;
+      if (w.stop || w.i >= w.steps.length || G.over) return this.endWalk();
+      const p = G.player;
+      const from = [p.x, p.y]; const to = WORLD.xy(w.steps[w.i++]);
+      const diag = from[0] !== to[0] && from[1] !== to[1];
+      const ms = FX.reduced ? 0 : (WORLD.type(to[0], to[1]) === WORLD.T.MOUNTAIN ? 330 : 210) * (diag ? 1.25 : 1);
+      this.map.walkPath = w.steps.slice(w.i);
+      this.map.tween(from, to, ms, () => {
+        if (this.walking !== w) return;
+        const res = G.walkStep(to[0], to[1], diag);
+        w.days += res.days;
+        let stop = res.stop;
+        // 길에서 다른 각성자와 마주침
+        if (!stop) {
+          const ns = this.npcsAt(to[0], to[1]).filter((n) => n.region === G.player.region);
+          if (ns.length && RNG.chance(0.45)) {
+            const n = ns[0];
+            G.queue.push(n.nemesis === 'player' || (n.relation <= -30 && RNG.chance(0.6)) ? { type: 'ambush', npcId: n.id } : { type: 'story', id: 'road_meet', npc: n.id });
+            stop = true;
+          }
+        }
+        this.renderHud();
+        if (stop) w.stop = true;
+        next();
+      });
+    };
+    next();
+  },
+  endWalk() {
+    const w = this.walking; this.walking = null;
+    this.map.walkPath = null; this.map.token = null; this.map.moving = false;
+    const p = G.player;
+    G.save();
+    this.renderGame();
+    if (w && w.days) this.toast(`${w.days}일 동안 걸었다.${w.i < w.steps.length && !G.over ? ' 걸음을 멈췄다.' : ''}`);
+    if (G.over || G.queue.length) return this.processQueue();
+    const obj = G.objAt(p.x, p.y);
+    if (obj) return this.encounter(obj);
+    if (G.onCity()) {
+      if (RNG.chance(0.35)) { const ev = G.pickStory('city'); if (ev) { G.queue.push(ev); return this.processQueue(); } }
+      return this.openCity();
+    }
+    if (this.npcsAt(p.x, p.y).length) this.showTip(p.x, p.y);
+  },
+  // 걷는 동안 가벼운 HUD 갱신 (지도는 그대로)
+  renderHud() {
+    const el = (id) => document.getElementById(id);
+    if (!el('hud-card')) return;
+    el('hud-card').innerHTML = fixJosa(this.hudCard());
+    el('hud-tr').innerHTML = fixJosa(this.hudObjective());
+    this.map.drawMini();
   },
 
   encounter(obj) {
@@ -370,10 +429,11 @@ const UI = {
       const n = G.npcById(+name.slice(4));
       return `<div class="sheet-head"><h3>교류</h3><button class="icon-btn" data-act="modal-close" aria-label="닫기">×</button></div>${n ? `<div class="npc-sheet">${FX.portrait('npc' + n.id + n.name, n.gender, n.element, n.rankIdx, 180)}${this.npcCard(n, n.alive && n.region === G.player.region)}</div>` : ''}`;
     }
-    const tabs = [['char', '정보'], ['skills', '스킬'], ['people', '인물'], ['quest', '의뢰'], ['guild', '길드'], ['log', '연대기']];
+    const tabs = [['char', '정보'], ['skills', '스킬'], ['party', '파티'], ['people', '인물'], ['quest', '의뢰'], ['guild', '길드'], ['log', '연대기']];
     let body = '';
     switch (name) {
       case 'quest': body = this.questsHtml(); break;
+      case 'party': body = this.partyHtml(); break;
       case 'people': body = this.peopleHtml(); break;
       case 'skills': body = this.skillsHtml(); break;
       case 'guild': body = this.guildHtml(); break;
@@ -382,6 +442,16 @@ const UI = {
     }
     return `<div class="sheet-head"><nav class="tabs">${tabs.map(([k, n]) => `<button class="${name === k ? 'on' : ''}" data-act="sheet" data-v="${k}">${n}</button>`).join('')}</nav>
       <button class="icon-btn" data-act="modal-close" aria-label="닫기">×</button></div><div class="sheet-body">${body}</div>`;
+  },
+
+  partyHtml() {
+    const p = G.player; const mem = G.party();
+    const card = (name, cls, adv, rank, stage, av, extra, right) => `<div class="item-row">${av}<div class="grow"><b>${name}</b> ${this.clsTag(cls, adv)} ${this.rankTag(rank, stage)}<div class="small dim">${classById(cls).desc}${extra ? ' · ' + extra : ''}</div></div>${right || ''}</div>`;
+    return `<div class="panel"><h3>파티 · ${G.partySize()}/5</h3>
+      <p class="dim small">관계 50 이상인 인물에게 파티 합류를 청하거나, 도시의 용병 사무소에서 고용할 수 있습니다. 전투에서 동료는 직업과 성격대로 스스로 싸웁니다. 혼자서도 충분히 강하다면 파티는 필수가 아닙니다. 적의 규모는 파티 인원에 맞춰 커집니다.</p>
+      <div class="cards">${card(p.name, p.cls, p.clsAdv, p.rankIdx, p.stage, this.playerAvatar(40), '나')}
+      ${mem.map((n) => card(n.name, n.cls, n.rankIdx >= 6 ? 2 : n.rankIdx >= 3 ? 1 : 0, n.rankIdx, n.stage, this.npcAvatar(n, 40), `성격 ${persById(n.personality).name} · ${n.merc ? `용병 계약 ${n.merc.until - G.monthKey()}개월 남음` : `관계 ${relationLabel(n.relation)}`}`, `<button class="sm ghost" data-act="party-out" data-v="${n.id}">내보내기</button>`)).join('')}
+      ${Array.from({ length: 4 - mem.length }, () => '<div class="item-row empty-slot"><div class="grow dim small">빈 자리</div></div>').join('')}</div></div>`;
   },
 
   questsHtml() {
@@ -450,8 +520,8 @@ const UI = {
         <button class="sm" data-act="npc-spar" data-v="${n.id}" ${n.lastSpar === mk || n.isCompanion ? 'disabled' : ''}>대련</button>
         ${G.canTeach(n) ? `<button class="sm" data-act="npc-teach" data-v="${n.id}">가르침 · 1개월</button>` : ''}
         ${(G.player.disciples || []).includes(n.id) ? `<button class="sm" data-act="teach-disciple" data-v="${n.id}">제자 지도 · 1개월</button>` : ''}
-        ${G.canRecruit(n) ? `<button class="sm primary" data-act="npc-recruit" data-v="${n.id}">동료 제의</button>` : ''}
-        ${n.isCompanion ? '<button class="sm ghost" data-act="npc-dismiss">헤어지기</button>' : `<button class="sm danger" data-act="npc-duel" data-v="${n.id}">생사결</button>`}
+        ${G.canRecruit(n) ? `<button class="sm primary" data-act="npc-recruit" data-v="${n.id}">파티 초대</button>` : ''}
+        ${n.isCompanion ? `<button class="sm ghost" data-act="party-out" data-v="${n.id}">파티에서 빼기</button>` : `<button class="sm danger" data-act="npc-duel" data-v="${n.id}">생사결</button>`}
       </div>`;
     }
     return `<div class="npc-card ${n.alive ? '' : 'dead'}">
@@ -460,7 +530,7 @@ const UI = {
         <div class="grow">
           <div class="row between"><b>${n.name}</b><span>${this.bondTag(n)}${n.isCompanion ? '<span class="tag good">동료</span>' : ''}</span></div>
           <div class="small dim">${n.gender === 'M' ? '남' : '여'} · ${Math.floor(n.ageMonths / 12)}세 · ${pers.name} · ${n.guild ? GUILDS[n.guild].name : '무소속'}</div>
-          <div class="row small">${this.rankTag(n.rankIdx, n.stage)} ${this.elemTag(n.element)}</div>
+          <div class="row small">${this.rankTag(n.rankIdx, n.stage)} ${this.clsTag(n.cls || 'swordsman', n.rankIdx >= 6 ? 2 : n.rankIdx >= 3 ? 1 : 0)} ${this.elemTag(n.element)}</div>
         </div>
       </div>
       ${!here ? `<div class="small dim">${n.alive ? regionById(n.region).name : `사망 · ${n.death.date} · ${n.death.cause}`}</div>` : ''}
@@ -482,7 +552,7 @@ const UI = {
     const here = G.npcsHere().sort((a, b) => b.isCompanion - a.isCompanion || b.relation - a.relation || b.rankIdx - a.rankIdx);
     const known = G.npcs.filter((n) => n.met && (n.region !== G.player.region || !n.alive)).sort((a, b) => b.alive - a.alive || b.relation - a.relation);
     return `<div class="panel"><h3>${G.region().name}의 각성자들</h3>
-      <p class="dim">대화와 선물로 관계를 쌓으세요. 관계 40 이상이면 상위 등급자에게 가르침을, 60 이상이면 동료 제의를 할 수 있습니다. 관계가 -30 이하면 기습당할 수 있습니다.</p>
+      <p class="dim">대화와 선물로 관계를 쌓으세요. 관계 40 이상이면 상위 등급자에게 가르침을, 50 이상이면 파티 초대를 할 수 있습니다. 관계가 -30 이하면 기습당할 수 있습니다.</p>
       <div class="npc-grid">${here.map((n) => this.npcCard(n, true)).join('') || '<div class="dim">이 지역엔 아무도 없다.</div>'}</div>
       <div class="sec"><div class="sec-title">알고 지낸 인물</div>
       <div class="npc-grid">${known.map((n) => this.npcCard(n, false)).join('') || '<div class="dim">다른 지역의 지인이 없다.</div>'}</div></div></div>`;
@@ -491,7 +561,8 @@ const UI = {
   charHtml() {
     const p = G.player; const bg = BACKGROUNDS.find((b) => b.id === p.bg);
     return `<div class="panel">
-      <div class="char-head">${FX.portrait(p.look, p.gender, p.element, p.rankIdx, 150)}<div><h3>${p.name}</h3><div class="dim">${p.gender === 'M' ? '남' : '여'} · ${G.ageYears()}세 · ${bg.name}</div><div class="row">${this.rankTag(p.rankIdx, p.stage)} ${this.elemTag(p.element)}</div></div></div>
+      <div class="char-head">${FX.portrait(p.look, p.gender, p.element, p.rankIdx, 150)}<div><h3>${p.name}</h3><div class="dim">${p.gender === 'M' ? '남' : '여'} · ${G.ageYears()}세 · ${bg.name}</div><div class="row">${this.rankTag(p.rankIdx, p.stage)} ${this.clsTag(p.cls, p.clsAdv)} ${this.elemTag(p.element)}</div></div></div>
+      <div class="sec"><div class="sec-title">직업</div>${(() => { const k = classById(p.cls); const g = CLASS_GROUPS[k.g]; return `<div class="trait" style="border-left-color:${g.color}"><b>${className(p.cls, p.clsAdv)} <span class="small" style="color:${g.color}">${g.name} · ${CLASS_RARITY[k.r]}</span></b><span class="dim">${k.desc}</span><span class="small">전직 단계: ${[k.name, ...k.adv].map((n, i) => (i === p.clsAdv ? `<b class="amber">${n}</b>` : n)).join(' → ')} (C급, S급에서 전직 시험)</span><span class="small dim">직업 스킬: ${k.skills.map((x, i) => `${x[0]}(${RANKS[[0, 2, 5][i]].key}급)`).join(' · ')}</span></div>`; })()}</div>
       <div class="sec"><div class="sec-title">선천 특성</div><div class="cards traits">${p.traits.map((id) => { const t = traitById(id); return `<div class="trait"><b>${t.name}</b><span class="dim">${t.desc}</span></div>`; }).join('')}</div></div>
       <div class="sec"><div class="sec-title">장착 장비</div><div class="cards">${['weapon', 'armor', 'acc'].map((s) => { const it = p.equip[s]; return it
         ? this.equipRow(it, `<button class="sm ghost" data-act="unequip" data-v="${s}">해제</button>`)
@@ -529,11 +600,11 @@ const UI = {
 
   skillsHtml() {
     const p = G.player;
-    return `<div class="panel"><h3>스킬</h3><p class="dim">전투에 가져갈 스킬을 최대 4개까지 장착합니다. 기본 타격은 항상 사용할 수 있습니다. 같은 속성 스킬은 위력 +20%.</p>
+    return `<div class="panel"><h3>스킬</h3><p class="dim">전투에 가져갈 스킬을 최대 5개까지 장착합니다. 직업 스킬은 등급이 오르면 자동으로 익힙니다. 같은 속성 스킬은 위력 +20%.</p>
       <div class="cards">${p.skills.map((id) => { const sk = skillById(id); const on = p.equipSkills.includes(id); return `
-        <div class="item-row ${on ? 'equipped' : ''}"><span class="slot-ico" style="--c:${sk.elem ? ELEMENTS[sk.elem].color : '#9aa6b8'}">${FX.elemIcon(sk.elem, 20)}</span>
-          <div class="grow"><b>${sk.name}</b> <span class="tag">${TYPE_NAME[sk.type]}</span><div class="small dim">${sk.desc} · 위력 ${sk.power} · 정신력 ${sk.mp}</div></div>
-          ${id === 'strike' ? '<span class="dim small">기본</span>' : `<button class="sm ${on ? 'primary' : ''}" data-act="toggle-skill" data-v="${id}" ${!on && p.equipSkills.length >= 4 ? 'disabled' : ''}>${on ? '장착 중' : '장착'}</button>`}</div>`; }).join('')}</div></div>`;
+        <div class="item-row ${on ? 'equipped' : ''}"><span class="slot-ico" style="--c:${ELEMENTS[sk.elem === 'self' ? p.element : sk.elem] ? ELEMENTS[sk.elem === 'self' ? p.element : sk.elem].color : '#9aa6b8'}">${FX.elemIcon(sk.elem === 'self' ? p.element : sk.elem, 20)}</span>
+          <div class="grow"><b>${sk.name}</b> <span class="tag">${TYPE_NAME[sk.type] || '특수'}</span>${sk.cls ? ` ${this.clsTag(sk.cls)}` : ''}<div class="small dim">${sk.desc} · 위력 ${sk.power} · 정신력 ${sk.mp}</div></div>
+          ${id === 'strike' ? '<span class="dim small">기본</span>' : `<button class="sm ${on ? 'primary' : ''}" data-act="toggle-skill" data-v="${id}" ${!on && p.equipSkills.length >= 5 ? 'disabled' : ''}>${on ? '장착 중' : '장착'}</button>`}</div>`; }).join('')}</div></div>`;
   },
 
   guildHtml() {
@@ -606,12 +677,7 @@ const UI = {
   },
 
   // ---------- 전투 ----------
-  allyUnits() {
-    const units = [G.playerUnit()];
-    const c = G.companion();
-    if (c) units.push(G.npcUnit(c, 'ally'));
-    return units;
-  },
+  allyUnits() { return [G.playerUnit(), ...G.party().map((n) => G.npcUnit(n, 'ally'))]; },
 
   startGate(id) {
     const gate = G.mapGates.find((g) => g.id === +id);
@@ -655,26 +721,33 @@ const UI = {
     return FX.monster(u, size);
   },
 
+  unitEl(u) {
+    const c = this.ctx; const foes = c.combat.units.filter((x) => x.side === 'enemy' && !x.summon);
+    const foeSize = foes.length >= 4 ? 78 : foes.length >= 3 ? 92 : 120;
+    const cls = u.cls ? `<span class="tag cls tiny" style="--c:${CLASS_GROUPS[classById(u.cls).g].color}">${className(u.cls, u.clsAdv || 0)}${u.pers ? ' · ' + persById(u.pers).name : ''}</span>` : '';
+    if (u.side === 'enemy') return `<div class="foe ${u.boss ? 'boss' : ''} ${u.summon ? 'summoned' : ''}" id="u-${u.id}" data-act="c-target" data-v="${u.id}">
+        <div class="fx-host"><div class="sprite">${this.unitSprite(u, u.summon ? 70 : u.boss ? Math.round(foeSize * 1.35) : foeSize)}</div><div class="reticle"></div></div>
+        <div class="foe-name">${u.name} ${FX.elemIcon(u.elem, 12)}</div>
+        <div class="bar hp"><i></i></div><div class="foe-hp num small"></div><div class="status small"></div></div>`;
+    if (u.summon) return `<div class="ally summon" id="u-${u.id}"><div class="fx-host">${FX.monster({ name: u.name, elem: u.elem, shape: u.shape }, 40)}</div>
+        <div class="grow"><div class="row between"><b class="small">${u.name}</b><span class="status small"></span></div><div class="bar hp"><i></i></div><div class="small num hp-t"></div></div></div>`;
+    return `<div class="ally ${u.isPlayer ? 'me' : ''}" id="u-${u.id}">
+        <div class="fx-host">${this.unitSprite(u, 44)}</div>
+        <div class="grow"><div class="row between"><b>${u.name}</b><span class="status small"></span></div>${cls}
+          <div class="bar hp"><i></i></div><div class="bar mp"><i></i></div>
+          <div class="row between small num"><span class="hp-t"></span><span class="mp-t dim"></span></div></div></div>`;
+  },
+
   openCombat() {
     const c = this.ctx; const cb = c.combat;
     c.disp = JSON.parse(JSON.stringify(cb.initial));
     c.played = 0; c.playing = false;
     const ec = ELEMENTS[c.elem] ? ELEMENTS[c.elem].color : '#46e0d0';
     const rooms = c.kind === 'gate' ? `<div class="room-dots">${c.rooms.map((_, i) => `<i class="${i < c.roomIdx ? 'done' : i === c.roomIdx ? 'now' : ''} ${i === c.rooms.length - 1 ? 'boss' : ''}"></i>`).join('')}</div>` : '';
-    const foes = cb.units.filter((u) => u.side === 'enemy');
-    const allies = cb.units.filter((u) => u.side === 'ally');
-    const foeSize = foes.length >= 3 ? 92 : 120;
     this.modal(`<div class="cb-head"><h3>${cb.title}</h3>${rooms}<span class="dim small num" id="cb-round"></span></div>
       <div class="stage" id="stage" style="--ec:${ec}">
-        <div class="foes">${foes.map((u) => `<div class="foe ${u.boss ? 'boss' : ''}" id="u-${u.id}" data-act="c-target" data-v="${u.id}">
-            <div class="fx-host"><div class="sprite">${this.unitSprite(u, u.boss ? Math.round(foeSize * 1.35) : foeSize)}</div><div class="reticle"></div></div>
-            <div class="foe-name">${u.name} ${FX.elemIcon(u.elem, 12)}</div>
-            <div class="bar hp"><i></i></div><div class="foe-hp num small"></div></div>`).join('')}</div>
-        <div class="allies">${allies.map((u) => `<div class="ally" id="u-${u.id}">
-            <div class="fx-host">${this.unitSprite(u, 54)}</div>
-            <div class="grow"><div class="row between"><b>${u.name}</b>${FX.elemIcon(u.elem, 13)}</div>
-              <div class="bar hp"><i></i></div><div class="bar mp"><i></i></div>
-              <div class="row between small num"><span class="hp-t"></span><span class="mp-t dim"></span></div></div></div>`).join('')}</div>
+        <div class="foes" id="foes"></div>
+        <div class="allies" id="allies"></div>
       </div>
       <div class="clog" id="clog"></div>
       <div id="cb-ctrl"></div>`, 'combat-box');
@@ -685,16 +758,23 @@ const UI = {
   refreshUnits() {
     const c = this.ctx; if (!c) return; const cb = c.combat;
     for (const u of cb.units) {
-      const el = document.getElementById('u-' + u.id); if (!el) continue;
+      let el = document.getElementById('u-' + u.id);
+      if (!el) {
+        const host = document.getElementById(u.side === 'enemy' ? 'foes' : 'allies'); if (!host) continue;
+        host.insertAdjacentHTML('beforeend', fixJosa(this.unitEl(u)));
+        el = document.getElementById('u-' + u.id);
+        if (!c.disp[u.id]) c.disp[u.id] = { hp: u.hp, mp: u.mp };
+      }
       const d = c.disp[u.id] || { hp: u.hp, mp: u.mp };
-      const hpw = Math.max(0, Math.min(100, (d.hp / u.maxHp) * 100));
       const bars = el.querySelectorAll('.bar > i');
-      if (bars[0]) bars[0].style.width = hpw + '%';
+      if (bars[0]) bars[0].style.width = Math.max(0, Math.min(100, (d.hp / u.maxHp) * 100)) + '%';
       if (bars[1]) bars[1].style.width = Math.max(0, Math.min(100, (d.mp / u.maxMp) * 100)) + '%';
       const hpT = el.querySelector('.hp-t'); if (hpT) hpT.textContent = `HP ${Math.max(0, Math.round(d.hp))}/${u.maxHp}`;
       const mpT = el.querySelector('.mp-t'); if (mpT) mpT.textContent = `MP ${Math.round(d.mp)}`;
       const fh = el.querySelector('.foe-hp'); if (fh) fh.textContent = `${Math.max(0, Math.round(d.hp))} / ${u.maxHp}`;
-      el.classList.toggle('dead', d.hp <= 0 && !u.alive);
+      const st = el.querySelector('.status');
+      if (st) st.innerHTML = [u.fled ? '<span class="tag tiny bad">도주</span>' : '', u.tauntT ? '<span class="tag tiny amber">도발</span>' : '', u.stun ? '<span class="tag tiny bad">기절</span>' : '', u.poison ? '<span class="tag tiny" style="color:#9be36b">중독</span>' : '', u.evadeT ? '<span class="tag tiny">회피</span>' : '', u.buffs.atkT ? '<span class="tag tiny good">공↑</span>' : '', u.buffs.defT && u.buffs.def > 0 ? '<span class="tag tiny good">방↑</span>' : '', u.buffs.def < 0 ? '<span class="tag tiny bad">방↓</span>' : ''].join('');
+      el.classList.toggle('dead', (d.hp <= 0 && !u.alive) || !!u.fled);
       el.classList.toggle('target', cb.target === u && u.alive);
     }
     const r = document.getElementById('cb-round'); if (r) r.textContent = `${cb.round}라운드`;
@@ -719,7 +799,7 @@ const UI = {
     switch (ev.k) {
       case 'cast': {
         if (c.disp[ev.src]) c.disp[ev.src].mp = ev.mp;
-        const s = el(ev.src); if (s) FX.pulse(s, ev.side === 'ally' ? 'lunge-up' : 'lunge-down', 320);
+        const s = el(ev.src); if (s) { FX.pulse(s, ev.side === 'ally' ? 'lunge-up' : 'lunge-down', 320); if (ev.name) FX.floatText(s.querySelector('.fx-host'), ev.name, 'skill'); }
         this.refreshUnits();
         return 150;
       }
@@ -738,6 +818,12 @@ const UI = {
         return 430;
       }
       case 'down': { const t = el(ev.dst); if (t) t.classList.add('dead'); this.refreshUnits(); return 300; }
+      case 'miss': { const t = el(ev.dst); if (t) FX.floatText(t.querySelector('.fx-host'), '회피', 'heal'); return 260; }
+      case 'note': this.refreshUnits(); return 220;
+      case 'say': { const t = el(ev.src); if (t) FX.floatText(t.querySelector('.fx-host'), ev.text, 'say'); return 360; }
+      case 'cover': { const t = el(ev.src); if (t) { FX.pulse(t, 'glow', 600); FX.floatText(t.querySelector('.fx-host'), '엄호!', 'skill'); } return 300; }
+      case 'flee': { const t = el(ev.src); if (t) t.classList.add('dead'); this.refreshUnits(); return 360; }
+      case 'summon': { this.refreshUnits(); const t = el(ev.dst); if (t) { FX.pulse(t, 'glow', 600); FX.burst(t.querySelector('.fx-host'), '#c58cff', 12); } return 380; }
       case 'aoe': {
         const st = document.getElementById('stage');
         if (st) { st.style.setProperty('--fc', color(ev.elem)); FX.pulse(st, 'flash', 500); }
@@ -745,6 +831,7 @@ const UI = {
       }
       case 'heal': case 'mp': case 'buff': {
         if (ev.hp != null && c.disp[ev.dst]) c.disp[ev.dst].hp = ev.hp;
+        if (ev.revive) { const t = el(ev.dst); if (t) t.classList.remove('dead'); }
         if (ev.mp != null && c.disp[ev.dst]) c.disp[ev.dst].mp = ev.mp;
         const t = el(ev.dst);
         if (t) { FX.pulse(t, 'glow', 600); FX.floatText(t.querySelector('.fx-host'), ev.k === 'heal' ? `+${ev.amt}` : ev.k === 'mp' ? 'MP' : '강화', 'heal'); }
@@ -830,7 +917,9 @@ const UI = {
 
   finishGate(result) {
     const c = this.ctx; const cb = c.combat;
+    const lost = result === 'lose' ? [] : G.partyCasualties(cb.units);
     const lines = G.finishGate(c.gate, result, c.loot, cb.player.hp, cb.player.mp);
+    if (lost.length) lines.push(`<span class="bad">${lost.join(', ')}이(가) 쓰러져 돌아오지 못했다…</span>`);
     this.ctx = null;
     this.renderGame();
     this.modal(`<div class="eyebrow">${G.gateName(c.gate)}</div><h3>${result === 'clear' ? '게이트 공략 완료' : result === 'retreat' ? '철수' : '패배'}</h3>${lines.map((l) => `<p>${l}</p>`).join('')}
@@ -844,7 +933,9 @@ const UI = {
     const n = G.npcById(c.npcId);
     let msg = '';
     if (c.kind === 'mob') {
+      const lost = G.partyCasualties(cb.units);
       const lines = G.finishMob(c.mob, cb.result, cb.kills, cb.player.hp, cb.player.mp);
+      if (lost.length) lines.push(`<span class="bad">${lost.join(', ')}이(가) 쓰러져 돌아오지 못했다…</span>`);
       this.ctx = null;
       this.closeModal(); this.renderGame();
       if (G.over) return this.processQueue();
@@ -887,12 +978,13 @@ const UI = {
       case 'c-bg': c.bg = v; return this.render();
       case 'c-elem': c.element = v; return this.render();
       case 'c-amb': c.ambition = v; return this.render();
+      case 'c-cls': c.cls = v; return this.render();
       case 'c-look': c.look = Math.random().toString(36).slice(2); return this.render();
       case 'c-roll': if (c.rolls > 0) this.rollCreate(); return this.render();
       case 'c-start': {
         const name = (c.name || '').trim();
         if (!name) return this.toast('이름을 입력하세요.');
-        G.newGame({ name, gender: c.gender, bg: c.bg, element: c.element, talent: c.talent, traits: c.traits, look: c.look, ambition: c.ambition });
+        G.newGame({ name, gender: c.gender, bg: c.bg, element: c.element, talent: c.talent, traits: c.traits, look: c.look, ambition: c.ambition, cls: c.cls });
         G.save();
         this.screen = 'game';
         this.render();
@@ -934,6 +1026,7 @@ const UI = {
       case 'npc-teach': return this.after(G.teach(+v));
       case 'npc-recruit': return this.after(G.recruit(+v));
       case 'npc-dismiss': return this.after(G.dismiss());
+      case 'party-out': return this.after(G.dismiss(+v));
       case 'npc-spar': { const n = G.npcById(+v); if (n) this.startSpar(n); return; }
       case 'npc-duel': {
         const n = G.npcById(+v);

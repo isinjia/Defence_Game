@@ -2,6 +2,7 @@
 
 const FAC_ICON = {
   inn: '<path d="M3 20V9l9-5 9 5v11"/><path d="M7 20v-6h10v6M7 14h10"/>',
+  merc: '<circle cx="9" cy="8" r="3.5"/><path d="M2 20c1-3.5 3.5-5 7-5s6 1.5 7 5M16 4l2 2 4-4M17 12h5"/>',
   market: '<path d="M3 9h18l-1.5 11h-15zM8 9V6a4 4 0 0 1 8 0v3"/>',
   board: '<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/>',
   tavern: '<path d="M6 3h9v7a4.5 4.5 0 0 1-9 0zM15 5h2a2 2 0 0 1 0 4h-2M8 21h5M10.5 15v6"/>',
@@ -56,7 +57,7 @@ Object.assign(UI, {
       return `${head}<div class="city-body">
         <div class="fac-grid">${facs.map((f) => `<button class="fac-tile" data-act="city-fac" data-v="${f.id}">${facIcon(f.id, 26)}<b>${f.id === 'guild' ? GUILDS[reg.guild].name : f.name}</b><span class="small dim">${f.desc}</span></button>`).join('')}</div>
         <div class="sec-title sec">이 도시의 각성자 · ${npcs.length}명</div>
-        <div class="npc-strip">${npcs.map((n) => `<button class="npc-chip" data-act="sheet" data-v="npc:${n.id}">${this.npcAvatar(n, 40)}<span><b>${n.name}</b><span class="small dim">${RANKS[n.rankIdx].key}급 · ${n.met ? relationLabel(n.relation) : '처음 봄'}</span></span></button>`).join('') || '<span class="dim">아무도 없다.</span>'}</div>
+        <div class="npc-strip">${npcs.map((n) => `<button class="npc-chip" data-act="sheet" data-v="npc:${n.id}">${this.npcAvatar(n, 40)}<span><b>${n.name}</b><span class="small dim">${RANKS[n.rankIdx].key}급 ${className(n.cls || 'swordsman')} · ${n.met ? relationLabel(n.relation) : '처음 봄'}</span></span></button>`).join('') || '<span class="dim">아무도 없다.</span>'}</div>
       </div>`;
     }
     const f = FACILITIES.find((x) => x.id === this.cityFac);
@@ -128,6 +129,13 @@ Object.assign(UI, {
           ${l.done ? '<span class="small dim">종료</span>' : `<span class="row">${[1, 1.3, 1.7].map((m) => `<button class="sm" data-act="bid" data-v="${l.uid}|${m}">${fmt(l.base * m)}</button>`).join('')}</span>`}</div>`).join('')}</div>`;
       }
       case 'guild': return this.guildHtml();
+      case 'merc': {
+        const list = G.mercsFor(reg.id);
+        return `<p class="small dim">이번 달 계약 가능한 헌터들. 3개월 계약이며, 관계가 깊어지면 계약이 끝나도 남을 수 있다. 파티 ${G.partySize()}/5.</p>
+          <div class="cards">${list.map((n, i) => `<div class="item-row">${this.npcAvatar(n, 40)}<div class="grow"><b>${n.name}</b> ${this.clsTag(n.cls, n.rankIdx >= 6 ? 2 : n.rankIdx >= 3 ? 1 : 0)} ${this.rankTag(n.rankIdx, n.stage)} ${this.elemTag(n.element)}
+            <div class="small dim">${classById(n.cls).desc} · 성격 ${persById(n.personality).name}</div></div>
+            ${n.hired ? '<span class="small dim">계약됨</span>' : `<button class="sm" data-act="hire" data-v="${i}" ${G.party().length >= 4 ? 'disabled' : ''}>${FX.icon('coin', 13)} ${price(G.mercFee(n))}</button>`}</div>`).join('')}</div>`;
+      }
       default: return '';
     }
   },
@@ -220,6 +228,7 @@ Object.assign(UI, {
       if (w.chain) G.chainNext(w.chain);
       if (w.chainEnd) G.chainEnd(w.chainEnd);
       if (w.life) G.lifeEvent(w.life);
+      if (w.after) w.after(G);
     } else if (cb.result === 'lose' && spec.lethal) {
       this.ctx = null; this.closeModal();
       G.gameOver(`${spec.title}에서 쓰러져 다시 일어나지 못했다.`);
@@ -228,7 +237,9 @@ Object.assign(UI, {
       const l = spec.lose || {};
       text = (cb.result === 'flee' ? '물러났다. ' : '') + (l.text || '패배했다. 간신히 목숨은 건졌다.') + G.gain(l.gain || (cb.result === 'flee' ? {} : { injure: 2 }));
       if (l.chainEnd) G.chainEnd(l.chainEnd);
+      if (l.after) l.after(G);
     }
+    if (!spec.spar && cb.result !== 'flee') { const lost = G.partyCasualties(cb.units); if (lost.length) text += ` ${lost.join(', ')}이(가) 쓰러져 돌아오지 못했다…`; }
     this.ctx = null; G.save();
     this.closeModal(); this.renderGame();
     this.modal(`<div class="eyebrow">${spec.title}</div><p class="event-text">${fixJosa(text)}</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>`, 'event-box');
@@ -318,7 +329,7 @@ Object.assign(UI, {
     if (this.modalOpen()) return;
     const q = G.queue[0];
     if (!q) return;
-    const own = ['story', 'request', 'toast', 'storyfight', 'tournament'];
+    const own = ['story', 'request', 'toast', 'storyfight', 'tournament', 'mobAmbush'];
     if (!own.includes(q.type)) return base.call(this);
     G.queue.shift();
     if (q.type === 'story') return this.showStory(q);
@@ -326,6 +337,14 @@ Object.assign(UI, {
     if (q.type === 'toast') { this.toast(q.text); return this.processQueue(); }
     if (q.type === 'storyfight') return this.startStoryFight(q.spec);
     if (q.type === 'tournament') return this.startTournament();
+    if (q.type === 'mobAmbush') {
+      const mob = G.mobs.find((m) => m.id === q.mobId);
+      if (!mob) return this.processQueue();
+      return this.modal(`<div class="enc mob-enc"><div class="mob-portrait" style="--c:${ELEMENTS[mob.elem].color}">${FX.monster({ name: mob.name, elem: mob.elem, shape: mob.shape }, 130)}</div>
+        <div><div class="eyebrow bad">기습 · ${G.fullDate()}</div><h3>${mob.name} 무리 ×${mob.count}</h3><div class="row">${this.rankTag(mob.tier)} ${this.elemTag(mob.elem)} <span class="small">난이도 ${this.gateRisk(mob.tier)}</span></div>
+        <p class="dim">길을 가던 중 근처를 배회하던 무리가 냄새를 맡고 덮쳐 왔다.</p></div></div>
+        <div class="row end"><button class="ghost" data-act="mob-flee" data-v="${mob.id}">달아난다</button><button class="danger" data-act="mob" data-v="${mob.id}">맞서 싸운다</button></div>`);
+    }
   };
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
@@ -358,6 +377,13 @@ Object.assign(UI, {
       }
       case 'teach-disciple': return this.after(G.teachDisciple(+v));
       case 'succeed': return this.succeed(+v);
+      case 'hire': return this.afterCity(G.hireMerc(G.region().id, +v));
+      case 'mob-flee': {
+        const mob = G.mobs.find((m) => m.id === +v); if (!mob) return this.closeModal();
+        const chance = Math.max(0.2, Math.min(0.9, 0.55 + (G.player.spd - 9 * Math.sqrt(RANKS[mob.tier].mult)) / 40));
+        if (RNG.chance(chance)) { this.closeModal(); this.toast('간신히 따돌렸다.'); return this.processQueue(); }
+        this.toast('따돌리지 못했다!'); this.closeModal(); return this.startMob(mob.id);
+      }
       default: return baseHandle.call(this, act, v);
     }
   };

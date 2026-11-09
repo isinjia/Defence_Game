@@ -164,7 +164,7 @@ const WORLD = (() => {
   }
 
   return {
-    COLS, ROWS, T, T_NAME, DAYS_PER_COST, tiles, region, cityOf, cityPos, regionTiles,
+    COLS, ROWS, T, T_NAME, T_COST, DAYS_PER_COST, tiles, region, cityOf, cityPos, regionTiles,
     idx, inb, h2, noise, passable, reach, pathTo,
     type: (x, y) => tiles[idx(x, y)],
     regionAt: (x, y) => { const r = region[idx(x, y)]; return r >= 0 ? REGIONS[r] : null; },

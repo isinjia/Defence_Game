@@ -287,6 +287,7 @@ const FACILITIES = [
   { id: 'workshop', name: '공방', desc: '괴수 코어로 회복제와 각성 촉매를 만든다.' },
   { id: 'archive', name: '스킬 아카이브', desc: '크레딧과 협회 공적으로 스킬 데이터를 교환한다.' },
   { id: 'transit', name: '고속 이동망', desc: '가 본 도시로 빠르게 이동한다.' },
+  { id: 'merc', name: '용병 사무소', desc: '파티를 채울 헌터를 3개월 계약으로 고용한다.' },
   { id: 'auction', name: '경매장', desc: '매년 5월, 유물과 전설 장비가 경매에 오른다.', big: true },
   { id: 'guild', name: '길드 본부', desc: '이 도시에 본부를 둔 길드.', guildOnly: true },
 ];
