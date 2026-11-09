@@ -2087,13 +2087,13 @@ Object.assign(PROLOGUE, {
     title: "공터의 소문",
     text: '흑사회 셋이 공터에 드러누워 있다. 떡볶이집 사장님이 김이 나는 오뎅 국물을 내민다. "이건 공짜야. 평생."\n\n며칠 뒤, 흑사회 간부가 직접 찾아온다. 싸우러 온 게 아니다. "너, 이름이 뭐냐."',
     choices: [
-      { text: "두 손에 하나씩 칼날 같은 기운이 맺힌다", g: { fighter: 2 }, c: { dualblade: 4 }, next: "verdict_street" },
-      { text: "맨손에 검기가 서린다. 칼 없이 베는 법을 알게 됐다", g: { east: 2 }, c: { swordmonk: 4 }, next: "verdict" },
-      { text: "그날 이후 몸이 계속 커진다. 문틀에 머리가 닿는다", g: { guard: 2 }, c: { giant: 4 }, t: { iron_body: 1 }, next: "verdict_guild" },
-      { text: "돌멩이 하나로 시장 끝 간판을 맞혔다. 거리가 문제가 안 된다", g: { shooter: 2 }, c: { sniper: 4 }, next: "verdict" },
-      { text: "상인들을 지키던 그 순간, 빛이 몸을 감쌌다", g: { guard: 2 }, c: { paladin: 4 }, next: "verdict_guild" },
-      { text: "시장 입구에 부적 한 장을 붙인다. 그 뒤로 흑사회는 오지 않는다", g: { east: 2 }, c: { taoist: 4 }, next: "verdict" },
-      { text: '시장 할머니가 방울을 쥐여 준다. "너 신기 있어. 조심해."', g: { east: 2 }, c: { shaman: 4 }, next: "verdict_street" },
+      { text: "대답 대신 두 손에 칼날 같은 기운을 세운다. 간부가 한 걸음 물러선다", g: { fighter: 2 }, c: { dualblade: 4 }, next: "verdict_street" },
+      { text: '맨손으로 공터 철망을 그어 벤다. 칼 없이. "이름은 알아서 알아봐."', g: { east: 2 }, c: { swordmonk: 4 }, next: "verdict" },
+      { text: '일어서자 그림자가 간부를 덮는다. 그날 이후 몸이 계속 커지고 있다. "{name}. 기억해 둬."', g: { guard: 2 }, c: { giant: 4 }, t: { iron_body: 1 }, next: "verdict_guild" },
+      { text: '대답 대신 돌멩이를 던져 시장 끝 간판 나사를 맞힌다. "다음엔 네 이마야."', g: { shooter: 2 }, c: { sniper: 4 }, next: "verdict" },
+      { text: '상인들 앞에 선다. 몸에서 빛이 번진다. "{name}. 이 시장은 내가 지킨다."', g: { guard: 2 }, c: { paladin: 4 }, next: "verdict_guild" },
+      { text: '"{name}." 이름을 말하며 시장 입구에 부적 한 장을 붙인다. 그 뒤로 흑사회는 오지 않는다', g: { east: 2 }, c: { taoist: 4 }, next: "verdict" },
+      { text: '대답하려는데 시장 할머니가 끼어들어 방울을 쥐여 준다. "얘 신기 있어. 건드리면 큰일 나." 간부가 혀를 차며 돌아선다', g: { east: 2 }, c: { shaman: 4 }, next: "verdict_street" },
       { text: '간부에게 대답한다. "{name}. 다시 오면 그땐 셋이 아니라 전부 눕힌다."', g: { fighter: 2 }, c: { berserker: 2, monk: 2 }, t: { berserk: 1 }, next: "verdict_street" }
     ]
   },
