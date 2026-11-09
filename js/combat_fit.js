@@ -56,7 +56,7 @@
         <button class="icon-btn ${cb.auto ? 'on' : ''}" data-act="c-auto" aria-label="${cb.auto ? '자동 전투 끄기' : '자동 전투'}" title="자동">${ICON.auto}</button>
         ${fl ? `<button class="icon-btn danger" data-act="c-flee" aria-label="도주" title="도주" ${fl.disabled ? 'disabled' : ''}>${ICON.flee}</button>` : ''}`;
     }
-    if (cb.result) return;
+    if (cb.result && !c.playing) return; // 결과 화면은 그대로. 마무리 연출 중(result + playing)에는 메뉴 모양을 유지한 채 잠근다
     for (const b of [sp, au, fl]) if (b) b.remove();
     const skillBox = box.querySelector(':scope > .skill-btns');
     const row = box.querySelector(':scope > .ctrl-row');
@@ -90,6 +90,7 @@
     // 커맨드 외의 것(오더 패널·리더 오더·스킬 설명·안내)은 조작 영역 위에 떠 있게 → 조작 영역 높이가 절대 바뀌지 않는다
     const extra = [...box.children].filter((ch) => ch !== wrap && !ch.classList.contains('cmd-float'));
     if (extra.length) { const fl = document.createElement('div'); fl.className = 'cmd-float'; extra.forEach((ch) => fl.appendChild(ch)); box.insertBefore(fl, wrap); }
+    if (cb.result) for (const b of box.querySelectorAll('button')) b.disabled = true;
     void p;
   };
   // 명령을 실행하면 다음 차례에는 첫 메뉴로
