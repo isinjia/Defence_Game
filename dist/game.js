@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.21";
+const GAME_VERSION = "0.22";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -900,7 +900,8 @@ const PROLOGUE = {
   // ---------- 2. 게이트 브레이크 ----------
   gate_break: {
     title: "게이트 브레이크",
-    text: "재난 문자가 쏟아진다. [긴급] 게이트 브레이크 발생. 즉시 대피하십시오.\n\n{friend}와(과) 함께 골목에 나서자 괴수들이 쏟아져 나온다. 버스 정류장 아래, 일곱 살쯤 된 아이가 넘어져 울고 있다. 괴수 하나가 고개를 돌린다.",
+    textBy: { alley_fight: "멱살을 잡은 손을 놓기도 전에 휴대폰마다 재난 문자가 울린다. [긴급] 게이트 브레이크 발생. 셋은 비명을 지르며 달아나고, 골목 끝 하늘이 찢어진다.\n\n소식을 들은 {friend}이(가) 숨을 몰아쉬며 달려온다. 버스 정류장 아래, 일곱 살쯤 된 아이가 넘어져 울고 있다. 괴수 하나가 고개를 돌린다.", saw13: '"13번!" 흉터의 사람이 돌아보는 순간, 머리 위 하늘이 찢어진다. 재난 문자가 쏟아지고, 도망치는 인파가 둘 사이를 갈라놓는다. 다시 보니 그 사람은 없다. 돌아본 눈빛만 남았다.\n\n{friend}이(가) 길 건너에서 뛰어온다. "어디 있었어! 전화도 안 받고!" 버스 정류장 아래, 일곱 살쯤 된 아이가 넘어져 울고 있다. 괴수 하나가 고개를 돌린다.' },
+    text: "재난 문자가 쏟아진다. [긴급] 게이트 브레이크 발생. 즉시 대피하십시오.\n\n골목으로 뛰어나가자 저 앞에서 {friend}이(가) 이쪽으로 달려온다. 괴수들이 쏟아져 나온다. 버스 정류장 아래, 일곱 살쯤 된 아이가 넘어져 울고 있다. 괴수 하나가 고개를 돌린다.",
     choices: [
       { text: "아이에게 달려가 끌어안는다", e: { steel: 1 }, g: { guard: 2 }, c: { paladin: 1, guardian: 1 }, t: { iron_body: 1 }, next: "gear" },
       { text: "돌을 던져 괴수를 자기 쪽으로 유인한다", e: { bolt: 1 }, g: { shadow: 1, fighter: 1 }, t: { quick: 1 }, next: "gear" },
@@ -912,6 +913,7 @@ const PROLOGUE = {
   // ---------- 3. 쓰러진 헌터 ----------
   gear: {
     title: "쓰러진 헌터",
+    textBy: { gate_break: '버스 정류장 옆, 출동한 헌터가 쓰러져 있다. E급 배지. 피가 멎지 않는다. 아이는 정류장 의자 밑에 웅크려 있다. 헌터가 턱짓으로 흩어진 장비를 가리킨다.\n\n"…쓸 줄 알면… 써…"', gb_subway: '승강장 끝, 출동한 헌터가 개찰구에 등을 기댄 채 쓰러져 있다. E급 배지. 피가 바닥 타일 줄눈을 따라 번진다. 아이는 매표기 뒤에 웅크려 있다. 헌터가 흩어진 장비를 가리킨다.\n\n"…쓸 줄 알면… 써…"', gb_school: '강당 계단 아래, 먼저 뛰어든 헌터가 쓰러져 있다. E급 배지. 아이들이 강당 문틈으로 이쪽을 보고 있다. 헌터가 운동장에 흩어진 장비를 가리킨다.\n\n"…쓸 줄 알면… 써…"', gb_market: '생선 가게 앞 젖은 바닥에 출동한 헌터가 쓰러져 있다. E급 배지. 피와 바닷물이 섞여 흐른다. 골목 안쪽의 아이는 쌀가마니 뒤에 숨어 있다. 헌터가 흩어진 장비를 가리킨다.\n\n"…쓸 줄 알면… 써…"', gb_hospital: '비상계단 층계참, 병원 경비를 맡던 헌터가 쓰러져 있다. E급 배지. 계단 위에서 아이들 우는 소리가 내려온다. 헌터가 굴러떨어진 장비를 가리킨다.\n\n"…쓸 줄 알면… 써…"', gb_festival: '뒤집힌 푸드트럭 옆, 행사 경비를 서던 헌터가 쓰러져 있다. E급 배지. 미아 팻말을 든 아이가 트럭 바퀴 뒤에 숨어 있다. 헌터가 흩어진 장비를 가리킨다.\n\n"…쓸 줄 알면… 써…"', gb_apartment: '놀이터 미끄럼틀 아래, 출동한 헌터가 쓰러져 있다. E급 배지. 1층 창문 너머로 할머니가 아이를 끌어안고 이쪽을 본다. 헌터가 모래밭에 흩어진 장비를 가리킨다.\n\n"…쓸 줄 알면… 써…"' },
     text: '몇 걸음 앞에 출동한 헌터가 쓰러져 있다. E급 배지. 피가 멎지 않는다. 그가 손을 뻗어 흩어진 장비를 가리킨다.\n\n"…쓸 줄 알면… 써…"',
     choices: [
       { text: "에테르 블레이드를 줍는다", g: { fighter: 2 }, c: { swordsman: 2, dualblade: 1 }, next: "voice" },
@@ -925,6 +927,7 @@ const PROLOGUE = {
   // ---------- 4. 어둠 속 목소리 (직업 계열) ----------
   voice: {
     title: "어둠",
+    textBy: { gate_break: '2층 높이의 괴수가 정류장 지붕을 뜯어내며 다가온다. 꼬리가 옆구리를 후려치고, 몸이 광고판에 처박힌다. 숨이 쉬어지지 않는다.\n\n쓰러진 헌터의 배지가 손 옆에서 깜빡인다. 거기서 낯선 목소리가 새어 나온다.\n\n"남은 걸 너에게 넘겨줄 수 있다. 원하는 걸 말해."', gb_subway: '천장까지 닿는 괴수가 열차 문을 찢고 나온다. 꼬리에 맞아 몸이 기둥에 부딪힌다. 비상등이 깜빡이다 꺼진다.\n\n터널 깊은 곳, 균열 너머에서 바람 같은 목소리가 불어온다.\n\n"여긴 오래전부터 문이었다. 문을 지킬 손이 필요하지. 너는 무엇이 필요하지?"', gb_school: '괴수가 강당 문을 등지고 돌아선다. 앞발에 가슴을 맞아 몸이 운동장 흙바닥을 구른다. 하늘이 빙글 돈다.\n\n멈춘 줄 알았던 교내 방송 스피커가 지직거린다. 그 잡음이 사람 목소리가 된다.\n\n"아이들 앞에서 이대로 쓰러질 거야? 바라는 걸 말해 봐."', gb_market: '수조에서 나온 괴수가 좌판을 통째로 뒤집는다. 비늘 꼬리에 맞아 몸이 셔터에 처박힌다. 짠물이 입으로 들어온다.\n\n발밑에 고인 바닷물 속에서 거품처럼 목소리가 올라온다.\n\n"깊은 데서 왔다. 너한테 줄 게 있다. 무엇을 원하지?"', gb_hospital: '괴수가 비상계단 난간을 엿가락처럼 휘며 내려온다. 꼬리에 맞아 몸이 벽에 처박힌다. 숨이 쉬어지지 않는다.\n\n멈춘 심전도 모니터의 신호음 사이로 누군가 또박또박 말한다.\n\n"여기 사람들은 매일 무언가를 붙잡고 버틴다. 너는 무엇을 붙잡겠나?"', gb_festival: '괴수가 무대 철골을 붙잡고 몸을 일으킨다. 쓰러지는 조명탑에 몸이 깔린다. 귀가 먹먹하다.\n\n불꽃 잔해의 매캐한 연기 속에서, 축제 음악보다 낮은 목소리가 들린다.\n\n"다들 도망치는데 너만 남았다. 무엇을 원하지?"', gb_apartment: '괴수가 놀이터 그네를 뜯어 던진다. 쇠사슬에 맞아 몸이 화단에 처박힌다.\n\n안내 방송이 나와야 할 경비실 확성기에서 아주 오래된 목소리가 흘러나온다.\n\n"이 동네 사람들을 다 알고 있다. 너는 무엇을 원하지?"' },
     text: '2층 높이의 괴수가 앞길을 막아선다. 꼬리가 옆구리를 후려치고, 몸이 벽에 처박힌다. 숨이 쉬어지지 않는다. 세상이 조용해진다.\n\n어둠 속에서 누군가 묻는다.\n\n"무엇을 원하나."',
     choices: [
       { text: '"전부 부숴 버릴 힘."', g: { fighter: 3 }, c: { berserker: 2 }, t: { berserk: 1 }, next: "awaken" },
@@ -941,7 +944,8 @@ const PROLOGUE = {
   // ---------- 5. 각성 (속성) ----------
   awaken: {
     title: "각성",
-    text: "심장이 다시 뛴다. 아니, 무언가 다른 것이 뛴다. 혈관을 따라 낯선 힘이 쏟아진다.\n\n당신은 일어선다.",
+    textBy: { gate_break: "심장이 다시 뛴다. 아니, 무언가 다른 것이 뛴다. 혈관을 따라 낯선 힘이 쏟아진다. 손바닥 아래 아스팔트가 미지근하게 데워진다.\n\n정류장 의자 밑의 아이가 당신을 보고 울음을 멈춘다.", gb_subway: "심장이 다시 뛴다. 아니, 무언가 다른 것이 뛴다. 혈관을 따라 낯선 힘이 쏟아진다. 철로가 웅웅 울리고, 꺼졌던 비상등이 한꺼번에 켜진다.\n\n매표기 뒤의 아이가 고개를 내민다.", gb_school: "심장이 다시 뛴다. 아니, 무언가 다른 것이 뛴다. 혈관을 따라 낯선 힘이 쏟아진다. 운동장 흙이 발밑에서 물결친다.\n\n강당 문틈의 아이들이 숨을 삼킨다.", gb_market: "심장이 다시 뛴다. 아니, 무언가 다른 것이 뛴다. 혈관을 따라 낯선 힘이 쏟아진다. 발목까지 고였던 바닷물이 밀려난다.\n\n쌀가마니 뒤에서 아이가 눈을 동그랗게 뜬다.", gb_hospital: "심장이 다시 뛴다. 아니, 무언가 다른 것이 뛴다. 혈관을 따라 낯선 힘이 쏟아진다. 층계참의 비상등이 당신 쪽으로 기울 듯 밝아진다.\n\n위층 아이들의 울음이 잦아든다.", gb_festival: "심장이 다시 뛴다. 아니, 무언가 다른 것이 뛴다. 혈관을 따라 낯선 힘이 쏟아진다. 바닥에 흩어진 불꽃 탄피들이 저절로 굴러 길을 낸다.\n\n미아 팻말을 든 아이가 당신을 본다.", gb_apartment: "심장이 다시 뛴다. 아니, 무언가 다른 것이 뛴다. 혈관을 따라 낯선 힘이 쏟아진다. 움켜쥔 화단 흙이 손안에서 따뜻해진다.\n\n1층 창문 너머 할머니가 손자의 눈을 가린다." },
+    text: "심장이 다시 뛴다. 아니, 무언가 다른 것이 뛴다. 혈관을 따라 낯선 힘이 쏟아진다.\n\n몸이 저절로 일으켜진다.",
     choices: [
       { text: "온몸이 불길처럼 타오른다", e: { fire: 4 }, next: "first_fight" },
       { text: "살갗 위로 전류가 튄다", e: { bolt: 4 }, next: "first_fight" },
@@ -953,13 +957,14 @@ const PROLOGUE = {
   // ---------- 6. 첫 싸움 (직업) ----------
   first_fight: {
     title: "첫 싸움",
+    textBy: { gate_break: "괴수가 다시 덤벼든다. 등 뒤에는 정류장 의자 밑의 아이, 그리고 아이를 감싸 안은 {friend}. 이번엔 놈의 어깨가 먼저 움직이는 게 보인다. 내 안의 힘을 어떻게 쓰는지도.", gb_subway: "괴수가 열차 지붕을 밟고 뛰어내린다. 등 뒤 계단에서는 낯선 승객이 아이를 안고 한 칸씩 오르고 있다. 이번엔 놈이 내려앉을 자리가 먼저 보인다. 내 안의 힘을 어떻게 쓰는지도.", gb_school: "괴수가 강당 문을 향해 머리를 숙인다. 문 안쪽에서 {friend}이(가) 아이들을 끌어안고 있다. 이번엔 놈이 돌진하기 전에 숨을 들이켜는 소리가 들린다. 내 안의 힘을 어떻게 쓰는지도 안다.", gb_market: "괴수가 좌판을 넘어 골목으로 몸을 비튼다. 골목 끝에서 {friend}이(가) 아이와 상인 할머니를 감싸고 있다. 이번엔 젖은 바닥에서 놈이 미끄러질 자리가 보인다. 내 안의 힘을 어떻게 쓰는지도.", gb_hospital: "괴수가 층계참을 향해 내려온다. 위층 문틈에서 {friend}이(가) 아이들을 다독이고 있다. 이번엔 좁은 계단에서 놈이 몸을 틀 수 없다는 게 보인다. 내 안의 힘을 어떻게 쓰는지도.", gb_festival: "괴수가 무대에서 뛰어내린다. 인파 속에서 다시 찾은 {friend}이(가) 푸드트럭 뒤에서 미아 팻말의 아이를 품에 안고 있다. 이번엔 연기 속에서도 놈의 윤곽이 또렷하다. 내 안의 힘을 어떻게 쓰는지도.", gb_apartment: "괴수가 1층 창문을 향해 몸을 돌린다. 창 안쪽에서 {friend}이(가) 할머니와 아이를 방 안쪽으로 밀어 넣고 있다. 이번엔 놈의 다리가 놀이터 모래에 빠지는 순간이 보인다. 내 안의 힘을 어떻게 쓰는지도." },
     text: "괴수가 다시 덤벼든다. 하지만 이번엔 보인다. 놈의 움직임이, 빈틈이, 그리고 내 안의 힘을 쓰는 법이.",
     choices: [
       { text: "맨몸으로 파고들어 주먹을 꽂는다", g: { fighter: 2 }, c: { monk: 3 }, next: "rooftop" },
       { text: "부러진 쇠기둥을 창처럼 꼬나쥔다", g: { fighter: 2 }, c: { lancer: 3 }, next: "rooftop" },
       { text: "거리를 벌리고 힘을 쏘아 보낸다", g: { mage: 1, shooter: 1 }, c: { elementalist: 2, archer: 1 }, next: "rooftop" },
       { text: "그림자처럼 등 뒤로 돌아 급소를 찌른다", g: { shadow: 2 }, c: { assassin: 3 }, next: "rooftop" },
-      { text: '{friend}와(과) 사람들에게 외친다. "내가 신호하면 동시에!"', g: { support: 2 }, c: { bard: 3 }, t: { charisma: 1 }, friend: 10, next: "night_dream" },
+      { text: '곁에 남은 사람들에게 외친다. "내가 신호하면 동시에!"', g: { support: 2 }, c: { bard: 3 }, t: { charisma: 1 }, friend: 10, next: "night_dream" },
       { text: '괴수의 눈을 똑바로 보며 "멈춰"라고 명령한다', g: { esper: 1, summon: 1 }, c: { telepath: 2, tamer: 2 }, next: "night_dream" },
       { text: "손바닥 위로 빛을 모아 방패처럼 펼친다", g: { guard: 2 }, c: { paladin: 3 }, next: "night_dream" },
       { text: "손을 뻗자 무너진 잔해 더미가 허공으로 떠오른다", g: { esper: 2 }, c: { telekinetic: 3 }, next: "night_dream" }
@@ -968,27 +973,29 @@ const PROLOGUE = {
   // ---------- 7. 희귀 직업 갈래 ----------
   night_dream: {
     title: "병실의 밤",
+    textBy: { gate_break: "헌터 전문 병원. 며칠 만에 깨어나자 간호사가 소식을 전해 준다. 정류장의 아이는 그날 밤 엄마 품으로 돌아갔다고 한다.\n\n그날 밤, 이상한 꿈을 꾼다. 끝없는 벌판에 무언가가 서 있다. 그것이 당신을 향해 천천히 고개를 돌린다.", gb_subway: "헌터 전문 병원. 며칠 만에 깨어나자 간호사가 소식을 전해 준다. 계단의 아이는 그날 밤 엄마를 찾았다고 한다.\n\n그날 밤, 이상한 꿈을 꾼다. 끝없는 벌판에 무언가가 서 있다. 그것이 당신을 향해 천천히 고개를 돌린다.", gb_school: "헌터 전문 병원. 며칠 만에 깨어나자 간호사가 소식을 전해 준다. 견학 온 아이들은 한 명도 빠짐없이 버스에 올랐다고 한다.\n\n그날 밤, 이상한 꿈을 꾼다. 끝없는 벌판에 무언가가 서 있다. 그것이 당신을 향해 천천히 고개를 돌린다.", gb_market: "헌터 전문 병원. 며칠 만에 깨어나자 간호사가 소식을 전해 준다. 쌀가마니 뒤의 아이도, 상인 할머니도 무사하다고 한다.\n\n그날 밤, 이상한 꿈을 꾼다. 끝없는 벌판에 무언가가 서 있다. 그것이 당신을 향해 천천히 고개를 돌린다.", gb_hospital: "헌터 전문 병원. 며칠 만에 깨어나자 간호사가 소식을 전해 준다. 위층 아이들은 모두 다른 병원으로 무사히 옮겨졌다고 한다.\n\n그날 밤, 이상한 꿈을 꾼다. 끝없는 벌판에 무언가가 서 있다. 그것이 당신을 향해 천천히 고개를 돌린다.", gb_festival: "헌터 전문 병원. 며칠 만에 깨어나자 간호사가 소식을 전해 준다. 미아 팻말의 아이는 새벽에 부모를 찾았다고 한다.\n\n그날 밤, 이상한 꿈을 꾼다. 끝없는 벌판에 무언가가 서 있다. 그것이 당신을 향해 천천히 고개를 돌린다.", gb_apartment: "헌터 전문 병원. 며칠 만에 깨어나자 간호사가 소식을 전해 준다. 1층 할머니와 아이는 들것에 실려 나가며 당신 이름을 물었다고 한다.\n\n그날 밤, 이상한 꿈을 꾼다. 끝없는 벌판에 무언가가 서 있다. 그것이 당신을 향해 천천히 고개를 돌린다." },
     text: "헌터 전문 병원. 며칠 만에 깨어난 그날 밤, 이상한 꿈을 꾼다. 끝없는 벌판에 무언가가 서 있다. 그것이 당신을 향해 천천히 고개를 돌린다.",
     choices: [
       { text: "빛으로 된 짐승. 다가와 손을 핥는다", g: { summon: 2 }, c: { summoner: 3, tamer: 1 }, next: "verdict" },
       { text: "방울을 든 무녀. 춤을 추며 무언가를 부른다", g: { east: 2 }, c: { shaman: 3 }, next: "verdict" },
       { text: "거꾸로 도는 거대한 시계", g: { mage: 2 }, c: { chronomancer: 4 }, talent: 1, next: "verdict" },
-      { text: "구름을 뚫고 선 거인", g: { guard: 2 }, c: { giant: 4 }, t: { iron_body: 1 }, next: "verdict" },
-      { text: "해골들이 무릎 꿇은 왕좌", g: { summon: 2 }, c: { necromancer: 4 }, next: "verdict" },
-      { text: "검은 계약서를 내미는 그림자", g: { mage: 2 }, c: { warlock: 4 }, t: { cursed: 1 }, next: "verdict" },
-      { text: "아직 오지 않은 내일이 보이는 눈동자", g: { esper: 2 }, c: { seer: 4 }, t: { lucky: 1 }, next: "verdict" },
+      { text: "구름을 뚫고 선 거인", g: { guard: 2 }, c: { giant: 4 }, t: { iron_body: 1 }, next: "verdict_guild" },
+      { text: "해골들이 무릎 꿇은 왕좌", g: { summon: 2 }, c: { necromancer: 4 }, next: "verdict_street" },
+      { text: "검은 계약서를 내미는 그림자", g: { mage: 2 }, c: { warlock: 4 }, t: { cursed: 1 }, next: "verdict_street" },
+      { text: "아직 오지 않은 내일이 보이는 눈동자", g: { esper: 2 }, c: { seer: 4 }, t: { lucky: 1 }, next: "verdict_guild" },
       { text: "빛의 날개를 펼친 누군가가 손을 얹는다", g: { support: 2 }, c: { priest: 3 }, next: "verdict" }
     ]
   },
   rooftop: {
     title: "병원 옥상",
+    textBy: { gate_break: "싸움이 끝나고 헌터 전문 병원으로 실려 갔다. 정류장의 아이는 그날 밤 엄마 품으로 돌아갔다고 한다.\n\n퇴원 전날 밤, 몰래 옥상에 올라간다. 아무도 없다. 손을 펼친다. 이번엔 의지대로 힘을 꺼내 볼 생각이다.", gb_subway: "싸움이 끝나고 헌터 전문 병원으로 실려 갔다. 계단의 아이는 그날 밤 엄마를 찾았다고 한다.\n\n퇴원 전날 밤, 몰래 옥상에 올라간다. 아무도 없다. 손을 펼친다. 이번엔 의지대로 힘을 꺼내 볼 생각이다.", gb_school: "싸움이 끝나고 헌터 전문 병원으로 실려 갔다. 견학 온 아이들은 한 명도 빠짐없이 버스에 올랐다고 한다.\n\n퇴원 전날 밤, 몰래 옥상에 올라간다. 아무도 없다. 손을 펼친다. 이번엔 의지대로 힘을 꺼내 볼 생각이다.", gb_market: "싸움이 끝나고 헌터 전문 병원으로 실려 갔다. 쌀가마니 뒤의 아이도, 상인 할머니도 무사하다고 한다.\n\n퇴원 전날 밤, 몰래 옥상에 올라간다. 아무도 없다. 손을 펼친다. 이번엔 의지대로 힘을 꺼내 볼 생각이다.", gb_hospital: "싸움이 끝나고 헌터 전문 병원으로 실려 갔다. 위층 아이들은 모두 다른 병원으로 무사히 옮겨졌다고 한다.\n\n퇴원 전날 밤, 몰래 옥상에 올라간다. 아무도 없다. 손을 펼친다. 이번엔 의지대로 힘을 꺼내 볼 생각이다.", gb_festival: "싸움이 끝나고 헌터 전문 병원으로 실려 갔다. 미아 팻말의 아이는 새벽에 부모를 찾았다고 한다.\n\n퇴원 전날 밤, 몰래 옥상에 올라간다. 아무도 없다. 손을 펼친다. 이번엔 의지대로 힘을 꺼내 볼 생각이다.", gb_apartment: "싸움이 끝나고 헌터 전문 병원으로 실려 갔다. 1층 할머니와 아이는 들것에 실려 나가며 당신 이름을 물었다고 한다.\n\n퇴원 전날 밤, 몰래 옥상에 올라간다. 아무도 없다. 손을 펼친다. 이번엔 의지대로 힘을 꺼내 볼 생각이다." },
     text: "싸움이 끝나고 헌터 전문 병원으로 실려 갔다. 퇴원 전날 밤, 몰래 옥상에 올라간다. 아무도 없다. 손을 펼친다. 이번엔 의지대로 힘을 꺼내 볼 생각이다.",
     choices: [
-      { text: "두 손에 칼날 같은 기운을 모은다", g: { fighter: 2 }, c: { dualblade: 4 }, next: "verdict" },
+      { text: "두 손에 칼날 같은 기운을 모은다", g: { fighter: 2 }, c: { dualblade: 4 }, next: "verdict_guild" },
       { text: "맨손에 검기를 두르고 정좌한다", g: { east: 2 }, c: { swordmonk: 4 }, next: "verdict" },
-      { text: "멀리 옥탑 물탱크를 겨눠 한 점으로 쏜다", g: { shooter: 2 }, c: { sniper: 4 }, next: "verdict" },
-      { text: "그림자 속으로 녹아들었다 반대편에서 나온다", g: { esper: 2 }, c: { teleporter: 4 }, next: "verdict" },
-      { text: "손끝에서 녹색 독기가 피어오른다", g: { shadow: 2 }, c: { poisoner: 4 }, next: "verdict" },
+      { text: "멀리 옥탑 물탱크를 겨눠 한 점으로 쏜다", g: { shooter: 2 }, c: { sniper: 4 }, next: "verdict_guild" },
+      { text: "그림자 속으로 녹아들었다 반대편에서 나온다", g: { esper: 2 }, c: { teleporter: 4 }, next: "verdict_street" },
+      { text: "손끝에서 녹색 독기가 피어오른다", g: { shadow: 2 }, c: { poisoner: 4 }, next: "verdict_street" },
       { text: "빈 공간에 빛의 벽을 세운다", g: { mage: 2 }, c: { warder: 4 }, next: "verdict" },
       { text: "주머니 속 약병들이 반응하며 끓어오른다", g: { support: 2 }, c: { alchemist: 4 }, t: { mana_sense: 1 }, next: "verdict" },
       { text: "빈 손에 부적 한 장이 저절로 그려진다", g: { east: 2 }, c: { taoist: 3 }, next: "verdict" }
@@ -997,10 +1004,11 @@ const PROLOGUE = {
   // ---------- 8. 관리국 판정 (재능·특성) ----------
   verdict: {
     title: "관리국 판정",
-    text: '국가 각성자 관리국 지부. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) 눈이 퉁퉁 부은 채 손을 흔든다.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"',
+    textBy: { arc_late: '본원 3층 등록과. 검진, 유도 시술, 적성 실기까지 끝났다. 남은 건 서류 마지막 장과 형식적인 확인 측정 한 번이다. 복도 의자에서 {friend}이(가) {?friend_hurt:아직 빨간 눈으로 손을 흔든다|국밥은 네가 사라며 손가락으로 브이를 그린다}.\n\n담당관이 펜을 돌린다. "등급은 협회 실기 시험 뒤에 확정돼요. 마지막 칸만 남았네요. 헌터가 되려는 이유가 뭡니까?"', arc_ill: '퇴원 다음 주, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_crime: '인질극 진술서에 서명한 다음 날, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_storm: '폭풍이 지나가고 도시에 전기가 돌아온 날, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_wild: '산에서 내려온 지 일주일, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_tour: '체험관 사고 조사가 끝난 날, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_friend: '조사실을 나온 지 사흘 뒤, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_nest: '게이트에서 돌아온 지 열흘 뒤, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_gb: '퇴원하는 날 오후, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_dream: '굿판이 끝난 뒤 처음 맞는 평일, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_relic: '구슬이 몸에 스며든 지 보름 뒤, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_drug: '해독 치료를 마친 다음 날, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"', arc_duel: '시장이 다시 문을 연 다음 날, 국가 각성자 관리국 지부를 찾았다. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"' },
+    text: '국가 각성자 관리국 지부. 원통형 측정기 안에 들어선다. 유리 너머에서 {friend}이(가) {?friend_hurt:눈이 퉁퉁 부은 채 손을 흔든다|일하다 말고 달려왔는지 숨을 고르며 엄지를 든다}.\n\n심사관이 말한다. "정확한 등급은 협회 실기 시험이 끝나야 나옵니다. 측정기는 잠재치만 봐요. 마지막으로, 헌터가 되려는 이유가 뭡니까?"',
     choices: [
       { text: '숨을 고르고 차분히 에테르를 흘려 보낸다. "사람을 지키고 싶어서요."', talent: 1, t: { charisma: 1 }, friend: 15, next: null },
-      { text: '대답 대신 측정기에 있는 힘껏 쏟아붓는다. 계기판이 터진다. "이걸로 대답이 될까요?"', luck: 2, t: { reckless: 1, berserk: 1 }, next: null },
+      { text: '대답 대신 측정기에 힘껏 쏟아붓는다. 경고음 사이로 말한다. "말로는 잘 못 해서요."', luck: 2, t: { reckless: 1, berserk: 1 }, next: null },
       { text: '일부러 힘을 숨긴다. "돈이요. 솔직히."', t: { merchant: 2, lucky: 1 }, next: null },
       { text: '"게이트가 왜 열렸는지 알아내려고요."', talent: 1, t: { mana_sense: 1, genius: 1 }, next: null },
       { text: '유리 너머 {friend}을(를) 본다. "저 녀석 옆에 서 있으려고요."', t: { charisma: 1, iron_body: 1 }, friend: 25, next: null }
@@ -1008,7 +1016,7 @@ const PROLOGUE = {
   },
   verdict_guild: {
     title: "길드 면접",
-    text: '관리국 등록을 마친 다음 날, 모르는 번호로 전화가 온다. "청룡 연구소 신인 발굴팀입니다. 소문 듣고 연락드렸어요."\n\n도심 연구소 빌딩 28층 면접실. 정장 차림의 스카우터 셋이 태블릿을 넘기며 묻는다. "등급도 아직 안 나온 신입한테 우리가 왜 투자해야 하죠?"',
+    text: '관리국 등록을 마친 다음 날, 모르는 번호로 전화가 온다. "현무 중공업 각성자단 신인 발굴팀입니다. 소문 듣고 연락드렸어요."\n\n중공업 본사 28층 면접실. 정장 차림의 스카우터 셋이 태블릿을 넘기며 묻는다. "등급도 아직 안 나온 신입한테 우리가 왜 투자해야 하죠?"',
     choices: [
       { text: '"등급 나오기 전이니까요. 제일 싸게 살 수 있을 때잖아요."', t: { merchant: 1, charisma: 1 }, luck: 1, next: null },
       { text: "말 대신 손바닥 위로 에테르를 끌어올린다. 태블릿 화면이 지직거린다", talent: 1, t: { mana_sense: 1, reckless: 1 }, next: null },
@@ -1036,14 +1044,14 @@ const PRO_INTRO = (title, text, next, ch) => ({
 });
 Object.assign(PROLOGUE, {
   // ===== 재벌가 자제 (강남) =====
-  chaebol_2: PRO_INTRO("귀국", '런던에서 6년. 귀국 다음 날, 집안 사람들은 아무도 공항에 나오지 않았다. 비서가 건넨 쪽지에는 "저녁 7시, 이사회 만찬"이라고만 적혀 있다.\n\n짐도 풀기 전에 {friend}이(가) 문자를 보낸다. "왔으면 연락을 하지! 오늘 강변 불꽃 축제야. 나와."', "gb_festival", [
-    ["만찬을 건너뛰고 {friend}에게 간다", "fire", { fighter: 1, support: 1 }, null, { charisma: 1 }, { friend: 5 }],
-    ["만찬에 나가 삼촌들의 눈빛을 하나하나 읽는다", "ice", { esper: 1, shadow: 1 }, { telepath: 1 }, { mana_sense: 1 }],
+  chaebol_2: PRO_INTRO("귀국", '런던에서 6년. 귀국 다음 날, 집안 사람들은 아무도 공항에 나오지 않았다. 비서가 건넨 쪽지에는 "내일 아침 9시, 그룹 신입 사원 연수원 입소"라고만 적혀 있다. 후계자 수업은 바닥부터라는 게 아버지의 방침이다.\n\n짐도 풀기 전에 {friend}이(가) 문자를 보낸다. "왔으면 연락을 하지! 오늘 강변 불꽃 축제야. 나와."', "gb_festival", [
+    ["연수원 가방을 내팽개치고 {friend}에게 간다", "fire", { fighter: 1, support: 1 }, null, { charisma: 1 }, { friend: 5 }],
+    ["축제 대신 연수원에 들어가, 동기들이 나를 보는 눈빛을 하나하나 읽는다", "ice", { esper: 1, shadow: 1 }, { telepath: 1 }, { mana_sense: 1 }],
     ["유학 시절 배운 펜싱 감각을 떠올린다", "bolt", { fighter: 2 }, { swordsman: 1, dualblade: 1 }, { quick: 1 }],
     ["아무에게도 연락하지 않고 혼자 한강을 걷는다", "spirit", { mage: 1, east: 1 }, null, { loner: 1 }]
   ]),
   chaebol_3: PRO_INTRO("에테르 경매장", '청담동 지하 경매장. 조명이 꺼지고, 유리관 속 붉은 코어 하나가 무대에 오른다. "A급 화염룡의 심장. 시작가 40억."\n\n아버지 대신 앉은 자리. 패들을 쥔 손에 땀이 찬다. 그때 유리관 속 코어가 당신 쪽으로 맥박치듯 빛난다.', "gb_market", [
-    ["패들을 높이 든다. 저건 내 것이어야 한다", "fire", { mage: 1, fighter: 1 }, null, { reckless: 1 }],
+    ["패들을 높이 든다. 낙찰. 그날 밤부터 코어를 쥐었던 손에 열이 오른다", "fire", { mage: 1, fighter: 1 }, null, { reckless: 1 }],
     ["입찰가를 계산하며 상대들의 지갑을 가늠한다", "steel", { support: 1, guard: 1 }, { alchemist: 1 }, { merchant: 2 }],
     ["코어의 맥박 소리에 귀를 기울인다", "spirit", { esper: 2 }, { seer: 1 }, { mana_sense: 1 }],
     ["경매장 뒷문의 경비 배치를 눈여겨본다", "ice", { shadow: 2 }, { thief: 1 }, { quick: 1 }]
@@ -1057,18 +1065,18 @@ Object.assign(PROLOGUE, {
   chaebol_5: PRO_INTRO("후계 구도", '이복형이 이사회에서 웃으며 말한다. "막내는 아직 어리잖아요. 백호 시큐리티는 제가 맡겠습니다."\n\n회의가 끝나고, 형의 경호원이 엘리베이터 앞을 막아선다. "오늘은 지하철로 가시죠, 도련님. 차가 없답니다."', "gb_subway", [
     ["경호원을 똑바로 보며 비키라고 한다", "steel", { guard: 1, fighter: 1 }, { paladin: 1 }, { iron_body: 1 }],
     ["웃으며 지하철을 탄다. 갚아 줄 날은 따로 있다", "ice", { shadow: 2 }, { assassin: 1 }, { loner: 1 }],
-    ['형에게 쪽지를 남긴다. "다음 이사회에서 봐요."', "bolt", { support: 1, shooter: 1 }, null, { charisma: 1 }],
+    ['형에게 쪽지를 남긴다. "다음 이사회에서 봐요." 그리고 지분 담보 서류를 들고 직접 은행에 간다', "bolt", { support: 1, shooter: 1 }, null, { charisma: 1 }],
     ["어머니가 남긴 부적 지갑을 꽉 쥔다", "spirit", { east: 2 }, { taoist: 1 }, null, { luck: 1 }]
   ]),
   chaebol_6: PRO_INTRO("재단 봉사", '가문 재단의 홍보 행사. 소아 병동에 장난감을 나눠 주고 사진을 찍으면 끝이다. 그런데 창가 침대의 아이가 사진기 대신 당신을 빤히 본다.\n\n"형아는… 누나는… 아니, 헌터예요?" 아이의 팔에는 게이트 화상 자국이 있다.', "gb_hospital", [
-    ["카메라를 치우고 아이 옆에 앉는다", "spirit", { support: 2 }, { healer: 1, priest: 1 }, { charisma: 1 }],
+    ["카메라를 치우고 아이 옆에 앉는다", "spirit", { support: 2 }, { healer: 1, priest: 1 }, { charisma: 1 }, { flag: "charity" }],
     ['"아직은. 근데 될 거야." 약속한다', "fire", { fighter: 1, guard: 1 }, { paladin: 1 }, { berserk: 1 }],
     ["화상 자국의 치료 기록을 몰래 들여다본다", "ice", { mage: 1, support: 1 }, { alchemist: 1 }, { genius: 1 }],
     ["행사가 끝나자마자 차에 오른다", "steel", { guard: 1, shadow: 1 }, null, { loner: 1 }]
   ]),
   chaebol_7: PRO_INTRO("비밀 훈련장", '집에는 요가 학원에 간다고 했다. 실제로는 역삼동 지하의 사설 헌터 훈련장. 은퇴한 A급 교관이 목검으로 당신의 정강이를 친다.\n\n"돈 많은 애들은 사흘 버티면 오래 버틴 거야. 넌 몇 주째지?"', "gate_break", [
     ['"석 달째요." 다시 목검을 든다', "steel", { fighter: 2 }, { swordsman: 2 }, { iron_body: 1 }],
-    ["교관의 발놀림을 그대로 따라 한다", "bolt", { fighter: 1, shadow: 1 }, { dualblade: 1 }, { quick: 1 }],
+    ['교관의 발놀림을 그대로 따라 한다. 교관이 웃는다. "다음 주엔 산에서 하자."', "bolt", { fighter: 1, shadow: 1 }, { dualblade: 1 }, { quick: 1 }],
     ["사격장 쪽에서 들리는 총성이 더 끌린다", "ice", { shooter: 2 }, { sniper: 1 }, null],
     ["교관이 명상하는 걸 보고 옆에 앉는다", "spirit", { east: 1, mage: 1 }, { swordmonk: 1 }, { mana_sense: 1 }]
   ]),
@@ -1134,7 +1142,7 @@ Object.assign(PROLOGUE, {
     ["병원 기도실에 처음으로 들어가 본다", "spirit", { support: 1, east: 1 }, { priest: 1 }, null, { luck: 1 }]
   ]),
   orphan_9: PRO_INTRO("뒷골목", '"보육원 애들은 손버릇이 나쁘다니까." 편의점 점장이 CCTV도 안 보고 당신을 범인으로 몬다. 해고 통보.\n\n밤거리를 걷는데, 골목 안쪽에서 진짜 범인 셋이 낄낄대며 담배를 나눠 피운다.', "gate_break", [
-    ["곧장 걸어가 멱살을 잡는다", "fire", { fighter: 2 }, { berserker: 1 }, { berserk: 1 }],
+    ["곧장 걸어가 멱살을 잡는다", "fire", { fighter: 2 }, { berserker: 1 }, { berserk: 1 }, { flag: "alley_fight" }],
     ["휴대폰으로 녀석들의 자백을 녹음한다", "bolt", { shooter: 1, shadow: 1 }, null, { quick: 1 }],
     ["그냥 지나친다. 싸워 봐야 내 손해다", "ice", { shadow: 1, mage: 1 }, null, { loner: 1 }],
     ["맞아도 쓰러지지 않을 각오로 막아선다", "steel", { guard: 2 }, null, { iron_body: 2 }]
@@ -1167,7 +1175,7 @@ Object.assign(PROLOGUE, {
   soldier_5: PRO_INTRO("인질 구출", "707 대테러 특임대. 마지막 작전은 지하철 객차 인질 구출이었다. 진입 2초 전, 테러범의 눈이 보랏빛으로 빛났다. 미등록 각성자였다.\n\n전역 후에도 지하철을 탈 때마다 숨을 참는다.", "gb_subway", [
     ["객차 출입문 위치부터 확인한다. 버릇이다", "steel", { guard: 1, shooter: 1 }, null, { iron_body: 1 }],
     ["그때 그 각성자의 눈을 떠올린다", "spirit", { esper: 2 }, { telepath: 1 }, { mana_sense: 1 }],
-    ["권총 대신 손에 쥔 교통카드를 만지작거린다", "bolt", { shooter: 2 }, { gunslinger: 2 }, { quick: 1 }],
+    ["지하철 대신 버스를 탄다. 교통카드를 찍는 손이 아직 떨린다", "bolt", { shooter: 2 }, { gunslinger: 2 }, { quick: 1 }],
     ["숨을 참지 않기로 한다. 정면으로 본다", "fire", { fighter: 1, guard: 1 }, null, { berserk: 1 }]
   ]),
   soldier_6: PRO_INTRO("경비업체", '전역 후 취업한 아파트 경비업체. 특수부대 출신이라며 팀장 자리를 줬지만, 하는 일은 택배 정리와 주차 단속이다.\n\n입주민 대표가 소리친다. "그 군인 출신 양반, 엘리베이터 고장은 언제 고쳐요?"', "gb_apartment", [
@@ -1211,7 +1219,7 @@ Object.assign(PROLOGUE, {
     ["쫓아간다. 골목 끝에서 놓쳤다. 그날 밤부터 열이 오른다", "bolt", { shadow: 1, esper: 1 }, null, { quick: 1 }],
     ["벽을 두드리듯 손가락으로 신호를 보낸다. 그 사람이 멈칫하더니 인파 속으로 사라진다", "spirit", { esper: 2 }, { telepath: 2 }, null],
     ["빵 봉투를 꽉 쥐고 멀리서 지켜본다. 그 사람은 버스를 타고 떠났다", "ice", { shadow: 2 }, null, { loner: 1 }],
-    ['불러 세운다. "13번!"', "fire", { fighter: 1, summon: 1 }, null, { reckless: 1 }]
+    ['불러 세운다. "13번!"', "fire", { fighter: 1, summon: 1 }, null, { reckless: 1 }, { flag: "saw13" }]
   ]),
   subject_4: PRO_INTRO("도와준 연구원", '탈출한 밤, 연구원 하나가 몰래 비상문 카드를 쥐여 줬다. 그 사람은 지금 대학병원 신경과 의사다. 매달 진료라는 이름으로 당신을 만난다.\n\n"요즘 수치가 이상하게 올라가. 무슨 일 있었어?"', "gb_hospital", [
     ["솔직히 털어놓는다. 꿈에서 목소리가 들린다고", "spirit", { esper: 1, support: 1 }, { seer: 1 }, { charisma: 1 }],
@@ -1238,7 +1246,7 @@ Object.assign(PROLOGUE, {
     ["목소리를 무시한다. 솜사탕을 받는다", "steel", { guard: 1, fighter: 1 }, null, { lucky: 1 }]
   ]),
   subject_8: PRO_INTRO("잃어버린 일기장", '실험 이전의 기억이 없다. 그런데 오늘 보호 시설 창고에서 자기 이름이 적힌 일기장을 찾았다. 마지막 장에는 어린 글씨로 이렇게 적혀 있다.\n\n"과학관 견학. 내일은 대학 캠퍼스에서 마술쇼를 한대."', "gb_school", [
-    ["일기장 속 캠퍼스를 찾아간다", "bolt", { mage: 1, esper: 1 }, { chronomancer: 1 }, { mana_sense: 1 }],
+    ["일기장 속 캠퍼스를 찾아간다", "bolt", { mage: 1, esper: 1 }, { chronomancer: 1 }, { mana_sense: 1 }, { flag: "diary_school" }],
     ["한 장 한 장 소리 내어 읽는다", "spirit", { mage: 1, support: 1 }, { seer: 1 }, { mana_sense: 1 }],
     ["일기장을 덮는다. 지금의 내가 중요하다", "steel", { guard: 1, fighter: 1 }, null, { iron_body: 1 }],
     ["일기장에 끼워진 사진 속 아이들을 찾아 나선다", "ice", { shadow: 1, esper: 1 }, null, { genius: 1 }]
@@ -1264,7 +1272,7 @@ Object.assign(PROLOGUE, {
   ]),
   student_3: PRO_INTRO("졸업 전시", '미대 졸업 전시 준비. 캔버스 앞에서 사흘째 붓을 못 댔다. 그리고 싶은 건 대붕괴 날의 하늘인데, 그 색을 본 적이 없다.\n\n{friend}이(가) 커피를 들고 들어온다. "쉬엄쉬엄 해. 오늘 시내에서 비엔날레 축제래."', "gb_festival", [
     ["눈을 감고 떠오르는 색을 그냥 칠한다", "spirit", { mage: 1, esper: 1 }, { seer: 1 }, { mana_sense: 1 }],
-    ["캔버스를 찢고 처음부터 다시", "fire", { mage: 1, fighter: 1 }, { elementalist: 1 }, { berserk: 1 }],
+    ["캔버스를 찢는다. {friend}의 손에 끌려 축제에 나간다", "fire", { mage: 1, fighter: 1 }, { elementalist: 1 }, { berserk: 1 }],
     ["{friend}을(를) 모델로 앉힌다", "ice", { support: 1, summon: 1 }, { bard: 1 }, null, { friend: 10 }],
     ["붓 대신 조각칼을 든다", "steel", { fighter: 1, guard: 1 }, null, { genius: 1 }]
   ]),
@@ -1284,7 +1292,7 @@ Object.assign(PROLOGUE, {
     ["헌터들 이야기에 귀를 쫑긋 세운다", "spirit", { esper: 1, shooter: 1 }, null, { mana_sense: 1 }],
     ['"그거 신고 안 해요?" 끼어든다', "fire", { guard: 1, fighter: 1 }, null, { reckless: 1 }],
     ["헌터들 주문을 외워 두고 친해진다", "bolt", { support: 1, shadow: 1 }, { bard: 1 }, { charisma: 1 }],
-    ["커피 원두 배합을 바꿔 본다. 손님들이 좋아한다", "ice", { support: 2 }, { alchemist: 1 }, { merchant: 1 }]
+    ["커피 원두 배합을 바꿔 본다. 단골인 {friend}이(가) 맛을 보고 엄지를 든다", "ice", { support: 2 }, { alchemist: 1 }, { merchant: 1 }]
   ]),
   student_7: PRO_INTRO("간호 실습", '간호학과 실습 첫 주. 헌터 전문 병동에 배정됐다. 침대마다 붕대, 비명, 그리고 묘하게 따뜻한 에테르의 냄새.\n\n수간호사가 말한다. "여기선 겁먹으면 환자가 먼저 알아. 웃어."', "gb_hospital", [
     ["웃는다. 손은 떨려도", "spirit", { support: 2 }, { healer: 2 }, { charisma: 1 }],
@@ -1294,14 +1302,14 @@ Object.assign(PROLOGUE, {
   ]),
   student_8: PRO_INTRO("옆집", '대학가 원룸 단지. 옆집에는 밤마다 고양이 수십 마리가 드나드는 이상한 사람이 산다. 오늘은 그 집 문이 열려 있고, 고양이들이 일제히 당신을 본다.\n\n{friend}이(가) 속삭인다. "야, 저 집 사람 헌터래. 은퇴한."', "gb_apartment", [
     ["고양이 한 마리를 쓰다듬는다. 따라온다", "spirit", { summon: 2 }, { tamer: 2 }, null],
-    ["문을 두드려 인사한다", "fire", { support: 1, summon: 1 }, null, { charisma: 1 }],
+    ['문을 두드려 인사한다. 은퇴 헌터가 "현장이 궁금하면 짐부터 들어 봐"라며 구인 앱 하나를 알려 준다', "fire", { support: 1, summon: 1 }, null, { charisma: 1 }],
     ["문틈으로 집 안을 들여다본다", "bolt", { shadow: 2 }, { thief: 1 }, { quick: 1 }],
     ["조용히 문을 닫아 준다", "ice", { guard: 1, mage: 1 }, null, { loner: 1 }]
   ]),
   student_9: PRO_INTRO("밴드 공연", "밴드 동아리 정기 공연. 무대 뒤에서 기타 줄을 갈다가 손끝이 베였다. 피가 줄에 스며들자 앰프에서 이상한 소리가 난다. 화음 같기도, 울음 같기도 한.\n\n무대는 금남로 거리 축제 한복판이다.", "gb_festival", [
     ["그 소리 그대로 첫 곡을 시작한다", "spirit", { support: 2 }, { bard: 2 }, { charisma: 1 }],
     ["드럼 박자에 맞춰 심장이 뛴다", "fire", { fighter: 1, support: 1 }, { monk: 1 }, { berserk: 1 }],
-    ["앰프 회로를 열어 본다", "bolt", { mage: 1, shooter: 1 }, null, { genius: 1 }],
+    ["앰프 회로를 열어 본다. 피가 닿은 부품만 새까맣게 타 있다. 내 피가 이상한 걸까", "bolt", { mage: 1, shooter: 1 }, null, { genius: 1 }],
     ["무대 공포증에 숨을 고른다", "ice", { mage: 1, esper: 1 }, null, { loner: 1 }]
   ]),
   student_10: PRO_INTRO("각성 준비반", '헌터 지망생 동아리 "각성 준비반". 오늘 에테르 적성 검사 결과가 나왔다. 동기들은 하나둘 "잠재 B" "잠재 C"를 받았다. 당신의 종이엔 "측정 불가".\n\n선배가 어깨를 두드린다. "기계 고장일 거야. 다음에 다시 해."', "gate_break", [
@@ -1309,12 +1317,12 @@ Object.assign(PROLOGUE, {
     ["동아리를 그만둔다", "ice", { shadow: 1, mage: 1 }, null, { loner: 1 }],
     ["다음 달 재검사를 위해 체력 훈련부터 한다", "steel", { fighter: 1, guard: 1 }, null, { iron_body: 1 }],
     ["검사 기계를 몰래 다시 켜 본다", "bolt", { shadow: 1, esper: 1 }, null, { reckless: 1 }],
-    ["선배의 방식대로 사격 동아리부터 들어간다", "fire", { shooter: 2 }, { archer: 1 }, null]
+    ['선배를 따라 체험 게이트부터 가 본다. "직접 보면 생각이 바뀔걸."', "fire", { shooter: 2 }, { archer: 1 }, null]
   ]),
   // ---------- 2. 게이트 브레이크 (장소 변형) ----------
   gb_subway: {
     title: "지하철역 게이트 브레이크",
-    text: "열차가 터널 한가운데서 멈춘다. 비상등이 켜지고, 앞 칸에서 비명이 번진다. 승강장 벽이 보랏빛으로 찢어졌다.\n\n{friend}의 전화가 끊긴다. 계단 아래, 엄마 손을 놓친 아이가 울고 있다. 철로 위로 무언가 기어 온다.",
+    text: "열차가 터널 한가운데서 멈춘다. 비상등이 켜지고, 앞 칸에서 비명이 번진다. 승강장 벽이 종잇장처럼 찢어졌다.\n\n{friend}의 전화가 끊긴다. 계단 아래, 엄마 손을 놓친 아이가 울고 있다. 철로 위로 무언가 기어 온다.",
     choices: [
       { text: "아이를 안고 계단을 거슬러 오른다", e: { steel: 1 }, g: { guard: 2 }, c: { guardian: 1 }, t: { iron_body: 1 }, next: "gear" },
       { text: "소화기를 뽑아 괴수의 눈에 분사한다", e: { ice: 1 }, g: { fighter: 1, shooter: 1 }, t: { quick: 1 }, next: "gear" },
@@ -1324,11 +1332,11 @@ Object.assign(PROLOGUE, {
     ]
   },
   gb_school: {
-    title: "캠퍼스 게이트 브레이크",
+    title: "학교 게이트 브레이크",
     text: '운동장 한가운데 하늘이 찢어진다. 스프링클러가 터지고, 건물마다 대피 방송이 울린다. 교정에 견학 온 초등학생들이 줄지어 서 있다.\n\n{friend}이(가) 손짓한다. "강당으로! 거기가 대피소야!" 그런데 괴수 하나가 이미 강당 문 앞에 있다.',
     choices: [
       { text: "아이들을 등 뒤로 숨기고 막아선다", e: { steel: 1 }, g: { guard: 2 }, c: { paladin: 1 }, t: { iron_body: 1 }, next: "gear" },
-      { text: "과학관에서 본 화학약품 위치를 떠올린다", e: { ice: 1 }, g: { mage: 1, support: 1 }, c: { alchemist: 1 }, t: { genius: 1 }, next: "gear" },
+      { text: "{?diary_school:일기장 속 과학관 견학이 떠오른다. 화학약품 창고가 어디인지 안다|과학실 화학약품 창고 위치를 떠올린다}", e: { ice: 1 }, g: { mage: 1, support: 1 }, c: { alchemist: 1 }, t: { genius: 1 }, next: "gear" },
       { text: "옥상으로 올라가 괴수의 위치를 알린다", e: { bolt: 1 }, g: { shooter: 2 }, t: { quick: 1 }, next: "gear" },
       { text: "아이들에게 노래를 부르게 하며 침착하게 이끈다", e: { spirit: 1 }, g: { support: 2 }, c: { bard: 1 }, t: { charisma: 1 }, friend: 5, next: "gear" },
       { text: "야구 배트를 집어 든다", e: { fire: 1 }, g: { fighter: 2 }, t: { berserk: 1 }, next: "gear" }
@@ -1347,7 +1355,7 @@ Object.assign(PROLOGUE, {
   },
   gb_hospital: {
     title: "병원 게이트 브레이크",
-    text: '정전. 비상 발전기가 돌기까지 30초. 복도 끝 중환자실 창문이 보랏빛으로 물든다. 산소 호흡기 경보음이 일제히 울린다.\n\n{friend}이(가) 휠체어를 밀며 달려온다. "엘리베이터 멈췄어! 위층에 애들이 있어!"',
+    text: '정전. 비상 발전기가 돌기까지 30초. 복도 끝 중환자실 창문 너머가 멍든 색으로 물든다. 산소 호흡기 경보음이 일제히 울린다.\n\n{friend}이(가) {?charity:행사장 밖에서 소식을 듣고 비상계단으로 뛰어 올라온다|휠체어를 밀며 달려온다}. "엘리베이터 멈췄어! 위층에 애들이 있어!"',
     choices: [
       { text: "환자를 업고 비상계단을 오른다", e: { steel: 1 }, g: { guard: 1, support: 1 }, t: { iron_body: 1 }, next: "gear" },
       { text: "산소통 밸브를 하나하나 수동으로 연다", e: { ice: 1 }, g: { support: 2 }, c: { healer: 1 }, next: "gear" },
@@ -1405,7 +1413,7 @@ const PRO_ROUTE_FIX = {
   "chaebol_2:1": "late",
   "chaebol_2:2": "duel",
   "chaebol_2:3": "storm",
-  "chaebol_3:0": "storm",
+  "chaebol_3:0": "ill",
   "chaebol_3:1": "relic",
   "chaebol_3:2": "dream",
   "chaebol_3:3": "crime",
@@ -1415,14 +1423,14 @@ const PRO_ROUTE_FIX = {
   "chaebol_4:3": "dream",
   "chaebol_5:0": "duel",
   "chaebol_5:1": "gb_subway",
-  "chaebol_5:2": "relic",
+  "chaebol_5:2": "crime",
   "chaebol_5:3": "dream",
   "chaebol_6:0": "gb_hospital",
   "chaebol_6:1": "late",
   "chaebol_6:2": "ill",
   "chaebol_6:3": "storm",
   "chaebol_7:0": "duel",
-  "chaebol_7:1": "tour",
+  "chaebol_7:1": "wild",
   "chaebol_7:2": "crime",
   "chaebol_7:3": "dream",
   "chaebol_8:0": "storm",
@@ -1472,12 +1480,12 @@ const PRO_ROUTE_FIX = {
   "orphan_9:1": "crime",
   "orphan_9:2": "nest",
   "orphan_9:3": "duel",
-  "orphan_10:0": "crime",
+  "orphan_10:0": "storm",
   "orphan_10:1": "tour",
   "orphan_10:2": "dream",
   "orphan_10:3": "friend",
   "soldier_1:0": "nest",
-  "soldier_1:1": "crime",
+  "soldier_1:1": "dream",
   "soldier_1:2": "storm",
   "soldier_2:0": "dream",
   "soldier_2:1": "gb_festival",
@@ -1487,13 +1495,13 @@ const PRO_ROUTE_FIX = {
   "soldier_3:1": "dream",
   "soldier_3:2": "wild",
   "soldier_3:3": "gate_break",
-  "soldier_4:0": "storm",
-  "soldier_4:1": "gb_hospital",
+  "soldier_4:0": "gb_hospital",
+  "soldier_4:1": "dream",
   "soldier_4:2": "drug",
   "soldier_4:3": "crime",
   "soldier_5:0": "gb_subway",
   "soldier_5:1": "crime",
-  "soldier_5:2": "drug",
+  "soldier_5:2": "storm",
   "soldier_5:3": "duel",
   "soldier_6:0": "storm",
   "soldier_6:1": "crime",
@@ -1524,7 +1532,7 @@ const PRO_ROUTE_FIX = {
   "student_2:2": "gb_school",
   "student_2:3": "storm",
   "student_3:0": "dream",
-  "student_3:1": "storm",
+  "student_3:1": "gb_festival",
   "student_3:2": "friend",
   "student_3:3": "relic",
   "student_4:0": "ill",
@@ -1544,7 +1552,7 @@ const PRO_ROUTE_FIX = {
   "student_7:2": "dream",
   "student_7:3": "drug",
   "student_8:0": "dream",
-  "student_8:1": "drug",
+  "student_8:1": "nest",
   "student_8:2": "storm",
   "student_8:3": "wild",
   "student_9:0": "storm",
@@ -1563,7 +1571,7 @@ const PRO_ROUTE_FIX = {
   "subject_2:0": "gb_subway",
   "subject_2:1": "dream",
   "subject_2:2": "crime",
-  "subject_2:3": "relic",
+  "subject_2:3": "storm",
   "subject_3:0": "ill",
   "subject_3:1": "dream",
   "subject_3:2": "friend",
@@ -1613,6 +1621,34 @@ function rollAwakenRank(score = 0, rng = Math.random) {
   }
   return 0;
 }
+const PRO_FRIEND_JOBS = ["편의점 점장 대행", "간호학과 학생", "게임 회사 QA", "동네 태권도 사범", "배달 라이더", "공무원 준비생", "카페 바리스타", "자동차 정비공"];
+function proText(t, flags) {
+  return String(t).replace(/\{\?(!?)(\w+):([^|{}]*)\|([^{}]*)\}/g, (m, neg, f, a, b) => !!flags[f] !== !!neg ? a : b);
+}
+function proSceneText(sc, flags) {
+  if (sc.textBy) {
+    for (const [k, v] of Object.entries(sc.textBy)) if (flags[k]) return v;
+  }
+  return sc.text;
+}
+function proRemember(sc, flags, id, ch) {
+  for (const f of [].concat(ch.flag || [])) flags[f] = true;
+  const nx = ch.next;
+  if (nx) {
+    if (/^(gb_|gate_break)/.test(nx)) {
+      flags[nx] = true;
+      flags.arc_gb = true;
+    } else if (/_1$/.test(nx) && !/^(chaebol|orphan|soldier|subject|student)_/.test(nx)) flags["arc_" + nx.replace(/_1$/, "")] = true;
+  }
+  if (nx && /^verdict/.test(nx) && ch.c) {
+    let best = null, bv = 0;
+    for (const [k, v] of Object.entries(ch.c)) if (v > bv) {
+      bv = v;
+      best = k;
+    }
+    if (best) sc.fate = best;
+  }
+}
 function resolvePrologue(sc, rng = Math.random) {
   const top = (o, keys) => {
     let best2 = keys[0], bv = -1;
@@ -1641,6 +1677,8 @@ function resolvePrologue(sc, rng = Math.random) {
       break;
     }
   }
+  const fate = sc.fate && CLASSES.find((c) => c.id === sc.fate && c.r < 3);
+  if (fate && rng() < [0.95, 0.88, 0.75][fate.r] + Math.min(0.1, luck * 0.02)) best = fate;
   const clash = { genius: "slow_learner", slow_learner: "genius", lucky: "cursed", cursed: "lucky", charisma: "loner", loner: "charisma" };
   const traits = [];
   const ranked = Object.entries(sc.t).sort((a, b) => b[1] - a[1] + (rng() - 0.5) * 0.3).map(([k]) => k);
@@ -1664,42 +1702,42 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '"반이면 충분하네요." 웃어 보인다', e: { fire: 1 }, g: { fighter: 1, guard: 1 }, t: { berserk: 1 }, next: "ill_2" },
       { text: "열병에 관한 논문을 전부 찾아 달라고 한다", e: { ice: 1 }, g: { mage: 2 }, t: { genius: 1 }, next: "ill_2" },
-      { text: "{friend}에게만 사실대로 말한다", e: { spirit: 1 }, g: { support: 1, summon: 1 }, t: { charisma: 1 }, friend: 10, next: "ill_2" },
-      { text: "아무에게도 알리지 않고 혼자 입원 수속을 밟는다", e: { steel: 1 }, g: { shadow: 1, guard: 1 }, t: { loner: 1 }, next: "ill_2" }
+      { text: "{friend}에게만 사실대로 말한다. 전화기 너머가 한참 조용하다", e: { spirit: 1 }, g: { support: 1, summon: 1 }, t: { charisma: 1 }, friend: 10, flag: ["ill_told", "friend_hurt"], next: "ill_2" },
+      { text: "아무에게도 알리지 않고 혼자 입원 수속을 밟는다", e: { steel: 1 }, g: { shadow: 1, guard: 1 }, t: { loner: 1 }, flag: "ill_alone", next: "ill_2" }
     ]
   },
   ill_2: {
     title: "7층 격리 병동",
-    text: '6인실 격리 병동. 창가 침대의 노인은 은퇴한 C급 헌터라며 밤마다 옛날이야기를 한다. 맞은편 침대에는 같은 병을 앓는 열한 살 아이 다온이 누워 있다. 야간 간호사 윤 선생은 링거를 갈며 늘 같은 말을 한다. "버티는 사람이 이겨요."\n\n열이 오를수록 당신은 이 방의 무언가에 마음이 붙는다.',
+    text: '6인실 격리 병동. 창가 침대의 노인은 은퇴한 C급 헌터라며 늘 염주를 굴리고, 맞은편 침대에는 같은 병을 앓는 열한 살 다온이 누워 있다. 야간 간호사 윤 선생의 입버릇은 하나다. "버티는 사람이 이겨요."\n\n입원 아흐레째 새벽, 다온이 경련을 일으킨다. 당직 의사는 다른 층 응급 수술에 묶여 있다. 노인이 이를 간다. "내가 십 년만 젊었어도." 열에 들뜬 몸으로, 당신은 무엇이든 해야 한다.',
     choices: [
-      { text: "노인에게 젊은 시절 검 쓰던 이야기를 조른다", g: { fighter: 3 }, c: { swordsman: 1 }, next: "ill_3" },
-      { text: "열 오른 다온의 손을 밤새 잡아 준다", g: { guard: 3 }, c: { guardian: 1 }, next: "ill_3" },
-      { text: "윤 선생 어깨너머로 투약표를 외운다", g: { support: 3 }, c: { healer: 1 }, next: "ill_3" },
-      { text: "열에 들뜬 채 창밖 구름의 흐름을 읽는다", g: { mage: 3 }, c: { elementalist: 1 }, next: "ill_3" },
-      { text: "다른 환자들이 무슨 생각을 하는지 이상하게 다 들린다", g: { esper: 3 }, c: { telepath: 1 }, next: "ill_3" },
-      { text: "밤마다 병실 창틀에 찾아오는 고양이에게 이름을 붙인다", g: { summon: 3 }, c: { tamer: 1 }, next: "ill_3" },
-      { text: "아무도 모르게 비상계단으로 빠져나가는 길을 익힌다", g: { shadow: 3 }, c: { thief: 1 }, next: "ill_3" },
-      { text: "노인의 머리맡 염주를 빌려 숨을 고른다", g: { east: 3 }, c: { taoist: 1 }, next: "ill_3" }
+      { text: '노인이 "칼 잡던 손은 떨지 않는 법"이라며 지팡이를 쥐여 준다. 그걸 쥐고 복도 끝까지 의사를 데리러 달린다', g: { fighter: 3 }, c: { swordsman: 1 }, next: "ill_3" },
+      { text: "침대에서 굴러떨어지려는 다온을 온몸으로 끌어안고 버틴다", g: { guard: 3 }, c: { guardian: 1 }, next: "ill_3" },
+      { text: "윤 선생 어깨너머로 외워 둔 투약표대로 해열 패치를 붙이고 기도를 확보한다", g: { support: 3 }, c: { healer: 1 }, next: "ill_3" },
+      { text: "모니터 숫자가 오르내리는 박자를 읽는다. 다음 경련이 언제 올지 보인다", g: { mage: 3 }, c: { elementalist: 1 }, next: "ill_3" },
+      { text: "다온이 무엇을 무서워하는지 표정보다 먼저 느껴진다. 그 두려움에 대고 말을 건다", g: { esper: 3 }, c: { telepath: 1 }, next: "ill_3" },
+      { text: '창틀의 비둘기들에게 "가!" 하고 소리친다. 새들이 날아올라 간호사실 창을 두드린다', g: { summon: 3 }, c: { tamer: 1 }, next: "ill_3" },
+      { text: "잠긴 비상 약품 카트를 머리핀으로 연다. 규칙은 나중 문제다", g: { shadow: 3 }, c: { thief: 1 }, next: "ill_3" },
+      { text: "노인의 염주를 빌려 다온의 손목에 감고, 알을 굴리며 함께 숨을 고른다", g: { east: 3 }, c: { taoist: 1 }, next: "ill_3" }
     ]
   },
   ill_3: {
     title: "42도",
-    text: '새벽 3시. 체온계가 42도를 가리키고, 모니터가 길게 운다. 윤 선생이 뛰어오고, 누군가 "보호자 연락!"이라고 외친다.\n\n소리가 멀어진다. 그 대신 몸속 깊은 곳에서 무언가가 문을 연다.',
+    text: '다온의 경련이 잦아든 그날 밤, 이번엔 당신 차례다. 새벽 3시, 체온계가 42도를 가리키고 모니터가 길게 운다. 윤 선생이 뛰어오고, 누군가 {?ill_alone:"보호자 연락처가 없어요!"|"보호자 연락!"}이라고 외친다.\n\n소리가 멀어진다. 그 대신 몸속 깊은 곳에서 무언가가 문을 연다.',
     choices: [
       { text: "열이 바깥으로 터져 나온다. 침대 시트가 그을린다", e: { fire: 4 }, next: "ill_4" },
       { text: "심장 박동마다 모니터 화면이 번쩍인다", e: { bolt: 4 }, next: "ill_4" },
       { text: "열이 단숨에 식는다. 병실 유리창에 성에가 핀다", e: { ice: 4 }, next: "ill_4" },
       { text: "굳어 가던 몸이 쇳덩이처럼 무거워지고, 그대로 버틴다", e: { steel: 4 }, next: "ill_4" },
-      { text: "병실 사람들 모두의 숨소리가 하나로 겹쳐 들린다", e: { spirit: 4 }, next: "ill_4" }
+      { text: "병실 사람들 모두의 숨이 하나의 박자로 겹친다", e: { spirit: 4 }, next: "ill_4" }
     ]
   },
   ill_4: {
     title: "같은 병의 아이",
-    text: '눈을 뜨니 열이 없다. 의사가 차트를 몇 번이나 다시 본다. "…각성했네요. 축하합니다."\n\n그런데 맞은편 다온의 모니터가 울리기 시작한다. 같은 병, 같은 고비. 아이의 입술이 파랗다. 당신 안의 힘이 아직 낯설게 꿈틀거린다.',
+    text: '눈을 뜨니 열이 없다. 의사가 차트를 몇 번이나 다시 본다. "…각성했네요. 축하합니다."\n\n그런데 맞은편 다온의 모니터가 다시 울리기 시작한다. 같은 병, 같은 고비. 아이의 입술이 파랗다. 당신 안의 힘이 아직 낯설게 꿈틀거린다.',
     choices: [
       { text: "다온의 손을 잡고 내 안의 열을 조금씩 나눠 준다", g: { support: 2 }, c: { healer: 3 }, next: "ill_5" },
       { text: "모두가 들을 수 있게 노래를 흥얼거린다. 다온의 호흡이 박자를 따라온다", g: { support: 2 }, c: { bard: 3 }, friend: 5, next: "ill_5" },
-      { text: "침대 둘레에 손을 짚어 보이지 않는 막을 친다", g: { guard: 2 }, c: { guardian: 3 }, next: "ill_5" },
+      { text: "침대 둘레에 손을 짚어 보이지 않는 막을 친다. 몰려든 사람들도, 쏟아지는 기계음도 막 밖에 멈춘다", g: { guard: 2 }, c: { guardian: 3 }, next: "ill_5" },
       { text: "떨어지는 링거병을 손대지 않고 허공에 붙잡는다", g: { esper: 2 }, c: { telekinetic: 3 }, next: "ill_5" },
       { text: "다온의 열을 손바닥으로 빨아들여 창밖으로 흩뿌린다", g: { mage: 2 }, c: { elementalist: 3 }, next: "ill_5" },
       { text: "다온의 가슴 한가운데를 손바닥으로 정확히 두 번 친다. 멎었던 숨이 터진다", g: { fighter: 2 }, c: { monk: 3 }, next: "ill_5" }
@@ -1709,76 +1747,76 @@ Object.assign(PROLOGUE, {
     title: "퇴원하는 날",
     text: '다온은 고비를 넘겼다. 퇴원하는 날, 창가 노인이 당신을 불러 세운다. "자네 같은 사람이 병상에서 일어나면, 대개 남들과 다른 길을 가더군."\n\n짐을 싸는 사이, 열병이 남긴 흔적이 당신 안에서 마지막으로 모양을 갖춘다.',
     choices: [
-      { text: "노인의 낡은 성경을 받는다. 손이 닿자 희미하게 빛난다", g: { support: 2 }, c: { priest: 4 }, next: "verdict" },
-      { text: "남은 약병들을 섞어 열병 해독제를 만들어 낸다", g: { support: 2 }, c: { alchemist: 4 }, t: { mana_sense: 1 }, next: "verdict_guild" },
-      { text: "눈을 감자 다온의 내일이 보인다. 아이는 웃고 있다", g: { esper: 2 }, c: { seer: 4 }, next: "verdict" },
-      { text: "죽음 문턱에서 본 그림자들이 아직 곁에 서 있다", g: { summon: 2 }, c: { necromancer: 4 }, t: { loner: 1 }, next: "verdict_street" },
-      { text: "열병이 돌던 시간, 병실 시계가 거꾸로 돌았던 걸 기억한다", g: { mage: 2 }, c: { chronomancer: 4 }, talent: 1, next: "verdict" },
-      { text: "병상에서 맺은 약속을 지키겠다고 노인에게 맹세한다. 맹세한 손등에 빛의 문양이 떠오른다", g: { guard: 2 }, c: { paladin: 4 }, next: "verdict_guild" },
-      { text: "{friend}이(가) 사 온 귤을 까며 흥얼거린 노래를 병실 사람들이 하나둘 따라 부른다", g: { support: 2 }, c: { bard: 4 }, friend: 15, next: "verdict" }
+      { text: "노인이 늘 굴리던 염주를 건넨다. 손에 닿자 알알이 희미한 빛이 차오르고, 병실의 신음이 잦아든다", g: { support: 2 }, c: { priest: 4 }, next: "verdict" },
+      { text: "남은 약병들을 섞어 본다. 손끝이 비율을 안다. 열병 해독제가 완성된다", g: { support: 2 }, c: { alchemist: 4 }, t: { mana_sense: 1 }, next: "verdict_guild" },
+      { text: "눈을 감자 다온의 열 살 뒤 모습이 보인다. 아이는 운동장을 달리고 있다", g: { esper: 2 }, c: { seer: 4 }, next: "verdict" },
+      { text: "죽음 문턱에서 마주쳤던 창백한 그림자들이 아직 침대 발치에 서 있다. 손짓하자 고개를 숙인다", g: { summon: 2 }, c: { necromancer: 4 }, t: { loner: 1 }, next: "verdict_street" },
+      { text: "열병이 돌던 밤, 링거 방울이 위로 떨어지던 걸 기억한다. 손을 들자 탁상 위 물방울이 다시 위로 오른다", g: { mage: 2 }, c: { chronomancer: 4 }, talent: 1, next: "verdict" },
+      { text: "다온을 지키겠다고 노인에게 맹세한다. 맹세한 손등에 빛의 문양이 떠오른다", g: { guard: 2 }, c: { paladin: 4 }, next: "verdict_guild" },
+      { text: "{?ill_told:병문안 온 소꿉친구가|윤 선생이} 건넨 귤을 까며 흥얼거린다. 병실 사람들이 하나둘 따라 부르고, 노래가 끝날 때 모두의 낯빛이 밝아져 있다", g: { support: 2 }, c: { bard: 4 }, friend: 15, next: "verdict" }
     ]
   },
   // ===================== 유물: 녹슨 코어 =====================
   relic_1: {
     title: "벼룩시장",
-    text: '그 무렵, 주말마다 동네 벼룩시장을 돌았다. 대붕괴 이전 물건들이 헐값에 굴러다니는 곳. 오늘은 고물상 할아버지가 상자 하나를 툭 내민다.\n\n"유품 정리하다 나온 건데, 이상하게 아무도 안 사 가. 만 원만 줘." 상자 안에는 녹슨 금속 구슬 하나. 손을 대자 미지근하다.',
+    text: '주말마다 동네 벼룩시장을 돌던 때였다. 대붕괴 이전 물건들이 헐값에 굴러다니는 곳. 오늘은 고물상 할아버지가 상자 하나를 툭 내민다.\n\n"유품 정리하다 나온 건데, 이상하게 아무도 안 사 가. 만 원만 줘." 상자 안에는 녹슨 금속 구슬 하나. 손을 대자 미지근하다.',
     choices: [
       { text: "두말없이 만 원을 낸다", e: { spirit: 1 }, g: { mage: 1, esper: 1 }, t: { lucky: 1 }, luck: 1, next: "relic_2" },
       { text: '"이거 코어 아니에요?" 값을 깎으며 떠본다', e: { steel: 1 }, g: { support: 1, shadow: 1 }, t: { merchant: 1 }, next: "relic_2" },
-      { text: "유품의 주인이 누구였는지부터 묻는다", e: { ice: 1 }, g: { east: 1, summon: 1 }, t: { mana_sense: 1 }, next: "relic_2" },
-      { text: '{friend}에게 사진을 찍어 보낸다. "이거 봐 봐"', e: { bolt: 1 }, g: { shooter: 1, support: 1 }, t: { charisma: 1 }, friend: 5, next: "relic_2" }
+      { text: "유품의 주인이 누구였는지부터 묻는다", e: { ice: 1 }, g: { east: 1, summon: 1 }, t: { mana_sense: 1 }, flag: "relic_asked", next: "relic_2" },
+      { text: '{friend}에게 사진을 찍어 보낸다. "이거 봐 봐"', e: { bolt: 1 }, g: { shooter: 1, support: 1 }, t: { charisma: 1 }, friend: 5, flag: "relic_shared", next: "relic_2" }
     ]
   },
   relic_2: {
     title: "구슬의 주인",
-    text: '구슬은 밤마다 조금씩 녹이 벗겨진다. 속에서 무늬가 드러난다. 인터넷을 뒤지다 찾아낸 건 대붕괴 직후 실종된 무명 헌터의 기록. 사진 속 그가 목에 걸고 있는 것이 바로 이 구슬이다.\n\n기록 끝에는 그가 남긴 말이 한 줄 있다. "이걸 쥔 사람은 내 길을 따르게 될 것이다."',
+    text: '구슬은 밤마다 조금씩 녹이 벗겨진다. 속에서 무늬가 드러난다. {?relic_asked:할아버지가 흘린 이름 하나로|인터넷을 뒤지다} 찾아낸 건 대붕괴 직후 실종된 무명 헌터의 기록. 사진 속 그가 목에 걸고 있는 것이 바로 이 구슬이다.\n\n기록 끝에는 그가 남긴 말이 한 줄 있다. "이걸 쥔 사람은 내 길을 따르게 될 것이다." 그날부터 당신은 밤마다 구슬을 쥐고 그를 흉내 낸다.',
     choices: [
-      { text: "그의 길은 칼이었다. 기록 속 검술 영상을 돌려 본다", g: { fighter: 3 }, c: { swordsman: 1 }, next: "relic_3" },
-      { text: "그는 피난민 행렬의 맨 뒤를 지켰다고 한다", g: { guard: 3 }, c: { guardian: 1 }, next: "relic_3" },
-      { text: "그는 누구도 모르게 적진에 숨어들던 사람이었다", g: { shadow: 3 }, c: { assassin: 1 }, next: "relic_3" },
-      { text: "그는 2킬로미터 밖에서 괴수의 눈을 맞혔다고 한다", g: { shooter: 3 }, c: { archer: 1 }, next: "relic_3" },
-      { text: "구슬에 새겨진 문양이 마법진이라는 걸 알아챈다", g: { mage: 3 }, c: { warder: 1 }, next: "relic_3" },
-      { text: "구슬을 쥐면 누군가 곁에 있는 기척이 든다", g: { summon: 3 }, c: { summoner: 1 }, next: "relic_3" },
-      { text: "구슬이 다른 사람의 감정에 따라 온도가 바뀐다", g: { esper: 3 }, c: { telepath: 1 }, next: "relic_3" },
-      { text: "구슬의 무늬가 옛 부적의 글씨와 같다", g: { east: 3 }, c: { taoist: 1 }, next: "relic_3" }
+      { text: "베란다에서 빗자루로 기록 영상 속 검로를 따라 긋는다. 손목이 저절로 꺾인다", g: { fighter: 3 }, c: { swordsman: 1 }, next: "relic_3" },
+      { text: "그가 피난민 행렬의 맨 뒤를 지켰다는 대목에서 몇 번이고 멈춘다. 나라면 거기 섰을까", g: { guard: 3 }, c: { guardian: 1 }, next: "relic_3" },
+      { text: "그처럼 집 안에서 발소리를 죽이고 걷는 연습을 한다. 식구들이 아무도 눈치채지 못한다", g: { shadow: 3 }, c: { assassin: 1 }, next: "relic_3" },
+      { text: "창밖 2킬로미터 너머 송전탑의 표지등을 눈으로 겨눈다. 구슬이 따뜻해진다", g: { shooter: 3 }, c: { archer: 1 }, next: "relic_3" },
+      { text: "구슬 무늬를 종이에 옮겨 그린다. 원과 선이 맞물리는 마법진이다", g: { mage: 3 }, c: { warder: 1 }, next: "relic_3" },
+      { text: "구슬을 쥐고 잠들면 누군가 방 한구석에 앉아 지켜 주는 기척이 든다. 그 자리에 방석을 깔아 둔다", g: { summon: 3 }, c: { summoner: 1 }, next: "relic_3" },
+      { text: "옆 사람이 화를 내면 구슬이 뜨거워지고, 슬퍼하면 차가워진다. 일부러 사람 많은 곳에 나가 본다", g: { esper: 3 }, c: { telepath: 1 }, next: "relic_3" },
+      { text: "무늬가 옛 부적 글씨와 같다는 걸 알아채고, 한지에 한 획씩 따라 쓴다", g: { east: 3 }, c: { taoist: 1 }, next: "relic_3" }
     ]
   },
   relic_3: {
     title: "스며들다",
-    text: "자다가 가슴이 뜨거워 깬다. 베개 옆에 두었던 구슬이 사라졌다. 셔츠를 걷어 보니 명치 한가운데 동전만 한 무늬가 새겨져 있다.\n\n구슬이 몸속으로 들어왔다. 그리고 그것이 품고 있던 힘이 혈관을 타고 번진다.",
+    text: "한밤중, 쥐고 잠든 구슬이 쩍 갈라지는 소리에 깬다. 틈새로 쏟아지는 빛에 방 안 물건들이 떨린다. 이대로 두면 집이 터질 것 같다.\n\n당신은 구슬을 버리지 않는다. 두 손으로 움켜쥐고 가슴에 끌어안는다. 갈라진 구슬이 명치로 파고들고, 그것이 품고 있던 힘이 혈관을 타고 번진다.",
     choices: [
-      { text: "무늬가 붉게 달아오르고, 손끝에서 불티가 튄다", e: { fire: 4 }, next: "relic_4" },
+      { text: "명치의 무늬가 붉게 달아오르고, 손끝에서 불티가 튄다", e: { fire: 4 }, next: "relic_4" },
       { text: "방 안의 전자기기가 일제히 켜졌다 꺼진다", e: { bolt: 4 }, next: "relic_4" },
       { text: "숨을 내쉬자 창문에 하얀 서리가 맺힌다", e: { ice: 4 }, next: "relic_4" },
       { text: "무늬를 따라 피부가 금속처럼 단단해진다", e: { steel: 4 }, next: "relic_4" },
-      { text: "무명 헌터의 기억 조각이 머릿속을 스친다", e: { spirit: 4 }, next: "relic_4" }
+      { text: "눈꺼풀 안쪽에 본 적 없는 전장이 스친다. 무명 헌터가 마지막으로 본 풍경이다", e: { spirit: 4 }, next: "relic_4" }
     ]
   },
   relic_4: {
     title: "찾아온 사람들",
-    text: '사흘 뒤, 검은 정장 둘이 집 앞에 서 있다. 명함에는 "흑사자 유물 회수팀". 웃는 얼굴로 말한다. "벼룩시장에서 구슬 하나 사셨죠? 값은 열 배로 쳐 드리겠습니다."\n\n구슬은 이미 몸속에 있다. 한 명이 장갑을 벗는다. 손등에 C급 각인이 보인다.',
+    text: '사흘 뒤, {?relic_shared:구슬 사진을 보고 궁금해 죽겠다며|오랜만에 얼굴 보자며} 소꿉친구가 놀러 온 저녁. 초인종이 울린다. 검은 정장 둘. 명함에는 "흑사자 유물 회수팀". 웃는 얼굴로 말한다. "벼룩시장에서 구슬 하나 사셨죠? 값은 열 배로 쳐 드리겠습니다."\n\n구슬은 이미 몸속에 있다. 한 명이 장갑을 벗는다. 손등에 C급 각인이 보인다.',
     choices: [
       { text: '"여기 없어요." 문을 닫으려는 손목을 붙잡아 비튼다', g: { fighter: 2 }, c: { monk: 3 }, next: "relic_5" },
-      { text: "현관 우산을 창처럼 겨눠 거리를 벌린다", g: { fighter: 2 }, c: { lancer: 3 }, next: "relic_5" },
-      { text: "창문으로 빠져나가 옥상 사이를 건너 달아난다", g: { shadow: 2 }, c: { thief: 3 }, next: "relic_5" },
-      { text: "골목 끝 CCTV 기둥 위에서 그들의 차 바퀴를 맞힌다", g: { shooter: 2 }, c: { gunslinger: 3 }, next: "relic_5" },
-      { text: "{friend}을(를) 등 뒤로 숨기고 현관을 막아선다", g: { guard: 2 }, c: { guardian: 3 }, friend: 10, next: "relic_5" },
-      { text: '그들의 속셈이 들린다. "회수 안 되면 숙주째 데려가."', g: { esper: 2 }, c: { telepath: 3 }, next: "relic_5" },
-      { text: "구슬에서 배운 대로 공기를 움켜쥐어 불꽃을 터뜨린다", g: { mage: 2 }, c: { elementalist: 3 }, next: "relic_5" }
+      { text: "현관 우산을 창처럼 겨눠 거리를 벌린다. 우산 끝이 그들 목젖 앞에서 멈춘다", g: { fighter: 2 }, c: { lancer: 3 }, next: "relic_5" },
+      { text: "친구 손을 잡고 창문으로 빠져나가, 옥상 사이를 건너 달아난다", g: { shadow: 2 }, c: { thief: 3 }, next: "relic_5" },
+      { text: "주머니 속 동전을 엄지로 튕긴다. 동전이 총알처럼 날아가 골목에 세워 둔 그들 차의 앞바퀴를 뚫는다", g: { shooter: 2 }, c: { gunslinger: 3 }, next: "relic_5" },
+      { text: '{friend}을(를) 등 뒤로 숨기고 현관을 막아선다. "들어오려면 나부터 지나가."', g: { guard: 2 }, c: { guardian: 3 }, friend: 10, next: "relic_5" },
+      { text: '그들의 속셈이 훤히 읽힌다. "회수 안 되면 숙주째 데려가." 먼저 그 말을 그들 얼굴에 대고 해 준다', g: { esper: 2 }, c: { telepath: 3 }, next: "relic_5" },
+      { text: "구슬에서 배운 대로 공기를 움켜쥔다. 현관 앞에서 불꽃이 터지고 정장들이 뒤로 나자빠진다", g: { mage: 2 }, c: { elementalist: 3 }, next: "relic_5" }
     ]
   },
   relic_5: {
     title: "구슬의 유언",
-    text: "정장들은 물러갔지만, 다시 올 것이다. 그날 밤, 명치의 무늬가 마지막으로 뜨거워진다. 무명 헌터의 목소리가 아니라, 그의 마지막 기억이 눈앞에 펼쳐진다.\n\n그가 끝내 쓰지 못했던 힘이, 이제 당신 것이 된다.",
+    text: "정장들은 물러갔지만, 다시 올 것이다. 그날 밤, 명치의 무늬가 마지막으로 뜨거워진다. 무명 헌터의 말 대신, 그의 마지막 기억이 눈앞에 펼쳐진다.\n\n그가 끝내 다 쓰지 못했던 힘 하나가, 이제 당신 손끝에서 깨어난다.",
     choices: [
-      { text: "두 자루 검을 동시에 휘두르던 그의 마지막 싸움", g: { fighter: 2 }, c: { dualblade: 4 }, next: "verdict_street" },
-      { text: "그가 독초를 달여 칼날에 바르던 밤", g: { shadow: 2 }, c: { poisoner: 4 }, next: "verdict_street" },
-      { text: "숨을 멈추고 아주 먼 곳의 한 점을 겨누던 순간", g: { shooter: 2 }, c: { sniper: 4 }, next: "verdict" },
-      { text: "그가 검은 존재와 맺었던 계약서", g: { mage: 2 }, c: { warlock: 4 }, t: { cursed: 1 }, next: "verdict_street" },
-      { text: "피난민을 지키려 빛의 벽을 세우던 모습", g: { mage: 2 }, c: { warder: 4 }, next: "verdict_guild" },
-      { text: "구름을 뚫고 일어서던 거대한 그림자", g: { guard: 2 }, c: { giant: 4 }, t: { iron_body: 1 }, next: "verdict_guild" },
-      { text: "어느 산사에서 칼을 내려놓고 정좌하던 뒷모습", g: { east: 2 }, c: { swordmonk: 4 }, next: "verdict" },
-      { text: "눈 깜짝할 새 전장 반대편으로 건너가던 발걸음", g: { esper: 2 }, c: { teleporter: 4 }, next: "verdict" }
+      { text: "기억 속 그가 두 자루 검을 엇갈려 휘두른다. 따라 하자 양손에 쌍둥이 같은 빛의 날이 하나씩 돋는다", g: { fighter: 2 }, c: { dualblade: 4 }, next: "verdict_street" },
+      { text: "그가 독초를 달여 칼날에 바르던 밤. 손바닥에 그 쓴 냄새가 배어 나오고, 쥐었던 화분의 잎이 검게 오그라든다", g: { shadow: 2 }, c: { poisoner: 4 }, next: "verdict_street" },
+      { text: "숨을 멈추고 아주 먼 곳의 한 점을 겨누던 순간. 창밖 3킬로미터 너머 간판 글씨가 코앞처럼 읽힌다", g: { shooter: 2 }, c: { sniper: 4 }, next: "verdict" },
+      { text: "그가 검은 존재와 손바닥을 맞대고 피로 맺은 약속. 당신 손바닥에도 같은 검은 금이 그어진다", g: { mage: 2 }, c: { warlock: 4 }, t: { cursed: 1 }, next: "verdict_street" },
+      { text: "피난민을 지키려 빛의 벽을 세우던 모습. 손을 펴자 방 한가운데 투명한 벽이 선다", g: { mage: 2 }, c: { warder: 4 }, next: "verdict_guild" },
+      { text: "무너지는 성벽을 혼자 등으로 떠받치던 거대한 뒷모습. 일어서자 천장이 가까워져 있다", g: { guard: 2 }, c: { giant: 4 }, t: { iron_body: 1 }, next: "verdict_guild" },
+      { text: "어느 산사에서 칼을 내려놓고 정좌하던 뒷모습. 맨손을 휘두르자 커튼이 칼에 벤 듯 갈라진다", g: { east: 2 }, c: { swordmonk: 4 }, next: "verdict" },
+      { text: "눈 깜짝할 새 전장 반대편으로 건너가던 발걸음. 한 걸음 내딛자 방 반대편 문 앞에 서 있다", g: { esper: 2 }, c: { teleporter: 4 }, next: "verdict" }
     ]
   },
   // ===================== 꿈과 신병 =====================
@@ -1788,33 +1826,33 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: "꿈 일기를 쓰기 시작한다", e: { ice: 1 }, g: { mage: 1, esper: 1 }, t: { mana_sense: 1 }, next: "dream_2" },
       { text: '"그냥 피곤한 거야." 운동으로 땀을 뺀다', e: { fire: 1 }, g: { fighter: 2 }, t: { iron_body: 1 }, next: "dream_2" },
-      { text: "외할머니가 무당이었다는 이야기를 떠올린다", e: { spirit: 1 }, g: { east: 2 }, t: { lucky: 1 }, next: "dream_2" },
-      { text: "{friend}에게 꿈 이야기를 털어놓는다", g: { support: 1, summon: 1 }, t: { charisma: 1 }, friend: 10, next: "dream_2" }
+      { text: "손바닥의 모래를 털지 않고 유리병에 모은다. 이상하게 버릴 수가 없다", e: { spirit: 1 }, g: { east: 2 }, t: { lucky: 1 }, next: "dream_2" },
+      { text: "{friend}에게 꿈 이야기를 털어놓는다", g: { support: 1, summon: 1 }, t: { charisma: 1 }, friend: 10, flag: "dream_told", next: "dream_2" }
     ]
   },
   dream_2: {
     title: "신병",
-    text: '몸이 점점 무너진다. 밥이 넘어가지 않고, 밤이면 귓가에 방울 소리가 들린다. 수소문 끝에 찾아간 곳은 도시 외곽 산자락의 작은 신당. 백발의 만신 할머니가 당신을 보자마자 혀를 찬다.\n\n"너 오는 줄 알았다. 신이 너를 고른 거야. 받든지, 다른 길을 찾든지 해야 살아."',
+    text: '몸이 점점 무너진다. 밥이 넘어가지 않고, 밤이면 귓가에 방울 소리가 울린다. {?dream_told:소꿉친구가 수소문해 준 끝에|혼자 수소문한 끝에} 찾아간 곳은 도시 외곽 산자락의 작은 신당. 백발의 만신 할머니가 당신을 보자마자 혀를 찬다.\n\n"너 오는 줄 알았다. 신이 너를 고른 거야. 받든지, 다른 길을 찾든지 해야 살아."',
     choices: [
       { text: '"받겠습니다." 할머니 앞에 무릎을 꿇는다', g: { east: 3 }, c: { shaman: 2 }, next: "dream_3" },
-      { text: "할머니 몰래 산 아래 절의 노스님을 찾아간다", g: { east: 3 }, c: { taoist: 1 }, next: "dream_3" },
+      { text: "할머니 몰래 산 아래 절의 노스님을 찾아간다. 받지 않고도 사는 법이 있을지 모른다", g: { east: 3 }, c: { taoist: 1 }, next: "dream_3" },
       { text: '"신 말고, 내 힘으로 버티겠어요." 주먹을 쥔다', g: { fighter: 3 }, c: { monk: 1 }, next: "dream_3" },
-      { text: "꿈속 존재를 부려 보겠다고 마음먹는다", g: { summon: 3 }, c: { summoner: 1 }, next: "dream_3" },
-      { text: "신당 사람들의 마음이 소리처럼 들리기 시작한다", g: { esper: 3 }, c: { telepath: 1 }, next: "dream_3" },
-      { text: "방울 소리의 규칙을 계산해 본다. 패턴이 있다", g: { mage: 3 }, c: { warder: 1 }, next: "dream_3" },
-      { text: "아픈 몸으로 신당 일손을 돕고, 찾아온 사람들을 달랜다", g: { support: 3 }, c: { priest: 1 }, next: "dream_3" },
+      { text: "꿈속 존재에게 끌려가는 대신, 거꾸로 그것을 불러내 부려 보겠다고 마음먹는다", g: { summon: 3 }, c: { summoner: 1 }, next: "dream_3" },
+      { text: "신당에 찾아온 사람들이 입을 열기도 전에 무슨 사연인지 알아챈다. 할머니가 눈을 가늘게 뜬다", g: { esper: 3 }, c: { telepath: 1 }, next: "dream_3" },
+      { text: "방울이 울리는 간격을 밤새 받아 적는다. 무작위가 아니다. 규칙이 있다", g: { mage: 3 }, c: { warder: 1 }, next: "dream_3" },
+      { text: "아픈 몸으로 신당 부엌일을 돕고, 울며 찾아온 사람들에게 차를 따른다", g: { support: 3 }, c: { priest: 1 }, next: "dream_3" },
       { text: "굿판이 열리는 날, 맨 앞에 서서 할머니를 지키겠다고 한다", g: { guard: 3 }, c: { paladin: 1 }, next: "dream_3" }
     ]
   },
   dream_3: {
     title: "굿판",
-    text: "보름밤, 신당 마당에 굿판이 벌어진다. 장구가 울리고 할머니의 방울이 흔들린다. 당신은 흰 옷을 입고 작두 앞에 선다.\n\n세상이 기울고, 꿈속 강가가 눈앞에 펼쳐진다. 강 건너의 존재가 처음으로 얼굴을 보인다. 그것이 당신에게 손을 뻗는다.",
+    text: "보름밤, 신당 마당에 굿판이 벌어진다. 장구가 울리고 할머니의 방울이 흔들린다. 당신은 흰 옷을 입고 작두 앞에 선다.\n\n세상이 기울고, 꿈속 강가가 눈앞에 펼쳐진다. 강 건너의 존재가 처음으로 얼굴을 보인다. 그것이 당신에게 손을 뻗는다. 당신은 그 손을 마주 잡는다.",
     choices: [
       { text: "붉은 천이 불길로 변해 온몸을 감싼다", e: { fire: 4 }, next: "dream_4" },
       { text: "방울 소리마다 하늘에서 마른번개가 친다", e: { bolt: 4 }, next: "dream_4" },
       { text: "강물이 얼어붙고, 그 위를 맨발로 건넌다", e: { ice: 4 }, next: "dream_4" },
       { text: "작두날 위에 올라서도 발바닥에 상처 하나 없다", e: { steel: 4 }, next: "dream_4" },
-      { text: "존재와 이마를 맞댄다. 수천 개의 목소리가 하나로 합쳐진다", e: { spirit: 4 }, next: "dream_4" }
+      { text: "존재와 이마를 맞댄다. 수천 개의 숨결이 하나로 합쳐진다", e: { spirit: 4 }, next: "dream_4" }
     ]
   },
   dream_4: {
@@ -1827,7 +1865,7 @@ Object.assign(PROLOGUE, {
       { text: "안개 속으로 들어가 아이의 꿈에서 직접 데려 나온다", g: { esper: 2 }, c: { telepath: 3 }, next: "dream_5" },
       { text: "꿈에서 만난 강가의 짐승을 불러 안개를 물어뜯게 한다", g: { summon: 2 }, c: { tamer: 3 }, next: "dream_5" },
       { text: "안개를 움켜쥐고 창밖으로 던져 버린다", g: { fighter: 2 }, c: { berserker: 3 }, next: "dream_5" },
-      { text: "전화로 {friend}을(를) 불러 아이 어머니 곁을 지켜 달라고 부탁한다", g: { support: 2 }, c: { bard: 3 }, friend: 10, next: "dream_5" }
+      { text: "전화로 {friend}을(를) 불러 아이 어머니 곁을 지켜 달라고 부탁한다. 둘이 번갈아 아이 이름을 부르자 안개가 옅어진다", g: { support: 2 }, c: { bard: 3 }, friend: 10, next: "dream_5" }
     ]
   },
   dream_5: {
@@ -1835,7 +1873,7 @@ Object.assign(PROLOGUE, {
     text: '아이가 깨어났다. 할머니가 처음으로 웃는다. "이제 너도 이쪽 사람이다. 그런데 네 신은 내 신하고 좀 다르구나."\n\n그날 밤 꿈속 강가. 존재가 마침내 자신의 이름을 알려 준다. 그 이름이 당신의 길을 정한다.',
     choices: [
       { text: '"만신(萬神)." 수많은 신의 무리가 당신 뒤에 선다', g: { east: 2 }, c: { shaman: 4 }, next: "verdict" },
-      { text: '"검선(劍仙)." 꿈속에서 칼 한 자루를 건네받는다', g: { east: 2 }, c: { swordmonk: 4 }, next: "verdict" },
+      { text: '"검선(劍仙)." 꿈속에서 칼 한 자루를 건네받는다. 깨어나 보니 맨손에 칼의 무게가 남아 있다', g: { east: 2 }, c: { swordmonk: 4 }, next: "verdict" },
       { text: '"사자(使者)." 저승길 망자들이 고개를 숙인다', g: { summon: 2 }, c: { necromancer: 4 }, t: { loner: 1 }, next: "verdict_street" },
       { text: '"예언자." 강물에 아직 오지 않은 날들이 비친다', g: { esper: 2 }, c: { seer: 4 }, luck: 1, next: "verdict" },
       { text: '"계약자." 존재가 대가를 요구하는 붉은 문서를 내민다', g: { mage: 2 }, c: { warlock: 4 }, t: { cursed: 1 }, next: "verdict_street" },
@@ -1846,26 +1884,26 @@ Object.assign(PROLOGUE, {
   // ===================== 에테르 폭풍 =====================
   storm_1: {
     title: "폭풍 예보",
-    text: "며칠 뒤, 기상청이 처음 보는 경보를 띄운다. [에테르 폭풍 경보] 보랏빛 적란운이 서해에서 올라오고 있습니다. 외출을 삼가십시오.\n\n오후 4시, 하늘이 낮처럼 어두워진다. 휴대폰 신호가 한 칸씩 사라진다.",
+    text: "그해 여름, 기상청이 처음 보는 경보를 띄운다. [에테르 폭풍 경보] 검붉은 적란운이 서해에서 올라오고 있습니다. 외출을 삼가십시오.\n\n하필 그날 당신은 시내에 나와 있었다. 소꿉친구를 기다리며 길모퉁이 카페에 앉아 있던 참이다. {friendJob}인 친구는 오늘도 늦는다. 오후 4시, 하늘이 낮처럼 어두워진다. 휴대폰 신호가 한 칸씩 사라진다.",
     choices: [
-      { text: "창문을 열고 구름을 올려다본다. 가슴이 뛴다", e: { bolt: 1 }, g: { mage: 1, shooter: 1 }, t: { reckless: 1 }, next: "storm_2" },
-      { text: "비상식량과 손전등을 챙겨 이웃집 문을 두드린다", e: { steel: 1 }, g: { guard: 1, support: 1 }, t: { charisma: 1 }, next: "storm_2" },
-      { text: '{friend}에게 끊기기 전에 전화를 건다. "어디야?"', e: { spirit: 1 }, g: { support: 1, summon: 1 }, t: { lucky: 1 }, friend: 10, next: "storm_2" },
-      { text: "폭풍 레이더를 켜고 번개가 떨어지는 패턴을 기록한다", e: { ice: 1 }, g: { mage: 1, esper: 1 }, t: { genius: 1 }, next: "storm_2" }
+      { text: "카페 창가에서 구름을 올려다본다. 무섭기보다 가슴이 뛴다", e: { bolt: 1 }, g: { mage: 1, shooter: 1 }, t: { reckless: 1 }, next: "storm_2" },
+      { text: "카페 사장에게 비상식량과 손전등 자리를 묻고, 손님들을 안쪽으로 모은다", e: { steel: 1 }, g: { guard: 1, support: 1 }, t: { charisma: 1 }, next: "storm_2" },
+      { text: '{friend}에게 끊기기 전에 전화를 건다. "어디야? 거기 그대로 있어."', e: { spirit: 1 }, g: { support: 1, summon: 1 }, t: { lucky: 1 }, friend: 10, flag: "storm_called", next: "storm_2" },
+      { text: "폭풍 레이더 앱을 켜고 번개가 떨어지는 패턴을 받아 적는다", e: { ice: 1 }, g: { mage: 1, esper: 1 }, t: { genius: 1 }, next: "storm_2" }
     ]
   },
   storm_2: {
     title: "정전된 도시",
     text: "번개가 변전소를 때리고, 도시 전체가 꺼진다. 신호등도, 엘리베이터도, 버스도 멈췄다. 어둠 속에서 사방이 소리를 지른다.\n\n바로 앞 오피스텔 엘리베이터에 사람이 갇혔다. 건너편 터널에선 차들이 뒤엉켰다. 어디로 갈지 정해야 한다.",
     choices: [
-      { text: "엘리베이터 문틈에 손가락을 넣고 억지로 비튼다", g: { fighter: 3 }, c: { berserker: 1 }, next: "storm_3" },
-      { text: "터널 입구에서 몰려드는 차들을 몸으로 막아 세운다", g: { guard: 3 }, c: { guardian: 1 }, next: "storm_3" },
-      { text: "다친 사람들을 편의점 안으로 옮겨 응급처치를 한다", g: { support: 3 }, c: { healer: 1 }, next: "storm_3" },
-      { text: "옥상에 올라가 조명탄 쏘듯 신호를 보낼 방법을 찾는다", g: { shooter: 3 }, c: { archer: 1 }, next: "storm_3" },
-      { text: "아무도 없는 지름길로 사람들을 빼낸다", g: { shadow: 3 }, c: { thief: 1 }, next: "storm_3" },
-      { text: "번개가 다음에 어디 떨어질지 감으로 알 것 같다", g: { mage: 3 }, c: { elementalist: 1 }, next: "storm_3" },
-      { text: "갇힌 사람들의 공포가 머릿속으로 밀려든다. 그쪽으로 간다", g: { esper: 3 }, c: { telekinetic: 1 }, next: "storm_3" },
-      { text: "겁에 질린 길고양이와 개들이 이상하게 당신을 따라온다", g: { summon: 3 }, c: { tamer: 1 }, next: "storm_3" }
+      { text: "엘리베이터 문틈에 손가락을 넣고 억지로 비튼다. 손톱이 들려도 놓지 않는다", g: { fighter: 3 }, c: { berserker: 1 }, next: "storm_3" },
+      { text: "터널 입구에 서서 두 팔을 벌리고, 밀려드는 차들을 몸으로 세운다", g: { guard: 3 }, c: { guardian: 1 }, next: "storm_3" },
+      { text: "다친 사람들을 편의점 안으로 옮기고, 붕대 대신 티셔츠를 찢는다", g: { support: 3 }, c: { healer: 1 }, next: "storm_3" },
+      { text: "옥상으로 뛰어 올라가 손전등 불빛을 구조 헬기 쪽으로 끊어 쏜다. 짧게, 길게, 짧게", g: { shooter: 3 }, c: { archer: 1 }, next: "storm_3" },
+      { text: "골목과 주차장 사이 아무도 모르는 지름길로 사람들을 빼낸다", g: { shadow: 3 }, c: { thief: 1 }, next: "storm_3" },
+      { text: "번개가 다음에 어디 떨어질지 감으로 알 것 같다. 사람들을 그 자리에서 비켜 세운다", g: { mage: 3 }, c: { elementalist: 1 }, next: "storm_3" },
+      { text: "엘리베이터 쪽으로 손을 뻗는다. 손이 닿기도 전에 비틀린 문짝이 덜컹 밀려난다", g: { esper: 3 }, c: { telekinetic: 1 }, next: "storm_3" },
+      { text: "목줄 풀린 개들이 짖으며 흩어진다. 당신이 휘파람을 불자 이상하게 모두 발치로 모여든다", g: { summon: 3 }, c: { tamer: 1 }, next: "storm_3" }
     ]
   },
   storm_3: {
@@ -1876,34 +1914,34 @@ Object.assign(PROLOGUE, {
       { text: "번개가 그대로 남는다. 머리카락 끝에서 스파크가 튄다", e: { bolt: 4 }, next: "storm_4" },
       { text: "몸이 차갑게 식고, 떨어지는 빗방울이 얼음이 된다", e: { ice: 4 }, next: "storm_4" },
       { text: "그을린 피부 아래로 강철 같은 무언가가 굳는다", e: { steel: 4 }, next: "storm_4" },
-      { text: "도시 전체의 목소리가 한꺼번에 들린다. 수만 명의 두려움", e: { spirit: 4 }, next: "storm_4" }
+      { text: "도시 전체의 두려움이 파도처럼 밀려온다. 수만 명의 심장 소리", e: { spirit: 4 }, next: "storm_4" }
     ]
   },
   storm_4: {
     title: "무너지는 육교",
-    text: "정신을 차리니 폭풍의 눈 한가운데다. 비가 멎은 고요 속, 바로 옆 육교가 삐걱거린다. 그 위에 버스 한 대가 걸쳐 있고, 창문마다 사람들 얼굴이 보인다.\n\n관리국 구조대는 아직 30분 거리다. 당신은 방금 얻은 힘을 처음으로 써 본다.",
+    text: "정신을 차리니 폭풍의 눈 한가운데다. 비가 멎은 고요 속, 바로 옆 육교가 삐걱거린다. 그 위에 퇴근 버스 한 대가 걸쳐 있고, 창문마다 사람들 얼굴이 보인다. {?storm_called:맨 뒷자리에서 소꿉친구가 휴대폰 불빛을 흔든다.|}\n\n관리국 구조대는 아직 30분 거리다. 당신은 방금 얻은 힘을 처음으로 써 본다.",
     choices: [
       { text: "육교 기둥을 어깨로 받쳐 버틴다", g: { guard: 2 }, c: { guardian: 3 }, next: "storm_5" },
       { text: "버스를 허공에 띄워 천천히 땅에 내려놓는다", g: { esper: 2 }, c: { telekinetic: 3 }, next: "storm_5" },
       { text: "끊어진 철골을 창처럼 박아 육교를 고정한다", g: { fighter: 2 }, c: { lancer: 3 }, next: "storm_5" },
-      { text: "부서진 난간 너머로 밧줄을 쏘아 걸어 탈출로를 만든다", g: { shooter: 2 }, c: { gunslinger: 3 }, next: "storm_5" },
+      { text: "부서진 난간 너머로 밧줄 끝을 던져 정확히 가로등에 감는다. 탈출로가 생긴다", g: { shooter: 2 }, c: { gunslinger: 3 }, next: "storm_5" },
       { text: "내리꽂히는 다음 번개를 손으로 잡아채 하늘로 돌려보낸다", g: { mage: 2 }, c: { elementalist: 3 }, next: "storm_5" },
       { text: "버스 안 사람들에게 소리쳐 한 명씩 차분히 내리게 한다", g: { support: 2 }, c: { bard: 3 }, next: "storm_5" },
-      { text: "{friend}이(가) 버스 안에 있다. 생각보다 몸이 먼저 움직인다", g: { fighter: 2 }, c: { swordsman: 3 }, friend: 15, next: "storm_5" }
+      { text: "{friend}이(가) 버스 문틈에 끼어 있다. 부러진 표지판 날을 칼처럼 쥐고, 엉킨 철골을 단번에 베어 길을 낸다", g: { fighter: 2 }, c: { swordsman: 3 }, friend: 15, flag: "friend_hurt", next: "storm_5" }
     ]
   },
   storm_5: {
     title: "폭풍이 지나간 뒤",
     text: '아침 해가 뜬다. 도시는 엉망이지만, 육교 위 버스는 무사하다. 뉴스 헬기가 머리 위를 돈다. "번개를 맞고도 사람들을 구한 정체불명의 시민…"\n\n몸속에 남은 폭풍이 마지막으로 한 번 크게 울린다. 그리고 자리를 잡는다.',
     choices: [
-      { text: "번개처럼 사라졌다 나타나는 법을 몸이 기억한다", g: { esper: 2 }, c: { teleporter: 4 }, next: "verdict_street" },
-      { text: "폭풍 속에서 본 빛의 벽을 다시 세울 수 있다", g: { mage: 2 }, c: { warder: 4 }, next: "verdict_guild" },
-      { text: "구름을 뚫고 일어서는 거인의 환영이 등 뒤에 겹친다", g: { guard: 2 }, c: { giant: 4 }, t: { iron_body: 1 }, next: "verdict" },
-      { text: "먹구름 위, 수 킬로미터 밖의 한 점이 선명하게 보인다", g: { shooter: 2 }, c: { sniper: 4 }, next: "verdict_guild" },
-      { text: "양손에서 번개가 칼날처럼 갈라진다", g: { fighter: 2 }, c: { dualblade: 4 }, next: "verdict_street" },
-      { text: "폭풍에 휩쓸려 온 영수가 당신을 주인으로 삼는다", g: { summon: 2 }, c: { summoner: 4 }, next: "verdict" },
-      { text: "빗물에 섞인 에테르를 걸러 약으로 만드는 법이 떠오른다", g: { support: 2 }, c: { alchemist: 4 }, next: "verdict_guild" },
-      { text: "그을린 손끝에서 녹색 독기가 피어오른다", g: { shadow: 2 }, c: { poisoner: 4 }, next: "verdict_street" }
+      { text: "번쩍, 하는 순간 길 건너편에 서 있다. 번개처럼 사라졌다 나타나는 법을 몸이 기억한다", g: { esper: 2 }, c: { teleporter: 4 }, next: "verdict_street" },
+      { text: "폭풍 속에서 사람들 머리 위로 세웠던 빛의 벽을, 손짓 한 번에 다시 세운다", g: { mage: 2 }, c: { warder: 4 }, next: "verdict_guild" },
+      { text: "아침 햇살에 비친 당신 그림자가 무너진 육교보다 길다. 어깨가 한 뼘씩 넓어진다", g: { guard: 2 }, c: { giant: 4 }, t: { iron_body: 1 }, next: "verdict" },
+      { text: "먹구름 위, 수 킬로미터 밖의 한 점이 선명하게 보인다. 손가락으로 겨누자 그 점이 떨린다", g: { shooter: 2 }, c: { sniper: 4 }, next: "verdict_guild" },
+      { text: "양손에서 번개가 두 갈래 검으로 굳는다. 휘두르자 공기가 엇갈려 갈라진다", g: { fighter: 2 }, c: { dualblade: 4 }, next: "verdict_street" },
+      { text: "폭풍에 휩쓸려 온 날개 달린 영수 하나가 당신 어깨에 내려앉아 떠나지 않는다", g: { summon: 2 }, c: { summoner: 4 }, next: "verdict" },
+      { text: "빗물에 섞인 에테르를 손바닥으로 걸러, 다친 사람들에게 먹일 약으로 졸여 낸다", g: { support: 2 }, c: { alchemist: 4 }, next: "verdict_guild" },
+      { text: "빗물 웅덩이에 손을 담그자 물빛이 탁한 쑥색으로 변하고, 거기 닿은 잡초가 순식간에 시든다", g: { shadow: 2 }, c: { poisoner: 4 }, next: "verdict_street" }
     ]
   }
 });
@@ -1911,7 +1949,7 @@ Object.assign(PROLOGUE, {
   // ===== 각성자 범죄: 은행 인질극 =====
   crime_1: {
     title: "은행 창구 번호표 47번",
-    text: '그 무렵, 볼일이 있어 은행에 들렀다. 번호표 47번. 대기 인원 열두 명.\n\n유리문이 녹아내린다. 손바닥에서 연기를 피우는 남자가 들어선다. "다들 엎드려. 협회 진압팀 오려면 20분은 걸리거든. 그동안 착하게 있자고." 뒤따라 들어온 둘이 셔터를 내린다.',
+    text: '평일 오후, 볼일이 있어 은행에 들렀다. 번호표 47번. 대기 인원 열두 명.\n\n유리문이 녹아내린다. 손바닥에서 연기를 피우는 남자가 들어선다. "다들 엎드려. 협회 진압팀 오려면 20분은 걸리거든. 그동안 착하게 있자고." 뒤따라 들어온 둘이 셔터를 내린다.',
     choices: [
       { text: "시키는 대로 엎드려서 그들의 숫자와 위치를 센다", e: { ice: 1 }, g: { shadow: 1, shooter: 1 }, t: { quick: 1 }, next: "crime_2" },
       { text: "옆에서 떨고 있는 할머니를 몸으로 가린다", e: { steel: 1 }, g: { guard: 2 }, t: { iron_body: 1 }, next: "crime_2" },
@@ -1921,16 +1959,16 @@ Object.assign(PROLOGUE, {
   },
   crime_2: {
     title: "셔터 안쪽",
-    text: '금고가 열리지 않는다. 리더의 손바닥이 점점 붉게 달아오른다. "인질 하나씩 내보낸다. 진압팀이 오면 하나씩 태운다."\n\n강도 하나가 당신의 팔을 잡아끈다. 창구 너머로 은행원이 떨리는 손으로 비상벨 덮개를 연다. 깨진 유리에 베인 인질 하나가 바닥에 피를 흘리고 있다. 지금 뭔가를 해야 한다.',
+    text: '금고가 열리지 않는다. 리더의 손바닥이 점점 붉게 달아오른다. "진압팀이 셔터 앞에 서면, 인질을 하나씩 셔터 밖으로 세운다. 살아 있는 방패로."\n\n강도 하나가 당신의 팔을 잡아끈다. 첫 번째 방패로 고른 모양이다. 창구 너머로 은행원이 떨리는 손으로 비상벨 덮개를 연다. 깨진 유리에 베인 인질 하나가 바닥에 피를 흘리고 있다.',
     choices: [
-      { text: "팔을 잡은 강도의 턱을 머리로 들이받는다", g: { fighter: 3 }, t: { reckless: 1 }, next: "crime_3" },
-      { text: '"저 대신 나가겠습니다." 다른 인질 앞에 선다', g: { guard: 3 }, c: { guardian: 1 }, next: "crime_3" },
-      { text: "강도가 고개 돌린 틈에 기둥 뒤로 숨는다", g: { shadow: 3 }, c: { thief: 1 }, next: "crime_3" },
-      { text: "바닥에 떨어진 경비원의 테이저건을 발로 끌어온다", g: { shooter: 3 }, c: { gunslinger: 1 }, next: "crime_3" },
-      { text: "리더 손바닥의 열기가 어디서 오는지 노려본다", g: { mage: 3 }, c: { elementalist: 1 }, next: "crime_3" },
-      { text: "유리에 베인 인질의 지혈부터 한다", g: { support: 3 }, c: { healer: 1 }, next: "crime_3" },
-      { text: "강도의 다음 동작이 머릿속에 먼저 그려진다", g: { esper: 3 }, c: { telekinetic: 1 }, next: "crime_3" },
-      { text: '"진정해요. 아무도 안 다쳤잖아요." 리더의 눈을 본다', g: { support: 2, esper: 1 }, c: { bard: 1 }, next: "crime_3" }
+      { text: "팔을 잡힌 채로 강도의 턱을 머리로 들이받는다. 계산은 나중에", g: { fighter: 3 }, t: { reckless: 1 }, next: "crime_3" },
+      { text: '"방패가 필요하면 저부터 세워요." 다른 인질 앞에 선다', g: { guard: 3 }, c: { guardian: 1 }, next: "crime_3" },
+      { text: "강도가 고개 돌린 틈에 기둥 뒤로 미끄러진다. 지금 나서면 다 죽는다", g: { shadow: 3 }, c: { thief: 1 }, next: "crime_3" },
+      { text: "바닥에 떨어진 경비원의 테이저건을 발끝으로 끌어온다. 기회는 한 번이다", g: { shooter: 3 }, c: { gunslinger: 1 }, next: "crime_3" },
+      { text: "리더 손바닥의 열이 어디서 차오르는지 숨죽여 지켜본다", g: { mage: 3 }, c: { elementalist: 1 }, next: "crime_3" },
+      { text: "강도 눈치를 보며 유리에 베인 인질의 지혈부터 한다", g: { support: 3 }, c: { healer: 1 }, next: "crime_3" },
+      { text: "떨리는 손끝 앞에서 바닥의 볼펜이 저절로 굴러간다. 내가 민 걸까", g: { esper: 3 }, c: { telekinetic: 1 }, next: "crime_3" },
+      { text: '"진정해요. 아직 아무도 안 죽었잖아요." 리더의 눈을 보며 천천히 말을 건다', g: { support: 2, esper: 1 }, c: { bard: 1 }, next: "crime_3" }
     ]
   },
   crime_3: {
@@ -1941,97 +1979,98 @@ Object.assign(PROLOGUE, {
       { text: "천장 형광등이 일제히 터지며 전류가 몸을 감싼다", e: { bolt: 4 }, next: "crime_4" },
       { text: "녹아내리던 철판이 당신 발밑에서 하얗게 얼어붙는다", e: { ice: 4 }, next: "crime_4" },
       { text: "불붙은 손을 잡는다. 살갗이 강철처럼 버틴다", e: { steel: 4 }, next: "crime_4" },
-      { text: "인질 열두 명의 공포가 한꺼번에 머릿속으로 흘러든다", e: { spirit: 4 }, next: "crime_4" }
+      { text: "인질 열두 명의 공포가 한꺼번에 가슴으로 밀려든다. 그리고 그걸 되돌려 보낼 수 있다", e: { spirit: 4 }, next: "crime_4" }
     ]
   },
   crime_4: {
     title: "진압팀보다 먼저",
-    text: '리더가 비틀거리며 물러선다. "너… 미등록 각성자냐?" 남은 강도 둘이 동시에 달려든다. 셔터 밖에서 이제야 사이렌이 들린다.\n\n아직 20분이 안 됐다. 그 전에 끝내야 한다.',
+    text: '리더가 비틀거리며 물러선다. "너… 미등록 각성자냐?" 셔터 밖에서 사이렌이 울리자 남은 강도 둘이 인질들 쪽으로 몸을 돌린다. "진압팀 들어오면 하나씩 태운다고 했지!"\n\n셔터가 올라가기까지 몇 분. 저들이 인질에게 닿기 전에 끝내야 한다.',
     choices: [
-      { text: "은행 로고가 박힌 쇠 안내봉을 뽑아 휘두른다", g: { fighter: 2 }, c: { swordsman: 3 }, next: "crime_5" },
-      { text: "굴러다니던 테이저건을 주워 정확히 쏜다", g: { shooter: 2 }, c: { gunslinger: 3 }, next: "crime_5" },
+      { text: "은행 로고가 박힌 쇠 안내봉을 뽑아 칼처럼 휘두른다", g: { fighter: 2 }, c: { swordsman: 3 }, next: "crime_5" },
+      { text: "굴러다니던 테이저건을 주워 두 번, 정확히 쏜다", g: { shooter: 2 }, c: { gunslinger: 3 }, next: "crime_5" },
       { text: "인질들 앞을 막아서고 한 발도 물러나지 않는다", g: { guard: 2 }, c: { guardian: 3 }, next: "crime_5" },
       { text: "손짓 하나에 강도의 총이 허공으로 날아간다", g: { esper: 2 }, c: { telekinetic: 3 }, next: "crime_5" },
-      { text: "강도의 허리춤에서 금고 열쇠와 무기를 몰래 빼낸다", g: { shadow: 2 }, c: { thief: 3 }, next: "crime_5" },
+      { text: "강도의 허리춤에서 기폭 장치와 무기를 몰래 빼낸다", g: { shadow: 2 }, c: { thief: 3 }, next: "crime_5" },
       { text: "불길이 번지기 전에 공기 중의 열을 한데 모아 흩어 버린다", g: { mage: 2 }, c: { elementalist: 3 }, next: "crime_5" },
       { text: "유리에 베인 인질의 상처에 손을 얹자 피가 멎는다", g: { support: 2 }, c: { healer: 3 }, next: "crime_5" }
     ]
   },
   crime_5: {
     title: "뉴스 속보",
-    text: '[속보] 시내 은행 인질극, 인질 중 미등록 각성자가 진압. 진압팀장이 담요를 덮어 주며 묻는다. "어디서 배웠어요?" 대답할 말이 없다.\n\n그날 밤, 수많은 연락이 온다. 관리국, 길드 스카우트, 그리고 발신자 번호가 없는 문자 한 통.\n\n잠들기 전, 그날의 장면이 하나씩 다시 떠오른다. 그중 하나는 아무리 생각해도 설명이 안 된다.',
+    text: '[속보] 시내 은행 인질극, 인질 중 미등록 각성자가 진압. 진압팀장이 담요를 덮어 주며 묻는다. "어디서 배웠어요?" 대답할 말이 없다.\n\n그날 밤, 연락이 쏟아진다. 관리국, 길드 스카우트, 그리고 발신자 번호가 없는 문자 한 통.\n\n잠들기 전, 그날의 장면이 하나씩 다시 떠오른다. 그중 하나는 아무리 생각해도 설명이 안 된다.',
     choices: [
-      { text: "셔터 너머를 꿰뚫어 보던 그 감각을 다시 떠올린다. 한 점만 보였다", g: { shooter: 2 }, c: { sniper: 4 }, next: "verdict" },
+      { text: "셔터 너머 강도의 손목, 그 한 점만 또렷이 보였다. 거리가 사라진 것처럼", g: { shooter: 2 }, c: { sniper: 4 }, next: "verdict" },
       { text: "인질들 앞에 빛의 방패가 섰던 장면이 영상에 남아 있다", g: { guard: 2 }, c: { paladin: 4 }, next: "verdict_guild" },
       { text: "그때 나는 분명 셔터 반대편에 서 있었다. 한 발짝도 안 걸었는데", g: { esper: 2 }, c: { teleporter: 4 }, next: "verdict_street" },
-      { text: "금고 문 앞에 보이지 않는 벽을 세웠다", g: { mage: 2 }, c: { warder: 4 }, next: "verdict" },
-      { text: '은행원이 "당신 손에서 빛이 났다"고 인터뷰한다', g: { support: 2 }, c: { priest: 4 }, next: "verdict_guild" },
-      { text: "리더가 불을 붙이기 직전, 시간이 한 번 멈췄던 것 같다", g: { mage: 2 }, c: { chronomancer: 4 }, talent: 1, next: "verdict" },
+      { text: "금고 문 앞에 보이지 않는 벽을 세웠다. 불길이 거기서 멈췄다", g: { mage: 2 }, c: { warder: 4 }, next: "verdict" },
+      { text: '은행원이 인터뷰한다. "그분이 손을 얹자 다들 피가 멎었어요. 빛이 났어요."', g: { support: 2 }, c: { priest: 4 }, next: "verdict_guild" },
+      { text: "리더가 불을 붙이기 직전, 시간이 한 번 멈췄다. 멈춘 사이 나만 움직였다", g: { mage: 2 }, c: { chronomancer: 4 }, talent: 1, next: "verdict" },
       { text: "강도가 움직이기 전에 그 장면을 이미 꿈에서 봤다", g: { esper: 2 }, c: { seer: 4 }, t: { lucky: 1 }, next: "verdict_street" },
-      { text: '밤늦게 {friend}이(가) 울면서 찾아와 안긴다. "바보야, 왜 네가 나서!" 그 품에서 처음으로 떨림이 멎는다', g: { support: 2 }, c: { bard: 2, priest: 2 }, friend: 15, next: "verdict" }
+      { text: '밤늦게 {friend}이(가) 찾아온다. {friendJob} 유니폼도 못 갈아입은 채다. "바보야, 왜 네가 나서." 둘이 나란히 앉아 흥얼거리자, 그날의 떨림이 함께 멎는다', g: { support: 2 }, c: { bard: 2, priest: 2 }, friend: 15, next: "verdict" }
     ]
   },
   // ===== 불법 각성제 '블루' =====
   drug_1: {
     title: "파란 캡슐",
-    text: '며칠 뒤, 헌터 커뮤니티 비밀 게시판에 글이 올라온다. "블루 한 알이면 E급 각성 보장. 부작용 없음. 선착순 30명."\n\n{friend}이(가) 단톡방에 사진을 올린다. 투명한 비닐 안에 파란 캡슐 두 알. "야, 이거 진짜래. 같이 먹을래?"',
+    text: '장마가 길던 여름, 헌터 커뮤니티 비밀 게시판에 글이 올라온다. "블루 한 알이면 E급 각성 보장. 부작용 없음. 선착순 30명."\n\n{friend}이(가) 단톡방에 사진을 올린다. 투명한 비닐 안에 파란 캡슐 두 알. 한참 뒤 한 줄이 더 온다. "{friendJob} 3년째야. 나도 이제 뭐라도 되고 싶어. 같이 먹을래?"',
     choices: [
-      { text: '"미쳤어? 당장 버려." {friend}에게 바로 전화를 건다', e: { steel: 1 }, g: { guard: 1, support: 1 }, t: { charisma: 1 }, friend: 10, next: "drug_2" },
-      { text: "판매자 계정을 추적해 본다", e: { ice: 1 }, g: { shadow: 1, esper: 1 }, t: { genius: 1 }, next: "drug_2" },
+      { text: '"미쳤어? 당장 버려." {friend}에게 바로 전화를 건다', e: { steel: 1 }, g: { guard: 1, support: 1 }, t: { charisma: 1 }, friend: 10, flag: "drug_stop", next: "drug_2" },
+      { text: "대답을 미루고 판매자 계정부터 추적해 본다", e: { ice: 1 }, g: { shadow: 1, esper: 1 }, t: { genius: 1 }, next: "drug_2" },
       { text: "솔직히 마음이 흔들린다. 캡슐 사진을 오래 들여다본다", e: { fire: 1 }, g: { fighter: 1, mage: 1 }, t: { reckless: 1 }, next: "drug_2" },
-      { text: "캡슐 성분이 궁금하다. 한 알만 받아서 분석해 보기로 한다", e: { bolt: 1 }, g: { support: 1, mage: 1 }, t: { mana_sense: 1 }, next: "drug_2" }
+      { text: '"먹지 말고 한 알만 나한테 줘. 성분부터 보자."', e: { bolt: 1 }, g: { support: 1, mage: 1 }, t: { mana_sense: 1 }, next: "drug_2" }
     ]
   },
   drug_2: {
     title: "지하 클럽",
     text: '사흘 뒤 새벽, {friend}의 전화. 숨소리만 들린다. 위치 공유를 따라간 곳은 번화가 지하 클럽 화장실. {friend}이(가) 바닥에 쓰러져 경련하고 있다. 혈관이 파랗게 비친다.\n\n문밖에서 브로커들이 웅성거린다. "또 하나 터졌네. 치워."',
+    textBy: { drug_stop: '{friend}은(는) 버리겠다고 약속했었다. 사흘 뒤 새벽, 그 {friend}의 전화. 숨소리만 들린다. 위치 공유를 따라간 곳은 번화가 지하 클럽 화장실. {friend}이(가) 바닥에 쓰러져 경련하고 있다. 손에는 구겨진 쪽지. "미안. 딱 한 번만 해 보고 싶었어."\n\n문밖에서 브로커들이 웅성거린다. "또 하나 터졌네. 치워."' },
     choices: [
-      { text: "화장실 문을 걷어차고 나가 브로커들에게 달려든다", g: { fighter: 3 }, c: { berserker: 1 }, next: "drug_3" },
-      { text: "{friend}을(를) 업고 문 앞을 막는다. 아무도 못 들어온다", g: { guard: 3 }, friend: 10, next: "drug_3" },
-      { text: "{friend}의 기도를 확보하고 맥박을 센다", g: { support: 3 }, c: { healer: 1 }, next: "drug_3" },
-      { text: "브로커의 주머니에서 남은 캡슐과 장부를 빼낸다", g: { shadow: 3 }, c: { assassin: 1 }, next: "drug_3" },
-      { text: "캡슐 껍질을 핥아 본다. 성분이 혀끝에서 풀려 읽힌다", g: { mage: 2, support: 1 }, c: { alchemist: 1 }, next: "drug_3" },
-      { text: "{friend}의 머릿속에서 비명이 들린다. 그 소리를 붙잡는다", g: { esper: 3 }, c: { telepath: 1 }, next: "drug_3" },
-      { text: "문틈 너머 클럽 조명 속에서 무언가 꿈틀거린다. 약에 홀린 영혼들 같다", g: { summon: 3 }, c: { tamer: 1 }, next: "drug_3" },
-      { text: '음악을 끊고 마이크를 잡는다. "다들 나가! 경찰 온다!"', g: { support: 2, shooter: 1 }, c: { bard: 1 }, next: "drug_3" }
+      { text: "화장실 문을 걷어차고 나가 브로커들에게 달려든다", g: { fighter: 3 }, c: { berserker: 1 }, flag: "friend_hurt", next: "drug_3" },
+      { text: "{friend}을(를) 업고 문 앞을 막는다. 아무도 못 들어온다", g: { guard: 3 }, friend: 10, flag: "friend_hurt", next: "drug_3" },
+      { text: "{friend}의 기도를 확보하고 맥박을 센다. 하나, 둘, 셋", g: { support: 3 }, c: { healer: 1 }, flag: "friend_hurt", next: "drug_3" },
+      { text: "브로커의 주머니에서 남은 캡슐과 장부를 빼낸다. 증거가 먼저다", g: { shadow: 3 }, c: { assassin: 1 }, flag: "friend_hurt", next: "drug_3" },
+      { text: "바닥에 떨어진 캡슐 껍질을 핥아 본다. 성분이 혀끝에서 하나씩 풀린다", g: { mage: 2, support: 1 }, c: { alchemist: 1 }, flag: "friend_hurt", next: "drug_3" },
+      { text: "{friend}의 꽉 감긴 눈꺼풀 너머로 비명이 전해진다. 그 감각을 놓치지 않는다", g: { esper: 3 }, c: { telepath: 1 }, flag: "friend_hurt", next: "drug_3" },
+      { text: "문틈 너머 클럽 조명 속, 약에 취한 사람들 사이로 짐승 같은 무언가가 고개를 든다", g: { summon: 3 }, c: { tamer: 1 }, flag: "friend_hurt", next: "drug_3" },
+      { text: '음악을 끊고 마이크를 잡는다. "다들 나가! 경찰 온다!"', g: { support: 2, shooter: 1 }, c: { bard: 1 }, flag: "friend_hurt", next: "drug_3" }
     ]
   },
   drug_3: {
     title: "깨진 캡슐",
-    text: '브로커 하나가 당신의 입에 캡슐을 억지로 쑤셔 넣는다. "궁금했지? 맛 좀 봐." 쓴맛이 목을 타고 내려간다.\n\n심장이 터질 듯 뛴다. 혈관이 파랗게 달아오른다. 그런데 약이 당신 안에서 무언가를 깨운다. 원래 거기 있던 것을.',
+    text: '브로커 하나가 당신의 멱살을 잡고 캡슐을 들이민다. "궁금했지? 맛 좀 봐." 이를 악문다. 삼키는 대신 깨문다. 쓴 가루가 혀에 퍼진다.\n\n심장이 터질 듯 뛴다. 하지만 불을 붙인 건 약이 아니다. 바닥에 쓰러진 {friend}을(를) 여기서 데리고 나가겠다는 생각이 먼저였다. 원래 거기 있던 것이, 그 생각에 대답한다.',
     choices: [
       { text: "파란 빛이 붉게 바뀌며 불길로 터져 나온다", e: { fire: 4 }, next: "drug_4" },
       { text: "클럽 스피커가 일제히 터지고 전류가 온몸을 휘감는다", e: { bolt: 4 }, next: "drug_4" },
       { text: "열이 오르던 몸이 순식간에 식는다. 입김이 하얗다", e: { ice: 4 }, next: "drug_4" },
       { text: "경련이 멎고 근육이 쇠처럼 굳는다", e: { steel: 4 }, next: "drug_4" },
-      { text: "약에 취한 사람들의 꿈이 한꺼번에 보인다", e: { spirit: 4 }, next: "drug_4" }
+      { text: "약에 취한 사람들의 꿈이 한꺼번에 눈앞에 펼쳐진다", e: { spirit: 4 }, next: "drug_4" }
     ]
   },
   drug_4: {
     title: "조직의 문",
-    text: '브로커들이 물러선다. "야, 이거 진짜 각성인데?" 뒷방에서 덩치 큰 남자가 나온다. 블루 공급책. 그의 팔뚝에도 파란 혈관이 비친다. "너, 우리 쪽으로 와라. 아니면 여기서 끝이다."\n\n뒤에서 {friend}이(가) 아직 숨을 쉰다.',
+    text: '브로커들이 물러선다. "야, 이거 진짜 각성인데?" 뒷방에서 덩치 큰 남자가 나온다. 블루 공급책. 그의 팔뚝에도 파란 혈관이 비친다. "너, 우리 쪽으로 와라. 아니면 여기서 끝이다."\n\n뒤에서 {friend}이(가) 아직 숨을 쉰다. 오래 버티진 못한다.',
     choices: [
-      { text: "공급책이 먼저 움직이기 전에 정면으로 들이받는다. 멈추지 않는다", g: { fighter: 2 }, c: { berserker: 3 }, next: "drug_5" },
-      { text: '"네가 다음에 뭘 할지 다 들려." 그의 생각을 읽고 피한다', g: { esper: 2 }, c: { telepath: 3 }, next: "drug_5" },
-      { text: "바닥의 캡슐을 손에서 녹여 해독제로 바꾼다", g: { support: 2 }, c: { alchemist: 3 }, next: "drug_5" },
-      { text: "조명이 꺼진 틈에 그의 등 뒤로 돌아간다", g: { shadow: 2 }, c: { assassin: 3 }, next: "drug_5" },
-      { text: "손끝에서 피어난 힘을 그대로 쏘아 보낸다", g: { mage: 2 }, c: { elementalist: 3 }, next: "drug_5" },
+      { text: "대답 대신 정면으로 들이받는다. 쓰러뜨릴 때까지 멈추지 않는다", g: { fighter: 2 }, c: { berserker: 3 }, next: "drug_5" },
+      { text: '"네가 다음에 뭘 할지 다 보여." 그의 생각을 읽고 비켜선다', g: { esper: 2 }, c: { telepath: 3 }, next: "drug_5" },
+      { text: "싸움은 미룬다. 바닥의 캡슐을 손에서 녹여 {friend}에게 먹일 해독제로 바꾼다", g: { support: 2 }, c: { alchemist: 3 }, next: "drug_5" },
+      { text: "조명이 꺼진 틈에 그의 등 뒤로 돌아간다. 한 번이면 된다", g: { shadow: 2 }, c: { assassin: 3 }, next: "drug_5" },
+      { text: "손끝에서 피어난 힘을 공급책의 발밑에 그대로 쏘아 보낸다", g: { mage: 2 }, c: { elementalist: 3 }, next: "drug_5" },
       { text: '쓰러진 사람들에게 노래하듯 외친다. "일어나! 같이 나가자!"', g: { support: 2 }, c: { bard: 3 }, next: "drug_5" },
-      { text: "클럽 구석에서 떨던 길고양이가 당신 옆으로 와서 털을 세운다", g: { summon: 2 }, c: { tamer: 3 }, next: "drug_5" }
+      { text: "환풍구에서 떨던 쥐 떼가 일제히 당신 발치로 모여들어 공급책을 노려본다", g: { summon: 2 }, c: { tamer: 3 }, next: "drug_5" }
     ]
   },
   drug_5: {
     title: "블루의 뒤끝",
-    text: '마약 수사대와 협회가 함께 들이닥친 건 새벽 5시. {friend}은(는) 해독 치료를 받고 살아났다. 당신의 혈관엔 아직도 가끔 파란 빛이 스친다.\n\n수사관이 말한다. "약으로 깬 각성자는 보통 반년 안에 무너져요. 당신은… 이상하게 안정적이네요."\n\n그날 이후, 몸에 남은 것이 하나 있다.',
+    text: '마약 수사대와 협회가 들이닥친 건 새벽 5시. {friend}은(는) 해독 치료를 받고 살아났다. 당신의 혈관엔 아직도 가끔 파란 빛이 스친다.\n\n수사관이 말한다. "약으로 깬 각성자는 보통 반년 안에 무너져요. 당신은… 약보다 먼저 깨어 있었던 것 같네요."\n\n그날 이후, 몸에 남은 것이 하나 있다.',
     choices: [
-      { text: "파란 빛 안에 계약서 같은 문양이 보인다. 대가를 치르면 힘을 준다", g: { mage: 2 }, c: { warlock: 4 }, t: { cursed: 1 }, next: "verdict_street" },
-      { text: "클럽에서 죽은 사람들의 그림자가 아직 내 곁을 떠나지 않는다", g: { summon: 2 }, c: { necromancer: 4 }, next: "verdict_street" },
-      { text: "약이 보여 준 환각 중 몇 개가 실제로 일어났다", g: { esper: 2 }, c: { seer: 4 }, next: "verdict" },
-      { text: "손끝의 파란 독기를 다룰 수 있게 됐다. 독이자 약이다", g: { shadow: 2 }, c: { poisoner: 4 }, next: "verdict_street" },
-      { text: "약이 돌던 그 몇 초가 아직도 느리게 흐른다. 시간이 늘어난다", g: { mage: 2 }, c: { chronomancer: 4 }, talent: 1, next: "verdict" },
+      { text: "파란 빛 속에서 누군가 값을 부른다. 대가를 치르면 더 주겠다고", g: { mage: 2 }, c: { warlock: 4 }, t: { cursed: 1 }, next: "verdict_street" },
+      { text: "클럽에서 죽은 사람들의 그림자가 아직 내 곁을 떠나지 않는다. 부르면 일어선다", g: { summon: 2 }, c: { necromancer: 4 }, next: "verdict_street" },
+      { text: "약이 보여 준 환각 중 몇 개가 그대로 일어났다. 다음 장면도 보인다", g: { esper: 2 }, c: { seer: 4 }, next: "verdict" },
+      { text: "손끝의 파란 독을 다룰 수 있게 됐다. 독이자 약이다", g: { shadow: 2 }, c: { poisoner: 4 }, next: "verdict_street" },
+      { text: "약이 돌던 그 몇 초가 아직도 느리게 흐른다. 원하면 시간을 늘릴 수 있다", g: { mage: 2 }, c: { chronomancer: 4 }, talent: 1, next: "verdict" },
       { text: "해독되는 {friend}의 손을 잡자 따뜻한 빛이 번졌다", g: { support: 2 }, c: { priest: 4 }, friend: 10, next: "verdict_guild" },
-      { text: "빛으로 된 짐승이 파란 혈관을 핥아 독을 지운다", g: { summon: 2 }, c: { summoner: 4 }, next: "verdict_guild" },
-      { text: "남은 캡슐 성분을 분석해 협회에 넘긴다", g: { support: 2 }, c: { alchemist: 4 }, t: { genius: 1 }, next: "verdict" }
+      { text: "파란 혈관을 따라 작은 빛의 여우가 기어 나와 독을 핥아 지운다. 그 뒤로 내 곁을 떠나지 않는다", g: { summon: 2 }, c: { summoner: 4 }, next: "verdict_guild" },
+      { text: "손바닥 위에서 남은 캡슐이 성분별로 갈라진다. 분석표를 협회에 넘긴다", g: { support: 2 }, c: { alchemist: 4 }, t: { genius: 1 }, next: "verdict" }
     ]
   },
   // ===== 결투: 동네를 괴롭히는 각성자 깡패 =====
@@ -2041,17 +2080,18 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '"그만하시죠." 떡볶이 판을 다시 세운다', e: { steel: 1 }, g: { guard: 1, fighter: 1 }, t: { iron_body: 1 }, next: "duel_2" },
       { text: "휴대폰 카메라를 켜고 그들의 얼굴을 찍는다", e: { bolt: 1 }, g: { shooter: 1, shadow: 1 }, t: { quick: 1 }, next: "duel_2" },
-      { text: "사장님을 뒤로 빼고 대신 고개를 숙인다. 지금은 참는다", e: { ice: 1 }, g: { support: 1, shadow: 1 }, t: { loner: 1 }, next: "duel_2" },
+      { text: "사장님을 뒤로 빼고 대신 고개를 숙인다. 지금은 참는다", e: { ice: 1 }, g: { support: 1, shadow: 1 }, t: { loner: 1 }, flag: "duel_bowed", next: "duel_2" },
       { text: '"흑사회? 처음 들어 보는데." 비웃는다', e: { fire: 1 }, g: { fighter: 2 }, t: { reckless: 1 }, next: "duel_2" }
     ]
   },
   duel_2: {
     title: "공터로 나와",
     text: '다음 날, 시장 뒤 공터. 흑사회 막내가 손가락을 까딱인다. "어제 그 잘난 척. 여기서 갚아라. 일대일. 각성 안 했으면 핸디캡으로 한 손만 쓴다."\n\n시장 상인들이 멀찍이 둘러선다. {friend}이(가) 소매를 붙잡는다. "가지 마. 저 사람들 진짜 각성자야."',
+    textBy: { duel_bowed: '다음 날, 시장 뒤 공터로 불려 나간다. 흑사회 막내가 손가락을 까딱인다. "어제 고개 숙이던 그 얼굴. 숙이는 척하면서 눈은 안 깔더라. 그런 눈이 제일 재수 없어. 일대일. 각성 안 했으면 핸디캡으로 한 손만 쓴다."\n\n시장 상인들이 멀찍이 둘러선다. {friend}이(가) 소매를 붙잡는다. "가지 마. 저 사람들 진짜 각성자야."' },
     choices: [
       { text: "{friend}의 손을 놓고 공터 한가운데로 걸어 나간다", g: { fighter: 3 }, friend: 5, next: "duel_3" },
       { text: '"상인분들 건드리지 않겠다고 약속해. 그럼 나간다."', g: { guard: 3 }, c: { paladin: 1 }, next: "duel_3" },
-      { text: "싸우는 척하며 그들 셋의 약점을 하나씩 살핀다", g: { shadow: 3 }, c: { thief: 1 }, next: "duel_3" },
+      { text: "싸우는 척하며 셋의 약점을 하나씩 살핀다. 이기는 게 목적이다", g: { shadow: 3 }, c: { thief: 1 }, next: "duel_3" },
       { text: "거리를 벌린다. 맞붙지 않고 버틸 공간이 필요하다", g: { shooter: 3 }, c: { archer: 1 }, next: "duel_3" },
       { text: "숨을 고르고 어릴 때 동네 도장에서 배운 택견 품세를 잡는다", g: { east: 3 }, c: { taoist: 1 }, next: "duel_3" },
       { text: '상인들에게 말한다. "제가 쓰러지면 바로 신고해 주세요."', g: { support: 3 }, c: { bard: 1 }, next: "duel_3" },
@@ -2061,33 +2101,33 @@ Object.assign(PROLOGUE, {
   },
   duel_3: {
     title: "세 번째 주먹",
-    text: '첫 주먹에 코피가 터졌다. 두 번째에 무릎이 꺾였다. 막내가 웃는다. "한 손으로도 충분하네." 세 번째 주먹이 날아온다.\n\n그 주먹이, 느리게 보인다.',
+    text: '첫 주먹에 코피가 터졌다. 두 번째에 무릎이 꺾였다. 막내가 웃는다. "한 손으로도 충분하네."\n\n세 번째 주먹이 날아온다. 피하겠다는 생각보다 먼저, 몸 안 어딘가에서 잠겨 있던 문이 덜컥 열린다.',
     choices: [
       { text: "주먹을 막은 팔에서 불꽃이 피어오른다", e: { fire: 4 }, next: "duel_4" },
       { text: "몸이 먼저 움직인다. 번개처럼 옆으로 빠진다", e: { bolt: 4 }, next: "duel_4" },
       { text: "주먹이 닿은 곳부터 상대의 팔이 얼어붙는다", e: { ice: 4 }, next: "duel_4" },
       { text: "주먹을 그대로 맞는다. 아프지 않다", e: { steel: 4 }, next: "duel_4" },
-      { text: "상대의 두려움이 들린다. 주먹이 허공에서 멈춘다", e: { spirit: 4 }, next: "duel_4" }
+      { text: "상대의 두려움이 피부로 전해진다. 주먹이 허공에서 멈춘다", e: { spirit: 4 }, next: "duel_4" }
     ]
   },
   duel_4: {
     title: "흑사회 셋",
-    text: '막내가 나가떨어진다. 둘이 동시에 뛰어든다. 하나는 쇠파이프, 하나는 칼. "각성했다고 다냐? 우린 3년 차다."\n\n상인들이 숨을 죽인다. 이번엔 피할 이유가 없다.',
+    text: '막내가 나가떨어진다. 둘이 동시에 뛰어든다. 하나는 쇠파이프, 하나는 칼. "각성했다고 다냐? 우린 3년 차다."\n\n상인들이 숨을 죽인다. 이번엔 피할 이유가 없다. 남은 건 어떻게 이기느냐다.',
     choices: [
       { text: "맨손으로 파고든다. 주먹과 팔꿈치만으로 충분하다", g: { fighter: 2 }, c: { monk: 3 }, next: "duel_5" },
       { text: "빼앗은 쇠파이프를 창처럼 쥐고 거리를 지배한다", g: { fighter: 2 }, c: { lancer: 3 }, next: "duel_5" },
-      { text: "칼을 빼앗아 정확히 칼등으로 친다. 죽이진 않는다", g: { fighter: 2 }, c: { swordsman: 3 }, next: "duel_5" },
+      { text: "칼을 빼앗아 칼등으로만 친다. 죽이진 않는다", g: { fighter: 2 }, c: { swordsman: 3 }, next: "duel_5" },
       { text: "상인들 앞을 막아선다. 내 뒤로는 한 걸음도 못 온다", g: { guard: 2 }, c: { guardian: 3 }, next: "duel_5" },
-      { text: "돌멩이를 집어 던진다. 정확히 손목에 맞는다", g: { shooter: 2 }, c: { archer: 3 }, next: "duel_5" },
-      { text: "싸우는 사이 그들의 배지와 휴대폰을 슬쩍 빼낸다", g: { shadow: 2 }, c: { thief: 3 }, next: "duel_5" },
-      { text: '시장 사람들에게 외친다. "같이 막아요!" 모두가 일어선다', g: { support: 2 }, c: { bard: 3 }, t: { charisma: 1 }, next: "duel_5" }
+      { text: "돌멩이를 집어 던진다. 정확히 칼 쥔 손목에 맞는다", g: { shooter: 2 }, c: { archer: 3 }, next: "duel_5" },
+      { text: "싸우는 사이 그들의 배지와 휴대폰을 슬쩍 빼낸다. 협회에 넘길 증거다", g: { shadow: 2 }, c: { thief: 3 }, next: "duel_5" },
+      { text: '시장 사람들에게 외친다. "같이 막아요!" 하나둘 일어선다', g: { support: 2 }, c: { bard: 3 }, t: { charisma: 1 }, next: "duel_5" }
     ]
   },
   duel_5: {
     title: "공터의 소문",
     text: '흑사회 셋이 공터에 드러누워 있다. 떡볶이집 사장님이 김이 나는 오뎅 국물을 내민다. "이건 공짜야. 평생."\n\n며칠 뒤, 흑사회 간부가 직접 찾아온다. 싸우러 온 게 아니다. "너, 이름이 뭐냐."',
     choices: [
-      { text: "대답 대신 두 손에 칼날 같은 기운을 세운다. 간부가 한 걸음 물러선다", g: { fighter: 2 }, c: { dualblade: 4 }, next: "verdict_street" },
+      { text: "대답 대신 양손에 짧은 빛의 칼 두 자루를 세운다. 간부가 한 걸음 물러선다", g: { fighter: 2 }, c: { dualblade: 4 }, next: "verdict_street" },
       { text: '맨손으로 공터 철망을 그어 벤다. 칼 없이. "이름은 알아서 알아봐."', g: { east: 2 }, c: { swordmonk: 4 }, next: "verdict" },
       { text: '일어서자 그림자가 간부를 덮는다. 그날 이후 몸이 계속 커지고 있다. "{name}. 기억해 둬."', g: { guard: 2 }, c: { giant: 4 }, t: { iron_body: 1 }, next: "verdict_guild" },
       { text: '대답 대신 돌멩이를 던져 시장 끝 간판 나사를 맞힌다. "다음엔 네 이마야."', g: { shooter: 2 }, c: { sniper: 4 }, next: "verdict" },
@@ -2100,26 +2140,26 @@ Object.assign(PROLOGUE, {
   // ===== 조난: 에테르에 물든 산 =====
   wild_1: {
     title: "지리산 종주",
-    text: '그해 가을, 지리산 종주에 나섰다. 둘째 날 오후, 등산로 표지판이 보랏빛 이끼로 뒤덮여 있다. 휴대폰은 "서비스 지역 아님". 안개가 짙어지고, 방금 지나온 길이 사라졌다.\n\n어디선가 짐승이 낮게 그르렁댄다. 개도, 곰도 아닌 소리다.',
+    text: '그해 가을, 지리산 종주에 나섰다. 산장에서 만난 등산객 민서와 길을 나눠 걷던 둘째 날 오후, 등산로 표지판이 푸르스름하게 빛나는 이끼로 뒤덮여 있다. 휴대폰은 "서비스 지역 아님". 안개가 짙어지고, 방금 지나온 길이 사라졌다.\n\n어디선가 짐승이 낮게 그르렁댄다. 개도, 곰도 아닌 소리다. 민서가 당신 팔을 붙잡는다.',
     choices: [
-      { text: "침착하게 해가 지는 방향을 확인하고 비박 준비를 한다", e: { ice: 1 }, g: { guard: 1, support: 1 }, t: { iron_body: 1 }, next: "wild_2" },
-      { text: "소리 나는 쪽으로 다가간다. 정체를 알아야 한다", e: { fire: 1 }, g: { fighter: 1, summon: 1 }, t: { reckless: 1 }, next: "wild_2" },
-      { text: "보랏빛 이끼를 만져 본다. 손끝이 찌릿하다", e: { bolt: 1 }, g: { mage: 1, east: 1 }, t: { mana_sense: 1 }, next: "wild_2" },
+      { text: "침착하게 해가 지는 방향을 확인하고 민서와 비박 준비를 한다", e: { ice: 1 }, g: { guard: 1, support: 1 }, t: { iron_body: 1 }, next: "wild_2" },
+      { text: "민서를 바위 뒤에 두고 소리 나는 쪽으로 다가간다. 정체를 알아야 한다", e: { fire: 1 }, g: { fighter: 1, summon: 1 }, t: { reckless: 1 }, next: "wild_2" },
+      { text: "빛나는 이끼를 만져 본다. 손끝이 찌릿하다", e: { bolt: 1 }, g: { mage: 1, east: 1 }, t: { mana_sense: 1 }, next: "wild_2" },
       { text: '{friend}에게 보내지지 않을 문자를 쓴다. "혹시 내가 못 돌아가면…"', e: { spirit: 1 }, g: { support: 1, esper: 1 }, t: { loner: 1 }, friend: 5, next: "wild_2" }
     ]
   },
   wild_2: {
     title: "사흘째 밤",
-    text: "물도, 식량도 떨어졌다. 모닥불 너머 바위 위에 무언가가 앉아 있다. 집채만 한 호랑이. 털이 은빛이고, 눈동자가 사람처럼 깊다.\n\n호랑이가 당신을 내려다본다. 덤벼들지 않는다. 기다린다. 무언가를 시험하듯이.",
+    text: "물도, 식량도 떨어졌다. 민서는 발목이 퉁퉁 부어 더는 걷지 못한다. 모닥불 너머 바위 위에 무언가가 앉아 있다. 집채만 한 호랑이. 털이 은빛이고, 눈동자가 사람처럼 깊다.\n\n호랑이가 당신과 민서를 번갈아 내려다본다. 덤벼들지 않는다. 기다린다. 무언가를 시험하듯이.",
     choices: [
       { text: "나뭇가지를 쥐고 일어선다. 죽어도 싸우다 죽는다", g: { fighter: 3 }, t: { berserk: 1 }, next: "wild_3" },
-      { text: "모닥불 앞에 버티고 앉는다. 이 자리는 내 자리다", g: { guard: 3 }, next: "wild_3" },
-      { text: "불빛 밖으로 몸을 숨기고 숨소리를 죽인다", g: { shadow: 3 }, next: "wild_3" },
+      { text: "민서 앞을 막고 모닥불 옆에 버티고 앉는다. 이 자리는 못 내준다", g: { guard: 3 }, next: "wild_3" },
+      { text: "민서를 바위틈에 밀어 넣고, 불빛 밖으로 몸을 숨긴다", g: { shadow: 3 }, next: "wild_3" },
       { text: "돌을 쥐고 겨눈다. 한 번에 눈을 맞혀야 한다", g: { shooter: 3 }, c: { archer: 1 }, next: "wild_3" },
-      { text: "남은 육포를 바위 앞에 내려놓는다", g: { summon: 3 }, c: { tamer: 1 }, next: "wild_3" },
+      { text: "마지막 남은 육포를 바위 앞에 내려놓는다. 둘이 먹을 몫이었다", g: { summon: 3 }, c: { tamer: 1 }, next: "wild_3" },
       { text: "두 손을 모으고 절한다. 산의 주인께 길을 묻는다", g: { east: 3 }, c: { shaman: 1 }, next: "wild_3" },
-      { text: "호랑이의 눈을 마주 본다. 말이 들릴 것 같다", g: { esper: 3 }, next: "wild_3" },
-      { text: "이끼와 버섯 중 먹을 수 있는 걸 가려 불에 굽는다", g: { support: 3 }, c: { healer: 1 }, next: "wild_3" },
+      { text: "호랑이의 눈을 마주 본다. 무언가 묻고 있다", g: { esper: 3 }, next: "wild_3" },
+      { text: "이끼와 버섯 중 먹을 수 있는 걸 가려 민서에게 먼저 먹인다", g: { support: 3 }, c: { healer: 1 }, next: "wild_3" },
       { text: "안개가 흐르는 방향을 읽는다. 기운이 한쪽으로 모인다", g: { mage: 3 }, next: "wild_3" }
     ]
   },
@@ -2131,17 +2171,17 @@ Object.assign(PROLOGUE, {
       { text: "능선에 내리꽂히던 번개", e: { bolt: 4 }, next: "wild_4" },
       { text: "천왕봉 꼭대기의 얼음", e: { ice: 4 }, next: "wild_4" },
       { text: "천 년을 버틴 바위의 무게", e: { steel: 4 }, next: "wild_4" },
-      { text: "산에 깃든 수많은 혼의 목소리", e: { spirit: 4 }, next: "wild_4" }
+      { text: "산에 깃든 수많은 혼의 숨결", e: { spirit: 4 }, next: "wild_4" }
     ]
   },
   wild_4: {
     title: "하산",
-    text: "눈을 뜨니 호랑이는 없다. 대신 몸이 가볍다. 안개 속에서도 길이 보인다. 내려가는 길, 에테르에 물든 멧돼지 떼가 길을 막는다. 눈이 파랗게 빛난다.\n\n이제는 두렵지 않다.",
+    text: "눈을 뜨니 호랑이는 없다. 대신 몸이 가볍다. 안개 속에서도 길이 보인다. 민서를 업고 내려가는 길, 에테르에 물든 멧돼지 떼가 길을 막는다. 눈이 파랗게 빛난다.\n\n등 뒤에서 민서가 숨을 삼킨다. 이제는 두렵지 않다.",
     choices: [
-      { text: "멧돼지 머리를 맨주먹으로 내리친다", g: { fighter: 2 }, c: { monk: 3 }, next: "wild_5" },
-      { text: "나뭇가지를 깎아 활을 만들고 쏜다", g: { shooter: 2 }, c: { archer: 3 }, next: "wild_5" },
+      { text: "민서를 내려놓고, 멧돼지 머리를 맨주먹으로 내리친다", g: { fighter: 2 }, c: { monk: 3 }, next: "wild_5" },
+      { text: "나뭇가지를 깎아 활을 만들고 쏜다. 한 발에 한 마리", g: { shooter: 2 }, c: { archer: 3 }, next: "wild_5" },
       { text: "멧돼지 대장의 눈을 보며 손을 든다. 무리가 길을 비킨다", g: { summon: 2 }, c: { tamer: 3 }, next: "wild_5" },
-      { text: "다친 새끼 멧돼지의 다리를 감싸 준다. 상처가 아문다", g: { support: 2 }, c: { healer: 3 }, next: "wild_5" },
+      { text: "다친 새끼 멧돼지의 다리를 감싸 준다. 상처가 아물고, 무리가 물러선다", g: { support: 2 }, c: { healer: 3 }, next: "wild_5" },
       { text: "종이도 없이 손가락으로 허공에 부적을 그린다", g: { east: 2 }, c: { taoist: 3 }, next: "wild_5" },
       { text: "호랑이 털 한 올을 쥐고 산의 노래를 흥얼거린다", g: { east: 2 }, c: { shaman: 3 }, next: "wild_5" },
       { text: "손짓 하나로 쓰러진 나무를 들어 길을 막는다", g: { esper: 2 }, c: { telekinetic: 3 }, next: "wild_5" }
@@ -2149,11 +2189,11 @@ Object.assign(PROLOGUE, {
   },
   wild_5: {
     title: "닷새 만의 귀환",
-    text: '구조대가 당신을 발견한 건 닷새째 아침, 출발한 등산로 입구였다. "어떻게 걸어 나왔어요? 이 안개에서?" 대답 대신 산 쪽을 돌아본다. 능선 위에 은빛 무언가가 앉아 있다가 사라진다.\n\n{friend}이(가) 울면서 전화를 받는다.\n\n산은 무언가를 당신에게 남겼다. 그걸 알게 되기까지 오래 걸리지 않았다.',
+    text: '구조대가 당신과 민서를 발견한 건 닷새째 아침, 출발한 등산로 입구였다. "어떻게 걸어 나왔어요? 이 안개에서? 그것도 업고?" 대답 대신 산 쪽을 돌아본다. 능선 위에 은빛 무언가가 앉아 있다가 사라진다.\n\n휴대폰이 터지자마자 {friend}의 부재중 전화 마흔 통이 쏟아진다.\n\n산은 무언가를 당신에게 남겼다. 그걸 알게 되기까지 오래 걸리지 않았다.',
     choices: [
-      { text: "은빛 호랑이가 꿈에 찾아온다. 부르면 올 것 같다", g: { summon: 2 }, c: { summoner: 4 }, next: "verdict" },
+      { text: "은빛 호랑이가 꿈에 찾아온다. 부르면 올 것 같다. 아니, 온다", g: { summon: 2 }, c: { summoner: 4 }, next: "verdict" },
       { text: "산을 내려온 뒤 키가 한 뼘 자랐다. 바위를 들 수 있다", g: { guard: 2 }, c: { giant: 4 }, next: "verdict_guild" },
-      { text: "산에서 죽은 등산객들의 혼이 나를 따라 내려왔다", g: { summon: 2 }, c: { necromancer: 4 }, next: "verdict_street" },
+      { text: "산에서 죽은 등산객들의 혼이 나를 따라 내려왔다. 시키면 움직인다", g: { summon: 2 }, c: { necromancer: 4 }, next: "verdict_street" },
       { text: "나뭇가지 하나로 바위를 갈랐다. 검은 마음에 있다", g: { east: 2 }, c: { swordmonk: 4 }, next: "verdict" },
       { text: "구조대가 오기 전부터, 그들이 올 걸 알고 있었다", g: { esper: 2 }, c: { seer: 4 }, next: "verdict" },
       { text: "안개 속에서 한 걸음에 계곡 건너편으로 옮겨 갔다", g: { esper: 2 }, c: { teleporter: 4 }, next: "verdict_street" },
@@ -2166,7 +2206,7 @@ Object.assign(PROLOGUE, {
   // ===== 게이트 체험 관광 (괴수 나옴) =====
   tour_1: {
     title: "게이트 체험 관광",
-    text: '그 무렵, 인천 송도의 "안정화 F급 게이트 체험관"이 문을 열었다. 입장료 4만 9천 원, 헬멧과 안전 조끼 포함. 가이드가 깃발을 흔든다.\n\n"자, 펜스 밖으로 손 내밀지 마시고요! 여기 게이트는 관리국 인증 3년 무사고입니다!" {friend}이(가) 헬멧을 삐딱하게 쓰고 웃는다. "인증샷 찍자."',
+    text: '그해 가을, 인천 송도의 "안정화 F급 게이트 체험관"이 문을 열었다. 입장료 4만 9천 원, 헬멧과 안전 조끼 포함. 가이드가 깃발을 흔든다.\n\n"자, 펜스 밖으로 손 내밀지 마시고요! 여기 게이트는 관리국 인증 3년 무사고입니다!" {friend}이(가) 헬멧을 삐딱하게 쓰고 웃는다. "인증샷 찍자."',
     choices: [
       { text: "{friend}와(과) 펜스 앞에서 사진을 찍는다", e: { spirit: 1 }, g: { support: 1, summon: 1 }, t: { charisma: 1 }, friend: 5, next: "tour_2" },
       { text: "가이드의 설명을 한 마디도 놓치지 않고 듣는다", e: { ice: 1 }, g: { mage: 2 }, t: { genius: 1 }, next: "tour_2" },
@@ -2176,26 +2216,26 @@ Object.assign(PROLOGUE, {
   },
   tour_2: {
     title: "닫힌 출구",
-    text: "게이트 안의 보랏빛 숲. 관광객 스물두 명이 반딧불 같은 포자를 구경하던 중, 등 뒤의 출구가 지퍼 닫히듯 줄어들어 사라진다.\n\n가이드의 무전기에서 잡음만 흘러나온다. 숲 저편에서 나뭇가지가 부러지는 소리가 가까워진다. 누군가 울기 시작한다.",
+    text: "게이트 안은 청록빛 안개가 낀 숲이다. 관광객 스물두 명이 반딧불 같은 포자를 구경하던 중, 등 뒤의 출구가 지퍼 닫히듯 줄어들어 사라진다.\n\n가이드의 무전기에서 잡음만 흘러나온다. 숲 저편에서 나뭇가지가 부러지는 소리가 가까워진다. 누군가 울기 시작한다. 다들 당신을 본다. 맨 앞에 서 있던 게 당신이라서다.",
     choices: [
-      { text: "부러진 펜스 쇠막대를 뽑아 들고 맨 앞에 선다", g: { fighter: 3 }, c: { lancer: 1 }, next: "tour_3" },
-      { text: "관광객들을 바위 뒤로 모아 원형으로 앉힌다", g: { guard: 3 }, c: { guardian: 1 }, next: "tour_3" },
-      { text: "혼자 먼저 덤불 속으로 들어가 길을 살핀다", g: { shadow: 3 }, c: { thief: 1 }, next: "tour_3" },
-      { text: "기념품 가게에서 산 새총을 꺼낸다. 장난감이지만", g: { shooter: 3 }, c: { archer: 1 }, next: "tour_3" },
-      { text: "포자가 흐르는 방향을 보고 출구 위치를 계산한다", g: { mage: 3 }, c: { elementalist: 1 }, next: "tour_3" },
-      { text: "겁먹은 아이들을 달래며 노래를 불러 준다", g: { support: 3 }, c: { bard: 1 }, friend: 5, next: "tour_3" },
-      { text: "숲의 소리를 듣는다. 무언가 이쪽을 두려워하고 있다", g: { esper: 3 }, c: { telepath: 1 }, next: "tour_3" },
-      { text: "울음을 그친 아이 옆에 다가온 작은 짐승을 가만히 본다", g: { summon: 3 }, c: { tamer: 1 }, next: "tour_3" }
+      { text: '부러진 펜스 쇠막대를 뽑아 든다. "다들 내 뒤로."', g: { fighter: 3 }, c: { lancer: 1 }, next: "tour_3" },
+      { text: "길 찾기는 나중이다. 우는 사람들부터 바위 뒤로 모은다", g: { guard: 3 }, c: { guardian: 1 }, next: "tour_3" },
+      { text: "아무에게도 말하지 않고 혼자 덤불로 들어간다. 무리로 움직이면 들킨다", g: { shadow: 3 }, c: { thief: 1 }, next: "tour_3" },
+      { text: "조약돌을 주머니 가득 채운다. 던지는 데엔 자신 있다", g: { shooter: 3 }, c: { archer: 1 }, next: "tour_3" },
+      { text: "포자가 흐르는 방향을 보고 출구가 열렸던 자리를 계산한다", g: { mage: 3 }, c: { elementalist: 1 }, next: "tour_3" },
+      { text: "아이들 앞에 쪼그려 앉아 노래를 시작한다. 떨리는 목소리가 들키지 않게", g: { support: 3 }, c: { bard: 1 }, friend: 5, next: "tour_3" },
+      { text: "숲에 귀를 기울인다. 이쪽을 두려워하는 무언가의 감정이 피부로 전해진다", g: { esper: 3 }, c: { telepath: 1 }, next: "tour_3" },
+      { text: "덤불 사이로 다람쥐만 한 짐승이 고개를 내민다. 천천히 손을 내밀어 본다", g: { summon: 3 }, c: { tamer: 1 }, next: "tour_3" }
     ]
   },
   tour_3: {
     title: "숲의 주인",
-    text: '덤불이 갈라지고 사슴뿔 달린 거대한 괴수가 걸어 나온다. 관광 안내 책자에는 "온순한 초식형"이라고 적혀 있었다. 그 입에서 가이드의 깃발이 흔들린다.\n\n{friend}이(가) 당신의 소매를 붙잡는다. 그 순간, 숲의 공기가 당신 안으로 쏟아져 들어온다.',
+    text: '덤불이 갈라지고 사슴뿔 달린 거대한 괴수가 걸어 나온다. 관광 안내 책자에는 "온순한 초식형"이라고 적혀 있었다. 그 입에 가이드의 깃발이 물려 있다. 가이드는 보이지 않는다.\n\n{friend}이(가) 당신의 소매를 붙잡는다. 그 순간, 숲의 공기가 당신 안으로 쏟아져 들어온다.',
     choices: [
       { text: "손끝의 포자들이 일제히 불씨로 변한다", e: { fire: 4 }, next: "tour_4" },
       { text: "머리카락이 곤두서고 숲 전체에 번개가 내리꽂힌다", e: { bolt: 4 }, next: "tour_4" },
       { text: "발밑의 이끼가 하얗게 얼어붙으며 퍼져 나간다", e: { ice: 4 }, next: "tour_4" },
-      { text: "쇠막대가 손바닥에 녹아들 듯 달라붙는다", e: { steel: 4 }, next: "tour_4" },
+      { text: "쥐고 있던 쇠붙이가 손바닥에 녹아들 듯 달라붙는다", e: { steel: 4 }, next: "tour_4" },
       { text: "숲의 나무들이 일제히 당신 쪽으로 몸을 기울인다", e: { spirit: 4 }, next: "tour_4" }
     ]
   },
@@ -2203,85 +2243,85 @@ Object.assign(PROLOGUE, {
     title: "첫 사냥",
     text: "괴수가 뿔을 낮춘다. 등 뒤엔 관광객 스물한 명. 당신은 낯선 힘을 쥔 채 한 걸음 앞으로 나간다.",
     choices: [
-      { text: "부러진 펜스 쇠막대를 주워 힘을 싣고 뿔 사이를 찌른다", g: { fighter: 2 }, c: { lancer: 3 }, next: "tour_5" },
+      { text: "바닥의 펜스 쇠막대를 주워 힘을 싣고 뿔 사이를 찌른다", g: { fighter: 2 }, c: { lancer: 3 }, next: "tour_5" },
       { text: "돌진을 정면으로 받아낸다. 뒤로 한 발도 밀리지 않는다", g: { guard: 2 }, c: { guardian: 3 }, next: "tour_5" },
       { text: "발밑의 돌멩이에 힘을 담아 던진다. 괴수의 눈에 정확히 꽂힌다", g: { shooter: 2 }, c: { archer: 3 }, next: "tour_5" },
       { text: "괴수의 그림자에 숨어 다리 힘줄을 끊는다", g: { shadow: 2 }, c: { assassin: 3 }, next: "tour_5" },
-      { text: "숲의 기운을 모아 괴수에게 쏟아붓는다", g: { mage: 2 }, c: { elementalist: 3 }, next: "tour_5" },
-      { text: '괴수에게 손을 뻗는다. "괜찮아, 너도 갇힌 거지?"', g: { summon: 2 }, c: { tamer: 3 }, next: "tour_5" },
-      { text: "다친 관광객들의 상처에 손을 얹는다. 빛이 번진다", g: { support: 2 }, c: { healer: 3 }, next: "tour_5" }
+      { text: "숲의 기운을 한데 모아 괴수에게 쏟아붓는다", g: { mage: 2 }, c: { elementalist: 3 }, next: "tour_5" },
+      { text: '괴수에게 손을 뻗는다. "괜찮아, 너도 갇힌 거지?" 뿔이 천천히 내려간다', g: { summon: 2 }, c: { tamer: 3 }, next: "tour_5" },
+      { text: "다친 관광객들의 상처에 손을 얹는다. 피가 멎는다", g: { support: 2 }, c: { healer: 3 }, next: "tour_5" }
     ]
   },
   tour_5: {
     title: "구조 헬기",
-    text: '여섯 시간 뒤, 관리국 구조대가 게이트를 다시 열었다. 관광객 스물한 명 전원 생존. 뉴스 자막에는 "관광객 중 신규 각성자 1명"이라고만 나온다.\n\n그날 밤, 체험관 숙소 창밖의 보랏빛 숲이 꿈처럼 아른거린다. 숲의 무언가가 당신 안에 남아 함께 나왔다.',
+    text: '여섯 시간 뒤, 관리국 구조대가 게이트를 다시 열었다. 관광객 스물한 명 전원 구조. 깃발만 남기고 사라졌던 가이드는 숲 반대편 나무 위에서 다리가 부러진 채 발견됐다. 살아 있었다.\n\n뉴스 자막에는 "관광객 중 신규 각성자 1명"이라고만 나온다. 그날 밤 체험관 숙소에서, 숲에서 무언가가 당신 안에 남아 함께 나왔다는 걸 알게 된다.',
     choices: [
-      { text: "창가에 작은 정령이 앉아 있다. 숲에서 따라온 것이다", g: { summon: 2 }, c: { summoner: 4 }, next: "verdict_guild" },
-      { text: "숲에서 주운 열매에서 진액을 짜 약을 만들어 본다", g: { support: 2 }, c: { alchemist: 4 }, next: "verdict" },
-      { text: '창밖 숲에서 방울 소리가 들린다. 낮에 구조대 헌터가 물었다. "너, 신기 있지?"', g: { east: 2 }, c: { shaman: 4 }, next: "verdict" },
-      { text: "눈을 감으면 숲의 내일이 보인다. 어느 나무가 쓰러질지", g: { esper: 2 }, c: { seer: 4 }, t: { lucky: 1 }, next: "verdict" },
-      { text: "포자를 손톱 밑에 모아 독으로 바꿔 본다", g: { shadow: 2 }, c: { poisoner: 4 }, next: "verdict_street" },
-      { text: "{friend}이(가) 찍은 영상을 다시 본다. 괴수를 벤 건 두 손에 맺힌 칼날 같은 빛이었다. 조회수가 300만을 넘었다", g: { fighter: 2 }, c: { dualblade: 4 }, friend: 10, next: "verdict_guild" }
+      { text: "창가에 손바닥만 한 빛의 정령이 앉아 있다. 숲에서 따라온 것이다", g: { summon: 2 }, c: { summoner: 4 }, next: "verdict_guild" },
+      { text: "숲에서 주운 열매를 짜서 섞어 본다. 상처에 바르자 하룻밤 새 아문다", g: { support: 2 }, c: { alchemist: 4 }, next: "verdict" },
+      { text: '창밖 숲에서 방울 소리가 울린다. 낮에 구조대 헌터가 물었다. "너, 신기 있지?"', g: { east: 2 }, c: { shaman: 4 }, next: "verdict" },
+      { text: "눈을 감으면 숲의 내일이 보인다. 어느 나무가 쓰러질지, 어디서 출구가 열릴지", g: { esper: 2 }, c: { seer: 4 }, t: { lucky: 1 }, next: "verdict" },
+      { text: "손톱 밑에 모아 둔 포자가 검게 삭는다. 한 방울이면 짐승 하나가 쓰러질 독이다", g: { shadow: 2 }, c: { poisoner: 4 }, next: "verdict_street" },
+      { text: "{friend}이(가) 찍은 영상을 다시 본다. 괴수를 벤 건 두 손에 한 자루씩 맺힌 빛이었다. 조회수가 300만을 넘었다", g: { fighter: 2 }, c: { dualblade: 4 }, friend: 10, next: "verdict_guild" }
     ]
   },
   // ===== 친구의 폭주 (괴수 없음) =====
   friend_1: {
     title: "먼저 깨어난 쪽",
-    text: '그해 겨울, {friend}이(가) 먼저 각성했다. 축하 치킨을 시켜 놓고 둘이 웃던 게 엊그제다.\n\n그런데 오늘 새벽, {friend}의 전화가 온다. 숨소리가 이상하다. "…{name}, 나 이상해. 손에서 뭐가 자꾸 새어 나와. 멈춰지지가 않아."',
+    text: '그해 겨울, {friend}이(가) 먼저 각성했다. {friendJob} 일은 그만두고 협회 등록부터 하겠다며 들떠 있었다. 축하 치킨을 시켜 놓고 둘이 웃던 게 엊그제다.\n\n그런데 오늘 새벽, {friend}의 전화가 온다. 숨소리가 이상하다. "…{name}, 나 이상해. 손에서 뭐가 자꾸 새어 나와. 멈춰지지가 않아."',
     choices: [
-      { text: "잠옷 바람으로 {friend}의 원룸까지 뛴다", e: { fire: 1 }, g: { fighter: 1, guard: 1 }, t: { reckless: 1 }, friend: 10, next: "friend_2" },
-      { text: '"숨 천천히 쉬어. 내 목소리만 들어." 통화를 끊지 않는다', e: { spirit: 1 }, g: { support: 2 }, t: { charisma: 1 }, friend: 10, next: "friend_2" },
-      { text: "각성 폭주 대처법을 검색하며 택시를 부른다", e: { ice: 1 }, g: { mage: 1, esper: 1 }, t: { genius: 1 }, friend: 5, next: "friend_2" }
+      { text: "잠옷 바람으로 {friend}의 원룸까지 뛴다", e: { fire: 1 }, g: { fighter: 1, guard: 1 }, t: { reckless: 1 }, friend: 10, flag: "friend_awakened", next: "friend_2" },
+      { text: '"숨 천천히 쉬어. 내 말만 따라와." 통화를 끊지 않는다', e: { spirit: 1 }, g: { support: 2 }, t: { charisma: 1 }, friend: 10, flag: "friend_awakened", next: "friend_2" },
+      { text: "각성 폭주 대처법을 검색하며 택시를 부른다", e: { ice: 1 }, g: { mage: 1, esper: 1 }, t: { genius: 1 }, friend: 5, flag: "friend_awakened", next: "friend_2" }
     ]
   },
   friend_2: {
     title: "봉쇄선",
     text: '{friend}의 원룸 건물 앞에 관리국 차량 세 대가 서 있다. 노란 봉쇄선, 방호복, "격리 대상 1명"이라는 무전. 창문 너머로 하얀 빛이 맥박치듯 터진다.\n\n관리국 요원이 당신을 막는다. "보호자세요? 물러나세요. 10분 안에 안정 안 되면 제압합니다. 진압탄 장전해."',
     choices: [
-      { text: "요원을 밀치고 봉쇄선을 넘는다", g: { fighter: 3 }, c: { monk: 1 }, friend: 5, next: "friend_3" },
-      { text: '건물 입구에 버티고 선다. "아무도 못 올라가요."', g: { guard: 3 }, c: { paladin: 1 }, friend: 5, next: "friend_3" },
-      { text: "뒤편 배관을 타고 몰래 3층 창문으로 들어간다", g: { shadow: 3 }, c: { thief: 1 }, next: "friend_3" },
-      { text: "요원의 진압탄 총을 노려본다. 저것부터 막아야 한다", g: { shooter: 3 }, c: { gunslinger: 1 }, next: "friend_3" },
-      { text: "폭주하는 빛의 주기를 세며 안정될 틈을 계산한다", g: { mage: 3 }, c: { warder: 1 }, next: "friend_3" },
-      { text: '요원에게 차분히 설명한다. "제가 진정시킬 수 있어요."', g: { support: 3 }, c: { priest: 1 }, t: { charisma: 1 }, next: "friend_3" },
-      { text: "눈을 감는다. 벽 너머 {friend}의 마음이 들리는 것 같다", g: { esper: 3 }, c: { telepath: 1 }, friend: 5, next: "friend_3" },
-      { text: "어디서 들었는지 모를 진정 주문이 입에서 저절로 흘러나온다", g: { east: 3 }, c: { taoist: 1 }, next: "friend_3" }
+      { text: "요원을 밀치고 봉쇄선을 넘는다. 10분이면 늦는다", g: { fighter: 3 }, c: { monk: 1 }, friend: 5, next: "friend_3" },
+      { text: '건물 입구에 버티고 선다. "제가 나올 때까지 아무도 못 올라가요."', g: { guard: 3 }, c: { paladin: 1 }, friend: 5, next: "friend_3" },
+      { text: "요원과 실랑이하는 척하며 뒤편 배관을 눈으로 재 둔다. 3층 창문까지 갈 수 있다", g: { shadow: 3 }, c: { thief: 1 }, next: "friend_3" },
+      { text: "진압탄 총을 든 요원의 위치를 하나하나 외운다. 저것부터 막아야 한다", g: { shooter: 3 }, c: { gunslinger: 1 }, next: "friend_3" },
+      { text: "빛이 터지는 간격을 센다. 다음 틈은 40초 뒤다", g: { mage: 3 }, c: { warder: 1 }, next: "friend_3" },
+      { text: '요원 앞에서 무릎을 꿇는다. "제가 진정시킬 수 있어요. 5분만요."', g: { support: 3 }, c: { priest: 1 }, t: { charisma: 1 }, next: "friend_3" },
+      { text: "눈을 감는다. 벽 너머 {friend}의 공포가 손에 잡힐 듯 전해진다", g: { esper: 3 }, c: { telepath: 1 }, friend: 5, next: "friend_3" },
+      { text: "어디서 배웠는지 모를 진정 주문이 입에서 저절로 흘러나온다", g: { east: 3 }, c: { taoist: 1 }, next: "friend_3" }
     ]
   },
   friend_3: {
     title: "맞닿은 손",
-    text: '방 안은 폭풍 한가운데 같다. 책상이 천장에 붙어 있고, {friend}은(는) 구석에 웅크린 채 울고 있다. "오지 마… 다쳐…"\n\n당신은 그 손을 잡는다. {friend}의 힘이 당신에게 흘러들어 온다. 아니, 당신 안에서 무언가가 그것에 답한다.',
+    text: '방 안은 폭풍 한가운데 같다. 책상이 천장에 붙어 있고, {friend}은(는) 팔에 피를 흘리며 구석에 웅크려 있다. "오지 마… 다쳐…"\n\n당신은 그 손을 잡는다. {friend}의 힘이 당신에게 흘러들어 온다. 아니, 당신 안에서 무언가가 그것에 답한다.',
     choices: [
-      { text: "두 사람 사이에서 불꽃이 피어올라 폭풍을 태운다", e: { fire: 4 }, next: "friend_4" },
-      { text: "폭주하는 힘이 번개가 되어 당신의 팔을 타고 땅으로 흘러간다", e: { bolt: 4 }, next: "friend_4" },
-      { text: "방 안의 모든 것이 서리에 덮이며 멈춘다", e: { ice: 4 }, next: "friend_4" },
-      { text: "당신의 몸이 강철처럼 굳어 폭풍을 받아낸다", e: { steel: 4 }, next: "friend_4" },
-      { text: "{friend}의 두려움이 당신의 머릿속으로 고요히 가라앉는다", e: { spirit: 4 }, next: "friend_4" }
+      { text: "두 사람 사이에서 불꽃이 피어올라 폭풍을 태운다", e: { fire: 4 }, flag: "friend_hurt", next: "friend_4" },
+      { text: "폭주하는 힘이 번개가 되어 당신의 팔을 타고 땅으로 흘러간다", e: { bolt: 4 }, flag: "friend_hurt", next: "friend_4" },
+      { text: "방 안의 모든 것이 서리에 덮이며 멈춘다", e: { ice: 4 }, flag: "friend_hurt", next: "friend_4" },
+      { text: "당신의 몸이 강철처럼 굳어 폭풍을 받아낸다", e: { steel: 4 }, flag: "friend_hurt", next: "friend_4" },
+      { text: "{friend}의 두려움이 물처럼 당신에게 스며들어 고요히 가라앉는다", e: { spirit: 4 }, flag: "friend_hurt", next: "friend_4" }
     ]
   },
   friend_4: {
     title: "진압탄",
     text: '폭풍이 잦아든 순간, 현관문이 부서지며 진압 요원들이 들이닥친다. "두 명 다 각성자다! 둘 다 제압해!" 총구가 {friend}을(를) 향한다.\n\n방금 깨어난 힘이 당신 안에서 꿈틀거린다.',
     choices: [
-      { text: "총구 앞을 맨몸으로 막아선다. 진압탄이 튕겨 나간다", g: { guard: 2 }, c: { paladin: 3 }, friend: 10, next: "friend_5" },
+      { text: "총구 앞을 맨몸으로 막아선다. 몸에서 번진 빛에 진압탄이 튕겨 나간다", g: { guard: 2 }, c: { paladin: 3 }, friend: 10, next: "friend_5" },
       { text: "손짓 하나로 요원들의 총을 허공에 띄운다", g: { esper: 2 }, c: { telekinetic: 3 }, next: "friend_5" },
       { text: "주먹으로 바닥을 내리쳐 요원들의 발을 묶는다", g: { fighter: 2 }, c: { monk: 3 }, next: "friend_5" },
       { text: "요원 손의 총을 낚아채 총구를 천장으로 돌린다", g: { shooter: 2 }, c: { gunslinger: 3 }, next: "friend_5" },
-      { text: "{friend}의 머리에 손을 얹는다. 남은 폭주가 가라앉는다", g: { support: 2 }, c: { priest: 3 }, friend: 15, next: "friend_5" },
+      { text: "{friend}의 이마에 손을 얹는다. 남은 폭주와 팔의 상처가 함께 가라앉는다", g: { support: 2 }, c: { priest: 3 }, friend: 15, next: "friend_5" },
       { text: "방 전체에 얇은 결계를 친다. 아무도 들어오지 못한다", g: { mage: 2 }, c: { warder: 3 }, next: "friend_5" },
-      { text: '요원들의 머릿속에 대고 말한다. "총 내려."', g: { esper: 2 }, c: { telepath: 3 }, next: "friend_5" }
+      { text: '요원들의 생각 속으로 한 마디를 밀어 넣는다. "총 내려." 총구가 일제히 내려간다', g: { esper: 2 }, c: { telepath: 3 }, next: "friend_5" }
     ]
   },
   friend_5: {
     title: "두 사람의 기록",
-    text: '관리국 조사실. 보고서에는 "각성 폭주 1건, 접촉에 의한 연쇄 각성 1건, 진압 장비 파손 7점"이라고 적혔다. 옆방에서 {friend}이(가) 무사하다는 소식이 들린다.\n\n조사관이 펜을 돌리며 묻는다. "그 순간에 뭘 봤습니까? 기록해야 해서요."',
+    text: '관리국 조사실. 보고서에는 "각성 폭주 1건, 접촉에 의한 연쇄 각성 1건, 진압 장비 파손 7점"이라고 적혔다. 옆방에서 {friend}이(가) 무사하다는 소식이 들어온다.\n\n조사관이 펜을 돌리며 묻는다. "그 순간에 뭘 봤습니까? 기록해야 해서요."',
     choices: [
-      { text: '"멈춘 시간이요. 방 안의 모든 게 정지해 있었어요."', g: { mage: 2 }, c: { chronomancer: 4 }, talent: 1, next: "verdict" },
-      { text: '"{friend}의 내일이요. 그래서 막을 수 있었어요."', g: { esper: 2 }, c: { seer: 4 }, friend: 10, next: "verdict" },
-      { text: '"그림자요. 진압 요원들 뒤로 빠져나갈 길이 보였어요."', g: { esper: 2 }, c: { teleporter: 4 }, next: "verdict_street" },
-      { text: '"…말하기 싫어요." 손등에 검은 문양이 번져 있다', g: { mage: 2 }, c: { warlock: 4 }, t: { loner: 1 }, next: "verdict_street" },
+      { text: '"멈춘 시간이요. 날아오던 진압탄이 공중에 서 있었어요."', g: { mage: 2 }, c: { chronomancer: 4 }, talent: 1, next: "verdict" },
+      { text: '"{friend}의 내일이요. 총알이 어디로 갈지 먼저 보였어요."', g: { esper: 2 }, c: { seer: 4 }, friend: 10, next: "verdict" },
+      { text: '"문이요. 벽 너머로 한 발짝이면 갈 수 있는 문." 조사관의 펜이 멈춘다', g: { esper: 2 }, c: { teleporter: 4 }, next: "verdict_street" },
+      { text: '"…말하기 싫어요." 손등에 검은 문양이 번져 있다. 무언가와 맺은 약속의 자국이다', g: { mage: 2 }, c: { warlock: 4 }, t: { loner: 1 }, next: "verdict_street" },
       { text: '"{friend}이(가) 다치면 안 된다는 생각뿐이었어요. 그때 천장에 머리가 닿았던 것 같아요."', g: { guard: 2 }, c: { giant: 4 }, t: { iron_body: 1 }, friend: 5, next: "verdict_guild" },
-      { text: '"노래가 들렸어요. 둘이 같이 부르던 노래."', g: { support: 2 }, c: { bard: 4 }, friend: 10, next: "verdict_guild" }
+      { text: '"노래요. 둘이 같이 부르던 노래를 불렀더니 요원들이 총을 내렸어요."', g: { support: 2 }, c: { bard: 4 }, friend: 10, next: "verdict_guild" }
     ]
   },
   // ===== 정기 검진 (괴수 없음) =====
@@ -2297,17 +2337,17 @@ Object.assign(PROLOGUE, {
   },
   late_2: {
     title: "잠재 각성자 판정",
-    text: '검진관이 모니터를 두 번 확인하더니 상급자를 부른다. "에테르 잔류 수치 0.82. 잠재 각성자입니다. 각성 유도 시술 대상이고요, 동의서 쓰시면 다음 주 대전 본원 예약 잡아 드릴게요."\n\n서류는 일곱 장이다. 마지막 장에 질문이 하나 있다. [희망 진로 분야(참고용)]',
+    text: '검진관이 모니터를 두 번 확인하더니 상급자를 부른다. 정장 차림의 관리국 주무관이 들어와 웃으며 서류 일곱 장을 내민다.\n\n"에테르 잔류 수치 0.82. 잠재 각성자입니다. 다음 주 대전 본원에서 각성 유도 시술 받으시면 되고요. 동의 안 하셔도 됩니다. 대신 미등록 잠재 각성자로 분류돼서, 이사 갈 때마다 신고하셔야 해요. 감시 대상이라서."',
     choices: [
-      { text: "[근접 전투] 체크. 볼펜에 힘이 들어간다", g: { fighter: 3 }, c: { swordsman: 1 }, next: "late_3" },
-      { text: "[방어·구조] 체크. 사람을 지키는 쪽이 좋다", g: { guard: 3 }, c: { guardian: 1 }, next: "late_3" },
-      { text: "[정찰·잠입] 체크. 눈에 안 띄는 게 편하다", g: { shadow: 3 }, c: { thief: 1 }, next: "late_3" },
-      { text: "[원거리 지원] 체크. 사격 경험도 적어 넣는다", g: { shooter: 3 }, c: { sniper: 1 }, next: "late_3" },
-      { text: "[에테르 연구] 체크. 이게 대체 뭔지 알고 싶다", g: { mage: 3 }, c: { chronomancer: 1 }, next: "late_3" },
-      { text: "[의료·후방] 체크. 보건소 간호사의 손이 떠오른다", g: { support: 3 }, c: { healer: 1 }, next: "late_3" },
-      { text: "[특이 능력] 체크. 요즘 남의 생각이 들릴 때가 있다", g: { esper: 3 }, c: { telepath: 1 }, next: "late_3" },
-      { text: "[전통 계열] 체크. 어릴 때부터 굿판 장구 소리가 이상하게 낯설지 않았다", g: { east: 3 }, c: { shaman: 1 }, next: "late_3" },
-      { text: "[생물 교감] 체크. 동네 고양이들이 이상하게 따른다", g: { summon: 3 }, c: { tamer: 1 }, next: "late_3" }
+      { text: '"하죠. 대신 빨리요." 서류 일곱 장에 거칠게 서명한다', g: { fighter: 3 }, c: { swordsman: 1 }, next: "late_3" },
+      { text: '"옆에 이 친구도 같이 검사받게 해 주세요. 혼자는 안 보내요." {friend}을(를) 가리킨다', g: { guard: 3 }, c: { guardian: 1 }, friend: 5, next: "late_3" },
+      { text: "주무관이 전화를 받으러 나간 사이, 모니터의 내 기록을 휴대폰으로 찍어 둔다", g: { shadow: 3 }, c: { thief: 1 }, next: "late_3" },
+      { text: '"감시라. 그럼 저도 지켜보죠." 주무관의 명찰 번호를 눈에 새긴다', g: { shooter: 3 }, c: { sniper: 1 }, next: "late_3" },
+      { text: '"작년엔 0이었는데 왜 지금 이 수치가 나와요?" 지난 검진 기록부터 보여 달라고 한다', g: { mage: 3 }, c: { chronomancer: 1 }, next: "late_3" },
+      { text: "같은 판정을 받고 손을 떠는 옆자리 학생에게 먼저 물을 건넨다", g: { support: 3 }, c: { healer: 1 }, next: "late_3" },
+      { text: "주무관의 웃는 얼굴 뒤로 초조함이 이상하게 생생히 느껴진다. 실적이 급한 사람이다", g: { esper: 3 }, c: { telepath: 1 }, next: "late_3" },
+      { text: "서류의 붉은 직인을 보는 순간 귓가에 장구 소리가 울린다. 처음 듣는데 낯설지 않다", g: { east: 3 }, c: { shaman: 1 }, next: "late_3" },
+      { text: "보건소 창틀에 비둘기들이 일렬로 내려앉아 당신만 쳐다본다", g: { summon: 3 }, c: { tamer: 1 }, next: "late_3" }
     ]
   },
   late_3: {
@@ -2318,57 +2358,57 @@ Object.assign(PROLOGUE, {
       { text: "캡슐의 모든 전자 장비가 동시에 터진다", e: { bolt: 4 }, next: "late_4" },
       { text: "주입액이 혈관 속에서 얼어붙는다. 이상하게 아프지 않다", e: { ice: 4 }, next: "late_4" },
       { text: "주사 바늘이 피부에 박히지 않고 휘어진다", e: { steel: 4 }, next: "late_4" },
-      { text: "건물 안 수백 명의 목소리가 한꺼번에 들린다", e: { spirit: 4 }, next: "late_4" }
+      { text: "건물 안 수백 명의 숨결이 한꺼번에 몸 안으로 밀려든다", e: { spirit: 4 }, next: "late_4" }
     ]
   },
   late_4: {
     title: "적성 실기",
-    text: '시술 다음 날. 관리국 체육관에서 "초기 적성 실기"를 본다. 평가관이 클립보드를 든다. "부담 갖지 마시고, 몸이 하고 싶은 대로 해 보세요. 기록만 합니다."\n\n과녁, 샌드백, 목검 거치대, 더미 인형, 화분 하나가 준비되어 있다.',
+    text: '시술 다음 날, 관리국 체육관에서 "초기 적성 실기"가 열린다. 평가관이 클립보드를 드는 순간, 옆 레인의 수검자가 비명을 지른다. 어제 같은 날 시술을 받은 고등학생이다.\n\n아이의 몸에서 힘이 새어 나온다. 샌드백과 더미 인형이 허공으로 끌려 올라가고, 평가관이 넘어지며 머리를 부딪친다. 출입문은 자동으로 잠겼다. 안에 남은 수검자는 당신뿐이다.',
     choices: [
-      { text: "샌드백을 맨주먹으로 친다. 체인이 끊어진다", g: { fighter: 2 }, c: { monk: 3 }, next: "late_5" },
-      { text: "연습용 목검을 집는다. 손에 착 감긴다", g: { fighter: 2 }, c: { swordsman: 3 }, next: "late_5" },
-      { text: "과녁 정중앙에 다트 세 개를 연달아 꽂는다", g: { shooter: 2 }, c: { sniper: 3 }, next: "late_5" },
-      { text: "평가관이 눈치채기 전에 더미 인형 뒤에 서 있다", g: { shadow: 2 }, c: { thief: 3 }, next: "late_5" },
-      { text: "시든 화분에 손을 대자 잎이 다시 핀다", g: { support: 2 }, c: { healer: 3 }, next: "late_5" },
-      { text: "손바닥 위에 작은 불덩이를 띄워 본다", g: { mage: 2 }, c: { elementalist: 3 }, next: "late_5" },
-      { text: "손대지 않고 더미 인형을 들어 올린다", g: { esper: 2 }, c: { telekinetic: 3 }, next: "late_5" },
-      { text: "체육관 구석의 길고양이가 다가와 발밑에 앉는다", g: { summon: 2 }, c: { tamer: 3 }, next: "late_5" }
+      { text: "날아드는 샌드백을 맨주먹으로 받아친다. 체인째 끊어져 떨어진다", g: { fighter: 2 }, c: { monk: 3 }, next: "late_5" },
+      { text: "연습용 목검을 뽑아 들고 쏟아지는 파편을 하나하나 쳐낸다", g: { fighter: 2 }, c: { swordsman: 3 }, next: "late_5" },
+      { text: "흔들리는 조명 너머, 아이 팔의 주입 밸브를 다트 한 발로 맞혀 잠근다", g: { shooter: 2 }, c: { sniper: 3 }, next: "late_5" },
+      { text: "아무도 모르게 아이 등 뒤로 돌아가 휴대용 주입기의 전원을 뽑는다", g: { shadow: 2 }, c: { thief: 3 }, next: "late_5" },
+      { text: "쓰러진 평가관의 이마에 손을 얹는다. 찢어진 상처가 아문다", g: { support: 2 }, c: { healer: 3 }, next: "late_5" },
+      { text: "손바닥에 불덩이를 띄워 날아오는 더미 인형을 공중에서 태운다", g: { mage: 2 }, c: { elementalist: 3 }, next: "late_5" },
+      { text: "손대지 않고, 무너지는 철제 관람석을 허공에 붙잡아 둔다", g: { esper: 2 }, c: { telekinetic: 3 }, next: "late_5" },
+      { text: "겁에 질려 뛰어든 체육관 경비견에게 손짓한다. 개가 아이의 소매를 물어 안전한 곳으로 끌어낸다", g: { summon: 2 }, c: { tamer: 3 }, next: "late_5" }
     ]
   },
   late_5: {
     title: "비고란",
-    text: '적성 평가표가 나왔다. 대부분은 평범한 칸들이다. 그런데 맨 아래 비고란에 평가관이 손글씨로 한 줄을 적어 두었다.\n\n{friend}이(가) 어깨 너머로 들여다본다. "야, 이거 뭐라고 쓴 거야?"',
+    text: '실기 사고 경위서와 함께 적성 평가표가 나왔다. 아이는 무사하다. 대부분은 평범한 칸들이다. 그런데 맨 아래 비고란에 평가관이 손글씨로 한 줄을 적어 두었다.\n\n{friend}이(가) 어깨 너머로 들여다본다. "야, 이거 뭐라고 쓴 거야?"',
     choices: [
-      { text: '"검기 반응. 동양 검술 계열 정밀 검사 권고."', g: { east: 2 }, c: { swordmonk: 4 }, next: "verdict" },
+      { text: '"맨손 검기 반응. 동양 검술 계열 정밀 검사 권고."', g: { east: 2 }, c: { swordmonk: 4 }, next: "verdict" },
       { text: '"부적 재료 친화도 이상 수치. 도술 계열 상담 요망."', g: { east: 2 }, c: { taoist: 4 }, next: "verdict" },
-      { text: '"실기 중 공간 이탈 1회. 재현 불가."', g: { esper: 2 }, c: { teleporter: 4 }, next: "verdict_guild" },
-      { text: '"사망 표본실 근처에서 계측기 이상. 원인 불명."', g: { summon: 2 }, c: { necromancer: 4 }, t: { cursed: 1 }, next: "verdict_street" },
-      { text: '"신체 크기 일시 증가 관측. 거인화 계열 의심."', g: { guard: 2 }, c: { giant: 4 }, next: "verdict_guild" },
-      { text: '"시약 반응 이상. 연금 계열로 분류 검토."', g: { support: 2 }, c: { alchemist: 4 }, t: { mana_sense: 1 }, next: "verdict" },
-      { text: '"보호막 자연 발생. 결계 계열 유력." {friend}이(가) 엄지를 든다', g: { mage: 2 }, c: { warder: 4 }, friend: 5, next: "verdict" }
+      { text: '"사고 중 공간 이탈 1회. 수검자가 레인 반대편에 나타남. 재현 불가."', g: { esper: 2 }, c: { teleporter: 4 }, next: "verdict_guild" },
+      { text: '"사망 표본실 근처에서 계측기 이상. 표본이 움직였다는 진술 있음."', g: { summon: 2 }, c: { necromancer: 4 }, t: { cursed: 1 }, next: "verdict_street" },
+      { text: '"사고 중 신체 크기 일시 증가 관측. 거인화 계열 의심."', g: { guard: 2 }, c: { giant: 4 }, next: "verdict_guild" },
+      { text: '"의무실 시약 반응 이상. 연금 계열로 분류 검토."', g: { support: 2 }, c: { alchemist: 4 }, t: { mana_sense: 1 }, next: "verdict" },
+      { text: '"사고 당시 보호막 자연 발생. 결계 계열 유력." {friend}이(가) 엄지를 든다', g: { mage: 2 }, c: { warder: 4 }, friend: 5, next: "verdict" }
     ]
   },
   // ===== 짐꾼 (괴수 나옴) =====
   nest_1: {
     title: "포터 아르바이트",
-    text: '며칠 뒤, 헌터 구인 앱에 공고가 떴다. [C급 게이트 동행 포터 구함. 일당 80만. 비각성자 가능. 짐만 잘 들면 됨.] 80만 원이면 석 달 월세다.\n\n집결지는 새벽 4시 고속도로 휴게소. 파티장 "구 팀장"이 당신의 등에 30킬로그램짜리 배낭을 얹으며 말한다. "뒤에만 붙어 다녀. 앞에 나오면 죽어."',
+    text: '그해 여름, 헌터 구인 앱에 공고가 떴다. [C급 게이트 동행 포터 구함. 일당 80만. 비각성자 가능. 짐만 잘 들면 됨.] 80만 원이면 석 달 월세다.\n\n집결지는 새벽 4시 고속도로 휴게소. 파티장 "구 팀장"이 당신의 등에 30킬로그램짜리 배낭을 얹으며 말한다. "뒤에만 붙어 다녀. 앞에 나오면 죽어."',
     choices: [
       { text: '"예, 팀장님." 묵묵히 배낭끈을 조인다', e: { steel: 1 }, g: { guard: 1, support: 1 }, t: { iron_body: 1 }, next: "nest_2" },
       { text: "파티원들의 장비와 등급을 슬쩍 훑어본다", e: { ice: 1 }, g: { shadow: 1, mage: 1 }, t: { mana_sense: 1 }, next: "nest_2" },
-      { text: '{friend}에게 문자를 남긴다. "내일 아침까지 연락 없으면 신고해."', e: { spirit: 1 }, g: { support: 1, esper: 1 }, t: { lucky: 1 }, friend: 5, next: "nest_2" },
+      { text: '{friend}에게 문자를 남긴다. "내일 아침까지 연락 없으면 신고해."', e: { spirit: 1 }, g: { support: 1, esper: 1 }, t: { lucky: 1 }, friend: 5, flag: "nest_report", next: "nest_2" },
       { text: "운전석에 앉은 파티원에게 말을 붙여 정보를 캔다", e: { bolt: 1 }, g: { shooter: 1, shadow: 1 }, t: { charisma: 1 }, next: "nest_2" }
     ]
   },
   nest_2: {
     title: "무너진 파티",
-    text: '게이트 안 동굴 4시간째. 구 팀장이 웃는다. "C급치고 조용하네." 그 순간 천장이 내려앉는다. 아니, 천장인 줄 알았던 것이 날개를 편다.\n\n10분 뒤, 서 있는 사람은 당신뿐이다. 무전기는 부서졌고, 동굴 안쪽에서 새끼들이 우는 소리가 들린다. 여기는 둥지다.',
+    text: '게이트 안 동굴 4시간째. 구 팀장이 웃는다. "C급치고 조용하네." 그 순간 천장이 내려앉는다. 아니, 천장인 줄 알았던 것이 날개를 편다.\n\n10분 뒤, 서 있는 사람은 당신뿐이다. 무전기는 부서졌고, 동굴 안쪽에서 새끼들이 우는 소리가 난다. 여기는 둥지다.',
     choices: [
       { text: "팀장의 부러진 도끼를 줍는다. 무겁지만 휘두를 수는 있다", g: { fighter: 3 }, c: { berserker: 1 }, next: "nest_3" },
-      { text: "배낭을 방패 삼아 벽에 등을 붙인다", g: { guard: 3 }, c: { guardian: 1 }, next: "nest_3" },
-      { text: "숨을 죽이고 바위 틈으로 기어 들어간다", g: { shadow: 3 }, c: { assassin: 1 }, next: "nest_3" },
+      { text: "배낭을 방패 삼아 쓰러진 사람들 앞 벽에 등을 붙인다", g: { guard: 3 }, c: { guardian: 1 }, next: "nest_3" },
+      { text: "쓰러진 사람들을 두고 숨을 죽인 채 바위 틈으로 기어 들어간다. 살아야 구하러 온다", g: { shadow: 3 }, c: { assassin: 1 }, next: "nest_3" },
       { text: "배낭 속 조명탄과 신호총을 꺼낸다", g: { shooter: 3 }, c: { gunslinger: 1 }, next: "nest_3" },
       { text: "쓰러진 파티원들의 맥을 짚고 응급 키트를 연다", g: { support: 3 }, c: { healer: 1 }, next: "nest_3" },
-      { text: "새끼들의 울음소리에 귀를 기울인다. 배고파서 우는 소리다", g: { summon: 3 }, c: { tamer: 1 }, next: "nest_3" },
+      { text: "새끼들의 울음에 귀를 기울인다. 배고파서 우는 소리다", g: { summon: 3 }, c: { tamer: 1 }, next: "nest_3" },
       { text: "동굴 벽의 에테르 결정 배열을 읽고 탈출 경로를 그린다", g: { mage: 3 }, c: { elementalist: 1 }, next: "nest_3" },
       { text: "배낭 속 소금과 팥을 꺼내 바닥에 선을 긋는다", g: { east: 3 }, c: { taoist: 1 }, next: "nest_3" }
     ]
@@ -2381,7 +2421,7 @@ Object.assign(PROLOGUE, {
       { text: "심장 박동마다 손끝에서 전류가 튄다", e: { bolt: 4 }, next: "nest_4" },
       { text: "어미의 침이 당신 앞에서 얼어붙어 떨어진다", e: { ice: 4 }, next: "nest_4" },
       { text: "어미의 발톱이 어깨를 긁었는데 피가 나지 않는다", e: { steel: 4 }, next: "nest_4" },
-      { text: "어미의 분노 아래 깔린 두려움이 들린다", e: { spirit: 4 }, next: "nest_4" }
+      { text: "어미의 분노 아래 깔린 두려움이 피부로 전해진다", e: { spirit: 4 }, next: "nest_4" }
     ]
   },
   nest_4: {
@@ -2399,18 +2439,76 @@ Object.assign(PROLOGUE, {
   },
   nest_5: {
     title: "귀환한 짐꾼",
-    text: '게이트 밖으로 기어 나온 건 해 질 녘이었다. 등에는 숨이 붙은 파티원 둘. 휴게소 주차장에 관리국 구조차와 {friend}이(가) 서 있다. 정말로 신고를 한 모양이다.\n\n의식을 되찾은 구 팀장이 당신을 한참 본다. "…너, 마지막에 그거 뭐였냐."',
+    text: '게이트 밖으로 기어 나온 건 해 질 녘이었다. 등에는 숨이 붙은 파티원 둘. 휴게소 주차장에 관리국 구조차가 서 있다. 귀환 예정 시각이 한참 지나 게이트 관리소가 출동시켰다고 한다.\n\n의식을 되찾은 구 팀장이 당신을 한참 본다. "…너, 마지막에 그거 뭐였냐."',
+    textBy: { nest_report: '게이트 밖으로 기어 나온 건 해 질 녘이었다. 등에는 숨이 붙은 파티원 둘. 휴게소 주차장에 관리국 구조차와 {friend}이(가) 서 있다. 정말로 신고를 한 모양이다.\n\n의식을 되찾은 구 팀장이 당신을 한참 본다. "…너, 마지막에 그거 뭐였냐."' },
     choices: [
       { text: '"새끼 한 마리가 따라 나왔어요." 품 안에서 무언가 꿈틀거린다', g: { summon: 2 }, c: { summoner: 4 }, next: "verdict_guild" },
       { text: '"동굴에 죽은 것들이 일어나서 길을 비켜 줬어요."', g: { summon: 2 }, c: { necromancer: 4 }, t: { cursed: 1 }, next: "verdict_street" },
-      { text: '"어미의 침으로 독을 만들었어요. 배낭에 병이 있어서."', g: { shadow: 2 }, c: { poisoner: 4 }, next: "verdict_street" },
-      { text: '"양손에 칼날 같은 게 생겼어요. 두 개요."', g: { fighter: 2 }, c: { dualblade: 4 }, next: "verdict_guild" },
+      { text: '"어미의 침으로 독을 만들었어요. 배낭에 빈 병이 있어서."', g: { shadow: 2 }, c: { poisoner: 4 }, next: "verdict_street" },
+      { text: '"양손에 빛이 뭉쳤어요. 두 자루로 베었어요."', g: { fighter: 2 }, c: { dualblade: 4 }, next: "verdict_guild" },
       { text: '"멀리서 한 발로 끝냈어요. 숨 한 번 참고요."', g: { shooter: 2 }, c: { sniper: 4 }, next: "verdict" },
       { text: '"빛이 났어요. 다들 그 안에서 피가 멎었고요."', g: { guard: 2 }, c: { paladin: 4 }, next: "verdict_guild" },
-      { text: '"{friend}이(가) 와 있을 것 같았어요. 그래서 버텼어요."', g: { support: 2 }, c: { priest: 4 }, friend: 15, next: "verdict" }
+      { text: '"밖에서 누가 기다리고 있을 것 같았어요. 그래서 버텼어요." 손끝에서 따뜻한 빛이 번져 팀장의 상처를 덮는다', g: { support: 2 }, c: { priest: 4 }, friend: 15, next: "verdict" }
     ]
   }
 });
+const PRO_HOOKS = {
+  // ===== 재벌가 자제 =====
+  chaebol_1: "아버지의 제안에는 끝내 답하지 않았다. 지분 서류는 서랍 속에 봉투째 그대로다.",
+  chaebol_2: '이사회 만찬에서 삼촌들은 당신을 "유학파 막내"라고만 불렀다. 집은 아직도 낯설다.',
+  chaebol_3: "그 코어는 다른 사람에게 낙찰됐다. 그런데 그날의 맥박이 아직 손바닥에 남아 있다.",
+  chaebol_4: "요트 파티 이후 사촌과는 연락을 끊었다. 갑판 끝에 서 있던 {friend}의 얼굴만 오래 남았다.",
+  chaebol_5: "이복형은 결국 백호 시큐리티를 손에 넣었다. 회사 차는 그 뒤로도 오지 않는다. 갚아 줄 날은 아직이다.",
+  chaebol_6: '병동의 아이가 물었던 말이 귓가에 남아 있다. "헌터예요?" 그 물음에 아직 제대로 답하지 못했다.',
+  chaebol_7: '역삼동 지하 훈련장도 넉 달째다. 교관은 여전히 이름 대신 "부잣집"이라고 부른다.',
+  chaebol_8: "상견례는 흐지부지 끝났다. 정략 상대와는 가끔 문자로 서로의 집안 욕을 나누는 사이가 됐다.",
+  chaebol_9: "펜트하우스는 경매로 넘어갔다. 남은 건 한도가 줄어드는 카드 한 장과, 매일 안부를 묻는 {friend}뿐이다.",
+  chaebol_10: "할머니의 장례가 끝났다. 유산 싸움은 이제 시작이고, 손에는 할머니가 쥐여 준 호신 부적이 남았다.",
+  // ===== 보육원 출신 =====
+  orphan_1: "용역들은 다음 주에 다시 오겠다고 했다. 동생들은 지금도 대문 소리만 나면 당신 뒤에 숨는다.",
+  orphan_2: "그날 시장 콜은 결국 취소됐다. 오토바이 할부는 아직 열한 달 남았다.",
+  orphan_3: '고물상 할아버지가 준 장비는 아직 방구석에 있다. "쓸 만한 걸 고르는 눈도 재주다." 그 말이 남았다.',
+  orphan_4: "꼭대기 층 원룸에서 혼자 사는 법을 배우는 중이다. 자립정착금은 생각보다 빨리 줄어든다.",
+  orphan_5: "그 낡은 방울은 아직 진열대 구석에 있다. 가게 앞을 지날 때마다 혼자 울린다.",
+  orphan_6: "친어머니는 아직 그 병원에 있다. {?arc_storm:끊어 버린 번호는 휴대폰에 그대로 남아 있다.|병실 문은 아직 열지 못했다.}",
+  orphan_7: '체육대회 시범은 무사히 끝났다. 관장님은 처음으로 "제법이네" 한마디를 했다.',
+  orphan_8: "지우의 치료제 값은 아직 57만 원이 모자란다. 지우는 오늘도 열에 시달린다.",
+  orphan_9: "편의점 해고는 번복되지 않았다. 골목에서 낄낄대던 진짜 범인 셋의 얼굴은 잊히지 않는다.",
+  orphan_10: "장례가 끝나고 보육원 형제들은 각자 흩어졌다. 남을 지키는 애로 크라던 할머니의 말만 남았다.",
+  // ===== 특수부대 전역 =====
+  soldier_1: "{?arc_crime:박 상병의 가족에게 군번줄을 전했다. 녀석의 어머니는 끝까지 울지 않았다.|박 상병의 군번줄은 아직 주머니에 있다. 녀석 몫까지 살겠다는 말은 아직 말뿐이다.}",
+  soldier_2: "바다 밑의 그 눈은 아직 어느 보고서에도 없다. 밤마다 수심 20미터의 어둠이 떠오른다.",
+  soldier_3: "그 3초의 꿈은 이제 매일 밤 찾아온다. 바람 속 웃음소리도 점점 또렷해진다.",
+  soldier_4: "응급실 3교대가 이어진다. 살린 숫자와 못 살린 숫자를 세는 버릇은 그대로다.",
+  soldier_5: "그날 그 각성자의 보랏빛 눈은 아직 꿈에 나온다. 지하철은 여전히 숨을 참고 탄다.",
+  soldier_6: '엘리베이터는 고쳤다. 입주민 대표는 여전히 당신을 "군인 양반"이라고 부른다.',
+  soldier_7: "그 산의 냄새는 며칠째 가시지 않는다. 줄 끝에 매달려 있던 것도 잊히지 않는다.",
+  soldier_8: "칼질은 날로 빨라진다. 주방장은 이제 시장 심부름을 당신에게만 맡긴다.",
+  soldier_9: "그날 하늘에 간 금은 다음 날 사라졌다. 표적 너머가 보이는 눈은 그대로다.",
+  soldier_10: "그 아이의 엄마는 지금도 마주칠 때마다 고개를 숙인다. 징계 기록은 지워지지 않는다.",
+  // ===== 연구소 실험체 =====
+  subject_1: "형광등은 여전히 당신이 지날 때마다 깜빡인다. {friend}은(는) 끝내 아무것도 묻지 않는다.",
+  subject_2: "마지막 문 앞에서 손을 놓은 사람의 얼굴은 아직 떠오르지 않는다. 지하는 여전히 싫다.",
+  subject_3: "13번은 다시 나타나지 않았다. 튀김소보로 봉투는 버리지 못하고 냉동실에 넣어 두었다.",
+  subject_4: "그 의사는 다음 진료를 앞당겼다. 수치 그래프는 매달 위로만 꺾인다.",
+  subject_5: "{?arc_wild:위탁 가정에는 짧은 쪽지만 남기고 나왔다. 동생과 건 새끼손가락이 마음에 걸린다.|침대가 뜨는 밤은 아직 동생과 둘만의 비밀이다.}",
+  subject_6: "관리국 요원은 다음 달에도 국밥을 반쯤 남길 것이다. 진짜 대답은 아직 준비되지 않았다.",
+  subject_7: "축제의 그 목소리는 그 뒤로도 가끔 속삭인다. 곧 열린다고. 네가 문이라고.",
+  subject_8: "일기장 속 어린 글씨는 분명 자기 것이다. 그런데 과학관도, 마술쇼도 기억나지 않는다.",
+  subject_9: '후유증 검진 기록에 "원인 불명 장비 오류"가 한 줄 늘었다. 다음 검진은 석 달 뒤다.',
+  subject_10: "한 박사는 오늘도 뉴스에서 웃고 있다. 그 얼굴을 볼 때마다 주머니 속 손이 떨린다.",
+  // ===== 평범한 대학생 =====
+  student_1: '조별 과제는 B+를 받았다. 편의점 야간은 여전하고, "D급 헌터" 손님은 다시 오지 않았다.',
+  student_2: "100미터 기록은 여전히 제자리다. 체육관 지붕 위의 보랏빛은 다음 날 뉴스에도 나오지 않았다.",
+  student_3: "졸업 전시 캔버스는 아직 반쯤 비어 있다. 대붕괴 날의 하늘색은 여전히 모른다.",
+  student_4: "형광등 사건으로 경위서를 세 장 썼다. 폐코어 발전기는 학교에 압수됐다.",
+  student_5: "지하철에서 코피를 쏟던 사람은 구급대에 실려 갔다. 등록금 고지서는 아직 가방 속에 있다.",
+  student_6: "카페 단골 헌터들의 이야기를 엿듣는 게 일과가 됐다. 휴학 기간은 이제 반년 남았다.",
+  student_7: "간호 실습 2주차. 헌터 병동의 에테르 냄새가 이제 옷에서도 난다.",
+  student_8: "옆집 은퇴 헌터는 그 뒤로 마주칠 때마다 고개만 까딱한다. 고양이 한 마리가 당신 방 앞에서 자기 시작했다.",
+  student_9: "그날 공연은 앰프 고장으로 두 곡 만에 끝났다. 베인 손끝의 흉터가 가끔 저릿하다.",
+  student_10: '재검사 결과도 "측정 불가"였다. {?arc_tour:선배는 현장 감각부터 익히라며 체험관 표를 건넸다.|선배는 더는 아무 말도 하지 않았다.}'
+};
 const RNG = {
   next: () => Math.random(),
   int: (a, b) => a + Math.floor(Math.random() * (b - a + 1)),
@@ -11330,12 +11428,14 @@ Object.assign(UI, {
     }
     return best;
   },
+  // {name} {friend} {friendJob} 치환과 앞 선택 기억 {?플래그:있을 때|없을 때} / {?!플래그:없을 때|있을 때}
   proFill(t) {
-    return fixJosa(String(t).replace(/\{name\}/g, this.pro.name).replace(/\{friend\}/g, this.pro.friend.name));
+    return fixJosa(proText(String(t), this.pro.flags || {}).replace(/\{name\}/g, this.pro.name).replace(/\{friend\}/g, this.pro.friend.name).replace(/\{friendJob\}/g, this.pro.friend.job || ""));
   },
   renderPrologue() {
     const s = this.pro;
     const sc = PROLOGUE[s.id];
+    s.flags = s.flags || {};
     if (!document.getElementById("pro-cv")) {
       $app.innerHTML = '<div class="prologue"><canvas id="pro-cv" aria-hidden="true"></canvas><div class="pro-inner"><aside class="pro-side" id="pro-side"></aside><section class="pro-scene" id="pro-scene"></section></div></div>';
       this.stopPro = FX.title(document.getElementById("pro-cv"));
@@ -11344,7 +11444,7 @@ Object.assign(UI, {
     const bg = BACKGROUNDS.find((b) => b.id === s.bg);
     document.getElementById("pro-side").innerHTML = fixJosa("".concat(FX.portrait(s.look, s.gender, lead, 0, 200), '\n      <div class="pro-name">').concat(s.name, '</div>\n      <div class="small dim">').concat(bg.name, " · ").concat(regionById(bg.region).name, "</div>\n      ").concat(lead ? '<div class="small">'.concat(this.elemTag(lead), " 기운이 감돈다</div>") : '<div class="small dim">아직 아무것도 깨어나지 않았다</div>', '\n      <div class="pro-steps">').concat(Array.from({ length: 8 }, (_, i) => '<i class="'.concat(i < s.step ? "on" : i === s.step ? "now" : "", '"></i>')).join(""), "</div>"));
     const el = document.getElementById("pro-scene");
-    el.innerHTML = '<div class="eyebrow">'.concat(s.step === 0 ? "출신 · ".concat(bg.name) : "장면 ".concat(s.step + 1), "</div><h2>").concat(this.proFill(sc.title), "</h2>\n      ").concat(s.step === 1 && s.introTitle && !/^(gb_|gate_break)/.test(s.id) ? '<p class="pro-gap dim small">— 「'.concat(s.introTitle, "」, 그날 이후로 시간이 흘렀다 —</p>") : "", '\n      <div class="pro-text">').concat(this.proFill(sc.text).split("\n").map((l) => l ? "<p>".concat(l, "</p>") : "").join(""), '</div>\n      <div class="cards pro-choices">').concat(this.proShown(s.id).map((i) => '<button class="choice-btn" data-act="pro-choice" data-v="'.concat(i, '">').concat(this.proFill(sc.choices[i].text), "</button>")).join(""), "</div>");
+    el.innerHTML = '<div class="eyebrow">'.concat(s.step === 0 ? "출신 · ".concat(bg.name) : "장면 ".concat(s.step + 1), "</div><h2>").concat(this.proFill(sc.title), "</h2>\n      ").concat(s.step === 1 && s.introTitle && !/^(gb_|gate_break)/.test(s.id) ? '<p class="pro-gap dim small">— 「'.concat(s.introTitle, "」 그 뒤 —").concat(typeof PRO_HOOKS !== "undefined" && PRO_HOOKS[s.introId] ? "<br>".concat(this.proFill(PRO_HOOKS[s.introId])) : "", "</p>") : "", '\n      <div class="pro-text">').concat(this.proFill(proSceneText(sc, s.flags)).split("\n").map((l) => l ? "<p>".concat(l, "</p>") : "").join(""), '</div>\n      <div class="cards pro-choices">').concat(this.proShown(s.id).map((i) => '<button class="choice-btn" data-act="pro-choice" data-v="'.concat(i, '">').concat(this.proFill(sc.choices[i].text), "</button>")).join(""), "</div>");
     el.classList.remove("fade-in");
     void el.offsetWidth;
     el.classList.add("fade-in");
@@ -11367,12 +11467,17 @@ Object.assign(UI, {
   proChoose(i) {
     const s = this.pro;
     const ch = PROLOGUE[s.id].choices[i];
+    s.flags = s.flags || {};
+    proRemember(s.sc, s.flags, s.id, ch);
     for (const k of ["e", "g", "c", "t"]) for (const [x, v] of Object.entries(ch[k] || {})) s.sc[k][x] = (s.sc[k][x] || 0) + v;
     s.sc.talent += ch.talent || 0;
     s.sc.luck += ch.luck || 0;
     s.friendBonus += ch.friend || 0;
     s.log.push(this.proFill(ch.text));
-    if (s.step === 0) s.introTitle = PROLOGUE[s.id].title;
+    if (s.step === 0) {
+      s.introTitle = PROLOGUE[s.id].title;
+      s.introId = s.id;
+    }
     s.step++;
     if (!ch.next) {
       s.result = resolvePrologue(s.sc);
@@ -11429,6 +11534,14 @@ Object.assign(UI, {
     f.met = true;
     f.relation = Math.min(90, 35 + s.friendBonus);
     f.personality = RNG.pick(["kind", "just", "kind"]);
+    const fl = s.flags || {};
+    if (fl.friend_awakened) {
+      f.rankIdx = 1;
+      f.stage = 1;
+      f.relation = Math.min(95, f.relation + 10);
+    }
+    if (fl.friend_hurt) f.relation = Math.min(95, f.relation + 5);
+    f.job = s.friend.job;
     f.links = {};
     f.disciples = [];
     f.parents = [];
@@ -11498,7 +11611,7 @@ Object.assign(UI, {
         this.saveName(s.name);
         s.bg = RNG.pick(BACKGROUNDS).id;
         const fg = RNG.chance(0.5) ? "M" : "F";
-        s.friend = { name: this.randomName(fg), gender: fg };
+        s.friend = { name: this.randomName(fg), gender: fg, job: RNG.pick(PRO_FRIEND_JOBS) };
         s.id = RNG.pick(PROLOGUE_START[s.bg]);
         s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 };
         s.step = 0;

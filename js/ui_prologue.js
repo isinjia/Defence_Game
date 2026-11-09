@@ -49,9 +49,10 @@ Object.assign(UI, {
 
   // ---------- 프롤로그 진행 ----------
   proLeadElem() { const e = this.pro.sc.e; let best = null, bv = 0; for (const k of ELEMENT_KEYS) if ((e[k] || 0) > bv) { bv = e[k]; best = k; } return best; },
-  proFill(t) { return fixJosa(String(t).replace(/\{name\}/g, this.pro.name).replace(/\{friend\}/g, this.pro.friend.name)); },
+  // {name} {friend} {friendJob} 치환과 앞 선택 기억 {?플래그:있을 때|없을 때} / {?!플래그:없을 때|있을 때}
+  proFill(t) { return fixJosa(proText(String(t), this.pro.flags || {}).replace(/\{name\}/g, this.pro.name).replace(/\{friend\}/g, this.pro.friend.name).replace(/\{friendJob\}/g, this.pro.friend.job || '')); },
   renderPrologue() {
-    const s = this.pro; const sc = PROLOGUE[s.id];
+    const s = this.pro; const sc = PROLOGUE[s.id]; s.flags = s.flags || {};
     if (!document.getElementById('pro-cv')) {
       $app.innerHTML = `<div class="prologue"><canvas id="pro-cv" aria-hidden="true"></canvas><div class="pro-inner"><aside class="pro-side" id="pro-side"></aside><section class="pro-scene" id="pro-scene"></section></div></div>`;
       this.stopPro = FX.title(document.getElementById('pro-cv'));
@@ -65,8 +66,8 @@ Object.assign(UI, {
       <div class="pro-steps">${Array.from({ length: 8 }, (_, i) => `<i class="${i < s.step ? 'on' : i === s.step ? 'now' : ''}"></i>`).join('')}</div>`);
     const el = document.getElementById('pro-scene');
     el.innerHTML = `<div class="eyebrow">${s.step === 0 ? `출신 · ${bg.name}` : `장면 ${s.step + 1}`}</div><h2>${this.proFill(sc.title)}</h2>
-      ${s.step === 1 && s.introTitle && !/^(gb_|gate_break)/.test(s.id) ? `<p class="pro-gap dim small">— 「${s.introTitle}」, 그날 이후로 시간이 흘렀다 —</p>` : ''}
-      <div class="pro-text">${this.proFill(sc.text).split('\n').map((l) => (l ? `<p>${l}</p>` : '')).join('')}</div>
+      ${s.step === 1 && s.introTitle && !/^(gb_|gate_break)/.test(s.id) ? `<p class="pro-gap dim small">— 「${s.introTitle}」 그 뒤 —${typeof PRO_HOOKS !== 'undefined' && PRO_HOOKS[s.introId] ? `<br>${this.proFill(PRO_HOOKS[s.introId])}` : ''}</p>` : ''}
+      <div class="pro-text">${this.proFill(proSceneText(sc, s.flags)).split('\n').map((l) => (l ? `<p>${l}</p>` : '')).join('')}</div>
       <div class="cards pro-choices">${this.proShown(s.id).map((i) => `<button class="choice-btn" data-act="pro-choice" data-v="${i}">${this.proFill(sc.choices[i].text)}</button>`).join('')}</div>`;
     el.classList.remove('fade-in'); void el.offsetWidth; el.classList.add('fade-in');
     el.scrollTop = 0;
@@ -82,11 +83,12 @@ Object.assign(UI, {
     return s.shown[id];
   },
   proChoose(i) {
-    const s = this.pro; const ch = PROLOGUE[s.id].choices[i];
+    const s = this.pro; const ch = PROLOGUE[s.id].choices[i]; s.flags = s.flags || {};
+    proRemember(s.sc, s.flags, s.id, ch);
     for (const k of ['e', 'g', 'c', 't']) for (const [x, v] of Object.entries(ch[k] || {})) s.sc[k][x] = (s.sc[k][x] || 0) + v;
     s.sc.talent += ch.talent || 0; s.sc.luck += ch.luck || 0; s.friendBonus += ch.friend || 0;
     s.log.push(this.proFill(ch.text));
-    if (s.step === 0) s.introTitle = PROLOGUE[s.id].title;
+    if (s.step === 0) { s.introTitle = PROLOGUE[s.id].title; s.introId = s.id; }
     s.step++;
     // 마지막 선택이 끝나면 결과를 보여 주지 않고 바로 헌터 자격 시험으로 간다. 판정 결과는 시험이 끝난 뒤에 공개된다
     if (!ch.next) { s.result = resolvePrologue(s.sc); return this.handle('pro-begin'); }
@@ -135,6 +137,11 @@ Object.assign(UI, {
     const p = G.player; const f = G.makeNpc(true);
     f.name = s.friend.name; f.gender = s.friend.gender; f.rankIdx = 0; f.stage = 0; f.ageMonths = p.ageMonths + RNG.int(-6, 6);
     f.region = p.region; f.met = true; f.relation = Math.min(90, 35 + s.friendBonus); f.personality = RNG.pick(['kind', 'just', 'kind']);
+    // 프롤로그에서 친구에게 일어난 일이 이어진다
+    const fl = s.flags || {};
+    if (fl.friend_awakened) { f.rankIdx = 1; f.stage = 1; f.relation = Math.min(95, f.relation + 10); }
+    if (fl.friend_hurt) f.relation = Math.min(95, f.relation + 5);
+    f.job = s.friend.job;
     f.links = {}; f.disciples = []; f.parents = []; f.friendhood = true;
     G.npcs.push(f);
     G.lifeEvent(`각성했다. 소꿉친구 ${f.name}이(가) 곁에 있었다.`);
@@ -182,7 +189,7 @@ Object.assign(UI, {
         this.saveName(s.name);
         s.bg = RNG.pick(BACKGROUNDS).id;
         const fg = RNG.chance(0.5) ? 'M' : 'F';
-        s.friend = { name: this.randomName(fg), gender: fg };
+        s.friend = { name: this.randomName(fg), gender: fg, job: RNG.pick(PRO_FRIEND_JOBS) };
         s.id = RNG.pick(PROLOGUE_START[s.bg]); s.sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0 }; s.step = 0; s.friendBonus = 0; s.log = []; s.shown = {};
         this.screen = 'prologue'; return this.render();
       }
