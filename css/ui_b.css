@@ -122,3 +122,33 @@
 @keyframes rewardpop { 0% { opacity: 0; transform: translateY(8px) scale(.97); } 100% { opacity: 1; transform: none; } }
 .reward-pop.rare { border-left: 3px solid var(--amber); padding: 6px 10px; background: linear-gradient(90deg, #2a1f0c, transparent); color: #ffe2a8; animation: rewardpop .45s ease-out both, rareglow 1.6s ease-in-out .45s 2; }
 @keyframes rareglow { 50% { box-shadow: 0 0 18px #ffb54766; } }
+
+/* 지도 패널 접기 */
+#hud-card .card-portrait[data-act] { cursor: pointer; }
+#world.fold-card .card-body > :not(.card-bars) { display: none; }
+#world.fold-card .card-bars .cb:nth-child(n+3) { display: none; }
+#world.fold-card .card-body { padding-top: 6px; padding-bottom: 6px; }
+.hud-tr { position: relative; }
+.fold-obj-btn { position: absolute; right: 4px; top: 4px; z-index: 2; width: 36px; height: 32px; min-height: 32px; padding: 0; justify-content: center; background: transparent; border-color: transparent; color: var(--dim); font-size: 14px; }
+#world.fold-obj .hud-tr > :not(:first-child):not(:nth-child(2)) { display: none; }
+#world.fold-obj .hud-tr .obj > :not(.obj-title) { display: none; }
+#world.fold-obj .hud-tr { width: max-content; max-width: calc(100% - 80px); right: auto; }
+@media (max-width: 640px) { #world.fold-obj .hud-tr { right: auto; left: 12px; } }
+#world.fold-obj .hud-tr .obj { padding-right: 40px; }
+
+/* 정보 시트: 탭 한 줄 가로 넘김, 장비 바로가기 */
+@media (max-width: 640px) {
+  .sheet-head .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; min-width: 0; flex: 1; }
+  .sheet-head .tabs::-webkit-scrollbar { display: none; }
+  .sheet-head .tabs button { flex: none; padding: 6px 10px; }
+}
+.gear-link { margin-top: 4px; }
+
+/* 가로 화면 안내 */
+.rotate-hint { display: none; }
+@media (orientation: landscape) and (max-height: 430px) and (pointer: coarse) {
+  .rotate-hint { display: grid; place-items: center; position: fixed; inset: 0; z-index: 90; background: #05080df2; text-align: center; padding: 24px; }
+  .rotate-hint > div { display: grid; justify-items: center; gap: 8px; color: var(--text); }
+  .rotate-hint svg { color: var(--ether); animation: rot 2.4s ease-in-out infinite; }
+  @keyframes rot { 0%, 30% { transform: rotate(90deg); } 60%, 100% { transform: rotate(0); } }
+}

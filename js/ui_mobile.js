@@ -74,3 +74,38 @@
       <details class="judge-more"><summary>출신 · 직업 · 특성 자세히</summary>${detail}</details>`;
   };
 }
+
+// 지도 패널 접기 (중2): 인물 카드(초상을 누르면 체력·정신 막대만), "현재 상황"(접기 단추). 접힘은 기기에 기억.
+{
+  const KEY = 'gc_fold_v1';
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } };
+  const save = (o) => { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) { /* 무시 */ } };
+  UI.fold = load();
+  UI.applyFold = function () {
+    const w = document.getElementById('world'); if (!w) return;
+    w.classList.toggle('fold-card', !!this.fold.card);
+    w.classList.toggle('fold-obj', !!this.fold.obj);
+    const por = document.querySelector('#hud-card .card-portrait');
+    if (por) { por.dataset.act = 'fold-card'; por.setAttribute('role', 'button'); por.setAttribute('aria-label', this.fold.card ? '인물 카드 펼치기' : '인물 카드 접기'); }
+    const tr = document.getElementById('hud-tr');
+    if (tr && tr.children.length && !tr.querySelector('.fold-obj-btn')) tr.insertAdjacentHTML('afterbegin', `<button class="fold-obj-btn" data-act="fold-obj" aria-label="현재 상황 접기·펼치기">${this.fold.obj ? '▸' : '▾'}</button>`);
+  };
+  const baseRender = UI.renderGame;
+  UI.renderGame = function (...a) { const r = baseRender.apply(this, a); try { this.applyFold(); } catch (e) { /* 무시 */ } return r; };
+  const baseHandle = UI.handle;
+  UI.handle = function (act, v) {
+    if (act === 'fold-card' || act === 'fold-obj') {
+      const k = act === 'fold-card' ? 'card' : 'obj';
+      this.fold[k] = !this.fold[k]; save(this.fold);
+      return this.renderGame();
+    }
+    return baseHandle.call(this, act, v);
+  };
+}
+
+// 가로 화면(높이 낮음)은 세로로 돌려 달라는 안내 (상3)
+{
+  const el = document.createElement('div'); el.className = 'rotate-hint';
+  el.innerHTML = '<div><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg><b>세로로 돌려 주세요</b><span class="small dim">게이트 크로니클은 세로 화면에 맞춰져 있습니다.</span></div>';
+  document.body.appendChild(el);
+}

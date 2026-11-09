@@ -131,7 +131,7 @@
   const baseToast = UI.toast;
   UI.toast = function (msg) {
     const m = /^칭호 획득 · (.*)$/.exec(String(msg || ''));
-    if (m) return this.growBand('칭호 획득', m[1], '#ffd166');
+    if (m) { snd('fanfare'); return this.growBand('칭호 획득', m[1], '#ffd166'); }
     return baseToast.call(this, msg);
   };
   // 경지가 오른 뒤 지도로 돌아오면 인물 카드가 한 번 빛난다

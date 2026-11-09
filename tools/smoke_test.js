@@ -53,9 +53,14 @@ const { chromium, devices } = require('playwright');
     await closeAll(); await ev(() => UI.renderGame());
     const map = await ev(() => !!document.getElementById('map-cv')); if (!map) throw new Error('지도 없음');
   });
-  for (const s of ['char', 'skills', 'party', 'people', 'quest', 'guild', 'hunter', 'log']) {
+  for (const s of ['char', 'gear', 'skills', 'party', 'people', 'quest', 'guild', 'hunter', 'log']) {
     await step(`시트 탭: ${s}`, async () => { await act('sheet', s); const len = await ev(() => document.getElementById('modal-box').innerHTML.length); if (len < 200) throw new Error('내용이 거의 없음'); await closeAll(); });
   }
+  await step('설정 창·지도 패널 접기 (화면)', async () => {
+    await act('settings'); const ok = await ev(() => !!document.getElementById('set-vol')); if (!ok) throw new Error('설정 창 없음');
+    await act('set-sfx'); await act('set-sfx'); await closeAll();
+    await act('fold-card'); await act('fold-obj'); await act('fold-card'); await act('fold-obj');
+  });
   await step('도시와 시설', async () => {
     await ev(() => { const p = G.player; const c = WORLD.cityPos[p.region]; p.x = c[0]; p.y = c[1]; UI.renderGame(); });
     await act('city');
