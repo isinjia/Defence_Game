@@ -12,7 +12,7 @@ const BARKS = {
 // 성격별 치유 시작 기준 (체력 비율)
 const HEAL_AT = { kind: 0.72, just: 0.6, cold: 0.35, warlike: 0.35, greedy: 0.45 };
 
-const SUMMON_NAME = { summoner: '정령', necromancer: '해골 병사', tamer: '길들인 괴수', apostle: '균열 괴수', machinist: '전투 드론' };
+const SUMMON_NAME = { summoner: '정령', necromancer: '해골 병사', shade: '그림자 분신', shaman: '원귀', spiritist: '나무 정령', tamer: '길들인 괴수', apostle: '균열 괴수', machinist: '전투 드론' };
 
 class Combat {
   // opts: { allies, enemies, canFlee, title, spar }
@@ -212,6 +212,7 @@ class Combat {
       else if (em < 1) { dmg *= em; note = ' 저항됨'; }
     }
     if (e && att.affinity === e) dmg *= 1.2;
+    if (e && att.clsElem === e) dmg *= CLASS_ELEM_POWER; // 직업 친화 속성 (4-10)
     if (Math.random() < 0.05 + att.luck / 400 + (opt.crit || 0)) { dmg *= 1.6; note += ' 치명타!'; }
     dmg *= 0.9 + Math.random() * 0.2;
     return { dmg: Math.max(1, Math.round(dmg)), note, elem: e };
@@ -287,7 +288,7 @@ class Combat {
           id: `${u.id}_s${Math.random().toString(36).slice(2, 6)}`, name: SUMMON_NAME[u.cls] || '소환수', side: u.side, summon: true, summonOf: u.id,
           hp: Math.round(u.maxHp * (0.5 + P * 0.6)), maxHp: Math.round(u.maxHp * (0.5 + P * 0.6)), mp: 0, maxMp: 1,
           atk: Math.round(u.atk * (0.45 + P * 0.5)), def: Math.round(u.def * 0.7), spd: u.spd, luck: 5, elem: u.elem, skills: ['strike'],
-          shape: { summoner: 'ghost', necromancer: 'ghost', tamer: 'beast', apostle: 'eye', machinist: 'drone' }[u.cls] || 'slime', tier: 0,
+          shape: { summoner: 'ghost', necromancer: 'ghost', shade: 'ghost', shaman: 'ghost', spiritist: 'golem', tamer: 'beast', apostle: 'eye', machinist: 'drone' }[u.cls] || 'slime', tier: 0,
         };
         const su = this.prep(s); su.atb = Math.random() * 40; this.units.push(su);
         this.push(`${u.name}이(가) ${s.name}을(를) 불러냈다!`, 'heal', { k: 'summon', dst: su.id, src: u.id });

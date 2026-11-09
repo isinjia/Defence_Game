@@ -5,14 +5,14 @@
 const fs = require('fs');
 const path = require('path');
 const root = path.join(__dirname, '..');
-const files = ['js/data.js', 'js/game.js', 'js/data_classes.js', 'js/prologue.js', 'js/pro_arcs_a.js', 'js/pro_arcs_b.js', 'js/pro_arcs_c.js', 'js/pro_hooks.js', 'js/pro_life.js'];
+const files = ['js/data.js', 'js/game.js', 'js/data_classes.js', 'js/class_elem.js', 'js/prologue.js', 'js/pro_arcs_a.js', 'js/pro_arcs_b.js', 'js/pro_arcs_c.js', 'js/pro_hooks.js', 'js/pro_life.js'];
 const src = files.filter((f) => fs.existsSync(path.join(root, f))).map((f) => fs.readFileSync(path.join(root, f), 'utf8')).join('\n');
-const { P, PS, R, remember, CLASSES, pickBg } = new Function(`${src}; return { P: PROLOGUE, PS: PROLOGUE_START, R: resolvePrologue, remember: proRemember, CLASSES, pickBg: typeof proPickBg === 'function' ? proPickBg : null };`)();
+const { CE, P, PS, R, remember, CLASSES, pickBg } = new Function(`${src}; return { CE: typeof classElem === 'function' ? classElem : null, P: PROLOGUE, PS: PROLOGUE_START, R: resolvePrologue, remember: proRemember, CLASSES, pickBg: typeof proPickBg === 'function' ? proPickBg : null };`)();
 const LIFE = ['nap', 'cvs', 'game', 'bloom', 'quest', 'late'];
 const N = +process.argv[2] || 20000;
 const isAwaken = (id) => P[id].choices.length && P[id].choices.every((c) => c.e && Math.max(...Object.values(c.e)) >= 3);
 const arcOf = (n) => (/^(gb_|gate_break)/.test(n) ? n : n.replace(/_\d+$/, ''));
-const arcs = {}, grpEl = {}, el = {};
+const arcs = {}, grpEl = {}, el = {}, ce = {};
 for (let i = 0; i < N; i++) {
   const bg = pickBg ? pickBg() : Object.keys(PS)[i % 5];
   const sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0, lean: {} }; const flags = {};
@@ -34,6 +34,7 @@ for (let i = 0; i < N; i++) {
   }
   const r = R(sc); const g = CLASSES.find((c) => c.id === r.cls).g;
   el[r.element] = (el[r.element] || 0) + 1;
+  if (CE) { const k = CE(r.cls, r.element) || '없음'; ce[k] = (ce[k] || 0) + 1; if (process.env.CLS) (ce['@' + k + ':' + r.cls] = (ce['@' + k + ':' + r.cls] || 0) + 1); }
   (grpEl[g] ||= {})[r.element] = (grpEl[g][r.element] || 0) + 1;
 }
 const pct = (a, b) => Math.round((a / b) * 1000) / 10;
@@ -46,6 +47,10 @@ const life = Object.entries(arcs).filter(([k]) => LIFE.includes(k)).reduce((a, [
 console.log(`생활형 각성 비율 ${pct(life, N)}% (목표 30~40%)`);
 if (pct(life, N) < 30 || pct(life, N) > 40) { fail++; console.log('  ✗ 생활형 비율이 목표 밖'); }
 console.log('속성:', Object.entries(el).map(([k, v]) => `${k} ${pct(v, N)}%`).join(' · '));
+if (CE) {
+  console.log('직업 친화 속성(4-10):', Object.entries(ce).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${pct(v, N)}%`).join(' · '));
+  for (const k of ['holy', 'dark']) if (pct(ce[k] || 0, N) < 10 || pct(ce[k] || 0, N) > 15) console.log(`  ! ${k} 친화 직업 ${pct(ce[k] || 0, N)}% (목표 10~15%)`);
+}
 console.log('계열 × 속성:');
 for (const [g, m] of Object.entries(grpEl)) {
   const tot = Object.values(m).reduce((a, b) => a + b, 0); const top = Object.entries(m).sort((a, b) => b[1] - a[1])[0];

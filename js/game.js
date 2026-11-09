@@ -189,7 +189,7 @@ class Game {
   grantClassSkills() {
     const p = this.player; const got = [];
     for (const sk of SKILLS) {
-      if (sk.cls !== p.cls || sk.rankReq > p.rankIdx || p.skills.includes(sk.id)) continue;
+      if (sk.cls !== p.cls || sk.rankReq > p.rankIdx || p.skills.includes(sk.id) || !classSkillFits(sk, p.element)) continue;
       p.skills.push(sk.id); got.push(sk.name);
       if (p.equipSkills.length < 5) p.equipSkills.push(sk.id);
     }
@@ -715,7 +715,7 @@ class Game {
     return {
       id: 'player', name: p.name, side: 'ally', isPlayer: true, cls: p.cls, clsAdv: p.clsAdv,
       hp: p.hp, maxHp: p.maxHp, mp: p.mp, maxMp: p.maxMp, atk: p.atk, def: p.def, spd: p.spd, luck: p.luck,
-      elem: p.element, skills: ['strike', ...p.equipSkills], affinity: p.element,
+      elem: p.element, skills: ['strike', ...p.equipSkills], affinity: p.element, clsElem: classElem(p.cls, p.element),
     };
   }
   npcUnit(n, side) {
@@ -724,12 +724,12 @@ class Game {
     const m = statMult(n.rankIdx, n.stage) * 1.12;
     const rm = (n.race && RACES[n.race]) ? RACES[n.race].mods : {};
     const cm = (k) => 1 + this.classMod(cls, adv, k) + (rm[k] || 0);
-    const skills = ['strike', ...SKILLS.filter((s) => s.cls === cls && s.rankReq <= n.rankIdx).map((s) => s.id), ...SKILLS.filter((s) => !s.cls && s.elem === n.element && s.rankReq <= n.rankIdx && s.price).map((s) => s.id).slice(-1)];
+    const skills = ['strike', ...SKILLS.filter((s) => s.cls === cls && s.rankReq <= n.rankIdx && classSkillFits(s, n.element)).map((s) => s.id), ...SKILLS.filter((s) => !s.cls && s.elem === n.element && s.rankReq <= n.rankIdx && s.price).map((s) => s.id).slice(-1)];
     return {
       id: 'npc' + n.id, npcId: n.id, name: n.name, side, cls, clsAdv: adv, pers: n.personality,
       hp: Math.round(100 * m * cm('hp')), maxHp: Math.round(100 * m * cm('hp')), mp: Math.round(50 * m * cm('mp')), maxMp: Math.round(50 * m * cm('mp')),
       atk: Math.round(20 * m * cm('atk')), def: Math.round(8 * m * cm('def')), spd: Math.round(10 * Math.sqrt(m) * cm('spd')), luck: Math.round(10 * cm('luck')),
-      elem: n.element, skills, affinity: n.element, rankText: this.npcRankLabel(n),
+      elem: n.element, skills, affinity: n.element, clsElem: classElem(cls, n.element), rankText: this.npcRankLabel(n),
     };
   }
   // 파티 인원에 맞춰 적 규모를 키운다 (혼자면 그대로)
