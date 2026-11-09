@@ -293,7 +293,7 @@ Object.assign(Game.prototype, {
     const p = this.player; const pr = p.rankIdx; const pm = this.priceMul ? this.priceMul() : 1;
     const relic = RNG.pick(RELICS); const grade = RNG.weighted([1, 2, 3], [60, 30, 10]);
     const list = [
-      { kind: 'relic', id: relic.id, grade, fake: RNG.chance(0.3), name: `${RARITY[grade].name} 유물 [${relic.name}]`, price: Math.round(relic.val * RARITY[grade].mult * 0.9 * pm / 10) * 10 },
+      { kind: 'relic', id: relic.id, grade, fake: RNG.chance(0.3), name: `${RARITY[grade].name} 유물 [${relic.name}]`, price: Math.round(1500 * RARITY[grade].mult ** 2 * RANKS[Math.max(1, pr)].mult * 0.9 * pm / 10) * 10 },
       { kind: 'core', tier: Math.min(7, pr + 1), n: 1, name: `${coreName(Math.min(7, pr + 1))} 1개`, price: Math.round(220 * RANKS[Math.min(7, pr + 1)].mult ** 2 * pm / 10) * 10 },
       { kind: 'item', id: 'potion', n: 3, name: '응급 회복제 3개', price: Math.round(300 * pm / 10) * 10 },
     ];

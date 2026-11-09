@@ -5,7 +5,7 @@
 const DEBUT_TIERS = {
   star: { name: '주목받는 유망주', gaps: [0, 1, 2, 2, 3] },
   rising: { name: '기대주', gaps: [0, 1, 2, 2, 3] },
-  normal: { name: '평범한 신입', gaps: [0, 1, 1, 2, 3] },
+  normal: { name: '평범한 신입', gaps: [0, 1, 1, 2, 7] }, // 마지막 장면이 '헌터가 된 지 1년'이라 약 11개월에
   bottom: { name: '바닥', gaps: [0, 1, 1, 2, 3] },
 };
 const NEG_TRAITS = ['slow_learner', 'cursed', 'frail'];
