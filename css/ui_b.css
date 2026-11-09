@@ -102,3 +102,17 @@
 @keyframes band { 0% { opacity: 0; transform: translate(-50%, -24px); } 12% { opacity: 1; transform: translate(-50%, 0); } 82% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -8px); } }
 .card-glow .card-portrait { animation: cardglow 1.4s ease-out; }
 @keyframes cardglow { 0%, 100% { filter: none; } 30% { filter: brightness(1.6) drop-shadow(0 0 16px var(--amber)); } }
+
+/* 등장 연출 */
+.rift-wipe { position: fixed; inset: 0; z-index: 45; pointer-events: none; background: radial-gradient(ellipse at 50% 50%, #c58cff55, #05080d 70%); animation: riftbg .8s ease-in forwards; }
+.rift-wipe i { position: absolute; left: 50%; top: -5%; bottom: -5%; width: 6px; transform: translateX(-50%); background: #f2e6ff; box-shadow: 0 0 24px 8px #c58cff, 0 0 60px 20px #7a4cff88;
+  clip-path: polygon(50% 0, 100% 12%, 20% 28%, 90% 45%, 10% 60%, 100% 76%, 30% 90%, 50% 100%, 0 100%, 0 0); animation: riftline .8s ease-in forwards; }
+@keyframes riftbg { 0% { opacity: 0; } 30% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes riftline { 0% { transform: translateX(-50%) scaleY(0); } 35% { transform: translateX(-50%) scaleY(1); width: 6px; } 60% { width: 22px; opacity: 1; } 100% { width: 40px; opacity: 0; } }
+.boss-call { position: absolute; left: 50%; top: 24%; z-index: 5; display: grid; justify-items: center; pointer-events: none; transform: translate(-50%, -50%); animation: bosscall 1.7s ease-out forwards; white-space: nowrap; }
+.boss-call span { font-family: var(--font-num); font-weight: 700; font-size: 13px; letter-spacing: .4em; color: var(--bad); }
+.boss-call b { font-family: var(--font-display); font-weight: 400; font-size: 30px; color: #fff; text-shadow: 0 0 16px var(--bad), 0 2px 0 #000; }
+@keyframes bosscall { 0% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); } 18% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 70% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -120%) scale(.5); } }
+.modal-box.red-gate { border-color: #ff4f6a; animation: redpulse 1.6s ease-in-out infinite; }
+@keyframes redpulse { 50% { box-shadow: 0 0 0 2px #ff4f6a88, 0 0 30px #ff4f6a55, 0 20px 60px #000c; } }
+@media (max-width: 640px) { .boss-call b { font-size: 22px; } }

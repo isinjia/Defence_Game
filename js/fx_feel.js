@@ -142,3 +142,32 @@
     return r;
   };
 }
+
+// ---------- 7. 등장 연출: 게이트 진입 균열, 보스 이름, 레드 게이트 맥박 ----------
+{
+  UI.riftWipe = function () {
+    if (FX.reduced) return;
+    const el = document.createElement('div'); el.className = 'rift-wipe'; el.innerHTML = '<i></i>';
+    document.body.appendChild(el); setTimeout(() => el.remove(), 800);
+  };
+  const baseGate = UI.startGate;
+  if (baseGate) UI.startGate = function (...a) { this.riftWipe(); return baseGate.apply(this, a); };
+
+  const baseOpen = UI.openCombat;
+  UI.openCombat = function (...a) {
+    const r = baseOpen.apply(this, a);
+    try {
+      const c = this.ctx; const box = document.getElementById('modal-box');
+      if (box) box.classList.toggle('red-gate', !!(c && c.gate && c.gate.variant === 'red'));
+      const boss = c && c.combat && c.combat.units.find((u) => u.side === 'enemy' && u.boss && u.alive);
+      const st = document.getElementById('stage');
+      if (boss && st) {
+        const el = document.createElement('div'); el.className = 'boss-call';
+        el.innerHTML = `<span>BOSS</span><b></b>`; el.querySelector('b').textContent = boss.name.replace(/^\[[^\]]*\]\s*/, '');
+        st.appendChild(el); setTimeout(() => el.remove(), FX.reduced ? 900 : 1700);
+        if (typeof SFX !== 'undefined') SFX.play('gate');
+      }
+    } catch (e) { /* 연출 실패 무시 */ }
+    return r;
+  };
+}
