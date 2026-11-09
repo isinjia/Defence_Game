@@ -70,6 +70,8 @@ Object.assign(Game.prototype, {
     p.titles ??= []; p.title ??= null;
     // 삭제된 칭호(인기 스트리머 등)는 옛 저장에서 걸러 낸다
     p.titles = p.titles.filter((id) => titleById(id)); if (p.title && !titleById(p.title)) p.title = null;
+    // 삭제된 광고·예능(celebrity.js)의 대기 사건은 옛 저장에서 지운다
+    if (Array.isArray(this.queue)) this.queue = this.queue.filter((q) => q.type !== 'celeb');
     p.official ??= p.rankIdx;
     p.skillXp ??= {};
     p.followers ??= 0; p.streams ??= 0;

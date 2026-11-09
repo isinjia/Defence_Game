@@ -92,7 +92,7 @@ Object.assign(Game.prototype, {
     }
     b.sales.push(sale); if (b.sales.length > 6) b.sales.shift();
     if (sale) this.log(`${b.name} 이번 달 ${sale >= 0 ? '순이익' : '적자'} ${fmt(Math.abs(sale))} 크레딧`, sale >= 0 ? '' : 'bad');
-    if (!brk && RNG.chance(b.type === 'cafe' ? 0.22 : 0.12)) this.queue.push({ type: 'bizEvent', kind: RNG.pick(['fight', 'info', 'secret', 'celeb', 'dine']) });
+    if (!brk && RNG.chance(b.type === 'cafe' ? 0.22 : 0.12)) this.queue.push({ type: 'bizEvent', kind: RNG.pick(['fight', 'info', 'secret', 'dine']) });
   },
 });
 
