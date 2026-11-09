@@ -1,0 +1,47 @@
+# 푸시할 때마다 빌드해서 GitHub Pages에 배포한다.
+# 저장소 Settings → Pages → Build and deployment → Source 를 "GitHub Actions" 로 바꿔야 동작한다.
+name: 빌드·배포
+
+on:
+  push:
+    branches: [claude/happy-turing-czlfa3]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 여러 세션이 연달아 올려도 마지막 푸시만 배포한다
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 빌드
+        run: bash tools/build.sh
+      - name: 배포 파일 모으기
+        run: |
+          mkdir -p _site
+          cp index.html .nojekyll _site/
+          cp -r dist assets _site/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
