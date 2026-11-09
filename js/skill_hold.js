@@ -64,3 +64,33 @@ Object.assign(UI, {
   const baseClose = UI.closeModal;
   UI.closeModal = function (...a) { UI.hideSkillHold(); return baseClose.apply(this, a); };
 }
+
+// ===== 스킬 칸 오른쪽 태그: 범위(단일·전체·아군·자신)와 성격 =====
+const SKILL_SCOPE = (sk) => {
+  const t = sk.type;
+  if (['aoe', 'debuff'].includes(t)) return ['전체', 'foe'];
+  if (['heal_all', 'shield_all', 'buff_all'].includes(t)) return ['아군 전체', 'ally'];
+  if (['heal_ally', 'revive'].includes(t)) return ['아군 1', 'ally'];
+  if (t === 'multi') return ['무작위', 'foe'];
+  if (['heal', 'buff', 'shield', 'evade', 'taunt', 'summon'].includes(t)) return ['자신', 'self'];
+  return ['단일', 'foe'];
+};
+const SKILL_KIND = { crit: '치명', pierce: '관통', multi: '연타', dot: '중독', stun: '기절', drain: '흡혈', debuff: '약화', taunt: '도발', heal: '회복', heal_ally: '치유', heal_all: '치유', revive: '부활', buff: '강화', buff_all: '강화', shield: '방어', shield_all: '방어', evade: '회피', summon: '소환' };
+UI.tagSkillBtns = function () {
+  const c = this.ctx; if (!c || !c.combat) return;
+  const cb = c.combat;
+  for (const b of document.querySelectorAll('#cb-ctrl .skill-btn[data-act=c-skill], #cb-ctrl .skill-btn[data-act=o-skill]')) {
+    if (b.querySelector('.sk-tags')) continue;
+    const u = b.dataset.act === 'o-skill' ? cb.units.find((x) => x.id === c.orderFor) : cb.player;
+    const sk = (u && cb.skillsOf(u).find((s) => s.id === b.dataset.v)) || skillById(b.dataset.v);
+    if (!sk) continue;
+    const [scope, side] = SKILL_SCOPE(sk); const kind = SKILL_KIND[sk.type];
+    // 왼쪽 작은 글씨의 "· 단일" 같은 종류 표기는 태그로 옮긴다
+    const sm = b.querySelector('.small'); if (sm) sm.textContent = `MP ${sk.mp}`;
+    b.insertAdjacentHTML('beforeend', `<span class="sk-tags"><i class="sk-tag ${side}">${scope}</i>${kind ? `<i class="sk-tag kind">${kind}</i>` : ''}</span>`);
+  }
+};
+{
+  const base = UI.renderControls;
+  UI.renderControls = function (...a) { const r = base.apply(this, a); try { this.tagSkillBtns(); } catch (e) { /* 표시 실패는 전투를 막지 않는다 */ } return r; };
+}
