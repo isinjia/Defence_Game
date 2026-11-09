@@ -104,7 +104,6 @@ Object.assign(UI, {
     return `<div class="eyebrow">국가 각성자 관리국 · 판정 결과</div><h2>헌터 ${p.name}</h2>
       <div class="result-grid">
         <div class="res-item"><span class="sec-title">등급</span><b><span class="tag rank" style="--c:${R.color}">${R.key}급</span></b><span class="small dim">협회 실기 시험 후 측정</span></div>
-        <div class="res-item"><span class="sec-title">출신</span><b>${bg.name}</b><span class="small dim">${bg.desc}</span></div>
         <div class="res-item"><span class="sec-title">속성</span><b>${this.elemTag(p.element)}</b><span class="small dim">${ELEMENTS[p.element].name} · ${elemVsText(p.element)}</span></div>
         <div class="res-item wide" style="border-color:${g.color}"><span class="sec-title">직업</span><b style="color:${g.color}">${k.name} <span class="tag rar r${k.r}">${CLASS_RARITY[k.r]}</span></b><span class="small" style="color:${g.color}">${g.name} · 전직 ${k.adv.join(' → ')}</span><span class="small dim">${k.desc}</span><span class="small">${k.skills.map((x) => x[0]).join(' · ')}</span></div>
       </div>
@@ -115,11 +114,10 @@ Object.assign(UI, {
     const k = classById(r.cls); const g = CLASS_GROUPS[k.g]; const bg = BACKGROUNDS.find((b) => b.id === s.bg);
     const negIds = ['cursed', 'frail', 'slow_learner', 'reckless'];
     const talent = Math.max(1, r.talent + (bg.talent || 0) + r.traits.reduce((a, t) => a + (traitById(t).mods.talent || 0), 0));
-    document.getElementById('pro-side').innerHTML = fixJosa(`${FX.portrait(s.look, s.gender, r.element, 0, 200)}<div class="pro-name">${s.name}</div><div class="small dim">${bg.name}</div>`);
+    document.getElementById('pro-side').innerHTML = fixJosa(`${FX.portrait(s.look, s.gender, r.element, 0, 200)}<div class="pro-name">${s.name}</div>`);
     const el = document.getElementById('pro-scene');
     el.innerHTML = fixJosa(`<div class="eyebrow">국가 각성자 관리국 · 판정 결과</div><h2>각성</h2>
       <div class="result-grid">
-        <div class="res-item"><span class="sec-title">출신</span><b>${bg.name}</b><span class="small dim">${bg.desc}</span></div>
         <div class="res-item"><span class="sec-title">속성</span><b>${this.elemTag(r.element)}</b><span class="small dim">${ELEMENTS[r.element].name} · ${elemVsText(r.element)}</span></div>
         <div class="res-item wide" style="border-color:${g.color}"><span class="sec-title">직업</span><b style="color:${g.color}">${k.name} <span class="tag rar r${k.r}">${CLASS_RARITY[k.r]}</span></b><span class="small" style="color:${g.color}">${g.name} · 전직 ${k.adv.join(' → ')}</span><span class="small dim">${k.desc}</span><span class="small">${k.skills.map((x) => x[0]).join(' · ')}</span></div>
         <div class="res-item"><span class="sec-title">재능</span><div class="talent"><div class="pips">${Array.from({ length: 10 }, (_, i) => `<i class="${i < talent ? 'on' : ''}"></i>`).join('')}</div><b>${talent}</b></div></div>
@@ -150,7 +148,7 @@ Object.assign(UI, {
     if (this.stopPro) { this.stopPro(); this.stopPro = null; }
     this.screen = 'game'; this.render();
     this.modal(`<div class="ending">${UI.playerPortrait(160)}<div class="eyebrow">${G.dateStr()} · ${G.region().name}</div><h2>헌터 ${p.name}</h2></div>
-      <p>${className(p.cls)} · ${ELEMENTS[p.element].name} 속성 · 등급 측정 전. 지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.</p>
+      <p>${className(p.cls)} · ${ELEMENTS[p.element].name} 속성 · 등급 측정 전.</p>
       <p class="dim">소꿉친구 ${f.name}은(는) ${G.region().name}에 있습니다. 인물 창에서 만날 수 있습니다.</p>
       <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>`);
   },

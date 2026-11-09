@@ -84,7 +84,7 @@
     return `<div class="eyebrow">국가 각성자 관리국 · 판정 결과</div><h2>헌터 ${p.name}</h2>
       <div class="judge-line">${this.rankTag(p.rankIdx)} <span class="tag cls" style="--c:${g.color}">${k.name}</span> ${this.elemTag(p.element)}</div>
       <p class="judge-sum">${g.name} ${k.name}, ${E.name} 속성. ${tone}. <span class="dim">(${R.key}급 · 협회 실기 시험 후 측정)</span></p>
-      <details class="judge-more"><summary>출신 · 직업 · 특성 자세히</summary>${detail}</details>`;
+      <details class="judge-more"><summary>직업 · 특성 자세히</summary>${detail}</details>`;
   };
 }
 

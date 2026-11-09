@@ -112,6 +112,11 @@ const GateRun = {
 };
 
 Object.assign(UI, {
+  // 탐색 지도에 표시하는 얼굴: 탐색을 이끄는 리더
+  exploreLeaderFace(size) {
+    const L = (this.councilLeader && this.ctx && this.ctx.run) ? this.councilLeader() : null;
+    return L ? this.npcAvatar(L, size) : this.playerAvatar(size);
+  },
   gateRunInit() {
     const c = this.ctx; const g = c.gate;
     const floors = GateRun.floorsOf(g);
@@ -149,6 +154,9 @@ Object.assign(UI, {
         <svg viewBox="0 0 24 24" width="${nd.t === 'boss' ? 30 : 22}" height="${nd.t === 'boss' ? 30 : 22}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${N.svg}</svg>
         ${st === 'can' ? `<span class="gnode-name">${N.name}</span>` : ''}</button>`);
     }));
+    // 파티 표식: 지금 자리에 리더의 얼굴 (소속 파티 리더가 있으면 그 사람, 아니면 나)
+    const at = m.pos || (m.rows[0] && m.rows[0][0] && m.rows[0][0].t === 'start' ? [0, 0] : null);
+    if (at) { const nd = m.rows[at[0]][at[1]]; nodes.push(`<div class="gtoken lead" style="left:${nd.x * 100}%;top:${y(at[0])}%">${this.exploreLeaderFace(26)}</div>`); }
     const legend = ['fight', 'elite', 'event', 'rest', 'treasure', 'boss'].map((t) => `<span class="gl" style="--c:${GNODE[t].color}"><i></i>${GNODE[t].name}</span>`).join('');
     this.modal(`<div class="cb-head gmap-head"><h3>${G.gateName(g)}</h3><span class="tag">${run.floor + 1}층 / ${run.floors}층</span>${this.canLeaveGate() ? '<button class="leave-btn" data-act="g-leave">철수</button>' : '<span class="tag bad no-leave">철수 불가</span>'}</div>
       <div class="gmap-stat row between small"><span>체력 <b class="num">${Math.round(p.hp)}/${p.maxHp}</b> · 정신력 <b class="num">${Math.round(p.mp)}/${p.maxMp}</b></span><span class="dim">전리품 <span class="num">${fmt(c.loot.money)}</span> 크레딧 · 에테르 <span class="num">${fmt(c.loot.ether)}</span></span></div>

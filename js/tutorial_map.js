@@ -66,7 +66,8 @@ Object.assign(UI, {
         ${st === 'can' || lp ? `<span class="gnode-name">${lp ? '리더 선택' : N.name}</span>` : ''}</button>`);
     }));
     const from = pt(opts.move ? opts.move[0] : m.pos);
-    const token = `<div class="gtoken" id="gtoken" style="left:${from.x}%;top:${from.y}%">${this.playerAvatar(26)}</div>`;
+    const L = this.examLeader && this.examLeader();
+    const token = `<div class="gtoken lead" id="gtoken" style="left:${from.x}%;top:${from.y}%">${L ? this.npcAvatar(L, 26) : this.playerAvatar(26)}</div>`; // 탐색을 이끄는 리더의 얼굴
     const legend = ['fight', 'event', 'rest', 'treasure', 'boss'].map((t) => `<span class="gl" style="--c:${GNODE[t].color}"><i></i>${GNODE[t].name}</span>`).join('');
     const say = opts.say || this.examMapSay(step === 'pick1' ? 'pick1' : step);
     const stepNo = { intro: 1, pick1: 1, your1: 2, your2: 3, boss: 4 }[step] || 1;
@@ -148,17 +149,32 @@ Object.assign(UI, {
   };
 }
 
-// 리더의 말은 상자가 아니라 얼굴이 달린 둥근 말풍선으로 (화면 공용 떠 있는 안내 UI.coachPop 을 꾸민다)
+// 리더의 말은 상자가 아니라 얼굴이 달린 흰 말풍선으로 (화면 공용 떠 있는 안내 UI.coachPop 을 꾸민다)
+// 다른 감싸기(onboarding.js)가 위치를 다시 잡느라 0.12초 뒤 안내를 다시 그리면 꾸밈이 지워지므로, 그 뒤에 한 번 더 입힌다.
 {
+  const decorate = (ui) => {
+    const pop = document.getElementById('coach-pop'); if (!pop) return;
+    const who = pop.querySelector('.coach-card .eyebrow');
+    const leaderTalk = who && /리더|선임/.test(who.textContent);
+    pop.classList.toggle('speech', !!leaderTalk);
+    const L = ui.examLeader && ui.examLeader();
+    if (leaderTalk && L && !pop.querySelector('.sb-face')) pop.insertAdjacentHTML('afterbegin', `<span class="sb-face">${ui.npcAvatar(L, 36)}</span>`);
+  };
   const basePop = UI.coachPop;
   if (basePop) UI.coachPop = function (node, target, key) {
     const r = basePop.call(this, node, target, key);
-    const pop = document.getElementById('coach-pop');
-    const who = node && node.querySelector && node.querySelector('.eyebrow');
-    const L = this.examLeader && this.examLeader();
-    const leaderTalk = pop && who && (/리더|선임/.test(who.textContent) || node.classList.contains('lead-say'));
-    if (pop) pop.classList.toggle('speech', !!leaderTalk);
-    if (leaderTalk && L && !pop.querySelector('.sb-face')) pop.insertAdjacentHTML('afterbegin', `<span class="sb-face">${this.npcAvatar(L, 36)}</span>`);
+    decorate(this);
+    clearTimeout(this._speechT); this._speechT = setTimeout(() => decorate(this), 200);
     return r;
+  };
+  // 리더 안내 말풍선이 떠 있는 동안 리더의 짧은 외침(흰 작은 말풍선)은 겹치니 띄우지 않는다
+  const baseApply = UI.applyEvent;
+  UI.applyEvent = function (l) {
+    const ev = l && l.ev; const c = this.ctx;
+    if (ev && ev.k === 'say' && c && c.combat && c.combat.leaderId && ev.src === c.combat.leaderId) {
+      const pop = document.getElementById('coach-pop');
+      if (pop && pop.classList.contains('speech')) { if (this.appendLog) this.appendLog(l); return 60; }
+    }
+    return baseApply.call(this, l);
   };
 }

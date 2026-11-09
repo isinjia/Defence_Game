@@ -40,7 +40,7 @@
       <h3 class="doc-title">각성자 등급 판정 통지서</h3>
       <table class="doc-table">
         <tr><th>성명</th><td>${p.name}</td><th>생년</th><td>${born}년 (${G.ageYears()}세)</td></tr>
-        <tr><th>출신</th><td colspan="3">${bg.name || '-'} · ${G.region().name}</td></tr>
+        <tr><th>등록 지역</th><td colspan="3">${G.region().name}</td></tr>
         <tr><th>판정 등급</th><td class="doc-grade"><span class="ink" style="--c:${R.color}">${R.key}급</span></td><th>각성 속성</th><td>${FX.elemIcon(p.element, 13)} ${ELEMENTS[p.element].name}</td></tr>
         <tr><th>직업</th><td colspan="3">${g.name} · <b>${k.name}</b></td></tr>
         <tr><th>선천 특성</th><td colspan="3">${traits}</td></tr>
