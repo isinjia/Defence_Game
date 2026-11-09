@@ -3,7 +3,7 @@
 //  길드는 유망주에게 파격 지원. 축구랑 비슷하고 보호국은 상무."
 //
 // 한곳에서 정한다(중복 제거):
-//  - 무소속: 지금처럼 전리품을 직접 갖는다(솔로 보너스, 자유 동료 1/N: balance.js / 남의 파티 75%: crew.js).
+//  - 무소속: 지금처럼 전리품을 직접 갖는다(솔로 보너스, 자유 동료와는 능력(전투력) 비례: balance.js / 남의 파티 75%: crew.js).
 //  - 길드(대형·중소): 계약제(contract.js)의 월급 하나만 받는다(game.js의 옛 직위 월급은 끈다).
 //      게이트 전리품 크레딧은 길드에 귀속 → 월말에 성과급(계약 조건의 %)으로 돌려받는다.
 //      유망주(재능·나이 대비 등급)는 계약금·월급·훈련비·장비 지원이 파격적이다. 중소 길드는 월급이 적고 성과급 비율이 높다.
@@ -48,7 +48,7 @@ Object.assign(Game.prototype, {
   },
   // 권유 장면·제안서에 쓰는 조건 요약 (D·C 영역에서 불러 쓴다)
   payTermsText(gid) {
-    const k = this.payKind(gid); if (!k) return '무소속: 전리품을 직접 갖는다. 혼자면 +10%, 자유 동료와는 1/N.';
+    const k = this.payKind(gid); if (!k) return '무소속: 전리품을 직접 갖는다. 자유 동료와는 능력(전투력)에 비례해 나누고, 혼자 가면 조금 더(크레딧 +10%).';
     const T = PAY_TERMS[k]; const pr = k !== 'kama' && this.isProspect();
     const sal = k === 'kama' ? this.payBase(gid) : Math.round(this.payBase(gid) * (pr ? 1.4 : 1));
     const inc = Math.round(((T.inc[0] + T.inc[1]) / 2) * 100);
