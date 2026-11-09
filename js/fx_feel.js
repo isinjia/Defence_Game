@@ -86,3 +86,59 @@
     host.appendChild(d); setTimeout(() => d.remove(), 1200);
   };
 }
+
+// ---------- 8. 성장의 순간: 가운데 위에서 내려왔다 사라지는 띠 하나로 통일 ----------
+// 경지 상승, 스킬 숙련·각성, 칭호 획득
+{
+  const snd = (n) => { if (typeof SFX !== 'undefined') SFX.play(n); };
+  UI._bands = [];
+  UI.growBand = function (head, sub, color) {
+    this._bands.push({ head, sub, color });
+    if (this._bands.length === 1) this.nextBand();
+  };
+  UI.nextBand = function () {
+    const b = this._bands[0]; if (!b) return;
+    const el = document.createElement('div');
+    el.className = 'grow-band'; el.style.setProperty('--c', b.color || 'var(--amber)');
+    el.innerHTML = `<b>${b.head}</b>${b.sub ? `<span>${b.sub}</span>` : ''}`;
+    document.body.appendChild(el);
+    setTimeout(() => { el.remove(); this._bands.shift(); this.nextBand(); }, FX.reduced ? 1600 : 2200);
+  };
+
+  // 경지 상승 (초기 → 중기 → 후기)
+  const baseEther = Game.prototype.addEther;
+  Game.prototype.addEther = function (...a) {
+    const p = this.player; const before = p ? p.stage : 0;
+    const r = baseEther.apply(this, a);
+    if (p && p.stage > before && this === G) {
+      UI.growBand(`${STAGE_NAMES[p.stage]} 진입`, rankLabel(p.rankIdx, p.stage), '#ffb547');
+      UI._cardGlow = true; snd('btOk');
+    }
+    return r;
+  };
+  // 스킬 숙련·각성
+  const baseUse = Game.prototype.skillUse;
+  if (baseUse) Game.prototype.skillUse = function (...a) {
+    const msg = baseUse.apply(this, a);
+    if (msg && this === G) {
+      const m = /^\[(스킬 [^\]]+)\]\s*(.*)$/.exec(msg);
+      UI.growBand(m ? m[1] : '스킬 숙련', m ? m[2] : msg, m && m[1] === '스킬 각성' ? '#c58cff' : '#6fc8ff');
+      snd('heal');
+    }
+    return msg;
+  };
+  // 칭호 획득 알림은 띠로
+  const baseToast = UI.toast;
+  UI.toast = function (msg) {
+    const m = /^칭호 획득 · (.*)$/.exec(String(msg || ''));
+    if (m) return this.growBand('칭호 획득', m[1], '#ffd166');
+    return baseToast.call(this, msg);
+  };
+  // 경지가 오른 뒤 지도로 돌아오면 인물 카드가 한 번 빛난다
+  const baseRender = UI.renderGame;
+  UI.renderGame = function (...a) {
+    const r = baseRender.apply(this, a);
+    if (this._cardGlow) { const c = document.getElementById('hud-card'); if (c) { this._cardGlow = false; FX.pulse(c, 'card-glow', 1400); } }
+    return r;
+  };
+}
