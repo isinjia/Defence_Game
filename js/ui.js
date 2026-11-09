@@ -51,7 +51,7 @@ const UI = {
     if (this.screen !== 'game' && this.map) { this.map.destroy(); this.map = null; }
     if (this.screen === 'title') return this.renderTitle();
     if (this.screen === 'create') return this.renderCreate();
-    if (this.screen === 'mode') return this.renderMode();
+    if (this.screen === 'mode') return this.renderMode ? this.renderMode() : this.startCreate();
     if (this.screen === 'story-setup') return this.renderStorySetup();
     if (this.screen === 'prologue') return this.renderPrologue();
     if (this.screen === 'pro-result') return this.renderProResult();
