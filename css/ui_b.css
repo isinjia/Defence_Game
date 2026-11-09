@@ -270,3 +270,9 @@
 .cmd-pop-head b { color: var(--amber); }
 .cmd-pop-head button { min-height: 32px; }
 @media (max-height: 600px) { .cmd-main .cmd { min-height: 44px; } }
+
+/* 튜토리얼 잠금: 지금 누를 수 없는 것 흐리게 */
+.tut-off { opacity: .35; filter: grayscale(.6); }
+#foes .foe.tut-off, #allies .ally.tut-off { opacity: .55; }
+#coach-pop.nudge { animation: nudge .4s; }
+@keyframes nudge { 25% { transform: translate(calc(-50% - 6px), 0); } 75% { transform: translate(calc(-50% + 6px), 0); } }
