@@ -4,7 +4,7 @@
 // - 등급대: 등급마다 사회적 위치가 다르다. F~E는 생계, D~C는 스카우트·질투·사기, B~A는 언론·정치·후배, S~SS는 국가·암살·은퇴.
 //   초반 사건에는 최대 등급을 붙여 S급이 "신입이라 무시당하는" 일을 막는다.
 
-const N = (c) => (c && c.npc ? c.npc.name : '그 사람');
+const ROLE_NM = (c) => (c && c.npc ? c.npc.name : '그 사람');
 
 // ---------- 역할 칸 ----------
 (() => {
@@ -52,7 +52,7 @@ S({ id: 'role_guild_credit', npc: 'guildmate', minRank: 1, text: '길드 보고�
   ] });
 S({ id: 'role_rival_public', npc: 'rivalRank', text: '{npc}이(가) 방송 인터뷰에서 당신 이름을 꺼냈다. "솔직히 과대평가죠. 같은 게이트 들어가 보면 압니다." 영상 조회수가 빠르게 오른다.',
   choices: [
-    { text: '공개 합동 공략을 제안한다', do: (g, c) => { g.storyFight({ title: '라이벌과의 공략 대결', spar: true, mobs: { tier: g.player.rankIdx, n: 3 }, win: { text: fixJosa(`공략 속도도, 처치 수도 당신이 앞섰다. ${N(c)}은(는) 다음 인터뷰에서 말을 아꼈다.`), gain: { fame: 10 } }, lose: { text: fixJosa(`${N(c)}이(가) 한발 빨랐다. 댓글창이 시끄러웠다.`), gain: { fame: -4, ether: 30 } } }); return '카메라 여섯 대가 게이트 앞에 섰다.'; } },
+    { text: '공개 합동 공략을 제안한다', do: (g, c) => { g.storyFight({ title: '라이벌과의 공략 대결', spar: true, mobs: { tier: g.player.rankIdx, n: 3 }, win: { text: fixJosa(`공략 속도도, 처치 수도 당신이 앞섰다. ${ROLE_NM(c)}은(는) 다음 인터뷰에서 말을 아꼈다.`), gain: { fame: 10 } }, lose: { text: fixJosa(`${ROLE_NM(c)}이(가) 한발 빨랐다. 댓글창이 시끄러웠다.`), gain: { fame: -4, ether: 30 } } }); return '카메라 여섯 대가 게이트 앞에 섰다.'; } },
     { text: '무시하고 실적으로 답한다', do: (g, c) => '한 달 뒤, 당신의 공략 기록이 협회 게시판 맨 위에 올랐다. 말이 필요 없었다.' + g.gain({ ether: 20, fame: 2 }) },
   ] });
 S({ id: 'role_exam_reunion', npc: 'examMate', minRank: 1, text: '시험 동기 {npc}에게서 연락이 왔다. "우리 기수 동기 모임 한다! 너도 와." 단톡방엔 벌써 누가 어디 길드 갔고, 누가 은퇴했는지 소식이 쏟아진다.',
@@ -62,7 +62,7 @@ S({ id: 'role_exam_reunion', npc: 'examMate', minRank: 1, text: '시험 동기 {
   ] });
 S({ id: 'role_mentor_favor', npc: 'mentor', text: '사수 {npc}이(가) 드물게 부탁을 한다. "다음 주 내 공략에 사람이 하나 빠졌어. 네 등급엔 좀 버겁겠지만… 와 줄래? 보는 것만으로도 공부 될 거다."',
   choices: [
-    { text: '따라간다', do: (g, c) => { g.storyFight({ title: '사수의 공략', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 2 }, ally: { name: c.npc ? c.npc.name : '사수', rank: Math.min(7, g.player.rankIdx + 2), elem: c.npc ? c.npc.element : 'steel' }, win: { text: fixJosa(`${N(c)}이(가) 처음으로 "잘했다"고 했다.`), gain: { ether: 60, money: 300 }, after: (G) => c.npc && G.changeRel(c.npc, 12) }, lose: { text: fixJosa(`${N(c)}이(가) 당신을 들쳐 업고 나왔다. "괜찮아, 다음엔 버틴다."`), gain: { injure: 1, ether: 30 } } }); return '게이트 입구에서 {npc}이(가) 장갑을 고쳐 끼었다.'; } },
+    { text: '따라간다', do: (g, c) => { g.storyFight({ title: '사수의 공략', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 2 }, ally: { name: c.npc ? c.npc.name : '사수', rank: Math.min(7, g.player.rankIdx + 2), elem: c.npc ? c.npc.element : 'steel' }, win: { text: fixJosa(`${ROLE_NM(c)}이(가) 처음으로 "잘했다"고 했다.`), gain: { ether: 60, money: 300 }, after: (G) => c.npc && G.changeRel(c.npc, 12) }, lose: { text: fixJosa(`${ROLE_NM(c)}이(가) 당신을 들쳐 업고 나왔다. "괜찮아, 다음엔 버틴다."`), gain: { injure: 1, ether: 30 } } }); return '게이트 입구에서 {npc}이(가) 장갑을 고쳐 끼었다.'; } },
     { text: '아직은 무리라고 말한다', do: (g, c) => '"그래, 자기 그릇 아는 것도 실력이지." 서운한 기색은 없었다.' + g.gain({ rel: 2 }, c) },
   ] });
 S({ id: 'role_friend_hurt', npc: 'closeFriend', text: '새벽 3시, 모르는 번호로 전화가 온다. 응급실이다. "{npc} 씨 보호자분이세요? 연락처에 당신 번호가 제일 위에 있어서요."',
@@ -87,7 +87,7 @@ S({ id: 'role_friend_move', npc: 'closeFriend', text: '{npc}이(가) 이삿짐 �
   ] });
 S({ id: 'role_rival_teamup', npc: 'rivalRank', minRank: 2, text: '라이벌 {npc}이(가) 의뢰소에서 당신을 기다리고 있다. "이번 게이트, 혼자는 무리야. 너도 그렇고. 딱 한 번만 같이 가자. 보상은 반반."',
   choices: [
-    { text: '손을 잡는다', do: (g, c) => { g.storyFight({ title: '라이벌과의 합동 공략', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 2, boss: true }, ally: { name: c.npc ? c.npc.name : '라이벌', rank: c.npc ? c.npc.rankIdx : g.player.rankIdx, elem: c.npc ? c.npc.element : 'fire' }, win: { text: fixJosa(`등을 맞대고 싸워 보니 손발이 이상하게 잘 맞았다. "…다음엔 다시 적이다." ${N(c)}이(가) 웃었다.`), gain: { money: 500, ether: 50 }, after: (G) => c.npc && G.changeRel(c.npc, 25) }, lose: { text: '둘 다 너덜너덜해져서 나왔다. 서로 탓하다가 결국 같이 웃었다.', gain: { injure: 1 }, after: (G) => c.npc && G.changeRel(c.npc, 10) } }); return '게이트 앞에서 {npc}이(가) 주먹을 내밀었다.'; } },
+    { text: '손을 잡는다', do: (g, c) => { g.storyFight({ title: '라이벌과의 합동 공략', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 2, boss: true }, ally: { name: c.npc ? c.npc.name : '라이벌', rank: c.npc ? c.npc.rankIdx : g.player.rankIdx, elem: c.npc ? c.npc.element : 'fire' }, win: { text: fixJosa(`등을 맞대고 싸워 보니 손발이 이상하게 잘 맞았다. "…다음엔 다시 적이다." ${ROLE_NM(c)}이(가) 웃었다.`), gain: { money: 500, ether: 50 }, after: (G) => c.npc && G.changeRel(c.npc, 25) }, lose: { text: '둘 다 너덜너덜해져서 나왔다. 서로 탓하다가 결국 같이 웃었다.', gain: { injure: 1 }, after: (G) => c.npc && G.changeRel(c.npc, 10) } }); return '게이트 앞에서 {npc}이(가) 주먹을 내밀었다.'; } },
     { text: '"너랑은 안 해."', do: (g, c) => '"그래, 그럴 줄 알았어." {npc}은(는) 다른 사람을 찾아 떠났다.' + g.gain({ rel: -4 }, c) },
   ] });
 
