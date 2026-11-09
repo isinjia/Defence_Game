@@ -40,7 +40,7 @@ Object.assign(PROLOGUE, {
       { text: '불길이 번지기 전에 공기 중의 열을 한데 모아 흩어 버린다', g: { mage: 2 }, c: { elementalist: 3 }, next: 'crime_5' },
       { text: '다친 은행원의 상처에 손을 얹자 피가 멎는다', g: { support: 2 }, c: { healer: 3 }, next: 'crime_5' },
     ] },
-  crime_5: { title: '뉴스 속보', text: '[속보] 강남 은행 인질극, 인질 중 미등록 각성자가 진압. 진압팀장이 담요를 덮어 주며 묻는다. "어디서 배웠어요?" 대답할 말이 없다.\n\n그날 밤, 수많은 연락이 온다. 관리국, 길드 스카우트, 그리고 발신자 번호가 없는 문자 한 통.',
+  crime_5: { title: '뉴스 속보', text: '[속보] 시내 은행 인질극, 인질 중 미등록 각성자가 진압. 진압팀장이 담요를 덮어 주며 묻는다. "어디서 배웠어요?" 대답할 말이 없다.\n\n그날 밤, 수많은 연락이 온다. 관리국, 길드 스카우트, 그리고 발신자 번호가 없는 문자 한 통.',
     choices: [
       { text: '셔터 너머를 꿰뚫어 보던 그 감각을 다시 떠올린다. 한 점만 보였다', g: { shooter: 2 }, c: { sniper: 4 }, next: 'verdict' },
       { text: '인질들 앞에 빛의 방패가 섰던 장면이 영상에 남아 있다', g: { guard: 2 }, c: { paladin: 4 }, next: 'verdict_guild' },
@@ -60,7 +60,7 @@ Object.assign(PROLOGUE, {
       { text: '솔직히 마음이 흔들린다. 캡슐 사진을 오래 들여다본다', e: { fire: 1 }, g: { fighter: 1, mage: 1 }, t: { reckless: 1 }, next: 'drug_2' },
       { text: '캡슐 성분이 궁금하다. 한 알만 받아서 분석해 보기로 한다', e: { bolt: 1 }, g: { support: 1, mage: 1 }, t: { mana_sense: 1 }, next: 'drug_2' },
     ] },
-  drug_2: { title: '홍대 지하 클럽', text: '사흘 뒤 새벽, {friend}의 전화. 숨소리만 들린다. 위치 공유를 따라간 곳은 홍대 지하 클럽 화장실. {friend}이(가) 바닥에 쓰러져 경련하고 있다. 혈관이 파랗게 비친다.\n\n문밖에서 브로커들이 웅성거린다. "또 하나 터졌네. 치워."',
+  drug_2: { title: '지하 클럽', text: '사흘 뒤 새벽, {friend}의 전화. 숨소리만 들린다. 위치 공유를 따라간 곳은 번화가 지하 클럽 화장실. {friend}이(가) 바닥에 쓰러져 경련하고 있다. 혈관이 파랗게 비친다.\n\n문밖에서 브로커들이 웅성거린다. "또 하나 터졌네. 치워."',
     choices: [
       { text: '화장실 문을 걷어차고 나가 브로커들에게 달려든다', g: { fighter: 3 }, c: { berserker: 1 }, next: 'drug_3' },
       { text: '{friend}을(를) 업고 문 앞을 막는다. 아무도 못 들어온다', g: { guard: 3 }, friend: 10, next: 'drug_3' },

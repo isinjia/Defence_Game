@@ -108,7 +108,7 @@ Object.assign(PROLOGUE, {
       { text: '[근접 전투] 체크. 볼펜에 힘이 들어간다', g: { fighter: 3 }, c: { swordsman: 1 }, next: 'late_3' },
       { text: '[방어·구조] 체크. 사람을 지키는 쪽이 좋다', g: { guard: 3 }, c: { guardian: 1 }, next: 'late_3' },
       { text: '[정찰·잠입] 체크. 눈에 안 띄는 게 편하다', g: { shadow: 3 }, c: { thief: 1 }, next: 'late_3' },
-      { text: '[원거리 지원] 체크. 사격장 알바 경력도 적는다', g: { shooter: 3 }, c: { sniper: 1 }, next: 'late_3' },
+      { text: '[원거리 지원] 체크. 사격 경험도 적어 넣는다', g: { shooter: 3 }, c: { sniper: 1 }, next: 'late_3' },
       { text: '[에테르 연구] 체크. 이게 대체 뭔지 알고 싶다', g: { mage: 3 }, c: { chronomancer: 1 }, next: 'late_3' },
       { text: '[의료·후방] 체크. 보건소 간호사의 손이 떠오른다', g: { support: 3 }, c: { healer: 1 }, next: 'late_3' },
       { text: '[특이 능력] 체크. 요즘 남의 생각이 들릴 때가 있다', g: { esper: 3 }, c: { telepath: 1 }, next: 'late_3' },
