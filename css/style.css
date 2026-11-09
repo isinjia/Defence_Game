@@ -601,3 +601,11 @@ button.item-row { width: 100%; text-align: left; }
 }
 .combat-box #cb-ctrl:not(.cb-done) { max-height: 72vh; overflow: auto; }
 .combat-box #cb-ctrl.cb-done { position: static; box-shadow: none; }
+/* ===== 기연 단서 · 자동 이동 (story_clues.js) ===== */
+.obj-row { display: flex; gap: 4px; align-items: stretch; }
+.obj-row .obj-link { flex: 1; min-width: 0; }
+.obj-go { flex: none; font-size: 12.5px; padding: 5px 10px; min-height: 32px; }
+.travel-chip { border-color: var(--amber) !important; color: var(--amber); font-weight: 600; }
+@media (max-width: 640px) {
+  .hud-tr .obj-row + .obj-link, .hud-tr .obj-row + .obj-row, .hud-tr .obj-link + .obj-row { display: none; }
+}
