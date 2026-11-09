@@ -1,0 +1,8 @@
+/* 영역 A-γ: 유대 합동기 · 필살 게이지 · 역할 구성 보너스 */
+.combo-btn { border-color: #e7a6ff66; }
+.combo-btn.go { border-color: #f2b8ff; box-shadow: inset 0 0 0 1px #f2b8ff, 0 0 10px #c58cff66; background: #1d1226; }
+.combo-btn .combo-ic { flex: none; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #1a0f22; background: linear-gradient(135deg, #ffd27a, #e19bff); }
+.combo-btn[disabled] .combo-ic { filter: grayscale(.8); opacity: .6; }
+.cmd-main .cmd.combo-on::after { content: "合"; position: absolute; top: -6px; right: -4px; font-size: 10px; font-weight: 700; line-height: 16px; width: 16px; border-radius: 50%; color: #1a0f22; background: linear-gradient(135deg, #ffd27a, #e19bff); box-shadow: 0 0 8px #e19bff; }
+@media (prefers-reduced-motion: no-preference) { .cmd-main .cmd.combo-on::after { animation: comboPing 1s ease-in-out infinite alternate; } }
+@keyframes comboPing { from { transform: scale(.9); } to { transform: scale(1.12); } }

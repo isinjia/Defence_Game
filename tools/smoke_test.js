@@ -121,6 +121,29 @@ const { chromium, devices } = require('playwright');
     await closeAll(); await ev(() => { UI.ctx = null; });
     if (r) throw new Error(r);
   });
+  await step('전투 A-γ: 유대 합동기 (메뉴 → 발동)', async () => {
+    await closeAll(); await ev(() => { UI.ctx = null; });
+    await ev(() => {
+      const p = G.player; p.hp = p.maxHp; p.mp = p.maxMp;
+      if (!G.party().length) { const n = G.makeNpc(false, 'human'); Object.assign(n, { region: p.region, met: true, relation: 50, links: {}, disciples: [], parents: [], isCompanion: true }); G.npcs.push(n); (p.party ||= []).push(n.id); }
+      const n = G.party()[0]; window.__aγ = { id: n.id, rel: n.relation, sworn: (p.sworn || []).slice() };
+      n.relation = 90; p.sworn = [n.id];
+      const m = { id: 88101, kind: 'mob', x: p.x, y: p.y, region: p.region, tier: 0, elem: 'fire', name: '점검 쥐', shape: 'beast', count: 2, born: G.monthKey() };
+      G.mobs.push(m); UI.startMob(m.id);
+    });
+    await page.waitForFunction(() => UI.ctx && UI.ctx.combat && UI.ctx.combat.waiting && !UI.ctx.playing, null, { timeout: 30000 });
+    const r = await ev(() => {
+      const cb = UI.ctx.combat; const pair = cb.comboPairs()[0]; if (!pair) return '합동기가 열리지 않음';
+      cb.units.find((u) => u.id === pair.id).atb = 90; UI.renderControls(); UI.handle('c-cmd', 'skill');
+      const b = document.querySelector('.cmd-pop .combo-btn'); if (!b) return '스킬 목록에 합동기 버튼 없음';
+      UI.handle('c-combo', pair.id); if (!(cb.comboUsed || {})[pair.id]) return '합동기가 발동하지 않음';
+      return '';
+    });
+    await page.waitForFunction(() => !UI.ctx || !UI.ctx.playing, null, { timeout: 30000 });
+    await ev(() => { const s = window.__aγ; const n = G.npcById(s.id); if (n) n.relation = s.rel; G.player.sworn = s.sworn; G.mobs = G.mobs.filter((m) => m.id !== 88101); });
+    await closeAll(); await ev(() => { UI.ctx = null; });
+    if (r) throw new Error(r);
+  });
   await step('지도 탐험: 탐사 지점·탐사 기록·차량 대여소·재앙·북부', async () => {
     const r = await ev(() => {
       if (!G.sites || !G.sites().length) return '탐사 지점 없음';
