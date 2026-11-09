@@ -87,6 +87,9 @@
     if (others.some((b) => b.classList.contains('ordered'))) { const sb = wrap.querySelector('[data-v=skill]'); if (sb) sb.classList.add('ordered'); }
     skillBox.replaceWith(wrap);
     if (row) row.remove(); if (bagRow) bagRow.remove();
+    // 커맨드 외의 것(오더 패널·리더 오더·스킬 설명·안내)은 조작 영역 위에 떠 있게 → 조작 영역 높이가 절대 바뀌지 않는다
+    const extra = [...box.children].filter((ch) => ch !== wrap && !ch.classList.contains('cmd-float'));
+    if (extra.length) { const fl = document.createElement('div'); fl.className = 'cmd-float'; extra.forEach((ch) => fl.appendChild(ch)); box.insertBefore(fl, wrap); }
     void p;
   };
   // 명령을 실행하면 다음 차례에는 첫 메뉴로
