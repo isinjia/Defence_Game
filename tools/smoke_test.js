@@ -167,6 +167,19 @@ const { chromium, devices } = require('playwright');
     await closeAll();
     if (r) throw new Error(r);
   });
+  await step('괴수 다양성·도감 (주제별 괴수·유형 행동 → 도감 탭·상세·완성)', async () => {
+    const r = await ev(() => {
+      const g = { id: 9, tier: 3, theme: '버려진 병원', elem: 'dark', variant: 'normal' };
+      const rooms = G.gateRooms(g); const types = new Set(rooms.flat().map((m) => m.mtype));
+      for (const room of rooms) { const cb = new Combat(G, { allies: [G.playerUnit()], enemies: room }); cb.runAll(); }
+      G.dexKill('가시털 들개');
+      UI.handle('sheet', 'dex'); const tab = !!document.querySelector('.sheet-head [data-v="dex"].on');
+      UI.handle('dex-mon', '가시털 들개'); const detail = !!document.querySelector('.dex-head');
+      UI.handle('dex-tab', 'sets'); UI.handle('dex-tab', 'named'); UI.closeModal();
+      return { types: types.size, tab, detail, dex: Object.keys(G.player.dex || {}).length };
+    });
+    if (!r.types || !r.tab || !r.detail || !r.dex) throw new Error(JSON.stringify(r));
+  });
   await step('지도 탐험: 탐사 지점·탐사 기록·차량 대여소·재앙·북부', async () => {
     const r = await ev(() => {
       if (!G.sites || !G.sites().length) return '탐사 지점 없음';
