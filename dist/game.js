@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.08";
+const GAME_VERSION = "0.09";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -9262,7 +9262,18 @@ Object.assign(Game.prototype, {
       reason = "rep";
     }
     const yes = s + RNG.range(-0.15, 0.15) > 0.6;
-    return { id: n.id, yes, line: RNG.pick(yes ? MERC_LINES.yes[n.personality] : MERC_LINES.no[reason]) };
+    const r = { id: n.id, yes, line: RNG.pick(yes ? MERC_LINES.yes[n.personality] : MERC_LINES.no[reason]) };
+    const never = reason === "rep" && n.personality === "just" || reason === "risk" && d >= 2 && n.personality === "kind";
+    if (!yes && !never) {
+      const ask = Math.ceil((payMul + Math.max(0.15, (0.68 - s) / Math.max(0.25, t.pay))) * 10) / 10;
+      if (ask <= 3) r.ask = ask;
+    }
+    if (yes && n.personality === "greedy" && RNG.chance(0.45)) {
+      r.ask = Math.round((payMul + 0.2) * 10) / 10;
+      r.haggle = true;
+      r.line = '"하겠는데, 조건 하나. 20%만 더 얹어 줘. 싫으면 말고."';
+    }
+    return r;
   },
   postMercJob(job, payMul) {
     const p = this.player;
@@ -9271,9 +9282,33 @@ Object.assign(Game.prototype, {
     if (p.money < cost) return "게시비가 부족하다.";
     p.money -= cost;
     const list = this.mercsFor(reg);
+    this.player.mercPost = null;
     p.mercPost = { region: reg, key: this.monthKey(), job, payMul, replies: list.filter((n) => !n.hired).map((n) => this.mercReply(n, job, payMul)) };
     const yes = p.mercPost.replies.filter((r) => r.yes).length;
     return "공고를 올렸다. (게시비 ".concat(fmt(cost), ") ").concat(yes ? "".concat(yes, "명이 응했다.") : "아무도 응하지 않았다. 조건을 바꿔 보자.");
+  },
+  // 거절한 사람에게 웃돈을 제시한다
+  mercRaise(regionId, id) {
+    const p = this.player;
+    const post = p.mercPost;
+    const n = this.mercsFor(regionId).find((x) => x.id === id);
+    const r = post && post.replies.find((x) => x.id === id);
+    if (!n || !r || r.ask == null || r.payMul) return "";
+    if (r.haggle) {
+      r.payMul = r.ask;
+      r.line = '"좋아, 말이 통하네."';
+      return "".concat(n.name, "의 흥정을 받아들였다.");
+    }
+    const ok = RNG.chance(n.personality === "greedy" ? 0.95 : n.personality === "cold" ? 0.8 : 0.7);
+    if (!ok) {
+      r.ask = null;
+      r.line = { kind: '"돈 문제가 아니에요. 죄송해요."', warlike: '"돈으로 날 사려고? 재미없어."', greedy: '"…아니, 그래도 안 되겠어."', just: '"돈으로 해결될 일이 아니야."', cold: '"됐어."' }[n.personality];
+      return "".concat(n.name, "은(는) 웃돈에도 고개를 저었다.");
+    }
+    r.yes = true;
+    r.payMul = r.ask;
+    r.line = { kind: '"…그렇게까지 해 주시면, 해 볼게요. 대신 무리는 안 해요."', warlike: '"그 돈이면 지루해도 참지. 콜."', greedy: '"이제야 말이 좀 되네. 계약하자."', just: '"…알았다. 사정이 급한가 보군."', cold: '"그 금액이면 간다."' }[n.personality];
+    return "".concat(n.name, "에게 웃돈을 제시했다. 마음을 바꿨다.");
   },
   hireMerc(regionId, idx) {
     var _a, _b, _c;
@@ -9283,8 +9318,15 @@ Object.assign(Game.prototype, {
     if (!post || !n || n.hired) return "";
     const r = post.replies.find((x) => x.id === n.id);
     if (!r || !r.yes) return "".concat(n.name, "은(는) 이 공고에 응하지 않았다.");
+    if (r.haggle && !r.payMul) {
+      r.yes = false;
+      r.ask = null;
+      r.line = '"흥정도 안 하겠다? 그럼 없던 걸로."';
+      return "".concat(n.name, "은(는) 원래 금액엔 안 가겠다며 돌아섰다.");
+    }
+    const mul = r.payMul || post.payMul;
     if (this.party().length >= 4) return "파티는 최대 5명이다.";
-    const pay = this.mercJobPay(n, post.job, post.payMul);
+    const pay = this.mercJobPay(n, post.job, mul);
     const adv = Math.round(pay / 2 / 10) * 10;
     if (p.money < adv) return "선금 ".concat(fmt(adv), " 크레딧이 부족하다.");
     p.money -= adv;
@@ -9294,13 +9336,32 @@ Object.assign(Game.prototype, {
     n.met = true;
     n.relation = 10;
     n.isCompanion = true;
-    n.merc = { job: __spreadValues({}, post.job), payMul: post.payMul, until: this.monthKey() + months, start: this.monthKey(), bal: pay - adv, mood: 60, progress: 0, active: this.monthKey() };
+    n.merc = { job: __spreadValues({}, post.job), payMul: mul, until: this.monthKey() + months, start: this.monthKey(), bal: pay - adv, mood: 60, progress: 0, active: this.monthKey() };
     (_a = n.links) != null ? _a : n.links = {};
     (_b = n.disciples) != null ? _b : n.disciples = [];
     (_c = n.parents) != null ? _c : n.parents = [];
     this.npcs.push(n);
     p.party.push(n.id);
-    return "".concat(n.name, "과(와) 계약했다. 일: ").concat(MERC_JOBS[post.job.kind].desc(post.job), ", 기한 ").concat(months, "개월, 선금 ").concat(fmt(adv), " · 잔금 ").concat(fmt(pay - adv));
+    return "".concat(n.name, "와(과) 계약했다. 일: ").concat(MERC_JOBS[post.job.kind].desc(post.job), ", 기한 ").concat(months, "개월, 선금 ").concat(fmt(adv), " · 잔금 ").concat(fmt(pay - adv));
+  },
+  mercSootheCost(n) {
+    return Math.max(50, Math.round(n.merc.bal * 2 * 0.25 / 10) * 10);
+  },
+  mercSoothe(id, extend) {
+    const p = this.player;
+    const n = this.npcById(id);
+    if (!n || !n.merc || !n.merc.job) return "";
+    const m = n.merc;
+    const cost = Math.round(this.mercSootheCost(n) * (extend ? 1.3 : 1) / 10) * 10;
+    if (p.money < cost) return "크레딧이 부족하다.";
+    p.money -= cost;
+    const gain = { greedy: 45, cold: 30, warlike: 20, kind: 22, just: 18 }[n.personality];
+    this.mercAdjust(n, gain);
+    this.changeRel(n, n.personality === "greedy" ? 5 : 2);
+    m.warned = false;
+    if (extend) m.until += 1;
+    const line = extend ? { kind: '"한 달 더요? 알겠어요. 이번엔 꼭 해요."', warlike: '"돈은 받았는데, 다음 달엔 진짜 싸우는 거다."', greedy: '"연장 수당 확인. 한 달 더 기다려 주지."', just: '"사정이 있었겠지. 한 달 더 기다리겠다."', cold: '"…한 달."' } : { kind: '"이렇게까지 안 하셔도 되는데… 고마워요."', warlike: '"흥, 돈으로 달래겠다고? …뭐, 받아는 둘게."', greedy: '"역시 말보다 돈이지. 기분 풀렸어."', just: '"돈보다 약속이 중요하다는 건 잊지 마."', cold: '"…받아 둔다."' };
+    return "".concat(n.name, "에게 ").concat(fmt(cost), " 크레딧을 쥐여 줬다").concat(extend ? "(기한 1개월 연장)" : "", ". ").concat(n.name, ": ").concat(line[n.personality]);
   },
   mercs() {
     return this.party().filter((n) => n.merc && n.merc.job);
@@ -9366,7 +9427,7 @@ Object.assign(Game.prototype, {
       if (kind === "gate" && j.tier != null && data.tier > j.tier + 1 && n.personality !== "warlike") {
         this.mercAdjust(n, -15);
         this.changeRel(n, -4);
-        this.mercSay(n, "".concat(n.name, ': "').concat(RANKS[data.tier].key, "급이라니, 공고엔 ").concat(RANKS[j.tier].key, '급이라며! 다음에 또 이러면 나 빠진다." (불만)'), "bad");
+        this.queue.push({ type: "mercSay", npc: n.id, tone: "bad", offer: "soothe", text: "".concat(n.name, ': "').concat(RANKS[data.tier].key, "급이라니, 공고엔 ").concat(RANKS[j.tier].key, '급이라며! 위험 수당이라도 주든가, 다음에 또 이러면 나 빠진다." (불만)') });
       }
       let done = false;
       if (j.kind === "gate" && kind === "gate" && data.tier >= j.tier) done = true;
@@ -9409,7 +9470,7 @@ Object.assign(Game.prototype, {
       if (m.mood < 40 && !m.warned) {
         m.warned = true;
         const job = MERC_JOBS[m.job.kind].desc(m.job);
-        this.mercSay(n, "".concat(n.name, '이(가) 따진다. "').concat(job, ". 그게 계약이었지? ").concat(m.until - mk > 0 ? "남은 기한 ".concat(m.until - mk, "개월이야.") : "이번 달이 마지막이야.", ' 이대로면 나 빠진다."'), "bad");
+        this.queue.push({ type: "mercSay", npc: n.id, tone: "bad", offer: "extend", text: "".concat(n.name, '이(가) 따진다. "').concat(job, ". 그게 계약이었지? ").concat(m.until - mk > 0 ? "남은 기한 ".concat(m.until - mk, "개월이야.") : "이번 달이 마지막이야.", ' 이대로면 나 빠진다."') });
       } else if (m.mood >= 40) m.warned = false;
     }
   }
@@ -9470,14 +9531,15 @@ Object.assign(UI, {
     const contracts = G.mercs().map((n) => {
       const m = n.merc;
       const [mood, cls] = G.mercMood(n);
-      return '<div class="item-row">'.concat(this.npcAvatar(n, 36), '<div class="grow"><b>').concat(n.name, "</b> ").concat(this.clsTag(n.cls), ' <span class="small ').concat(cls, '">기분 ').concat(mood, '</span>\n        <div class="small dim">').concat(MERC_JOBS[m.job.kind].desc(m.job)).concat(m.job.kind === "hunt" ? " (".concat(m.progress, "/").concat(m.job.n, ")") : "", " · 남은 기한 ").concat(Math.max(0, m.until - G.monthKey()), "개월 · 잔금 ").concat(fmt(m.bal), "</div></div></div>");
+      return '<div class="item-row">'.concat(this.npcAvatar(n, 36), '<div class="grow"><b>').concat(n.name, "</b> ").concat(this.clsTag(n.cls), ' <span class="small ').concat(cls, '">기분 ').concat(mood, '</span>\n        <div class="small dim">').concat(MERC_JOBS[m.job.kind].desc(m.job)).concat(m.job.kind === "hunt" ? " (".concat(m.progress, "/").concat(m.job.n, ")") : "", " · 남은 기한 ").concat(Math.max(0, m.until - G.monthKey()), "개월 · 잔금 ").concat(fmt(m.bal), "</div></div>").concat(m.mood < 55 ? '<button class="sm ghost" data-act="merc-soothe" data-v="'.concat(n.id, '">달래기<br><span class="small dim">').concat(fmt(G.mercSootheCost(n)), "</span></button>") : "", "</div>");
     }).join("");
     const post = p.mercPost && p.mercPost.region === reg.id && p.mercPost.key === G.monthKey() ? p.mercPost : null;
     const list = G.mercsFor(reg.id);
     const replies = post ? list.map((n) => {
       const r = post.replies.find((x) => x.id === n.id);
-      const pay = G.mercJobPay(n, post.job, post.payMul);
-      return '<div class="item-row '.concat(r && r.yes ? "" : "dimmed", '">').concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, "</b> ").concat(this.clsTag(n.cls, n.rankIdx >= 6 ? 2 : n.rankIdx >= 3 ? 1 : 0), " ").concat(this.rankTag(n.rankIdx, n.stage), ' <span class="small dim">성격 ').concat(persById(n.personality).name, '</span>\n        <div class="small">').concat(r ? r.line : '"…"', "</div></div>\n        ").concat(n.hired ? '<span class="small dim">계약됨</span>' : r && r.yes ? '<button class="sm" data-act="hire" data-v="'.concat(n.id, '" ').concat(G.party().length >= 4 ? "disabled" : "", ">선금 ").concat(fmt(Math.round(pay / 20) * 10), '<br><span class="small dim">총 ').concat(fmt(pay), "</span></button>") : '<span class="small bad">거절</span>', "</div>");
+      const pay = G.mercJobPay(n, post.job, r && r.payMul || post.payMul);
+      const raise = r && r.ask != null && !r.payMul ? G.mercJobPay(n, post.job, r.ask) : 0;
+      return '<div class="item-row '.concat(r && r.yes ? "" : "dimmed", '">').concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, "</b> ").concat(this.clsTag(n.cls, n.rankIdx >= 6 ? 2 : n.rankIdx >= 3 ? 1 : 0), " ").concat(this.rankTag(n.rankIdx, n.stage), ' <span class="small dim">성격 ').concat(persById(n.personality).name, '</span>\n        <div class="small">').concat(r ? r.line : '"…"', "</div></div>\n        ").concat(n.hired ? '<span class="small dim">계약됨</span>' : r && r.haggle && !r.payMul ? '<span class="row"><button class="sm" data-act="merc-raise" data-v="'.concat(n.id, '">흥정 수락<br><span class="small dim">총 ').concat(fmt(raise), '</span></button><button class="sm ghost" data-act="hire" data-v="').concat(n.id, '">원래대로</button></span>') : r && r.yes ? '<button class="sm" data-act="hire" data-v="'.concat(n.id, '" ').concat(G.party().length >= 4 ? "disabled" : "", ">선금 ").concat(fmt(Math.round(pay / 20) * 10), '<br><span class="small dim">총 ').concat(fmt(pay), "</span></button>") : raise ? '<button class="sm ghost" data-act="merc-raise" data-v="'.concat(n.id, '">웃돈 제시<br><span class="small dim">총 ').concat(fmt(raise), "</span></button>") : '<span class="small bad">거절</span>', "</div>");
     }).join("") : "";
     const tiers = [pr - 1, pr, pr + 1, pr + 2].filter((t) => t >= 0 && t <= 7);
     const dests = REGIONS.filter((r) => r.id !== reg.id && (r.id !== "jeju" || pr >= 6));
@@ -9486,7 +9548,7 @@ Object.assign(UI, {
   showMercSay(q) {
     const n = G.npcById(q.npc);
     if (!n) return this.processQueue();
-    this.modal('<div class="story-portrait">'.concat(UI.npcPortrait(n, 120), '<div><div class="eyebrow ').concat(q.tone, '">용병 · ').concat(G.fullDate(), "</div><b>").concat(n.name, '</b><div class="small">').concat(this.rankTag(n.rankIdx, n.stage), " · 성격 ").concat(persById(n.personality).name, '</div><div class="small dim">관계 ').concat(relationLabel(n.relation), " (").concat(n.relation, ')</div></div></div>\n      <p class="event-text">').concat(fixJosa(q.text), '</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>'), "event-box");
+    this.modal('<div class="story-portrait">'.concat(UI.npcPortrait(n, 120), '<div><div class="eyebrow ').concat(q.tone, '">용병 · ').concat(G.fullDate(), "</div><b>").concat(n.name, '</b><div class="small">').concat(this.rankTag(n.rankIdx, n.stage), " · 성격 ").concat(persById(n.personality).name, '</div><div class="small dim">관계 ').concat(relationLabel(n.relation), " (").concat(n.relation, ')</div></div></div>\n      <p class="event-text">').concat(fixJosa(q.text), "</p>\n      ").concat(q.offer && n.merc && n.merc.job ? '<div class="cards"><button class="choice-btn" data-act="merc-soothe" data-v="'.concat(n.id, '">웃돈을 쥐여 주며 달랜다 (').concat(fmt(G.mercSootheCost(n)), ")</button>").concat(q.offer === "extend" ? '<button class="choice-btn" data-act="merc-extend" data-v="'.concat(n.id, '">수당을 주고 기한을 한 달 늘려 달라고 한다 (').concat(fmt(Math.round(G.mercSootheCost(n) * 1.3 / 10) * 10), ")</button>") : "", '<button class="choice-btn" data-act="modal-close">말로만 넘어간다</button></div>') : '<div class="row end"><button class="primary" data-act="modal-close">확인</button></div>'), "event-box");
   }
 });
 {
@@ -9529,6 +9591,15 @@ Object.assign(UI, {
       }
       case "hire":
         return this.afterCity(G.hireMerc(G.region().id, +v));
+      case "merc-raise":
+        return this.afterCity(G.mercRaise(G.region().id, +v));
+      case "merc-soothe":
+      case "merc-extend": {
+        const msg = G.mercSoothe(+v, act === "merc-extend");
+        if (this.sheet === "city") return this.afterCity(msg);
+        this.closeModal();
+        return this.after(msg);
+      }
       default:
         return baseHandle.call(this, act, v);
     }
@@ -9945,7 +10016,7 @@ Object.assign(UI, {
     const gain = G.trainGain(1.6);
     G.addEther(gain);
     for (const n of G.party()) G.changeRel(n, 3);
-    G.log("".concat(c.name, "과(와) 한 달 동안 합동 훈련을 했다. 에테르 +").concat(fmt(gain)), "good");
+    G.log("".concat(c.name, "와(과) 한 달 동안 합동 훈련을 했다. 에테르 +").concat(fmt(gain)), "good");
     G.advanceMonth(1, { eventChance: 0.1 });
     return this.after("합동 훈련을 마쳤다. 에테르 +".concat(fmt(gain), ", 파티원과의 관계가 깊어졌다."));
   }

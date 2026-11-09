@@ -320,7 +320,7 @@ Object.assign(UI, {
     const gain = G.trainGain(1.6);
     G.addEther(gain);
     for (const n of G.party()) G.changeRel(n, 3);
-    G.log(`${c.name}과(와) 한 달 동안 합동 훈련을 했다. 에테르 +${fmt(gain)}`, 'good');
+    G.log(`${c.name}와(과) 한 달 동안 합동 훈련을 했다. 에테르 +${fmt(gain)}`, 'good');
     G.advanceMonth(1, { eventChance: 0.1 });
     return this.after(`합동 훈련을 마쳤다. 에테르 +${fmt(gain)}, 파티원과의 관계가 깊어졌다.`);
   },
