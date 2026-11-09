@@ -42,7 +42,7 @@ if (typeof UI !== 'undefined') {
     if (p.onboard === 'aff') {
       if (p.party && p.party.length) { p.onboard = null; return false; }
       const f = G.flags && G.flags.story && G.flags.story.affFlow;
-      const head = f && !f.done ? { type: 'leaderOffer' } : { type: 'firstParty' };
+      const head = f && !f.done && this.affStep ? { type: 'affStep', step: 'guild' } : { type: 'firstParty' };
       if (!G.queue.some((q) => q.type === head.type)) G.queue.unshift(head);
       this.processQueue(); return true;
     }
