@@ -25,3 +25,11 @@
 .cb-head h3 .pb-tag { display: inline-block; vertical-align: middle; font-size: 10px; font-weight: 700; line-height: 1; padding: 3px 5px; margin-left: 4px; border-radius: 3px; color: #0b1a10; background: #7fd99a; }
 .cb-head h3 .pb-tag.form { background: linear-gradient(90deg, #7fd99a, #ffd36b); }
 .pb-line { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 6px 0; }
+
+/* ---------- 대화창 위치 (사용자 요청) ----------
+   휴대폰 세로: 가운데 정렬이라 선택지가 뜨면 대사 상자가 위로 밀렸다.
+   대사 상자를 화면 아래쪽 일정한 자리에 고정하고(조금 더 아래), 선택지는 그 위에 쌓아 겹치지 않게 한다. */
+@media (orientation: portrait) and (max-width: 640px) {
+  html body #dlg { justify-content: flex-end; padding-bottom: calc(22vh + env(safe-area-inset-bottom, 0px)); }
+}
+#dlg .dlg-choices { margin-bottom: 4px; }

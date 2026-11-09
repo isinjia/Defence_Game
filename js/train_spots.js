@@ -99,22 +99,23 @@ Object.assign(UI, {
 });
 
 {
-  // 지도 행동 줄: 도시·특수 수련지에서만 수련·휴식 (들판에서는 숨김)
+  // 도시 화면 시설 목록 맨 앞에 수련·휴식
+  const baseCity = UI.cityHtml;
+  if (baseCity) UI.cityHtml = function (...a) {
+    let html = baseCity.apply(this, a);
+    if (!this.cityFac) html = html.replace('<div class="fac-grid">', `<div class="fac-grid"><button class="fac-tile" data-act="train-pick">${FX.icon('train', 26)}<b>수련</b><span class="small dim">수련관·공원·아지트 중 골라 한 달 수련</span></button><button class="fac-tile" data-act="rest-pick">${FX.icon('rest', 26)}<b>휴식</b><span class="small dim">숙소·아지트·공원에서 한 달 쉰다</span></button>`);
+    return html;
+  };
+}
+{
+  // 지도 행동 줄
   const baseHud = UI.hudActions;
   UI.hudActions = function (...a) {
     try { G.ensureTrainSpots(); } catch (e) { /* 탐사 상태가 없으면 넘어간다 */ }
     let html = baseHud.apply(this, a);
-    const city = G.onCity(); const spot = G.trainSpotHere();
-    const trainRe = /<button data-act="train">[\s\S]*?<\/button>/; const restRe = /<button data-act="rest">[\s\S]*?<\/button>/;
-    if (city) {
-      html = html.replace(trainRe, `<button data-act="train-pick">${FX.icon('train')} 수련 <span class="dim-in">장소 고르기</span></button>`).replace(restRe, `<button data-act="rest-pick">${FX.icon('rest')} 휴식 <span class="dim-in">1개월</span></button>`);
-    } else if (spot) {
-      const P = TRAIN_PLACES[spot.kind];
-      html = html.replace(trainRe, `<button class="primary" data-act="train-pick">${FX.icon('train')} ${P.name}에서 수련 <span class="dim-in">+${fmt(this.trainEst(P.mult))}</span></button>`);
-      html = spot.kind === 'hermit' ? html.replace(restRe, `<button data-act="rest-pick">${FX.icon('rest')} 암자에서 휴식</button>`) : html.replace(restRe, '');
-    } else {
-      html = html.replace(trainRe, '').replace(restRe, '');
-    }
+    // 사용자 요청: 전체 지도에서는 수련·휴식 버튼을 두지 않는다. 도시 안 시설과 특수 수련지(지점 들르기)에서만 한다.
+    const spot = G.trainSpotHere();
+    html = html.replace(/<button data-act="train">[\s\S]*?<\/button>/, '').replace(/<button data-act="rest">[\s\S]*?<\/button>/, '');
     // 들판의 "수련 효율 +40%" 안내는 이제 의미가 없으니 지운다
     if (!spot) html = html.replace(' · 수련 효율 +40%', '');
     return html;
@@ -122,10 +123,14 @@ Object.assign(UI, {
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
     switch (act) {
-      case 'train-pick': return this.openTrainPick();
-      case 'rest-pick': return this.openRestPick();
-      case 'train-at': { this.closeModal(); const m = G.trainAt(v); if (m) this.toast(m); return this.after(); }
-      case 'rest-at': { this.closeModal(); const m = G.restAt(v); if (m) this.toast(m); return this.after(); }
+      case 'train-pick': this._pickFromCity = !!document.querySelector('#modal-box .city-hero'); return this.openTrainPick();
+      case 'rest-pick': this._pickFromCity = !!document.querySelector('#modal-box .city-hero'); return this.openRestPick();
+      case 'train-at': case 'rest-at': {
+        const fromCity = this._pickFromCity; this._pickFromCity = false;
+        this.closeModal(); const m = act === 'train-at' ? G.trainAt(v) : G.restAt(v); if (m) this.toast(m);
+        if (fromCity && !m && this.openCity && G.onCity() && !G.queue.length) { this.renderGame(); return this.openCity(); }
+        return this.after();
+      }
       case 'site-open': { const s = G.trainSpotHere(); if (s) { s.known = true; s.visited = true; return this.openTrainPick(); } break; }
     }
     return baseHandle.call(this, act, v);
