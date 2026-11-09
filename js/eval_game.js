@@ -44,7 +44,15 @@ if (typeof Game !== 'undefined') {
 }
 if (typeof UI !== 'undefined' && UI.examEnemies) {
   const baseExamEn = UI.examEnemies;
-  UI.examEnemies = function (...a) { G._tutorialMobs = true; try { return baseExamEn.apply(this, a); } finally { G._tutorialMobs = false; } };
+  UI.examEnemies = function (...a) {
+    G._tutorialMobs = true;
+    try {
+      const list = baseExamEn.apply(this, a);
+      // 첫 구역(조작 안내 3단계)은 동료 넷이 두 턴 만에 다 잡아 '회복약' 안내 때 적이 없던 문제 → 조금 더 버티게
+      if (!a[0] && Array.isArray(list)) for (const e of list) { e.hp = e.maxHp = Math.round(e.maxHp * 1.5); e.atk = Math.round(e.atk * 1.15); }
+      return list;
+    } finally { G._tutorialMobs = false; }
+  };
 }
 
 // 파티는 머릿수만큼 적 체력만 늘고 공격은 거의 그대로라 여전히 쉬웠다 → 3인 이상이면 적 공격을 조금 더.
