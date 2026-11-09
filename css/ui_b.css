@@ -319,3 +319,8 @@
 .foe.unleash .fx-host { animation: unleash .45s ease-out; }
 @keyframes unleash { 0% { filter: brightness(3) drop-shadow(0 0 22px #fff); transform: scale(1.15); } 100% { filter: none; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .foe.pose-ready .sprite, .foe.pose-charge .sprite, .foe.pose-charge .fx-host::after { animation: none; } }
+
+/* 대화창: 휴대폰 세로에서는 화면 가운데쯤에 (맨 아래는 엄지·제스처 막대와 겹치고 시선이 멀다) */
+@media (orientation: portrait) and (max-width: 640px) {
+  body #dlg { justify-content: center; padding-bottom: calc(12vh + env(safe-area-inset-bottom, 0px)); background: radial-gradient(ellipse at 50% 55%, #04060ad9 0%, #04060a99 45%, #04060a40 80%, #0000 100%); }
+}
