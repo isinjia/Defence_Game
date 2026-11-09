@@ -228,7 +228,7 @@ Object.assign(UI, {
     this.councilPanel(`<div class="cn-card"><b>팀 상의 · <span style="color:${GNODE[nd.t].color}">${GNODE[nd.t].name}</span></b>
       <div class="coach lead-say"><span class="eyebrow">${this.examMapLeadName ? this.examMapLeadName() : '리더'}</span><div>${L && L.personality === 'cold' ? '가기 전에 다들 의견. 반대 있으면 지금 말해.' : '가기 전에 다들 의견을 들어 보자. 반대하는 사람이 있으면 지금 말해.'}</div></div>
       <div class="cn-mems">${this.councilVotesHtml({ votes })}</div>
-      <p class="small dim">길을 정하기 전에 팀원들이 O·X로 의견을 낸다. X가 있으면 리더는 그냥 진행(강행)하거나 상의할 수 있다. 어느 쪽을 고르느냐에 따라 팀원과의 관계가 변한다. 이 시험에서는 당신이 길을 고르니, 당신이 정해 보자.<br>그리고 탐색 중(층 지도)에는 귀환석으로 언제든 게이트를 빠져나올 수 있다. 전투 중이나, 레드·이중 던전 같은 변이 게이트에서는 안 된다.</p>
+      <p class="small dim">길을 정하기 전에 팀원들이 O·X로 의견을 낸다. X가 있으면 리더는 그냥 진행(강행)하거나 상의할 수 있다. 어느 쪽을 고르느냐에 따라 팀원과의 관계가 변한다. 이 시험에서는 당신이 길을 고르니, 당신이 정해 보자.<br>일반 게이트에서는 층 지도의 "철수"로 언제든 빠져나올 수 있다. 레드·이중 던전 같은 변이 게이트는 철수가 막힌다. 그때 살길은 귀환석뿐이다. 귀환석은 전투 중이든 변이 게이트든 어디서나 통하지만, 한 생에 몇 번 만져 보기 어려울 만큼 귀하다.</p>
       <div class="cn-btns"><button class="danger" data-act="cn-tut" data-v="force">그냥 진행</button><button class="primary" data-act="cn-tut" data-v="talk">상의하기</button></div></div>`);
   },
   councilTutNext(v) {

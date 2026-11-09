@@ -356,7 +356,7 @@ S({ id: 'nb_end', trigger: 'system', npc: 'here',
     const v = NB_VOICE[nb.voice] || NB_VOICE.free; const m = G.npcById(nb.mentor);
     const go = (t) => {
       if (!this.goBtn) return '';
-      if (t.id === 'gate') { const p = G.player; const d = (o) => Math.max(Math.abs(o.x - p.x), Math.abs(o.y - p.y)); const gt = G.mapGates.filter((x) => G.revealed(x.x, x.y) && x.tier <= p.rankIdx + 1).sort((a, b) => d(a) - d(b))[0]; return gt ? `<button class="sm" data-act="travel-xy" data-v="${gt.x},${gt.y}">이동</button>` : ''; }
+      if (t.id === 'gate') { const p = G.player; const d = (o) => Math.max(Math.abs(o.x - p.x), Math.abs(o.y - p.y)); const gt = G.mapGates.filter((x) => G.revealed(x.x, x.y) && x.tier <= p.rankIdx + (G.party().length >= 2 ? 1 : 0)).sort((a, b) => d(a) - d(b))[0]; return gt ? `<button class="sm" data-act="travel-xy" data-v="${gt.x},${gt.y}">이동</button>` : ''; }
       if (t.id === 'report') { const q = G.player.quests.find((x) => x.kind === 'bounty' && x.status === 'done'); return q ? this.goBtn(q.from) : ''; }
       if (t.id === 'take' || t.id === 'craft') return G.onCity() ? '' : this.goBtn(this.nearestCity ? this.nearestCity() : G.player.region);
       return '';
