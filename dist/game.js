@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.38";
+const GAME_VERSION = "0.39";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -16561,7 +16561,7 @@ const ECO = {
         n.renown = (n.renown || 0) + g.tier + 1;
       }
       if (actor.kind === "guild" && this.world.guildPrestige) this.world.guildPrestige[actor.guild] = (this.world.guildPrestige[actor.guild] || 0) + 1 + Math.floor(g.tier / 2);
-      if (g.tier >= 3 || known.length) this.rumor("".concat(actor.name).concat(team.length ? "(".concat(team.map((n) => n.name).join("·"), ")") : "", "이(가) ").concat(label, "을(를) 닫았다."));
+      if (g.tier >= 3 || known.length) this.rumor("".concat(actor.name).concat(team.length ? "(".concat(team.map((n) => n.name).join("·"), ")") : "", "이(가) ").concat(label, "을(를) 닫았다."), { kind: "eco-ok", thread: "gate:" + g.id });
       if (known.length) this.log("".concat(known.map((n) => n.name).join("·"), "이(가) 속한 ").concat(actor.name, "이(가) ").concat(label, "을(를) 공략했다."), "good");
       if (g.variant === "misrank") this.rumor("".concat(label, "은(는) 알고 보니 ").concat(RANKS[this.ecoRealTier(g)].key, "급이었다고 한다."));
       return;
@@ -16575,7 +16575,7 @@ const ECO = {
       dead.push(n);
     }
     g.lastFail = actor.name;
-    if (g.tier >= 3 || dead.length || team.some((n) => n.met)) this.rumor("".concat(actor.name, "이(가) ").concat(label, " 공략에 실패했다.").concat(dead.length ? " ".concat(dead.map((n) => n.name).join("·"), "은(는) 돌아오지 못했다.") : " 전원 부상으로 철수."));
+    if (g.tier >= 3 || dead.length || team.some((n) => n.met)) this.rumor("".concat(actor.name, "이(가) ").concat(label, " 공략에 실패했다.").concat(dead.length ? " ".concat(dead.map((n) => n.name).join("·"), "은(는) 돌아오지 못했다.") : " 전원 부상으로 철수."), { kind: "eco-fail", thread: "gate:" + g.id, score: dead.length ? 1 : 0 });
     for (const n of dead) if (n.met) {
       this.log("".concat(n.name, "이(가) ").concat(label, "에서 돌아오지 못했다."), "bad");
       this.lifeEvent && n.relation >= 40 && this.lifeEvent("".concat(n.name, "을(를) 게이트에서 잃었다."));
@@ -16600,7 +16600,7 @@ const ECO = {
     if (g.bid) this.log("당신의 길드가 낙찰받고 방치한 게이트가 터졌다. 길드 안에서 책임론이 돈다.", "bad");
   };
   GP.breakingNews = function(head, tail) {
-    this.rumor(head + (tail ? " " + tail : ""));
+    this.rumor(head + (tail ? " " + tail : ""), { kind: "break", score: 2 });
     this.log(head, "major");
     this.queue.push({ type: "toast", text: head });
     this.world.breaking = { text: head, mk: this.monthKey() };
@@ -16624,7 +16624,7 @@ const ECO = {
       const f = this.ecoForm(g);
       if (!f) continue;
       g.raid = { actor: f.actor, ids: f.team.map((n) => n.id), at: mk };
-      if (f.team.some((n) => n.met) || g.tier >= 4) this.rumor("".concat(f.actor.name, "이(가) ").concat(regionById(g.region).name, " ").concat(RANKS[g.tier].key, "급 게이트에 들어갔다."));
+      if (f.team.some((n) => n.met) || g.tier >= 4) this.rumor("".concat(f.actor.name, "이(가) ").concat(regionById(g.region).name, " ").concat(RANKS[g.tier].key, "급 게이트에 들어갔다."), { kind: "eco-in", thread: "gate:" + g.id, score: -1 });
     }
   };
   wrap("spawnMonthly", function(base) {
@@ -17027,5 +17027,119 @@ Object.assign(UI, {
       else c.fill();
     }
     baseObjs.call(this);
+  };
+}
+const NEWS_KEYWORDS = [
+  [/속보|긴급/, 6],
+  [/SS급/, 4],
+  [/(^|[^S])S급/, 3],
+  [/A급/, 1],
+  [/브레이크/, 3],
+  [/돌아오지 못했다|세상을 떠났다|살해|희생|전사/, 2],
+  [/길드|관리국|협회/, 1],
+  [/결혼|갈라섰다|결투/, 1],
+  [/우승|랭킹|판정|이변/, 2]
+];
+{
+  const GP = Game.prototype;
+  const wrap = (name, fn) => {
+    const base = GP[name];
+    GP[name] = function(...a) {
+      return fn.call(this, base, ...a);
+    };
+  };
+  GP.newsScore = function(text, meta = {}) {
+    let s = 1;
+    for (const [re, v] of NEWS_KEYWORDS) if (re.test(text)) s += v;
+    const p = this.player;
+    if (p && p.name && text.includes(p.name)) s += 3;
+    if (this.npcs) {
+      for (const n of this.npcs) if (n.met && n.name && text.includes(n.name)) {
+        s += n.relation >= 40 || n.relation <= -30 ? 4 : 2;
+        break;
+      }
+    }
+    const kind = meta.kind;
+    if (kind && this.rumors) {
+      const mk = this.monthKey();
+      const same = this.rumors.filter((r) => {
+        var _a;
+        return r.kind === kind && mk - ((_a = r.mk) != null ? _a : mk) <= 3;
+      }).length;
+      s -= Math.min(3, same);
+    }
+    return Math.max(0, s + (meta.score || 0));
+  };
+  GP.newsThread = function(text, meta) {
+    if (meta.thread) return meta.thread;
+    if (/브레이크/.test(text)) {
+      const r = REGIONS.find((x) => text.includes(x.name));
+      if (r) return "break:" + r.id;
+    }
+    return null;
+  };
+  wrap("rumor", function(base, text, meta = {}) {
+    base.call(this, text);
+    const r = this.rumors[0];
+    if (!r) return;
+    r.mk = this.monthKey();
+    r.score = this.newsScore(r.text, meta);
+    const th = this.newsThread(r.text, meta);
+    if (th) r.thread = th;
+    if (meta.kind) r.kind = meta.kind;
+    if (th) r.follow = this.rumors.filter((x) => {
+      var _a;
+      return x !== r && x.thread === th && r.mk - ((_a = x.mk) != null ? _a : r.mk) <= 12;
+    }).length;
+  });
+  GP.headlines = function(n = 4, months = 3) {
+    const mk = this.monthKey();
+    const seen = /* @__PURE__ */ new Set();
+    const out = [];
+    const recent = this.rumors.filter((r) => {
+      var _a;
+      return mk - ((_a = r.mk) != null ? _a : -99) <= months;
+    });
+    for (const r of recent) {
+      if (r.thread) {
+        if (seen.has(r.thread)) continue;
+        seen.add(r.thread);
+      }
+      out.push(r);
+    }
+    return out.sort((a, b) => (b.score || 0) - (a.score || 0) || (b.mk || 0) - (a.mk || 0)).slice(0, n);
+  };
+  GP.breakingNow = function() {
+    const b = this.world && this.world.breaking;
+    return b && this.monthKey() - b.mk <= 1 ? b : null;
+  };
+}
+if (typeof UI !== "undefined") {
+  const esc = (s) => String(s);
+  const line = (r, cls = "") => '<div class="l '.concat(cls, '"><span class="d">').concat(r.date, "</span>").concat(esc(r.text)).concat(r.follow ? ' <span class="tag">후속 '.concat(r.follow, "</span>") : "", "</div>");
+  UI.headlinesHtml = function(n = 4) {
+    const hs = G.headlines(n);
+    if (!hs.length) return "";
+    return '<div class="sec-title">오늘의 헤드라인</div><div class="logs">'.concat(hs.map((r, i) => line(r, i === 0 && (r.score || 0) >= 7 ? "major" : "")).join(""), "</div>");
+  };
+  const baseRight = UI.rightHtml;
+  UI.rightHtml = function() {
+    const html = baseRight.call(this);
+    const hl = this.headlinesHtml(5);
+    if (!hl) return html;
+    const at = html.indexOf('<div class="sec-title">헌터 커뮤니티 소문</div>');
+    return at >= 0 ? html.slice(0, at) + hl + html.slice(at) : html + hl;
+  };
+  const baseObj = UI.hudObjective;
+  if (baseObj) UI.hudObjective = function() {
+    const html = baseObj.call(this);
+    const b = G.breakingNow();
+    if (!b) return html;
+    return '<div class="obj news major"><b>속보</b> '.concat(esc(b.text.replace(/^속보:\s*/, "")), "</div>") + html;
+  };
+  const ev = typeof STORY !== "undefined" && STORY.find((e) => e.id === "arrive_news");
+  if (ev && ev.choices && ev.choices[0]) ev.choices[0].do = (g) => {
+    const hs = g.headlines(3);
+    return hs.length ? hs.map((r) => '"'.concat(r.text, '"')).join("\n") : "별다른 소식은 없었다.";
   };
 }

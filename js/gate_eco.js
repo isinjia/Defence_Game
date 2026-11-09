@@ -91,7 +91,7 @@ const ECO = {
       this.mapGates = this.mapGates.filter((x) => x.id !== g.id);
       for (const n of team) { n.progress = Math.min(1, (n.progress || 0) + 0.15); n.renown = (n.renown || 0) + g.tier + 1; }
       if (actor.kind === 'guild' && this.world.guildPrestige) this.world.guildPrestige[actor.guild] = (this.world.guildPrestige[actor.guild] || 0) + 1 + Math.floor(g.tier / 2);
-      if (g.tier >= 3 || known.length) this.rumor(`${actor.name}${team.length ? `(${team.map((n) => n.name).join('·')})` : ''}이(가) ${label}을(를) 닫았다.`);
+      if (g.tier >= 3 || known.length) this.rumor(`${actor.name}${team.length ? `(${team.map((n) => n.name).join('·')})` : ''}이(가) ${label}을(를) 닫았다.`, { kind: 'eco-ok', thread: 'gate:' + g.id });
       if (known.length) this.log(`${known.map((n) => n.name).join('·')}이(가) 속한 ${actor.name}이(가) ${label}을(를) 공략했다.`, 'good');
       if (g.variant === 'misrank') this.rumor(`${label}은(는) 알고 보니 ${RANKS[this.ecoRealTier(g)].key}급이었다고 한다.`);
       return;
@@ -102,7 +102,7 @@ const ECO = {
     const deathP = ECO.deathOnFail * (g.variant === 'red' ? 2 : 1) * (this.ecoRealTier(g) > g.tier ? 1.5 : 1);
     for (const n of team) if (RNG.chance(deathP)) { this.killNpc(n, '게이트'); dead.push(n); }
     g.lastFail = actor.name;
-    if (g.tier >= 3 || dead.length || team.some((n) => n.met)) this.rumor(`${actor.name}이(가) ${label} 공략에 실패했다.${dead.length ? ` ${dead.map((n) => n.name).join('·')}은(는) 돌아오지 못했다.` : ' 전원 부상으로 철수.'}`);
+    if (g.tier >= 3 || dead.length || team.some((n) => n.met)) this.rumor(`${actor.name}이(가) ${label} 공략에 실패했다.${dead.length ? ` ${dead.map((n) => n.name).join('·')}은(는) 돌아오지 못했다.` : ' 전원 부상으로 철수.'}`, { kind: 'eco-fail', thread: 'gate:' + g.id, score: dead.length ? 1 : 0 });
     for (const n of dead) if (n.met) { this.log(`${n.name}이(가) ${label}에서 돌아오지 못했다.`, 'bad'); this.lifeEvent && n.relation >= 40 && this.lifeEvent(`${n.name}을(를) 게이트에서 잃었다.`); }
     for (const n of team) if (n.alive && n.met) this.log(`${n.name}이(가) ${label}에서 다쳐 돌아왔다.`, 'bad');
   };
@@ -127,7 +127,7 @@ const ECO = {
   };
 
   GP.breakingNews = function (head, tail) {
-    this.rumor(head + (tail ? ' ' + tail : ''));
+    this.rumor(head + (tail ? ' ' + tail : ''), { kind: 'break', score: 2 });
     this.log(head, 'major');
     this.queue.push({ type: 'toast', text: head });
     this.world.breaking = { text: head, mk: this.monthKey() };
@@ -146,7 +146,7 @@ const ECO = {
       const f = this.ecoForm(g);
       if (!f) continue;
       g.raid = { actor: f.actor, ids: f.team.map((n) => n.id), at: mk };
-      if (f.team.some((n) => n.met) || g.tier >= 4) this.rumor(`${f.actor.name}이(가) ${regionById(g.region).name} ${RANKS[g.tier].key}급 게이트에 들어갔다.`);
+      if (f.team.some((n) => n.met) || g.tier >= 4) this.rumor(`${f.actor.name}이(가) ${regionById(g.region).name} ${RANKS[g.tier].key}급 게이트에 들어갔다.`, { kind: 'eco-in', thread: 'gate:' + g.id, score: -1 });
     }
   };
 
