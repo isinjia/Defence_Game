@@ -21,3 +21,20 @@ if (typeof UI !== 'undefined' && UI.coachPop) {
     return r;
   };
 }
+
+// '현재 퀘스트' 칸에 첫 해 수첩 과제가 안 보여 "진행 중인 의뢰가 없다"만 뜨던 문제(독립 평가): 맨 위에 과제 한 줄.
+if (typeof UI !== 'undefined' && UI.hudQuests) {
+  const baseHq = UI.hudQuests;
+  UI.hudQuests = function () {
+    let html = baseHq.call(this);
+    try {
+      const t = G.nbTask && G.nbTask(); const nb = G.player && G.player.notebook;
+      if (t && nb) {
+        const row = `<button class="obj-link hq nb-task" data-act="sheet" data-v="quest"><span class="hq-mark">◆</span><span class="hq-t">수첩 ${nb.i + 1}/${NB_TASKS.length} · ${t.name}</span></button>`;
+        html = html.replace('<div class="obj-sub">진행 중인 의뢰가 없다. 도시 의뢰소에서 받을 수 있다.</div>', '')
+          .replace('<div class="obj-title">현재 퀘스트</div>', `<div class="obj-title">현재 퀘스트</div>${row}`);
+      }
+    } catch (e) { /* 무시 */ }
+    return html;
+  };
+}
