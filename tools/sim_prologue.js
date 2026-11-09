@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const root = path.join(__dirname, '..');
-const files = ['js/data.js', 'js/game.js', 'js/data_classes.js', 'js/prologue.js', 'js/pro_arcs_a.js', 'js/pro_arcs_b.js', 'js/pro_arcs_c.js', 'js/pro_hooks.js'];
+const files = ['js/data.js', 'js/game.js', 'js/data_classes.js', 'js/prologue.js', 'js/pro_arcs_a.js', 'js/pro_arcs_b.js', 'js/pro_arcs_c.js', 'js/pro_hooks.js', 'js/pro_life.js'];
 const src = files.filter((f) => fs.existsSync(path.join(root, f))).map((f) => fs.readFileSync(path.join(root, f), 'utf8')).join('\n');
 const out = new Function(`${src}; return { P: PROLOGUE, PS: PROLOGUE_START, R: resolvePrologue, remember: proRemember, text: proText, sceneText: proSceneText, CLASSES, H: typeof PRO_HOOKS !== 'undefined' ? PRO_HOOKS : {} };`)();
 const { P, PS, R, remember, text, sceneText, CLASSES, H } = out;
