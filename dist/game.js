@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.39";
+const GAME_VERSION = "0.40";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -17141,5 +17141,125 @@ if (typeof UI !== "undefined") {
   if (ev && ev.choices && ev.choices[0]) ev.choices[0].do = (g) => {
     const hs = g.headlines(3);
     return hs.length ? hs.map((r) => '"'.concat(r.text, '"')).join("\n") : "별다른 소식은 없었다.";
+  };
+}
+Object.assign(Game.prototype, {
+  // 공략팀의 출발 칸과 도착 예정일
+  raidRoute(g) {
+    var _a;
+    const r = g.raid;
+    if (!r) return null;
+    if (!r.from) {
+      const lead = (r.ids || []).map((id) => this.npcById(id)).find((n) => n);
+      const rid = lead && WORLD.cityPos[lead.region] ? lead.region : g.region;
+      r.from = WORLD.cityPos[rid].slice();
+    }
+    const dist = Math.max(Math.abs(r.from[0] - g.x), Math.abs(r.from[1] - g.y));
+    (_a = r.eta) != null ? _a : r.eta = Math.max(2, Math.min(20, dist + 1));
+    return { from: r.from, to: [g.x, g.y], eta: r.eta, dist };
+  },
+  // 이번 달 경과일 기준 공략팀 위치 (도착하면 게이트 위)
+  raidPos(g) {
+    const rt = this.raidRoute(g);
+    if (!rt) return null;
+    const started = g.raid.at === this.monthKey() ? 1 : -99;
+    const k = Math.max(0, Math.min(1, (this.day - started) / rt.eta));
+    return { x: rt.from[0] + (rt.to[0] - rt.from[0]) * k, y: rt.from[1] + (rt.to[1] - rt.from[1]) * k, arrived: k >= 1, left: Math.max(0, Math.ceil(rt.eta - (this.day - started))) };
+  },
+  actorColor(actor) {
+    if (!actor) return "#c9ced6";
+    if (actor.guild && GUILDS[actor.guild]) return GUILDS[actor.guild].color;
+    return actor.kind === "assoc" ? "#7fb6ff" : "#c9ced6";
+  },
+  // 브레이크 도시로 몰려드는 헌터 무리 (보이기용, 결정론적)
+  breakRushers(b) {
+    var _a;
+    const [cx, cy] = WORLD.cityPos[b.city];
+    const elapsed = (this.monthKey() - ((_a = b.at) != null ? _a : this.monthKey())) * 30 + this.day;
+    const out = [];
+    for (let k = 0; k < 4; k++) {
+      const h = FX.hash("".concat(b.city, ":").concat(b.at, ":").concat(k));
+      const ang = h % 360 * Math.PI / 180;
+      const r0 = 5 + h % 4;
+      const speed = 0.4 + (h >> 4) % 5 * 0.12;
+      const r = Math.max(0.8, r0 - elapsed * speed);
+      const x = cx + Math.cos(ang) * r, y = cy + Math.sin(ang) * r;
+      const ix = Math.round(x), iy = Math.round(y);
+      if (!WORLD.inb(ix, iy)) continue;
+      const t = WORLD.type(ix, iy);
+      if (t === WORLD.T.SEA || t === WORLD.T.NORTH) continue;
+      out.push({ x, y, color: ["#46e0d0", "#ffb547", "#7fb6ff", "#c58cff"][k] });
+    }
+    return out;
+  }
+});
+{
+  const baseTip = UI.showTip;
+  UI.showTip = function(x, y) {
+    baseTip.call(this, x, y);
+    const tip = document.getElementById("hud-tip");
+    if (!tip) return;
+    const g = G.objAt(x, y);
+    if (!g || g.kind !== "gate" || !g.raid || !G.revealed(x, y)) return;
+    const pos = G.raidPos(g);
+    if (!pos) return;
+    const team = (g.raid.ids || []).map((id) => G.npcById(id)).filter((n) => n);
+    const who = "".concat(g.raid.actor.name).concat(team.length ? " ".concat(team.map((n) => n.name).slice(0, 3).join("·"), " 일행") : "");
+    tip.insertAdjacentHTML("beforeend", fixJosa('<div class="small '.concat(pos.arrived ? "bad" : "amber", '">').concat(pos.arrived ? "".concat(who, "이(가) 안에서 공략 중. 다음 달 초면 결판이 난다.") : "".concat(who, "이(가) 향하는 중 · ").concat(pos.left, "일 뒤 도착. 먼저 닫으려면 서둘러야 한다."), "</div>")));
+  };
+  const MP = MapView.prototype;
+  const baseObjs = MP.drawObjects;
+  MP.drawObjects = function() {
+    baseObjs.call(this);
+    if (!G.player || !G.mapGates) return;
+    const c = this.ctx, s = this.tile, t = this.t;
+    const drawGroup = (x, y, col, n, bob) => {
+      const [px, py] = this.toScreen(x + 0.5, y + 0.5);
+      if (px < -s || py < -s || px > this.w + s || py > this.hgt + s) return null;
+      for (let k = 0; k < n; k++) {
+        const ox = (k - (n - 1) / 2) * s * 0.16, oy = k % 2 * s * 0.06 + Math.sin(t / 9 + k + bob) * 1.2;
+        c.fillStyle = "#05080d";
+        c.beginPath();
+        c.arc(px + ox, py + oy, s * 0.1, 0, Math.PI * 2);
+        c.fill();
+        c.fillStyle = col;
+        c.beginPath();
+        c.arc(px + ox, py + oy, s * 0.075, 0, Math.PI * 2);
+        c.fill();
+      }
+      return [px, py];
+    };
+    for (const g of G.mapGates) {
+      if (!g.raid) continue;
+      const pos = G.raidPos(g);
+      if (!pos || pos.arrived) continue;
+      const ix = Math.round(pos.x), iy = Math.round(pos.y);
+      if (!WORLD.inb(ix, iy) || !G.revealed(ix, iy)) continue;
+      const col = G.actorColor(g.raid.actor);
+      if (G.revealed(g.x, g.y)) {
+        const [ax, ay] = this.toScreen(pos.x + 0.5, pos.y + 0.5), [bx, by] = this.toScreen(g.x + 0.5, g.y + 0.5);
+        c.strokeStyle = col;
+        c.globalAlpha = 0.45;
+        c.lineWidth = 1.5;
+        c.setLineDash([3, 5]);
+        c.lineDashOffset = -t / 3;
+        c.beginPath();
+        c.moveTo(ax, ay);
+        c.lineTo(bx, by);
+        c.stroke();
+        c.setLineDash([]);
+        c.globalAlpha = 1;
+      }
+      const n = Math.max(1, Math.min(4, (g.raid.ids || []).length || 3));
+      const at = drawGroup(pos.x, pos.y, col, n, g.id);
+      if (at && s > 30) this.chip(at[0], at[1] - s * 0.36, "".concat(g.raid.actor.name.replace(" 각성자단", "").replace(" 시큐리티", ""), " ").concat(pos.left, "일"), col);
+    }
+    for (const b of G.world && G.world.breaks || []) {
+      if (!WORLD.cityPos[b.city]) continue;
+      for (const r of G.breakRushers(b)) {
+        if (!G.revealed(Math.round(r.x), Math.round(r.y))) continue;
+        drawGroup(r.x, r.y, r.color, 2, r.x);
+      }
+    }
   };
 }
