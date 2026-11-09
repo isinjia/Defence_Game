@@ -33,7 +33,8 @@ const PORTRAIT = (() => {
       if (style === 'spiky') { len = 22 + r() * 14; lean = (mid - 0.5) * 30; }
       if (style === 'cover' && k === (n >> 1) + 1) { len = 58; lean = 10; }
       const mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
-      const tx = mx + lean, ty = Math.min(my + len, 116);
+      // 바깥쪽 가닥이 얼굴 밖으로 삐져나와 가는 선처럼 보이지 않게, 끝을 옆머리 안쪽으로 모은다
+      const tx = Math.max(72, Math.min(128, mx + lean)), ty = Math.min(my + len, 116);
       d += `M${f(x0)} ${f(y0)}Q${f(x0 + (tx - x0) * 0.35 - 3)} ${f(y0 + (ty - y0) * 0.6)} ${f(tx)} ${f(ty)}Q${f(x1 + (tx - x1) * 0.4 + 3)} ${f(y1 + (ty - y1) * 0.55)} ${f(x1)} ${f(y1)}Z`;
     }
     return d;
@@ -177,7 +178,8 @@ const PORTRAIT = (() => {
     // ---- 머리카락
     const MASS = 'M62 122C53 60 76 27 100 27C124 27 147 60 138 122C135 130 131 131 128 126L127 104L73 104L72 126C69 131 65 130 62 122Z';
     const CAP = 'M66 92C63 56 80 35 100 35C120 35 137 56 134 92C129 72 117 63 100 63C83 63 71 72 66 92Z';
-    const LOCK = (back === 'none' || back === 'tail') ? 'M70 80C64 96 65 112 69 122L72 110L75 118C75 104 75 92 77 84Z' : 'M70 76C62 100 64 126 71 146L73 128L77 140C77 116 76 96 78 84Z';
+    // 옆머리: 관자놀이에서 윗머리 밑으로 이어져 귀를 덮고, 뺨선을 따라 부드럽게 끝난다 (톱니 끝 없이)
+    const LOCK = (back === 'none' || back === 'tail') ? 'M65 70C61 88 62 108 68 124C70.5 119 73 112 75 104C75.5 92 77 82 80 74Z' : 'M64 70C59 96 61 124 69 146C72.5 137 75.5 124 77 110C77.5 96 78 84 81 74Z';
     const bangD = bangs(r, bangStyle);
     let extra = '';
     if (race === 'beastkin') { const fox = r() < 0.5; extra += `<path d="M70 58L${fox ? 60 : 64} ${fox ? 16 : 24}L90 42Z" fill="${hair}" stroke="${line}" stroke-width=".9"/><path d="M73 52L66 28L84 42Z" fill="#e8a8b0" opacity=".7"/><path d="M130 58L${fox ? 140 : 136} ${fox ? 16 : 24}L110 42Z" fill="${hair}" stroke="${line}" stroke-width=".9"/><path d="M127 52L134 28L116 42Z" fill="#e8a8b0" opacity=".7"/>`; }
@@ -189,8 +191,7 @@ const PORTRAIT = (() => {
     const hairFront = st === 'baby' ? `<path d="M74 70C76 52 88 46 100 46C112 46 124 52 126 70C118 60 110 58 100 58C90 58 82 60 74 70Z" fill="${hair}"/><path d="M98 47Q104 36 111 42Q104 42 101 49Z" fill="${hair}" stroke="${line}" stroke-width=".8"/>` : `<path d="${bangD}" fill="${hair}" stroke="${line}" stroke-width=".9" stroke-linejoin="round"/>
       <path d="${LOCK}" fill="${hair}" stroke="${line}" stroke-width=".9"/><path d="${LOCK}" transform="translate(200 0) scale(-1 1)" fill="${hair}" stroke="${line}" stroke-width=".9"/>
       <path d="${CAP}" fill="${hair}"/>
-      <path d="${shine(r)}" stroke="${hairHi}" stroke-width="2.4" fill="none" opacity="${light ? 0.55 : 0.4}" stroke-linecap="round"/>
-      <path d="M131 76C138 96 137 118 132 132" stroke="${ec}" stroke-width="1.6" fill="none" opacity=".7"/>`;
+      <path d="${shine(r)}" stroke="${hairHi}" stroke-width="2.4" fill="none" opacity="${light ? 0.55 : 0.4}" stroke-linecap="round"/>`;
     const massSvg = st === 'baby' ? '' : `<path d="${MASS}" fill="${hair}"/><path d="${MASS}" fill="none" stroke="${line}" stroke-width="1"/>
       <path d="M72 82C80 68 90 64 100 64C110 64 120 68 128 82L128 104L72 104Z" fill="${hairSh}" opacity=".55"/>
       <path d="M138 120C146 60 124 28 100 28" stroke="${ec}" stroke-width="2" fill="none" opacity=".55"/>`;
