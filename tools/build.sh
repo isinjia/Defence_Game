@@ -9,6 +9,7 @@ SRC=(js/data.js js/data_classes.js js/prologue.js js/pro_arcs_a.js js/pro_arcs_b
 cat "${SRC[@]}" > dist/game.src.js
 ESBUILD="npx --yes esbuild@0.24.0"
 $ESBUILD dist/game.src.js --target=es2017,chrome61,safari11 --charset=utf8 --log-level=warning --outfile=dist/game.js
-$ESBUILD css/style.css --target=chrome61,safari11 --charset=utf8 --log-level=warning --outfile=dist/style.css
-rm dist/game.src.js
+cat css/style.css css/ui_b.css > dist/style.src.css
+$ESBUILD dist/style.src.css --target=chrome61,safari11 --charset=utf8 --log-level=warning --outfile=dist/style.css
+rm dist/game.src.js dist/style.src.css
 echo "built dist/game.js ($(wc -c < dist/game.js) bytes), dist/style.css ($(wc -c < dist/style.css) bytes)"

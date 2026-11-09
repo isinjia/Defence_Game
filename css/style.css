@@ -571,36 +571,6 @@ button.item-row { width: 100%; text-align: left; }
 .form-chip.empty { justify-content: center; border-style: dashed; color: var(--dim, #9aa6b8); }
 @media (max-width: 640px) { .form-slots { grid-template-columns: 1fr 1fr; } }
 
-/* ---------- 전투 조작 하단 고정 · 머리말 정리 (영역 B) ---------- */
-.modal-box.combat-box { overscroll-behavior: contain; }
-.combat-box #cb-ctrl { position: sticky; bottom: -18px; z-index: 3; margin: 8px -18px -18px; padding: 8px 18px calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--panel-solid); border-top: 1px solid var(--line-hi); box-shadow: 0 -10px 20px -8px #000c; }
-.combat-box .cb-head h3 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-@media (max-width: 640px) {
-  .modal-box.combat-box { padding: 10px; }
-  .combat-box #cb-ctrl { bottom: -10px; margin: 6px -10px -10px; padding: 6px 10px calc(8px + env(safe-area-inset-bottom, 0px)); }
-  .combat-box .cb-head { gap: 4px 8px; margin-bottom: 6px; }
-  .combat-box .cb-head h3 { flex: 1 1 100%; font-size: 15px; }
-  .combat-box #cb-round { display: none; }
-  .combat-box .stage { padding: 8px 6px 6px; }
-  .combat-box .skill-info { padding: 6px 8px; margin-bottom: 6px; }
-  .combat-box .skill-info .small.dim { display: none; }
-  .combat-box .skill-btn { padding: 6px 8px; }
-  .combat-box .ctrl-row { margin: 6px 0 2px; gap: 4px; flex-wrap: wrap; }
-}
-#cb-coach .coach { margin: 0 0 6px; }
-@media (max-width: 640px) {
-  .combat-box .skill-btns { gap: 4px; }
-  .combat-box .skill-btn { padding: 5px 8px; min-height: 44px; }
-  .combat-box .skill-btn b { font-size: 13px; }
-  .combat-box .skill-btn .small { font-size: 11px; }
-  .combat-box .ctrl-row { flex-wrap: nowrap; }
-  .combat-box .ctrl-row .grow { display: none; }
-  .combat-box .ctrl-row button { flex: 1 1 auto; padding: 6px 4px; font-size: 12px; min-height: 40px; white-space: nowrap; justify-content: center; }
-  .combat-box .cb-hint { font-size: 12px; margin-top: 2px; }
-  #cb-coach .coach { font-size: 12.5px; padding: 6px 8px; }
-}
-.combat-box #cb-ctrl:not(.cb-done) { max-height: 72vh; overflow: auto; }
-.combat-box #cb-ctrl.cb-done { position: static; box-shadow: none; }
 /* ===== 기연 단서 · 자동 이동 (story_clues.js) ===== */
 .obj-row { display: flex; gap: 4px; align-items: stretch; }
 .obj-row .obj-link { flex: 1; min-width: 0; }
