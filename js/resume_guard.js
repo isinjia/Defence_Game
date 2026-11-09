@@ -18,8 +18,10 @@ if (typeof Game !== 'undefined') {
 if (typeof UI !== 'undefined') {
   const baseStart = UI.startExam;
   UI.startExam = function () {
-    if (G.player) { G.player.onboard = 'exam'; G.save(); }
-    return baseStart.apply(this, arguments);
+    if (G.player) G.player.onboard = 'exam';
+    const r = baseStart.apply(this, arguments);
+    if (G.player) G.save(); // 시험 인물까지 저장해야 이어하기 때 같은 사람들이 나온다
+    return r;
   };
 
   const baseEnd = UI.endExam;
@@ -34,6 +36,10 @@ if (typeof UI !== 'undefined') {
     return r;
   };
 
+  const baseParty = UI.makeExamParty, baseLeader = UI.makeExamLeader;
+  UI.makeExamParty = function () { return this._reuseExam ? this._reuseExam.ids.slice() : baseParty.apply(this, arguments); };
+  UI.makeExamLeader = function () { return this._reuseExam ? this._reuseExam.leader : baseLeader.apply(this, arguments); };
+
   const baseDone = UI.firstPartyDone;
   UI.firstPartyDone = function () {
     if (G.player) G.player.onboard = null;
@@ -44,9 +50,12 @@ if (typeof UI !== 'undefined') {
   UI.resumeOnboard = function () {
     const p = G.player; if (!p || !p.onboard || G.over) return false;
     if (p.onboard === 'exam') {
-      // 끊긴 시험의 동기·리더는 지우고 처음부터
-      G.npcs = G.npcs.filter((n) => !(n.examMate || n.examLeader) || n.isCompanion);
-      this.closeModal(); this.startExam(); return true;
+      // 끊긴 시험의 동기·리더를 그대로 다시 데려온다 (새로 뽑으면 앞서 본 대사와 이름이 어긋난다)
+      const mates = G.npcs.filter((n) => n.examMate && n.alive !== false && !n.isCompanion).map((n) => n.id);
+      const lead = G.npcs.filter((n) => n.examLeader && n.alive !== false).pop();
+      this._reuseExam = mates.length && lead ? { ids: mates.slice(-3), leader: lead.id } : null;
+      if (!this._reuseExam) G.npcs = G.npcs.filter((n) => !(n.examMate || n.examLeader) || n.isCompanion);
+      this.closeModal(); try { this.startExam(); } finally { this._reuseExam = null; } return true;
     }
     if (p.onboard === 'aff') {
       if (p.party && p.party.length) { p.onboard = null; return false; }

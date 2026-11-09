@@ -16,3 +16,8 @@
 /* (창이 열려 있을 때 아래로 내리던 것은 전투 [사용] 버튼을 가려 되돌림. 터치 통과만 유지) */
 .grow-band { pointer-events: none; }
 #coach-pop.no-arrow .coach-arrow { display: none; }
+
+/* 평가 3차: 쓰러진 적은 이름·체력을 감춰 대상 고르기를 헷갈리지 않게, 전장은 가로로 밀리지 않게 */
+.foe.dead { opacity: .14; }
+.foe.dead .foe-name, .foe.dead .bar, .foe.dead .foe-hp, .foe.dead .status, .foe.dead .reticle { visibility: hidden; }
+#modal-box.combat-box #stage { overflow: clip; }

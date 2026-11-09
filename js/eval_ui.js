@@ -77,3 +77,18 @@ if (typeof UI !== 'undefined' && UI.hqAsk) {
     return baseAsk.call(this, v);
   };
 }
+
+// 3차 평가: 프롤로그 선택지에 소꿉친구 이름이 소개 없이 불쑥 나온다 → 이 이야기에서 처음 나오는 장면에서만 '소꿉친구 ○○'로
+if (typeof UI !== 'undefined' && UI.proFill) {
+  const baseFill = UI.proFill;
+  UI.proFill = function (t) {
+    try {
+      const s = this.pro; t = String(t);
+      if (s && s.friend && t.includes('{friend}')) {
+        s.friendIntro ??= s.id;
+        if (s.friendIntro === s.id && !/(친구|동생|오빠|언니|형|누나)(인|이자)?\s*\{friend\}/.test(t)) t = t.replace('{friend}', '소꿉친구 {friend}');
+      }
+    } catch (e) { /* 무시 */ }
+    return baseFill.call(this, t);
+  };
+}
