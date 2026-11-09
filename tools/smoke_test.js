@@ -50,6 +50,8 @@ const { chromium, devices } = require('playwright');
       const acts = await ev(() => [...document.querySelectorAll('#modal-box [data-act]')].map((e) => e.dataset.act));
       if (acts.includes('exam-skip')) { await act('exam-skip'); continue; }
       if (acts.includes('exam-party')) { await act('exam-party'); continue; }
+      if (await ev(() => !!document.querySelector('.dlg-choice'))) { await page.click('.dlg-choice >> nth=0'); await page.waitForTimeout(150); continue; }
+      if (await ev(() => !!UI.dlg)) { await ev(() => UI.dlgEnd()); continue; }
       if (acts.includes('story-choice')) { await page.click('#modal-box [data-act="story-choice"] >> nth=0'); continue; }
       if (acts.includes('modal-close')) { await act('modal-close'); continue; }
       if (await ev(() => !!UI.ctx)) { await ev(() => { UI.ctx.combat.toggleAuto(); UI.ctx.speed = 2; }); await page.waitForTimeout(3000); const d = await page.$('#cb-ctrl [data-act]'); if (d) await d.click(); continue; }

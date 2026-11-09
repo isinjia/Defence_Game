@@ -57,7 +57,7 @@ Object.assign(UI, {
     });
   },
 
-  // 시험 파티를 이끄는 선임 각성자 (협회 소속 교관). 시험이 끝나도 인연으로 남는다
+  // 시험 파티를 이끄는 선임 각성자 (협회가 위촉한 현역 헌터, 소속은 aff_flow.js가 정한다). 시험이 끝나도 인연으로 남는다
   makeExamLeader() {
     const p = G.player; const n = G.makeNpc(false, 'human');
     n.rankIdx = 3; n.stage = 1; n.region = p.region; n.met = true; n.relation = 25; n.guild = 'kama'; n.examLeader = true;
@@ -129,7 +129,7 @@ Object.assign(UI, {
     this.talk([
       { narr: `${G.region().name}, 헌터 협회 시험장. 로비엔 오늘 처음 각성한 사람들이 긴장한 얼굴로 앉아 있다. 전광판에 ${p.name}의 이름이 뜬다.` },
       { who: examiner, text: '실기는 임시 파티 단위로 본다. 협회 훈련용 게이트를 끝까지 통과하면 합격이다.' },
-      { who: examiner, text: `각 파티엔 협회 선임이 리더로 붙는다. ${p.name}, 네 파티 리더는 ${L.name} 교관이다.` },
+      { who: examiner, text: `각 파티엔 협회가 위촉한 현역 헌터가 리더로 붙는다. ${p.name}, 네 파티 리더는 ${L.name}. ${L.guild && GUILDS[L.guild] ? `${GUILDS[L.guild].name} 소속이다.` : `${L.crewName || '자기 파티'}를 꾸리는 파티장이다.`}` },
       { who: L, text: this.leadSay('brief') },
       ...mates.map((n) => ({ who: n, text: (intro[n.personality] || intro.kind)(n) })),
       { who: L, text: { just: '인사는 됐다. 들어간다. 내 뒤에 붙어.', kind: '자, 그럼 들어가 볼까요? 제 뒤로 따라오세요.', cold: '간다.' }[L.personality] || '간다.' },
