@@ -261,7 +261,7 @@ Object.assign(Game.prototype, {
       case 'g-delegate': { const r = G.delegateGate(+v); if (!r) return; this.closeModal(); return this.after(r); }
       case 'lt-swap': { const id = this.ltraitNew; this.ltraitNew = null; const r = G.gainLtrait(id, v); this.closeModal(); return this.after(r); }
       case 'lt-refuse': { const r = G.refuseLtrait(this.ltraitNew); this.ltraitNew = null; this.closeModal(); return this.after(r); }
-      case 'lt-cure': return this.after(G.cureLtrait(v));
+      case 'lt-cure': { const r = G.cureLtrait(v); return this.sheet === 'city' ? this.afterCity(r) : this.after(r); }
       default: return baseHandle.call(this, act, v);
     }
   };
