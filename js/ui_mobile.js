@@ -55,3 +55,21 @@
       : '<b class="amber">내 차례!</b> 적을 눌러 대상을 정한 뒤 스킬을 누르세요. (스킬 먼저 눌러도 됩니다)';
   };
 }
+
+// 첫 안내(판정 결과) 창 줄이기: 등급·직업·속성 한 줄 + 한 문장 요약, 상세는 펼치기
+{
+  const baseJudge = UI.judgmentHtml;
+  if (baseJudge) UI.judgmentHtml = function () {
+    const p = G.player; const k = classById(p.cls); const g = CLASS_GROUPS[k.g]; const R = RANKS[p.rankIdx];
+    const E = ELEMENTS[p.element]; const negIds = ['cursed', 'frail', 'slow_learner', 'reckless'];
+    const neg = p.traits.filter((id) => negIds.includes(id)).length, pos = p.traits.length - neg;
+    const tone = !p.traits.length ? '특별한 체질은 없다' : neg === 0 ? '타고난 장점이 있다' : pos === 0 ? '약점을 안고 시작한다' : '장점과 약점을 함께 지녔다';
+    const full = baseJudge.call(this);
+    // 원래 내용(출신·직업 상세·특성)은 펼치기 안으로
+    const detail = full.replace(/^[\s\S]*?<\/h2>/, '');
+    return `<div class="eyebrow">국가 각성자 관리국 · 판정 결과</div><h2>헌터 ${p.name}</h2>
+      <div class="judge-line">${this.rankTag(p.rankIdx)} <span class="tag cls" style="--c:${g.color}">${k.name}</span> ${this.elemTag(p.element)}</div>
+      <p class="judge-sum">${g.name} ${k.name}, ${E.name} 속성. ${tone}. <span class="dim">(${R.key}급 · 협회 실기 시험 후 측정)</span></p>
+      <details class="judge-more"><summary>출신 · 직업 · 특성 자세히</summary>${detail}</details>`;
+  };
+}

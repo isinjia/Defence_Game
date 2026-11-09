@@ -56,3 +56,11 @@
   .act-btns button { white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; padding: 6px 4px; gap: 4px; }
   .act-btns button.primary, .act-btns button.danger, .act-btns .bt-btn { flex-basis: 100%; }
 }
+
+/* 판정 결과 요약 · 사건 삽화 */
+.judge-line { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 6px 0; }
+.judge-sum { margin: 6px 0 8px; }
+.judge-more { border: 1px solid var(--line); border-radius: 4px; padding: 0 10px; margin-bottom: 8px; background: var(--panel2); }
+.judge-more > summary { cursor: pointer; padding: 10px 0; min-height: 40px; color: var(--ether); font-weight: 600; list-style-position: inside; }
+.judge-more[open] { padding-bottom: 10px; }
+@media (max-width: 640px) { .event-art { height: 112px; } }

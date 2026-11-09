@@ -180,7 +180,22 @@ const FX = {
       gate_surge: ['#160f2a', '<ellipse cx="50" cy="52" rx="20" ry="30" fill="none" stroke="#c58cff" stroke-width="3"/><ellipse cx="50" cy="52" rx="10" ry="18" fill="#c58cff" opacity=".45"/><path d="M20 30q10 10 4 22M80 28q-8 12-2 24M30 82q10-6 20 0" stroke="#4fd1e8" stroke-width="2" fill="none"/>'],
       reporter: ['#1a1d10', '<rect x="22" y="40" width="34" height="24" rx="3" fill="#2a3245"/><circle cx="39" cy="52" r="8" fill="#0a0d14" stroke="#c9d2de" stroke-width="2"/><rect x="56" y="46" width="10" height="12" fill="#2a3245"/><circle cx="74" cy="36" r="5" fill="#ff4f6a"/><path d="M74 41v30" stroke="#c9d2de" stroke-width="3"/>'],
     };
-    const [bg, art] = scenes[id] || ['#14202a', ''];
+    // 전용 그림이 없는 사건은 분류별 공용 삽화로 (빈 상자 방지)
+    const common = {
+      city: ['#101a2a', '<circle cx="78" cy="22" r="7" fill="#e8e3c8" opacity=".85"/><path d="M6 86V54h12v-8h8v40M28 86V40h14v46M44 86V58h10v28M56 86V30h12v56M70 86V48h10v-6h8v44" fill="#1b2436"/><path d="M31 46h3M36 46h3M31 52h3M59 36h3M64 36h3M59 44h3M64 50h3M73 54h3M47 64h3M9 60h3M14 66h3" stroke="#ffcf6b" stroke-width="2" opacity=".75"/><path d="M0 86h100" stroke="#2a3550" stroke-width="2"/>'],
+      field: ['#102018', '<path d="M0 66q20-10 40-4t36-6 24 2V100H0z" fill="#16251c"/><path d="M0 78q26-8 52-2t48-4V100H0z" fill="#0f1a14"/><path d="M50 100 46 78M56 100 52 78" stroke="#3a4a3a" stroke-width="1.5"/><ellipse cx="78" cy="44" rx="5" ry="9" fill="none" stroke="#c58cff" stroke-width="1.6"/><ellipse cx="78" cy="44" rx="11" ry="16" fill="#c58cff" opacity=".12"/><circle cx="22" cy="20" r="1" fill="#fff"/><circle cx="36" cy="14" r=".8" fill="#fff"/><circle cx="60" cy="18" r="1" fill="#fff"/>'],
+      gate: ['#160f2a', '<ellipse cx="50" cy="50" rx="18" ry="28" fill="none" stroke="#c58cff" stroke-width="3"/><ellipse cx="50" cy="50" rx="9" ry="16" fill="#c58cff" opacity=".4"/><path d="M50 22v-8M50 86v-8M24 50h-8M84 50h-8" stroke="#4fd1e8" stroke-width="1.5" opacity=".6"/>'],
+      people: ['#1e1626', '<circle cx="36" cy="40" r="8" fill="#2c3448"/><path d="M22 84q2-26 14-30t14 30z" fill="#2c3448"/><circle cx="64" cy="40" r="8" fill="#3a3050"/><path d="M50 84q2-26 14-30t14 30z" fill="#3a3050"/><circle cx="50" cy="30" r="22" fill="#ffb547" opacity=".08"/><path d="M47 36q3-4 6 0" stroke="#ffb547" stroke-width="1.5" fill="none" opacity=".7"/>'],
+      news: ['#1a1a12', '<rect x="16" y="22" width="68" height="44" rx="3" fill="#0d1018" stroke="#3a4560" stroke-width="2"/><rect x="20" y="26" width="18" height="7" fill="#ff4f6a"/><path d="M42 30h36M22 42h56M22 50h44M22 58h50" stroke="#c9d2de" stroke-width="2.5" opacity=".55"/><path d="M42 66l-6 14M58 66l6 14M32 80h36" stroke="#3a4560" stroke-width="2.5"/>'],
+      night: ['#0e1020', '<path d="M70 18a14 14 0 1 0 8 24 11 11 0 1 1-8-24z" fill="#d8d3ff" opacity=".75"/><path d="M0 70q25-6 50 0t50 0V100H0z" fill="#121626"/><ellipse cx="38" cy="60" rx="9" ry="4" fill="none" stroke="#4fd1e8" stroke-width="1.5"/><circle cx="38" cy="60" r="2" fill="#4fd1e8"/><path d="M8 80h30M54 86h40M20 92h50" stroke="#4fd1e8" stroke-width="1" opacity=".25"/>'],
+    };
+    const pick = (k) => (/^(street|city|arrive|pocha|reg_|smug|black|market|shop|guild)/.test(k) ? 'city'
+      : /^(field|road|race|explore|site)/.test(k) ? 'field'
+      : /(gate|rift|break|raid|dungeon|boss)/.test(k) ? 'gate'
+      : /^(rel_|npc|vow|fam|child|age_classmate|friend|love|mentor|class_)/.test(k) ? 'people'
+      : /^(media|society|rank_|news|nuri|debut|award|press)/.test(k) ? 'news'
+      : /^(odd|cult|voice|age_|sub_|dream|ghost)/.test(k) ? 'night' : 'city');
+    const [bg, art] = scenes[id] || common[pick(String(id || ''))];
     return `<svg class="event-art" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" role="img" aria-label="사건 삽화" style="background:radial-gradient(circle at 50% 40%, ${bg}, #0a0d14 75%)">${art}</svg>`;
   },
 
