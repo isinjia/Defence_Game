@@ -23,6 +23,7 @@ for (let i = 0; i < N; i++) {
     // 화면과 같게: 선택지가 많으면 3개만 보인다 (각성 장면은 전부)
     let idx = scene.choices.map((_, k) => k); if (!aw && idx.length > 3) idx = idx.sort(() => Math.random() - 0.5).slice(0, 3);
     if (aw && typeof proAwakenPick === 'function') idx = proAwakenPick(scene.choices, sc.lean);
+    if (/^(nap|cvs|game|bloom|quest)_2$/.test(id)) { const el = Object.keys(sc.e).sort((a, b) => sc.e[b] - sc.e[a])[0]; const sh = (a) => a.sort(() => Math.random() - 0.5); idx = [...sh(scene.choices.map((_, k) => k).filter((k) => !scene.choices[k].el)).slice(0, 2), ...sh(scene.choices.map((_, k) => k).filter((k) => scene.choices[k].el === el)).slice(0, 1)]; }
     const ch = scene.choices[idx[Math.floor(Math.random() * idx.length)]];
     remember(sc, flags, id, ch);
     for (const k of ['g', 'c', 't']) for (const [x, v] of Object.entries(ch[k] || {})) sc[k][x] = (sc[k][x] || 0) + v;

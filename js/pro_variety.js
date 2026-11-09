@@ -39,3 +39,20 @@ for (const [id, list] of Object.entries(PRO_ALT)) {
     return baseRender.call(this);
   };
 }
+
+// 생활형 마무리(희망 직무): 일반 대답 2개 + 각성 속성 대답 1개
+{
+  const LIFE_END = new Set(['nap_2', 'cvs_2', 'game_2', 'bloom_2', 'quest_2']);
+  const baseShown = UI.proShown;
+  UI.proShown = function (id) {
+    if (!LIFE_END.has(id)) return baseShown.call(this, id);
+    const s = this.pro; s.lifeShown ||= {}; if (s.lifeShown[id]) return s.lifeShown[id];
+    const ch = PROLOGUE[id].choices; const e = (s.sc && s.sc.e) || {};
+    const el = Object.keys(e).sort((a, b) => e[b] - e[a])[0];
+    const shuffle = (a) => a.map((x) => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map((p) => p[1]);
+    const gen = shuffle(ch.map((c, i) => i).filter((i) => !ch[i].el)).slice(0, 2);
+    const mine = shuffle(ch.map((c, i) => i).filter((i) => ch[i].el === el)).slice(0, 1);
+    return (s.lifeShown[id] = [...gen, ...mine]);
+  };
+}
+

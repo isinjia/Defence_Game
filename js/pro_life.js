@@ -138,6 +138,21 @@ const LIFE_JOBS = [
   { text: '"머리 쓰는 거요. 공부는 질리게 했으니까."', g: { mage: 2 }, c: { elementalist: 3 }, next: 'verdict' },
   { text: '"남의 마음 읽는 거요. 알바 오래 하면 다 보여요."', g: { esper: 2 }, c: { telepath: 3 }, next: 'verdict_guild' },
   { text: '"뭘 부르는 거요. 고양이라도 좋으니."', g: { summon: 2 }, c: { tamer: 3 }, next: 'verdict' },
+  // 각성 속성 쪽 대답 (4-10): 화면엔 일반 대답 2개 + 내 속성 대답 1개가 뜬다 (pro_variety.js)
+  { el: 'fire', text: '"불 다루는 거요. 라면 물 끓이는 것보단 쓸모 있게."', g: { mage: 2 }, c: { pyromancer: 3 }, next: 'verdict' },
+  { el: 'fire', text: '"주먹이요. 몸이 뜨거워서 가만히 못 있어요."', g: { fighter: 2 }, c: { monk: 2, berserker: 1 }, next: 'verdict_guild' },
+  { el: 'bolt', text: '"빠른 거요. 번쩍하고 끝나는 거."', g: { fighter: 2 }, c: { dualblade: 2, lancer: 1 }, next: 'verdict_guild' },
+  { el: 'bolt', text: '"순간이동이요. 출근길이 너무 길어서요."', g: { esper: 2 }, c: { teleporter: 3 }, next: 'verdict' },
+  { el: 'water', text: '"막아 주는 거요. 물처럼 흘려 넘기는 거."', g: { mage: 2 }, c: { warder: 3 }, next: 'verdict' },
+  { el: 'water', text: '"노래요. 비 오는 날이면 목이 트여요."', g: { support: 2 }, c: { bard: 3 }, next: 'verdict' },
+  { el: 'wood', text: '"약초요. 풀은 손끝이 먼저 알아요."', g: { east: 2 }, c: { witch_doctor: 3 }, next: 'verdict' },
+  { el: 'wood', text: '"숲이요. 나무가 말을 거는 것 같아서."', g: { summon: 2 }, c: { spiritist: 2, druid: 1 }, next: 'verdict' },
+  { el: 'holy', text: '"낫게 하는 거요. 고양이 다리처럼."', g: { support: 2 }, c: { saint: 2, priest: 1 }, next: 'verdict' },
+  { el: 'holy', text: '"나쁜 거 쫓는 거요. 귀신이든 괴수든."', g: { mage: 2 }, c: { exorcist: 3 }, next: 'verdict' },
+  { el: 'holy', text: '"버티는 거요. 맞으면서도 기도할 수 있게."', g: { fighter: 2 }, c: { friar: 2, monk_holy: 1 }, next: 'verdict_guild' },
+  { el: 'dark', text: '"어둠 속에서 움직이는 거요. 불 끄면 더 잘 보여서."', g: { shadow: 2 }, c: { shade: 3 }, next: 'verdict_street' },
+  { el: 'dark', text: '"저주요. 솔직히 미운 사람이 좀 있어요."', g: { mage: 2 }, c: { hexer: 3 }, next: 'verdict_street' },
+  { el: 'dark', text: '"검은 갑옷이요. 무서워 보이는 게 낫잖아요."', g: { guard: 2 }, c: { dark_knight: 3 }, next: 'verdict_guild' },
 ];
 for (const id of ['nap_2', 'cvs_2', 'game_2', 'bloom_2', 'quest_2']) PROLOGUE[id].choices = LIFE_JOBS.map((c) => ({ ...c }));
 // 속성 장면은 갈래마다 한 장씩 (첫 줄만 다르고 선택지는 같다) → 그 갈래의 마무리로
@@ -233,3 +248,20 @@ Object.assign(PRO_HOOKS_CH, {
   'idle_14:2': '묘목을 세워 준 날 밤, 산에서 내려와 그대로 잠들었다. 깨어 보니—',
   'idle_14:3': '막걸리 한 잔에 산 아래를 보다가, 문득 오늘 동창회라는 게 생각났다.',
 });
+
+// 4-10: 기존 출신·갈래 선택지의 직업 점수에 결이 같은 새 직업을 덧붙인다 (원래 점수의 절반, 올림)
+const PRO_C_KIN = {
+  priest: { saint: 1 }, healer: { saint: 1, monk_holy: 1 }, paladin: { friar: 1, exorcist: 1 }, monk: { monk_holy: 1 }, seer: { exorcist: 1 },
+  necromancer: { dark_priest: 1 }, warlock: { hexer: 1, dark_priest: 1 }, assassin: { shade: 1 }, guardian: { dark_knight: 0.5 },
+  poisoner: { witch_doctor: 1 }, tamer: { druid: 1 }, summoner: { spiritist: 1 }, giant: { treant_warden: 1 }, alchemist: { witch_doctor: 0.5 },
+  shaman: { exorcist: 0.5, witch_doctor: 0.5 }, elementalist: { pyromancer: 0.5 },
+};
+for (const [id, sc] of Object.entries(PROLOGUE)) {
+  if (!Array.isArray(sc.choices) || /^(nap|cvs|game|bloom|quest)_2$/.test(id)) continue;
+  for (const ch of sc.choices) {
+    if (!ch.c) continue;
+    const add = {};
+    for (const [k, v] of Object.entries(ch.c)) for (const [n, f] of Object.entries(PRO_C_KIN[k] || {})) if (!ch.c[n]) add[n] = Math.max(add[n] || 0, Math.ceil(v * f / 2));
+    Object.assign(ch.c, add);
+  }
+}
