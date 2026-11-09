@@ -199,7 +199,7 @@ const FACTION_AGENDA = {
       if (moves >= 2) break;
       const kind = this.factionKind(id);
       const chance = kind === 'foreign' ? 0.04 : kind === 'cult' || kind === 'black' ? 0.25 : 0.3;
-      if (!RNG.chance(chance)) continue;
+      if (!RNG.chance(chance * (this.storyPace ? this.storyPace() : 1))) continue;
       this.factionLeader(id);
       const ag = FACTION_AGENDA[kind];
       const m = RNG.pick(ag);

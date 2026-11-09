@@ -111,7 +111,7 @@ const ECO = {
   GP.ecoExpire = function (g) {
     const mk = this.monthKey(); const reg = regionById(g.region);
     this.mapGates = this.mapGates.filter((x) => x.id !== g.id);
-    let p = ECO.breakChance[this.ecoRealTier(g)] * (g.variant === 'red' ? 1.5 : 1) * (g.bid ? 1.4 : 1) * (g.neglected ? 2.5 : 1);
+    let p = ECO.breakChance[this.ecoRealTier(g)] * (g.variant === 'red' ? 1.5 : 1) * (g.bid ? 1.4 : 1) * (g.neglected ? 2.5 : 1) * (this.storyPace ? this.storyPace() : 1);
     // 지역 헌터가 적으면 더 잘 터진다
     const strong = this.adults().filter((n) => n.region === g.region && n.rankIdx >= g.tier).length;
     if (strong === 0) p *= 1.5;
