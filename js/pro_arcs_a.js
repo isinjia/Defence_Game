@@ -37,17 +37,17 @@ Object.assign(PROLOGUE, {
       { text: '침대 둘레에 손을 짚어 보이지 않는 막을 친다', g: { guard: 2 }, c: { guardian: 3 }, next: 'ill_5' },
       { text: '떨어지는 링거병을 손대지 않고 허공에 붙잡는다', g: { esper: 2 }, c: { telekinetic: 3 }, next: 'ill_5' },
       { text: '다온의 열을 손바닥으로 빨아들여 창밖으로 흩뿌린다', g: { mage: 2 }, c: { elementalist: 3 }, next: 'ill_5' },
-      { text: '노인이 던져 준 지팡이로 들이치는 의료 로봇 팔을 쳐낸다', g: { fighter: 2 }, c: { monk: 3 }, next: 'ill_5' },
+      { text: '다온의 가슴 한가운데를 손바닥으로 정확히 두 번 친다. 멎었던 숨이 터진다', g: { fighter: 2 }, c: { monk: 3 }, next: 'ill_5' },
     ] },
-  ill_5: { title: '퇴원하는 날', text: '다온은 고비를 넘겼다. 퇴원하는 날, 창가 노인이 당신을 불러 세운다. "자네 같은 사람이 병상에서 일어나면, 대개 남들과 다른 길을 가더군."\n\n그날 밤, 열병이 남긴 흔적이 당신 안에서 마지막으로 모양을 갖춘다.',
+  ill_5: { title: '퇴원하는 날', text: '다온은 고비를 넘겼다. 퇴원하는 날, 창가 노인이 당신을 불러 세운다. "자네 같은 사람이 병상에서 일어나면, 대개 남들과 다른 길을 가더군."\n\n짐을 싸는 사이, 열병이 남긴 흔적이 당신 안에서 마지막으로 모양을 갖춘다.',
     choices: [
       { text: '노인의 낡은 성경을 받는다. 손이 닿자 희미하게 빛난다', g: { support: 2 }, c: { priest: 4 }, next: 'verdict' },
       { text: '남은 약병들을 섞어 열병 해독제를 만들어 낸다', g: { support: 2 }, c: { alchemist: 4 }, t: { mana_sense: 1 }, next: 'verdict_guild' },
-      { text: '꿈에서 다온의 내일이 보인다. 아이는 웃고 있다', g: { esper: 2 }, c: { seer: 4 }, next: 'verdict' },
+      { text: '눈을 감자 다온의 내일이 보인다. 아이는 웃고 있다', g: { esper: 2 }, c: { seer: 4 }, next: 'verdict' },
       { text: '죽음 문턱에서 본 그림자들이 아직 곁에 서 있다', g: { summon: 2 }, c: { necromancer: 4 }, t: { loner: 1 }, next: 'verdict_street' },
       { text: '열병이 돌던 시간, 병실 시계가 거꾸로 돌았던 걸 기억한다', g: { mage: 2 }, c: { chronomancer: 4 }, talent: 1, next: 'verdict' },
-      { text: '병상에서 맺은 약속을 지키겠다고 노인에게 맹세한다', g: { guard: 2 }, c: { paladin: 4 }, next: 'verdict_guild' },
-      { text: '{friend}이(가) 사 온 귤을 까며 처음으로 미래 이야기를 한다', g: { support: 2 }, c: { bard: 4 }, friend: 15, next: 'verdict' },
+      { text: '병상에서 맺은 약속을 지키겠다고 노인에게 맹세한다. 맹세한 손등에 빛의 문양이 떠오른다', g: { guard: 2 }, c: { paladin: 4 }, next: 'verdict_guild' },
+      { text: '{friend}이(가) 사 온 귤을 까며 흥얼거린 노래를 병실 사람들이 하나둘 따라 부른다', g: { support: 2 }, c: { bard: 4 }, friend: 15, next: 'verdict' },
     ] },
 
   // ===================== 유물: 녹슨 코어 =====================
@@ -134,7 +134,7 @@ Object.assign(PROLOGUE, {
       { text: '안개 속으로 들어가 아이의 꿈에서 직접 데려 나온다', g: { esper: 2 }, c: { telepath: 3 }, next: 'dream_5' },
       { text: '꿈에서 만난 강가의 짐승을 불러 안개를 물어뜯게 한다', g: { summon: 2 }, c: { tamer: 3 }, next: 'dream_5' },
       { text: '안개를 움켜쥐고 창밖으로 던져 버린다', g: { fighter: 2 }, c: { berserker: 3 }, next: 'dream_5' },
-      { text: '{friend}에게 아이 어머니 곁을 지켜 달라고 부탁한다', g: { support: 2 }, c: { bard: 3 }, friend: 10, next: 'dream_5' },
+      { text: '전화로 {friend}을(를) 불러 아이 어머니 곁을 지켜 달라고 부탁한다', g: { support: 2 }, c: { bard: 3 }, friend: 10, next: 'dream_5' },
     ] },
   dream_5: { title: '강 건너의 이름', text: '아이가 깨어났다. 할머니가 처음으로 웃는다. "이제 너도 이쪽 사람이다. 그런데 네 신은 내 신하고 좀 다르구나."\n\n그날 밤 꿈속 강가. 존재가 마침내 자신의 이름을 알려 준다. 그 이름이 당신의 길을 정한다.',
     choices: [
