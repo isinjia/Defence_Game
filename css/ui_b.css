@@ -298,3 +298,13 @@
 .edge-tag.up { background: #ffd166; color: #1a1205; }
 .edge-tag.down { background: #3a4a60; color: #dbe6f3; }
 .edge-tag.unk { background: #222c3b; color: #9aa6b8; }
+
+/* WebGL 스킬 이펙트 층 */
+#fx3d { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 25; }
+.fxpv-stage { position: relative; height: 220px; border: 1px solid var(--line); background: linear-gradient(180deg, #0a0f18, #070a10); margin: 8px 0; }
+.fxpv-foes { position: absolute; left: 10%; right: 10%; top: 18px; height: 70px; display: flex; justify-content: space-around; align-items: center; }
+.fxpv-foes i, .fxpv-me i { display: block; width: 46px; height: 46px; border-radius: 50%; background: radial-gradient(circle, #3a4560, #1a2333); box-shadow: 0 0 0 2px #2a3550; }
+.fxpv-me { position: absolute; left: 0; right: 0; bottom: 18px; display: flex; justify-content: center; }
+.fxpv-me i { background: radial-gradient(circle, #6b5a3a, #2a2010); }
+.fxpv-grid { display: grid; grid-template-columns: 44px repeat(6, minmax(0, 1fr)); gap: 4px; align-items: center; text-align: center; font-size: 12.5px; }
+.fxpv-grid button { min-height: 36px; padding: 0; justify-content: center; }
