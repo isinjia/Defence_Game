@@ -46,27 +46,27 @@ Object.assign(UI, {
     const step = m.step;
     const playerTurn = step === 'your1' || step === 'your2' || step === 'boss';
     const reach = playerTurn ? this.examReach().map(([r, i]) => r + ':' + i) : [];
-    const ROWH = 66, H = m.rows.length * ROWH + 30;
-    const y = (r) => H - 30 - (r + 0.5) * ROWH;
-    const pt = (pos) => (pos ? { x: m.rows[pos[0]][pos[1]].x * 100, y: y(pos[0]) } : { x: 50, y: H - 14 });
+    const H = 100; const PADB = 7, PADT = 8; // 세로 % (맨 아래 입구 ~ 위 보스)
+    const y = (r) => H - PADB - ((r + 1) / m.rows.length) * (H - PADB - PADT);
+    const pt = (pos) => (pos ? { x: m.rows[pos[0]][pos[1]].x * 100, y: y(pos[0]) } : { x: 50, y: H - PADB });
     const lines = [];
     m.rows.forEach((row, r) => row.forEach((nd, i) => nd.next.forEach((j) => {
       const on = m.done.includes(r + ':' + i) && m.done.includes(r + 1 + ':' + j);
       lines.push(`<line x1="${nd.x * 100}" y1="${y(r)}" x2="${m.rows[r + 1][j].x * 100}" y2="${y(r + 1)}" class="${on ? 'on' : ''}"/>`);
     })));
     // 출발점에서 첫 줄로
-    m.rows[0].forEach((nd) => lines.push(`<line x1="50" y1="${H - 14}" x2="${nd.x * 100}" y2="${y(0)}" class="${m.done.includes('0:' + m.rows[0].indexOf(nd)) ? 'on' : ''}"/>`));
-    const nodes = [];
+    m.rows[0].forEach((nd) => lines.push(`<line x1="50" y1="${H - PADB}" x2="${nd.x * 100}" y2="${y(0)}" class="${m.done.includes('0:' + m.rows[0].indexOf(nd)) ? 'on' : ''}"/>`));
+    const nodes = [`<button class="gnode start done" style="left:50%;top:${H - PADB}%;--c:${GNODE.start.color}" disabled title="입구"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${GNODE.start.svg}</svg></button>`];
     m.rows.forEach((row, r) => row.forEach((nd, i) => {
       const k = r + ':' + i; const N = GNODE[nd.t];
       const lp = opts.leaderPick === k;
       const st = m.done.includes(k) ? 'done' : reach.includes(k) ? 'can' : lp ? 'lead' : (m.pos && r <= m.pos[0]) ? 'past' : '';
-      nodes.push(`<button class="gnode ${nd.t} ${st}" style="left:${nd.x * 100}%;top:${y(r)}px;--c:${N.color}" ${st === 'can' && !opts.move ? `data-act="exm-node" data-v="${k}"` : 'disabled'}>
+      nodes.push(`<button class="gnode ${nd.t} ${st}" style="left:${nd.x * 100}%;top:${y(r)}%;--c:${N.color}" ${st === 'can' && !opts.move ? `data-act="exm-node" data-v="${k}"` : 'disabled'}>
         <svg viewBox="0 0 24 24" width="${nd.t === 'boss' ? 30 : 22}" height="${nd.t === 'boss' ? 30 : 22}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${N.svg}</svg>
         ${st === 'can' || lp ? `<span class="gnode-name">${lp ? '리더 선택' : N.name}</span>` : ''}</button>`);
     }));
     const from = pt(opts.move ? opts.move[0] : m.pos);
-    const token = `<div class="gtoken" id="gtoken" style="left:${from.x}%;top:${from.y}px">${this.playerAvatar(26)}</div>`;
+    const token = `<div class="gtoken" id="gtoken" style="left:${from.x}%;top:${from.y}%">${this.playerAvatar(26)}</div>`;
     const legend = ['fight', 'event', 'rest', 'treasure', 'boss'].map((t) => `<span class="gl" style="--c:${GNODE[t].color}"><i></i>${GNODE[t].name}</span>`).join('');
     const say = opts.say || this.examMapSay(step === 'pick1' ? 'pick1' : step);
     const stepNo = { intro: 1, pick1: 1, your1: 2, your2: 3, boss: 4 }[step] || 1;
@@ -74,13 +74,13 @@ Object.assign(UI, {
       ${opts.move ? '' : `<div class="coach lead-say"><span class="eyebrow">${this.examMapLeadName()}</span><div>${say}</div></div>`}
       <div class="gmap-stat row between small"><span>체력 <b class="num">${Math.round(p.hp)}/${p.maxHp}</b> · 정신력 <b class="num">${Math.round(p.mp)}/${p.maxMp}</b></span></div>
       <div class="gmap-legend">${legend}</div>
-      <div class="gmap exam-gmap" style="height:${H}px"><svg class="gmap-lines" viewBox="0 0 100 ${H}" preserveAspectRatio="none">${lines.join('')}</svg>${nodes.join('')}${token}</div>
+      <div class="gmap gmap-fit exam-gmap" style="--rows:${m.rows.length + 1}"><svg class="gmap-lines" viewBox="0 0 100 ${H}" preserveAspectRatio="none">${lines.join('')}</svg>${nodes.join('')}${token}</div>
       ${step === 'intro' && !opts.leaderPick && !opts.move ? '<div class="row end"><button class="primary" data-act="exm-watch">리더를 따라간다</button></div>' : ''}
       ${playerTurn && !opts.move ? '<div class="small amber">빛나는 칸을 눌러 이동하세요.</div>' : ''}`, 'gmap-box exam-map-box');
     if (opts.move) {
       const to = pt(opts.move[1]);
       const tk = document.getElementById('gtoken');
-      requestAnimationFrame(() => requestAnimationFrame(() => { if (tk) { tk.style.left = to.x + '%'; tk.style.top = to.y + 'px'; } }));
+      requestAnimationFrame(() => requestAnimationFrame(() => { if (tk) { tk.style.left = to.x + '%'; tk.style.top = to.y + '%'; } }));
     }
     // 리더의 말(.lead-say)은 화면 공용 말풍선(UI.coachPop)이 창 밖으로 띄운다
   },

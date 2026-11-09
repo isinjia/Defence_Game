@@ -36,3 +36,16 @@
 .modal-box.gscene .choice-btn { padding: 13px 14px; font-size: 15px; }
 @keyframes gsceneIn { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .modal-box.gscene { animation: none; } }
+
+/* 층 지도: 세로로 남는 높이를 모두 쓰고(줄 수에 맞춘 최소 높이), 칸 위치는 % 로 잡는다. 입구는 맨 아래 가운데 */
+.gmap.gmap-fit { position: relative; height: max(calc(var(--rows, 6) * 62px), 52vh); }
+.modal-box.gfull > .gmap.gmap-fit { flex: 1 1 auto; height: auto; min-height: calc(var(--rows, 6) * 58px); }
+.gnode.start { width: 36px; height: 36px; color: var(--c); border-color: var(--c); }
+.gnode.start::after { content: '입구'; position: absolute; top: 100%; margin-top: 2px; font-size: 11px; font-weight: 700; color: var(--c); white-space: nowrap; }
+.gnode.start.done { opacity: 1; background: #0d1a20; color: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 22%, transparent), 0 0 14px color-mix(in srgb, var(--c) 35%, transparent); }
+@media (max-height: 700px) {
+  .modal-box.gfull > .gmap.gmap-fit { min-height: calc(var(--rows, 6) * 44px); }
+  .modal-box.gfull > .small.dim { display: none; }
+  .modal-box.gfull .gnode { width: 36px; height: 36px; }
+  .modal-box.gfull .gnode.boss { width: 46px; height: 46px; }
+}

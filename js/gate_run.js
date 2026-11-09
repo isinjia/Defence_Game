@@ -3,6 +3,7 @@
 // 층 끝의 층 보스를 쓰러뜨리면 다음 층으로. 마지막 층 보스가 게이트 보스다.
 
 const GNODE = {
+  start: { name: '입구', desc: '게이트에 들어선 자리', color: '#46e0d0', svg: '<path d="M5 21V8a7 7 0 0 1 14 0v13"/><path d="M3 21h18"/><path d="M12 21v-6"/>' },
   fight: { name: '전투', desc: '괴수 무리', color: '#ff8a6c', svg: '<path d="M5 19 19 5M14 5h5v5M5 14l5 5M3 21l3-3"/>' },
   elite: { name: '정예', desc: '강한 괴수. 보상이 크다', color: '#ff4f6a', svg: '<path d="M12 3c-4 0-7 3-7 7 0 2.5 1.2 4 2.5 5v3h9v-3c1.3-1 2.5-2.5 2.5-5 0-4-3-7-7-7z"/><circle cx="9.5" cy="10.5" r="1.4"/><circle cx="14.5" cy="10.5" r="1.4"/><path d="M10 21v-3M14 21v-3"/>' },
   event: { name: '사건', desc: '무슨 일이 일어날지 모른다', color: '#6fb8ff', svg: '<path d="M9 9a3 3 0 1 1 4.5 2.6c-.9.5-1.5 1.2-1.5 2.4M12 18h.01"/>' },
@@ -53,7 +54,7 @@ const GateRun = {
 
   // 갈래길 지도: 행 4개 + 보스 행. 행마다 칸 2~4개, 가까운 칸끼리 이어진다.
   makeFloor(floor, floors) {
-    const rows = [];
+    const rows = [[{ t: 'start', x: 0.5, next: [] }]];
     const R = 4;
     for (let r = 0; r < R; r++) {
       const n = r === 0 ? RNG.int(2, 3) : RNG.int(2, 4);
@@ -68,8 +69,9 @@ const GateRun = {
       rows.push(row);
     }
     rows.push([{ t: 'boss', x: 0.5, next: [] }]);
+    rows[0][0].next = rows[1].map((_, j) => j); // 입구에서 첫 갈림길 전부로
     // 연결
-    for (let r = 0; r < rows.length - 1; r++) {
+    for (let r = 1; r < rows.length - 1; r++) {
       const a = rows[r], b = rows[r + 1];
       const near = (x) => b.map((nd, j) => [Math.abs(nd.x - x), j]).sort((p, q) => p[0] - q[0]).map((p) => p[1]);
       for (const nd of a) { const o = near(nd.x); nd.next.push(o[0]); if (o[1] != null && RNG.chance(0.45) && Math.abs(b[o[1]].x - nd.x) < 0.45) nd.next.push(o[1]); }
@@ -80,7 +82,7 @@ const GateRun = {
       });
       for (const nd of a) nd.next = [...new Set(nd.next)].sort((p, q) => p - q);
     }
-    return { rows, pos: null, done: [] };
+    return { rows, pos: [0, 0], done: ['0:0'] };
   },
 
   enemies(c, kind) {
@@ -132,8 +134,8 @@ Object.assign(UI, {
   renderGateMap(note) {
     const c = this.ctx; const run = c.run; const m = run.map; const g = c.gate; const p = G.player;
     const reach = this.reachable().map(([r, i]) => r + ':' + i);
-    const ROWH = 74, H = m.rows.length * ROWH;
-    const y = (r) => H - (r + 0.5) * ROWH;
+    const H = 100; const PADB = 7, PADT = 8; // 세로 % (아래 입구 ~ 위 보스)
+    const y = (r) => H - PADB - (r / Math.max(1, m.rows.length - 1)) * (H - PADB - PADT);
     const lines = [];
     m.rows.forEach((row, r) => row.forEach((nd, i) => nd.next.forEach((j) => {
       const done = m.done.includes(r + ':' + i) && (m.done.includes(r + 1 + ':' + j) || reach.includes(r + 1 + ':' + j));
@@ -143,7 +145,7 @@ Object.assign(UI, {
     m.rows.forEach((row, r) => row.forEach((nd, i) => {
       const k = r + ':' + i; const N = GNODE[nd.t];
       const st = m.done.includes(k) ? 'done' : reach.includes(k) ? 'can' : (m.pos && r <= m.pos[0]) ? 'past' : '';
-      nodes.push(`<button class="gnode ${nd.t} ${st}" style="left:${nd.x * 100}%;top:${y(r)}px;--c:${N.color}" ${st === 'can' ? `data-act="g-node" data-v="${k}"` : 'disabled'} title="${N.name}">
+      nodes.push(`<button class="gnode ${nd.t} ${st}" style="left:${nd.x * 100}%;top:${y(r)}%;--c:${N.color}" ${st === 'can' ? `data-act="g-node" data-v="${k}"` : 'disabled'} title="${N.name}">
         <svg viewBox="0 0 24 24" width="${nd.t === 'boss' ? 30 : 22}" height="${nd.t === 'boss' ? 30 : 22}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${N.svg}</svg>
         ${st === 'can' ? `<span class="gnode-name">${N.name}</span>` : ''}</button>`);
     }));
@@ -152,8 +154,8 @@ Object.assign(UI, {
       <div class="gmap-stat row between small"><span>체력 <b class="num">${Math.round(p.hp)}/${p.maxHp}</b> · 정신력 <b class="num">${Math.round(p.mp)}/${p.maxMp}</b></span><span class="dim">전리품 <span class="num">${fmt(c.loot.money)}</span> 크레딧 · 에테르 <span class="num">${fmt(c.loot.ether)}</span></span></div>
       ${note ? `<div class="gmap-note">${fixJosa(note)}</div>` : ''}
       <div class="gmap-legend">${legend}</div>
-      <div class="gmap" style="height:${H}px"><svg class="gmap-lines" viewBox="0 0 100 ${H}" preserveAspectRatio="none">${lines.join('')}</svg>${nodes.join('')}</div>
-      <div class="small dim">아래에서 위로 나아갑니다. 빛나는 칸을 눌러 다음 길을 고르세요. 맨 위의 층 보스를 쓰러뜨리면 ${run.floor + 1 < run.floors ? '다음 층으로 내려갑니다' : '게이트가 닫힙니다'}.</div>
+      <div class="gmap gmap-fit" style="--rows:${m.rows.length}"><svg class="gmap-lines" viewBox="0 0 100 ${H}" preserveAspectRatio="none">${lines.join('')}</svg>${nodes.join('')}</div>
+      <div class="small dim">맨 아래 입구에서 위로 나아갑니다. 빛나는 칸을 눌러 다음 길을 고르세요. 맨 위의 층 보스를 쓰러뜨리면 ${run.floor + 1 < run.floors ? '다음 층으로 내려갑니다' : '게이트가 닫힙니다'}.</div>
       <div class="row end">${this.canLeaveGate() ? '<button class="ghost" data-act="g-leave">철수 · 보상 챙기기</button>' : '<span class="small bad">이 게이트는 빠져나갈 수 없다</span>'}</div>`, 'combat-box gmap-box');
     const box = document.querySelector('#modal .gmap'); const cur = box && box.querySelector('.gnode.can');
     if (cur) cur.scrollIntoView({ block: 'center' });
