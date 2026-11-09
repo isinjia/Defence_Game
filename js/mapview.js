@@ -337,6 +337,10 @@ class MapView {
       const [px, py] = this.toScreen(x + 0.5, y - 0.6);
       if (px < -200 || py < -60 || px > this.w + 200 || py > this.hgt + 60) continue;
       const known = G.revealed(x, y);
+      if (G.cityBreak && G.cityBreak(reg.id)) {
+        const [bx, by] = this.toScreen(x + 0.5, y + 0.5); const pr = (this.t % 60) / 60;
+        c.strokeStyle = `rgba(255,79,106,${1 - pr})`; c.lineWidth = 3; c.beginPath(); c.arc(bx, by, s * (0.6 + pr * 1.4), 0, Math.PI * 2); c.stroke();
+      }
       c.font = `700 ${s > 34 ? 13 : 11}px "IBM Plex Sans KR", sans-serif`;
       const name = reg.name;
       const w = c.measureText(name).width + 14;

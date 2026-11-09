@@ -105,7 +105,7 @@ const UI = {
     c.rolls--;
   },
   startCreate() {
-    this.create = { name: '', gender: 'M', bg: 'student', element: 'fire', rolls: 6, look: Math.random().toString(36).slice(2) };
+    this.create = { name: '', gender: 'M', bg: 'student', element: 'fire', rolls: 6, look: Math.random().toString(36).slice(2), ambition: 'apex' };
     this.rollCreate();
     this.screen = 'create';
     this.render();
@@ -152,6 +152,8 @@ const UI = {
             <div class="choice-grid elems">${ELEMENT_KEYS.map((k) => { const E = ELEMENTS[k]; const sk = SKILLS.find((s) => s.elem === k && s.rankReq === 0); return `
               <button class="choice elem-choice ${c.element === k ? 'sel' : ''}" style="--c:${E.color}" data-act="c-elem" data-v="${k}">${FX.elemIcon(k, 26)}<b>${E.name}</b><span class="dim small">${sk.name}<br>${ELEMENTS[E.counter].name}에 강함</span></button>`; }).join('')}
             </div></div>
+          <div class="sec"><div class="sec-title">인생 목표 · 언제든 바뀔 수 있다</div>
+            <div class="choice-grid">${AMBITIONS.map((a) => `<button class="choice ${c.ambition === a.id ? 'sel' : ''}" data-act="c-amb" data-v="${a.id}"><b>${a.name}</b><span class="dim small">${a.desc}</span></button>`).join('')}</div></div>
           <div class="sec"><div class="row between"><div class="sec-title">선천 자질</div><button class="ghost" data-act="c-roll" ${c.rolls <= 0 ? 'disabled' : ''}>다시 측정 · ${c.rolls}회</button></div>
             <div class="talent">재능 <div class="pips">${Array.from({ length: 10 }, (_, i) => `<i class="${i < c.talent ? 'on' : ''}"></i>`).join('')}</div><b class="${c.talent >= 7 ? 'good' : c.talent <= 3 ? 'bad' : ''}">${c.talent}</b></div>
             <div class="cards traits">${c.traits.map((id) => { const t = traitById(id); return `<div class="trait ${negIds.includes(id) ? 'neg' : ''}"><b>${t.name}</b><span class="dim">${t.desc}</span></div>`; }).join('')}</div>
@@ -209,19 +211,23 @@ const UI = {
       item('skills', '스킬', ic('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>')),
       item('people', '인물', ic('<circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c1-3.5 3.5-5 7-5s6 1.5 7 5M15 15c3 0 5 1.5 6 4"/>')),
       item('guild', '길드', ic('<path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6z"/>')),
-      item('shop', '상점', ic('<path d="M3 9h18l-1.5 11h-15zM8 9V6a4 4 0 0 1 8 0v3"/>'), !city),
+      item('quest', '의뢰', ic('<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/>')),
       item('log', '연대기', ic('<path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h4"/>')),
     ].join('');
   },
 
   goalText() {
     const p = G.player;
-    if (G.flags.won) return '원초의 게이트는 닫혔다. 남은 생을 자유롭게 살아가라.';
-    if (p.rankIdx >= 6) return '제주 격리 섬, 한라산의 원초의 게이트를 닫아라.';
-    const req = stageReq(p.rankIdx, 2);
-    if (G.canBreakthrough()) return `${RANKS[p.rankIdx + 1].key}급 돌파 준비 완료. 하단의 돌파 버튼을 눌러라.`;
-    const pct = p.stage < 2 ? Math.round((p.stage / 3) * 100 + (p.ether / stageReq(p.rankIdx, p.stage)) * 33) : Math.round(66 + (p.ether / req) * 34);
-    return `${RANKS[p.rankIdx + 1].key}급으로 돌파하라 · 진척 ${Math.min(99, pct)}%`;
+    const amb = AMBITIONS.find((x) => x.id === p.ambition) || AMBITIONS[AMBITIONS.length - 1];
+    let hint = '';
+    if (p.stage === 2 && p.ether >= stageReq(p.rankIdx, 2) && p.rankIdx < 7) {
+      if (!G.hasCatalyst()) { let have = 0; for (let t = p.rankIdx; t < 8; t++) have += G.coreCount(t); hint = `돌파 준비: 공방에서 ${RANKS[p.rankIdx].key}급 각성 촉매 제작 (코어 ${Math.min(have, 5)}/5)`; }
+      else hint = `${RANKS[p.rankIdx + 1].key}급 돌파 준비 완료`;
+    } else if (p.rankIdx < 7) {
+      const pct = p.stage < 2 ? Math.round((p.stage / 3) * 100 + (p.ether / stageReq(p.rankIdx, p.stage)) * 33) : Math.round(66 + (p.ether / stageReq(p.rankIdx, 2)) * 34);
+      hint = `${RANKS[p.rankIdx + 1].key}급까지 ${Math.min(99, pct)}%`;
+    }
+    return `<span class="amb">${amb.name}</span>${p.achieved.includes(amb.id) ? ' <span class="good small">달성</span>' : ''}<div class="obj-sub">${hint}</div>`;
   },
   hudObjective() {
     const p = G.player;
@@ -230,9 +236,10 @@ const UI = {
     const mobs = G.mobs.filter((m) => G.revealed(m.x, m.y) && m.tier <= p.rankIdx).sort((a, b) => dist(a) - dist(b));
     const last = G.logs[0];
     return `<div class="obj">
-        <div class="obj-title">현재 목표</div>
+        <div class="obj-title">인생 목표</div>
         <div class="obj-goal">${this.goalText()}</div>
         ${gates[0] ? `<button class="obj-link" data-act="focus" data-v="${gates[0].x},${gates[0].y}">${this.rift(gates[0].tier)} 가까운 게이트 · ${G.gateName(gates[0])} · ${dist(gates[0])}칸</button>` : '<div class="obj-sub">탐색하면 게이트를 찾을 수 있다.</div>'}
+        ${p.quests.slice(0, 2).map((q) => `<button class="obj-link" data-act="sheet" data-v="quest">${q.status === 'done' ? '✔' : '▸'} ${q.title}</button>`).join('')}
         ${mobs[0] ? `<button class="obj-link" data-act="focus" data-v="${mobs[0].x},${mobs[0].y}"><span class="mob-dot" style="--c:${ELEMENTS[mobs[0].elem].color}"></span> 토벌 대상 · ${mobs[0].name} · ${dist(mobs[0])}칸</button>` : ''}
       </div>
       ${last ? `<div class="obj news ${last.type}"><span class="dim">${last.date}</span> ${last.text}</div>` : ''}`;
@@ -265,10 +272,11 @@ const UI = {
     return `<div class="act-where"><b>${city ? city.name : reg.name}</b> <span class="dim small">${city ? '도시' : terrain} · 위험 ${'◆'.repeat(reg.danger)}${G.onEther() ? ' · 수련 효율 +40%' : ''}</span></div>
       <div class="act-btns">
         ${obj ? (obj.kind === 'gate' ? `<button class="danger" data-act="gate" data-v="${obj.id}">${FX.icon('gate')} 게이트 진입</button>` : `<button class="danger" data-act="mob" data-v="${obj.id}">토벌</button>`) : ''}
-        ${!maxed && G.canBreakthrough() ? `<button class="primary bt-btn" data-act="breakthrough">${RANKS[p.rankIdx + 1].key}급 돌파 <span class="num">${G.btChance()}%</span></button>` : ''}
+        ${city ? `<button class="primary" data-act="city">${FX.icon('pin')} ${city.name} 들어가기</button>` : ''}
+        ${!maxed && G.canBreakthrough() ? `<button class="${G.hasCatalyst() ? 'primary' : ''} bt-btn" data-act="breakthrough">${RANKS[p.rankIdx + 1].key}급 돌파 ${G.hasCatalyst() ? `<span class="num">${G.btChance()}%</span>` : '<span class="dim-in">촉매 필요</span>'}</button>` : ''}
         <button data-act="train">${FX.icon('train')} 수련 <span class="dim-in">1개월 +${fmt(est)}</span></button>
         <button data-act="rest">${FX.icon('rest')} 휴식 <span class="dim-in">1개월</span></button>
-        ${city ? `<button data-act="sheet" data-v="shop">상점</button><button data-act="sheet" data-v="people">인물</button>${city.guild ? '<button data-act="sheet" data-v="guild">길드</button>' : ''}` : ''}
+
       </div>
       <div class="act-hint small dim">빛나는 칸을 눌러 이동 · 한 칸 ${WORLD.DAYS_PER_COST}일 · 이동력 ${G.moveRange()}</div>`;
   },
@@ -325,8 +333,10 @@ const UI = {
         const days = G.moveAlong(path, cost);
         this.renderGame();
         const obj = G.objAt(p.x, p.y);
+        if (G.onCity() && RNG.chance(0.35)) { const ev = G.pickStory('city'); if (ev) G.queue.push(ev); }
         if (G.queue.length) return this.processQueue();
         if (obj) return this.encounter(obj);
+        if (G.onCity()) return this.openCity();
         if (this.npcsAt(p.x, p.y).length) this.showTip(p.x, p.y);
         if (days) this.toast(`${days}일이 흘렀다.`);
       });
@@ -360,18 +370,25 @@ const UI = {
       const n = G.npcById(+name.slice(4));
       return `<div class="sheet-head"><h3>교류</h3><button class="icon-btn" data-act="modal-close" aria-label="닫기">×</button></div>${n ? `<div class="npc-sheet">${FX.portrait('npc' + n.id + n.name, n.gender, n.element, n.rankIdx, 180)}${this.npcCard(n, n.alive && n.region === G.player.region)}</div>` : ''}`;
     }
-    const tabs = [['char', '정보'], ['skills', '스킬'], ['people', '인물'], ['guild', '길드'], ['shop', '상점'], ['log', '연대기']];
+    const tabs = [['char', '정보'], ['skills', '스킬'], ['people', '인물'], ['quest', '의뢰'], ['guild', '길드'], ['log', '연대기']];
     let body = '';
     switch (name) {
-      case 'shop': body = G.onCity() ? this.shopHtml() : '<div class="panel dim">상점은 도시 안에서만 이용할 수 있다.</div>'; break;
+      case 'quest': body = this.questsHtml(); break;
       case 'people': body = this.peopleHtml(); break;
       case 'skills': body = this.skillsHtml(); break;
       case 'guild': body = this.guildHtml(); break;
       case 'log': body = `<div class="panel">${this.rightHtml()}</div>`; break;
       default: body = this.charHtml();
     }
-    return `<div class="sheet-head"><nav class="tabs">${tabs.map(([k, n]) => `<button class="${name === k ? 'on' : ''}" data-act="sheet" data-v="${k}" ${k === 'shop' && !G.onCity() ? 'disabled' : ''}>${n}</button>`).join('')}</nav>
+    return `<div class="sheet-head"><nav class="tabs">${tabs.map(([k, n]) => `<button class="${name === k ? 'on' : ''}" data-act="sheet" data-v="${k}">${n}</button>`).join('')}</nav>
       <button class="icon-btn" data-act="modal-close" aria-label="닫기">×</button></div><div class="sheet-body">${body}</div>`;
+  },
+
+  questsHtml() {
+    const p = G.player;
+    const row = (q) => `<div class="item-row ${q.status === 'done' ? 'hl' : ''}"><div class="grow"><b>${q.title}</b><div class="small dim">${q.kind === 'npc' ? `${(G.npcById(q.npc) || { name: '?' }).name}의 부탁 · 남은 기한 ${q.deadline - G.monthKey()}개월` : `${regionById(q.from).name} 협회 의뢰 · ${this.questStatus(q)}`}</div></div></div>`;
+    return `<div class="panel"><h3>진행 중인 일</h3><p class="dim small">협회 의뢰는 각 도시의 의뢰소에서 받고 보고합니다. 아는 사람들의 부탁은 메시지로 찾아옵니다.</p>
+      <div class="cards">${p.quests.map(row).join('') || '<div class="dim">맡은 일이 없다. 도시의 협회 의뢰소를 찾아가 보자.</div>'}</div></div>`;
   },
 
   rightHtml() {
@@ -432,6 +449,7 @@ const UI = {
         <button class="sm" data-act="npc-gift" data-v="${n.id}">선물 <span class="num">${fmt(G.giftCost(n))}</span></button>
         <button class="sm" data-act="npc-spar" data-v="${n.id}" ${n.lastSpar === mk || n.isCompanion ? 'disabled' : ''}>대련</button>
         ${G.canTeach(n) ? `<button class="sm" data-act="npc-teach" data-v="${n.id}">가르침 · 1개월</button>` : ''}
+        ${(G.player.disciples || []).includes(n.id) ? `<button class="sm" data-act="teach-disciple" data-v="${n.id}">제자 지도 · 1개월</button>` : ''}
         ${G.canRecruit(n) ? `<button class="sm primary" data-act="npc-recruit" data-v="${n.id}">동료 제의</button>` : ''}
         ${n.isCompanion ? '<button class="sm ghost" data-act="npc-dismiss">헤어지기</button>' : `<button class="sm danger" data-act="npc-duel" data-v="${n.id}">생사결</button>`}
       </div>`;
@@ -440,7 +458,7 @@ const UI = {
       <div class="npc-top">
         ${this.npcAvatar(n, 52)}
         <div class="grow">
-          <div class="row between"><b>${n.name}</b>${n.isCompanion ? '<span class="tag good">동료</span>' : ''}</div>
+          <div class="row between"><b>${n.name}</b><span>${this.bondTag(n)}${n.isCompanion ? '<span class="tag good">동료</span>' : ''}</span></div>
           <div class="small dim">${n.gender === 'M' ? '남' : '여'} · ${Math.floor(n.ageMonths / 12)}세 · ${pers.name} · ${n.guild ? GUILDS[n.guild].name : '무소속'}</div>
           <div class="row small">${this.rankTag(n.rankIdx, n.stage)} ${this.elemTag(n.element)}</div>
         </div>
@@ -449,6 +467,15 @@ const UI = {
       <div class="rel-line"><span class="small">관계 <b class="${rel < 0 ? 'bad' : rel >= 30 ? 'good' : ''}">${relationLabel(rel)}</b> <span class="num dim">${rel}</span></span>${G.canTeach(n) ? '<span class="small good">스승 가능</span>' : ''}</div>
       <div class="rel-bar"><i class="${rel < 0 ? 'neg' : ''}" style="${rel < 0 ? `right:50%;width:${-rel / 2}%` : `left:50%;width:${rel / 2}%`}"></i></div>
       ${btns}</div>`;
+  },
+
+  bondTag(n) {
+    const p = G.player; const t = [];
+    if (p.spouse === n.id) t.push('배우자'); if (p.partner === n.id) t.push('연인'); if (p.master === n.id) t.push('스승');
+    if ((p.disciples || []).includes(n.id)) t.push('제자'); if (n.family) t.push('혈육'); if (n.nemesis === 'player') t.push('원수');
+    const sp = n.spouse && n.spouse !== -1 ? G.npcById(n.spouse) : null; const pt = n.partner && n.partner !== -1 ? G.npcById(n.partner) : null;
+    const extra = sp ? `<span class="small dim">${sp.name}의 배우자 </span>` : pt ? `<span class="small dim">${pt.name}의 연인 </span>` : '';
+    return extra + t.map((x) => `<span class="tag ${x === '원수' ? 'bad' : 'amber'}">${x}</span>`).join('');
   },
 
   peopleHtml() {
@@ -472,11 +499,32 @@ const UI = {
       <div class="sec"><div class="sec-title">가방</div><div class="cards">${p.inventory.map((it) => { const cur = p.equip[it.slot]; return this.equipRow(it, `<button class="sm" data-act="equip" data-v="${it.uid}">장착</button>`, cur ? `<br>현재: ${this.equipStats(cur)}` : ''); }).join('') || '<div class="dim">비어 있다.</div>'}</div></div>
       <div class="sec"><div class="sec-title">소모품</div><div class="cards">${CONSUMABLES.filter((c) => p.items[c.id]).map((c) => `
         <div class="item-row"><div class="grow"><b>${c.name}</b> <span class="num">×${p.items[c.id]}</span> <span class="dim small">${c.desc}</span></div><button class="sm" data-act="use-item" data-v="${c.id}">사용</button></div>`).join('') || '<div class="dim">없음</div>'}</div></div>
-      <div class="sec"><div class="sec-title">생애 기록</div><div class="stat-grid">
+      <div class="sec"><div class="sec-title">인생 목표</div>${(() => { const a = AMBITIONS.find((x) => x.id === p.ambition); return `<div class="trait"><b>${a.name}</b><span class="dim">${a.desc}</span>${p.achieved.length ? `<span class="good small">달성: ${p.achieved.map((id) => AMBITIONS.find((x) => x.id === id).name).join(', ')}</span>` : ''}</div>`; })()}</div>
+      <div class="sec"><div class="sec-title">인연</div><div class="npc-strip">${this.bondsHtml()}</div></div>
+      <div class="sec"><div class="sec-title">유물 · 각성 촉매 · 코어</div><div class="cards">
+        ${p.relics.map((r) => { const R = relicById(r.id); return `<div class="item-row"><div class="grow"><b style="color:${RARITY[r.grade].color}">${R.name}</b> <span class="tag">${RARITY[r.grade].name}</span><div class="small dim">돌파 때 바치면 ${R.desc} 영구 상승</div></div></div>`; }).join('')}
+        ${Object.keys(p.items).filter((k) => k.startsWith('cat') && p.items[k] > 0).map((k) => `<div class="item-row hl"><div class="grow"><b>${RANKS[+k.slice(3)].key}급 각성 촉매</b> ×${p.items[k]}</div></div>`).join('')}
+        <div class="small dim">${Object.keys(p.mats).filter((k) => p.mats[k] > 0).map((k) => `${coreName(+k.slice(1))} ${p.mats[k]}`).join(' · ') || '코어 없음'} · 협회 공적 ${p.merit}</div>
+        ${Object.keys(p.relicBonus || {}).length ? `<div class="small">유물 누적 효과: ${Object.entries(p.relicBonus).map(([k, v]) => `${{ hp: '체력', atk: '공격', def: '방어', spd: '속도', mp: '정신력', luck: '운', train: '수련', life: '수명' }[k]} +${k === 'life' ? Math.round(v) + '년' : Math.round(v * 100) + '%'}`).join(', ')}</div>` : ''}
+      </div></div>
+      <div class="sec"><div class="sec-title">인생 기록</div><div class="logs">${p.lifeEvents.slice().reverse().map((e) => `<div class="l major"><span class="d">${e.date} · ${e.age}세</span>${e.text}</div>`).join('')}</div></div>
+      <div class="sec"><div class="sec-title">생애 통계</div><div class="stat-grid">
         <div><span class="dim">공략 게이트</span><b class="num">${p.record.gates}</b></div><div><span class="dim">처치 괴수</span><b class="num">${p.record.kills}</b></div>
         <div><span class="dim">돌파 성공</span><b class="num">${p.record.breakthroughs}</b></div><div><span class="dim">돌파 실패</span><b class="num">${p.record.fails}</b></div>
         <div><span class="dim">생사결 승리</span><b class="num">${p.record.npcKills}</b></div><div><span class="dim">수명 손상</span><b class="num">${p.lifePenalty}년</b></div>
       </div></div></div>`;
+  },
+
+  bondsHtml() {
+    const p = G.player;
+    const list = [];
+    const add = (id, label) => { const n = id != null && G.npcById(id); if (n) list.push([n, label]); };
+    add(p.spouse, '배우자'); add(p.partner, '연인'); add(p.master, '스승');
+    (p.disciples || []).forEach((id) => add(id, '제자'));
+    (p.children || []).forEach((id) => add(id, '자녀'));
+    G.npcs.filter((n) => n.family).forEach((n) => list.push([n, '혈육']));
+    G.adults().filter((n) => n.nemesis === 'player').forEach((n) => list.push([n, '원수']));
+    return list.map(([n, label]) => `<button class="npc-chip ${n.alive ? '' : 'dead'}" data-act="sheet" data-v="npc:${n.id}">${this.npcAvatar(n, 40)}<span><b>${n.name}</b><span class="small ${label === '원수' ? 'bad' : 'dim'}">${label}${n.alive ? (n.child ? ` · ${Math.floor(n.ageMonths / 12)}세` : ` · ${RANKS[n.rankIdx].key}급`) : ' · 故'}</span></span></button>`).join('') || '<span class="dim small">아직 깊은 인연이 없다.</span>';
   },
 
   skillsHtml() {
@@ -545,8 +593,10 @@ const UI = {
   },
   showGameOver() {
     this.modal(`<div class="ending dead-end">${FX.portrait(G.player.look, G.player.gender, G.player.element, G.player.rankIdx, 160)}<div class="eyebrow">${G.over.date}</div><h2>각성자 ${G.player.name}, 잠들다</h2><p>${G.over.reason}</p></div>${this.lifeSummary()}
+      <div class="sec-title sec">인생 기록</div><div class="logs life-log">${G.player.lifeEvents.map((e) => `<div class="l"><span class="d">${e.age}세</span>${e.text}</div>`).join('')}</div>
       <p class="dim">당신의 이름은 헌터 커뮤니티의 추모 게시판에 오래 남았다.</p>
-      <div class="row end"><button class="primary" data-act="to-title">타이틀로</button></div>`);
+      ${this.heirs().length ? `<div class="sec-title sec">뒤를 이을 사람</div><div class="cards">${this.heirs().map((n) => `<button class="choice-btn" data-act="succeed" data-v="${n.id}">${this.npcAvatar(n, 32)} ${n.name} · ${RANKS[n.rankIdx].key}급 · ${Math.floor(n.ageMonths / 12)}세로 이어 간다</button>`).join('')}</div>` : ''}
+      <div class="row end"><button class="${this.heirs().length ? 'ghost' : 'primary'}" data-act="to-title">타이틀로</button></div>`);
   },
   showVictory() {
     this.modal(`<div class="ending win-end">${FX.portrait(G.player.look, G.player.gender, G.player.element, G.player.rankIdx, 160)}<div class="eyebrow">${G.dateStr()}</div><h2>원초의 게이트 봉인</h2>
@@ -600,6 +650,7 @@ const UI = {
 
   unitSprite(u, size) {
     if (u.isPlayer) return this.playerAvatar(size);
+    if (u.portrait) return FX.avatar(u.portrait.seed, u.portrait.gender, u.portrait.elem, u.tier || 0, size);
     if (u.npcId) { const n = G.npcById(u.npcId); return this.npcAvatar(n, size); }
     return FX.monster(u, size);
   },
@@ -756,7 +807,7 @@ const UI = {
       if (cb.result === 'win') {
         if (!c.counted) {
           c.counted = true;
-          for (const k of cb.kills) { const r = G.monsterReward(k); c.loot.money += r.money; c.loot.ether += r.ether; c.loot.kills++; }
+          for (const k of cb.kills) { const r = G.monsterReward(k); c.loot.money += r.money; c.loot.ether += r.ether; c.loot.kills++; (c.loot.list ||= []).push(k); }
         }
         const last = c.roomIdx === c.rooms.length - 1;
         return `<div class="result win"><b>구역 제압</b> <span class="small">누적 보상 <span class="num">${fmt(c.loot.money)}</span> 크레딧 · 에테르 <span class="num">${fmt(c.loot.ether)}</span></span></div>
@@ -787,7 +838,10 @@ const UI = {
   },
 
   finishPersonalCombat() {
-    const c = this.ctx; const cb = c.combat; const n = G.npcById(c.npcId);
+    const c = this.ctx; const cb = c.combat;
+    if (c.kind === 'story') return this.finishStoryFight();
+    if (c.kind === 'tourney') return this.finishTourney();
+    const n = G.npcById(c.npcId);
     let msg = '';
     if (c.kind === 'mob') {
       const lines = G.finishMob(c.mob, cb.result, cb.kills, cb.player.hp, cb.player.mp);
@@ -832,18 +886,19 @@ const UI = {
       case 'c-gender': c.gender = v; return this.render();
       case 'c-bg': c.bg = v; return this.render();
       case 'c-elem': c.element = v; return this.render();
+      case 'c-amb': c.ambition = v; return this.render();
       case 'c-look': c.look = Math.random().toString(36).slice(2); return this.render();
       case 'c-roll': if (c.rolls > 0) this.rollCreate(); return this.render();
       case 'c-start': {
         const name = (c.name || '').trim();
         if (!name) return this.toast('이름을 입력하세요.');
-        G.newGame({ name, gender: c.gender, bg: c.bg, element: c.element, talent: c.talent, traits: c.traits, look: c.look });
+        G.newGame({ name, gender: c.gender, bg: c.bg, element: c.element, talent: c.talent, traits: c.traits, look: c.look, ambition: c.ambition });
         G.save();
         this.screen = 'game';
         this.render();
         return this.modal(`<div class="ending">${FX.portrait(G.player.look, G.player.gender, G.player.element, G.player.rankIdx, 160)}<div class="eyebrow">${G.dateStr()} · ${G.region().name}</div><h2>각성</h2></div>
           <p>평범했던 ${name}의 몸에 처음으로 에테르가 흘렀다. 관리국의 측정 결과는 <b>F급</b>. 가장 낮은 등급이지만, 당신에겐 아직 ${G.maxLife() - G.ageYears()}년의 수명이 남아 있다.</p>
-          <p class="dim">수련으로 에테르를 모으고, 게이트에서 실전을 쌓으십시오.</p><div class="row end"><button class="primary" data-act="modal-close">시작</button></div>`);
+          <p class="dim">정해진 길은 없다. 도시에 들어가 의뢰를 받고, 사람을 만나고, 게이트에서 코어를 모아 각성 촉매를 만들어라. 어떻게 살지는 당신이 정한다.</p><div class="row end"><button class="primary" data-act="modal-close">시작</button></div>`);
       }
       // 게임
       case 'sheet': return this.openSheet(v);

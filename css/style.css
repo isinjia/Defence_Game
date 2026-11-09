@@ -346,3 +346,42 @@ p { margin: 6px 0; }
   .bt-letter { font-size: 120px; }
   .bt-cap { font-size: 18px; letter-spacing: .12em; top: calc(50% + 76px); }
 }
+
+/* ---------- 도시 화면 ---------- */
+.modal-box.city-box { width: min(920px, 100%); height: min(780px, 100%); padding: 0; display: flex; flex-direction: column; }
+.city-hero { position: relative; height: 170px; flex: none; overflow: hidden; border-bottom: 1px solid var(--line-hi); }
+.city-sky { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.city-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, rgba(5, 8, 13, .92)); pointer-events: none; }
+.city-title { position: absolute; left: 18px; right: 70px; bottom: 12px; z-index: 1; }
+.city-title h2 { font-family: var(--font-display); font-weight: 400; font-size: 30px; margin: 0 0 2px; text-shadow: 0 2px 8px #000; }
+.city-close { position: absolute; top: 12px; right: 12px; z-index: 2; }
+.break-banner { background: #3a1018; border-bottom: 1px solid var(--bad); color: #ffc4cc; padding: 9px 18px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; animation: pulse-r 1.6s infinite; }
+.city-body { padding: 16px 18px; overflow: auto; flex: 1; }
+.fac-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.fac-tile { flex-direction: column; align-items: flex-start; text-align: left; gap: 4px; padding: 12px; min-height: 108px; background: linear-gradient(160deg, #151f30, #0e141f); border-color: var(--line-hi); }
+.fac-tile svg { color: var(--amber); }
+.fac-tile:hover:not(:disabled) svg { color: var(--ether); }
+.fac-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.fac-head h3 { margin: 0; display: flex; gap: 8px; align-items: center; }
+.fac-head h3 svg { color: var(--amber); }
+.npc-strip { display: flex; flex-wrap: wrap; gap: 6px; }
+.npc-chip { padding: 5px 10px 5px 5px; gap: 8px; text-align: left; }
+.npc-chip > span { display: grid; line-height: 1.3; }
+.npc-chip.dead { opacity: .5; filter: grayscale(.8); }
+.item-row.hl { border-color: #ffb54788; background: linear-gradient(90deg, #241b0c, var(--panel2) 60%); }
+
+/* 사건·메시지 */
+.story-portrait { display: flex; gap: 14px; align-items: flex-end; margin-bottom: 10px; }
+.story-portrait > div:last-child { display: grid; gap: 3px; }
+.choice-btn.on { border-color: var(--amber); background: #261c0c; }
+.amb { font-weight: 700; }
+.life-log { max-height: 220px; overflow: auto; }
+.obj-sub { font-weight: 400; }
+@media (max-width: 640px) {
+  .city-hero { height: 130px; }
+  .city-title h2 { font-size: 24px; }
+  .fac-grid { grid-template-columns: 1fr 1fr; }
+  .fac-tile { min-height: 0; }
+  .fac-tile .small { display: none; }
+  .story-portrait .portrait, .story-portrait .portrait-img { width: 96px !important; height: auto; }
+}

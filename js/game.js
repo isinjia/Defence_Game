@@ -82,11 +82,18 @@ class Game {
     this.reveal(this.player.x, this.player.y, 6);
     this.player.equip.weapon = this.makeEquipment('weapon', 0, 0);
     this.player.equip.armor = this.makeEquipment('armor', 0, 0);
+    this.player.ambition = opts.ambition || 'free';
+    this.initSandbox();
     this.recalc();
     this.player.hp = this.player.maxHp; this.player.mp = this.player.maxMp;
 
     for (let i = 0; i < 55; i++) this.npcs.push(this.makeNpc(false));
     for (let i = 0; i < 3; i++) this.spawnMonthly();
+    for (const n of this.npcs) { n.links ??= {}; n.disciples ??= []; n.parents ??= []; }
+    // 처음 몇 년치 인간관계를 미리 굴려 세계에 사연을 만든다
+    for (let i = 0; i < 24; i++) this.simulateSociety();
+    this.rumors = [];
+    this.lifeEvent(`${regionById(this.player.region).name}에서 각성했다.`);
     this.log(`${this.dateStr()}, ${this.player.name}은(는) ${regionById(this.player.region).name}에서 각성했다.`, 'major');
     this.log('20년 전 "대붕괴" 이후 한반도 곳곳에 게이트가 열렸다. 살아남아, 강해져라.');
   }
@@ -96,7 +103,7 @@ class Game {
     const data = {
       year: this.year, month: this.month, player: this.player, npcs: this.npcs, nextNpcId: this.nextNpcId,
       logs: this.logs, rumors: this.rumors, shops: this.shops, flags: this.flags,
-      day: this.day, mobs: this.mobs, mapGates: this.mapGates, nextObjId: this.nextObjId,
+      day: this.day, mobs: this.mobs, mapGates: this.mapGates, nextObjId: this.nextObjId, world: this.world,
       fog: Array.from(this.fog).join(''),
     };
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (e) { /* 저장 실패 무시 */ }
@@ -111,6 +118,7 @@ class Game {
     this.fog = Uint8Array.from(String(data.fog || ''), (c) => (c === '1' ? 1 : 0));
     if (this.fog.length !== WORLD.COLS * WORLD.ROWS) this.fog = new Uint8Array(WORLD.COLS * WORLD.ROWS);
     this.over = null; this.queue = [];
+    this.initSandbox();
     this.recalc();
     return true;
   }
@@ -122,6 +130,7 @@ class Game {
     for (const t of p.traits) v += traitById(t).mods[key] || 0;
     const bg = BACKGROUNDS.find((b) => b.id === p.bg);
     v += bg.mods[key] || 0;
+    if (p.relicBonus) v += this.extraMod(key);
     return v;
   }
 
@@ -282,7 +291,7 @@ class Game {
       this.log(`${reg.name}에 들어섰다.`);
     }
     const city = this.onCity();
-    if (city) this.reveal(p.x, p.y, 5);
+    if (city) { this.reveal(p.x, p.y, 5); this.visitCity(city.id); this.questEvent('arrive', { region: city.id }); }
     const comp = this.companion();
     if (comp) comp.region = p.region;
     const days = WORLD.daysFor(cost);
@@ -369,7 +378,8 @@ class Game {
     for (const k of kills) { const r = this.monsterReward(k); money += r.money; ether += r.ether; }
     p.money += money; this.addEther(ether); p.record.kills += kills.length;
     this.mobs = this.mobs.filter((m) => m !== mob && m.id !== mob.id);
-    const lines = [`토벌 보상: ${fmt(money)} 크레딧, 에테르 ${fmt(ether)}`];
+    const lines = [`토벌 보상: ${fmt(money)} 크레딧, 에테르 ${fmt(ether)}`, ...this.lootFromKills(kills, false)];
+    this.questEvent('kill', { region: mob.region, tier: mob.tier, n: kills.length });
     if (RNG.chance(0.15)) { const it = this.makeEquipment(RNG.pick(['weapon', 'armor', 'acc']), mob.tier); p.inventory.push(it); lines.push(`전리품: ${it.name}`); }
     this.log(`${mob.name} 무리를 토벌했다.`, 'good');
     this.save();
@@ -394,6 +404,9 @@ class Game {
       }
       this.simulateNpcs();
       this.spawnMonthly();
+      this.simulateSociety();
+      this.worldMonthly();
+      this.storyMonthly();
       if (this.ageYears() >= this.maxLife()) {
         this.gameOver(`${this.ageYears()}세, 수명이 다해 눈을 감았다.`);
         return;
@@ -407,8 +420,8 @@ class Game {
       if (RNG.chance(0.12 + persById(e.personality).hostile)) { this.queue.push({ type: 'ambush', npcId: e.id }); break; }
     }
     if (opts.eventChance && RNG.chance(opts.eventChance)) {
-      const pool = EVENTS.filter((ev) => !ev.when || ev.when(this));
-      this.queue.push({ type: 'event', id: RNG.pick(pool).id });
+      const ev = this.pickStory();
+      if (ev) this.queue.push(ev);
     }
     this.save();
   }
@@ -437,23 +450,32 @@ class Game {
       relation: 0, alive: true, talent: RNG.int(2, 9),
       guild: rankIdx >= 1 && RNG.chance(0.35) ? RNG.pick(guildIds) : null,
       lastTalk: -1, lastSpar: -1, met: false, isCompanion: false, death: null,
+      links: {}, disciples: [], parents: [], partner: null, spouse: null, master: null, child: false,
     };
   }
 
   npcById(id) { return this.npcs.find((n) => n.id === id); }
-  npcsHere() { return this.npcs.filter((n) => n.alive && n.region === this.player.region); }
+  npcsHere() { return this.npcs.filter((n) => n.alive && !n.child && n.region === this.player.region); }
   companion() { const id = this.player.companion; return id ? this.npcById(id) : null; }
   npcRankLabel(n) { return rankLabel(n.rankIdx, n.stage); }
 
-  killNpc(n, cause) {
+  killNpc(n, cause, killer) {
     n.alive = false; n.death = { date: this.dateStr(), cause };
     if (n.isCompanion) { n.isCompanion = false; this.player.companion = null; }
+    const p = this.player;
+    if (p && p.partner === n.id) { p.partner = null; this.lifeEvent(`연인 ${n.name}을(를) 잃었다.`); }
+    if (p && p.spouse === n.id) { p.spouse = null; this.lifeEvent(`배우자 ${n.name}을(를) 잃었다.`); }
+    if (p && p.master === n.id) { p.master = null; this.lifeEvent(`스승 ${n.name}이(가) 세상을 떠났다.`); }
+    if (p && p.disciples && p.disciples.includes(n.id)) { p.disciples = p.disciples.filter((x) => x !== n.id); this.lifeEvent(`제자 ${n.name}을(를) 잃었다.`); }
+    if (this.avenge && (killer || cause === '게이트')) this.avenge(n, killer);
+    if (this.questEvent) this.questEvent('npckill', { id: n.id });
   }
 
   simulateNpcs() {
     for (const n of this.npcs) {
       if (!n.alive) continue;
       n.ageMonths++;
+      if (n.child) continue;
       if (n.ageMonths / 12 >= n.lifespan) {
         this.killNpc(n, '수명');
         if (n.met || n.rankIdx >= 4) this.rumor(`${RANKS[n.rankIdx].key}급 각성자 ${n.name}이(가) ${Math.floor(n.ageMonths / 12)}세로 세상을 떠났다.`);
@@ -496,7 +518,7 @@ class Game {
         const victims = this.npcs.filter((o) => o.alive && o !== n && o.region === n.region && o.rankIdx < n.rankIdx && !o.isCompanion);
         if (victims.length) {
           const v = RNG.pick(victims);
-          this.killNpc(v, `${n.name}에게 살해`);
+          this.killNpc(v, `${n.name}에게 살해`, n);
           this.rumor(`${n.name}이(가) 결투 끝에 ${v.name}을(를) 쓰러뜨렸다.`);
           if (v.met) this.log(`${v.name}이(가) ${n.name}에게 살해당했다.`, 'bad');
           if (v.met && v.relation >= 30) { n.relation -= 20; }
@@ -504,10 +526,14 @@ class Game {
       }
     }
     // 인구 유지
-    const alive = this.npcs.filter((n) => n.alive).length;
+    const alive = this.npcs.filter((n) => n.alive && !n.child).length;
     for (let i = alive; i < 50; i++) this.npcs.push(this.makeNpc(true));
     // 오래된 사망자 정리 (만난 적 없는 사람)
-    if (this.npcs.length > 160) this.npcs = this.npcs.filter((n) => n.alive || n.met);
+    if (this.npcs.length > 180) {
+      const keep = new Set(); const p = this.player;
+      [p.partner, p.spouse, p.master, ...(p.disciples || [])].forEach((id) => id && keep.add(id));
+      this.npcs = this.npcs.filter((n) => n.alive || n.met || keep.has(n.id));
+    }
   }
 
   relGain(n, base) {
@@ -549,7 +575,7 @@ class Game {
     return `${n.name}에게 ${fmt(cost)} 크레딧 상당의 선물을 건넸다. (관계 +${g})`;
   }
 
-  canTeach(n) { return n.rankIdx >= this.player.rankIdx + 1 && n.relation >= 40; }
+  canTeach(n) { return n.rankIdx >= this.player.rankIdx + 1 && (n.relation >= 40 || this.player.master === n.id); }
   teach(id) {
     const n = this.npcById(id);
     if (!n || !this.canTeach(n) || !this.canAct()) return '';
@@ -561,6 +587,19 @@ class Game {
     return `${n.name}의 지도 아래 수련했다. 에테르 +${fmt(g)}`;
   }
 
+  // 제자를 한 달 동안 직접 가르친다
+  teachDisciple(id) {
+    const p = this.player; const n = this.npcById(id);
+    if (!n || !n.alive || !(p.disciples || []).includes(id) || !this.canAct()) return '';
+    n.progress += 1.2; this.changeRel(n, 6); p.fame += 2; p.merit += 3;
+    let msg = `${n.name}을(를) 한 달 동안 가르쳤다.`;
+    if (n.progress >= 1) {
+      n.progress = 0;
+      if (n.stage < 2) n.stage++; else if (n.rankIdx < p.rankIdx - 1 || RNG.chance(0.4)) { n.rankIdx = Math.min(7, n.rankIdx + 1); n.stage = 0; msg += ` ${n.name}이(가) ${RANKS[n.rankIdx].key}급으로 돌파했다!`; this.lifeEvent(`제자 ${n.name}을(를) ${RANKS[n.rankIdx].key}급으로 키워 냈다.`); }
+    }
+    this.advanceMonth(1, { eventChance: 0.1 });
+    return msg + ' (명성 +2, 협회 공적 +3)';
+  }
   canRecruit(n) { return !n.isCompanion && n.relation >= 60 && !this.player.companion; }
   recruit(id) {
     const n = this.npcById(id);
@@ -671,9 +710,14 @@ class Game {
     p.money += loot.money; p.record.kills += loot.kills;
     this.addEther(loot.ether);
     lines.push(`획득: ${fmt(loot.money)} 크레딧, 에테르 ${fmt(loot.ether)}`);
+    lines.push(...this.lootFromKills(loot.list || [], result === 'clear'));
+    if (loot.list) this.questEvent('kill', { region: gate.region, tier: gate.tier, n: loot.list.length });
     if (result === 'clear') {
       gate.cleared = true; p.record.gates++;
       this.mapGates = this.mapGates.filter((g) => g.id !== gate.id);
+      this.questEvent('gate', { region: gate.region, tier: gate.tier });
+      if (gate.breakCity) lines.push(this.resolveBreak(gate.breakCity));
+      if (p.record.gates === 1) this.lifeEvent('첫 게이트를 공략했다.');
       const fame = gate.tier + 1;
       p.fame += fame;
       lines.push(`게이트 클리어! 명성 +${fame}`);
@@ -727,6 +771,7 @@ class Game {
     let m = 1 + this.mod('price');
     const reg = this.region();
     if (reg.guild && reg.guild === this.player.guild) m *= 0.8;
+    if (this.cityPriceMul) m *= this.cityPriceMul(reg.id);
     return m;
   }
 
@@ -890,7 +935,8 @@ class Game {
     const villain = n.relation <= -20 || persById(n.personality).id === 'warlike';
     const fameD = villain ? 3 : -10;
     p.fame = Math.max(0, p.fame + fameD);
-    this.killNpc(n, `${p.name}에게 살해`);
+    this.killNpc(n, `${p.name}에게 살해`, 'player');
+    this.lifeEvent(`생사결 끝에 ${n.name}을(를) 베었다.`);
     this.rumor(`${p.name}이(가) 생사결 끝에 ${n.name}을(를) 쓰러뜨렸다.`);
     this.log(`${n.name}을(를) 쓰러뜨렸다.`, villain ? 'good' : 'bad');
     // 같은 지역의 지인들이 반응

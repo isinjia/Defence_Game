@@ -251,3 +251,65 @@ const GUILD_RANKS = [
   { name: '정예 단원', req: 300 },
   { name: '간부', req: 700 },
 ];
+
+// ===== 샌드박스 확장 데이터 =====
+
+// 인생 목표 (정해진 줄거리 대신 스스로 고르는 목표)
+const AMBITIONS = [
+  { id: 'apex', name: '정점의 헌터', desc: 'S급에 올라 원초의 게이트를 닫는다.', mods: { train: 0.08 } },
+  { id: 'wealth', name: '헌터 재벌', desc: '100만 크레딧을 모은다.', mods: { price: -0.1 } },
+  { id: 'guild', name: '길드의 기둥', desc: '길드 간부 자리에 오른다.', mods: { social: 0.15 } },
+  { id: 'family', name: '지킬 사람', desc: '배우자와 제자를 얻는다.', mods: { social: 0.25 } },
+  { id: 'hero', name: '국민 영웅', desc: '명성 600을 달성한다.', mods: { luck: 0.1 } },
+  { id: 'free', name: '자유인', desc: '정해진 목표 없이 마음 가는 대로 산다.', mods: {} },
+];
+
+// 유물 (돌파 때 바치면 영구 능력치를 얻는다)
+const RELICS = [
+  { id: 'magma_heart', name: '용암의 심장', stat: 'hp', val: 0.06, desc: '체력' },
+  { id: 'storm_quill', name: '뇌조의 깃', stat: 'spd', val: 0.05, desc: '속도' },
+  { id: 'frost_sarira', name: '빙정 사리', stat: 'def', val: 0.06, desc: '방어' },
+  { id: 'steel_nerve', name: '강철 신경다발', stat: 'atk', val: 0.05, desc: '공격' },
+  { id: 'soul_lamp', name: '혼등', stat: 'mp', val: 0.08, desc: '정신력' },
+  { id: 'lucky_coin', name: '대붕괴 이전의 동전', stat: 'luck', val: 0.12, desc: '운' },
+  { id: 'old_chip', name: '고대 연산 칩', stat: 'train', val: 0.04, desc: '수련 효율' },
+  { id: 'world_sap', name: '세계수 수액', stat: 'life', val: 2, desc: '수명(년)' },
+  { id: 'rift_shard', name: '균열의 파편', stat: 'atk', val: 0.08, desc: '공격' },
+  { id: 'dragon_scale', name: '적룡의 비늘', stat: 'def', val: 0.09, desc: '방어' },
+];
+
+// 도시 시설
+const FACILITIES = [
+  { id: 'inn', name: '캡슐 호텔', desc: '크레딧과 5일을 써서 완전히 회복한다.' },
+  { id: 'market', name: '헌터 마켓', desc: '장비와 소모품을 사고판다. 큰 도시엔 각성 촉매도 들어온다.' },
+  { id: 'board', name: '협회 의뢰소', desc: '의뢰를 받고 보고한다. 크레딧, 협회 공적, 도시 평판을 준다.' },
+  { id: 'tavern', name: '포차', desc: '술 한잔으로 기운을 얻고, 이 도시 각성자들과 가까워진다.' },
+  { id: 'workshop', name: '공방', desc: '괴수 코어로 회복제와 각성 촉매를 만든다.' },
+  { id: 'archive', name: '스킬 아카이브', desc: '크레딧과 협회 공적으로 스킬 데이터를 교환한다.' },
+  { id: 'transit', name: '고속 이동망', desc: '가 본 도시로 빠르게 이동한다.' },
+  { id: 'auction', name: '경매장', desc: '매년 5월, 유물과 전설 장비가 경매에 오른다.', big: true },
+  { id: 'guild', name: '길드 본부', desc: '이 도시에 본부를 둔 길드.', guildOnly: true },
+];
+const BIG_CITIES = ['gangnam', 'busan', 'daegu'];
+
+// 포차 메뉴
+const DRINKS = [
+  { id: 'soju', name: '소주 한 병', price: 30, desc: '이 도시 각성자 모두와 관계 +4 (한 달에 한 번)', effect: 'social' },
+  { id: 'ether_cocktail', name: '에테르 칵테일', price: 220, desc: '3개월간 운 +15', effect: 'buff', buff: { stat: 'luck', val: 1.5, months: 3 } },
+  { id: 'magma_whisky', name: '용암 위스키', price: 400, desc: '2개월간 공격 +12%', effect: 'buff', buff: { stat: 'atk', val: 0.12, months: 2 } },
+  { id: 'calm_tea', name: '청심차', price: 150, desc: '3개월간 수련 효율 +15%', effect: 'buff', buff: { stat: 'train', val: 0.15, months: 3 } },
+];
+
+// 공방 제작법 (tier: 사용하는 코어 등급, 'rank'면 현재 등급)
+const RECIPES = [
+  { id: 'potion', name: '응급 회복제', cores: 1, tier: 0, credits: 40, out: 'potion', n: 2 },
+  { id: 'mana', name: '마나 앰플', cores: 1, tier: 0, credits: 50, out: 'mana', n: 2 },
+  { id: 'crystal', name: '에테르 결정', cores: 3, tier: 'rank', credits: 100, out: 'crystal', n: 1 },
+  { id: 'catalyst', name: '각성 촉매', cores: 5, tier: 'rank', credits: 200, out: 'catalyst', n: 1 },
+];
+
+// 헌터 대회, 게이트 브레이크 등 세계 사건 이름
+const SAGA = {
+  tournamentMonth: 9, tournamentCity: 'gangnam', tournamentEvery: 3,
+  auctionMonth: 5,
+};
