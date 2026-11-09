@@ -436,9 +436,9 @@
 .menu-btn.menu-one span { display: inline !important; }
 .hud-zoom [data-act=zoom-in], .hud-zoom [data-act=zoom-out], .hud-zoom [data-act=zoom-me] { display: none !important; }
 @media (max-width: 640px) {
-  .hud-tr { top: calc(8px + env(safe-area-inset-top, 0px)) !important; left: 88px !important; right: 60px !important; width: auto !important; }
+  .hud-tr { top: calc(60px + env(safe-area-inset-top, 0px)) !important; left: 12px !important; right: auto !important; width: min(300px, 64vw) !important; } /* 메뉴 아래 왼쪽 (사용자 요청) */
   .hud-zoom { top: calc(8px + env(safe-area-inset-top, 0px)) !important; }
-  #world.fold-obj .hud-tr { left: 88px !important; }
+  #world.fold-obj .hud-tr { left: 12px !important; width: max-content !important; max-width: min(300px, 64vw); }
 }
 .modal-box.menu-pop { width: min(420px, 100%); }
 .menu-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 8px 0; }

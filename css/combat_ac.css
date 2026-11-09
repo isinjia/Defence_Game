@@ -33,3 +33,7 @@
   html body #dlg { justify-content: flex-end; padding-bottom: calc(22vh + env(safe-area-inset-bottom, 0px)); }
 }
 #dlg .dlg-choices { margin-bottom: 4px; }
+
+/* 괴수 크기 = 기준 크기(--fs, 전투 내내 고정) × 몸집(--ms) (js/mon_size.js) */
+html body .combat-box.fit.msize .foe { width: calc(var(--fs, 72px) * var(--ms, 1) + 22px); }
+html body .combat-box.fit.msize .foe .sprite svg, html body .combat-box.fit.msize .foe .sprite .avatar, html body .combat-box.fit.msize .foe .sprite img { width: calc(var(--fs, 72px) * var(--ms, 1)) !important; height: calc(var(--fs, 72px) * var(--ms, 1)) !important; }

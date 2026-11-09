@@ -729,3 +729,28 @@ html body .idc-photo { background: #fff; }
 html body .idc-photo * { animation: none !important; }
 html body .idc-row.dim, html body .idc-info .dim { opacity: 1; color: inherit; font-weight: 600; }
 html body .idc-info .small { font-size: 10.5px; }
+
+
+/* 오더 중: 전장 맨 위 띠 (누구에게 · 무엇을 · 지시함) */
+.order-banner { position: absolute; left: 8px; right: 8px; top: 8px; z-index: 7; display: grid; gap: 4px; padding: 8px 10px; border: 1px solid var(--amber); border-radius: 8px; background: #0b111bf2; box-shadow: 0 8px 24px #000a; font-size: 13px; }
+.order-banner .row.between { gap: 8px; }
+.order-banner button { min-height: 32px; }
+.order-banner.done { border-color: #5fd68a; animation: orderok .35s ease-out; }
+.order-banner.done .good { color: #5fd68a; font-size: 14px; }
+@keyframes orderok { 0% { transform: scale(.96); box-shadow: 0 0 0 0 #5fd68a80; } 100% { transform: none; box-shadow: 0 8px 24px #000a; } }
+.cmd-wrap.order-cmd .cmd-main .cmd.sel { border-color: var(--amber); color: var(--amber); background: #261c0c; }
+.cmd-wrap.order-cmd .cmd:disabled.sel { opacity: 1; border-color: #5fd68a; color: #5fd68a; background: #0f2418; }
+@media (prefers-reduced-motion: reduce) { .order-banner.done { animation: none; } }
+
+/* 스킬 길게 누르기 정보 카드 (js/skill_hold.js) */
+.skill-btn { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.skill-hold-wrap { position: fixed; inset: 0; z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 16px; background: #0008; animation: coachin .15s ease-out; }
+.skill-hold { width: min(360px, 100%); background: #0b111b; border: 1px solid var(--c); border-left: 4px solid var(--c); border-radius: 10px; padding: 12px 14px; box-shadow: 0 16px 40px #000c; }
+.skill-hold .sh-head { display: flex; align-items: center; gap: 8px; font-size: 17px; margin-bottom: 4px; }
+.skill-hold .sh-head .small { margin-left: auto; }
+.skill-hold p { margin: 4px 0 8px; line-height: 1.5; }
+.sh-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.sh-table th { text-align: left; color: var(--dim, #9aa6b8); font-weight: 600; padding: 4px 8px 4px 0; width: 5.5em; vertical-align: top; white-space: nowrap; }
+.sh-table td { padding: 4px 0; border-top: 1px solid #ffffff10; }
+.sh-table tr:first-child td { border-top: 0; }
+.sh-tip { margin-top: 8px; text-align: center; }

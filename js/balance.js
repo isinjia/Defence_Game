@@ -1,14 +1,13 @@
 // ===== 게이트 크로니클: 밸런스 조정 (영역 C) =====
 // docs/성장_밸런스_분석.md 추천 1·3·6·7.
 // 1. 일반 게이트·토벌 패배는 수명 대신 부상과 돈. 수명은 치명상·레드 게이트 같은 극적인 순간에만 깎인다.
-// 3. 자유 동료와 함께 가면 전리품을 나눈다. 혼자 가면 조금 더 얻는다.
+// 3. 자유 동료와 함께 가면 전리품을 1/N로 똑같이 나눈다. 혼자 가면 조금 더 얻는다.
 // 6. 돌파 직후 재측정 안내.
 // 7. 돌파 실패는 에테르와 시간만 잃는다(수명 손상 없음).
 // 수명이 줄면 크게 알리고, 정보 창에 잃은 이유를 남긴다(p.lifeLog).
 
 const BAL = {
   critChance: 0.1,     // 패배 중 치명상(수명 -1) 확률
-  companionShare: 0.08, // 자유 동료 1명이 가져가는 몫 (크레딧·에테르)
   soloMoney: 1.1, soloEther: 1.15,
 };
 
@@ -45,11 +44,13 @@ const BAL = {
         loot.money = Math.round(loot.money * BAL.soloMoney); loot.ether = Math.round(loot.ether * BAL.soloEther);
         note.push('홀로 공략한 덕에 전리품을 독차지했다. (크레딧 +10%, 에테르 +15%)');
       } else if (mates.length) {
-        const keep = Math.max(0.5, 1 - BAL.companionShare * mates.length);
-        const given = Math.round(loot.money * (1 - keep));
-        loot.money = Math.round(loot.money * keep); loot.ether = Math.round(loot.ether * keep);
-        note.push(`동료 ${mates.length}명과 전리품을 나눴다. (${Math.round(keep * 100)}%를 받음, 동료 몫 ${fmt(given)} 크레딧)`);
-        for (const n of mates) this.changeRel(n, 1);
+        // 사용자 지적: 둘이 가서 92:8은 말이 안 된다 → 헌터 관례대로 1/N 똑같이 나눈다 (크레딧·코어 에테르)
+        const keep = 1 / (mates.length + 1);
+        const each = Math.round(loot.money * keep);
+        const given = loot.money - each;
+        loot.money = each; loot.ether = Math.round(loot.ether * keep);
+        note.push(`전리품을 ${mates.length + 1}명이 똑같이 나눴다. (1/${mates.length + 1}: 내 몫 ${fmt(each)} 크레딧 · ${mates.map((n) => n.name).join(', ')}도 ${fmt(Math.round(given / mates.length))} 크레딧씩)`);
+        for (const n of mates) { this.changeRel(n, 2); if (typeof n.money === 'number') n.money += Math.round(given / mates.length); }
       }
     }
     const before = p.lifePenalty;

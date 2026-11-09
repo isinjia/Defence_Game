@@ -19,6 +19,15 @@ function npcLead(n) {
   }
   return n.lead;
 }
+// 오더 한 줄 설명 (공격·스킬·아이템·방어)
+function orderLabel(o, cb) {
+  if (!o) return '';
+  const t = o.target && cb.units.find((x) => x.id === o.target);
+  if (o.act === 'defend') return '방어';
+  if (o.act === 'item') { const it = CONSUMABLES.find((x) => x.id === o.item); return `${it ? it.name : '아이템'}${t ? ' → ' + t.name : ''}`; }
+  const sk = o.skill && skillById(o.skill);
+  return sk ? `${sk.id === 'strike' ? '공격' : sk.name}${t && t.id !== o.unit ? ' → ' + t.name : ''}` : '';
+}
 function leadLabel(v) { return v >= 75 ? '정확한 지휘' : v >= 55 ? '무난한 지휘' : v >= 35 ? '어설픈 지휘' : '엉망인 지휘'; }
 
 Object.assign(Combat.prototype, {
@@ -36,11 +45,35 @@ Object.assign(Combat.prototype, {
     } finally { this._actor = prev; }
     this.checkEnd();
   },
+  // 오더로 방어: 다음 차례까지 받는 피해 크게 감소, 정신력 조금 회복
+  allyDefend(u) {
+    u.buffs.def = Math.max(u.buffs.def, 0.8); u.buffs.defT = Math.max(u.buffs.defT, 1);
+    u.mp = Math.min(u.maxMp, u.mp + Math.round(u.maxMp * 0.05));
+    this.buffEvent(u, `${u.name} · 방어 태세`);
+  },
+  // 오더로 아이템: 파티 가방(내 소지품)에서 꺼내 지정한 아군에게
+  allyItem(u, o) {
+    const g = this.game; const it = CONSUMABLES.find((x) => x.id === o.item);
+    if (!it || !g.player.items[o.item]) { const t = '가방에 그게 없는데?'; this.push(`${u.name}: "${t}"`, '', { k: 'say', src: u.id, text: t }); return false; }
+    const t = (o.target && this.units.find((x) => x.id === o.target && x.alive)) || u;
+    g.player.items[o.item]--;
+    const mul = 1 + g.mod('heal');
+    if (it.effect === 'hp') this.healUnit(t, t.maxHp * it.val * mul, u);
+    else { const v = Math.round(t.maxMp * it.val * mul); t.mp = Math.min(t.maxMp, t.mp + v); this.push(`${u.name}이(가) ${t.name}에게 ${it.name} · 정신력 +${v}`, 'heal', { k: 'mp', dst: t.id, mp: t.mp }); }
+    return true;
+  },
   leader() { return this.units.find((u) => u.id === this.leaderId && u.alive) || null; },
   shortName(u) { return u.isPlayer ? u.name : u.name.replace(/\(.*\)$/, '').slice(-2); },
 
   // 오더의 질: 1 좋음, 0 보통, -1 나쁨
-  rateOrder(u, sk, t) {
+  rateOrder(u, sk, t, o) {
+    if (o && o.act === 'defend') return u.hp < u.maxHp * 0.4 ? 1 : roleOf(u.cls) === 'tank' ? 0 : u.hp > u.maxHp * 0.8 ? -1 : 0;
+    if (o && o.act === 'item') {
+      const w = t || u; const it = CONSUMABLES.find((x) => x.id === o.item);
+      if (!it || !this.game.player.items[o.item]) return -1;
+      if (it.effect === 'mp') return w.mp < w.maxMp * 0.3 ? 1 : w.mp > w.maxMp * 0.8 ? -1 : 0;
+      return w.hp < w.maxHp * 0.5 ? 1 : w.hp > w.maxHp * 0.9 ? -1 : 0;
+    }
     if (!sk) return 0;
     if (sk.mp > u.mp) return -1;
     const role = roleOf(u.cls);
@@ -137,6 +170,19 @@ Object.assign(Combat.prototype, {
     if (u.side === 'ally' && !u.isPlayer && !u.summon && this.leaderId) {
       this.leaderOrders(u);
       const o = u.order; u.order = null;
+      if (o && (o.act === 'defend' || o.act === 'item')) {
+        if (this.obeys(u, o)) {
+          this.noteOrder('obey', u, o);
+          if (Math.random() < 0.3) { const line = RNG.pick(['알겠어!', '맡겨 줘.', '오케이!']); this.push(`${u.name}: "${line}"`, '', { k: 'say', src: u.id, text: line }); }
+          if (o.act === 'defend') return this.allyDefend(u);
+          if (this.allyItem(u, o)) return;
+        } else {
+          const line = o.rate < 0 ? RNG.pick(['지금 그럴 때가 아니야.', '내 판단대로 할게.']) : RNG.pick(['잠깐, 내가 알아서 해.', '…']);
+          this.push(`${u.name}: "${line}"`, '', { k: 'say', src: u.id, text: line });
+          this.noteOrder('ignore', u, o);
+        }
+        return baseAi.call(this, u);
+      }
       if (o) {
         const sk = skillById(o.skill);
         if (!sk || sk.mp > u.mp) {
@@ -252,9 +298,11 @@ Object.assign(UI, {
       if (u.side !== 'ally') continue;
       const el = document.getElementById('u-' + u.id); if (!el) continue;
       let tag = el.querySelector('.order-tag');
-      const osk = u.order && u.order.skill && (!u.isPlayer || myTurn) && skillById(u.order.skill);
-      if (osk && !tag) { el.insertAdjacentHTML('afterbegin', '<span class="order-tag"></span>'); tag = el.querySelector('.order-tag'); }
-      if (tag) { tag.innerHTML = osk ? `${FX.elemIcon(osk.elem, 11)}${osk.name}` : ''; tag.style.display = osk ? '' : 'none'; tag.title = osk ? `오더: ${osk.name}` : ''; }
+      const shown = u.order && !u.order.vague && (!u.isPlayer || myTurn) ? u.order : null;
+      const osk = shown && shown.skill && skillById(shown.skill);
+      const lab = shown ? (shown.act === 'defend' ? '방어' : shown.act === 'item' ? ((CONSUMABLES.find((x) => x.id === shown.item) || {}).name || '아이템') : osk ? (osk.id === 'strike' ? '공격' : osk.name) : '') : '';
+      if (lab && !tag) { el.insertAdjacentHTML('afterbegin', '<span class="order-tag"></span>'); tag = el.querySelector('.order-tag'); }
+      if (tag) { tag.innerHTML = lab ? `${osk ? FX.elemIcon(osk.elem, 11) : ''}${lab}` : ''; tag.style.display = lab ? '' : 'none'; tag.title = lab ? `오더: ${lab}` : ''; }
     }
     // ① ② NPC 리더가 나에게 내린 오더
     if (p && p.order && myTurn && L && !L.isPlayer) {
@@ -298,32 +346,70 @@ Object.assign(UI, {
     if (!L && G.crewLeader) { const cl = G.crewLeader(); if (cl) L = allies.find((u) => u.npcId === cl.id); }
     return (L || allies.find((u) => u.isPlayer) || allies[0] || {}).id;
   },
+  // 오더 창: 내 차례와 같은 기본 커맨드(공격·스킬·아이템·방어). 머리말은 위에 떠 있다.
   orderPanelHtml() {
     const c = this.ctx; const cb = c.combat; const u = cb.units.find((x) => x.id === c.orderFor); if (!u) return '';
-    const skills = cb.skillsOf(u);
-    const sel = c.orderSel ? skills.find((s) => s.id === c.orderSel) : null;
-    const aim = sel ? orderAimOf(sel) : null;
+    const skills = cb.skillsOf(u).filter((s) => s.id !== 'strike');
     const n = G.npcById(u.npcId);
-    const info = sel ? `<div class="small"><span class="tag tiny">${TYPE_NAME[sel.type] || sel.type}</span> ${SKILL_EFFECT[sel.type] || ''} · 소모 MP ${sel.mp} (남은 ${Math.round(u.mp)})${sel.mp > u.mp ? ' <b class="bad">MP 부족</b>' : ''}</div>` : '';
-    return `<div class="skill-info order-panel" style="--c:var(--amber)">
+    const cmd = c.orderCmd || null;
+    const sel = c.orderSel ? skillById(c.orderSel) : null;
+    const item = c.orderItem ? CONSUMABLES.find((x) => x.id === c.orderItem) : null;
+    const aim = this.orderAim();
+    const done = c.orderDone;
+    const cur = u.order && !u.order.vague ? orderLabel(u.order, cb) : '';
+    const hint = done ? `<b class="good">지시함</b> · ${done}`
+      : sel ? `<b>${sel.name}</b> · ${aim === 'enemy' ? '노릴 적을 누르세요' : '챙길 아군을 누르세요'}`
+      : item ? `<b>${item.name}</b> · 누구에게 쓸지 아군을 누르세요`
+      : '시간이 멈췄습니다. 시킬 행동을 고르세요.';
+    const head = `<div class="order-banner ${done ? 'done' : ''}">
       <div class="row between"><b>${u.name}에게 오더</b><span class="row"><span class="small dim">${n ? `관계 ${n.relation} · ${persById(u.pers).name}` : ''}</span><button class="sm ghost" data-act="o-cancel">닫기</button></span></div>
-      <div class="skill-btns">${skills.map((s) => `<button class="skill-btn ${c.orderSel === s.id ? 'sel' : ''} ${s.mp > u.mp ? 'nomp' : ''}" style="--c:${s.elem ? elemColor(s.elem) : '#9aa6b8'}" data-act="o-skill" data-v="${s.id}">${FX.elemIcon(s.elem, 16)}<span><b>${s.name}</b><span class="small dim">MP ${s.mp} · ${TYPE_NAME[s.type]}</span></span></button>`).join('')}</div>
-      ${info}
-      <div class="small ${sel ? 'amber' : 'dim'}">${!sel ? '시간이 멈췄습니다. 시킬 스킬을 고르세요.' : aim === 'enemy' ? '노릴 적을 누르세요.' : aim === 'ally' ? '챙길 아군을 누르세요.' : '대상이 필요 없는 스킬입니다.'}</div>
-      ${sel && aim === 'none' ? '<button class="primary use-btn" data-act="o-give">이대로 지시</button>' : ''}
-      ${u.order ? '<button class="sm ghost" data-act="o-clear">내린 오더 취소</button>' : ''}</div>`;
+      <div class="small ${done ? '' : sel || item ? 'amber' : 'dim'}">${hint}</div>
+      ${cur && !done ? `<div class="small row between"><span>지금 오더: <b>${cur}</b></span><button class="sm ghost" data-act="o-clear">취소</button></div>` : ''}</div>`;
+    let list = '';
+    if (cmd === 'skill') {
+      list = skills.length ? skills.map((s) => `<button class="skill-btn ${c.orderSel === s.id ? 'sel' : ''} ${s.mp > u.mp ? 'nomp' : ''}" style="--c:${s.elem ? elemColor(s.elem) : '#9aa6b8'}" data-act="o-skill" data-v="${s.id}">${FX.elemIcon(s.elem, 16)}<span><b>${s.name}</b><span class="small dim">MP ${s.mp} · ${TYPE_NAME[s.type]} · ${SKILL_EFFECT[s.type] || ''}</span></span></button>`).join('') : '<div class="dim small">쓸 수 있는 스킬이 없다.</div>';
+    } else if (cmd === 'item') {
+      const its = ['potion', 'mana'].map((id) => CONSUMABLES.find((x) => x.id === id)).filter(Boolean);
+      list = its.map((it) => `<button class="cmd-item ${c.orderItem === it.id ? 'sel' : ''}" data-act="o-item" data-v="${it.id}" ${G.player.items[it.id] ? '' : 'disabled'}>${it.name} <span class="num">×${G.player.items[it.id] || 0}</span></button>`).join('');
+    }
+    const pop = cmd ? `<div class="cmd-list cmd-pop"><div class="cmd-pop-head"><b>${cmd === 'skill' ? '스킬' : '아이템'} 지시</b><button class="sm ghost" data-act="o-cmd" data-v="${cmd}">닫기</button></div>${list}</div>` : '';
+    const on = (k) => (done ? (c.orderDoneCmd === k ? 'sel' : '') : (k === 'attack' ? c.orderSel === 'strike' : cmd === k || (k === 'skill' && sel && sel.id !== 'strike') || (k === 'item' && item)) ? 'sel' : '');
+    const dis = done ? 'disabled' : '';
+    this._orderBanner = head;
+    return `<div class="cmd-wrap order-cmd">${pop}<div class="cmd-main">
+        <button class="cmd ${on('attack')}" data-act="o-cmd" data-v="attack" ${dis}>공격</button>
+        <button class="cmd ${on('skill')}" data-act="o-cmd" data-v="skill" ${dis}>스킬</button>
+        <button class="cmd ${on('item')}" data-act="o-cmd" data-v="item" ${dis}>아이템</button>
+        <button class="cmd ${on('defend')}" data-act="o-cmd" data-v="defend" ${dis}>방어</button></div></div>`;
   },
-  giveOrder(targetId) {
-    const c = this.ctx; const cb = c.combat; const u = cb.units.find((x) => x.id === c.orderFor); if (!u || !c.orderSel) return;
-    const sk = cb.skillsOf(u).find((s) => s.id === c.orderSel); const t = targetId ? cb.units.find((x) => x.id === targetId) : null;
-    u.order = { skill: sk.id, target: targetId || null, by: 'player', rate: cb.rateOrder(u, sk, t) };
-    c.orderFor = null; c.orderSel = null; cb.paused = false;
-    this.toast(`${u.name}에게 오더: ${sk.name}${t ? ' → ' + t.name : ''}`);
+  // 오더 확정 → 잠깐 "지시함"을 보여 준 뒤 내 조작으로
+  giveOrder(targetId, act) {
+    const c = this.ctx; const cb = c.combat; const u = cb.units.find((x) => x.id === c.orderFor); if (!u) return;
+    const t = targetId ? cb.units.find((x) => x.id === targetId) : null;
+    let o;
+    if (act === 'defend') o = { act: 'defend', skill: null, target: null };
+    else if (c.orderItem) o = { act: 'item', item: c.orderItem, skill: null, target: targetId || u.id };
+    else if (c.orderSel) o = { act: 'skill', skill: c.orderSel, target: targetId || null };
+    else return;
+    o.by = 'player'; o.rate = cb.rateOrder(u, o.skill && skillById(o.skill), t, o);
+    u.order = o;
+    const kind = o.act === 'defend' ? 'defend' : o.act === 'item' ? 'item' : o.skill === 'strike' ? 'attack' : 'skill';
+    c.orderDone = orderLabel(o, cb); c.orderDoneCmd = kind; c.orderCmd = null;
+    if (typeof SFX !== 'undefined' && SFX.play) try { SFX.play('ui'); } catch (e) { /* 무시 */ }
     this.refreshUnits(); this.renderControls();
+    const id = u.id;
+    clearTimeout(this._orderDoneT);
+    this._orderDoneT = setTimeout(() => {
+      if (this.ctx !== c || c.orderFor !== id) return;
+      c.orderFor = null; c.orderSel = null; c.orderItem = null; c.orderDone = null; c.orderDoneCmd = null; cb.paused = false;
+      this.refreshUnits(); this.renderControls();
+    }, FX.reduced ? 500 : 900);
   },
   orderAim() {
-    const c = this.ctx; if (!c || !c.orderFor || !c.orderSel) return null;
-    const u = c.combat.units.find((x) => x.id === c.orderFor); const sk = u && c.combat.skillsOf(u).find((s) => s.id === c.orderSel);
+    const c = this.ctx; if (!c || !c.orderFor || c.orderDone) return null;
+    if (c.orderItem) return 'ally';
+    if (!c.orderSel) return null;
+    const sk = skillById(c.orderSel);
     return sk ? orderAimOf(sk) : null;
   },
 });
@@ -359,12 +445,16 @@ Object.assign(UI, {
     const box = document.getElementById('cb-ctrl'); if (!box) return;
     const cb = c.combat;
     if (c.orderFor && !cb.result) {
-      box.innerHTML = fixJosa(this.orderPanelHtml()); // 높이를 더하지 않도록 내 조작 대신 들어간다
+      box.innerHTML = fixJosa(this.orderPanelHtml()); // 내 조작 자리에 같은 모양의 커맨드
+      // 누구에게·무엇을 지시 중인지는 전장 맨 위 띠로 (아군 줄을 가리지 않게)
+      const st = document.getElementById('stage');
+      if (st) { st.querySelectorAll('.order-banner').forEach((e) => e.remove()); st.insertAdjacentHTML('beforeend', fixJosa(this._orderBanner || '')); }
       const aim = this.orderAim();
       const foes = document.getElementById('foes'), allies = document.getElementById('allies');
       if (foes) foes.classList.toggle('aim', aim === 'enemy');
       if (allies) allies.classList.toggle('aim', aim === 'ally');
     }
+    else { const st = document.getElementById('stage'); if (st) st.querySelectorAll('.order-banner').forEach((e) => e.remove()); }
     // NPC 리더가 나에게 내린 오더: 스킬 버튼에 리더 표시
     const p = cb.player;
     if (p && p.order && !p.order.vague && cb.waiting && !c.playing && !c.orderFor) {
@@ -384,18 +474,30 @@ Object.assign(UI, {
         const u = cb.units.find((x) => x.id === v);
         if (!u || u.isPlayer || u.summon || !u.alive) return;
         if (cb.leaderId !== 'player') { const L = cb.leader(); return this.toast(`지금 리더는 ${L ? L.name : '다른 사람'}이다. 오더는 리더만 내린다.`); }
-        c.orderFor = v; c.orderSel = null; cb.paused = true;
+        c.orderFor = v; c.orderSel = null; c.orderItem = null; c.orderCmd = null; c.orderDone = null; cb.paused = true;
         this.refreshUnits(); return this.renderControls();
       }
       case 'c-target': {
         if (c && c.orderFor && this.orderAim() === 'enemy') return this.giveOrder(v);
         break;
       }
-      case 'o-skill': c.orderSel = v; return this.renderControls();
+      case 'o-cmd': {
+        if (!c || !c.orderFor || c.orderDone) return;
+        if (v === 'defend') { c.orderSel = null; c.orderItem = null; return this.giveOrder(null, 'defend'); }
+        if (v === 'attack') { c.orderSel = 'strike'; c.orderItem = null; c.orderCmd = null; return this.renderControls(); }
+        c.orderCmd = c.orderCmd === v ? null : v; return this.renderControls();
+      }
+      case 'o-skill': {
+        if (!c || !c.orderFor || c.orderDone) return;
+        c.orderSel = v; c.orderItem = null; c.orderCmd = null;
+        if (this.orderAim() === 'none') return this.giveOrder(null); // 대상이 필요 없으면 바로 지시
+        return this.renderControls();
+      }
+      case 'o-item': if (!c || !c.orderFor || c.orderDone) return; c.orderItem = v; c.orderSel = null; c.orderCmd = null; return this.renderControls();
       case 'o-give': return this.giveOrder(null);
-      case 'o-cancel': c.orderFor = null; c.orderSel = null; c.combat.paused = false; this.refreshUnits(); return this.renderControls();
-      case 'o-clear': { const u = c.combat.units.find((x) => x.id === c.orderFor); if (u) u.order = null; c.orderFor = null; c.orderSel = null; c.combat.paused = false; this.refreshUnits(); return this.renderControls(); }
-      case 'c-skill': case 'c-item': case 'c-auto': if (c && c.orderFor) { c.orderFor = null; c.orderSel = null; c.combat.paused = false; } break;
+      case 'o-cancel': c.orderFor = null; c.orderSel = null; c.orderItem = null; c.orderCmd = null; c.orderDone = null; c.combat.paused = false; this.refreshUnits(); return this.renderControls();
+      case 'o-clear': { const u = c.combat.units.find((x) => x.id === c.orderFor); if (u) u.order = null; c.orderFor = null; c.orderSel = null; c.orderItem = null; c.orderCmd = null; c.orderDone = null; c.combat.paused = false; this.refreshUnits(); return this.renderControls(); }
+      case 'c-skill': case 'c-item': case 'c-auto': if (c && c.orderFor) { c.orderFor = null; c.orderSel = null; c.orderItem = null; c.orderCmd = null; c.orderDone = null; c.combat.paused = false; } break;
     }
     return baseHandle.call(this, act, v);
   };
