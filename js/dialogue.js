@@ -90,3 +90,17 @@ Object.assign(UI, {
     return baseHandle.call(this, act, v);
   };
 }
+
+// 대화창이 떠 있으면 화면 어디를 눌러도 다음 대사로 (대사 상자만 누를 필요 없음). 선택지가 떠 있을 때는 선택지만.
+document.addEventListener('click', (e) => {
+  const d = UI.dlg; const el = document.getElementById('dlg');
+  if (!d || !el || !el.contains(e.target)) return;
+  if (e.target.closest('[data-act]')) return; // 대사 상자·선택지는 원래 처리
+  const line = d.lines[d.i]; if (line && line.choices) return;
+  UI.dlgNext();
+});
+document.addEventListener('keydown', (e) => {
+  if (!UI.dlg || (e.key !== 'Enter' && e.key !== ' ')) return;
+  const line = UI.dlg.lines[UI.dlg.i]; if (line && line.choices) return;
+  e.preventDefault(); UI.dlgNext();
+});
