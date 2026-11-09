@@ -141,6 +141,11 @@ const LIFE_JOBS = [
   // 각성 속성 쪽 대답 (4-10): 화면엔 일반 대답 2개 + 내 속성 대답 1개가 뜬다 (pro_variety.js)
   { el: 'fire', text: '"불 다루는 거요. 라면 물 끓이는 것보단 쓸모 있게."', g: { mage: 2 }, c: { pyromancer: 3 }, next: 'verdict' },
   { el: 'fire', text: '"주먹이요. 몸이 뜨거워서 가만히 못 있어요."', g: { fighter: 2 }, c: { monk: 2, berserker: 1 }, next: 'verdict_guild' },
+  { el: 'fire', text: '"보는 것만으로 불 붙이는 거요. 화나면 진짜 그래요."', g: { esper: 2 }, c: { pyrokinetic: 3 }, next: 'verdict_street' },
+  { el: 'fire', text: '"터뜨리는 거요. 막힌 거 뚫는 거 좋아해요."', g: { shooter: 2 }, c: { bomber: 3 }, next: 'verdict_guild' },
+  { el: 'fire', text: '"춤이요. 몸이 달아오르면 멈출 수가 없어요."', g: { support: 2 }, c: { fire_dancer: 3 }, next: 'verdict' },
+  { el: 'fire', text: '"불새요. 꿈에 자꾸 나와요."', g: { summon: 2 }, c: { phoenix_caller: 3 }, next: 'verdict' },
+  { el: 'fire', text: '"뜨거운 방패요. 때리는 놈이 데게."', g: { guard: 2 }, c: { lava_guard: 3 }, next: 'verdict_guild' },
   { el: 'bolt', text: '"빠른 거요. 번쩍하고 끝나는 거."', g: { fighter: 2 }, c: { dualblade: 2, lancer: 1 }, next: 'verdict_guild' },
   { el: 'bolt', text: '"순간이동이요. 출근길이 너무 길어서요."', g: { esper: 2 }, c: { teleporter: 3 }, next: 'verdict' },
   { el: 'water', text: '"막아 주는 거요. 물처럼 흘려 넘기는 거."', g: { mage: 2 }, c: { warder: 3 }, next: 'verdict' },
@@ -253,8 +258,9 @@ Object.assign(PRO_HOOKS_CH, {
 const PRO_C_KIN = {
   priest: { saint: 1 }, healer: { saint: 1, monk_holy: 1 }, paladin: { friar: 1, exorcist: 1 }, monk: { monk_holy: 1 }, seer: { exorcist: 1 },
   necromancer: { dark_priest: 1 }, warlock: { hexer: 1, dark_priest: 1 }, assassin: { shade: 1 }, guardian: { dark_knight: 0.5 },
-  poisoner: { witch_doctor: 1 }, tamer: { druid: 1 }, summoner: { spiritist: 1 }, giant: { treant_warden: 1 }, alchemist: { witch_doctor: 0.5 },
+  poisoner: { witch_doctor: 1 }, tamer: { druid: 1 }, summoner: { spiritist: 1, phoenix_caller: 1 }, giant: { treant_warden: 1 }, alchemist: { witch_doctor: 0.5 },
   shaman: { exorcist: 0.5, witch_doctor: 0.5 }, elementalist: { pyromancer: 0.5 },
+  telekinetic: { pyrokinetic: 1 }, bard: { fire_dancer: 1 }, gunslinger: { bomber: 0.5 }, sniper: { bomber: 0.5 }, berserker: { lava_guard: 0.5 },
 };
 for (const [id, sc] of Object.entries(PROLOGUE)) {
   if (!Array.isArray(sc.choices) || /^(nap|cvs|game|bloom|quest)_2$/.test(id)) continue;

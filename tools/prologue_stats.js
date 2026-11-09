@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const root = path.join(__dirname, '..');
-const files = ['js/data.js', 'js/game.js', 'js/data_classes.js', 'js/class_elem.js', 'js/prologue.js', 'js/pro_arcs_a.js', 'js/pro_arcs_b.js', 'js/pro_arcs_c.js', 'js/pro_hooks.js', 'js/pro_life.js'];
+const files = ['js/data.js', 'js/game.js', 'js/data_classes.js', 'js/class_elem.js', 'js/class_fire.js', 'js/prologue.js', 'js/pro_arcs_a.js', 'js/pro_arcs_b.js', 'js/pro_arcs_c.js', 'js/pro_hooks.js', 'js/pro_life.js'];
 const src = files.filter((f) => fs.existsSync(path.join(root, f))).map((f) => fs.readFileSync(path.join(root, f), 'utf8')).join('\n');
 const proAwakenPick = new Function(`${src}; return typeof proAwakenPick === 'function' ? proAwakenPick : null;`)();
 const { CE, P, PS, R, remember, CLASSES, pickBg } = new Function(`${src}; return { CE: typeof classElem === 'function' ? classElem : null, P: PROLOGUE, PS: PROLOGUE_START, R: resolvePrologue, remember: proRemember, CLASSES, pickBg: typeof proPickBg === 'function' ? proPickBg : null };`)();
