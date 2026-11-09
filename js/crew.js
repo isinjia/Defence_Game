@@ -123,7 +123,7 @@ Object.assign(Game.prototype, {
       let gate = gates[0];
       if (!gate || regionDist(p.region, gate.region) > 3) {
         const pos = this.randomFreeTile(p.region);
-        if (pos) { gate = { id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: p.region, tier: t, theme: RNG.pick(GATE_THEMES), elem: RNG.pick(ELEMENT_KEYS), born: this.monthKey(), crew: true }; this.mapGates.push(gate); }
+        if (pos) { gate = { id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: p.region, tier: t, theme: RNG.pick(GATE_THEMES), elem: pickElem(), born: this.monthKey(), crew: true }; this.mapGates.push(gate); }
       }
       if (gate) return { kind: 'gate', gateId: gate.id, day };
     }

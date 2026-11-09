@@ -105,7 +105,7 @@ Object.assign(UI, {
       <div class="result-grid">
         <div class="res-item"><span class="sec-title">등급</span><b><span class="tag rank" style="--c:${R.color}">${R.key}급</span></b><span class="small dim">협회 실기 시험 후 측정</span></div>
         <div class="res-item"><span class="sec-title">출신</span><b>${bg.name}</b><span class="small dim">${bg.desc}</span></div>
-        <div class="res-item"><span class="sec-title">속성</span><b>${this.elemTag(p.element)}</b><span class="small dim">${ELEMENTS[p.element].name} → ${ELEMENTS[ELEMENTS[p.element].counter].name}에 강함</span></div>
+        <div class="res-item"><span class="sec-title">속성</span><b>${this.elemTag(p.element)}</b><span class="small dim">${ELEMENTS[p.element].name} · ${elemVsText(p.element)}</span></div>
         <div class="res-item wide" style="border-color:${g.color}"><span class="sec-title">직업</span><b style="color:${g.color}">${k.name} <span class="tag rar r${k.r}">${CLASS_RARITY[k.r]}</span></b><span class="small" style="color:${g.color}">${g.name} · 전직 ${k.adv.join(' → ')}</span><span class="small dim">${k.desc}</span><span class="small">${k.skills.map((x) => x[0]).join(' · ')}</span></div>
       </div>
       <div class="sec-title sec">선천 특성</div><div class="cards traits">${p.traits.map((id) => { const t = traitById(id); return `<div class="trait ${negIds.includes(id) ? 'neg' : ''}"><b>${t.name}</b><span class="dim">${t.desc}</span></div>`; }).join('')}</div>`;
@@ -120,7 +120,7 @@ Object.assign(UI, {
     el.innerHTML = fixJosa(`<div class="eyebrow">국가 각성자 관리국 · 판정 결과</div><h2>각성</h2>
       <div class="result-grid">
         <div class="res-item"><span class="sec-title">출신</span><b>${bg.name}</b><span class="small dim">${bg.desc}</span></div>
-        <div class="res-item"><span class="sec-title">속성</span><b>${this.elemTag(r.element)}</b><span class="small dim">${ELEMENTS[r.element].name} → ${ELEMENTS[ELEMENTS[r.element].counter].name}에 강함</span></div>
+        <div class="res-item"><span class="sec-title">속성</span><b>${this.elemTag(r.element)}</b><span class="small dim">${ELEMENTS[r.element].name} · ${elemVsText(r.element)}</span></div>
         <div class="res-item wide" style="border-color:${g.color}"><span class="sec-title">직업</span><b style="color:${g.color}">${k.name} <span class="tag rar r${k.r}">${CLASS_RARITY[k.r]}</span></b><span class="small" style="color:${g.color}">${g.name} · 전직 ${k.adv.join(' → ')}</span><span class="small dim">${k.desc}</span><span class="small">${k.skills.map((x) => x[0]).join(' · ')}</span></div>
         <div class="res-item"><span class="sec-title">재능</span><div class="talent"><div class="pips">${Array.from({ length: 10 }, (_, i) => `<i class="${i < talent ? 'on' : ''}"></i>`).join('')}</div><b>${talent}</b></div></div>
         <div class="res-item"><span class="sec-title">소꿉친구</span><b>${s.friend.name}</b><span class="small dim">당신을 ${s.friendBonus >= 30 ? '누구보다 믿는다' : s.friendBonus >= 15 ? '걱정하고 응원한다' : '여전히 곁에 있다'}</span></div>
@@ -218,7 +218,7 @@ Object.assign(UI, {
 // ---------- 속성은 각성하는 순간에 (docs/프롤로그_점검.md 2) ----------
 // 각성 장면(모든 선택지가 속성 3점 이상) 밖의 선택은 속성이 아니라 "성향(lean)"만 쌓는다.
 // 각성 장면에서는 다섯 모습을 모두 보여 주고, 성향에 맞는 둘을 먼저 "끌린다"로 표시한다. 고른 모습이 속성이 된다.
-const PRO_BODY = { fire: '손끝이 뜨겁다. 심장이 북처럼 뛴다.', bolt: '머리카락이 곤두서고 손끝에서 따닥 소리가 난다.', ice: '숨결이 하얗게 맺힌다. 손끝이 차갑다.', steel: '살갗 아래가 단단하게 굳는다. 발이 땅에 박힌다.', spirit: '귓가에 누군가의 숨소리가 겹쳐 들린다.' };
+const PRO_BODY = { fire: '손끝이 뜨겁다. 심장이 북처럼 뛴다.', bolt: '머리카락이 곤두서고 손끝에서 따닥 소리가 난다.', water: '숨결이 차고 맑아진다. 손끝에 물방울이 맺힌다.', wood: '살갗 아래가 단단하게 굳는다. 발이 뿌리처럼 땅에 박힌다.', holy: '가슴 안쪽이 따뜻하게 밝아진다.', dark: '귓가에 누군가의 숨소리가 겹쳐 들린다. 그림자가 짙어진다.' };
 function proIsAwaken(id) { const sc = PROLOGUE[id]; return !!(sc && sc.choices.length && sc.choices.every((c) => c.e && Math.max(...Object.values(c.e)) >= 3)); }
 {
   const baseShown = UI.proShown;

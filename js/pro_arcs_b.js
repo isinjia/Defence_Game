@@ -7,8 +7,8 @@ Object.assign(PROLOGUE, {
   // ===== 각성자 범죄: 은행 인질극 =====
   crime_1: { title: '은행 창구 번호표 47번', text: '평일 오후, 볼일이 있어 은행에 들렀다. 번호표 47번. 대기 인원 열두 명.\n\n유리문이 녹아내린다. 손바닥에서 연기를 피우는 남자가 들어선다. "다들 엎드려. 협회 진압팀 오려면 20분은 걸리거든. 그동안 착하게 있자고." 뒤따라 들어온 둘이 셔터를 내린다.',
     choices: [
-      { text: '시키는 대로 엎드려서 그들의 숫자와 위치를 센다', e: { ice: 1 }, g: { shadow: 1, shooter: 1 }, t: { quick: 1 }, next: 'crime_2' },
-      { text: '옆에서 떨고 있는 할머니를 몸으로 가린다', e: { steel: 1 }, g: { guard: 2 }, t: { iron_body: 1 }, next: 'crime_2' },
+      { text: '시키는 대로 엎드려서 그들의 숫자와 위치를 센다', e: { water: 1 }, g: { shadow: 1, shooter: 1 }, t: { quick: 1 }, next: 'crime_2' },
+      { text: '옆에서 떨고 있는 할머니를 몸으로 가린다', e: { wood: 1 }, g: { guard: 2 }, t: { iron_body: 1 }, next: 'crime_2' },
       { text: '{friend}에게 몰래 "은행. 인질극. 신고해."라고 보낸다', e: { bolt: 1 }, g: { support: 1, esper: 1 }, t: { lucky: 1 }, friend: 10, next: 'crime_2' },
       { text: '"돈이 목적이면 금고 쪽으로 가세요." 리더에게 말을 건다', e: { fire: 1 }, g: { support: 1, fighter: 1 }, t: { charisma: 1 }, next: 'crime_2' },
     ] },
@@ -27,9 +27,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '그 열기를 맞받아치듯 손끝에서 불꽃이 튄다', e: { fire: 4 }, next: 'crime_4' },
       { text: '천장 형광등이 일제히 터지며 전류가 몸을 감싼다', e: { bolt: 4 }, next: 'crime_4' },
-      { text: '녹아내리던 철판이 당신 발밑에서 하얗게 얼어붙는다', e: { ice: 4 }, next: 'crime_4' },
-      { text: '불붙은 손을 잡는다. 살갗이 강철처럼 버틴다', e: { steel: 4 }, next: 'crime_4' },
-      { text: '인질 열두 명의 공포가 한꺼번에 가슴으로 밀려든다. 그리고 그걸 되돌려 보낼 수 있다', e: { spirit: 4 }, next: 'crime_4' },
+      { text: '녹아내리던 철판이 당신 발밑에서 하얗게 얼어붙는다', e: { water: 4 }, next: 'crime_4' },
+      { text: '불붙은 손을 잡는다. 살갗이 강철처럼 버틴다', e: { wood: 4 }, next: 'crime_4' },
+      { text: '인질 열두 명의 공포가 한꺼번에 가슴으로 밀려든다. 그리고 그걸 되돌려 보낼 수 있다', e: { dark: 4 }, next: 'crime_4' },
+      { text: '하얀 빛의 막이 펼쳐져 불길을 밀어낸다', e: { holy: 4 }, next: 'crime_4' },
     ] },
   crime_4: { title: '진압팀보다 먼저', text: '리더가 비틀거리며 물러선다. "너… 미등록 각성자냐?" 셔터 밖에서 사이렌이 울리자 남은 강도 둘이 인질들 쪽으로 몸을 돌린다. "진압팀 들어오면 하나씩 태운다고 했지!"\n\n셔터가 올라가기까지 몇 분. 저들이 인질에게 닿기 전에 끝내야 한다.',
     choices: [
@@ -56,8 +57,8 @@ Object.assign(PROLOGUE, {
   // ===== 불법 각성제 '블루' =====
   drug_1: { title: '파란 캡슐', text: '장마가 길던 여름, 헌터 커뮤니티 비밀 게시판에 글이 올라온다. "블루 한 알이면 E급 각성 보장. 부작용 없음. 선착순 30명."\n\n{friend}이(가) 단톡방에 사진을 올린다. 투명한 비닐 안에 파란 캡슐 두 알. 한참 뒤 한 줄이 더 온다. "{friendJob} 3년째야. 나도 이제 뭐라도 되고 싶어. 같이 먹을래?"',
     choices: [
-      { text: '"미쳤어? 당장 버려." {friend}에게 바로 전화를 건다', e: { steel: 1 }, g: { guard: 1, support: 1 }, t: { charisma: 1 }, friend: 10, flag: 'drug_stop', next: 'drug_2' },
-      { text: '대답을 미루고 판매자 계정부터 추적해 본다', e: { ice: 1 }, g: { shadow: 1, esper: 1 }, t: { genius: 1 }, next: 'drug_2' },
+      { text: '"미쳤어? 당장 버려." {friend}에게 바로 전화를 건다', e: { wood: 1 }, g: { guard: 1, support: 1 }, t: { charisma: 1 }, friend: 10, flag: 'drug_stop', next: 'drug_2' },
+      { text: '대답을 미루고 판매자 계정부터 추적해 본다', e: { water: 1 }, g: { shadow: 1, esper: 1 }, t: { genius: 1 }, next: 'drug_2' },
       { text: '솔직히 마음이 흔들린다. 캡슐 사진을 오래 들여다본다', e: { fire: 1 }, g: { fighter: 1, mage: 1 }, t: { reckless: 1 }, next: 'drug_2' },
       { text: '"먹지 말고 한 알만 나한테 줘. 성분부터 보자."', e: { bolt: 1 }, g: { support: 1, mage: 1 }, t: { mana_sense: 1 }, next: 'drug_2' },
     ] },
@@ -77,9 +78,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '파란 빛이 붉게 바뀌며 불길로 터져 나온다', e: { fire: 4 }, next: 'drug_4' },
       { text: '클럽 스피커가 일제히 터지고 전류가 온몸을 휘감는다', e: { bolt: 4 }, next: 'drug_4' },
-      { text: '열이 오르던 몸이 순식간에 식는다. 입김이 하얗다', e: { ice: 4 }, next: 'drug_4' },
-      { text: '경련이 멎고 근육이 쇠처럼 굳는다', e: { steel: 4 }, next: 'drug_4' },
-      { text: '약에 취한 사람들의 꿈이 한꺼번에 눈앞에 펼쳐진다', e: { spirit: 4 }, next: 'drug_4' },
+      { text: '열이 오르던 몸이 순식간에 식는다. 입김이 하얗다', e: { water: 4 }, next: 'drug_4' },
+      { text: '경련이 멎고 근육이 쇠처럼 굳는다', e: { wood: 4 }, next: 'drug_4' },
+      { text: '약에 취한 사람들의 꿈이 한꺼번에 눈앞에 펼쳐진다', e: { dark: 4 }, next: 'drug_4' },
+      { text: '푸른 빛이 맑아지며 몸 안의 독이 씻겨 나간다', e: { holy: 4 }, next: 'drug_4' },
     ] },
   drug_4: { title: '조직의 문', text: '브로커들이 물러선다. "야, 이거 진짜 각성인데?" 뒷방에서 덩치 큰 남자가 나온다. 블루 공급책. 그의 팔뚝에도 파란 혈관이 비친다. "너, 우리 쪽으로 와라. 아니면 여기서 끝이다."\n\n뒤에서 {friend}이(가) 아직 숨을 쉰다. 오래 버티진 못한다.',
     choices: [
@@ -106,9 +108,9 @@ Object.assign(PROLOGUE, {
   // ===== 결투: 동네를 괴롭히는 각성자 깡패 =====
   duel_1: { title: '보호비', text: '그해 겨울, 자주 들르던 시장에 낯선 사람들이 드나들기 시작했다. 검은 패딩에 E급 배지. "흑사회" 소속이라는 각성자 셋이 가게마다 돌며 "게이트 보호비"를 걷는다.\n\n단골 떡볶이집 사장님이 봉투를 내밀다 손을 떤다. 셋 중 하나가 웃으며 떡볶이 판을 엎는다.',
     choices: [
-      { text: '"그만하시죠." 떡볶이 판을 다시 세운다', e: { steel: 1 }, g: { guard: 1, fighter: 1 }, t: { iron_body: 1 }, next: 'duel_2' },
+      { text: '"그만하시죠." 떡볶이 판을 다시 세운다', e: { wood: 1 }, g: { guard: 1, fighter: 1 }, t: { iron_body: 1 }, next: 'duel_2' },
       { text: '휴대폰 카메라를 켜고 그들의 얼굴을 찍는다', e: { bolt: 1 }, g: { shooter: 1, shadow: 1 }, t: { quick: 1 }, next: 'duel_2' },
-      { text: '사장님을 뒤로 빼고 대신 고개를 숙인다. 지금은 참는다', e: { ice: 1 }, g: { support: 1, shadow: 1 }, t: { loner: 1 }, flag: 'duel_bowed', next: 'duel_2' },
+      { text: '사장님을 뒤로 빼고 대신 고개를 숙인다. 지금은 참는다', e: { water: 1 }, g: { support: 1, shadow: 1 }, t: { loner: 1 }, flag: 'duel_bowed', next: 'duel_2' },
       { text: '"흑사회? 처음 들어 보는데." 비웃는다', e: { fire: 1 }, g: { fighter: 2 }, t: { reckless: 1 }, next: 'duel_2' },
     ] },
   duel_2: { title: '공터로 나와', text: '다음 날, 시장 뒤 공터. 흑사회 막내가 손가락을 까딱인다. "어제 그 잘난 척. 여기서 갚아라. 일대일. 각성 안 했으면 핸디캡으로 한 손만 쓴다."\n\n시장 상인들이 멀찍이 둘러선다. {friend}이(가) 소매를 붙잡는다. "가지 마. 저 사람들 진짜 각성자야."',
@@ -127,9 +129,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '주먹을 막은 팔에서 불꽃이 피어오른다', e: { fire: 4 }, next: 'duel_4' },
       { text: '몸이 먼저 움직인다. 번개처럼 옆으로 빠진다', e: { bolt: 4 }, next: 'duel_4' },
-      { text: '주먹이 닿은 곳부터 상대의 팔이 얼어붙는다', e: { ice: 4 }, next: 'duel_4' },
-      { text: '주먹을 그대로 맞는다. 아프지 않다', e: { steel: 4 }, next: 'duel_4' },
-      { text: '상대의 두려움이 피부로 전해진다. 주먹이 허공에서 멈춘다', e: { spirit: 4 }, next: 'duel_4' },
+      { text: '주먹이 닿은 곳부터 상대의 팔이 얼어붙는다', e: { water: 4 }, next: 'duel_4' },
+      { text: '주먹을 그대로 맞는다. 아프지 않다', e: { wood: 4 }, next: 'duel_4' },
+      { text: '상대의 두려움이 피부로 전해진다. 주먹이 허공에서 멈춘다', e: { holy: 4 }, next: 'duel_4' },
+      { text: '상대의 그림자가 당신 발에 밟힌 채 꿈쩍도 하지 않는다', e: { dark: 4 }, next: 'duel_4' },
     ] },
   duel_4: { title: '흑사회 셋', text: '막내가 나가떨어진다. 둘이 동시에 뛰어든다. 하나는 쇠파이프, 하나는 칼. "각성했다고 다냐? 우린 3년 차다."\n\n상인들이 숨을 죽인다. 이번엔 피할 이유가 없다. 남은 건 어떻게 이기느냐다.',
     choices: [
@@ -156,10 +159,10 @@ Object.assign(PROLOGUE, {
   // ===== 조난: 에테르에 물든 산 =====
   wild_1: { title: '지리산 종주', text: '그해 가을, 지리산 종주에 나섰다. 산장에서 만난 등산객 민서와 길을 나눠 걷던 둘째 날 오후, 등산로 표지판이 푸르스름하게 빛나는 이끼로 뒤덮여 있다. 휴대폰은 "서비스 지역 아님". 안개가 짙어지고, 방금 지나온 길이 사라졌다.\n\n어디선가 짐승이 낮게 그르렁댄다. 개도, 곰도 아닌 소리다. 민서가 당신 팔을 붙잡는다.',
     choices: [
-      { text: '침착하게 해가 지는 방향을 확인하고 민서와 비박 준비를 한다', e: { ice: 1 }, g: { guard: 1, support: 1 }, t: { iron_body: 1 }, next: 'wild_2' },
+      { text: '침착하게 해가 지는 방향을 확인하고 민서와 비박 준비를 한다', e: { water: 1 }, g: { guard: 1, support: 1 }, t: { iron_body: 1 }, next: 'wild_2' },
       { text: '민서를 바위 뒤에 두고 소리 나는 쪽으로 다가간다. 정체를 알아야 한다', e: { fire: 1 }, g: { fighter: 1, summon: 1 }, t: { reckless: 1 }, next: 'wild_2' },
       { text: '빛나는 이끼를 만져 본다. 손끝이 찌릿하다', e: { bolt: 1 }, g: { mage: 1, east: 1 }, t: { mana_sense: 1 }, next: 'wild_2' },
-      { text: '{friend}에게 보내지지 않을 문자를 쓴다. "혹시 내가 못 돌아가면…"', e: { spirit: 1 }, g: { support: 1, esper: 1 }, t: { loner: 1 }, friend: 5, next: 'wild_2' },
+      { text: '{friend}에게 보내지지 않을 문자를 쓴다. "혹시 내가 못 돌아가면…"', e: { dark: 1 }, g: { support: 1, esper: 1 }, t: { loner: 1 }, friend: 5, next: 'wild_2' },
     ] },
   wild_2: { title: '사흘째 밤', text: '물도, 식량도 떨어졌다. 민서는 발목이 퉁퉁 부어 더는 걷지 못한다. 모닥불 너머 바위 위에 무언가가 앉아 있다. 집채만 한 호랑이. 털이 은빛이고, 눈동자가 사람처럼 깊다.\n\n호랑이가 당신과 민서를 번갈아 내려다본다. 덤벼들지 않는다. 기다린다. 무언가를 시험하듯이.',
     choices: [
@@ -177,9 +180,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '산불이 지나간 자리의 열기', e: { fire: 4 }, next: 'wild_4' },
       { text: '능선에 내리꽂히던 번개', e: { bolt: 4 }, next: 'wild_4' },
-      { text: '천왕봉 꼭대기의 얼음', e: { ice: 4 }, next: 'wild_4' },
-      { text: '천 년을 버틴 바위의 무게', e: { steel: 4 }, next: 'wild_4' },
-      { text: '산에 깃든 수많은 혼의 숨결', e: { spirit: 4 }, next: 'wild_4' },
+      { text: '천왕봉 꼭대기의 얼음', e: { water: 4 }, next: 'wild_4' },
+      { text: '천 년을 버틴 바위의 무게', e: { wood: 4 }, next: 'wild_4' },
+      { text: '산에 깃든 수많은 혼의 숨결', e: { holy: 4 }, next: 'wild_4' },
+      { text: '골짜기 가장 깊은 곳의 어둠', e: { dark: 4 }, next: 'wild_4' },
     ] },
   wild_4: { title: '하산', text: '눈을 뜨니 호랑이는 없다. 대신 몸이 가볍다. 안개 속에서도 길이 보인다. 민서를 업고 내려가는 길, 에테르에 물든 멧돼지 떼가 길을 막는다. 눈이 파랗게 빛난다.\n\n등 뒤에서 민서가 숨을 삼킨다. 이제는 두렵지 않다.',
     choices: [

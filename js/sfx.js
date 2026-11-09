@@ -52,10 +52,11 @@ const SFX = {
     hit(s, a) {
       const e = a.elem;
       if (e === 'fire') s.noise(0.16, { vol: 0.32, freq: 700, q: 0.6, type: 'lowpass', to: 200 });
-      else if (e === 'ice') { s.tone(2400, 0.14, { type: 'triangle', vol: 0.14, to: 1800 }); s.noise(0.05, { vol: 0.12, freq: 5000, q: 3 }); }
+      else if (e === 'water') { s.tone(2400, 0.14, { type: 'triangle', vol: 0.14, to: 1800 }); s.noise(0.05, { vol: 0.12, freq: 5000, q: 3 }); }
       else if (e === 'bolt') { for (let i = 0; i < 3; i++) s.noise(0.03, { vol: 0.2, freq: 3000 + i * 900, q: 4, at: i * 0.035 }); }
-      else if (e === 'steel') { s.tone(820, 0.18, { type: 'square', vol: 0.08, to: 600 }); s.tone(1230, 0.12, { type: 'triangle', vol: 0.08 }); s.noise(0.04, { vol: 0.18, freq: 2500 }); }
-      else if (e === 'spirit') { s.tone(330, 0.3, { vol: 0.16, to: 220 }); s.tone(495, 0.3, { vol: 0.08, to: 330 }); }
+      else if (e === 'wood') { s.tone(180, 0.16, { type: 'triangle', vol: 0.16, to: 120 }); s.noise(0.07, { vol: 0.2, freq: 1200, q: 1.2 }); }
+      else if (e === 'holy') { s.tone(880, 0.3, { type: 'triangle', vol: 0.12, to: 1320 }); s.tone(1320, 0.3, { vol: 0.07, to: 1760 }); }
+      else if (e === 'dark') { s.tone(330, 0.3, { vol: 0.16, to: 220 }); s.tone(495, 0.3, { vol: 0.08, to: 330 }); }
       else { s.noise(0.08, { vol: 0.28, freq: 900, q: 0.8 }); s.tone(140, 0.08, { vol: 0.16, to: 70 }); }
       if (a.big) { s.tone(1320, 0.12, { type: 'triangle', vol: 0.12, at: 0.03 }); s.tone(1980, 0.16, { type: 'sine', vol: 0.08, at: 0.06 }); }
     },

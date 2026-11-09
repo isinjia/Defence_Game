@@ -96,7 +96,7 @@ Object.assign(Game.prototype, {
 
 // ---------- 패널티 사건 ----------
 S({ id: 'sys_penalty', trigger: 'system', text: '[경고] 과제 미수행 3회 누적.\n[패널티 구역으로 이동합니다.]\n\n눈앞이 하얘졌다가 돌아온다. 끝없는 모래 평원. 모래 속에서 무언가가 기어 나온다. 상태창이 깜빡인다. [생존하십시오.]',
-  choices: [{ text: '버틴다', do: (g) => { g.storyFight({ title: '패널티 구역', mobs: { tier: g.player.rankIdx, n: 3, elem: 'spirit' }, win: { text: '[패널티 종료.] 원래 자리로 돌아왔다. 손이 떨렸다. 다음 달엔 과제를 하자.', gain: { ether: 20 } }, lose: { text: '[패널티 종료.] 정신을 차려 보니 원래 자리다. 온몸이 쑤신다.', gain: { injure: 1 } } }); return '모래가 발목을 붙잡았다.'; } }] });
+  choices: [{ text: '버틴다', do: (g) => { g.storyFight({ title: '패널티 구역', mobs: { tier: g.player.rankIdx, n: 3, elem: 'dark' }, win: { text: '[패널티 종료.] 원래 자리로 돌아왔다. 손이 떨렸다. 다음 달엔 과제를 하자.', gain: { ether: 20 } }, lose: { text: '[패널티 종료.] 정신을 차려 보니 원래 자리다. 온몸이 쑤신다.', gain: { injure: 1 } } }); return '모래가 발목을 붙잡았다.'; } }] });
 S({ id: 'sys_penalty_kama', trigger: 'system', text: '협회에서 등기 우편이 왔다. "귀하는 최근 3개월간 활동 실적이 없어 \'실전 감각 재교육\' 대상자로 지정되었습니다. 불참 시 등급 재심사가 있을 수 있습니다."',
   choices: [
     { text: '재교육에 간다', do: (g) => { g.storyFight({ title: '협회 재교육 실습', spar: true, mobs: { tier: g.player.rankIdx, n: 2, human: true, name: '[교관] 협회 실습 교관' }, win: { text: '교관이 기록판에 통과 도장을 찍었다. "감은 살아 있네요."', gain: { merit: 3 } }, lose: { text: '"한 달 뒤 재실습입니다." 교관이 무표정하게 말했다.', gain: { merit: -3 } } }); return '협회 훈련장에 들어섰다.'; } },

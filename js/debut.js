@@ -87,7 +87,7 @@ D('star', 3, { text: '에너지 음료 회사에서 광고 모델 제안이 왔�
   ] });
 D('star', 4, { text: (g) => `관리국에서 공문이 왔다. "귀하를 특별 관리 각성자로 지정합니다." 그리고 첫 합동 공략 소집. ${RANKS[Math.min(7, g.player.rankIdx + 1)].key}급 게이트, 국가 공략대와 함께다.\n\n대기실의 베테랑들이 당신을 흘끔거린다. 기대 반, 의심 반이다.`,
   choices: [
-    { text: '선두에 선다', do: (g) => { dn(g); g.storyFight({ title: '국가 합동 공략 · 보스 구역', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true }, ally: { name: '공략대장 한서진', rank: Math.min(7, g.player.rankIdx + 2), elem: 'steel' },
+    { text: '선두에 선다', do: (g) => { dn(g); g.storyFight({ title: '국가 합동 공략 · 보스 구역', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true }, ally: { name: '공략대장 한서진', rank: Math.min(7, g.player.rankIdx + 2), elem: 'wood' },
       win: { text: '보스가 쓰러지는 장면이 생중계됐다. 공략대장이 어깨를 두드린다. "다음엔 네가 지휘해."', gain: { fame: 25, merit: 20, relic: 1 }, life: '국가 합동 공략에서 보스를 쓰러뜨렸다. 주목받는 유망주의 첫 해가 끝났다.' },
       lose: { text: '공략대장이 당신을 끌어냈다. "괜찮아. 다들 처음엔 그래." 첫 실패가 오히려 약이 됐다.', gain: { ether: 80, injure: 1 }, life: '첫 국가 합동 공략에서 쓴맛을 봤다.' } }); return '게이트 앞에 섰다.'; } },
     { text: '후방에서 베테랑들의 움직임을 배운다', do: (g) => { dn(g); g.lifeEvent('국가 합동 공략에 참가했다. 주목받는 유망주의 첫 해가 끝났다.'); return '화려함은 없었지만, 베테랑들의 호흡을 눈에 담았다.' + g.gain({ ether: 120, merit: 15, talent: 1 }); } },

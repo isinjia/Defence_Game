@@ -506,7 +506,7 @@ Object.assign(Game.prototype, {
   cityBreak(regionId) { return this.world.breaks.find((b) => b.city === regionId); },
   breakGate(regionId) {
     const b = this.cityBreak(regionId); if (!b) return null;
-    return { id: 'break-' + regionId, kind: 'gate', tier: b.tier, theme: '게이트 브레이크 방어전', elem: RNG.pick(ELEMENT_KEYS), region: regionId, breakCity: regionId, x: this.player.x, y: this.player.y };
+    return { id: 'break-' + regionId, kind: 'gate', tier: b.tier, theme: '게이트 브레이크 방어전', elem: pickElem(), region: regionId, breakCity: regionId, x: this.player.x, y: this.player.y };
   },
   resolveBreak(regionId) {
     this.world.breaks = this.world.breaks.filter((b) => b.city !== regionId);

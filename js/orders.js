@@ -36,8 +36,7 @@ Object.assign(Combat.prototype, {
     if (ATK_TYPES.includes(sk.type)) {
       if (!t || t.side === u.side) return -1;
       const e = sk.elem === 'self' ? u.elem : sk.elem;
-      if (e && t.elem && ELEMENTS[t.elem] && ELEMENTS[t.elem].counter === e) return -1;
-      if (e && t.elem && ELEMENTS[e] && ELEMENTS[e].counter === t.elem) return 1;
+      if (e && t.elem) { const ed = elemEdge(e, t.elem); if (ed) return ed; }
       const foes = this.foesOf(u); const low = foes.reduce((a, b) => (b.hp / b.maxHp < a.hp / a.maxHp ? b : a), foes[0]);
       // 다친 동료가 많은데 힐러에게 공격을 시키면 나쁜 오더
       if (role === 'support' && this.friendsOf(u).some((f) => f.hp < f.maxHp * 0.4) && this.skillsOf(u).some((s) => HEAL_TYPES.includes(s.type) && s.mp <= u.mp)) return -1;
@@ -65,8 +64,7 @@ Object.assign(Combat.prototype, {
     for (const t of foes) for (const s of atk.length ? atk : [skillById('strike')]) {
       const e = s.elem === 'self' ? u.elem : s.elem;
       let v = s.power * (1 + (1 - t.hp / t.maxHp)) * (t.boss ? 1.2 : 1);
-      if (e && t.elem && ELEMENTS[e] && ELEMENTS[e].counter === t.elem) v *= 1.5;
-      if (e && t.elem && ELEMENTS[t.elem] && ELEMENTS[t.elem].counter === e) v *= 0.6;
+      if (e && t.elem) { const ed = elemEdge(e, t.elem); if (ed > 0) v *= 1.5; else if (ed < 0) v *= 0.6; }
       if (!best || v > best.v) best = { v, skill: s.id, target: t.id };
     }
     return best && { skill: best.skill, target: best.target };

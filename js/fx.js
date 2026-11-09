@@ -17,9 +17,10 @@ const FX = {
   PAL: {
     fire: { dark: '#2a0f0b', mid: '#7a2a16', hi: '#ff7a45' },
     bolt: { dark: '#24200a', mid: '#6b5a12', hi: '#ffd84d' },
-    ice: { dark: '#0a2230', mid: '#1d5a78', hi: '#6fd3ff' },
-    steel: { dark: '#1b1f26', mid: '#4a5361', hi: '#c9d2de' },
-    spirit: { dark: '#1c0f2e', mid: '#4e2a7a', hi: '#c58cff' },
+    water: { dark: '#0a1e30', mid: '#1a4f7a', hi: '#4fb3ff' },
+    wood: { dark: '#0f2414', mid: '#2a6a34', hi: '#5fcf6a' },
+    holy: { dark: '#2a2614', mid: '#7a6a3a', hi: '#fff0b3' },
+    dark: { dark: '#1c0f2e', mid: '#4e2a7a', hi: '#a36cff' },
     none: { dark: '#1b1f26', mid: '#3a4250', hi: '#9aa6b8' },
   },
 
@@ -30,9 +31,10 @@ const FX = {
     switch (e) {
       case 'fire': return `<svg ${s}><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="${c}"/></svg>`;
       case 'bolt': return `<svg ${s}><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="${c}"/></svg>`;
-      case 'ice': return `<svg ${s}><g stroke="${c}" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7"/><path d="M9 3.5 12 6l3-2.5M9 20.5 12 18l3 2.5" fill="none"/></g></svg>`;
-      case 'steel': return `<svg ${s}><path d="M10 2h4l.6 2.6 2.3 1 2.3-1.4 2.8 2.8-1.4 2.3 1 2.3L24 12v0l-2.6.6-1 2.3 1.4 2.3-2.8 2.8-2.3-1.4-2.3 1L14 22h-4l-.6-2.6-2.3-1-2.3 1.4-2.8-2.8 1.4-2.3-1-2.3L0 12l2.6-.6 1-2.3-1.4-2.3 2.8-2.8 2.3 1.4 2.3-1z" fill="${c}"/><circle cx="12" cy="12" r="3.6" fill="#11151d"/></svg>`;
-      case 'spirit': return `<svg ${s}><ellipse cx="12" cy="12" rx="10" ry="6.5" fill="none" stroke="${c}" stroke-width="2"/><circle cx="12" cy="12" r="3.5" fill="${c}"/></svg>`;
+      case 'water': return `<svg ${s}><path d="M12 2.5c3.2 4.6 6.5 8.4 6.5 12a6.5 6.5 0 0 1-13 0c0-3.6 3.3-7.4 6.5-12z" fill="${c}"/><path d="M9 15.5a3 3 0 0 0 3 3" stroke="#11151d" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>`;
+      case 'wood': return `<svg ${s}><path d="M20 3C9 3 4 9 4 16c0 1.6.3 3 .8 4.2C6 13 11 9 16 7c-4.6 3-8 7.4-9.6 13.6C7.6 21.5 9.2 22 11 22c6.6 0 10-6 9-19z" fill="${c}"/></svg>`;
+      case 'holy': return `<svg ${s}><path d="M12 1.5 14 10l8.5 2-8.5 2-2 8.5-2-8.5-8.5-2L10 10z" fill="${c}"/><circle cx="12" cy="12" r="2.2" fill="#11151d"/></svg>`;
+      case 'dark': return `<svg ${s}><path d="M15.5 2.5A9.8 9.8 0 1 0 21.5 17 8 8 0 0 1 15.5 2.5z" fill="${c}"/></svg>`;
       default: return `<svg ${s}><circle cx="12" cy="12" r="5" fill="${c}"/></svg>`;
     }
   },

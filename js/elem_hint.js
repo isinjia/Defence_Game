@@ -8,9 +8,7 @@
   // 공격 속성 e가 대상 속성 t에 대해: 1 유리, -1 불리, 0 보통
   UI.elemEdge = function (e, t) {
     if (!e || !t || !ELEMENTS[e] || !ELEMENTS[t]) return 0;
-    if (ELEMENTS[e].counter === t) return 1;
-    if (ELEMENTS[t].counter === e) return -1;
-    return 0;
+    return elemEdge(e, t);
   };
   UI.foeKnown = function (u) {
     if (!u || u.side !== 'enemy') return true;

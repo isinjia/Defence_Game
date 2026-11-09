@@ -116,7 +116,7 @@ Object.assign(UI, {
     const p = G.player;
     const ids = this.makeExamParty();
     const leader = this.makeExamLeader();
-    const gate = { id: -1, tier: 0, theme: '협회 훈련용 게이트', elem: RNG.pick(ELEMENT_KEYS) };
+    const gate = { id: -1, tier: 0, theme: '협회 훈련용 게이트', elem: pickElem() };
     this.exam = { ids, leader, gate, loot: { money: 0, ether: 0, kills: 0 }, stage: 0 };
     this.exam.rooms = [this.examEnemies(false), this.examEnemies(true)];
     const mates = ids.map((id) => G.npcById(id)); const L = G.npcById(leader);

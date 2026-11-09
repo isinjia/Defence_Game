@@ -15,13 +15,13 @@ S({ id: 'cult_1', chain: 'cult', step: 1, city: true, text: '폐업한 예식장
   ] });
 S({ id: 'cult_2', chain: 'cult', step: 2, text: '보름이 다가온다. 의식 장소는 강북 폐구의 버려진 지하철역. 신도들이 수십 개의 코어를 모아 인공 게이트를 열려 한다. 실패하면 일대가 날아간다.',
   choices: [
-    { text: '혼자 의식을 막는다', when: (g) => g.flags.story.cult !== 'join', do: (g) => { g.storyFight({ title: '균열교 무장 신도', mobs: { tier: g.player.rankIdx, n: 3, human: true, elem: 'spirit' }, win: { text: '코어 배열을 부쉈다. 신도들이 흩어지는 사이, 무명은 사라졌다.', gain: { fame: 12, merit: 12, core: [0, 4] }, chain: 'cult' } }); return '지하철역 계단을 뛰어 내려갔다.'; } },
+    { text: '혼자 의식을 막는다', when: (g) => g.flags.story.cult !== 'join', do: (g) => { g.storyFight({ title: '균열교 무장 신도', mobs: { tier: g.player.rankIdx, n: 3, human: true, elem: 'dark' }, win: { text: '코어 배열을 부쉈다. 신도들이 흩어지는 사이, 무명은 사라졌다.', gain: { fame: 12, merit: 12, core: [0, 4] }, chain: 'cult' } }); return '지하철역 계단을 뛰어 내려갔다.'; } },
     { text: '협회 진압팀과 함께 간다', when: (g) => g.flags.story.cult === 'report', do: (g) => { g.chainNext('cult'); return '합동 작전은 성공했다. 하지만 체포된 신도들 사이에 무명은 없었다.' + g.gain({ merit: 20, fame: 5 }); } },
     { text: '의식에 참여한다', when: (g) => g.flags.story.cult === 'join', do: (g) => { g.chainNext('cult'); g.flags.story.cultist = true; g.lifeEvent('균열교의 의식에 참여했다.'); return '인공 게이트가 열리는 순간, 엄청난 에테르가 몸을 관통했다. 비각성 신도 몇이 그 자리에서 쓰러졌다. 무명이 당신을 바라보며 웃었다. "역시, 너는 선택받았어."' + g.gain({ ether: 150, life: -3 }); } },
   ] });
 S({ id: 'cult_3', chain: 'cult', step: 3, gap: 3, minRank: 2, text: '무명에게서 직접 연락이 왔다. 가면을 벗은 그는 대붕괴 당시 관리국 수석 연구원이었다. "게이트는 재앙이 아니야. 진화의 문이다. 정부는 그걸 독점하려고 거짓말을 했지. 마지막 의식을 함께하자. 아니면 막아 보든가."',
   choices: [
-    { text: '그를 막는다', do: (g) => { g.storyFight({ title: '균열교 교주 무명', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true, human: true, elem: 'spirit', name: '[교주] 무명' }, win: { text: '무명이 무릎을 꿇었다. "…그래도 문은 언젠가 열린다." 그가 남긴 수첩에는 제주에 관한 메모가 빼곡했다.', gain: { fame: 30, merit: 30, relic: 2 }, life: '균열교 교주 무명을 쓰러뜨렸다.', chainEnd: 'cult' } }); return '무명이 손을 펼치자 공간이 찢어졌다.'; } },
+    { text: '그를 막는다', do: (g) => { g.storyFight({ title: '균열교 교주 무명', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true, human: true, elem: 'dark', name: '[교주] 무명' }, win: { text: '무명이 무릎을 꿇었다. "…그래도 문은 언젠가 열린다." 그가 남긴 수첩에는 제주에 관한 메모가 빼곡했다.', gain: { fame: 30, merit: 30, relic: 2 }, life: '균열교 교주 무명을 쓰러뜨렸다.', chainEnd: 'cult' } }); return '무명이 손을 펼치자 공간이 찢어졌다.'; } },
     { text: '그의 사도가 된다', when: (g) => g.flags.story.cultist, do: (g) => { g.chainEnd('cult'); g.flags.story.apostle = true; g.lifeEvent('균열교의 사도가 되었다.'); g.rumor(`충격: 유명 헌터 ${g.player.name}, 균열교 사도로 활동 정황.`); g.setClass('apostle', '히든 직업 각성'); return '무명이 당신 이마에 손을 얹었다. 금지된 지식이 흘러들었다. 히든 직업 [심연의 사도]. 세상의 시선은 차가워졌다.' + g.gain({ relic: 3, ether: 200, fame: -60, merit: -60 }); } },
     { text: '외면한다', do: (g) => { g.chainEnd('cult'); g.rumor('균열교가 다시 활동을 시작했다는 제보가 이어진다.'); return '전화를 끊었다. 그 뒤로 균열교 소식은 뉴스에서만 들었다.'; } },
   ] });
@@ -75,10 +75,10 @@ S({ id: 'voice_4', chain: 'voice', step: 4, region: 'jeju', minRank: 6, text: '�
 S({ id: 'sub_0', chain: 'subject', step: 0, when: (g) => g.player.bg === 'subject', text: '모르는 번호로 문자가 왔다. "나야, 7번. 연구소에서 같이 있었던. 우리 기수 피험자들이 한 명씩 사라지고 있어. 너도 조심해."',
   choices: [{ text: '7번을 만나러 간다', do: (g) => { g.chainNext('subject'); return '약속 장소는 대전 외곽의 버스 정류장.'; } }] });
 S({ id: 'sub_1', chain: 'subject', step: 1, gap: 1, text: '약속 장소에 7번은 없었다. 대신 검은 정장 둘이 다가온다. "피험자 12번, 동행해 주시죠." 관리국 \'청소부\'다.',
-  choices: [{ text: '싸운다', do: (g) => { g.storyFight({ title: '관리국 청소부', mobs: { tier: g.player.rankIdx, n: 2, human: true, elem: 'steel' }, win: { text: '청소부의 품에서 7번의 신분증과 좌표가 적힌 쪽지가 나왔다.', gain: { merit: -5 }, chain: 'subject' } }); return '정장 사내들이 총을 뽑았다.'; } }] });
+  choices: [{ text: '싸운다', do: (g) => { g.storyFight({ title: '관리국 청소부', mobs: { tier: g.player.rankIdx, n: 2, human: true, elem: 'wood' }, win: { text: '청소부의 품에서 7번의 신분증과 좌표가 적힌 쪽지가 나왔다.', gain: { merit: -5 }, chain: 'subject' } }); return '정장 사내들이 총을 뽑았다.'; } }] });
 S({ id: 'sub_2', chain: 'subject', step: 2, minRank: 2, text: '좌표는 울산 해안의 폐조선소. 지하에 아직 가동 중인 연구 시설이 있다. 유리관 속에 아이들이 잠들어 있다. 강제 각성 실험이 계속되고 있었다.',
   choices: [
-    { text: '아이들을 구출한다', do: (g) => { g.storyFight({ title: '시설 경비 시스템', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true, shape: 'golem', elem: 'steel', name: '[실험체] 0번' }, win: { text: '아이들을 모두 데리고 나왔다. 그중 하나가 당신 손을 꼭 잡았다.', gain: { fame: 25, rep: 10 }, life: '비밀 연구 시설에서 아이들을 구해 냈다.', chain: 'subject' } }); return '경보가 울리고, 가장 안쪽 유리관이 깨졌다.'; } },
+    { text: '아이들을 구출한다', do: (g) => { g.storyFight({ title: '시설 경비 시스템', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true, shape: 'golem', elem: 'wood', name: '[실험체] 0번' }, win: { text: '아이들을 모두 데리고 나왔다. 그중 하나가 당신 손을 꼭 잡았다.', gain: { fame: 25, rep: 10 }, life: '비밀 연구 시설에서 아이들을 구해 냈다.', chain: 'subject' } }); return '경보가 울리고, 가장 안쪽 유리관이 깨졌다.'; } },
     { text: '증거만 챙겨 나온다', do: (g) => { g.chainNext('subject'); return '하드 드라이브를 품에 넣었다. 아이들의 얼굴이 눈에 밟혔다.' + g.gain({ merit: 10 }); } },
   ] });
 S({ id: 'sub_3', chain: 'subject', step: 3, text: '실험의 책임자가 화상 통화를 걸어 왔다. "12번, 너는 우리 최고의 성공작이야. 돌아오면 S급까지 보장하지. 수명도."',
@@ -94,7 +94,7 @@ S({ id: 'pocha_1', chain: 'pocha', step: 1, trigger: 'city', text: '비 오는 �
   choices: [{ text: '끝까지 듣는다', do: (g) => { g.chainNext('pocha'); return '그날 밤 사장님은 세 병을 비웠다.' + g.gain({ ether: 25 }); } }] });
 S({ id: 'pocha_2', chain: 'pocha', step: 2, gap: 2, minRank: 2, text: '긴급 속보: 동해에서 백골룡 개체 재출현. 포차 셔터가 내려져 있다. 쪽지 한 장: "빚은 갚아야지. — 흑염"',
   choices: [
-    { text: '뒤쫓아 함께 싸운다', do: (g) => { g.storyFight({ title: '백골룡', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true, shape: 'dragon', elem: 'spirit', name: '[재앙] 백골룡' }, ally: { name: '흑염', rank: Math.min(7, g.player.rankIdx + 2), elem: 'fire' }, win: { text: '백골룡이 쓰러졌다. 흑염은 피투성이로 웃었다. "…이제야 애들한테 갈 낯이 서네."', gain: { fame: 30 }, chain: 'pocha' }, lose: { text: '패배했다. 흑염이 당신을 업고 빠져나왔다. 그는 돌아오지 않았다.', gain: { injure: 3 }, chainEnd: 'pocha' } }); return '강릉으로 달렸다.'; } },
+    { text: '뒤쫓아 함께 싸운다', do: (g) => { g.storyFight({ title: '백골룡', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true, shape: 'dragon', elem: 'dark', name: '[재앙] 백골룡' }, ally: { name: '흑염', rank: Math.min(7, g.player.rankIdx + 2), elem: 'fire' }, win: { text: '백골룡이 쓰러졌다. 흑염은 피투성이로 웃었다. "…이제야 애들한테 갈 낯이 서네."', gain: { fame: 30 }, chain: 'pocha' }, lose: { text: '패배했다. 흑염이 당신을 업고 빠져나왔다. 그는 돌아오지 않았다.', gain: { injure: 3 }, chainEnd: 'pocha' } }); return '강릉으로 달렸다.'; } },
     { text: '그의 선택을 존중한다', do: (g) => { g.chainEnd('pocha'); g.rumor('은퇴한 1세대 S급 \'흑염\', 백골룡과 동귀어진.'); return '며칠 뒤, 포차 자리에 꽃이 쌓였다.'; } },
   ] });
 S({ id: 'pocha_3', chain: 'pocha', step: 3, trigger: 'city', text: '포차가 다시 문을 열었다. 흑염이 낡은 검집을 내민다. "나는 이제 진짜 은퇴다. 이건 네가 써. 그리고… 내 기술도 좀 가르쳐 줄게."',
@@ -146,7 +146,7 @@ S({ id: 'baekho_0', chain: 'baekho', step: 0, region: 'gangnam', minRank: 3, whe
     { text: '거절한다', do: () => '"아쉽군."' },
   ] });
 S({ id: 'baekho_1', chain: 'baekho', step: 1, region: 'gangnam', text: (g) => { const n = g.npcById(g.flags.story.heir); return `${n ? n.name : '손주'}의 차량 행렬. 고가도로 위에서 트럭이 돌진한다. 암살이다.`; },
-  choices: [{ text: '막아선다', do: (g) => { g.storyFight({ title: '암살자들', mobs: { tier: g.player.rankIdx, n: 3, human: true, elem: 'spirit' }, win: { text: '암살자를 제압했다. 품에서 백호 시큐리티 내부 출입증이 나왔다.', gain: { fame: 6 }, chain: 'baekho' } }); const n = g.npcById(g.flags.story.heir); if (n) g.changeRel(n, 30); return '트럭 위에서 복면들이 뛰어내렸다.'; } }] });
+  choices: [{ text: '막아선다', do: (g) => { g.storyFight({ title: '암살자들', mobs: { tier: g.player.rankIdx, n: 3, human: true, elem: 'dark' }, win: { text: '암살자를 제압했다. 품에서 백호 시큐리티 내부 출입증이 나왔다.', gain: { fame: 6 }, chain: 'baekho' } }); const n = g.npcById(g.flags.story.heir); if (n) g.changeRel(n, 30); return '트럭 위에서 복면들이 뛰어내렸다.'; } }] });
 S({ id: 'baekho_2', chain: 'baekho', step: 2, region: 'gangnam', text: (g) => { const n = g.npcById(g.flags.story.heir); return `배후는 회장의 장남, 그러니까 ${n ? n.name : '손주'}의 큰아버지였다. 장남이 먼저 찾아와 봉투를 내민다. "조카만 \'사고\'로 정리되면 자네는 우리 길드 간부야."`; },
   choices: [
     { text: '회장에게 모두 알린다', do: (g) => { g.chainEnd('baekho'); g.lifeEvent('백호 가문의 후계 다툼을 막았다.'); const n = g.npcById(g.flags.story.heir); if (n) g.changeRel(n, 40); return '장남은 실각했다. 회장은 당신에게 평생 빚을 졌다고 말했다.' + g.gain({ money: 4000, fame: 15, rep: 20 }); } },

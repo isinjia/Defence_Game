@@ -5,9 +5,9 @@
 
 // ---------- 길드 적합도 ----------
 const GUILD_FIT = {
-  baekho: { g: ['guard', 'shooter'], bg: ['chaebol', 'soldier'], e: 'steel', r: 'gangnam' },
-  cheongryong: { g: ['mage', 'esper', 'summon'], bg: ['subject', 'student'], e: 'spirit', r: 'daejeon' },
-  hyeonmu: { g: ['fighter', 'east'], bg: ['student', 'orphan'], e: 'ice', r: 'ulsan' },
+  baekho: { g: ['guard', 'shooter'], bg: ['chaebol', 'soldier'], e: 'holy', r: 'gangnam' },
+  cheongryong: { g: ['mage', 'esper', 'summon'], bg: ['subject', 'student'], e: 'wood', r: 'daejeon' },
+  hyeonmu: { g: ['fighter', 'east'], bg: ['student', 'orphan'], e: 'water', r: 'ulsan' },
   jujak: { g: ['shadow', 'support'], bg: ['orphan'], e: 'fire', r: 'gwangju' },
 };
 // 점수: 직업 계열 +2, 출신 +2, 각성한 지역이 본부 +1, 속성 +1. 동점이면 무작위

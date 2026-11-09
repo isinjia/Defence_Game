@@ -62,7 +62,7 @@ S({ id: 'role_exam_reunion', npc: 'examMate', minRank: 1, text: '시험 동기 {
   ] });
 S({ id: 'role_mentor_favor', npc: 'mentor', text: '사수 {npc}이(가) 드물게 부탁을 한다. "다음 주 내 공략에 사람이 하나 빠졌어. 네 등급엔 좀 버겁겠지만… 와 줄래? 보는 것만으로도 공부 될 거다."',
   choices: [
-    { text: '따라간다', do: (g, c) => { g.storyFight({ title: '사수의 공략', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 2 }, ally: { name: c.npc ? c.npc.name : '사수', rank: Math.min(7, g.player.rankIdx + 2), elem: c.npc ? c.npc.element : 'steel' }, win: { text: fixJosa(`${ROLE_NM(c)}이(가) 처음으로 "잘했다"고 했다.`), gain: { ether: 60, money: 300 }, after: (G) => c.npc && G.changeRel(c.npc, 12) }, lose: { text: fixJosa(`${ROLE_NM(c)}이(가) 당신을 들쳐 업고 나왔다. "괜찮아, 다음엔 버틴다."`), gain: { injure: 1, ether: 30 } } }); return '게이트 입구에서 {npc}이(가) 장갑을 고쳐 끼었다.'; } },
+    { text: '따라간다', do: (g, c) => { g.storyFight({ title: '사수의 공략', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 2 }, ally: { name: c.npc ? c.npc.name : '사수', rank: Math.min(7, g.player.rankIdx + 2), elem: c.npc ? c.npc.element : 'wood' }, win: { text: fixJosa(`${ROLE_NM(c)}이(가) 처음으로 "잘했다"고 했다.`), gain: { ether: 60, money: 300 }, after: (G) => c.npc && G.changeRel(c.npc, 12) }, lose: { text: fixJosa(`${ROLE_NM(c)}이(가) 당신을 들쳐 업고 나왔다. "괜찮아, 다음엔 버틴다."`), gain: { injure: 1, ether: 30 } } }); return '게이트 입구에서 {npc}이(가) 장갑을 고쳐 끼었다.'; } },
     { text: '아직은 무리라고 말한다', do: (g, c) => '"그래, 자기 그릇 아는 것도 실력이지." 서운한 기색은 없었다.' + g.gain({ rel: 2 }, c) },
   ] });
 S({ id: 'role_friend_hurt', npc: 'closeFriend', text: '새벽 3시, 모르는 번호로 전화가 온다. 응급실이다. "{npc} 씨 보호자분이세요? 연락처에 당신 번호가 제일 위에 있어서요."',
@@ -160,7 +160,7 @@ S({ id: 'band_ba_interview', minRank: 4, maxRank: 6, text: '시사 프로그램�
 // S~SS: 국가, 해외 견제, 암살, 은퇴 압박, 후계자
 S({ id: 'band_s_assassin', minRank: 6, text: '호텔 방 창문에 레이저 점 하나가 맺힌다. 저격이다. 몸이 먼저 움직였다. 유리창이 터지고, 맞은편 빌딩 옥상에서 그림자 셋이 흩어진다.',
   choices: [
-    { text: '쫓아간다', do: (g) => { g.storyFight({ title: '해외 암살조', mobs: { tier: Math.min(7, g.player.rankIdx), n: 3, human: true, elem: 'spirit' }, lethal: false, win: { text: '셋 중 하나를 생포했다. 품에서 외국 정보기관 표식이 나왔다. 관리국이 발칵 뒤집혔다.', gain: { merit: 40, fame: 15 } }, lose: { text: '놓쳤다. 옆구리에서 피가 흘렀다.', gain: { injure: 2 } } }); return '옥상을 건너뛰었다.'; } },
+    { text: '쫓아간다', do: (g) => { g.storyFight({ title: '해외 암살조', mobs: { tier: Math.min(7, g.player.rankIdx), n: 3, human: true, elem: 'dark' }, lethal: false, win: { text: '셋 중 하나를 생포했다. 품에서 외국 정보기관 표식이 나왔다. 관리국이 발칵 뒤집혔다.', gain: { merit: 40, fame: 15 } }, lose: { text: '놓쳤다. 옆구리에서 피가 흘렀다.', gain: { injure: 2 } } }); return '옥상을 건너뛰었다.'; } },
     { text: '관리국 경호를 요청한다', do: (g) => '관리국이 24시간 경호를 붙였다. 편하진 않았지만 안전했다.' + g.gain({ merit: 5 }) },
   ] });
 S({ id: 'band_s_retire_push', minRank: 6, minAge: 45, text: '관리국 고위 관계자가 조용히 식사를 청한다. "이제 후배들에게 길을 터 줄 때도 됐지요. 명예직 자리를 하나 마련해 뒀습니다. 국가에 대한 마지막 봉사라고 생각하시고."',

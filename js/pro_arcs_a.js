@@ -8,9 +8,9 @@ Object.assign(PROLOGUE, {
   ill_1: { title: '원인 불명', text: '그해 겨울, 열이 내리지 않았다. 해열제를 먹어도 39도, 얼음찜질을 해도 40도. 동네 병원은 소견서 한 장을 써 주며 고개를 저었다.\n\n대학병원 감염내과 의사가 차트를 넘기며 말한다. "에테르 열병 같습니다. 각성 전 단계에서 몸이 버티지 못하는 경우예요. 솔직히… 확률은 반반입니다."',
     choices: [
       { text: '"반이면 충분하네요." 웃어 보인다', e: { fire: 1 }, g: { fighter: 1, guard: 1 }, t: { berserk: 1 }, next: 'ill_2' },
-      { text: '열병에 관한 논문을 전부 찾아 달라고 한다', e: { ice: 1 }, g: { mage: 2 }, t: { genius: 1 }, next: 'ill_2' },
-      { text: '{friend}에게만 사실대로 말한다. 전화기 너머가 한참 조용하다', e: { spirit: 1 }, g: { support: 1, summon: 1 }, t: { charisma: 1 }, friend: 10, flag: ['ill_told', 'friend_hurt'], next: 'ill_2' },
-      { text: '아무에게도 알리지 않고 혼자 입원 수속을 밟는다', e: { steel: 1 }, g: { shadow: 1, guard: 1 }, t: { loner: 1 }, flag: 'ill_alone', next: 'ill_2' },
+      { text: '열병에 관한 논문을 전부 찾아 달라고 한다', e: { water: 1 }, g: { mage: 2 }, t: { genius: 1 }, next: 'ill_2' },
+      { text: '{friend}에게만 사실대로 말한다. 전화기 너머가 한참 조용하다', e: { holy: 1 }, g: { support: 1, summon: 1 }, t: { charisma: 1 }, friend: 10, flag: ['ill_told', 'friend_hurt'], next: 'ill_2' },
+      { text: '아무에게도 알리지 않고 혼자 입원 수속을 밟는다', e: { wood: 1 }, g: { shadow: 1, guard: 1 }, t: { loner: 1 }, flag: 'ill_alone', next: 'ill_2' },
     ] },
   ill_2: { title: '7층 격리 병동', text: '6인실 격리 병동. 창가 침대의 노인은 은퇴한 C급 헌터라며 늘 염주를 굴리고, 맞은편 침대에는 같은 병을 앓는 열한 살 다온이 누워 있다. 야간 간호사 윤 선생의 입버릇은 하나다. "버티는 사람이 이겨요."\n\n입원 아흐레째 새벽, 다온이 경련을 일으킨다. 당직 의사는 다른 층 응급 수술에 묶여 있다. 노인이 이를 간다. "내가 십 년만 젊었어도." 열에 들뜬 몸으로, 당신은 무엇이든 해야 한다.',
     choices: [
@@ -27,9 +27,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '열이 바깥으로 터져 나온다. 침대 시트가 그을린다', e: { fire: 4 }, next: 'ill_4' },
       { text: '심장 박동마다 모니터 화면이 번쩍인다', e: { bolt: 4 }, next: 'ill_4' },
-      { text: '열이 단숨에 식는다. 병실 유리창에 성에가 핀다', e: { ice: 4 }, next: 'ill_4' },
-      { text: '굳어 가던 몸이 쇳덩이처럼 무거워지고, 그대로 버틴다', e: { steel: 4 }, next: 'ill_4' },
-      { text: '병실 사람들 모두의 숨이 하나의 박자로 겹친다', e: { spirit: 4 }, next: 'ill_4' },
+      { text: '열이 단숨에 식는다. 병실 유리창에 성에가 핀다', e: { water: 4 }, next: 'ill_4' },
+      { text: '굳어 가던 몸이 쇳덩이처럼 무거워지고, 그대로 버틴다', e: { wood: 4 }, next: 'ill_4' },
+      { text: '병실 사람들 모두의 숨이 하나의 박자로 겹친다', e: { holy: 4 }, next: 'ill_4' },
+      { text: '병실 불빛이 꺼지고, 그림자가 발밑으로 모여든다', e: { dark: 4 }, next: 'ill_4' },
     ] },
   ill_4: { title: '같은 병의 아이', text: '눈을 뜨니 열이 없다. 의사가 차트를 몇 번이나 다시 본다. "…각성했네요. 축하합니다."\n\n그런데 맞은편 다온의 모니터가 다시 울리기 시작한다. 같은 병, 같은 고비. 아이의 입술이 파랗다. 당신 안의 힘이 아직 낯설게 꿈틀거린다.',
     choices: [
@@ -54,9 +55,9 @@ Object.assign(PROLOGUE, {
   // ===================== 유물: 녹슨 코어 =====================
   relic_1: { title: '벼룩시장', text: '주말마다 동네 벼룩시장을 돌던 때였다. 대붕괴 이전 물건들이 헐값에 굴러다니는 곳. 오늘은 고물상 할아버지가 상자 하나를 툭 내민다.\n\n"유품 정리하다 나온 건데, 이상하게 아무도 안 사 가. 만 원만 줘." 상자 안에는 녹슨 금속 구슬 하나. 손을 대자 미지근하다.',
     choices: [
-      { text: '두말없이 만 원을 낸다', e: { spirit: 1 }, g: { mage: 1, esper: 1 }, t: { lucky: 1 }, luck: 1, next: 'relic_2' },
-      { text: '"이거 코어 아니에요?" 값을 깎으며 떠본다', e: { steel: 1 }, g: { support: 1, shadow: 1 }, t: { merchant: 1 }, next: 'relic_2' },
-      { text: '유품의 주인이 누구였는지부터 묻는다', e: { ice: 1 }, g: { east: 1, summon: 1 }, t: { mana_sense: 1 }, flag: 'relic_asked', next: 'relic_2' },
+      { text: '두말없이 만 원을 낸다', e: { holy: 1 }, g: { mage: 1, esper: 1 }, t: { lucky: 1 }, luck: 1, next: 'relic_2' },
+      { text: '"이거 코어 아니에요?" 값을 깎으며 떠본다', e: { wood: 1 }, g: { support: 1, shadow: 1 }, t: { merchant: 1 }, next: 'relic_2' },
+      { text: '유품의 주인이 누구였는지부터 묻는다', e: { water: 1 }, g: { east: 1, summon: 1 }, t: { mana_sense: 1 }, flag: 'relic_asked', next: 'relic_2' },
       { text: '{friend}에게 사진을 찍어 보낸다. "이거 봐 봐"', e: { bolt: 1 }, g: { shooter: 1, support: 1 }, t: { charisma: 1 }, friend: 5, flag: 'relic_shared', next: 'relic_2' },
     ] },
   relic_2: { title: '구슬의 주인', text: '구슬은 밤마다 조금씩 녹이 벗겨진다. 속에서 무늬가 드러난다. {?relic_asked:할아버지가 흘린 이름 하나로|인터넷을 뒤지다} 찾아낸 건 대붕괴 직후 실종된 무명 헌터의 기록. 사진 속 그가 목에 걸고 있는 것이 바로 이 구슬이다.\n\n기록 끝에는 그가 남긴 말이 한 줄 있다. "이걸 쥔 사람은 내 길을 따르게 될 것이다." 그날부터 당신은 밤마다 구슬을 쥐고 그를 흉내 낸다.',
@@ -74,9 +75,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '명치의 무늬가 붉게 달아오르고, 손끝에서 불티가 튄다', e: { fire: 4 }, next: 'relic_4' },
       { text: '방 안의 전자기기가 일제히 켜졌다 꺼진다', e: { bolt: 4 }, next: 'relic_4' },
-      { text: '숨을 내쉬자 창문에 하얀 서리가 맺힌다', e: { ice: 4 }, next: 'relic_4' },
-      { text: '무늬를 따라 피부가 금속처럼 단단해진다', e: { steel: 4 }, next: 'relic_4' },
-      { text: '눈꺼풀 안쪽에 본 적 없는 전장이 스친다. 무명 헌터가 마지막으로 본 풍경이다', e: { spirit: 4 }, next: 'relic_4' },
+      { text: '숨을 내쉬자 창문에 하얀 서리가 맺힌다', e: { water: 4 }, next: 'relic_4' },
+      { text: '무늬를 따라 피부가 금속처럼 단단해진다', e: { wood: 4 }, next: 'relic_4' },
+      { text: '눈꺼풀 안쪽에 본 적 없는 전장이 스친다. 무명 헌터가 마지막으로 본 풍경이다', e: { dark: 4 }, next: 'relic_4' },
+      { text: '명치의 무늬가 하얗게 빛나며 방 안을 환히 밝힌다', e: { holy: 4 }, next: 'relic_4' },
     ] },
   relic_4: { title: '찾아온 사람들', text: '사흘 뒤, {?relic_shared:구슬 사진을 보고 궁금해 죽겠다며|오랜만에 얼굴 보자며} 소꿉친구가 놀러 온 저녁. 초인종이 울린다. 검은 정장 둘. 명함에는 "흑사자 유물 회수팀". 웃는 얼굴로 말한다. "벼룩시장에서 구슬 하나 사셨죠? 값은 열 배로 쳐 드리겠습니다."\n\n구슬은 이미 몸속에 있다. 한 명이 장갑을 벗는다. 손등에 C급 각인이 보인다.',
     choices: [
@@ -103,9 +105,9 @@ Object.assign(PROLOGUE, {
   // ===================== 꿈과 신병 =====================
   dream_1: { title: '같은 꿈', text: '그해 봄부터 매일 밤 같은 꿈을 꿨다. 안개 낀 강가, 붉은 천을 두른 나무, 그리고 강 건너에서 손짓하는 누군가.\n\n한 달째 되던 날, 아침에 일어나니 베개가 젖어 있고 손바닥에 모래가 묻어 있다. 몸살 같은데 병원에서는 아무 이상이 없다고 한다.',
     choices: [
-      { text: '꿈 일기를 쓰기 시작한다', e: { ice: 1 }, g: { mage: 1, esper: 1 }, t: { mana_sense: 1 }, next: 'dream_2' },
+      { text: '꿈 일기를 쓰기 시작한다', e: { water: 1 }, g: { mage: 1, esper: 1 }, t: { mana_sense: 1 }, next: 'dream_2' },
       { text: '"그냥 피곤한 거야." 운동으로 땀을 뺀다', e: { fire: 1 }, g: { fighter: 2 }, t: { iron_body: 1 }, next: 'dream_2' },
-      { text: '손바닥의 모래를 털지 않고 유리병에 모은다. 이상하게 버릴 수가 없다', e: { spirit: 1 }, g: { east: 2 }, t: { lucky: 1 }, next: 'dream_2' },
+      { text: '손바닥의 모래를 털지 않고 유리병에 모은다. 이상하게 버릴 수가 없다', e: { dark: 1 }, g: { east: 2 }, t: { lucky: 1 }, next: 'dream_2' },
       { text: '{friend}에게 꿈 이야기를 털어놓는다', g: { support: 1, summon: 1 }, t: { charisma: 1 }, friend: 10, flag: 'dream_told', next: 'dream_2' },
     ] },
   dream_2: { title: '신병', text: '몸이 점점 무너진다. 밥이 넘어가지 않고, 밤이면 귓가에 방울 소리가 울린다. {?dream_told:소꿉친구가 수소문해 준 끝에|혼자 수소문한 끝에} 찾아간 곳은 도시 외곽 산자락의 작은 신당. 백발의 만신 할머니가 당신을 보자마자 혀를 찬다.\n\n"너 오는 줄 알았다. 신이 너를 고른 거야. 받든지, 다른 길을 찾든지 해야 살아."',
@@ -123,9 +125,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '붉은 천이 불길로 변해 온몸을 감싼다', e: { fire: 4 }, next: 'dream_4' },
       { text: '방울 소리마다 하늘에서 마른번개가 친다', e: { bolt: 4 }, next: 'dream_4' },
-      { text: '강물이 얼어붙고, 그 위를 맨발로 건넌다', e: { ice: 4 }, next: 'dream_4' },
-      { text: '작두날 위에 올라서도 발바닥에 상처 하나 없다', e: { steel: 4 }, next: 'dream_4' },
-      { text: '존재와 이마를 맞댄다. 수천 개의 숨결이 하나로 합쳐진다', e: { spirit: 4 }, next: 'dream_4' },
+      { text: '강물이 얼어붙고, 그 위를 맨발로 건넌다', e: { water: 4 }, next: 'dream_4' },
+      { text: '작두날 위에 올라서도 발바닥에 상처 하나 없다', e: { wood: 4 }, next: 'dream_4' },
+      { text: '존재와 이마를 맞댄다. 수천 개의 숨결이 하나로 합쳐진다', e: { holy: 4 }, next: 'dream_4' },
+      { text: '방울 소리가 멎고, 저승의 그림자가 등 뒤에 선다', e: { dark: 4 }, next: 'dream_4' },
     ] },
   dream_4: { title: '첫 손님', text: '굿이 끝난 다음 날 새벽, 신당 문을 두드리는 사람이 있다. 딸이 사흘째 깨어나지 않는다는 어머니. 할머니는 당신을 가리킨다. "네 손님이다."\n\n아이 방에 들어서자, 침대 머리맡에 검은 안개가 웅크리고 있다. 당신에게만 보인다.',
     choices: [
@@ -152,9 +155,9 @@ Object.assign(PROLOGUE, {
   storm_1: { title: '폭풍 예보', text: '그해 여름, 기상청이 처음 보는 경보를 띄운다. [에테르 폭풍 경보] 검붉은 적란운이 서해에서 올라오고 있습니다. 외출을 삼가십시오.\n\n하필 그날 당신은 시내에 나와 있었다. 소꿉친구를 기다리며 길모퉁이 카페에 앉아 있던 참이다. {friendJob}인 친구는 오늘도 늦는다. 오후 4시, 하늘이 낮처럼 어두워진다. 휴대폰 신호가 한 칸씩 사라진다.',
     choices: [
       { text: '카페 창가에서 구름을 올려다본다. 무섭기보다 가슴이 뛴다', e: { bolt: 1 }, g: { mage: 1, shooter: 1 }, t: { reckless: 1 }, next: 'storm_2' },
-      { text: '카페 사장에게 비상식량과 손전등 자리를 묻고, 손님들을 안쪽으로 모은다', e: { steel: 1 }, g: { guard: 1, support: 1 }, t: { charisma: 1 }, next: 'storm_2' },
-      { text: '{friend}에게 끊기기 전에 전화를 건다. "어디야? 거기 그대로 있어."', e: { spirit: 1 }, g: { support: 1, summon: 1 }, t: { lucky: 1 }, friend: 10, flag: 'storm_called', next: 'storm_2' },
-      { text: '폭풍 레이더 앱을 켜고 번개가 떨어지는 패턴을 받아 적는다', e: { ice: 1 }, g: { mage: 1, esper: 1 }, t: { genius: 1 }, next: 'storm_2' },
+      { text: '카페 사장에게 비상식량과 손전등 자리를 묻고, 손님들을 안쪽으로 모은다', e: { wood: 1 }, g: { guard: 1, support: 1 }, t: { charisma: 1 }, next: 'storm_2' },
+      { text: '{friend}에게 끊기기 전에 전화를 건다. "어디야? 거기 그대로 있어."', e: { holy: 1 }, g: { support: 1, summon: 1 }, t: { lucky: 1 }, friend: 10, flag: 'storm_called', next: 'storm_2' },
+      { text: '폭풍 레이더 앱을 켜고 번개가 떨어지는 패턴을 받아 적는다', e: { water: 1 }, g: { mage: 1, esper: 1 }, t: { genius: 1 }, next: 'storm_2' },
     ] },
   storm_2: { title: '정전된 도시', text: '번개가 변전소를 때리고, 도시 전체가 꺼진다. 신호등도, 엘리베이터도, 버스도 멈췄다. 어둠 속에서 사방이 소리를 지른다.\n\n바로 앞 오피스텔 엘리베이터에 사람이 갇혔다. 건너편 터널에선 차들이 뒤엉켰다. 어디로 갈지 정해야 한다.',
     choices: [
@@ -171,9 +174,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '번개가 불로 바뀌어 빗속에서도 꺼지지 않는다', e: { fire: 4 }, next: 'storm_4' },
       { text: '번개가 그대로 남는다. 머리카락 끝에서 스파크가 튄다', e: { bolt: 4 }, next: 'storm_4' },
-      { text: '몸이 차갑게 식고, 떨어지는 빗방울이 얼음이 된다', e: { ice: 4 }, next: 'storm_4' },
-      { text: '그을린 피부 아래로 강철 같은 무언가가 굳는다', e: { steel: 4 }, next: 'storm_4' },
-      { text: '도시 전체의 두려움이 파도처럼 밀려온다. 수만 명의 심장 소리', e: { spirit: 4 }, next: 'storm_4' },
+      { text: '몸이 차갑게 식고, 떨어지는 빗방울이 얼음이 된다', e: { water: 4 }, next: 'storm_4' },
+      { text: '그을린 피부 아래로 강철 같은 무언가가 굳는다', e: { wood: 4 }, next: 'storm_4' },
+      { text: '도시 전체의 두려움이 파도처럼 밀려온다. 수만 명의 심장 소리', e: { dark: 4 }, next: 'storm_4' },
+      { text: '먹구름 사이로 한 줄기 빛이 내려와 몸을 감싼다', e: { holy: 4 }, next: 'storm_4' },
     ] },
   storm_4: { title: '무너지는 육교', text: '정신을 차리니 폭풍의 눈 한가운데다. 비가 멎은 고요 속, 바로 옆 육교가 삐걱거린다. 그 위에 퇴근 버스 한 대가 걸쳐 있고, 창문마다 사람들 얼굴이 보인다. {?storm_called:맨 뒷자리에서 소꿉친구가 휴대폰 불빛을 흔든다.|}\n\n관리국 구조대는 아직 30분 거리다. 당신은 방금 얻은 힘을 처음으로 써 본다.',
     choices: [
@@ -214,9 +218,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '발밑에서 불길이 치솟아 몸을 앞으로 쏘아 보낸다', e: { fire: 4 }, next: 'dream_5' },
       { text: '번개처럼 공간을 건너뛰어 아이의 손목을 낚아챈다', e: { bolt: 4 }, next: 'dream_5' },
-      { text: '떨어지는 아이 아래로 얼음 미끄럼틀이 솟는다', e: { ice: 4 }, next: 'dream_5' },
-      { text: '부서진 난간 쇠기둥이 엿가락처럼 휘어 아이를 받친다', e: { steel: 4 }, next: 'dream_5' },
-      { text: '시간이 느려진다. 꿈속 목소리가 "지금"이라고 속삭인다', e: { spirit: 4 }, next: 'dream_5' },
+      { text: '떨어지는 아이 아래로 얼음 미끄럼틀이 솟는다', e: { water: 4 }, next: 'dream_5' },
+      { text: '부서진 난간 쇠기둥이 엿가락처럼 휘어 아이를 받친다', e: { wood: 4 }, next: 'dream_5' },
+      { text: '시간이 느려진다. 꿈속 목소리가 "지금"이라고 속삭인다', e: { holy: 4 }, next: 'dream_5' },
+      { text: '그림자 손이 발밑에서 뻗어 나가 아이를 붙잡는다', e: { dark: 4 }, next: 'dream_5' },
     ] },
   dsleep_2: { title: '수면 클리닉', text: '관리국 산하 수면 클리닉에서 연락이 왔다. "최근 비정상 에테르 수면 패턴이 감지되었습니다. 무료 정밀 검사를 받아 보시겠습니까?"\n\n하얀 방, 머리에 붙는 전극, 유리 너머의 연구원들. 잠이 들자 꿈속 강가가 모니터에 파형으로 그려진다. 연구원 하나가 중얼거린다. "이 사람, 꿈속에서 깨어 있어."',
     choices: [
@@ -231,9 +236,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '비상등 대신 손바닥에서 불이 켜진다', e: { fire: 4 }, next: 'dream_5' },
       { text: '멈춘 기계들에 손을 대자 번개가 흘러 다시 돌아간다', e: { bolt: 4 }, next: 'dream_5' },
-      { text: '번져 오는 꿈의 물을 그 자리에 얼려 막는다', e: { ice: 4 }, next: 'dream_5' },
-      { text: '잠긴 철문을 맨손으로 비틀어 연다', e: { steel: 4 }, next: 'dream_5' },
-      { text: '잠든 사람들의 꿈속으로 들어가 하나씩 깨운다', e: { spirit: 4 }, next: 'dream_5' },
+      { text: '번져 오는 꿈의 물을 그 자리에 얼려 막는다', e: { water: 4 }, next: 'dream_5' },
+      { text: '잠긴 철문을 맨손으로 비틀어 연다', e: { wood: 4 }, next: 'dream_5' },
+      { text: '잠든 사람들의 꿈속으로 들어가 하나씩 깨운다', e: { holy: 4 }, next: 'dream_5' },
+      { text: '어둠이 꿈의 물을 삼키고, 그 속으로 길이 열린다', e: { dark: 4 }, next: 'dream_5' },
     ] },
 });
 // 꿈 갈래 첫 장면·마지막 장면의 문장을 길마다 다르게

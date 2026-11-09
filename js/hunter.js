@@ -252,7 +252,7 @@ Object.assign(Game.prototype, {
       if (p.guild && win === p.guild) {
         const pos = this.randomFreeTile(b.region);
         if (pos) {
-          const g = { id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: b.region, tier: b.tier, theme: '길드 낙찰 게이트', elem: RNG.pick(ELEMENT_KEYS), born: mk, bid: true, variant: 'normal' };
+          const g = { id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: b.region, tier: b.tier, theme: '길드 낙찰 게이트', elem: pickElem(), born: mk, bid: true, variant: 'normal' };
           this.mapGates.push(g);
           this.log(`${GUILDS[win].name}이(가) ${reg.name} ${RANKS[b.tier].key}급 게이트 공략권을 따냈다. 길드가 당신에게 공략을 맡겼다.`, 'good');
           this.queue.push({ type: 'toast', text: `길드 낙찰! ${reg.name}에 ${RANKS[b.tier].key}급 낙찰 게이트가 열렸다.` });
@@ -317,7 +317,7 @@ Object.assign(Game.prototype, {
   },
   towerEnemies(spec) {
     const { tier, rule, n } = spec; const list = [];
-    const elem = rule === 'elem' ? RNG.pick(ELEMENT_KEYS) : null;
+    const elem = rule === 'elem' ? pickElem() : null;
     if (rule === 'boss' || rule === 'boss2') {
       list.push(this.makeMonster(tier, true, elem));
       if (rule === 'boss2') list.push(this.makeMonster(tier, true, elem)); else list.push(this.makeMonster(tier, false, elem));

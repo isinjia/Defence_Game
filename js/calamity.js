@@ -4,16 +4,16 @@
 // 저장: G.world.calamity = { active, done: {id: 'player'|'npc'|'fail'}, last, scars: [타일], dangerUp: {regionId: n} }
 
 const CALAMITIES = [
-  { id: 'nest',   tier: 2, region: 'gangbuk',   name: '강북 지하철 둥지',     boss: '둥지의 여왕',       elem: 'steel',
+  { id: 'nest',   tier: 2, region: 'gangbuk',   name: '강북 지하철 둥지',     boss: '둥지의 여왕',       elem: 'wood',
     omen: '강북 폐구 지하철 노선 전체에서 괴수 울음이 그치지 않는다. 선로 아래에 거대한 둥지가 자라고 있다.',
     spread: '둥지에서 쏟아진 무리가 강북 일대 지상으로 올라오기 시작했다.', scar: '둥지가 터지며 강북의 지하가 통째로 무너져 내렸다.' },
   { id: 'basin',  tier: 3, region: 'daegu',     name: '분지 에테르 폭주',     boss: '분지의 화신',       elem: 'fire',
     omen: '대구 분지에 고인 에테르가 끓어오른다. 계측기가 매일 최고치를 갈아 치운다.',
     spread: '분지 가장자리 마을들이 에테르 열기에 버려지고 있다.', scar: '분지가 폭발하듯 타올라 대구 외곽이 잿더미가 됐다.' },
-  { id: 'abyss',  tier: 4, region: 'gangneung', name: '동해 심해 게이트',     boss: '심해의 왕',         elem: 'ice',
+  { id: 'abyss',  tier: 4, region: 'gangneung', name: '동해 심해 게이트',     boss: '심해의 왕',         elem: 'water',
     omen: '동해 수심 3천 미터에서 게이트 신호가 잡혔다. 해안 전선의 괴수들이 이유 없이 물러났다. 폭풍 전의 고요다.',
     spread: '심해형 괴수가 강릉 해안 방벽을 시험하듯 두드리고 있다.', scar: '심해의 무리가 방벽을 넘어 강릉 해안선을 삼켰다.' },
-  { id: 'north',  tier: 5, region: null,        name: '북부 봉쇄선 침투',     boss: '봉쇄선의 파수꾼',   elem: 'spirit',
+  { id: 'north',  tier: 5, region: null,        name: '북부 봉쇄선 침투',     boss: '봉쇄선의 파수꾼',   elem: 'holy',
     omen: '북부 봉쇄 구역 너머에서 무언가가 봉쇄선을 넘어오고 있다. 관리국은 보도를 막았다.',
     spread: '봉쇄선 초소 두 곳과 연락이 끊겼다.', scar: '봉쇄선이 뚫려 접경 지대가 폐허로 변했다.' },
   { id: 'strait', tier: 6, region: 'busan',     name: '대한해협 대균열',      boss: '해협의 군주',       elem: 'bolt',

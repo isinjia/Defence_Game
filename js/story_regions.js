@@ -24,7 +24,7 @@ REG_EV('gangnam', { id: 'rg_gangnam_academy', maxRank: 3, text: '"상위 1% 각�
 // ---------- 서울 강북 폐구 ----------
 REG_EV('gangbuk', { id: 'rg_gangbuk_school', text: '폐구 한가운데 버려진 초등학교. 칠판에 20년 전 날짜와 "내일 소풍"이라는 글씨가 그대로 있다. 운동장 한복판에 작은 게이트가 숨 쉬듯 깜빡인다.',
   choices: [
-    { text: '게이트를 닫는다', do: (g) => { g.storyFight({ title: '폐교 게이트', mobs: { tier: g.player.rankIdx, n: 3, elem: 'spirit' }, win: { text: '게이트가 닫히자 교실 창문 너머로 바람이 한 번 불었다. 칠판 글씨가 조금 지워져 있었다.', gain: { ether: 40, rep: 4 } } }); return '운동장으로 들어섰다.'; } },
+    { text: '게이트를 닫는다', do: (g) => { g.storyFight({ title: '폐교 게이트', mobs: { tier: g.player.rankIdx, n: 3, elem: 'dark' }, win: { text: '게이트가 닫히자 교실 창문 너머로 바람이 한 번 불었다. 칠판 글씨가 조금 지워져 있었다.', gain: { ether: 40, rep: 4 } } }); return '운동장으로 들어섰다.'; } },
     { text: '칠판 사진만 찍고 나온다', do: (g) => '그 사진은 대붕괴 추모 게시판에 올라갔고, 많은 사람이 댓글로 그날을 이야기했다.' + g.gain({ fame: 2 }) },
   ] });
 REG_EV('gangbuk', { id: 'rg_gangbuk_squatters', text: '폐구에 사람이 산다. 등록되지 않은 각성자와 갈 곳 없는 사람들이 지하상가에 마을을 만들었다. 촌장 격 노인이 묻는다. "관리국에서 왔소?"',
@@ -41,7 +41,7 @@ REG_EV('gangbuk', { id: 'rg_gangbuk_scavenger', text: '고철을 줍던 소년�
 // ---------- 인천 항만 특구 ----------
 REG_EV('incheon', { id: 'rg_incheon_customs', text: '항만 세관 창고. 관리국 직원이 컨테이너 하나를 열지 못해 쩔쩔맨다. "안에서 뭔가 긁는 소리가 나요. 서류엔 \'건조 해산물\'이라고 돼 있는데."',
   choices: [
-    { text: '대신 연다', do: (g) => { g.storyFight({ title: '밀수 컨테이너', mobs: { tier: g.player.rankIdx, n: 2, elem: 'ice' }, win: { text: '밀수된 괴수 유체였다. 관리국 직원이 보고서에 당신 이름을 적었다.', gain: { merit: 8, money: 150 } } }); return '자물쇠를 뜯었다.'; } },
+    { text: '대신 연다', do: (g) => { g.storyFight({ title: '밀수 컨테이너', mobs: { tier: g.player.rankIdx, n: 2, elem: 'water' }, win: { text: '밀수된 괴수 유체였다. 관리국 직원이 보고서에 당신 이름을 적었다.', gain: { merit: 8, money: 150 } } }); return '자물쇠를 뜯었다.'; } },
     { text: '진압팀을 부르라고 조언한다', do: (g) => '직원이 고맙다며 커피를 샀다.' + g.gain({ merit: 2 }) },
   ] });
 REG_EV('incheon', { id: 'rg_incheon_hq', minRank: 2, text: '관리국 본청 민원실. 번호표 512번. 앞사람이 하소연한다. "각성 피해 보상 신청한 지 3년째예요." 창구 직원의 눈이 퀭하다.',
@@ -109,7 +109,7 @@ REG_EV('daejeon', { id: 'rg_daejeon_ai', minRank: 2, text: '연구 단지 무인
 // ---------- 대구 분지 요새 ----------
 REG_EV('daegu', { id: 'rg_daegu_heatwave', text: '분지에 열이 고였다. 기온 41도, 에테르 농도 경보. 노인정 에어컨이 고장 났다는 신고가 들어왔는데, 수리 기사는 사흘 뒤에나 온단다.',
   choices: [
-    { text: '냉기로 버텨 준다', when: (g) => g.player.element === 'ice', do: (g) => '노인정 어르신들이 당신 손을 잡고 놓아주지 않았다.' + g.gain({ rep: 10, fame: 2 }) },
+    { text: '냉기로 버텨 준다', when: (g) => g.player.element === 'water', do: (g) => '노인정 어르신들이 당신 손을 잡고 놓아주지 않았다.' + g.gain({ rep: 10, fame: 2 }) },
     { text: '근처 무더위 쉼터로 어르신들을 모신다', do: (g) => '하루 종일 차를 몰았다. 땀이 비 오듯 했다.' + g.gain({ rep: 6, hp: -0.2 }) },
     { text: '협회에 신고만 한다', do: (g) => '협회는 "검토하겠다"고 했다.' + g.gain({ rep: 1 }) },
   ] });
@@ -166,7 +166,7 @@ REG_EV('jeonju', { id: 'rg_jeonju_healer', text: '한옥마을 골목 끝, 치�
   ] });
 REG_EV('jeonju', { id: 'rg_jeonju_hanji', text: '한지 공방 장인이 에테르를 머금은 한지를 만든다. "부적 쓰는 사람들이 이걸 찾아요. 근데 재료 닥나무가 숲 게이트 근처에만 자라서…"',
   choices: [
-    { text: '닥나무를 구해 온다', do: (g) => { g.storyFight({ title: '숲 게이트 언저리', mobs: { tier: g.player.rankIdx, n: 2, elem: 'spirit' }, win: { text: '장인이 첫 장을 떠서 건넸다. 손에 쥐자 따뜻했다.', gain: { money: 150, ether: 30, rep: 4 } } }); return '숲으로 향했다.'; } },
+    { text: '닥나무를 구해 온다', do: (g) => { g.storyFight({ title: '숲 게이트 언저리', mobs: { tier: g.player.rankIdx, n: 2, elem: 'wood' }, win: { text: '장인이 첫 장을 떠서 건넸다. 손에 쥐자 따뜻했다.', gain: { money: 150, ether: 30, rep: 4 } } }); return '숲으로 향했다.'; } },
     { text: '한지 한 장을 산다', do: (g) => '얇은데 이상하게 무겁다. 품에 넣었다.' + g.gain({ money: -60, ether: 10 }) },
   ] });
 REG_EV('jeonju', { id: 'rg_jeonju_festival', text: '보존 구역의 등불 축제. 대붕괴로 잃은 사람의 이름을 등에 적어 강물에 띄운다. 옆에 선 아이가 등에 "아빠"라고만 쓰고 있다.',
@@ -188,7 +188,7 @@ REG_EV('busan', { id: 'rg_busan_fishmarket', text: '자갈치 새벽 경매장. 
   ] });
 REG_EV('busan', { id: 'rg_busan_lighthouse', minRank: 1, text: '해상 도시 끝의 등대가 사흘째 꺼져 있다. 등대지기는 연락 두절. 밤바다 어선들이 길을 잃고 있다.',
   choices: [
-    { text: '등대에 올라간다', do: (g) => { g.storyFight({ title: '꺼진 등대', mobs: { tier: g.player.rankIdx, n: 2, elem: 'ice' }, win: { text: '등대 꼭대기에 둥지를 튼 괴수를 몰아냈다. 등대지기는 창고에 갇혀 있었다. 불이 다시 켜졌다.', gain: { rep: 8, money: 200 } } }); return '나선 계단을 올랐다.'; } },
+    { text: '등대에 올라간다', do: (g) => { g.storyFight({ title: '꺼진 등대', mobs: { tier: g.player.rankIdx, n: 2, elem: 'water' }, win: { text: '등대 꼭대기에 둥지를 튼 괴수를 몰아냈다. 등대지기는 창고에 갇혀 있었다. 불이 다시 켜졌다.', gain: { rep: 8, money: 200 } } }); return '나선 계단을 올랐다.'; } },
     { text: '해경에 알린다', do: (g) => '해경은 이틀 뒤에 왔다.' + g.gain({ rep: 1 }) },
   ] });
 

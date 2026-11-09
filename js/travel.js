@@ -75,7 +75,7 @@ Object.assign(Game.prototype, {
       this.rumor(`${reg.name}에 에테르 폭풍이 몰아친다. 간 큰 수련자들이 몰려든다고.`);
     }
     if (this.month === 7) this.log('장마가 시작됐다. 황무지와 폐허가 진창이 되어 걷기 힘들다.');
-    if (this.month === 12) this.log('겨울이 왔다. 산길이 얼어붙고, 빙 속성 괴수가 늘어난다.');
+    if (this.month === 12) this.log('겨울이 왔다. 산길이 얼어붙고, 얼음 낀 수(水) 속성 괴수가 늘어난다.');
   },
   // 계절·탈것에 따라 지형 이동 비용을 다시 계산한다 (WORLD.T_COST 를 그 자리에서 바꾼다)
   applyTerrain() {
@@ -127,11 +127,11 @@ Object.assign(Game.prototype, {
     this.world.travelKey = key;
     this.regionCoreMonthly(); this.weatherMonthly(); this.vehicleMonthly(); this.applyTerrain();
     const s = this.season();
-    // 겨울엔 빙 속성 괴수가 늘고, 장마엔 물에 잠긴 게이트가 생긴다
+    // 겨울엔 수 속성 괴수가 늘고, 장마엔 물에 잠긴 게이트가 생긴다
     if (s === 'winter') for (const m of this.mobs) {
-      if (before.has(m.id) || m.elem === 'ice' || !RNG.chance(0.4)) continue;
-      const pool = MONSTERS.filter((x) => x.elem === 'ice' && Math.abs(x.tier - m.tier) <= 1);
-      if (pool.length) { const t = RNG.pick(pool); m.elem = 'ice'; m.name = t.name; m.shape = t.shape; }
+      if (before.has(m.id) || m.elem === 'water' || !RNG.chance(0.4)) continue;
+      const pool = MONSTERS.filter((x) => x.elem === 'water' && Math.abs(x.tier - m.tier) <= 1);
+      if (pool.length) { const t = RNG.pick(pool); m.elem = 'water'; m.name = t.name; m.shape = t.shape; }
     }
     if (s === 'rain') for (const g of this.mapGates) if (!beforeG.has(g.id) && !g.final && !g.mission && RNG.chance(0.5)) g.theme = RNG.pick(['침수된 쇼핑몰', '해저 터널', '물에 잠긴 지하철역']);
     // 폭풍 지역엔 괴수 무리가 더 생긴다

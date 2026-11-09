@@ -112,14 +112,14 @@ Object.assign(Game.prototype, {
     this.closeModal();
     const fightOn = (spec) => { G.storyFight({ ...spec, lose: { text: '균열 밖으로 튕겨 나왔다. 몸이 성치 않다.', gain: { injure: 2 }, after: (g) => { UI.riftLostMsg = g.riftLeave('부상'); } } }); return this.processQueue(); };
     if (ev.kind === 'core') {
-      return fightOn({ title: '균열핵의 수호자', mobs: { tier: Math.min(7, tier + 1), n: 1, boss: true, shape: 'eye', elem: 'spirit', name: '[균열핵] 수호자' },
+      return fightOn({ title: '균열핵의 수호자', mobs: { tier: Math.min(7, tier + 1), n: 1, boss: true, shape: 'eye', elem: 'dark', name: '[균열핵] 수호자' },
         win: { text: '균열핵이 깨지며 응축된 에테르가 쏟아졌다.', gain: { ether: 200, relic: 2, catalyst: 1, fame: 20 }, after: (g) => { g.lifeEvent('대균열의 핵을 깨뜨렸다.'); g.rumor(`${g.player.name}이(가) 대균열의 핵을 깨뜨렸다!`); g.player.riftRun.step++; g.queue.unshift({ type: 'riftEnd' }); } } });
     }
     if (ev.kind === 'monster') return fightOn({ title: '균열의 짐승들', mobs: { tier, n: 3 }, win: { text: '길을 뚫었다.', gain: { ether: 60 }, after: () => next() } });
     if (ev.kind === 'treasure') {
       if (v === 'careful') { const s = G.riftGain({ money: 300, ether: 30 }); this.toast(`작은 상자 하나를 챙겼다.${s}`); next(); return this.processQueue(); }
       if (G.roll(0.55)) { const s = G.riftGain({ money: 700, relic: true, ether: 60 }); this.toast(`보물고를 쓸어 담았다!${s}`); next(); return this.processQueue(); }
-      return fightOn({ title: '보물고의 함정', mobs: { tier, n: 2, shape: 'golem', elem: 'steel' }, win: { text: '함정 골렘을 부수고 보물을 챙겼다.', gain: { money: 700, relic: true }, after: () => next() } });
+      return fightOn({ title: '보물고의 함정', mobs: { tier, n: 2, shape: 'golem', elem: 'wood' }, win: { text: '함정 골렘을 부수고 보물을 챙겼다.', gain: { money: 700, relic: true }, after: () => next() } });
     }
     const n = G.npcById(ev.npc);
     if (v === 'pass') { this.toast(`${n.name}의 파티를 피해 돌아갔다.`); next(); return this.processQueue(); }

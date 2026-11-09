@@ -71,7 +71,7 @@ Object.assign(Game.prototype, {
     const gates = this.mapGates.filter((g) => g.north).length;
     for (let k = gates; k < 3; k++) {
       const pos = pickPos(); if (!pos) break;
-      this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: regOf(...pos), tier: RNG.weighted([5, 6, 7], [50, 35, 15]), theme: RNG.pick(NORTH_THEMES), elem: RNG.pick(ELEMENT_KEYS), born: key, north: true, deadline: 1e9, variant: RNG.chance(0.25) ? 'red' : 'normal' });
+      this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: regOf(...pos), tier: RNG.weighted([5, 6, 7], [50, 35, 15]), theme: RNG.pick(NORTH_THEMES), elem: pickElem(), born: key, north: true, deadline: 1e9, variant: RNG.chance(0.25) ? 'red' : 'normal' });
     }
     const mobs = this.mobs.filter((m) => m.north).length;
     for (let k = mobs; k < 4; k++) {

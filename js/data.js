@@ -18,12 +18,39 @@ const STAGE_NAMES = ['초기', '중기', '후기'];
 const BASE_LIFESPAN = 60; // 에테르 오염으로 평균 수명이 줄었다
 
 const ELEMENTS = {
-  fire:  { name: '염(炎)', icon: '🔥', color: '#ff7a45', counter: 'ice' },
-  bolt:  { name: '뇌(雷)', icon: '⚡', color: '#ffd84d', counter: 'steel' },
-  ice:   { name: '빙(氷)', icon: '❄️', color: '#6fd3ff', counter: 'bolt' },
-  steel: { name: '강(鋼)', icon: '⚙️', color: '#b8c0cc', counter: 'spirit' },
-  spirit:{ name: '영(靈)', icon: '🔮', color: '#c58cff', counter: 'fire' },
+  fire:  { name: '염(炎)', icon: '🔥', color: '#ff7a45', beats: ['wood'] },
+  bolt:  { name: '뇌(雷)', icon: '⚡', color: '#ffd84d', beats: ['water'] },
+  water: { name: '수(水)', icon: '💧', color: '#4fb3ff', beats: ['fire'] },
+  wood:  { name: '목(木)', icon: '🌿', color: '#5fcf6a', beats: ['bolt'] },
+  holy:  { name: '성(聖)', icon: '✨', color: '#fff0b3', beats: ['dark'] },
+  dark:  { name: '암(暗)', icon: '🌑', color: '#a36cff', beats: ['holy'] },
 };
+// 상성 (docs/구현_대기목록.md 4-9): 수→염→목→뇌→수 순환(우위 ×1.5, 열세 ×0.7), 성↔암은 서로 ×1.5. 성·암과 4속성은 중립.
+function elemMult(atk, def) {
+  const A = ELEMENTS[atk], D = ELEMENTS[def];
+  if (!A || !D) return 1;
+  if (A.beats.includes(def)) return 1.5;
+  if (D.beats.includes(atk)) return 0.7;
+  return 1;
+}
+// 1 유리, -1 불리, 0 보통
+function elemEdge(atk, def) { const m = elemMult(atk, def); return m > 1 ? 1 : m < 1 ? -1 : 0; }
+// atk 속성이 강하게 먹히는 속성들 (설명 문구용)
+function elemStrongVs(atk) { return ELEMENTS[atk] ? ELEMENTS[atk].beats.slice() : []; }
+// 상성 한 줄 설명: "목에 강함 · 수에 약함", 성·암은 "암과 서로 상극"
+function elemShort(e) { return ELEMENTS[e] ? ELEMENTS[e].name.replace(/\(.*\)/, '') : '무'; }
+function elemVsText(e) {
+  if (!ELEMENTS[e]) return '';
+  const strong = ELEMENTS[e].beats; const weak = ELEMENT_KEYS.filter((k) => ELEMENTS[k].beats.includes(e));
+  if (strong.length === 1 && weak.length === 1 && strong[0] === weak[0]) { const n = elemShort(strong[0]); const c = n.charCodeAt(n.length - 1); return `${n}${c >= 0xac00 && c <= 0xd7a3 && (c - 0xac00) % 28 ? '과' : '와'} 서로 상극`; }
+  return `${strong.map(elemShort).join('·')}에 강함 · ${weak.map(elemShort).join('·')}에 약함`;
+}
+// 옛 속성 키(v0.12 이전 저장) → 새 키
+const ELEM_OLD = { ice: 'water', steel: 'wood', spirit: 'dark' };
+function elemFix(e) { return e && ELEM_OLD[e] ? ELEM_OLD[e] : e; }
+// 무작위 속성: 성·암은 조금 드물게 (각 12%)
+const ELEM_WEIGHTS = { fire: 19, bolt: 19, water: 19, wood: 19, holy: 12, dark: 12 };
+function pickElem() { return RNG.weighted(ELEMENT_KEYS, ELEMENT_KEYS.map((k) => ELEM_WEIGHTS[k])); }
 const ELEMENT_KEYS = Object.keys(ELEMENTS);
 
 // 특성: 귀곡팔황의 "선천 특성"
@@ -52,18 +79,19 @@ const SKILLS = [
   { id: 'strike',     name: '기본 타격',    elem: null,     rankReq: 0, power: 1.0, mp: 0,  type: 'dmg', price: 0, desc: '무기로 공격한다.' },
   { id: 'flame_fist', name: '염권(炎拳)',   elem: 'fire',   rankReq: 0, power: 1.5, mp: 12, type: 'dmg', price: 300, desc: '불꽃을 머금은 주먹.' },
   { id: 'static',     name: '정전기 방출',  elem: 'bolt',   rankReq: 0, power: 1.3, mp: 10, type: 'dmg', price: 300, desc: '빠르게 전격을 쏜다.' },
-  { id: 'frost',      name: '서리 손길',    elem: 'ice',    rankReq: 0, power: 1.4, mp: 12, type: 'dmg', price: 300, desc: '한기로 적을 얼린다.' },
-  { id: 'harden',     name: '경화 피부',    elem: 'steel',  rankReq: 0, power: 0.4, mp: 10, type: 'shield', price: 350, desc: '3턴간 방어력 상승.' },
-  { id: 'mend',       name: '생체 재생',    elem: 'spirit', rankReq: 0, power: 0.35, mp: 15, type: 'heal', price: 400, desc: '체력을 회복한다.' },
+  { id: 'frost',      name: '물살 손길',    elem: 'water',  rankReq: 0, power: 1.4, mp: 12, type: 'dmg', price: 300, desc: '세찬 물살로 적을 후려친다.' },
+  { id: 'harden',     name: '수피 갑주',    elem: 'wood',   rankReq: 0, power: 0.4, mp: 10, type: 'shield', price: 350, desc: '살갗이 단단한 나무껍질로 덮인다. 3턴간 방어력 상승.' },
+  { id: 'mend',       name: '치유의 빛',    elem: 'holy',   rankReq: 0, power: 0.35, mp: 15, type: 'heal', price: 400, desc: '체력을 회복한다.' },
+  { id: 'shade',      name: '그림자 송곳',  elem: 'dark',   rankReq: 0, power: 1.4, mp: 12, type: 'dmg', price: 300, desc: '발밑 그림자를 송곳처럼 세워 찌른다.' },
   { id: 'inferno',    name: '화염 폭풍',    elem: 'fire',   rankReq: 2, power: 1.2, mp: 28, type: 'aoe', price: 1500, desc: '전체 공격.' },
   { id: 'chain',      name: '연쇄 번개',    elem: 'bolt',   rankReq: 2, power: 1.1, mp: 26, type: 'aoe', price: 1500, desc: '전체 공격.' },
-  { id: 'glacier',    name: '빙하 창',      elem: 'ice',    rankReq: 2, power: 2.3, mp: 30, type: 'dmg', price: 1600, desc: '강력한 단일 공격.' },
-  { id: 'overdrive',  name: '오버드라이브', elem: 'steel',  rankReq: 2, power: 0.5, mp: 24, type: 'buff', price: 1600, desc: '3턴간 공격력 상승.' },
-  { id: 'soulfire',   name: '혼염(魂炎)',   elem: 'spirit', rankReq: 3, power: 2.6, mp: 40, type: 'dmg', price: 4000, desc: '영혼을 태우는 일격.' },
+  { id: 'glacier',    name: '빙하 창',      elem: 'water',    rankReq: 2, power: 2.3, mp: 30, type: 'dmg', price: 1600, desc: '강력한 단일 공격.' },
+  { id: 'overdrive',  name: '생장 폭주',    elem: 'wood',   rankReq: 2, power: 0.5, mp: 24, type: 'buff', price: 1600, desc: '몸속 생기를 끌어올린다. 3턴간 공격력 상승.' },
+  { id: 'soulfire',   name: '흑염(黑炎)',   elem: 'dark',   rankReq: 3, power: 2.6, mp: 40, type: 'dmg', price: 4000, desc: '영혼을 태우는 검은 불꽃.' },
   { id: 'meteor',     name: '유성 낙하',    elem: 'fire',   rankReq: 4, power: 2.2, mp: 60, type: 'aoe', price: 9000, desc: '광역 괴멸.' },
   { id: 'thunder_god',name: '뇌신 강림',    elem: 'bolt',   rankReq: 4, power: 3.8, mp: 65, type: 'dmg', price: 9500, desc: '단일 대상 극대 피해.' },
-  { id: 'absolute',   name: '절대영도',     elem: 'ice',    rankReq: 5, power: 3.0, mp: 90, type: 'aoe', price: 20000, desc: '모든 것을 멈춘다.' },
-  { id: 'rebirth',    name: '환생(還生)',   elem: 'spirit', rankReq: 5, power: 1.0, mp: 100, type: 'heal', price: 22000, desc: '체력을 전부 회복한다.' },
+  { id: 'absolute',   name: '절대영도',     elem: 'water',    rankReq: 5, power: 3.0, mp: 90, type: 'aoe', price: 20000, desc: '모든 것을 멈춘다.' },
+  { id: 'rebirth',    name: '환생(還生)',   elem: 'holy',   rankReq: 5, power: 1.0, mp: 100, type: 'heal', price: 22000, desc: '체력을 전부 회복한다.' },
 ];
 
 // 장비: slot(weapon/armor/acc), tier(0~7) 에 따라 능력치 생성
@@ -96,37 +124,37 @@ const REGIONS = [
 ];
 
 const GUILDS = {
-  baekho:      { name: '백호 시큐리티', elem: 'steel',  color: '#b8c0cc', fameReq: 20,  desc: '민간 경비 재벌. 규율과 장비를 중시한다.' },
+  baekho:      { name: '백호 시큐리티', elem: 'holy',  color: '#fff0b3', fameReq: 20,  desc: '민간 경비 재벌. 규율과 장비를 중시한다.' },
   kama:        { name: '국가 각성자 관리국', elem: 'bolt', color: '#ffd84d', fameReq: 40, desc: '정부 기관. 명성이 높아야 들어갈 수 있다.' },
-  cheongryong: { name: '청룡 연구소', elem: 'spirit', color: '#c58cff', fameReq: 15,  desc: '에테르 연구 집단. 스킬 습득에 유리하다.' },
-  hyeonmu:     { name: '현무 중공업 각성자단', elem: 'ice', color: '#6fd3ff', fameReq: 25, desc: '기업 직속 전투단. 보수가 두텁다.' },
+  cheongryong: { name: '청룡 연구소', elem: 'wood', color: '#5fcf6a', fameReq: 15,  desc: '에테르 연구 집단. 스킬 습득에 유리하다.' },
+  hyeonmu:     { name: '현무 중공업 각성자단', elem: 'water', color: '#4fb3ff', fameReq: 25, desc: '기업 직속 전투단. 보수가 두텁다.' },
   jujak:       { name: '주작 프리랜서 연합', elem: 'fire', color: '#ff7a45', fameReq: 5, desc: '자유로운 헌터들의 연합. 누구나 환영.' },
 };
 
 const MONSTERS = [
   // tier 0~1
-  { name: '변이 들개',     elem: 'steel',  tier: 0, hp: 0.8, atk: 0.9, shape: 'beast' },
-  { name: '산성 슬라임',   elem: 'ice',    tier: 0, hp: 1.1, atk: 0.7, shape: 'slime' },
+  { name: '가시털 들개',   elem: 'wood',  tier: 0, hp: 0.8, atk: 0.9, shape: 'beast' },
+  { name: '산성 슬라임',   elem: 'water',    tier: 0, hp: 1.1, atk: 0.7, shape: 'slime' },
   { name: '전기 날벌레떼', elem: 'bolt',   tier: 0, hp: 0.6, atk: 1.1, shape: 'swarm' },
-  { name: '망령 드론',     elem: 'spirit', tier: 1, hp: 0.9, atk: 1.0, shape: 'drone' },
+  { name: '빛무리 드론',   elem: 'holy',   tier: 1, hp: 0.9, atk: 1.0, shape: 'drone' },
   { name: '불꽃 쥐',       elem: 'fire',   tier: 1, hp: 0.8, atk: 1.2, shape: 'beast' },
   // tier 2~3
-  { name: '골렘 잔해병',   elem: 'steel',  tier: 2, hp: 1.6, atk: 0.9, shape: 'golem' },
-  { name: '서리 늑대',     elem: 'ice',    tier: 2, hp: 1.1, atk: 1.2, shape: 'beast' },
+  { name: '이끼 골렘',     elem: 'wood',  tier: 2, hp: 1.6, atk: 0.9, shape: 'golem' },
+  { name: '서리 늑대',     elem: 'water',    tier: 2, hp: 1.1, atk: 1.2, shape: 'beast' },
   { name: '뇌격 비행체',   elem: 'bolt',   tier: 3, hp: 0.9, atk: 1.5, shape: 'drone' },
-  { name: '망자의 합창단', elem: 'spirit', tier: 3, hp: 1.3, atk: 1.2, shape: 'choir' },
+  { name: '망자의 합창단', elem: 'dark',   tier: 3, hp: 1.3, atk: 1.2, shape: 'choir' },
   { name: '용암 두꺼비',   elem: 'fire',   tier: 3, hp: 1.7, atk: 1.1, shape: 'slime' },
   // tier 4~5
-  { name: '철갑 거미 여왕', elem: 'steel', tier: 4, hp: 2.2, atk: 1.3, shape: 'spider' },
-  { name: '빙설 세이렌',   elem: 'ice',    tier: 4, hp: 1.5, atk: 1.6, shape: 'ghost' },
+  { name: '가시 거미 여왕', elem: 'wood', tier: 4, hp: 2.2, atk: 1.3, shape: 'spider' },
+  { name: '빙설 세이렌',   elem: 'water',    tier: 4, hp: 1.5, atk: 1.6, shape: 'ghost' },
   { name: '천둥 기수',     elem: 'bolt',   tier: 5, hp: 1.6, atk: 1.9, shape: 'flyer' },
-  { name: '차원 포식자',   elem: 'spirit', tier: 5, hp: 2.0, atk: 1.7, shape: 'eye' },
+  { name: '심판의 눈',     elem: 'holy',   tier: 5, hp: 2.0, atk: 1.7, shape: 'eye' },
   // tier 6~7
   { name: '적룡 파편체',   elem: 'fire',   tier: 6, hp: 2.6, atk: 2.0, shape: 'dragon' },
   { name: '폭풍 와이번',   elem: 'bolt',   tier: 6, hp: 2.2, atk: 2.2, shape: 'dragon' },
-  { name: '강철 거신',     elem: 'steel',  tier: 6, hp: 3.0, atk: 1.8, shape: 'golem' },
-  { name: '빙결 고룡',     elem: 'ice',    tier: 7, hp: 2.8, atk: 2.1, shape: 'dragon' },
-  { name: '심연 감시자',   elem: 'spirit', tier: 7, hp: 2.6, atk: 2.2, shape: 'eye' },
+  { name: '고목 거신',     elem: 'wood',  tier: 6, hp: 3.0, atk: 1.8, shape: 'golem' },
+  { name: '빙결 고룡',     elem: 'water',    tier: 7, hp: 2.8, atk: 2.1, shape: 'dragon' },
+  { name: '심연 감시자',   elem: 'dark',   tier: 7, hp: 2.6, atk: 2.2, shape: 'eye' },
   { name: '태양의 잔해',   elem: 'fire',   tier: 7, hp: 2.4, atk: 2.4, shape: 'core' },
 ];
 

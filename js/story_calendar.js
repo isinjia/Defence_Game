@@ -83,7 +83,7 @@ CAL({ id: 'cal_newcomer', cal: [3], text: '3월, 협회 신규 각성자 등록 
 
 CAL({ id: 'cal_cherry', cal: [4], text: '벚꽃 철. 꽃잎이 흩날리는 강변 산책로 한복판에 분홍빛 게이트가 열렸다. 꽃잎을 닮은 괴수들이 사람들 사이로 떠다닌다. 아름다운데, 닿으면 살이 벤다.',
   choices: [
-    { text: '산책객을 대피시키고 게이트를 닫는다', do: (g) => { g.storyFight({ title: '벚꽃 게이트', mobs: { tier: g.player.rankIdx, n: 3, elem: 'spirit' }, win: { text: '마지막 꽃잎 괴수가 흩어지자 진짜 벚꽃만 남았다. 누군가 그 장면을 찍어 올렸다.', gain: { fame: 3, rep: 5 } } }); return '꽃잎 사이로 뛰어들었다.'; } },
+    { text: '산책객을 대피시키고 게이트를 닫는다', do: (g) => { g.storyFight({ title: '벚꽃 게이트', mobs: { tier: g.player.rankIdx, n: 3, elem: 'wood' }, win: { text: '마지막 꽃잎 괴수가 흩어지자 진짜 벚꽃만 남았다. 누군가 그 장면을 찍어 올렸다.', gain: { fame: 3, rep: 5 } } }); return '꽃잎 사이로 뛰어들었다.'; } },
     { text: '관리국에 신고만 한다', do: (g) => '진압팀이 오기까지 한 시간. 그 사이 산책로는 텅 비었다.' + g.gain({ merit: 2 }) },
   ] });
 
@@ -101,7 +101,7 @@ CAL({ id: 'cal_memorial', cal: [6], text: '현충일. 대붕괴와 그 뒤의 �
 
 CAL({ id: 'cal_monsoon', cal: [7], text: '장마. 사흘째 폭우가 쏟아지고, 침수된 지하 주차장에 게이트가 열렸다. 물속에서 무언가가 움직인다. 차 안에 갇힌 사람이 있다는 신고가 들어왔다.',
   choices: [
-    { text: '물속으로 뛰어든다', do: (g) => { g.storyFight({ title: '침수 게이트', mobs: { tier: g.player.rankIdx, n: 2, elem: 'ice' }, win: { text: '흙탕물 속에서 차 문을 뜯어냈다. 운전석의 남자가 기침을 하며 숨을 몰아쉬었다.', gain: { fame: 3, rep: 6, merit: 4 } }, lose: { text: '물살에 밀려 나왔다. 사람은 뒤늦게 온 구조대가 꺼냈다.', gain: { injure: 1 } } }); return '차가운 물이 목까지 차올랐다.'; } },
+    { text: '물속으로 뛰어든다', do: (g) => { g.storyFight({ title: '침수 게이트', mobs: { tier: g.player.rankIdx, n: 2, elem: 'water' }, win: { text: '흙탕물 속에서 차 문을 뜯어냈다. 운전석의 남자가 기침을 하며 숨을 몰아쉬었다.', gain: { fame: 3, rep: 6, merit: 4 } }, lose: { text: '물살에 밀려 나왔다. 사람은 뒤늦게 온 구조대가 꺼냈다.', gain: { injure: 1 } } }); return '차가운 물이 목까지 차올랐다.'; } },
     { text: '양수 작업을 돕고 진압팀을 기다린다', do: (g) => '모래주머니를 나르며 밤을 새웠다. 진압팀은 새벽에야 왔다.' + g.gain({ rep: 3, hp: -0.2 }) },
   ] });
 

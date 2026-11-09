@@ -97,7 +97,7 @@ S({ id: 'field_rain', field: true, text: '보라색 비가 내린다. 에테르 
   ] });
 S({ id: 'field_old_bunker', field: true, text: '대붕괴 이전 군 벙커 입구를 발견했다. 녹슨 철문에 "출입 금지 - 국방부"라고 적혀 있다.',
   choices: [
-    { text: '들어가 본다', do: (g) => { const r = RNG.next(); if (r < 0.4) return '보급품 창고가 그대로 남아 있었다.' + g.gain({ item: ['potion', 4], money: 200 }); if (r < 0.7) return '먼지 쌓인 실험 기록 사이에서 이상한 장비를 찾았다.' + g.gain({ equip: 1 }); g.storyFight({ title: '벙커의 경비 드론', mobs: { tier: g.player.rankIdx, n: 2, shape: 'drone', elem: 'steel' }, win: { text: '드론을 부수고 안쪽 금고를 열었다.', gain: { money: 350, relic: true } } }); return '어둠 속에서 붉은 센서가 켜졌다!'; } },
+    { text: '들어가 본다', do: (g) => { const r = RNG.next(); if (r < 0.4) return '보급품 창고가 그대로 남아 있었다.' + g.gain({ item: ['potion', 4], money: 200 }); if (r < 0.7) return '먼지 쌓인 실험 기록 사이에서 이상한 장비를 찾았다.' + g.gain({ equip: 1 }); g.storyFight({ title: '벙커의 경비 드론', mobs: { tier: g.player.rankIdx, n: 2, shape: 'drone', elem: 'wood' }, win: { text: '드론을 부수고 안쪽 금고를 열었다.', gain: { money: 350, relic: true } } }); return '어둠 속에서 붉은 센서가 켜졌다!'; } },
     { text: '위험하다. 지나간다', do: () => '철문 너머에서 기계음이 들린 것 같았다.' },
   ] });
 S({ id: 'field_rival_party', field: true, minRank: 1, text: '다른 헌터 파티와 마주쳤다. 같은 괴수 무리를 쫓고 있었던 모양이다. 리더가 "우리가 먼저 찾았다"며 물러나라고 한다.',
@@ -120,7 +120,7 @@ S({ id: 'gate_red', minRank: 2, weight: 0.5, text: '눈앞의 게이트가 붉�
   ] });
 S({ id: 'gate_double', minRank: 3, text: '공략이 끝난 게이트 안쪽에 또 하나의 문이 열렸다. 이중 게이트. 기록에 없는 공간이다.',
   choices: [
-    { text: '탐색한다', do: (g) => { g.storyFight({ title: '이중 게이트의 수호자', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true, shape: 'eye', elem: 'spirit' }, win: { text: '수호자가 쓰러지자 제단 위의 유물이 빛났다.', gain: { relic: 2, ether: 60 } } }); return '문 너머에서 거대한 눈이 떠졌다.'; } },
+    { text: '탐색한다', do: (g) => { g.storyFight({ title: '이중 게이트의 수호자', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true, shape: 'eye', elem: 'holy' }, win: { text: '수호자가 쓰러지자 제단 위의 유물이 빛났다.', gain: { relic: 2, ether: 60 } } }); return '문 너머에서 거대한 눈이 떠졌다.'; } },
     { text: '보고서만 쓴다', do: (g) => '협회가 연구 팀을 보냈다.' + g.gain({ merit: 12 }) },
   ] });
 S({ id: 'gate_loot_fight', minRank: 1, npc: 'here', text: '게이트 공략 후 분배 자리에서 {npc}이(가) 보스 코어를 슬쩍 챙기는 걸 봤다.',
@@ -153,7 +153,7 @@ S({ id: 'rank_b_variety', minRank: 4, text: '예능 PD가 연락해 왔다. "헌
   ] });
 S({ id: 'rank_a_nation', minRank: 5, text: '관리국에서 국가 비상 소집령이 내려왔다. 동해 심해 게이트에서 대형 개체가 상륙을 시도하고 있다.',
   choices: [
-    { text: '소집에 응한다', do: (g) => { g.storyFight({ title: '동해 방어선', mobs: { tier: Math.min(7, g.player.rankIdx), n: 3, elem: 'ice' }, win: { text: '방어선을 지켰다. 대통령 표창이 내려왔다.', gain: { fame: 40, merit: 50, money: 3000 } }, lose: { text: '전선이 밀렸다. 많은 희생이 났다.', gain: { injure: 3, fame: -10 } } }); g.lifeEvent('동해 방어선 국가 소집에 응했다.'); return '강릉행 수송기에 올랐다.'; } },
+    { text: '소집에 응한다', do: (g) => { g.storyFight({ title: '동해 방어선', mobs: { tier: Math.min(7, g.player.rankIdx), n: 3, elem: 'water' }, win: { text: '방어선을 지켰다. 대통령 표창이 내려왔다.', gain: { fame: 40, merit: 50, money: 3000 } }, lose: { text: '전선이 밀렸다. 많은 희생이 났다.', gain: { injure: 3, fame: -10 } } }); g.lifeEvent('동해 방어선 국가 소집에 응했다.'); return '강릉행 수송기에 올랐다.'; } },
     { text: '개인 사정으로 빠진다', do: (g) => '비난 여론이 일었다.' + g.gain({ fame: -25, merit: -20 }) },
   ] });
 S({ id: 'rank_s_offer', minRank: 6, once: true, text: '정체불명의 해외 길드에서 영입 제안이 왔다. 연봉은 국내 최고액의 열 배. 조건은 하나, 국적을 버릴 것.',
@@ -171,7 +171,7 @@ S({ id: 'reg_busan_market', region: 'busan', city: true, text: '부산 해상 �
   ] });
 S({ id: 'reg_gangbuk_ruins', region: 'gangbuk', text: '강북 폐구의 무너진 초등학교. 칠판에 20년 전 날짜와 "내일 소풍!"이라는 글씨가 그대로 남아 있다. 교실 구석에서 무언가 움직인다.',
   choices: [
-    { text: '살펴본다', do: (g) => g.roll(0.5) ? '숨어 지내던 고양이 가족이었다. 먹을 것을 두고 나왔다.' + g.gain({ hp: 0.1 }) : (g.storyFight({ title: '교실의 그림자', mobs: { tier: Math.max(0, g.player.rankIdx), n: 2, shape: 'ghost', elem: 'spirit' }, win: { text: '그림자가 흩어지며 아이들의 웃음소리가 들렸다.', gain: { ether: 40, rep: 4 } } }), '그림자가 아이 형상을 하고 일어섰다.') },
+    { text: '살펴본다', do: (g) => g.roll(0.5) ? '숨어 지내던 고양이 가족이었다. 먹을 것을 두고 나왔다.' + g.gain({ hp: 0.1 }) : (g.storyFight({ title: '교실의 그림자', mobs: { tier: Math.max(0, g.player.rankIdx), n: 2, shape: 'ghost', elem: 'dark' }, win: { text: '그림자가 흩어지며 아이들의 웃음소리가 들렸다.', gain: { ether: 40, rep: 4 } } }), '그림자가 아이 형상을 하고 일어섰다.') },
     { text: '조용히 문을 닫는다', do: () => '20년 전의 소풍은 영영 오지 않았다.' },
   ] });
 S({ id: 'reg_gangneung_front', region: 'gangneung', text: '강릉 해안 전선의 경계 근무 교대 시간. 지친 병사가 "헌터님, 잠깐만 대신 봐 주실 수 있어요?"라며 망원경을 건넨다.',

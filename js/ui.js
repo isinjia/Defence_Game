@@ -40,7 +40,7 @@ const UI = {
   closeModal() { this.sheet = null; $modal.classList.add('hidden'); $box.innerHTML = ''; },
   modalOpen() { return !$modal.classList.contains('hidden'); },
   bar(cls, v, max) { const w = max > 0 ? Math.max(0, Math.min(100, (v / max) * 100)) : 0; return `<div class="bar ${cls}"><i style="width:${w}%"></i></div>`; },
-  elemTag(e) { if (!e) return '<span class="tag">무속성</span>'; const E = ELEMENTS[e]; return `<span class="tag el" style="--c:${E.color}">${FX.elemIcon(e, 12)} ${E.name}</span>`; },
+  elemTag(e) { if (!e) return '<span class="tag">무속성</span>'; const E = ELEMENTS[e] || { color: '#9aa6b8', name: e }; return `<span class="tag el" style="--c:${E.color}">${FX.elemIcon(e, 12)} ${E.name}</span>`; },
   clsTag(cls, adv = 0) { const c = classById(cls); const g = CLASS_GROUPS[c.g]; return `<span class="tag cls" style="--c:${g.color}">${className(cls, adv)}</span>`; },
   rankTag(r, s) { const R = RANKS[r]; return `<span class="tag rank" style="--c:${R.color}">${s == null ? R.key + '급' : rankLabel(r, s)}</span>`; },
   rift(tier) { return `<span class="rift" style="--c:${RANKS[tier].color}" aria-hidden="true"><i></i></span>`; },
@@ -100,7 +100,7 @@ const UI = {
         <li><b>각성 등급</b>: F → E → D → C → B → A → S → SS. 각 등급은 초기·중기·후기로 나뉩니다.</li>
         <li><b>에테르</b>: 수련·게이트·가르침으로 쌓고, 후기를 채우면 <b>돌파</b>를 시도합니다. 실패하면 내상을 입습니다.</li>
         <li><b>수명</b>: 에테르 오염으로 평균 수명은 60세. 등급이 오를수록 수명이 늘어나며, 수명이 다하면 게임이 끝납니다.</li>
-        <li><b>속성 상성</b>: 염 → 빙 → 뇌 → 강 → 영 → 염. 상성이면 피해 1.5배, 역상성이면 0.7배입니다.</li>
+        <li><b>속성 상성</b>: 수 → 염 → 목 → 뇌 → 수 (물이 불을 끄고, 불이 나무를 태우고, 나무가 번개를 땅으로 흘리고, 번개가 물을 타고 흐른다). 우위면 피해 1.5배, 열세면 0.7배. 성과 암은 서로 상극이라 서로에게 1.5배, 4속성과는 보통입니다.</li>
         <li><b>인물</b>: 다른 각성자들도 수련하고, 돌파하고, 늙고, 죽습니다. 친해지면 가르침을 받거나 동료로 삼을 수 있습니다.</li>
         <li><b>대련</b>은 체력 소모 없이 겨루는 친선전이고, <b>생사결</b>은 지면 죽습니다.</li>
         <li><b>길드</b>: 명성이 쌓이면 지역 길드에 가입해 월급과 임무를 받을 수 있습니다.</li>
@@ -172,7 +172,7 @@ const UI = {
             </div></div>
           <div class="sec"><div class="sec-title">에테르 속성 · 같은 속성 스킬 위력 +20%</div>
             <div class="choice-grid elems">${ELEMENT_KEYS.map((k) => { const E = ELEMENTS[k]; const sk = SKILLS.find((s) => s.elem === k && s.rankReq === 0); return `
-              <button class="choice elem-choice ${c.element === k ? 'sel' : ''}" style="--c:${E.color}" data-act="c-elem" data-v="${k}">${FX.elemIcon(k, 26)}<b>${E.name}</b><span class="dim small">${sk.name}<br>${ELEMENTS[E.counter].name}에 강함</span></button>`; }).join('')}
+              <button class="choice elem-choice ${c.element === k ? 'sel' : ''}" style="--c:${E.color}" data-act="c-elem" data-v="${k}">${FX.elemIcon(k, 26)}<b>${E.name}</b><span class="dim small">${sk.name}<br>${elemVsText(k)}</span></button>`; }).join('')}
             </div></div>
           <div class="sec"><div class="row between"><div class="sec-title">각성 판정 · 직업 후보</div><span class="small dim">다시 측정하면 직업 후보도 바뀐다</span></div>
             <div class="choice-grid cls-grid">${c.classes.map((id) => { const k = classById(id); const g = CLASS_GROUPS[k.g]; return `

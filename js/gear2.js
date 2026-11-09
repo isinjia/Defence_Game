@@ -5,7 +5,7 @@
 //  - 신화 등급을 더한다(고유 장비 전용).
 
 RARITY.push({ name: '신화', mult: 2.8, color: '#ff5d73' });
-const ELEM_PREFIX = { fire: '화염', ice: '빙결', bolt: '뇌전', steel: '강철', spirit: '영혼' };
+const ELEM_PREFIX = { fire: '화염', bolt: '뇌전', water: '해류', wood: '수목', holy: '성광', dark: '암흑' };
 const SHAPE_NAME = { beast: '야수', slime: '점액', drone: '기계', golem: '골렘', ghost: '망령', dragon: '용', eye: '감시자', spider: '거미', swarm: '벌레떼', flyer: '비행', choir: '합창단', core: '핵' };
 const GEAR_OPTS = [
   { id: 'crit', w: 3, roll: (r) => 0.03 + 0.015 * r, text: (v) => `치명 +${Math.round(v * 100)}%` },
@@ -41,7 +41,7 @@ Object.assign(Game.prototype, {
     const it = base.call(this, slot, tier, rarityIdx);
     // 속성: 무기·방어구 일부
     if ((slot === 'weapon' || slot === 'armor') && RNG.chance(0.2 + 0.1 * it.rarity)) {
-      it.elem = RNG.pick(ELEMENT_KEYS);
+      it.elem = pickElem();
       it.name = it.name.replace(/^(\[[A-Z]+\] )/, `$1${ELEM_PREFIX[it.elem] || ''} `);
     }
     // 옵션: 희귀 1, 영웅 2, 전설 3, 신화 3

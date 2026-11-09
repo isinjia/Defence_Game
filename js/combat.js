@@ -119,7 +119,7 @@ class Combat {
       switch (u.pers) {
         case 'warlike': return foes.reduce((a, b) => ((b.boss ? 1e9 : 0) + b.maxHp > (a.boss ? 1e9 : 0) + a.maxHp ? b : a)); // 가장 강한 적
         case 'greedy': return foes.reduce((a, b) => (a.hp < b.hp ? a : b)); // 막타
-        case 'cold': { const adv = foes.find((f) => u.elem && f.elem && ELEMENTS[u.elem].counter === f.elem); return adv || foes.reduce((a, b) => (a.def < b.def ? a : b)); }
+        case 'cold': { const adv = foes.find((f) => u.elem && f.elem && elemMult(u.elem, f.elem) > 1); return adv || foes.reduce((a, b) => (a.def < b.def ? a : b)); }
         case 'just': case 'kind': {
           // 다친 동료를 때린 적부터
           const weak = this.allies().filter((f) => !f.summon).reduce((a, b) => (b.hp / b.maxHp < a.hp / a.maxHp ? b : a), u);
@@ -207,8 +207,9 @@ class Combat {
     let note = '';
     const e = skill.elem === 'self' ? att.elem : skill.elem;
     if (e && def.elem) {
-      if (ELEMENTS[e].counter === def.elem) { dmg *= 1.5; note = ' 효과적!'; }
-      else if (ELEMENTS[def.elem].counter === e) { dmg *= 0.7; note = ' 저항됨'; }
+      const em = elemMult(e, def.elem);
+      if (em > 1) { dmg *= em; note = ' 효과적!'; }
+      else if (em < 1) { dmg *= em; note = ' 저항됨'; }
     }
     if (e && att.affinity === e) dmg *= 1.2;
     if (Math.random() < 0.05 + att.luck / 400 + (opt.crit || 0)) { dmg *= 1.6; note += ' 치명타!'; }
@@ -263,7 +264,7 @@ class Combat {
         this.push(`${u.name}이(가) ${skill.name}을(를) 펼쳤다!`, u.side === 'ally' ? 'hit' : 'hurt', { k: 'aoe', src: u.id, side: u.side, elem: skill.elem === 'self' ? u.elem : skill.elem });
         for (const f of foes) this.dealDamage(u, f, skill);
         break;
-      case 'debuff': for (const f of foes) { f.buffs.def = -Math.min(0.6, P); f.buffs.defT = 3; } this.push(`${u.name}의 ${skill.name}: 적 전체의 방어가 무너졌다.`, 'hit', { k: 'aoe', src: u.id, side: u.side, elem: 'spirit' }); break;
+      case 'debuff': for (const f of foes) { f.buffs.def = -Math.min(0.6, P); f.buffs.defT = 3; } this.push(`${u.name}의 ${skill.name}: 적 전체의 방어가 무너졌다.`, 'hit', { k: 'aoe', src: u.id, side: u.side, elem: 'dark' }); break;
       case 'taunt': u.tauntT = 2; u.buffs.def = Math.max(u.buffs.def, P); u.buffs.defT = 2; this.buffEvent(u, `${skill.name}! 적의 시선이 쏠린다.`); break;
       case 'shield_all': for (const f of friends) { f.buffs.def = Math.max(f.buffs.def, P); f.buffs.defT = 3; } this.buffEvent(u, `${skill.name} · 파티 방어 상승`); break;
       case 'buff_all': for (const f of friends) { f.buffs.atk = Math.max(f.buffs.atk, P); f.buffs.atkT = 3; } this.buffEvent(u, `${skill.name} · 파티 공격 상승`); break;

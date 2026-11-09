@@ -8,10 +8,11 @@
 const SOUL_XP = [0, 30, 90, 200, 400];
 const SOUL_EVO = {
   fire: { name: '염화', stat: 'atk', mul: 1.15, say: '"더 태워. 더 뜨겁게."' },
-  ice: { name: '빙결', stat: 'hp', mul: 1, add: { hp: 1.2 }, say: '"서두르지 마. 얼음은 천천히 이긴다."' },
+  water: { name: '해류', stat: 'hp', mul: 1, add: { hp: 1.2 }, say: '"서두르지 마. 물은 천천히 바위를 이긴다."' },
   bolt: { name: '뇌명', stat: 'spd', mul: 1, add: { spd: 1.6 }, say: '"느려. 너무 느려."' },
-  steel: { name: '강철', stat: 'def', mul: 1, add: { def: 0.8 }, say: '"부러지지 않으면 진 게 아니야."' },
-  spirit: { name: '영혼', stat: 'mp', mul: 1, add: { mp: 1.2, luck: 1 }, say: '"저 괴수들 안에서 누가 울고 있어."' },
+  wood: { name: '거목', stat: 'def', mul: 1, add: { def: 0.8 }, say: '"뿌리가 버티면 진 게 아니야."' },
+  holy: { name: '성광', stat: 'mp', mul: 1, add: { mp: 1.2, luck: 1 }, say: '"저 괴수들도 언젠간 쉬게 해 주자."' },
+  dark: { name: '암영', stat: 'atk', mul: 1.08, add: { luck: 1 }, say: '"저 괴수들 안에서 누가 울고 있어."' },
 };
 const SOUL_TALK = {
   happy: ['"좋아, 이 맛이야."', '"오늘은 꽤 쓸 만했어, 주인."', '"다음엔 더 큰 놈으로 부탁해."', '"너랑 있으면 심심하지 않아."'],
@@ -37,7 +38,7 @@ Object.assign(Game.prototype, {
     return '바위에서 뽑아낸 칼이 말을 건다. "드디어 왔네. 오래 기다렸어." 성장형 무기 「이름 없는 검」을 얻었다.';
   },
   soulLv(xp) { let lv = 1; for (let i = 0; i < SOUL_XP.length; i++) if (xp >= SOUL_XP[i]) lv = i + 1; return lv; },
-  soulDominant(it) { const f = it.soul.feed; const k = Object.keys(f).sort((a, b) => f[b] - f[a])[0]; return k && SOUL_EVO[k] ? k : 'steel'; },
+  soulDominant(it) { const f = it.soul.feed; let k = Object.keys(f).sort((a, b) => f[b] - f[a])[0]; k = elemFix(k); return k && SOUL_EVO[k] ? k : 'wood'; },
   soulUpdate(it) {
     const p = this.player; const s = it.soul;
     const tier = p.rankIdx; it.tier = tier;

@@ -405,7 +405,7 @@ class Game {
       const gCount = this.mapGates.filter((g) => g.region === reg.id && !g.final && !g.mission).length;
       if (gCount < 2 && RNG.chance(0.35 + reg.danger * 0.1)) {
         const pos = this.randomFreeTile(reg.id);
-        if (pos) this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: reg.id, tier: RNG.int(lo, hi), theme: RNG.pick(GATE_THEMES), elem: RNG.pick(ELEMENT_KEYS), born: key });
+        if (pos) this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: reg.id, tier: RNG.int(lo, hi), theme: RNG.pick(GATE_THEMES), elem: pickElem(), born: key });
       }
       const cap = 2 + Math.floor(reg.danger / 2);
       const mCount = this.mobs.filter((m) => m.region === reg.id).length;
@@ -428,7 +428,7 @@ class Game {
     // 원초의 게이트 (한라산)
     if (!this.flags.won && !this.mapGates.some((g) => g.final)) {
       const jt = WORLD.regionTiles.jeju.map(WORLD.xy).find(([x, y]) => WORLD.type(x, y) === WORLD.T.MOUNTAIN) || WORLD.xy(WORLD.regionTiles.jeju[0]);
-      this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: jt[0], y: jt[1], region: 'jeju', tier: 7, theme: '원초의 게이트', elem: 'spirit', born: key, final: true });
+      this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: jt[0], y: jt[1], region: 'jeju', tier: 7, theme: '원초의 게이트', elem: 'dark', born: key, final: true });
     }
   }
   mobRoom(mob) {
@@ -525,7 +525,7 @@ class Game {
     return {
       id: this.nextNpcId++, name, gender, ageMonths: ageYears * 12 + RNG.int(0, 11), lifespan,
       rankIdx, stage: RNG.int(0, 2), progress: RNG.next(),
-      element: RNG.pick(ELEMENT_KEYS), personality: RNG.pick(PERSONALITIES).id,
+      element: pickElem(), personality: RNG.pick(PERSONALITIES).id,
       region: RNG.pick(REGIONS.filter((r) => r.id !== 'jeju' || rankIdx >= 6)).id,
       relation: 0, alive: true, talent: RNG.int(2, 9),
       guild: rankIdx >= 1 && RNG.chance(0.35) ? RNG.pick(guildIds) : null,
@@ -770,7 +770,7 @@ class Game {
       const enemies = [];
       if (last) {
         if (gate.final) {
-          const boss = this.makeMonster(7, true, 'spirit');
+          const boss = this.makeMonster(7, true, 'dark');
           boss.name = '[최종] 심연의 군주'; boss.shape = 'lord'; boss.hp = boss.maxHp = Math.round(boss.maxHp * 2.2); boss.atk = Math.round(boss.atk * 1.2);
           enemies.push(boss);
         } else {

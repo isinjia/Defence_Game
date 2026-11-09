@@ -5,9 +5,9 @@ Object.assign(PROLOGUE, {
   // ===== 게이트 체험 관광 (괴수 나옴) =====
   tour_1: { title: '게이트 체험 관광', text: '그해 가을, 인천 송도의 "안정화 F급 게이트 체험관"이 문을 열었다. 입장료 4만 9천 원, 헬멧과 안전 조끼 포함. 가이드가 깃발을 흔든다.\n\n"자, 펜스 밖으로 손 내밀지 마시고요! 여기 게이트는 관리국 인증 3년 무사고입니다!" {friend}이(가) 헬멧을 삐딱하게 쓰고 웃는다. "인증샷 찍자."',
     choices: [
-      { text: '{friend}와(과) 펜스 앞에서 사진을 찍는다', e: { spirit: 1 }, g: { support: 1, summon: 1 }, t: { charisma: 1 }, friend: 5, next: 'tour_2' },
-      { text: '가이드의 설명을 한 마디도 놓치지 않고 듣는다', e: { ice: 1 }, g: { mage: 2 }, t: { genius: 1 }, next: 'tour_2' },
-      { text: '펜스 기둥의 녹슨 볼트가 자꾸 눈에 걸린다', e: { steel: 1 }, g: { guard: 1, shooter: 1 }, t: { mana_sense: 1 }, next: 'tour_2' },
+      { text: '{friend}와(과) 펜스 앞에서 사진을 찍는다', e: { holy: 1 }, g: { support: 1, summon: 1 }, t: { charisma: 1 }, friend: 5, next: 'tour_2' },
+      { text: '가이드의 설명을 한 마디도 놓치지 않고 듣는다', e: { water: 1 }, g: { mage: 2 }, t: { genius: 1 }, next: 'tour_2' },
+      { text: '펜스 기둥의 녹슨 볼트가 자꾸 눈에 걸린다', e: { wood: 1 }, g: { guard: 1, shooter: 1 }, t: { mana_sense: 1 }, next: 'tour_2' },
       { text: '관광 코스 밖, 출입 금지 표지판 너머가 궁금하다', e: { bolt: 1 }, g: { shadow: 2 }, t: { reckless: 1 }, next: 'tour_2' },
     ] },
   tour_2: { title: '닫힌 출구', text: '게이트 안은 청록빛 안개가 낀 숲이다. 관광객 스물두 명이 반딧불 같은 포자를 구경하던 중, 등 뒤의 출구가 지퍼 닫히듯 줄어들어 사라진다.\n\n가이드의 무전기에서 잡음만 흘러나온다. 숲 저편에서 나뭇가지가 부러지는 소리가 가까워진다. 누군가 울기 시작한다. 다들 당신을 본다. 맨 앞에 서 있던 게 당신이라서다.',
@@ -25,9 +25,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '손끝의 포자들이 일제히 불씨로 변한다', e: { fire: 4 }, next: 'tour_4' },
       { text: '머리카락이 곤두서고 숲 전체에 번개가 내리꽂힌다', e: { bolt: 4 }, next: 'tour_4' },
-      { text: '발밑의 이끼가 하얗게 얼어붙으며 퍼져 나간다', e: { ice: 4 }, next: 'tour_4' },
-      { text: '쥐고 있던 쇠붙이가 손바닥에 녹아들 듯 달라붙는다', e: { steel: 4 }, next: 'tour_4' },
-      { text: '숲의 나무들이 일제히 당신 쪽으로 몸을 기울인다', e: { spirit: 4 }, next: 'tour_4' },
+      { text: '발밑의 이끼가 하얗게 얼어붙으며 퍼져 나간다', e: { water: 4 }, next: 'tour_4' },
+      { text: '쥐고 있던 쇠붙이가 손바닥에 녹아들 듯 달라붙는다', e: { wood: 4 }, next: 'tour_4' },
+      { text: '숲의 나무들이 일제히 당신 쪽으로 몸을 기울인다', e: { holy: 4 }, next: 'tour_4' },
+      { text: '이끼 아래 그늘이 일어나 당신 그림자에 스며든다', e: { dark: 4 }, next: 'tour_4' },
     ] },
   tour_4: { title: '첫 사냥', text: '괴수가 뿔을 낮춘다. 등 뒤엔 관광객 스물한 명. 당신은 낯선 힘을 쥔 채 한 걸음 앞으로 나간다.',
     choices: [
@@ -53,8 +54,8 @@ Object.assign(PROLOGUE, {
   friend_1: { title: '먼저 깨어난 쪽', text: '그해 겨울, {friend}이(가) 먼저 각성했다. {friendJob} 일은 그만두고 협회 등록부터 하겠다며 들떠 있었다. 축하 치킨을 시켜 놓고 둘이 웃던 게 엊그제다.\n\n그런데 오늘 새벽, {friend}의 전화가 온다. 숨소리가 이상하다. "…{name}, 나 이상해. 손에서 뭐가 자꾸 새어 나와. 멈춰지지가 않아."',
     choices: [
       { text: '잠옷 바람으로 {friend}의 원룸까지 뛴다', e: { fire: 1 }, g: { fighter: 1, guard: 1 }, t: { reckless: 1 }, friend: 10, flag: 'friend_awakened', next: 'friend_2' },
-      { text: '"숨 천천히 쉬어. 내 말만 따라와." 통화를 끊지 않는다', e: { spirit: 1 }, g: { support: 2 }, t: { charisma: 1 }, friend: 10, flag: 'friend_awakened', next: 'friend_2' },
-      { text: '각성 폭주 대처법을 검색하며 택시를 부른다', e: { ice: 1 }, g: { mage: 1, esper: 1 }, t: { genius: 1 }, friend: 5, flag: 'friend_awakened', next: 'friend_2' },
+      { text: '"숨 천천히 쉬어. 내 말만 따라와." 통화를 끊지 않는다', e: { holy: 1 }, g: { support: 2 }, t: { charisma: 1 }, friend: 10, flag: 'friend_awakened', next: 'friend_2' },
+      { text: '각성 폭주 대처법을 검색하며 택시를 부른다', e: { water: 1 }, g: { mage: 1, esper: 1 }, t: { genius: 1 }, friend: 5, flag: 'friend_awakened', next: 'friend_2' },
     ] },
   friend_2: { title: '봉쇄선', text: '{friend}의 원룸 건물 앞에 관리국 차량 세 대가 서 있다. 노란 봉쇄선, 방호복, "격리 대상 1명"이라는 무전. 창문 너머로 하얀 빛이 맥박치듯 터진다.\n\n관리국 요원이 당신을 막는다. "보호자세요? 물러나세요. 10분 안에 안정 안 되면 제압합니다. 진압탄 장전해."',
     choices: [
@@ -71,9 +72,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '두 사람 사이에서 불꽃이 피어올라 폭풍을 태운다', e: { fire: 4 }, flag: 'friend_hurt', next: 'friend_4' },
       { text: '폭주하는 힘이 번개가 되어 당신의 팔을 타고 땅으로 흘러간다', e: { bolt: 4 }, flag: 'friend_hurt', next: 'friend_4' },
-      { text: '방 안의 모든 것이 서리에 덮이며 멈춘다', e: { ice: 4 }, flag: 'friend_hurt', next: 'friend_4' },
-      { text: '당신의 몸이 강철처럼 굳어 폭풍을 받아낸다', e: { steel: 4 }, flag: 'friend_hurt', next: 'friend_4' },
-      { text: '{friend}의 두려움이 물처럼 당신에게 스며들어 고요히 가라앉는다', e: { spirit: 4 }, flag: 'friend_hurt', next: 'friend_4' },
+      { text: '방 안의 모든 것이 서리에 덮이며 멈춘다', e: { water: 4 }, flag: 'friend_hurt', next: 'friend_4' },
+      { text: '당신의 몸이 강철처럼 굳어 폭풍을 받아낸다', e: { wood: 4 }, flag: 'friend_hurt', next: 'friend_4' },
+      { text: '{friend}의 두려움이 물처럼 당신에게 스며들어 고요히 가라앉는다', e: { holy: 4 }, flag: 'friend_hurt', next: 'friend_4' },
+      { text: '폭풍이 당신 그림자 속으로 빨려 들어가 사라진다', e: { dark: 4 }, flag: 'friend_hurt', next: 'friend_4' },
     ] },
   friend_4: { title: '진압탄', text: '폭풍이 잦아든 순간, 현관문이 부서지며 진압 요원들이 들이닥친다. "두 명 다 각성자다! 둘 다 제압해!" 총구가 {friend}을(를) 향한다.\n\n방금 깨어난 힘이 당신 안에서 꿈틀거린다.',
     choices: [
@@ -98,10 +100,10 @@ Object.assign(PROLOGUE, {
   // ===== 정기 검진 (괴수 없음) =====
   late_1: { title: '국민 에테르 정기 검진', text: '그해 봄, 우편함에 관리국 등기가 꽂혀 있었다. [국민 에테르 정기 검진 대상자 안내] 만 19세 이상 의무. 미수검 시 과태료 30만 원.\n\n보건소 2층. 번호표 147번. 대기 화면에는 112번이 떠 있다. {friend}이(가) 같은 날 검진이라며 옆자리에 앉는다. "끝나고 국밥 먹자."',
     choices: [
-      { text: '대기실 사람들과 금세 말을 튼다', e: { spirit: 1 }, g: { support: 1, esper: 1 }, t: { charisma: 1 }, next: 'late_2' },
-      { text: '안내문을 처음부터 끝까지 꼼꼼히 읽는다', e: { ice: 1 }, g: { mage: 2 }, t: { genius: 1 }, next: 'late_2' },
+      { text: '대기실 사람들과 금세 말을 튼다', e: { holy: 1 }, g: { support: 1, esper: 1 }, t: { charisma: 1 }, next: 'late_2' },
+      { text: '안내문을 처음부터 끝까지 꼼꼼히 읽는다', e: { water: 1 }, g: { mage: 2 }, t: { genius: 1 }, next: 'late_2' },
       { text: '{friend}와(과) 휴대폰 게임을 하며 기다린다', e: { bolt: 1 }, g: { shooter: 1, shadow: 1 }, t: { quick: 1 }, friend: 5, next: 'late_2' },
-      { text: '팔짱을 끼고 졸다가 번호가 불려 깬다', e: { steel: 1 }, g: { guard: 1, fighter: 1 }, t: { iron_body: 1 }, next: 'late_2' },
+      { text: '팔짱을 끼고 졸다가 번호가 불려 깬다', e: { wood: 1 }, g: { guard: 1, fighter: 1 }, t: { iron_body: 1 }, next: 'late_2' },
     ] },
   late_2: { title: '잠재 각성자 판정', text: '검진관이 모니터를 두 번 확인하더니 상급자를 부른다. 정장 차림의 관리국 주무관이 들어와 웃으며 서류 일곱 장을 내민다.\n\n"에테르 잔류 수치 0.82. 잠재 각성자입니다. 다음 주 대전 본원에서 각성 유도 시술 받으시면 되고요. 동의 안 하셔도 됩니다. 대신 미등록 잠재 각성자로 분류돼서, 이사 갈 때마다 신고하셔야 해요. 감시 대상이라서."',
     choices: [
@@ -119,9 +121,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '주입 라인을 타고 불길이 거꾸로 치솟는다', e: { fire: 4 }, next: 'late_4' },
       { text: '캡슐의 모든 전자 장비가 동시에 터진다', e: { bolt: 4 }, next: 'late_4' },
-      { text: '주입액이 혈관 속에서 얼어붙는다. 이상하게 아프지 않다', e: { ice: 4 }, next: 'late_4' },
-      { text: '주사 바늘이 피부에 박히지 않고 휘어진다', e: { steel: 4 }, next: 'late_4' },
-      { text: '건물 안 수백 명의 숨결이 한꺼번에 몸 안으로 밀려든다', e: { spirit: 4 }, next: 'late_4' },
+      { text: '주입액이 혈관 속에서 얼어붙는다. 이상하게 아프지 않다', e: { water: 4 }, next: 'late_4' },
+      { text: '주사 바늘이 피부에 박히지 않고 휘어진다', e: { wood: 4 }, next: 'late_4' },
+      { text: '건물 안 수백 명의 숨결이 한꺼번에 몸 안으로 밀려든다', e: { dark: 4 }, next: 'late_4' },
+      { text: '주입액이 빛으로 바뀌어 혈관을 따라 환하게 번진다', e: { holy: 4 }, next: 'late_4' },
     ] },
   late_4: { title: '적성 실기', text: '시술 다음 날, 관리국 체육관에서 "초기 적성 실기"가 열린다. 평가관이 클립보드를 드는 순간, 옆 레인의 수검자가 비명을 지른다. 어제 같은 날 시술을 받은 고등학생이다.\n\n아이의 몸에서 힘이 새어 나온다. 샌드백과 더미 인형이 허공으로 끌려 올라가고, 평가관이 넘어지며 머리를 부딪친다. 출입문은 자동으로 잠겼다. 안에 남은 수검자는 당신뿐이다.',
     choices: [
@@ -148,9 +151,9 @@ Object.assign(PROLOGUE, {
   // ===== 짐꾼 (괴수 나옴) =====
   nest_1: { title: '포터 아르바이트', text: '그해 여름, 헌터 구인 앱에 공고가 떴다. [C급 게이트 동행 포터 구함. 일당 80만. 비각성자 가능. 짐만 잘 들면 됨.] 80만 원이면 석 달 월세다.\n\n집결지는 새벽 4시 고속도로 휴게소. 파티장 "구 팀장"이 당신의 등에 30킬로그램짜리 배낭을 얹으며 말한다. "뒤에만 붙어 다녀. 앞에 나오면 죽어."',
     choices: [
-      { text: '"예, 팀장님." 묵묵히 배낭끈을 조인다', e: { steel: 1 }, g: { guard: 1, support: 1 }, t: { iron_body: 1 }, next: 'nest_2' },
-      { text: '파티원들의 장비와 등급을 슬쩍 훑어본다', e: { ice: 1 }, g: { shadow: 1, mage: 1 }, t: { mana_sense: 1 }, next: 'nest_2' },
-      { text: '{friend}에게 문자를 남긴다. "내일 아침까지 연락 없으면 신고해."', e: { spirit: 1 }, g: { support: 1, esper: 1 }, t: { lucky: 1 }, friend: 5, flag: 'nest_report', next: 'nest_2' },
+      { text: '"예, 팀장님." 묵묵히 배낭끈을 조인다', e: { wood: 1 }, g: { guard: 1, support: 1 }, t: { iron_body: 1 }, next: 'nest_2' },
+      { text: '파티원들의 장비와 등급을 슬쩍 훑어본다', e: { water: 1 }, g: { shadow: 1, mage: 1 }, t: { mana_sense: 1 }, next: 'nest_2' },
+      { text: '{friend}에게 문자를 남긴다. "내일 아침까지 연락 없으면 신고해."', e: { dark: 1 }, g: { support: 1, esper: 1 }, t: { lucky: 1 }, friend: 5, flag: 'nest_report', next: 'nest_2' },
       { text: '운전석에 앉은 파티원에게 말을 붙여 정보를 캔다', e: { bolt: 1 }, g: { shooter: 1, shadow: 1 }, t: { charisma: 1 }, next: 'nest_2' },
     ] },
   nest_2: { title: '무너진 파티', text: '게이트 안 동굴 4시간째. 구 팀장이 웃는다. "C급치고 조용하네." 그 순간 천장이 내려앉는다. 아니, 천장인 줄 알았던 것이 날개를 편다.\n\n10분 뒤, 서 있는 사람은 당신뿐이다. 무전기는 부서졌고, 동굴 안쪽에서 새끼들이 우는 소리가 난다. 여기는 둥지다.',
@@ -168,9 +171,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '숨을 뱉자 입김이 불꽃이 되어 동굴을 밝힌다', e: { fire: 4 }, next: 'nest_4' },
       { text: '심장 박동마다 손끝에서 전류가 튄다', e: { bolt: 4 }, next: 'nest_4' },
-      { text: '어미의 침이 당신 앞에서 얼어붙어 떨어진다', e: { ice: 4 }, next: 'nest_4' },
-      { text: '어미의 발톱이 어깨를 긁었는데 피가 나지 않는다', e: { steel: 4 }, next: 'nest_4' },
-      { text: '어미의 분노 아래 깔린 두려움이 피부로 전해진다', e: { spirit: 4 }, next: 'nest_4' },
+      { text: '어미의 침이 당신 앞에서 얼어붙어 떨어진다', e: { water: 4 }, next: 'nest_4' },
+      { text: '어미의 발톱이 어깨를 긁었는데 피가 나지 않는다', e: { wood: 4 }, next: 'nest_4' },
+      { text: '어미의 분노 아래 깔린 두려움이 피부로 전해진다', e: { dark: 4 }, next: 'nest_4' },
+      { text: '손바닥이 환하게 빛나고, 어미가 천천히 고개를 숙인다', e: { holy: 4 }, next: 'nest_4' },
     ] },
   nest_4: { title: '짐꾼의 싸움', text: '어미가 날개를 펼친다. 당신 뒤에는 아직 숨이 붙은 파티원 두 명. 짐꾼이 할 일은 아니다. 하지만 지금은 짐꾼밖에 없다.',
     choices: [

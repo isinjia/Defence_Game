@@ -19,7 +19,7 @@ Object.assign(UI, {
     if (typeof who === 'string') return { key: who, name: who, art: '', color: '#9fb3c8' };
     if (who.id != null && who.personality) return { key: 'n' + who.id, name: who.name, art: this.npcPortrait(who, pw), color: ec(who.element), sub: who.examLeader ? '선임 · 리더' : who.examMate ? '시험 동기' : '' };
     // 이름 있는 단역 (시험관, 측정관 등): 이름으로 얼굴을 정해 매번 같은 사람으로 보이게
-    const art = who.seed === false ? '' : FX.portrait('extra' + (who.seed || who.name), who.gender || (FX.hash(who.name) % 2 ? 'F' : 'M'), who.elem || 'steel', who.rank ?? 2, pw);
+    const art = who.seed === false ? '' : FX.portrait('extra' + (who.seed || who.name), who.gender || (FX.hash(who.name) % 2 ? 'F' : 'M'), who.elem || 'wood', who.rank ?? 2, pw);
     return { key: 'x' + who.name, name: who.name, art, color: who.color || ec(who.elem) || '#9fb3c8', sub: who.sub || '' };
   },
   dlgShow() {

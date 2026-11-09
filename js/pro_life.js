@@ -4,7 +4,7 @@
 // - 생활형 각성 갈래 5개: 늦잠(nap) · 편의점(cvs) · 게임(game) · 늦깎이(bloom) · 일일 수련(quest). 정기 검진(late)도 생활형.
 // - 속성은 생활 속 "그날 이후 이상한 일"(life_odd)에서 고른다. 갈래마다 첫 줄만 다르다.
 // - 출신을 뽑을 때 평범한 삶이 30%쯤 나오게 해, 생활형 이야기가 전체의 30~40%가 되게 한다(ui_prologue).
-// 속성 키 메모(4-9 속성 개편 대비): life_odd 의 ice=수(비 오는 날), steel=목(화분), spirit 둘 = 성(고양이)·암(밤눈).
+// 속성 키(4-9 적용): life_odd 의 water=비 오는 날, wood=화분, holy=고양이, dark=밤눈.
 
 BACKGROUNDS.push({ id: 'idle', name: '평범한 삶', desc: '특별할 것 없는 하루하루. 크레딧 300. 시간만은 많다: 수련 +10%.', region: 'suwon', money: 300, mods: { train: 0.1 } });
 
@@ -13,52 +13,52 @@ const LIFE_INTRO = (title, text, ch) => ({ title, text, choices: ch.map(([t, e, 
 Object.assign(PROLOGUE, {
   // ---------- 도입: 하루 일과 ----------
   idle_1: LIFE_INTRO('취준 3년 차의 오후', '눈을 뜨니 오후 두 시. 휴대폰엔 불합격 메일 두 통과 엄마의 문자 세 통. "밥은 먹었니" "이력서는" "너 오늘도 자니?"\n\n방바닥엔 어제 먹다 만 라면 그릇. 창밖에서 동네 꼬마들이 "헌터 놀이"를 한다.', [
-    ['다시 눕는다. 오늘은 그냥 쉬는 날로 하자', 'ice', { support: 1, esper: 1 }, { lucky: 1 }, 'nap_1'],
+    ['다시 눕는다. 오늘은 그냥 쉬는 날로 하자', 'water', { support: 1, esper: 1 }, { lucky: 1 }, 'nap_1'],
     ['라면 물부터 올린다. 일단 먹고 생각하자', 'fire', { fighter: 1, guard: 1 }, null, 'nap_1'],
-    ['이력서 파일을 연다. 경력란이 텅 비어 있다', 'steel', { mage: 1, guard: 1 }, { genius: 1 }, 'late_1'],
-    ['{friend}에게 "뭐 해?" 문자를 보낸다', 'spirit', { support: 1, summon: 1 }, { charisma: 1 }, 'bloom_1', { friend: 10 }],
+    ['이력서 파일을 연다. 경력란이 텅 비어 있다', 'wood', { mage: 1, guard: 1 }, { genius: 1 }, 'late_1'],
+    ['{friend}에게 "뭐 해?" 문자를 보낸다', 'holy', { support: 1, summon: 1 }, { charisma: 1 }, 'bloom_1', { friend: 10 }],
   ]),
   idle_2: LIFE_INTRO('편의점 야간', '새벽 세 시의 편의점. 손님은 한 시간째 없다. 폐기 바구니엔 유통기한이 막 지난 삼각김밥 네 개. 점장은 "먹어도 돼, 대신 말하지 마"라고 했었다.\n\n카운터 밑 작은 TV에서는 게이트 브레이크 속보가 흘러나온다. 남의 일 같다.', [
     ['폐기 삼각김밥을 하나 깐다. 참치마요다', 'fire', { fighter: 1, support: 1 }, null, 'cvs_1'],
-    ['재고 정리를 한다. 진열대를 칼같이 맞춘다', 'steel', { guard: 1, mage: 1 }, { iron_body: 1 }, 'cvs_1'],
-    ['CCTV 화면을 멍하니 본다. 화면 구석이 미세하게 일렁인다', 'ice', { shadow: 1, esper: 1 }, { mana_sense: 1 }, 'cvs_1'],
-    ['단골 술 취한 아저씨의 넋두리를 끝까지 들어 준다', 'spirit', { support: 2 }, { charisma: 1 }, 'bloom_1'],
+    ['재고 정리를 한다. 진열대를 칼같이 맞춘다', 'wood', { guard: 1, mage: 1 }, { iron_body: 1 }, 'cvs_1'],
+    ['CCTV 화면을 멍하니 본다. 화면 구석이 미세하게 일렁인다', 'water', { shadow: 1, esper: 1 }, { mana_sense: 1 }, 'cvs_1'],
+    ['단골 술 취한 아저씨의 넋두리를 끝까지 들어 준다', 'holy', { support: 2 }, { charisma: 1 }, 'bloom_1'],
   ]),
   idle_3: LIFE_INTRO('공시생의 독서실', '노량진 독서실 23번 자리. 칸막이엔 "합격" 포스트잇이 바래 간다. 오늘의 목표: 행정법 3회독. 현실: 2시간째 같은 페이지.\n\n옆자리 공시생이 속삭인다. "들었어? 각성자 특채 생긴대. 시험 안 봐도 된대."', [
-    ['형광펜을 쥐고 다시 읽는다. 각성은 남의 이야기다', 'ice', { mage: 2 }, { genius: 1 }, 'quest_1'],
+    ['형광펜을 쥐고 다시 읽는다. 각성은 남의 이야기다', 'water', { mage: 2 }, { genius: 1 }, 'quest_1'],
     ['몰래 휴대폰으로 각성자 특채 공고를 찾아본다', 'bolt', { esper: 1, shadow: 1 }, { lucky: 1 }, 'late_1'],
     ['독서실을 나와 계단을 뛰어 오르내린다. 머리가 안 돌아갈 땐 몸이다', 'fire', { fighter: 1, guard: 1 }, { iron_body: 1 }, 'quest_1'],
-    ['책상에 엎드려 잔다. 꿈에서라도 합격하자', 'spirit', { esper: 1, summon: 1 }, null, 'nap_1'],
+    ['책상에 엎드려 잔다. 꿈에서라도 합격하자', 'dark', { esper: 1, summon: 1 }, null, 'nap_1'],
   ]),
   idle_4: LIFE_INTRO('퇴사 첫 주', '사직서를 낸 지 일주일. 출근 알람은 껐는데 몸은 여전히 일곱 시에 눈을 뜬다. 할 일이 없다는 게 이렇게 이상한 줄 몰랐다.\n\n단톡방에선 전 팀장이 "다들 수고 많다"는 공지를 올렸다. 내 이름은 이미 빠져 있다.', [
-    ['동네 헬스장 한 달 회원권을 끊는다', 'steel', { fighter: 1, guard: 1 }, { iron_body: 1 }, 'quest_1'],
-    ['한낮의 공원 벤치에 앉아 아무것도 안 한다', 'ice', { support: 1, esper: 1 }, { lucky: 1 }, 'nap_1'],
+    ['동네 헬스장 한 달 회원권을 끊는다', 'wood', { fighter: 1, guard: 1 }, { iron_body: 1 }, 'quest_1'],
+    ['한낮의 공원 벤치에 앉아 아무것도 안 한다', 'water', { support: 1, esper: 1 }, { lucky: 1 }, 'nap_1'],
     ['퇴직금으로 게이밍 컴퓨터를 산다. 해 보고 싶던 게임이 있었다', 'bolt', { shooter: 1, esper: 1 }, { reckless: 1 }, 'game_1'],
     ['동창회 공지에 "참석"을 누른다. 오랜만이다', 'fire', { support: 1, fighter: 1 }, { charisma: 1 }, 'bloom_1'],
   ]),
   idle_5: LIFE_INTRO('랭크전', '새벽 네 시. 랭크전 9연패. 팀원은 탈주했고 상대는 "ez"를 친다. 모니터 불빛만 방을 비춘다.\n\n엄마가 문 너머에서 말한다. "너 그 게임 속 칼질하는 것만큼 현실에서 살아 봐라."', [
     ['한 판만 더. 이번엔 이긴다', 'fire', { fighter: 1, shooter: 1 }, { reckless: 1 }, 'game_1'],
-    ['리플레이를 돌려 내 실수를 하나하나 분석한다', 'ice', { mage: 1, shooter: 1 }, { genius: 1 }, 'game_1'],
-    ['헤드셋을 벗고 창문을 연다. 새벽 공기가 차다', 'spirit', { esper: 1, support: 1 }, null, 'nap_1'],
-    ['길드원들에게 "오늘은 접는다" 하고 자러 간다', 'steel', { support: 1, guard: 1 }, { charisma: 1 }, 'quest_1'],
+    ['리플레이를 돌려 내 실수를 하나하나 분석한다', 'water', { mage: 1, shooter: 1 }, { genius: 1 }, 'game_1'],
+    ['헤드셋을 벗고 창문을 연다. 새벽 공기가 차다', 'dark', { esper: 1, support: 1 }, null, 'nap_1'],
+    ['길드원들에게 "오늘은 접는다" 하고 자러 간다', 'wood', { support: 1, guard: 1 }, { charisma: 1 }, 'quest_1'],
   ]),
   idle_6: LIFE_INTRO('치킨집 뒷주방', '부모님 치킨집 뒷주방. 튀김기 기름이 180도에서 끓는다. 오늘 주문 마흔두 건. 배달 기사는 둘 다 연락이 안 된다.\n\n아버지가 앞치마를 던져 준다. "네가 가. 오토바이 탈 줄 알지?"', [
     ['앞치마를 매고 튀김기 앞을 지킨다', 'fire', { fighter: 1, guard: 1 }, { iron_body: 1 }, 'cvs_1'],
     ['오토바이 키를 받는다. 마흔두 건, 다 돌린다', 'bolt', { shooter: 1, shadow: 1 }, { quick: 1 }, 'quest_1'],
-    ['주문 순서를 동선대로 다시 짠다. 아버지가 눈을 크게 뜬다', 'ice', { mage: 1, support: 1 }, { genius: 1 }, 'late_1'],
-    ['단골 손님한테 서비스 콜라를 몰래 하나 더 넣는다', 'spirit', { support: 2 }, { lucky: 1 }, 'bloom_1'],
+    ['주문 순서를 동선대로 다시 짠다. 아버지가 눈을 크게 뜬다', 'water', { mage: 1, support: 1 }, { genius: 1 }, 'late_1'],
+    ['단골 손님한테 서비스 콜라를 몰래 하나 더 넣는다', 'holy', { support: 2 }, { lucky: 1 }, 'bloom_1'],
   ]),
   idle_7: LIFE_INTRO('방구석 홈트', '"하루 30분, 따라만 하세요!" 유튜브 홈트 영상 14일 차. 오늘은 플랭크 3분. 1분 40초에 무너졌다.\n\n댓글창: "D-30 각성 준비 루틴 ㄱㄱ" "이거 하다가 진짜 각성한 사람 있음ㅋㅋ"', [
-    ['다시 엎드린다. 3분 채운다', 'steel', { guard: 1, fighter: 1 }, { iron_body: 1 }, 'quest_1'],
+    ['다시 엎드린다. 3분 채운다', 'wood', { guard: 1, fighter: 1 }, { iron_body: 1 }, 'quest_1'],
     ['영상 속도를 1.5배로 올린다', 'bolt', { fighter: 1, shadow: 1 }, { reckless: 1 }, 'quest_1'],
-    ['"진짜 각성한 사람" 댓글을 끝까지 찾아 읽는다', 'ice', { esper: 1, mage: 1 }, { mana_sense: 1 }, 'quest_1'],
-    ['오늘은 됐다. 매트 위에 대자로 눕는다', 'spirit', { support: 1, summon: 1 }, null, 'nap_1'],
+    ['"진짜 각성한 사람" 댓글을 끝까지 찾아 읽는다', 'water', { esper: 1, mage: 1 }, { mana_sense: 1 }, 'quest_1'],
+    ['오늘은 됐다. 매트 위에 대자로 눕는다', 'holy', { support: 1, summon: 1 }, null, 'nap_1'],
   ]),
   idle_8: LIFE_INTRO('서른둘의 동창회', '고등학교 동창회. 반장은 C급 헌터, 짝꿍은 길드 사무직, 맨 뒷자리 녀석은 무려 B급이다. 다들 각성 이야기뿐이다.\n\n누군가 묻는다. "넌 아직이야?" 소주잔을 내려놓는다. 아직이다. 서른둘에.', [
     ['"응, 아직." 웃으며 잔을 비운다', 'fire', { fighter: 1, support: 1 }, { charisma: 1 }, 'bloom_1'],
-    ['B급 녀석에게 각성할 때 어땠는지 진지하게 묻는다', 'ice', { mage: 1, esper: 1 }, { genius: 1 }, 'bloom_1'],
-    ['화장실에 가서 거울 속 얼굴을 오래 본다', 'spirit', { esper: 1, shadow: 1 }, null, 'late_1'],
-    ['2차는 빠지고 혼자 걸어서 집에 간다', 'steel', { guard: 1, shadow: 1 }, { loner: 1 }, 'nap_1'],
+    ['B급 녀석에게 각성할 때 어땠는지 진지하게 묻는다', 'water', { mage: 1, esper: 1 }, { genius: 1 }, 'bloom_1'],
+    ['화장실에 가서 거울 속 얼굴을 오래 본다', 'dark', { esper: 1, shadow: 1 }, null, 'late_1'],
+    ['2차는 빠지고 혼자 걸어서 집에 간다', 'wood', { guard: 1, shadow: 1 }, { loner: 1 }, 'nap_1'],
   ]),
 
   // ---------- 생활형 갈래 ----------
@@ -115,10 +115,10 @@ Object.assign(PROLOGUE, {
     choices: [
       { text: '라면 물을 올리면 불을 켜기도 전에 끓는다', e: { fire: 4 }, next: '' },
       { text: '휴대폰이 충전기 없이도 늘 100%다', e: { bolt: 4 }, next: '' },
-      { text: '비 오는 날이면 몸이 가볍고, 우산 없이도 젖지 않는다', e: { ice: 4 }, next: '' }, // 4-9: 수(水)
-      { text: '방 안 화분이 미친 듯이 자라 창문을 덮는다', e: { steel: 4 }, next: '' }, // 4-9: 목(木)
-      { text: '다리를 저는 동네 고양이가 손에 닿자 멀쩡히 뛰어간다', e: { spirit: 4 }, next: '' }, // 4-9: 성(聖)
-      { text: '밤에 불을 켜지 않아도 방 안이 대낮처럼 다 보인다', e: { spirit: 4 }, next: '' }, // 4-9: 암(暗)
+      { text: '비 오는 날이면 몸이 가볍고, 우산 없이도 젖지 않는다', e: { water: 4 }, next: '' }, // 4-9: 수(水)
+      { text: '방 안 화분이 미친 듯이 자라 창문을 덮는다', e: { wood: 4 }, next: '' }, // 4-9: 목(木)
+      { text: '다리를 저는 동네 고양이가 손에 닿자 멀쩡히 뛰어간다', e: { holy: 4 }, next: '' }, // 4-9: 성(聖)
+      { text: '밤에 불을 켜지 않아도 방 안이 대낮처럼 다 보인다', e: { dark: 4 }, next: '' }, // 4-9: 암(暗)
     ] },
   // 갈래별 마무리: 직업
   nap_2: { title: '느긋한 각성자', text: '두 달째, 엄마는 이제 전기장판 탓을 하지 않는다. 대신 관리국 등록 서류를 식탁 위에 올려 둔다. "백수보단 헌터가 낫지."\n\n서류의 "희망 직무" 칸이 비어 있다.', choices: 'life' },
