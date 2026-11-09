@@ -557,6 +557,9 @@ class Game {
   }
 
   simulateNpcs() {
+    // NPC 돌파 확률(F→E … S→SS)과 진척 배율: 높은 등급의 희소성 유지 (docs/성장_밸런스_분석.md 2-5)
+    const NPC_BT = [0.6, 0.5, 0.4, 0.28, 0.15, 0.06, 0.015];
+    const NPC_SLOW = [1, 1, 1, 1, 0.8, 0.6, 0.45, 1];
     for (const n of this.npcs) {
       if (!n.alive) continue;
       n.ageMonths++;
@@ -569,21 +572,22 @@ class Game {
       }
       // 수련
       const reg = regionById(n.region);
-      n.progress += (1 + n.talent * 0.08) * reg.ether * 0.3 / (4 * RANKS[n.rankIdx].mult ** 1.5) * RNG.range(0.5, 1.5);
+      // 높은 등급일수록 진척이 크게 둔화 (B 이상 추가 감속)
+      n.progress += (1 + n.talent * 0.08) * reg.ether * 0.3 / (4 * RANKS[n.rankIdx].mult ** 1.5) * RNG.range(0.5, 1.5) * (NPC_SLOW[n.rankIdx] ?? 1);
       if (n.progress >= 1) {
         if (n.stage < 2) { n.stage++; n.progress = 0; }
         else if (n.rankIdx < RANKS.length - 1) {
-          if (RNG.chance((60 - n.rankIdx * 9) / 100)) {
+          if (RNG.chance(NPC_BT[n.rankIdx] * (0.8 + n.talent * 0.04))) {
             n.rankIdx++; n.stage = 0; n.progress = 0;
             n.lifespan += RANKS[n.rankIdx].life - RANKS[n.rankIdx - 1].life;
             if (n.met || n.rankIdx >= 3) this.rumor(RUMOR_TEMPLATES[0]({ name: n.name, rankName: RANKS[n.rankIdx].name }));
           } else {
-            n.progress = 0.3;
+            n.progress = n.rankIdx >= 4 ? 0 : 0.3;
           }
         } else n.progress = 1;
       }
       // 게이트 사망
-      if (!n.isCompanion && RNG.chance(0.0015 * reg.danger)) {
+      if (!n.isCompanion && RNG.chance(0.0015 * reg.danger * (1 + Math.max(0, n.rankIdx - 3) * 0.35))) {
         this.killNpc(n, '게이트');
         if (n.met || n.rankIdx >= 4) this.rumor(`${n.name}이(가) ${reg.name}의 게이트에서 돌아오지 못했다.`);
         if (n.met) this.log(`${n.name}이(가) 게이트에서 전사했다는 비보가 들려왔다.`, 'bad');

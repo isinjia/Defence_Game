@@ -288,7 +288,7 @@ Object.assign(UI, {
     const t = p.rankIdx; const need = RECIPES.find((r) => r.id === 'catalyst');
     let coreHave = 0; for (let k = t; k < 8; k++) coreHave += G.coreCount(k);
     this.modal(`<div class="eyebrow">경지 돌파</div><h3>${RANKS[t].key}급 → ${RANKS[t + 1].key}급</h3>
-      <p>성공률 <b class="num">${G.btChance()}%</b>. 실패하면 에테르 절반을 잃고 수명이 1년 줄어든다.</p>
+      <p>성공률 <b class="num">${G.btChance()}%</b>. 실패하면 에테르 절반을 잃고 한 달을 앓는다.</p>
       <div class="item-row ${has ? 'hl' : ''}"><div class="grow"><b>${RANKS[t].key}급 각성 촉매</b> <span class="small">${has ? '<span class="good">보유</span>' : '<span class="bad">없음</span>'}</span>
         <div class="small dim">필수 재료. 공방에서 ${coreName(t)} ${need.cores}개(보유 ${coreHave})와 크레딧으로 만들거나, 강남·부산·대구 마켓에서 산다.</div></div></div>
       <div class="sec-title sec">유물 바치기 · 최대 ${slots}개 · 성공하면 영구 능력치</div>

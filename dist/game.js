@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.27";
+const GAME_VERSION = "0.28";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -3282,6 +3282,9 @@ class Game {
     if (this.questEvent) this.questEvent("npckill", { id: n.id });
   }
   simulateNpcs() {
+    var _a;
+    const NPC_BT = [0.6, 0.5, 0.4, 0.28, 0.15, 0.06, 0.015];
+    const NPC_SLOW = [1, 1, 1, 1, 0.8, 0.6, 0.45, 1];
     for (const n of this.npcs) {
       if (!n.alive) continue;
       n.ageMonths++;
@@ -3293,24 +3296,24 @@ class Game {
         continue;
       }
       const reg = regionById(n.region);
-      n.progress += (1 + n.talent * 0.08) * reg.ether * 0.3 / (4 * RANKS[n.rankIdx].mult ** 1.5) * RNG.range(0.5, 1.5);
+      n.progress += (1 + n.talent * 0.08) * reg.ether * 0.3 / (4 * RANKS[n.rankIdx].mult ** 1.5) * RNG.range(0.5, 1.5) * ((_a = NPC_SLOW[n.rankIdx]) != null ? _a : 1);
       if (n.progress >= 1) {
         if (n.stage < 2) {
           n.stage++;
           n.progress = 0;
         } else if (n.rankIdx < RANKS.length - 1) {
-          if (RNG.chance((60 - n.rankIdx * 9) / 100)) {
+          if (RNG.chance(NPC_BT[n.rankIdx] * (0.8 + n.talent * 0.04))) {
             n.rankIdx++;
             n.stage = 0;
             n.progress = 0;
             n.lifespan += RANKS[n.rankIdx].life - RANKS[n.rankIdx - 1].life;
             if (n.met || n.rankIdx >= 3) this.rumor(RUMOR_TEMPLATES[0]({ name: n.name, rankName: RANKS[n.rankIdx].name }));
           } else {
-            n.progress = 0.3;
+            n.progress = n.rankIdx >= 4 ? 0 : 0.3;
           }
         } else n.progress = 1;
       }
-      if (!n.isCompanion && RNG.chance(15e-4 * reg.danger)) {
+      if (!n.isCompanion && RNG.chance(15e-4 * reg.danger * (1 + Math.max(0, n.rankIdx - 3) * 0.35))) {
         this.killNpc(n, "게이트");
         if (n.met || n.rankIdx >= 4) this.rumor("".concat(n.name, "이(가) ").concat(reg.name, "의 게이트에서 돌아오지 못했다."));
         if (n.met) this.log("".concat(n.name, "이(가) 게이트에서 전사했다는 비보가 들려왔다."), "bad");
@@ -10274,7 +10277,7 @@ Object.assign(UI, {
     const need = RECIPES.find((r) => r.id === "catalyst");
     let coreHave = 0;
     for (let k = t; k < 8; k++) coreHave += G.coreCount(k);
-    this.modal('<div class="eyebrow">경지 돌파</div><h3>'.concat(RANKS[t].key, "급 → ").concat(RANKS[t + 1].key, '급</h3>\n      <p>성공률 <b class="num">').concat(G.btChance(), '%</b>. 실패하면 에테르 절반을 잃고 수명이 1년 줄어든다.</p>\n      <div class="item-row ').concat(has ? "hl" : "", '"><div class="grow"><b>').concat(RANKS[t].key, '급 각성 촉매</b> <span class="small">').concat(has ? '<span class="good">보유</span>' : '<span class="bad">없음</span>', '</span>\n        <div class="small dim">필수 재료. 공방에서 ').concat(coreName(t), " ").concat(need.cores, "개(보유 ").concat(coreHave, ')와 크레딧으로 만들거나, 강남·부산·대구 마켓에서 산다.</div></div></div>\n      <div class="sec-title sec">유물 바치기 · 최대 ').concat(slots, '개 · 성공하면 영구 능력치</div>\n      <div class="cards">').concat(p.relics.map((r) => {
+    this.modal('<div class="eyebrow">경지 돌파</div><h3>'.concat(RANKS[t].key, "급 → ").concat(RANKS[t + 1].key, '급</h3>\n      <p>성공률 <b class="num">').concat(G.btChance(), '%</b>. 실패하면 에테르 절반을 잃고 한 달을 앓는다.</p>\n      <div class="item-row ').concat(has ? "hl" : "", '"><div class="grow"><b>').concat(RANKS[t].key, '급 각성 촉매</b> <span class="small">').concat(has ? '<span class="good">보유</span>' : '<span class="bad">없음</span>', '</span>\n        <div class="small dim">필수 재료. 공방에서 ').concat(coreName(t), " ").concat(need.cores, "개(보유 ").concat(coreHave, ')와 크레딧으로 만들거나, 강남·부산·대구 마켓에서 산다.</div></div></div>\n      <div class="sec-title sec">유물 바치기 · 최대 ').concat(slots, '개 · 성공하면 영구 능력치</div>\n      <div class="cards">').concat(p.relics.map((r) => {
       const R = relicById(r.id);
       const on = this.btSel.includes(r.uid);
       const v = G.relicValue(r);
@@ -14296,5 +14299,147 @@ Object.assign(UI, {
     if (!hint) return;
     const t = this.rememberedFoe();
     hint.innerHTML = t ? fixJosa('<b class="amber">내 차례!</b> 스킬을 누르면 <b>'.concat(t.name, "</b>에게 바로 발동. 대상을 바꾸려면 적을 먼저 누르세요.")) : '<b class="amber">내 차례!</b> 적을 눌러 대상을 정한 뒤 스킬을 누르세요. (스킬 먼저 눌러도 됩니다)';
+  };
+}
+const BAL = {
+  critChance: 0.1,
+  // 패배 중 치명상(수명 -1) 확률
+  companionShare: 0.08,
+  // 자유 동료 1명이 가져가는 몫 (크레딧·에테르)
+  soloMoney: 1.1,
+  soloEther: 1.15
+};
+{
+  const GP = Game.prototype;
+  const wrap = (name, fn) => {
+    const base = GP[name];
+    GP[name] = function(...a) {
+      return fn.call(this, base, ...a);
+    };
+  };
+  GP.noteLifeLoss = function(years, reason) {
+    if (!years) return;
+    const p = this.player;
+    (p.lifeLog = p.lifeLog || []).push({ date: this.dateStr(), age: this.ageYears(), years, reason });
+    if (p.lifeLog.length > 40) p.lifeLog.shift();
+    this.log("수명 -".concat(years, "년 (").concat(reason, "). 남은 수명 ").concat(Math.max(0, Math.round(this.maxLife() - this.ageYears())), "년."), "bad");
+  };
+  wrap("initSandbox", function(base) {
+    var _a, _b;
+    base.call(this);
+    (_b = (_a = this.player).lifeLog) != null ? _b : _a.lifeLog = [];
+  });
+  GP.shareMates = function() {
+    if (this.crew && this.crew()) return [];
+    return this.party().filter((n) => !(n.merc && n.merc.job));
+  };
+  wrap("finishGate", function(base, gate, result, loot, hpLeft, mpLeft) {
+    const p = this.player;
+    const note = [];
+    if (result !== "lose" && loot) {
+      const mates = this.shareMates();
+      if (!this.party().length) {
+        loot.money = Math.round(loot.money * BAL.soloMoney);
+        loot.ether = Math.round(loot.ether * BAL.soloEther);
+        note.push("홀로 공략한 덕에 전리품을 독차지했다. (크레딧 +10%, 에테르 +15%)");
+      } else if (mates.length) {
+        const keep = Math.max(0.5, 1 - BAL.companionShare * mates.length);
+        const given = Math.round(loot.money * (1 - keep));
+        loot.money = Math.round(loot.money * keep);
+        loot.ether = Math.round(loot.ether * keep);
+        note.push("동료 ".concat(mates.length, "명과 전리품을 나눴다. (").concat(Math.round(keep * 100), "%를 받음, 동료 몫 ").concat(fmt(given), " 크레딧)"));
+        for (const n of mates) this.changeRel(n, 1);
+      }
+    }
+    const before = p.lifePenalty;
+    const lines = base.call(this, gate, result, loot, hpLeft, mpLeft);
+    if (result === "lose") {
+      p.lifePenalty = Math.max(0, p.lifePenalty - 2);
+      p.injured = Math.max(p.injured, 4);
+      this.recalc();
+      const crit = RNG.chance(BAL.critChance);
+      if (crit) p.lifePenalty += 1;
+      const suffix = crit ? "치명상까지 입어 에테르 회로가 타 들어갔다. 수명 -1년. (부상 4개월)" : "목숨은 건졌지만 몸이 엉망이다. (부상 4개월)";
+      for (let i = 0; i < lines.length; i++) if (typeof lines[i] === "string") lines[i] = lines[i].replace("치명상으로 수명이 2년 줄었다. (부상 3개월)", suffix);
+      const d = p.lifePenalty - before;
+      if (d > 0) this.noteLifeLoss(d, gate.variant === "red" ? crit ? "레드 게이트 패배·치명상" : "레드 게이트 패배" : "게이트 패배 치명상");
+    }
+    if (note.length && Array.isArray(lines)) lines.unshift(...note);
+    return lines;
+  });
+  wrap("finishMob", function(base, mob, result, kills, hpLeft, mpLeft) {
+    const p = this.player;
+    const before = p.lifePenalty;
+    const lines = base.call(this, mob, result, kills, hpLeft, mpLeft);
+    if (result === "lose") {
+      p.lifePenalty = Math.max(0, p.lifePenalty - 1);
+      p.injured = Math.max(p.injured, 3);
+      this.recalc();
+      const crit = RNG.chance(BAL.critChance * 0.6);
+      if (crit) p.lifePenalty += 1;
+      if (Array.isArray(lines)) for (let i = 0; i < lines.length; i++) {
+        if (typeof lines[i] === "string") lines[i] = lines[i].replace(/수명 -1년, 부상 2개월/, crit ? "치명상으로 수명 -1년, 부상 3개월" : "부상 3개월");
+      }
+      const d = p.lifePenalty - before;
+      if (d > 0) this.noteLifeLoss(d, "괴수 무리 패배 치명상");
+    }
+    return lines;
+  });
+  wrap("breakthrough", function(base) {
+    const p = this.player;
+    const before = p.lifePenalty;
+    const res = base.call(this);
+    if (!res) return res;
+    if (!res.ok) {
+      p.lifePenalty = before;
+      res.msg = res.msg.replace("(에테르 절반 손실, 수명 -1)", "(에테르 절반 손실)");
+      const L = this.logs.find((l) => l.text.includes("돌파 실패"));
+      if (L) L.text = L.text.replace("(에테르 절반 손실, 수명 -1)", "(에테르 절반 손실)");
+    } else if (p.official < p.rankIdx) {
+      p.needRemeasure = true;
+      const tip = "실력은 ".concat(RANKS[p.rankIdx].key, "급이지만 관리국 등록은 ").concat(RANKS[p.official].key, "급이다. 도시 협회 의뢰소에서 재측정을 받아야 공식 등급·랭킹·의뢰가 오른다.");
+      this.log(tip, "major");
+      res.msg += " ".concat(tip);
+    }
+    return res;
+  });
+  wrap("remeasure", function(base) {
+    const r = base.call(this);
+    if (this.player.official >= this.player.rankIdx) this.player.needRemeasure = false;
+    return r;
+  });
+  GP.rankCap = function(r) {
+    return r >= 7 ? 2 : r === 6 ? 4 : r === 5 ? 8 : Infinity;
+  };
+  GP.rankRoom = function(r) {
+    return this.adults().filter((n) => n.rankIdx === r).length < this.rankCap(r);
+  };
+  if (GP.makeCrewListing) wrap("makeCrewListing", function(base, regionId, leaderNpc) {
+    const len = this.npcs.length;
+    const L = base.call(this, regionId, leaderNpc);
+    const fresh = this.npcs.slice(len);
+    const over = fresh.some((n) => n.rankIdx >= 5 && this.adults().filter((o) => o.rankIdx === n.rankIdx && !fresh.includes(o)).length >= this.rankCap(n.rankIdx));
+    if (!over) return L;
+    this.npcs.length = len;
+    return null;
+  });
+  if (GP.gain) wrap("gain", function(base, o, c) {
+    const before = this.player.lifePenalty;
+    const r = base.call(this, o, c);
+    const d = this.player.lifePenalty - before;
+    if (d > 0) this.noteLifeLoss(d, "사건");
+    return r;
+  });
+}
+if (typeof UI !== "undefined") {
+  const baseChar = UI.charHtml;
+  UI.charHtml = function() {
+    let html = baseChar.call(this);
+    const p = G.player;
+    const log = p.lifeLog || [];
+    const orig = Math.round(G.maxLife() + p.lifePenalty);
+    const box = '<div class="sec"><div class="sec-title">수명</div><div class="cards"><div class="item-row"><div class="grow">\n      남은 수명 <b class="num">'.concat(Math.max(0, Math.round(G.maxLife() - G.ageYears())), '년</b> · 원래 수명 <b class="num">').concat(orig, '세</b> · 잃은 수명 <b class="num ').concat(p.lifePenalty ? "bad" : "", '">').concat(p.lifePenalty, "년</b>\n      ").concat(log.length ? '<div class="small dim">'.concat(log.slice(-8).reverse().map((e) => "".concat(e.age, "세 −").concat(e.years, "년 · ").concat(e.reason)).join("<br>"), "</div>") : '<div class="small dim">일반 패배는 부상과 돈만 잃는다. 수명은 치명상·레드 게이트·일부 사건에서만 줄어든다.</div>', "\n    </div></div></div></div>");
+    const at = html.lastIndexOf('<div class="sec"><div class="sec-title">인생 기록');
+    return at >= 0 ? html.slice(0, at) + box + html.slice(at) : html + box;
   };
 }
