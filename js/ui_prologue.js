@@ -86,12 +86,26 @@ Object.assign(UI, {
     s.sc.talent += ch.talent || 0; s.sc.luck += ch.luck || 0; s.friendBonus += ch.friend || 0;
     s.log.push(this.proFill(ch.text));
     s.step++;
-    if (!ch.next) { s.result = resolvePrologue(s.sc); this.screen = 'pro-result'; return this.render(); }
+    // 마지막 선택이 끝나면 결과를 보여 주지 않고 바로 헌터 자격 시험으로 간다. 판정 결과는 시험이 끝난 뒤에 공개된다
+    if (!ch.next) { s.result = resolvePrologue(s.sc); return this.handle('pro-begin'); }
     s.id = ch.next;
     this.renderPrologue();
   },
 
   // ---------- 각성 결과 ----------
+  // 시험이 끝난 뒤 보여 주는 판정 결과 (재능·소꿉친구·선택 기록은 숨긴다)
+  judgmentHtml() {
+    const p = G.player; const k = classById(p.cls); const g = CLASS_GROUPS[k.g]; const bg = BACKGROUNDS.find((b) => b.id === p.bg) || BACKGROUNDS[0];
+    const R = RANKS[p.rankIdx]; const negIds = ['cursed', 'frail', 'slow_learner', 'reckless'];
+    return `<div class="eyebrow">국가 각성자 관리국 · 판정 결과</div><h2>헌터 ${p.name}</h2>
+      <div class="result-grid">
+        <div class="res-item"><span class="sec-title">등급</span><b><span class="tag rank" style="--c:${R.color}">${R.key}급</span></b><span class="small dim">협회 실기 시험 후 측정</span></div>
+        <div class="res-item"><span class="sec-title">출신</span><b>${bg.name}</b><span class="small dim">${bg.desc}</span></div>
+        <div class="res-item"><span class="sec-title">속성</span><b>${this.elemTag(p.element)}</b><span class="small dim">${ELEMENTS[p.element].name} → ${ELEMENTS[ELEMENTS[p.element].counter].name}에 강함</span></div>
+        <div class="res-item wide" style="border-color:${g.color}"><span class="sec-title">직업</span><b style="color:${g.color}">${k.name} <span class="tag rar r${k.r}">${CLASS_RARITY[k.r]}</span></b><span class="small" style="color:${g.color}">${g.name} · 전직 ${k.adv.join(' → ')}</span><span class="small dim">${k.desc}</span><span class="small">${k.skills.map((x) => x[0]).join(' · ')}</span></div>
+      </div>
+      <div class="sec-title sec">선천 특성</div><div class="cards traits">${p.traits.map((id) => { const t = traitById(id); return `<div class="trait ${negIds.includes(id) ? 'neg' : ''}"><b>${t.name}</b><span class="dim">${t.desc}</span></div>`; }).join('')}</div>`;
+  },
   renderProResult() {
     const s = this.pro; const r = s.result;
     const k = classById(r.cls); const g = CLASS_GROUPS[k.g]; const bg = BACKGROUNDS.find((b) => b.id === s.bg);

@@ -11169,13 +11169,25 @@ Object.assign(UI, {
     s.step++;
     if (!ch.next) {
       s.result = resolvePrologue(s.sc);
-      this.screen = "pro-result";
-      return this.render();
+      return this.handle("pro-begin");
     }
     s.id = ch.next;
     this.renderPrologue();
   },
   // ---------- 각성 결과 ----------
+  // 시험이 끝난 뒤 보여 주는 판정 결과 (재능·소꿉친구·선택 기록은 숨긴다)
+  judgmentHtml() {
+    const p = G.player;
+    const k = classById(p.cls);
+    const g = CLASS_GROUPS[k.g];
+    const bg = BACKGROUNDS.find((b) => b.id === p.bg) || BACKGROUNDS[0];
+    const R = RANKS[p.rankIdx];
+    const negIds = ["cursed", "frail", "slow_learner", "reckless"];
+    return '<div class="eyebrow">국가 각성자 관리국 · 판정 결과</div><h2>헌터 '.concat(p.name, '</h2>\n      <div class="result-grid">\n        <div class="res-item"><span class="sec-title">등급</span><b><span class="tag rank" style="--c:').concat(R.color, '">').concat(R.key, '급</span></b><span class="small dim">협회 실기 시험 후 측정</span></div>\n        <div class="res-item"><span class="sec-title">출신</span><b>').concat(bg.name, '</b><span class="small dim">').concat(bg.desc, '</span></div>\n        <div class="res-item"><span class="sec-title">속성</span><b>').concat(this.elemTag(p.element), '</b><span class="small dim">').concat(ELEMENTS[p.element].name, " → ").concat(ELEMENTS[ELEMENTS[p.element].counter].name, '에 강함</span></div>\n        <div class="res-item wide" style="border-color:').concat(g.color, '"><span class="sec-title">직업</span><b style="color:').concat(g.color, '">').concat(k.name, ' <span class="tag rar r').concat(k.r, '">').concat(CLASS_RARITY[k.r], '</span></b><span class="small" style="color:').concat(g.color, '">').concat(g.name, " · 전직 ").concat(k.adv.join(" → "), '</span><span class="small dim">').concat(k.desc, '</span><span class="small">').concat(k.skills.map((x) => x[0]).join(" · "), '</span></div>\n      </div>\n      <div class="sec-title sec">선천 특성</div><div class="cards traits">').concat(p.traits.map((id) => {
+      const t = traitById(id);
+      return '<div class="trait '.concat(negIds.includes(id) ? "neg" : "", '"><b>').concat(t.name, '</b><span class="dim">').concat(t.desc, "</span></div>");
+    }).join(""), "</div>");
+  },
   renderProResult() {
     const s = this.pro;
     const r = s.result;
@@ -12997,6 +13009,11 @@ D("bottom", 4, {
   const baseEnd = UI.endExam;
   if (baseEnd) UI.endExam = function(ids) {
     baseEnd.call(this, ids);
+    if (this.judgmentHtml) {
+      const p = G.player;
+      const mates = G.party().map((n) => n.name);
+      this.modal("".concat(this.judgmentHtml(), '\n        <p class="sec">').concat(mates.length ? "".concat(mates.join(", "), "와(과) 함께 첫발을 내딛는다.") : "당분간은 혼자다. 시험 동기들은 인물 창에서 다시 만날 수 있다.", '</p>\n        <p class="dim">지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.</p>\n        <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>'), "pro-judge");
+    }
     const q = G.debutDue(true);
     if (q) G.queue.push(q);
   };

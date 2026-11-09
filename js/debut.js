@@ -214,6 +214,14 @@ D('bottom', 4, { at: ['field', 'city'], text: '아무도 가지 않는 폐공장
   const baseEnd = UI.endExam;
   if (baseEnd) UI.endExam = function (ids) {
     baseEnd.call(this, ids);
+    // 시험이 끝나야 판정 결과가 공개된다
+    if (this.judgmentHtml) {
+      const p = G.player; const mates = G.party().map((n) => n.name);
+      this.modal(`${this.judgmentHtml()}
+        <p class="sec">${mates.length ? `${mates.join(', ')}와(과) 함께 첫발을 내딛는다.` : '당분간은 혼자다. 시험 동기들은 인물 창에서 다시 만날 수 있다.'}</p>
+        <p class="dim">지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.</p>
+        <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>`, 'pro-judge');
+    }
     const q = G.debutDue(true); if (q) G.queue.push(q);
   };
 }
