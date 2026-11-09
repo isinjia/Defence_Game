@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.22";
+const GAME_VERSION = "0.23";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -11384,6 +11384,266 @@ Object.assign(UI, {
     }
   };
 }
+const EX_GROUP_SCOUT = ["shadow", "esper", "shooter"];
+const exGroup = () => (classById(G.player.cls) || {}).g;
+const exRoom = (c) => c.rooms[c.roomIdx] || [];
+const EX = {
+  weaken(c, pct) {
+    for (const e of exRoom(c)) {
+      e.hp = e.maxHp = Math.max(1, Math.round(e.maxHp * (1 - pct)));
+    }
+    return " (다음 구역 적 체력 -".concat(Math.round(pct * 100), "%)");
+  },
+  enrage(c, pct) {
+    for (const e of exRoom(c)) {
+      e.hp = e.maxHp = Math.round(e.maxHp * (1 + pct));
+    }
+    return " (남은 적이 성나 체력 +".concat(Math.round(pct * 100), "%)");
+  },
+  thin(c) {
+    const r = exRoom(c);
+    if (r.length > 1) {
+      const i = r.findIndex((e) => !e.boss);
+      r.splice(i >= 0 ? i : r.length - 1, 1);
+      return " (다음 구역 적 1마리 줄어듦)";
+    }
+    return "";
+  },
+  add(c) {
+    var _a;
+    const r = exRoom(c);
+    const t = (_a = c.gate.realTier) != null ? _a : c.gate.tier;
+    if (r.length < 6) r.push(G.makeMonster(t, false, c.gate.elem));
+    return " (다음 구역 적 1마리 늘어남)";
+  },
+  hurt(pct) {
+    const p = G.player;
+    const v = Math.round(p.maxHp * pct);
+    p.hp = Math.max(1, p.hp - v);
+    return " (체력 -".concat(v, ")");
+  },
+  heal(pct, mp = 0) {
+    const p = G.player;
+    const v = Math.round(p.maxHp * pct);
+    p.hp = Math.min(p.maxHp, p.hp + v);
+    let s = " (체력 +".concat(v);
+    if (mp) {
+      const m = Math.round(p.maxMp * mp);
+      p.mp = Math.min(p.maxMp, p.mp + m);
+      s += ", 정신력 +".concat(m);
+    }
+    return s + ")";
+  },
+  mp(pct) {
+    const p = G.player;
+    const v = Math.round(p.maxMp * pct);
+    p.mp = Math.max(0, p.mp - v);
+    return " (정신력 -".concat(v, ")");
+  },
+  money(c, base) {
+    var _a;
+    const v = Math.round(base * RANKS[(_a = c.gate.realTier) != null ? _a : c.gate.tier].mult * RNG.range(0.8, 1.3));
+    c.loot.money += v;
+    return " (전리품 ".concat(fmt(v), " 크레딧)");
+  },
+  ether(c, base) {
+    var _a;
+    const v = Math.round(base * RANKS[(_a = c.gate.realTier) != null ? _a : c.gate.tier].mult);
+    c.loot.ether += v;
+    return " (에테르 +".concat(v, ")");
+  },
+  core(c, n) {
+    var _a;
+    const t = (_a = c.gate.realTier) != null ? _a : c.gate.tier;
+    if (G.addCore) G.addCore(t, n);
+    return " (".concat(RANKS[t].key, "급 코어 ").concat(n, "개)");
+  },
+  item(id, n = 1) {
+    const p = G.player;
+    p.items[id] = (p.items[id] || 0) + n;
+    const it = CONSUMABLES.find((x) => x.id === id);
+    return " (".concat(it ? it.name : id, " +").concat(n, ")");
+  }
+};
+const EXPLORE_NODES = [
+  {
+    id: "fork",
+    title: "갈림길",
+    text: "통로가 둘로 갈린다. 왼쪽 바닥엔 젖은 발자국이 어지럽고, 오른쪽은 이상하리만큼 조용하다.",
+    choices: [
+      { text: "발자국 쪽으로 간다. 괴수가 많은 곳에 코어도 많다", do: (c) => "굴 안쪽에 먹다 남긴 코어 조각이 흩어져 있다. 대신 녀석들이 냄새를 맡았다." + EX.money(c, 60) + EX.add(c) },
+      { text: "조용한 쪽으로 간다", do: (c) => G.roll(0.7) ? "조용한 길은 정말 조용했다. 몇 마리를 피해 돌아 나왔다." + EX.thin(c) : "조용했던 이유가 있었다. 천장에 매달린 놈들이 떨어져 내린다." + EX.hurt(0.1) },
+      { text: "먼저 혼자 정찰한다", do: (c) => G.roll(EX_GROUP_SCOUT.includes(exGroup()) ? 0.85 : 0.55) ? "놈들의 위치와 약한 곳을 다 봐 두었다. 첫 일격은 이쪽 몫이다." + EX.weaken(c, 0.2) : "들켰다. 쫓기듯 돌아왔다." + EX.hurt(0.12) }
+    ]
+  },
+  {
+    id: "spring",
+    title: "에테르 샘",
+    text: "바위틈에서 푸른 물이 솟는다. 에테르가 짙게 녹아 있다. 손을 대니 피로가 씻겨 내려가는 것 같다.",
+    choices: [
+      { text: "마신다", do: () => G.roll(0.8) ? "온몸에 힘이 돈다." + EX.heal(0.3, 0.3) : "너무 짙었다. 속이 뒤집힌다." + EX.heal(0.1) + EX.mp(0.15) },
+      { text: "빈 병에 담아 둔다", do: () => "나중을 위해 아껴 둔다." + EX.item("potion") },
+      { text: "손만 적시고 지나간다", do: () => "조심해서 나쁠 건 없다." + EX.heal(0.08) }
+    ]
+  },
+  {
+    id: "chest",
+    title: "녹슨 상자",
+    text: "구석에 헌터 협회 표식이 찍힌 보급 상자가 있다. 몇 년은 묵은 것 같다. 뚜껑 틈으로 무언가 숨 쉬는 소리가 나는 것도 같고, 아닌 것도 같다.",
+    choices: [
+      { text: "연다", do: (c) => G.roll(0.6) ? "협회 보급품이 그대로 남아 있었다." + EX.money(c, 90) + EX.item("mana") : "상자가 입을 벌렸다. 의태 괴수다! 다음 구역까지 쫓아온다." + EX.hurt(0.12) + EX.add(c) },
+      { text: "돌을 던져 먼저 건드려 본다", do: (c) => G.roll(0.5) ? "반응이 없다. 안에는 녹슨 응급 키트뿐이다." + EX.item("potion") : "상자가 돌을 씹었다. 정체를 알았으니 상대하기 쉽다." + EX.money(c, 40) },
+      { text: "건드리지 않는다", do: () => "아쉽지만 지나친다. 살아남은 헌터들은 다 이렇게 말한다." }
+    ]
+  },
+  {
+    id: "trap",
+    title: "갈라진 바닥",
+    text: "앞길이 두 걸음 폭으로 갈라져 있다. 아래는 보이지 않는다. 건너편 벽에 다른 파티가 박아 둔 앵커가 보인다.",
+    choices: [
+      { text: "뛰어넘는다", do: () => G.roll(0.45 + Math.min(0.4, G.player.spd / 120)) ? "가볍게 건넜다." : "발끝이 미끄러졌다. 가장자리를 붙잡고 기어올랐다." + EX.hurt(0.15) },
+      { text: "앵커에 줄을 걸고 한 명씩 건넌다", do: (c) => "시간은 걸렸지만 모두 무사하다. 그 사이 앞쪽에 놈들이 모여들었다." + EX.add(c) },
+      { text: "방패를 걸쳐 다리를 놓는다", when: () => exGroup() === "guard", do: () => "방패 위로 파티가 건넌다. 팔이 저릿하지만 다들 무사하다." + EX.mp(0.05) },
+      { text: "힘으로 바위를 띄워 발판을 만든다", when: () => ["esper", "mage"].includes(exGroup()), do: () => "떠오른 바위를 밟고 건넜다. 머리가 조금 띵하다." + EX.mp(0.12) }
+    ]
+  },
+  {
+    id: "hunter",
+    title: "먼저 온 헌터",
+    text: "벽에 기대 앉은 헌터가 숨을 몰아쉰다. 다른 파티에서 떨어져 나온 모양이다. 다리에 감은 붕대가 피로 젖어 있다.",
+    choices: [
+      { text: "치료해 주고 길을 묻는다", do: (c) => {
+        G.player.fame += 1;
+        return '헌터가 고개를 숙인다. "고마워요. 이 앞 방, 오른쪽 기둥 뒤에 큰 놈이 숨어 있어요."' + EX.mp(0.15) + EX.weaken(c, 0.15) + " (명성 +1)";
+      } },
+      { text: "출구 방향만 알려 주고 간다", do: () => "헌터는 절뚝이며 출구 쪽으로 사라졌다." },
+      { text: "그가 떨어뜨린 전리품 자루를 챙긴다", do: (c) => {
+        G.player.fame = Math.max(0, G.player.fame - 2);
+        return "헌터가 뭐라 소리치지만 못 들은 척했다. 이 바닥 소문은 빠르다." + EX.money(c, 120) + " (명성 -2)";
+      } }
+    ]
+  },
+  {
+    id: "vein",
+    title: "코어 광맥",
+    text: "천장에서 결정이 고드름처럼 자라 있다. 괴수 코어가 굳어 생긴 광맥이다. 캐는 소리는 멀리까지 울릴 것이다.",
+    choices: [
+      { text: "다 캐 간다", do: (c) => "자루가 묵직해졌다. 멀리서 무언가 깨어나는 소리가 들린다." + EX.core(c, 3) + EX.add(c) },
+      { text: "소리 안 나게 두어 개만", do: (c) => "조심조심 떼어 냈다." + EX.core(c, 1) },
+      { text: "그냥 지나간다", do: () => "욕심은 다음에." }
+    ]
+  },
+  {
+    id: "nest",
+    title: "알 무더기",
+    text: "끈적한 막에 싸인 알 수십 개가 벽에 붙어 있다. 몇 개는 벌써 꿈틀거린다.",
+    choices: [
+      { text: "전부 부순다", do: (c) => "알을 짓밟았다. 안쪽에서 성난 울음이 터진다." + EX.thin(c) + EX.enrage(c, 0.1) },
+      { text: "숨죽이고 지나간다", do: (c) => G.roll(0.65) ? "아무것도 깨지 않았다." + EX.thin(c) : "알 하나가 터지며 새끼가 비명을 질렀다." + EX.add(c) },
+      { text: "하나를 떼어 간다. 연구소에서 비싸게 산다", do: (c) => "품 안의 알이 따뜻하다." + EX.money(c, 150) + EX.hurt(0.05) }
+    ]
+  },
+  {
+    id: "mural",
+    title: "벽화",
+    text: "매끈한 벽에 누군가 그린 그림이 있다. 사람인지 아닌지 모를 형체들이 문 하나를 둘러싸고 있다. 이 게이트가 생기기 전부터 있던 것 같다.",
+    choices: [
+      { text: "한참 들여다본다", do: (c) => "그림 속 문이 조금 움직인 것 같다. 몸속 에테르가 공명한다." + EX.ether(c, 6) },
+      { text: "사진을 찍어 둔다. 연구소에 팔 수 있다", do: (c) => "셔터 소리가 유난히 크게 울렸다." + EX.money(c, 70) },
+      { text: "이 구역 구조를 읽는다", do: (c) => "벽화 속 통로가 실제 지형과 같다. 놈들이 어디서 나올지 보인다." + EX.weaken(c, 0.12) }
+    ]
+  },
+  {
+    id: "echo",
+    title: "메아리",
+    text: "어딘가에서 당신 이름을 부르는 소리가 난다. 아는 목소리 같기도 하다. 게이트는 가끔 이런 장난을 친다고 들었다.",
+    choices: [
+      { text: "소리를 따라간다", do: (c) => G.roll(0.45) ? "막다른 곳에 오래된 유물이 놓여 있다. 누군가 남기고 간 것이다." + (G.addRelic ? " (" + G.addRelic() + ")" : EX.money(c, 120)) : "소리는 멀어지기만 했다. 돌아오는 길에 넘어져 무릎이 깨졌다." + EX.hurt(0.1) },
+      { text: "귀를 막고 앞으로 간다", do: () => "소리가 잦아든다. 정신이 맑아진다." + EX.heal(0, 0.1) }
+    ]
+  },
+  {
+    id: "camp",
+    title: "버려진 야영지",
+    text: '꺼진 모닥불, 찢어진 침낭, 반쯤 먹다 만 통조림. 다른 파티가 서둘러 떠난 흔적이다. 벽에 매직으로 쓴 글씨: "안쪽 방 조심. 둘이 한꺼번에 온다."',
+    choices: [
+      { text: "잠깐 쉬어 간다", do: () => "눈을 붙이니 한결 낫다." + EX.heal(0.15, 0.15) },
+      { text: "남은 물자를 챙긴다", do: (c) => "쓸 만한 게 꽤 있다." + EX.item("mana") + EX.money(c, 30) },
+      { text: "경고문을 믿고 작전을 짠다", do: (c) => "둘이 한꺼번에 온다면, 둘을 떼어 놓으면 된다." + EX.weaken(c, 0.15) }
+    ]
+  }
+];
+const EXPLORE_BOSS = {
+  id: "boss_door",
+  title: "보스 구역 앞",
+  text: "공기가 무거워진다. 거대한 무언가가 숨 쉬는 소리가 벽을 타고 울린다. 이 문을 넘으면 돌아갈 수 없다.",
+  choices: [
+    { text: "숨을 고르고 장비를 점검한다", do: () => "심장이 가라앉는다." + EX.heal(0.12, 0.12) },
+    { text: "동료들과 작전을 맞춘다", when: () => G.party().length > 0, do: (c) => "누가 막고 누가 치고 누가 받칠지, 손짓으로 정했다." + EX.weaken(c, 0.1) },
+    { text: "문을 걷어차고 먼저 들어간다", do: (c) => "선수를 쳤다. 놈이 몸을 일으키기 전에 한 방 먹였다." + EX.weaken(c, 0.08) + EX.hurt(0.05) }
+  ]
+};
+Object.assign(UI, {
+  // 탐색 지점 하나를 보여 준다. lead 가 있으면 리더가 한마디 덧붙인다
+  showExplore(node, opts = {}) {
+    const c = this.ctx;
+    this.exNode = { node, opts };
+    const text = typeof node.text === "function" ? node.text(c) : node.text;
+    const choices = node.choices.map((ch, i) => ({ ch, i })).filter(({ ch }) => !ch.when || ch.when(c));
+    const head = c && c.gate ? "".concat(G.gateName(c.gate), " · ").concat(c.roomIdx === c.rooms.length - 1 ? "보스 구역 앞" : "구역 ".concat(c.roomIdx + 1)) : "게이트 안";
+    this.modal('<div class="eyebrow">탐색 · '.concat(head, "</div><h3>").concat(node.title, '</h3>\n      <p class="event-text">').concat(text, "</p>\n      ").concat(opts.lead ? '<div class="coach lead-say"><span class="eyebrow">'.concat(opts.leadName || "리더", "</span><div>").concat(opts.lead, "</div></div>") : "", '\n      <div class="small dim">체력 ').concat(fmt(G.player.hp), "/").concat(fmt(G.player.maxHp), " · 정신력 ").concat(fmt(G.player.mp), "/").concat(fmt(G.player.maxMp), '</div>\n      <div class="cards">').concat(choices.map(({ ch, i }) => '<button class="choice-btn" data-act="ex-choice" data-v="'.concat(i, '">').concat(ch.text, "</button>")).join(""), "</div>"), "event-box");
+  },
+  exploreChoose(i) {
+    const { node, opts } = this.exNode || {};
+    if (!node) return;
+    const c = this.ctx;
+    const res = node.choices[i].do(c);
+    this.exNode = null;
+    G.save();
+    this.modal('<div class="eyebrow">탐색 · '.concat(node.title, '</div><p class="event-text">').concat(fixJosa(res), "</p>\n      ").concat(opts.after ? '<div class="coach lead-say"><span class="eyebrow">'.concat(opts.leadName || "리더", "</span><div>").concat(opts.after, "</div></div>") : "", '\n      <div class="row end"><button class="primary" data-act="ex-go">').concat(opts.goLabel || "앞으로 나아간다", "</button></div>"), "event-box");
+    this.exThen = opts.then;
+  },
+  // 이번 게이트에서 아직 안 나온 탐색 지점 하나
+  pickExplore() {
+    const c = this.ctx;
+    c.exUsed = c.exUsed || [];
+    if (c.roomIdx === c.rooms.length - 1) return EXPLORE_BOSS;
+    const pool = EXPLORE_NODES.filter((n2) => !c.exUsed.includes(n2.id));
+    const n = RNG.pick(pool.length ? pool : EXPLORE_NODES);
+    c.exUsed.push(n.id);
+    return n;
+  }
+});
+{
+  const baseStartRoom = UI.startRoom;
+  UI.startRoom = function() {
+    const c = this.ctx;
+    if (c && c.kind === "gate" && !c.inHidden) {
+      c.explored = c.explored || {};
+      if (!c.explored[c.roomIdx]) {
+        c.explored[c.roomIdx] = true;
+        return this.showExplore(this.pickExplore(), { then: () => baseStartRoom.call(this) });
+      }
+    }
+    return baseStartRoom.call(this);
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function(act, v) {
+    switch (act) {
+      case "ex-choice":
+        return this.exploreChoose(+v);
+      case "ex-go": {
+        const f = this.exThen;
+        this.exThen = null;
+        this.closeModal();
+        if (G.over) return this.after();
+        return f ? f() : this.after();
+      }
+      default:
+        return baseHandle.call(this, act, v);
+    }
+  };
+}
 const NAME_KEY = "gate_chronicle_last_name";
 Object.assign(UI, {
   lastName() {
@@ -11709,28 +11969,91 @@ Object.assign(UI, {
       return n.id;
     });
   },
+  // 시험 파티를 이끄는 선임 각성자 (협회 교관). 시험이 끝나도 인연으로 남는다
+  makeExamLeader() {
+    const p = G.player;
+    const n = G.makeNpc(false, "human");
+    n.rankIdx = 3;
+    n.stage = 1;
+    n.region = p.region;
+    n.met = true;
+    n.relation = 25;
+    n.guild = null;
+    n.examLeader = true;
+    n.personality = RNG.pick(["just", "kind", "cold"]);
+    n.cls = RNG.pick(["guardian", "paladin", "swordsman", "lancer"]);
+    n.ageMonths = RNG.int(34, 46) * 12;
+    n.lifespan = Math.max(n.lifespan, 80);
+    n.links = {};
+    n.disciples = [];
+    n.parents = [];
+    G.npcs.push(n);
+    return n.id;
+  },
+  examLeader() {
+    return this.exam && G.npcById(this.exam.leader);
+  },
+  // 리더의 말투: 성격에 따라 조금씩 다르다
+  leadSay(key) {
+    const L = this.examLeader();
+    const pers = L ? L.personality : "just";
+    const T = {
+      brief: { just: "오늘 너희 임시 파티 리더를 맡은 선임이다. 게이트는 문 열자마자 싸우는 곳이 아니야. 먼저 살피고, 고르고, 그다음에 싸운다. 순서 틀리면 죽는다.", kind: "오늘 여러분을 이끌 선임이에요. 긴장되죠? 저도 처음엔 그랬어요. 게이트는 들어가자마자 싸우는 곳이 아니에요. 먼저 둘러보고, 판단하고, 그다음에 싸워요.", cold: "리더다. 말은 한 번만 한다. 게이트에선 먼저 본다. 고른다. 그다음에 싸운다. 이상." },
+      ex1: { just: "갈림길이다. 탐색에선 고른 행동이 다음 전투를 바꾼다. 정찰하면 적이 약해지고, 욕심내면 적이 늘어난다. 정답은 없어. 결과를 감당하는 게 헌터다.", kind: "갈림길이네요. 여기서 고르는 길에 따라 다음 싸움이 쉬워지기도, 어려워지기도 해요. 정찰은 안전하게, 욕심은 보상을, 대신 대가가 있어요.", cold: "갈림길. 고른 길이 다음 전투를 바꾼다. 정찰, 욕심, 우회. 골라." },
+      ex1after: { just: "좋아. 이제 진짜 전투다. 동료들은 각자 알아서 싸운다. 넌 네 차례에만 집중해.", kind: "잘했어요. 이제 싸움이에요. 동료들은 알아서 움직이니까, 자기 차례만 챙기면 돼요.", cold: "됐다. 전투 준비." },
+      ex2: { just: "보급 상자다. 게이트 안의 상자는 반은 선물, 반은 함정이야. 열기 전에 확인하는 방법도 있다. 그리고 이 앞이 보스 구역이다.", kind: "상자가 있네요. 게이트 상자는 반쯤은 함정이에요. 돌을 던져 보는 것도 방법이고요. 이 앞이 보스예요.", cold: "상자. 절반은 함정. 이 앞이 보스." },
+      ex2after: { just: "보스는 체력이 많고 한 방이 세다. 막는 사람이 끌고, 치는 사람이 약점을 노린다. 위험하면 회복약을 아끼지 마.", kind: "보스는 오래 버티고 세게 때려요. 무리하지 말고, 위험하면 회복약 꼭 쓰세요.", cold: "보스는 세다. 아프면 약 먹어. 죽지 마." },
+      boss: { just: "보스다. 속성 상성을 봐라. 상성이면 피해가 크게 들어간다.", kind: "보스예요! 속성 상성을 노려 보세요. 잘 맞으면 훨씬 아프게 들어가요.", cold: "상성 노려." },
+      win: { just: '"수고했다. 처음치곤 나쁘지 않았어. 밖에선 내가 없다. 오늘 한 순서, 잊지 마라."', kind: '"다들 정말 잘했어요. 오늘 순서대로만 하면 쉽게 안 죽어요. 무슨 일 있으면 연락해요."', cold: '"합격. …살아서 또 보자."' },
+      lose: { just: '"내가 끼어든 건 이번이 마지막이다. 밖에서는 아무도 대신 안 싸워 준다."', kind: '"괜찮아요, 다들 처음이니까. 그래도 밖에서는 제가 없어요. 꼭 기억해요."', cold: '"구해 주는 건 오늘뿐이다."' }
+    };
+    return (T[key] || {})[pers] || (T[key] || {}).just || "";
+  },
+  examGateCtx(stage) {
+    const ex = this.exam;
+    return { kind: "exam-explore", gate: ex.gate, rooms: ex.rooms, roomIdx: stage, loot: ex.loot };
+  },
+  examExplore(stage) {
+    const L = this.examLeader();
+    const ex = this.exam;
+    ex.stage = stage;
+    this.ctx = this.examGateCtx(stage);
+    const node = stage === 0 ? EXPLORE_NODES.find((n) => n.id === "fork") : EXPLORE_NODES.find((n) => n.id === "chest");
+    this.showExplore(node, { lead: this.leadSay(stage === 0 ? "ex1" : "ex2"), leadName: L ? "선임 ".concat(L.name, " · 리더") : "리더", after: this.leadSay(stage === 0 ? "ex1after" : "ex2after"), goLabel: stage === 0 ? "첫 구역으로" : "보스 구역으로", then: () => this.startExamFight(stage) });
+  },
   startExam() {
     const p = G.player;
     const ids = this.makeExamParty();
-    this.exam = { ids };
+    const leader = this.makeExamLeader();
+    const gate = { id: -1, tier: 0, theme: "협회 훈련용 게이트", elem: RNG.pick(ELEMENT_KEYS) };
+    this.exam = { ids, leader, gate, loot: { money: 0, ether: 0, kills: 0 }, stage: 0 };
+    this.exam.rooms = [this.examEnemies(false), this.examEnemies(true)];
     const mates = ids.map((id) => G.npcById(id));
+    const L = G.npcById(leader);
     this.screen = "game";
     this.render();
-    this.modal('<div class="eyebrow">'.concat(G.dateStr(), " · ").concat(G.region().name, ' · 헌터 협회 시험장</div><h3>헌터 자격 시험</h3>\n      <p class="event-text">각성자 등록을 마친 ').concat(p.name, '에게 협회가 실기 시험 통지서를 보냈다. 시험장 로비에는 오늘 처음 각성한 사람들이 긴장한 얼굴로 앉아 있다.</p>\n      <p class="event-text">시험관: "실기는 임시 파티 단위로 본다. 훈련용 게이트 안의 괴수를 정리하면 합격이다. 서로 처음 보는 사이겠지만, 안에서는 등을 맡겨야 한다."</p>\n      <div class="sec-title sec">배정된 임시 파티</div>\n      <div class="cards">').concat(mates.map((n) => '<div class="item-row">'.concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, "</b> ").concat(this.raceTag(n), '\n        <div><span class="tag cls tiny" style="--c:').concat(groupColor(classById(n.cls).g), '">').concat(className(n.cls), '</span> <span class="small dim">').concat(persById(n.personality).name, "한 성격</span></div></div></div>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="exam-skip">튜토리얼 건너뛰기</button><button class="primary" data-act="exam-go">시험장으로</button></div>'), "event-box");
+    this.modal('<div class="eyebrow">'.concat(G.dateStr(), " · ").concat(G.region().name, ' · 헌터 협회 시험장</div><h3>헌터 자격 시험</h3>\n      <p class="event-text">각성자 등록을 마친 ').concat(p.name, '에게 협회가 실기 시험 통지서를 보냈다. 시험장 로비에는 오늘 처음 각성한 사람들이 긴장한 얼굴로 앉아 있다.</p>\n      <p class="event-text">시험관: "실기는 임시 파티 단위로 본다. 협회 훈련용 게이트를 끝까지 통과하면 합격이다. 각 파티엔 선임 각성자가 리더로 붙는다."</p>\n      <div class="sec-title sec">파티 리더</div>\n      <div class="cards"><div class="item-row">').concat(this.npcAvatar(L, 48), '<div class="grow"><b>').concat(L.name, '</b> <span class="small dim">협회 교관 · 선임 각성자</span>\n        <div>').concat(this.rankTag(L.rankIdx, L.stage), ' <span class="tag cls tiny" style="--c:').concat(groupColor(classById(L.cls).g), '">').concat(className(L.cls), '</span> <span class="small dim">').concat(persById(L.personality).name, '한 성격</span></div>\n        <div class="small">"').concat(this.leadSay("brief"), '"</div></div></div></div>\n      <div class="sec-title sec">배정된 임시 파티</div>\n      <div class="cards">').concat(mates.map((n) => '<div class="item-row">'.concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, "</b> ").concat(this.raceTag(n), '\n        <div><span class="tag cls tiny" style="--c:').concat(groupColor(classById(n.cls).g), '">').concat(className(n.cls), '</span> <span class="small dim">').concat(persById(n.personality).name, "한 성격</span></div></div></div>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="exam-skip">튜토리얼 건너뛰기</button><button class="primary" data-act="exam-go">시험장으로</button></div>'), "event-box");
   },
-  examEnemies() {
-    const list = [G.makeMonster(0, true), G.makeMonster(0, false), G.makeMonster(0, false)];
-    list[0].name = "[시험용] " + list[0].name.replace(/^\[[^\]]*\] /, "");
+  examEnemies(boss) {
+    const list = boss ? [G.makeMonster(0, true), G.makeMonster(0, false)] : [G.makeMonster(0, false), G.makeMonster(0, false), G.makeMonster(0, false)];
+    if (boss) list[0].name = "[시험용] " + list[0].name.replace(/^\[[^\]]*\] /, "");
     for (const e of list) {
-      e.maxHp = e.hp = Math.round(e.hp * 1.5);
+      e.maxHp = e.hp = Math.round(e.hp * (boss ? 1.5 : 1.2));
     }
     return list;
   },
-  startExamFight() {
+  startExamFight(stage = 0) {
     const ex = this.exam;
     if (!ex) return;
-    const allies = [G.playerUnit(), ...ex.ids.map((id) => G.npcUnit(G.npcById(id), "ally"))];
-    this.ctx = { kind: "exam", tutorial: { acted: 0 }, elem: G.player.element, combat: new Combat(G, { allies, enemies: this.examEnemies(), canFlee: false, spar: true, title: "헌터 자격 시험 · 실기" }) };
+    ex.stage = stage;
+    const L = this.examLeader();
+    const lu = L ? G.npcUnit(__spreadProps(__spreadValues({}, L), { rankIdx: 0, stage: 1 }), "ally") : null;
+    if (lu) {
+      lu.name = "".concat(L.name, "(리더)");
+      lu.npcId = L.id;
+    }
+    const allies = [G.playerUnit(), ...lu ? [lu] : [], ...ex.ids.map((id) => G.npcUnit(G.npcById(id), "ally"))];
+    this.ctx = { kind: "exam", tutorial: stage === 0 ? { acted: 0 } : { acted: 0, boss: true }, elem: ex.gate.elem, combat: new Combat(G, { allies, enemies: ex.rooms[stage], canFlee: false, spar: true, title: "헌터 자격 시험 · ".concat(stage === 0 ? "첫 구역" : "보스 구역") }) };
     this.openCombat();
   },
   // 전투 화면 위에 띄우는 조작 안내
@@ -11740,6 +12063,9 @@ Object.assign(UI, {
     const cb = c.combat;
     const t = c.tutorial;
     let step, text;
+    const L = this.examLeader();
+    const who = L ? "선임 ".concat(L.name) : "리더";
+    if (t.boss) return t.acted >= 2 ? "" : '<div class="coach"><span class="eyebrow">'.concat(who, "</span><div>").concat(this.leadSay("boss"), "</div></div>");
     if (t.acted >= 3) return "";
     if (t.acted >= 1) {
       step = "조작 안내 3/3";
@@ -11755,7 +12081,7 @@ Object.assign(UI, {
       const aim = SKILL_AIM[skillById(c.sel).type] || "none";
       text = aim === "enemy" ? "설명을 확인했으면 위쪽의 <b>적을 눌러</b> 발동하세요. 대상을 누르는 순간 스킬이 나갑니다." : aim === "ally" ? "회복할 <b>아군 카드를 눌러</b> 발동하세요." : "대상이 필요 없는 스킬입니다. <b>[사용]</b>을 누르면 발동합니다.";
     }
-    return '<div class="coach"><span class="eyebrow">'.concat(step, "</span><div>").concat(text, "</div></div>");
+    return '<div class="coach"><span class="eyebrow">'.concat(who, " · ").concat(step, "</span><div>").concat(text, "</div></div>");
   },
   finishExam() {
     const c = this.ctx;
@@ -11763,6 +12089,14 @@ Object.assign(UI, {
     const ex = this.exam;
     this.ctx = null;
     this.closeModal();
+    if (ex.stage === 0) {
+      const p = G.player;
+      p.hp = Math.max(p.hp, Math.round(p.maxHp * 0.7));
+      p.mp = Math.max(p.mp, Math.round(p.maxMp * 0.6));
+      ex.firstWin = cb.result === "win";
+      return this.examExplore(1);
+    }
+    if (ex.loot.money) G.player.money += ex.loot.money;
     const mates = ex.ids.map((id) => G.npcById(id)).filter(Boolean);
     const win = cb.result === "win";
     for (const n of mates) G.changeRel(n, win ? 22 : 12);
@@ -11771,7 +12105,12 @@ Object.assign(UI, {
     G.lifeEvent(win ? "헌터 자격 시험에 합격했다." : "시험관의 개입으로 간신히 헌터 자격 시험을 통과했다.");
     ex.reveal = G.revealAwakenRank();
     ex.pick = new Set(ex.ids);
-    ex.text = win ? '마지막 괴수가 쓰러지자 훈련용 게이트가 닫혔다. 시험관이 기록판에 무언가 적고는 고개를 끄덕였다. "전원 합격. 오늘부터 너희는 헌터다."' : '파티가 밀리자 시험관이 끼어들어 괴수를 베어 냈다. "…그래도 끝까지 버텼군. 합격은 합격이다. 대신 밖에서는 아무도 끼어들어 주지 않는다."';
+    const L = this.examLeader();
+    if (L) {
+      G.changeRel(L, win ? 15 : 8);
+      L.met = true;
+    }
+    ex.text = win ? "마지막 괴수가 쓰러지자 훈련용 게이트가 닫혔다. ".concat(L ? "".concat(L.name, "이(가) 무기를 거두며 말한다. ").concat(this.leadSay("win")) : "시험관이 고개를 끄덕였다.", " 시험관이 기록판에 합격 도장을 찍었다.") : "파티가 밀리자 ".concat(L ? L.name : "시험관", "이(가) 봉인을 풀고 앞으로 나섰다. 보스가 한 번에 갈라졌다. ").concat(L ? this.leadSay("lose") : "", " 합격은 합격이다.");
     this.renderExamEnd();
   },
   renderExamEnd() {
@@ -11839,7 +12178,7 @@ Object.assign(UI, {
       }
       case "exam-go":
         this.closeModal();
-        return this.startExamFight();
+        return this.examExplore(0);
       case "exam-skip":
         this.exam.pick = new Set(this.exam.ids);
         this.exam.text = "실기 시험은 무난히 끝났다. 시험관이 기록판에 합격 도장을 찍었다.";
@@ -13332,7 +13671,10 @@ D("bottom", 4, {
     if (this.judgmentHtml) {
       const p = G.player;
       const mates = G.party().map((n) => n.name);
-      this.modal("".concat(this.judgmentHtml(), '\n        <p class="sec">').concat(mates.length ? "".concat(mates.join(", "), "와(과) 함께 첫발을 내딛는다.") : "당분간은 혼자다. 시험 동기들은 인물 창에서 다시 만날 수 있다.", '</p>\n        <p class="dim">지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.</p>\n        <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>'), "pro-judge");
+      this.modal("".concat(this.judgmentHtml(), '\n        <p class="sec">').concat(mates.length ? "".concat(mates.join(", "), "와(과) 함께 첫발을 내딛는다.") : "당분간은 혼자다. 시험 동기들은 인물 창에서 다시 만날 수 있다.", "</p>\n        ").concat((() => {
+        const L = G.npcs.filter((n) => n.examLeader && n.alive).pop();
+        return L ? '<p class="small">시험 리더였던 선임 '.concat(L.name, "이(가) 연락처를 건넸다. 인물 창에서 다시 만날 수 있다.</p>") : "";
+      })(), '\n        <p class="dim">지도에서 빛나는 칸을 눌러 걸어 다니고, 도시에 들어가 의뢰를 받으며 살아가십시오. 정해진 길은 없습니다.</p>\n        <div class="row end"><button class="primary" data-act="modal-close">시작</button></div>'), "pro-judge");
     }
     const q = G.debutDue(true);
     if (q) G.queue.push(q);
