@@ -776,7 +776,6 @@ const UI = {
         <div class="foes" id="foes"></div>
         <div class="allies" id="allies"></div>
       </div>
-      <div class="clog" id="clog"></div>
       <div id="cb-ctrl"></div>`, 'combat-box');
     c.speed = this.combatSpeed || 1;
     this.refreshUnits();

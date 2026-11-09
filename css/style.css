@@ -527,3 +527,6 @@ button.item-row { width: 100%; text-align: left; }
 .ally .hp-t, .ally .mp-t { font-size: 11px; line-height: 1; min-width: 4.6em; text-align: right; }
 .ally .mp-t { color: #8cc4ff; }
 @media (max-width: 640px) { .ally .hp-t, .ally .mp-t { font-size: 10px; min-width: 4.2em; } .ally .bar-row { gap: 4px; margin-top: 2px; } }
+
+/* 전투 로그 대신 무대와 조작부 사이 간격 */
+.combat-box #cb-ctrl { margin-top: 8px; }

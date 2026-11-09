@@ -2557,3 +2557,6 @@ button.item-row {
     margin-top: 2px;
   }
 }
+.combat-box #cb-ctrl {
+  margin-top: 8px;
+}

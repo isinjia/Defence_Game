@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.20";
+const GAME_VERSION = "0.21";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -9259,7 +9259,7 @@ const UI = {
     c.playing = false;
     const ec = ELEMENTS[c.elem] ? elemColor(c.elem) : "#46e0d0";
     const rooms = c.kind === "gate" ? '<div class="room-dots">'.concat(c.rooms.map((_, i) => '<i class="'.concat(i < c.roomIdx ? "done" : i === c.roomIdx ? "now" : "", " ").concat(i === c.rooms.length - 1 ? "boss" : "", '"></i>')).join(""), "</div>") : "";
-    this.modal('<div class="cb-head"><h3>'.concat(cb.title, "</h3>").concat(rooms, '<span class="dim small num" id="cb-round"></span></div>\n      <div class="stage" id="stage" style="--ec:').concat(ec, '">\n        <div class="foes" id="foes"></div>\n        <div class="allies" id="allies"></div>\n      </div>\n      <div class="clog" id="clog"></div>\n      <div id="cb-ctrl"></div>'), "combat-box");
+    this.modal('<div class="cb-head"><h3>'.concat(cb.title, "</h3>").concat(rooms, '<span class="dim small num" id="cb-round"></span></div>\n      <div class="stage" id="stage" style="--ec:').concat(ec, '">\n        <div class="foes" id="foes"></div>\n        <div class="allies" id="allies"></div>\n      </div>\n      <div id="cb-ctrl"></div>'), "combat-box");
     c.speed = this.combatSpeed || 1;
     this.refreshUnits();
     this.renderControls();
