@@ -5,7 +5,7 @@
 //   · 통찰형: 통찰력 높은 동료가 "무조건 불가능"이나 "변이 조짐"을 느끼면 관계·성격과 상관없이. 통찰이 낮으면 틀린 경고도 낸다.
 //   · 리더는 물러선다/설득한다/그래도 강행. 강행하면 성격대로 크게 반응(따로 행동·이탈·동조·비난).
 //   · 플레이어가 리더가 아니면 플레이어도 막아설 수 있다.
-// - 탈출: 일반 게이트는 탐색 중(층 지도) 언제든 귀환석으로 나간다. 전투 중엔 불가(gear.js). 변이 게이트는 불가.
+// - 탈출: 귀환석은 어디서든 쓴다(4-7 최종 확정). 층 지도에도 귀환석 버튼.
 // - 탐색 중 변이: 일반 게이트가 공략 도중 변이(레드·더블·등급 오측정)로 바뀔 수 있다. 1~2칸 전에 조짐이 있다.
 
 const INSIGHT_GRP = { esper: 0.55, mage: 0.4, support: 0.35, shadow: 0.35, summon: 0.3 };
@@ -17,13 +17,13 @@ Object.assign(Game.prototype, {
 
 Object.assign(UI, {
   gateMutated(c) { const g = c.gate; return !!(c.run && c.run.mutated) || (g.variant && g.variant !== 'normal') || !!g.final; },
-  canRecall() { const c = this.ctx; return !!(c && c.run && !this.gateMutated(c) && (G.player.items.recall || 0) > 0); },
+  canRecall() { const c = this.ctx; return !!(c && c.run && (G.player.items.recall || 0) > 0); },
   useRecall() {
-    if (!this.canRecall()) return this.toast(this.gateMutated(this.ctx) ? '변이 게이트에서는 귀환석이 작동하지 않는다!' : '귀환석이 없다.');
+    if (!this.canRecall()) return this.toast('귀환석이 없다.');
     G.player.items.recall--;
     const ov = document.getElementById('council-ov'); if (ov) ov.remove();
     this.toast('귀환석이 빛났다. 순식간에 바깥으로 빠져나왔다.');
-    return this.retreatBase ? this.retreatBase() : this.handle('g-leave');
+    return this.handle('g-leave');
   },
   // 탐색 중 변이: 칸에 들어갈 때마다 진행
   mutTick() {
@@ -34,8 +34,8 @@ Object.assign(UI, {
       if (run.mut.left > 0) { run.signNote = '공기가 눅눅하게 무거워진다. 출구 쪽 공간이 아주 조금 일렁인 것 같다.'; return; }
       const kind = run.mut.kind; run.mut = null; run.mutated = true; g.variant = kind; g.midMutated = true;
       if (kind === 'red') { run.floors++; run.signNote = '<b class="bad">게이트가 붉게 물들었다. 레드 게이트로 변이!</b> 출구가 닫혔다. 한 층이 더 생겼다.'; }
-      else if (kind === 'double') { c.hidden = true; run.signNote = '<b class="bad">게이트 깊은 곳에서 두 번째 심장 소리가 들린다. 이중 던전으로 변이!</b> 이제 귀환석이 듣지 않는다.'; }
-      else { g.realTier = Math.min(7, g.tier + RNG.int(1, 2)); g.revealedMis = true; run.signNote = `<b class="bad">에테르 농도가 치솟는다. 실제 등급은 ${RANKS[g.realTier].key}급이었다!</b> 괴수들이 단단해진다. 귀환석은 듣지 않는다.`; }
+      else if (kind === 'double') { c.hidden = true; run.signNote = '<b class="bad">게이트 깊은 곳에서 두 번째 심장 소리가 들린다. 이중 던전으로 변이!</b>'; }
+      else { g.realTier = Math.min(7, g.tier + RNG.int(1, 2)); g.revealedMis = true; run.signNote = `<b class="bad">에테르 농도가 치솟는다. 실제 등급은 ${RANKS[g.realTier].key}급이었다!</b> 괴수들이 단단해진다.`; }
       G.log(`공략 중이던 ${G.gateName(g)}이(가) ${MUT_KINDS[kind]}(으)로 변이했다.`, 'bad');
       return;
     }
@@ -71,7 +71,7 @@ Object.assign(UI, {
   showBlock(b) {
     const c = this.ctx; c.run.blocked = true; c.block = b;
     const n = b.n; const L = this.councilLeader();
-    const recall = !this.gateMutated(c) && (G.player.items.recall || 0) > 0;
+    const recall = (G.player.items.recall || 0) > 0;
     this.councilPanel(`<div class="cn-card cn-block"><div class="eyebrow bad">막아서기</div>
       <div class="cn-blocker">${this.npcPortrait(n, 96)}<div><b>${n.name}이(가)</b> ${L ? `${L.name}의` : '당신의'} 앞을 막아섰다.<p class="event-text">${b.line || this.blockLine(b)}</p></div></div>
       ${L ? `<p class="small">리더 ${L.name}이(가) 당신을 본다. ${n.name}의 편을 들어 줄 수도 있다.</p>` : ''}
@@ -182,7 +182,7 @@ Object.assign(UI, {
     if (!run) return r;
     const row = document.querySelector('#modal-box .row.end');
     const mut = this.gateMutated(c);
-    if (row) row.insertAdjacentHTML('afterbegin', mut ? '<span class="tag bad">귀환석 불가 · 변이 게이트</span>' : `<button class="ghost" data-act="g-recall" ${(G.player.items.recall || 0) > 0 ? '' : 'disabled'}>귀환석 <span class="num">×${G.player.items.recall || 0}</span></button>`);
+    if (row && (G.player.items.recall || 0) > 0) row.insertAdjacentHTML('afterbegin', `<button class="ghost recall-btn" data-act="g-recall">귀환석 <span class="num">×${G.player.items.recall}</span></button>`);
     if (sign && /변이|울림|일렁/.test(sign)) { const box = document.getElementById('modal-box'); if (box && !FX.reduced) { box.classList.add('gm-shake'); setTimeout(() => box.classList.remove('gm-shake'), 600); } }
     return r;
   };
@@ -212,8 +212,7 @@ Object.assign(UI, {
 
 // ===== 4-7. 귀환석은 매우 매우 귀하다 =====
 // - 상점에서 팔지 않는다. 보스 극소 드롭, 경매장 최고가 품목, 후원자 '선택'·대형 길드 정예의 특별 지급으로만.
-// - 일반 게이트 "철수"는 즉시 나가지 않는다. 지나온 칸을 거꾸로 걸어 나가며 칸마다 매복이 날 수 있다(깊을수록 위험).
-// - 변이 게이트는 철수 불가. 귀환석은 마지막 패: 쓰면 팀원 반응·기록·뉴스.
+// - (사용자 최종 확정) 철수 버튼은 그대로. 귀환석은 어디서든(전투 중·보스전·변이 게이트) 즉시 탈출. 쓰면 팀원 반응·기록·뉴스.
 Object.assign(Game.prototype, {
   giveRecall(why) { const p = this.player; p.items.recall = (p.items.recall || 0) + 1; this.lifeEvent(`귀환석을 손에 넣었다. (${why})`); this.log(`매우 귀한 귀환석을 얻었다. (${why})`, 'major'); },
 });
@@ -270,42 +269,7 @@ Object.assign(Game.prototype, {
   };
 })();
 
-// 걸어서 철수
-Object.assign(UI, {
-  retreatStart() {
-    const c = this.ctx; const run = c.run;
-    if (this.gateMutated(c) || !this.canLeaveGate()) return this.toast('이 게이트는 걸어서 나갈 수 없다. 출구가 닫혔다.');
-    const steps = Math.max(1, run.map.done.length + run.floor * 2);
-    c.retreat = { left: steps, total: steps };
-    return this.retreatPanel();
-  },
-  retreatPanel(note) {
-    const c = this.ctx; const rt = c.retreat; const p = G.player;
-    const risk = Math.round(this.retreatRisk() * 100);
-    this.modal(`<div class="eyebrow">철수 · 지나온 길을 거꾸로</div><h3>출구까지 ${rt.left}칸</h3>
-      ${note ? `<p class="event-text">${fixJosa(note)}</p>` : '<p class="event-text">왔던 길을 되짚어 나간다. 치운 줄 알았던 괴수가 다시 모여 있을 수도 있다.</p>'}
-      <p class="small dim">체력 <b class="num">${Math.round(p.hp)}/${p.maxHp}</b> · 칸마다 매복 확률 약 ${risk}% · 깊이 들어왔을수록 위험하다.</p>
-      <div class="row end">${(p.items.recall || 0) > 0 && !this.gateMutated(c) ? `<button class="ghost" data-act="g-recall">귀환석 ×${p.items.recall}</button>` : ''}<button class="ghost" data-act="rt-back">다시 안으로</button><button class="primary" data-act="rt-step">한 칸 걸어 나간다</button></div>`, 'event-box');
-  },
-  retreatRisk() { const run = this.ctx.run; return Math.min(0.55, 0.1 + run.floor * 0.07 + GateRun.tier(this.ctx.gate) * 0.02); },
-  retreatStep() {
-    const c = this.ctx; const rt = c.retreat; if (!rt) return;
-    rt.left--;
-    if (RNG.chance(this.retreatRisk())) { this.toast('되돌아온 괴수들이 길을 막았다!'); return this.gateFight(RNG.chance(0.6) ? 'ambush1' : 'ambush2'); }
-    if (rt.left <= 0) { c.retreat = null; this.gateStub(); return this.retreatBase(); }
-    return this.retreatPanel(RNG.pick(['발소리를 죽이고 지나왔다.', '무너진 통로를 돌아 나왔다.', '벽에 남긴 표식을 따라 한 칸 더.', '멀리서 괴수 울음이 들렸지만 다가오진 않았다.']));
-  },
-});
 (() => {
-  const baseMap = UI.renderGateMap;
-  UI.renderGateMap = function (note) {
-    const c = this.ctx;
-    if (c && c.retreat) { this.gateStub(); return this.retreatPanel('매복을 뚫었다. 다시 출구 쪽으로.'); }
-    const r = baseMap.call(this, note);
-    if (c && c.run && this.gateMutated(c)) { const b = document.querySelector('#modal-box [data-act="g-leave"]'); if (b) b.outerHTML = '<span class="small bad">변이 게이트 · 철수 불가</span>'; }
-    else { const b = document.querySelector('#modal-box [data-act="g-leave"]'); if (b) b.textContent = '철수 · 걸어서 되돌아가기'; }
-    return r;
-  };
   // 귀환석 사용: 팀원 반응·기록·뉴스
   const baseRecall = UI.useRecall;
   UI.useRecall = function () {
@@ -317,20 +281,28 @@ Object.assign(UI, {
       for (const n of mates) G.addMemory && G.addMemory(n, deep ? '귀환석으로 함께 살아 나왔다' : '귀환석을 쓰는 걸 봤다');
       G.lifeEvent(`${G.gateName(c.gate)}에서 귀환석을 써 빠져나왔다.`);
       if (deep) G.rumor(`${G.player.name} 파티, ${G.gateName(c.gate)}에서 귀환석으로 생환.`);
-      c.retreat = null;
       const r = baseRecall.call(this);
       if (line) setTimeout(() => this.toast(fixJosa(line)), 900);
       return r;
     }
     return baseRecall.call(this);
   };
+})();
+// 전투 중 귀환석 사용도 기록 (gear.js 가방)
+{
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
-    const c = this.ctx;
-    if (act === 'g-leave' && c && c.run && !this._retreatOut) return this.retreatStart();
-    if (act === 'rt-step') return this.retreatStep();
-    if (act === 'rt-back') { if (c) c.retreat = null; return this.renderGateMap('발길을 돌렸다. 다시 안으로.'); }
-    return baseHandle.call(this, act, v);
+    if (act !== 'c-bag-use' || v !== 'recall') return baseHandle.call(this, act, v);
+    const before = G.player.items.recall || 0; const c = this.ctx;
+    const r = baseHandle.call(this, act, v);
+    if ((G.player.items.recall || 0) < before && c) {
+      const where = c.gate ? G.gateName(c.gate) : (c.spec && c.spec.title) || '전투';
+      const boss = c.nodeKind === 'boss' || (c.combat && c.combat.units && c.combat.units.some((u) => u.boss && u.alive && u.side !== 'ally'));
+      for (const n of G.party()) G.addMemory && G.addMemory(n, '전투 한가운데서 귀환석으로 함께 빠져나왔다');
+      G.lifeEvent(`${where}의 전투 한가운데서 귀환석을 써 빠져나왔다.`);
+      if (boss || (c.run && this.gateMutated(c))) G.rumor(`${G.player.name} 파티, ${where}에서 귀환석으로 생환.`);
+      const m = G.party()[0]; if (m) setTimeout(() => this.toast(fixJosa(`${m.name}: "${boss ? '…살았다. 진짜 살았어.' : '그 귀한 걸 지금 쓴 거야?'}"`)), 900);
+    }
+    return r;
   };
-  UI.retreatBase = function () { this._retreatOut = true; try { return this.handle('g-leave'); } finally { this._retreatOut = false; } };
-})();
+}

@@ -33,7 +33,7 @@ const BAG_ITEMS = [
   { id: 'antidote', name: '해독제', price: 90, desc: '전투용 · 중독·기절 등 상태 이상 해제', effect: 'combat' },
   { id: 'amp', name: '강화 앰플', price: 260, desc: '전투용 · 3턴 공격 +40%, 오염 +3', effect: 'combat' },
   { id: 'flash', name: '섬광탄', price: 200, desc: '전투용 · 적 전체 소량 피해, 35% 기절', effect: 'combat' },
-  { id: 'recall', name: '귀환석', price: 0, noShop: true, desc: '매우 귀함 · 탐색 중(층 지도) 게이트 즉시 이탈 · 전투 중·변이 게이트 불가 · 상점에서 팔지 않음', effect: 'map' },
+  { id: 'recall', name: '귀환석', price: 0, noShop: true, desc: '매우 귀함 · 어디서든(전투 중·보스전·변이 게이트) 즉시 탈출 · 상점에서 팔지 않음', effect: 'combat' },
   { id: 'guardcharm', name: '결계 부적', price: 220, desc: '전투용 · 다음 피해 한 번 무효', effect: 'combat' },
   { id: 'decoy', name: '미끼 드론', price: 180, desc: '전투용 · 적의 공격을 끌어가는 드론 배치', effect: 'combat' },
 ];
@@ -121,8 +121,9 @@ Object.assign(Game.prototype, {
         for (const f of this.foesOf(u)) { if (baseDeal.call(this, u, f, sk) && f.alive && Math.random() < (f.boss ? 0.15 : 0.35)) { f.stun = 1; this.push(`${f.name}이(가) 눈이 멀어 비틀거린다!`, 'hit', { k: 'note', dst: f.id }); } }
         break;
       }
-      case 'recall': // 귀환석은 탐색 중(층 지도)에만 쓴다 (영역 D 4-4, js/gate_watch.js)
-        this.push('전투 중에는 귀환석이 작동하지 않는다! 층 지도에서만 쓸 수 있다.', 'bad'); return false;
+      case 'recall': // 귀환석은 어디서든 작동한다 (사용자 최종 확정, 구현 대기목록 4-7). 대신 매우 귀하다.
+        gp.items[id]--; this.result = 'flee'; this.waiting = false; this.recalled = true;
+        this.push('귀환석이 빛났다. 순식간에 바깥으로 빠져나왔다.', ''); return true;
       case 'guardcharm':
         u.shieldOnce = true; this.push(`${u.name}: 결계 부적을 둘렀다.`, 'heal', { k: 'buff', dst: u.id, mp: u.mp }); break;
       case 'decoy': {
@@ -155,7 +156,7 @@ Object.assign(Game.prototype, {
   UI.renderControls = function () {
     baseCtrl.call(this);
     const c = this.ctx; if (!c || !c.combat || c.combat.result) return;
-    const p = G.player; const have = BAG_ITEMS.filter((b) => b.effect === 'combat' && p.items[b.id] > 0);
+    const p = G.player; const have = BAG_ITEMS.filter((b) => p.items[b.id] > 0);
     const row = document.querySelector('#cb-ctrl .ctrl-row'); if (!row) return;
     const ready = c.combat.waiting && !c.playing && !c.combat.auto;
     if (!have.length) return;
