@@ -420,7 +420,7 @@ class Game {
     // 길드 임무 게이트
     const p = this.player;
     if (p && p.guild && !this.mapGates.some((g) => g.mission)) {
-      const home = REGIONS.find((r) => r.guild === p.guild);
+      const home = typeof guildHome === 'function' ? guildHome(p.guild) : REGIONS.find((r) => r.guild === p.guild);
       const pos = this.randomFreeTile(home.id);
       if (pos) this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: home.id, tier: Math.max(0, Math.min(7, p.rankIdx + RNG.int(-1, 0))), theme: '길드 지정 게이트', elem: GUILDS[p.guild].elem, born: key, mission: true });
     }

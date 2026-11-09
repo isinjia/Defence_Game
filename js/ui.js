@@ -635,7 +635,7 @@ const UI = {
     let cur = '';
     if (p.guild) {
       const g = GUILDS[p.guild]; const next = GUILD_RANKS[p.guildRank + 1];
-      const home = REGIONS.find((r) => r.guild === p.guild);
+      const home = typeof guildHome === 'function' ? guildHome(p.guild) : REGIONS.find((r) => r.guild === p.guild);
       cur = `<div class="guild-card" style="--c:${g.color}"><div class="guild-crest">${FX.elemIcon(g.elem, 34)}</div><div class="grow"><h3>${g.name}</h3><p class="dim">${g.desc}</p>
         <div>직위 <b>${GUILD_RANKS[p.guildRank].name}</b> · 공헌도 <span class="num">${p.contrib}${next ? ` / ${next.req}` : ''}</span>${next ? ` <span class="dim">다음: ${next.name}</span>` : ''}</div>
         ${next ? this.bar('ether', p.contrib, next.req) : ''}
@@ -648,7 +648,7 @@ const UI = {
         <div class="row sec"><button class="primary" data-act="guild-join" ${p.fame < g.fameReq ? 'disabled' : ''}>가입 신청</button></div></div></div>`;
     } else cur = '<p class="dim">이 지역엔 길드 본부가 없다.</p>';
     return `<div class="panel"><h3>길드</h3>${cur}
-      <div class="sec"><div class="sec-title">5대 세력</div><div class="cards">${Object.entries(GUILDS).map(([id, g]) => { const home = REGIONS.find((r) => r.guild === id); return `
+      <div class="sec"><div class="sec-title">5대 세력</div><div class="cards">${Object.entries(GUILDS).filter(([, g]) => !g.minor).map(([id, g]) => { const home = typeof guildHome === 'function' ? guildHome(id) : REGIONS.find((r) => r.guild === id); return `
         <div class="item-row"><span class="slot-ico" style="--c:${g.color}">${FX.elemIcon(g.elem, 20)}</span><div class="grow"><b style="color:${g.color}">${g.name}</b> <span class="dim small">본부 ${home.name} · 명성 ${g.fameReq} 필요</span><div class="small dim">${g.desc}</div></div></div>`; }).join('')}</div></div></div>`;
   },
 
