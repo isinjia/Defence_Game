@@ -147,6 +147,18 @@ const { chromium, devices } = require('playwright');
     const after = await ev(() => G.player ? { name: G.player.name, ym: G.year * 12 + G.month } : null);
     if (!after || after.name !== before.name || after.ym !== before.ym) throw new Error(`불러온 값이 다름: ${JSON.stringify(before)} → ${JSON.stringify(after)}`);
   });
+  await step('옛 속성(빙·강·영) 저장 → 새 속성으로 이전', async () => {
+    await ev(() => {
+      const d = JSON.parse(localStorage.getItem(SAVE_KEY));
+      d.player.element = 'ice'; d.player.foeSeen = ['강철 거신']; d.npcs[0].element = 'spirit'; if (d.world) delete d.world.elem6;
+      d.mapGates.push({ id: 999777, kind: 'gate', x: d.player.x, y: d.player.y, region: d.player.region, tier: 0, theme: '옛 저장', elem: 'steel', born: 0 });
+      localStorage.setItem(SAVE_KEY, JSON.stringify(d));
+    });
+    await page.reload(); await page.waitForTimeout(600);
+    await act('continue'); await page.waitForTimeout(300);
+    const r = await ev(() => ({ p: G.player.element, n: G.npcs[0].element, g: (G.mapGates.find((x) => x.id === 999777) || {}).elem, f: G.player.foeSeen[0], m: elemMult('holy', 'dark') + elemMult('water', 'fire') + elemMult('fire', 'water') }));
+    if (r.p !== 'water' || r.n !== 'dark' || (r.g && r.g !== 'wood') || r.f !== '고목 거신' || Math.abs(r.m - 3.7) > 1e-9) throw new Error('이전 결과: ' + JSON.stringify(r));
+  });
   await step('20년 무작위 진행에서 예외 없음', async () => {
     await ev(() => { for (let i = 0; i < 240 && !G.over; i++) { G.advanceMonth(1, { eventChance: 0.3 }); G.queue = []; } });
   });

@@ -28,7 +28,7 @@ const PROLOGUE = {
       { text: '이를 악물고 고통을 견디던 기억', e: { wood: 1 }, g: { guard: 1, fighter: 1 }, t: { iron_body: 2 }, next: 'gate_break' },
       { text: '연구원의 생각이 들렸던 기억', e: { dark: 1 }, g: { esper: 2 }, c: { telepath: 2 }, next: 'gate_break' },
       { text: '벽 너머로 몸이 미끄러졌던 기억', e: { bolt: 1 }, g: { esper: 1, shadow: 1 }, c: { teleporter: 2 }, next: 'gate_break' },
-      { text: '아무 기억도 없는 척, 힘을 숨기며 산다', e: { water: 1 }, g: { shadow: 2 }, c: { telekinetic: 1 }, t: { loner: 1 }, next: 'gate_break' },
+      { text: '아무 기억도 없는 척, 힘을 숨기며 산다', e: { dark: 1 }, g: { shadow: 2 }, c: { telekinetic: 1 }, t: { loner: 1 }, next: 'gate_break' },
     ] },
   student_1: { title: '편의점 야간', text: '대학 2학년. 조별 과제는 혼자 떠안았고, 새벽에는 편의점 야간 근무다. 취한 손님이 계산대를 내리치며 소리친다. "나 D급 헌터야!"\n\n손님이 나가고 나서야 {friend}의 문자를 본다. "살아 있냐? 내일 밥 먹자."',
     choices: [
@@ -185,14 +185,14 @@ Object.assign(PROLOGUE, {
   ]),
   chaebol_5: PRO_INTRO('후계 구도', '이복형이 이사회에서 웃으며 말한다. "막내는 아직 어리잖아요. 백호 시큐리티는 제가 맡겠습니다."\n\n회의가 끝나고, 형의 경호원이 엘리베이터 앞을 막아선다. "오늘은 지하철로 가시죠, 도련님. 차가 없답니다."', 'gb_subway', [
     ['경호원을 똑바로 보며 비키라고 한다', 'wood', { guard: 1, fighter: 1 }, { paladin: 1 }, { iron_body: 1 }],
-    ['웃으며 지하철을 탄다. 갚아 줄 날은 따로 있다', 'water', { shadow: 2 }, { assassin: 1 }, { loner: 1 }],
+    ['웃으며 지하철을 탄다. 갚아 줄 날은 따로 있다', 'dark', { shadow: 2 }, { assassin: 1 }, { loner: 1 }],
     ['형에게 쪽지를 남긴다. "다음 이사회에서 봐요." 그리고 지분 담보 서류를 들고 직접 은행에 간다', 'bolt', { support: 1, shooter: 1 }, null, { charisma: 1 }],
     ['어머니가 남긴 부적 지갑을 꽉 쥔다', 'holy', { east: 2 }, { taoist: 1 }, null, { luck: 1 }],
   ]),
   chaebol_6: PRO_INTRO('재단 봉사', '가문 재단의 홍보 행사. 소아 병동에 장난감을 나눠 주고 사진을 찍으면 끝이다. 그런데 창가 침대의 아이가 사진기 대신 당신을 빤히 본다.\n\n"형아는… 누나는… 아니, 헌터예요?" 아이의 팔에는 게이트 화상 자국이 있다.', 'gb_hospital', [
     ['카메라를 치우고 아이 옆에 앉는다', 'holy', { support: 2 }, { healer: 1, priest: 1 }, { charisma: 1 }, { flag: 'charity' }],
     ['"아직은. 근데 될 거야." 약속한다', 'fire', { fighter: 1, guard: 1 }, { paladin: 1 }, { berserk: 1 }],
-    ['화상 자국의 치료 기록을 몰래 들여다본다', 'water', { mage: 1, support: 1 }, { alchemist: 1 }, { genius: 1 }],
+    ['화상 자국의 치료 기록을 몰래 들여다본다', 'dark', { mage: 1, support: 1 }, { alchemist: 1 }, { genius: 1 }],
     ['행사가 끝나자마자 차에 오른다', 'wood', { guard: 1, shadow: 1 }, null, { loner: 1 }],
   ]),
   chaebol_7: PRO_INTRO('비밀 훈련장', '집에는 요가 학원에 간다고 했다. 실제로는 역삼동 지하의 사설 헌터 훈련장. 은퇴한 A급 교관이 목검으로 당신의 정강이를 친다.\n\n"돈 많은 애들은 사흘 버티면 오래 버틴 거야. 넌 몇 주째지?"', 'gate_break', [
@@ -273,7 +273,7 @@ Object.assign(PROLOGUE, {
     ['상주 자리를 지키며 조문객을 맞는다', 'wood', { guard: 1, support: 1 }, { guardian: 1 }, { charisma: 1 }],
     ['헌터가 된 형에게 각성하는 법을 묻는다', 'fire', { fighter: 1, shooter: 1 }, null, { berserk: 1 }, { talent: 1 }],
     ['할머니가 아끼던 묵주를 손에 감는다', 'holy', { support: 1, east: 1 }, { priest: 1 }, null],
-    ['장례식장 뒤에서 혼자 운다. 아무도 못 보게', 'water', { mage: 1, shadow: 1 }, null, { loner: 1 }],
+    ['장례식장 뒤에서 혼자 운다. 아무도 못 보게', 'dark', { mage: 1, shadow: 1 }, null, { loner: 1 }],
   ]),
 
   // ===== 특수부대 전역 (인천) =====
@@ -309,7 +309,7 @@ Object.assign(PROLOGUE, {
   ]),
   soldier_7: PRO_INTRO('탐색 구조대', '공군 탐색 구조대. 헬기에서 줄 하나로 내려가 사람을 끌어 올렸다. 마지막 구조 현장은 게이트 근처 산이었고, 줄 끝에 매달린 건 사람이 아니었다.\n\n오늘 아침, 그 산 쪽 하늘에서 같은 냄새가 난다.', 'gate_break', [
     ['로프와 카라비너를 챙긴다', 'wood', { guard: 1, support: 1 }, { paladin: 1 }, { iron_body: 1 }],
-    ['그날 줄 끝의 그것을 떠올린다. 아직 무섭다', 'water', { mage: 1, summon: 1 }, { necromancer: 1 }, { loner: 1 }],
+    ['그날 줄 끝의 그것을 떠올린다. 아직 무섭다', 'dark', { mage: 1, summon: 1 }, { necromancer: 1 }, { loner: 1 }],
     ['구조대 동기들에게 비상 연락을 돌린다', 'bolt', { support: 2 }, null, { charisma: 1 }],
     ['높은 데서 내려다보면 다 보인다. 옥상으로 간다', 'fire', { shooter: 2 }, { archer: 1 }, { quick: 1 }],
   ]),
@@ -328,7 +328,7 @@ Object.assign(PROLOGUE, {
   soldier_10: PRO_INTRO('징계', '게이트 봉쇄 작전. "민간인이 남아 있어도 철문을 닫아라." 그 명령을 어기고 문을 다시 열었다. 일곱 명이 살았고, 당신은 징계를 받고 조용히 전역했다.\n\n지하철역 앞에서 그때 살린 아이의 엄마가 알아보고 고개를 숙인다.', 'gb_subway', [
     ['"또 그 상황이 와도 똑같이 합니다."', 'fire', { guard: 2 }, { paladin: 2 }, { berserk: 1 }],
     ['쑥스럽게 손을 흔들고 지나간다', 'holy', { support: 1, guard: 1 }, null, { charisma: 1 }],
-    ['명령을 내린 지휘관의 이름을 아직 기억한다', 'water', { shadow: 2 }, null, { loner: 1 }],
+    ['명령을 내린 지휘관의 이름을 아직 기억한다', 'dark', { shadow: 2 }, null, { loner: 1 }],
     ['그 철문의 무게를 손바닥이 기억한다', 'wood', { guard: 1, fighter: 1 }, { giant: 1 }, { iron_body: 1 }],
   ]),
 
@@ -342,12 +342,12 @@ Object.assign(PROLOGUE, {
   subject_3: PRO_INTRO('13번과의 약속', '옆방 피험자 13번. 벽을 두드려 모스 부호로 이야기했다. "나가면 성심당 튀김소보로 같이 먹자." 13번은 연구소 폐쇄 전날 사라졌다.\n\n빵 봉투를 들고 나오는데, 길 건너에 13번과 똑같은 바코드 흉터를 가진 사람이 지나간다.', 'gate_break', [
     ['쫓아간다. 골목 끝에서 놓쳤다. 그날 밤부터 열이 오른다', 'bolt', { shadow: 1, esper: 1 }, null, { quick: 1 }],
     ['벽을 두드리듯 손가락으로 신호를 보낸다. 그 사람이 멈칫하더니 인파 속으로 사라진다', 'dark', { esper: 2 }, { telepath: 2 }, null],
-    ['빵 봉투를 꽉 쥐고 멀리서 지켜본다. 그 사람은 버스를 타고 떠났다', 'water', { shadow: 2 }, null, { loner: 1 }],
+    ['빵 봉투를 꽉 쥐고 멀리서 지켜본다. 그 사람은 버스를 타고 떠났다', 'dark', { shadow: 2 }, null, { loner: 1 }],
     ['불러 세운다. "13번!"', 'fire', { fighter: 1, summon: 1 }, null, { reckless: 1 }, { flag: 'saw13' }],
   ]),
   subject_4: PRO_INTRO('도와준 연구원', '탈출한 밤, 연구원 하나가 몰래 비상문 카드를 쥐여 줬다. 그 사람은 지금 대학병원 신경과 의사다. 매달 진료라는 이름으로 당신을 만난다.\n\n"요즘 수치가 이상하게 올라가. 무슨 일 있었어?"', 'gb_hospital', [
     ['솔직히 털어놓는다. 꿈에서 목소리가 들린다고', 'dark', { esper: 1, support: 1 }, { seer: 1 }, { charisma: 1 }],
-    ['괜찮다고 거짓말한다', 'water', { shadow: 2 }, null, { loner: 1 }],
+    ['괜찮다고 거짓말한다', 'dark', { shadow: 2 }, null, { loner: 1 }],
     ['수치 그래프를 들여다보며 직접 계산해 본다', 'bolt', { mage: 2 }, { chronomancer: 1 }, { genius: 1 }],
     ['진료실 창문 유리가 손끝에서 녹아내린다', 'fire', { mage: 1, esper: 1 }, { elementalist: 1 }, { reckless: 1 }],
   ]),
@@ -383,7 +383,7 @@ Object.assign(PROLOGUE, {
   ]),
   subject_10: PRO_INTRO('책임자', '연구소 책임자 한 박사. 재판에서 무죄를 받고 지금은 대형 길드의 고문이다. 오늘 그의 강연이 있다는 기사를 봤다.\n\n주머니 속 손이 떨린다. 분노인지, 공포인지 모르겠다.', 'gate_break', [
     ['강연장 맨 앞줄에 앉는다', 'fire', { fighter: 2 }, { berserker: 1 }, { berserk: 1 }],
-    ['그의 동선을 조사한다. 서두르지 않는다', 'water', { shadow: 2 }, { assassin: 2 }, { loner: 1 }],
+    ['그의 동선을 조사한다. 서두르지 않는다', 'dark', { shadow: 2 }, { assassin: 2 }, { loner: 1 }],
     ['다른 피험자들을 모아 증언을 준비한다', 'holy', { support: 1, summon: 1 }, null, { charisma: 1 }],
     ['가지 않는다. 그 사람 때문에 내 삶을 쓰지 않겠다', 'wood', { guard: 1, mage: 1 }, null, { lucky: 1 }],
   ]),
