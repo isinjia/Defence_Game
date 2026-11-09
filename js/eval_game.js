@@ -136,3 +136,13 @@ if (typeof UI !== 'undefined' && UI.firstPartyDone) {
     return baseFpd.apply(this, a);
   };
 }
+
+// 9) 나고 자란 도시에서도 '외지인'으로 뜨던 어긋남: 시작 지역은 '아는 얼굴'(평판 12)에서 출발.
+if (typeof Game !== 'undefined' && Game.prototype.newGame) {
+  const baseNew = Game.prototype.newGame;
+  Game.prototype.newGame = function (...a) {
+    const r = baseNew.apply(this, a);
+    try { const p = this.player; if (p && p.rep && p.region && (p.rep[p.region] || 0) < 12) p.rep[p.region] = 12; } catch (e) { /* 무시 */ }
+    return r;
+  };
+}
