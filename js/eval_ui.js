@@ -57,3 +57,23 @@ if (typeof UI !== 'undefined') {
     return basePs.call(this, act, v);
   };
 }
+
+// 퀘스트 이동 버튼이 목적지 도시 안에서 "이미 목적지에 와 있다"만 하던 문제: 진행 중인 의뢰면 가까운 알맞은 게이트(사냥이면 괴수 무리)로 안내.
+if (typeof UI !== 'undefined' && UI.hqAsk) {
+  const baseAsk = UI.hqAsk;
+  UI.hqAsk = function (v) {
+    try {
+      const p = G.player; const t = this.hqTarget(v);
+      const q = String(v)[0] === 'q' ? (p.quests || [])[+String(v).slice(1)] : null;
+      if (t && q && q.status !== 'done' && t.region === p.region && G.onCity()) {
+        const d = (o) => Math.max(Math.abs(o.x - p.x), Math.abs(o.y - p.y));
+        const cap = p.rankIdx + (G.party().length >= 2 ? 1 : 0);
+        const hunt = /hunt|kill|mob|사냥|처치/.test(`${q.type || ''} ${q.title || ''}`);
+        const pool = hunt ? (G.mobs || []).filter((m) => G.revealed(m.x, m.y) && m.tier <= cap) : (G.mapGates || []).filter((g) => G.revealed(g.x, g.y) && g.tier <= cap && !g.final);
+        const o = pool.sort((a, b) => d(a) - d(b))[0];
+        if (o) return this.handle('travel-xy', `${o.x},${o.y}`);
+      }
+    } catch (e) { /* 무시 */ }
+    return baseAsk.call(this, v);
+  };
+}
