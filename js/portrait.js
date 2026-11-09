@@ -20,6 +20,8 @@ const PORTRAIT = (() => {
     const n = style === 'curtain' ? 6 : 7;
     let d = '';
     for (let k = 0; k < n; k++) {
+      // 맨 바깥 두 가닥은 옆머리에 가려 가는 조각만 남으므로 그리지 않는다
+      if (style !== 'cover' && (k === 0 || k === n - 1)) continue;
       const t0 = k / n, t1 = (k + 1) / n;
       const ang = (t) => Math.PI * (1.06 - t * 1.12);
       const rx = 34, ry = 30, cx = 100, cy = 78;
@@ -179,7 +181,11 @@ const PORTRAIT = (() => {
     const MASS = 'M62 122C53 60 76 27 100 27C124 27 147 60 138 122C135 130 131 131 128 126L127 104L73 104L72 126C69 131 65 130 62 122Z';
     const CAP = 'M66 92C63 56 80 35 100 35C120 35 137 56 134 92C129 72 117 63 100 63C83 63 71 72 66 92Z';
     // 옆머리: 관자놀이에서 윗머리 밑으로 이어져 귀를 덮고, 뺨선을 따라 부드럽게 끝난다 (톱니 끝 없이)
-    const LOCK = (back === 'none' || back === 'tail') ? 'M65 70C61 88 62 108 68 124C70.5 119 73 112 75 104C75.5 92 77 82 80 74Z' : 'M64 70C59 96 61 124 69 146C72.5 137 75.5 124 77 110C77.5 96 78 84 81 74Z';
+    const shortLock = back === 'none' || back === 'tail';
+    const LOCK = shortLock ? 'M66 60C61 84 62 108 68 124C70.5 119 73 112 75 104C75.5 92 77.5 80 83 64Z' : 'M65 60C59 92 61 124 69 146C72.5 137 75.5 124 77 110C77.5 96 78.5 82 83 64Z';
+    // 윤곽선은 얼굴 쪽 안쪽 선과 뒷머리 아래로 나온 끝부분에만 긋는다 (뒷머리와 겹치는 바깥 선은 이음매로 보인다)
+    const LOCK_IN = shortLock ? 'M68 124C70.5 119 73 112 75 104C75.5 92 77.5 80 83 64' : 'M69 146C72.5 137 75.5 124 77 110C77.5 96 78.5 82 83 64';
+    const LOCK_OUT = shortLock ? 'M66 60C61 84 62 108 68 124' : 'M65 60C59 92 61 124 69 146';
     const bangD = bangs(r, bangStyle);
     let extra = '';
     if (race === 'beastkin') { const fox = r() < 0.5; extra += `<path d="M70 58L${fox ? 60 : 64} ${fox ? 16 : 24}L90 42Z" fill="${hair}" stroke="${line}" stroke-width=".9"/><path d="M73 52L66 28L84 42Z" fill="#e8a8b0" opacity=".7"/><path d="M130 58L${fox ? 140 : 136} ${fox ? 16 : 24}L110 42Z" fill="${hair}" stroke="${line}" stroke-width=".9"/><path d="M127 52L134 28L116 42Z" fill="#e8a8b0" opacity=".7"/>`; }
@@ -187,9 +193,12 @@ const PORTRAIT = (() => {
     if (beard) extra += race === 'dwarf' || st === 'elder'
       ? `<path d="M70 112C71 150 86 174 100 178C114 174 129 150 130 112C122 128 112 134 100 134C88 134 78 128 70 112Z" fill="${hair}" stroke="${line}" stroke-width=".9"/><path d="M84 132Q100 124 116 132Q108 128 100 130Q92 128 84 132Z" fill="${shade(hair, 0.15)}"/><path d="M92 146L94 166M100 148V172M108 146L106 166" stroke="${hairSh}" stroke-width="1" opacity=".6"/>`
       : `<path d="M80 128Q100 150 120 128Q114 146 100 150Q86 146 80 128Z" fill="${hair}" opacity=".85"/>`;
-    // 앞머리·옆머리를 먼저 그리고 윗머리로 뿌리를 덮어, 앞머리와 윗머리 사이에 선이 생기지 않게 한다
-    const hairFront = st === 'baby' ? `<path d="M74 70C76 52 88 46 100 46C112 46 124 52 126 70C118 60 110 58 100 58C90 58 82 60 74 70Z" fill="${hair}"/><path d="M98 47Q104 36 111 42Q104 42 101 49Z" fill="${hair}" stroke="${line}" stroke-width=".8"/>` : `<path d="${bangD}" fill="${hair}" stroke="${line}" stroke-width=".9" stroke-linejoin="round"/>
-      <path d="${LOCK}" fill="${hair}" stroke="${line}" stroke-width=".9"/><path d="${LOCK}" transform="translate(200 0) scale(-1 1)" fill="${hair}" stroke="${line}" stroke-width=".9"/>
+    // 옆머리 → 앞머리 → 윗머리 순서로 그린다. 앞머리가 옆머리를 덮어 둘이 만나는 곳에 이음매 선이 생기지 않고, 윗머리가 뿌리를 덮는다
+    const hairFront = st === 'baby' ? `<path d="M74 70C76 52 88 46 100 46C112 46 124 52 126 70C118 60 110 58 100 58C90 58 82 60 74 70Z" fill="${hair}"/><path d="M98 47Q104 36 111 42Q104 42 101 49Z" fill="${hair}" stroke="${line}" stroke-width=".8"/>` : `<path d="${LOCK}" fill="${hair}"/><path d="${LOCK}" transform="translate(200 0) scale(-1 1)" fill="${hair}"/>
+      <clipPath id="${id}lk"><rect x="0" y="93" width="200" height="160"/></clipPath><clipPath id="${id}lo"><rect x="0" y="128" width="200" height="120"/></clipPath>
+      <g fill="none" stroke="${line}" stroke-width=".9" stroke-linecap="round"><g clip-path="url(#${id}lk)"><path d="${LOCK_IN}"/><path d="${LOCK_IN}" transform="translate(200 0) scale(-1 1)"/></g>
+      <g clip-path="url(#${id}lo)"><path d="${LOCK_OUT}"/><path d="${LOCK_OUT}" transform="translate(200 0) scale(-1 1)"/></g></g>
+      <path d="${bangD}" fill="${hair}"/><mask id="${id}bm"><path d="${faceD}" fill="#fff"/><path d="${LOCK}" fill="#000"/><path d="${LOCK}" transform="translate(200 0) scale(-1 1)" fill="#000"/></mask><path d="${bangD}" fill="none" stroke="${line}" stroke-width=".9" stroke-linejoin="round" mask="url(#${id}bm)"/>
       <path d="${CAP}" fill="${hair}"/>
       <path d="${shine(r)}" stroke="${hairHi}" stroke-width="2.4" fill="none" opacity="${light ? 0.55 : 0.4}" stroke-linecap="round"/>`;
     const massSvg = st === 'baby' ? '' : `<path d="${MASS}" fill="${hair}"/><path d="${MASS}" fill="none" stroke="${line}" stroke-width="1"/>
