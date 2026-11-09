@@ -634,3 +634,16 @@ button.item-row { width: 100%; text-align: left; }
 #coach-pop.speech .sb-face .avatar, #coach-pop.speech .sb-face svg { width: 36px; height: 36px; border-radius: 50%; }
 #coach-pop.speech .coach-close { color: #8a7a62; }
 #coach-pop.speech .coach-arrow { background: #f4efe4; border-color: #f4efe4; }
+
+/* ---------- 오더 표시: 전장 위 표식 (높이를 더하지 않는다) ---------- */
+.order-bubble { position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%); z-index: 7; pointer-events: none; white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; background: #f4efe4; color: #1b1712; font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 12px; box-shadow: 0 4px 12px #0009; animation: sayin .25s ease-out; }
+.order-bubble::after { content: ""; position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); border: 6px solid transparent; border-bottom: 0; border-top-color: #f4efe4; }
+.foe.marked .reticle, .ally.marked .reticle { opacity: 1; border-color: #8cc4ff; animation: pulse-r 1s infinite; }
+.foe.marked .fx-host::after, .ally.fig.marked .fx-host::after { content: "지목"; position: absolute; top: -2px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: #08131f; background: #8cc4ff; padding: 0 5px; border-radius: 3px; z-index: 3; }
+.skill-btn.ordered { box-shadow: inset 0 0 0 2px #8cc4ff; position: relative; }
+.skill-btn.ordered::after { content: "리더"; position: absolute; top: 3px; right: 4px; font-size: 10px; font-weight: 700; color: #08131f; background: #8cc4ff; padding: 0 5px; border-radius: 3px; }
+.ally.fig .order-tag { display: inline-flex; align-items: center; gap: 2px; }
+svg.order-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; }
+svg.order-lines line { stroke: #8cc4ff; stroke-width: 2; stroke-dasharray: 5 4; opacity: .85; }
+#cb-ctrl > .order-panel { margin: 0; }
+@keyframes sayin { from { opacity: 0; } to { opacity: 1; } }

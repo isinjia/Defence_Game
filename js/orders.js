@@ -152,12 +152,19 @@ Object.assign(Combat.prototype, {
       const L = this.leader();
       if (L && !L.isPlayer && Math.random() < 0.7) {
         const q = npcLead(this.game.npcById(L.npcId)) / 100;
-        const o = Math.random() < q ? this.smartOrder(u) : this.sloppyOrder(u);
-        if (o) {
-          const sk = skillById(o.skill); const t = o.target && this.units.find((x) => x.id === o.target);
-          u.order = { ...o, by: L.id, rate: this.rateOrder(u, sk, t) };
-          const say = t ? `${u.name}, ${sk.name}으로 ${t.name}!` : `${u.name}, ${sk.name}!`;
+        if (q < 0.55 && Math.random() < 0.4) {
+          // 엉성한 리더: 무엇을 하라는 건지 없이 말만 던진다
+          const say = RNG.pick(['아무거나 해!', '빨리 뭐라도 해!', '알아서 잘 좀 해 봐!', '거기! 그거! 아니 그거!']);
+          u.order = { skill: null, target: null, by: L.id, rate: 0, vague: true, say };
           this.push(`${L.name}: "${say}"`, '', { k: 'say', src: L.id, text: say });
+        } else {
+          const o = Math.random() < q ? this.smartOrder(u) : this.sloppyOrder(u);
+          if (o) {
+            const sk = skillById(o.skill); const t = o.target && this.units.find((x) => x.id === o.target);
+            const say = t ? `${sk.name}! ${t.name}!` : `${sk.name}!`;
+            u.order = { ...o, by: L.id, rate: this.rateOrder(u, sk, t), say };
+            this.push(`${L.name}: "${u.name}, ${say}"`, '', { k: 'say', src: L.id, text: `${u.name}, ${say}` });
+          }
         }
       }
     }
@@ -167,7 +174,8 @@ Object.assign(Combat.prototype, {
   const baseSkill = Combat.prototype.playerSkill;
   Combat.prototype.playerSkill = function (id, targetId) {
     const p = this.player; const o = p && p.order;
-    if (o && this.waiting) {
+    if (o && o.vague && this.waiting) p.order = null;
+    else if (o && this.waiting) {
       const follow = o.skill === id && (!o.target || o.target === targetId || SKILL_AIM[skillById(id).type] === 'none');
       this.noteOrder(follow ? 'obey' : 'ignore', p, o);
       p.order = null;
@@ -175,7 +183,7 @@ Object.assign(Combat.prototype, {
     return baseSkill.call(this, id, targetId);
   };
   const baseItem = Combat.prototype.playerItem;
-  Combat.prototype.playerItem = function (id) { const p = this.player; if (p && p.order && this.waiting) { this.noteOrder('ignore', p, p.order); p.order = null; } return baseItem.call(this, id); };
+  Combat.prototype.playerItem = function (id) { const p = this.player; if (p && p.order && p.order.vague) p.order = null; if (p && p.order && this.waiting) { this.noteOrder('ignore', p, p.order); p.order = null; } return baseItem.call(this, id); };
   // 오더 창을 여는 동안 시간이 멈춘다
   const baseTick = Combat.prototype.tick;
   Combat.prototype.tick = function (dt) { if (this.paused) return null; return baseTick.call(this, dt); };
@@ -212,6 +220,47 @@ function applyOrderRelations(cb) {
 }
 
 Object.assign(UI, {
+  // 전장 위 오더 표식: 리더 말풍선, 지목된 적의 고리, 동료 → 대상 선
+  drawOrderMarks() {
+    const c = this.ctx; const stage = document.getElementById('stage');
+    if (!stage) return;
+    stage.querySelectorAll('.order-bubble').forEach((e) => e.remove());
+    stage.querySelectorAll('.foe.marked, .ally.marked').forEach((e) => e.classList.remove('marked'));
+    let svg = stage.querySelector('svg.order-lines');
+    if (!c || !c.combat || !c.combat.units || c.combat.result) { if (svg) svg.remove(); return; }
+    const cb = c.combat; const p = cb.player; const L = cb.leader();
+    const myTurn = cb.waiting && !c.playing && !c.orderFor;
+    // ① ② NPC 리더가 나에게 내린 오더
+    if (p && p.order && myTurn && L && !L.isPlayer) {
+      const lf = document.getElementById('u-' + L.id);
+      if (lf && p.order.say) { const host = lf.querySelector('.fx-host') || lf; host.insertAdjacentHTML('beforeend', `<span class="order-bubble">${fixJosa(p.order.say)}</span>`); }
+      const t = p.order.target && document.getElementById('u-' + p.order.target);
+      if (t) t.classList.add('marked');
+      // ⑥ 처음 한 번만 설명
+      let seen = false; try { seen = localStorage.getItem('gc_order_tip') === '1'; } catch (e) { seen = true; }
+      if (!seen && this.coachPop) {
+        try { localStorage.setItem('gc_order_tip', '1'); } catch (e) { /* 무시 */ }
+        const n = document.createElement('div'); n.className = 'coach';
+        n.innerHTML = fixJosa(`<span class="eyebrow">리더 ${L.name.replace(/\(.*\)$/, '')}의 오더</span><div>${p.order.vague ? '리더가 말을 던졌지만 무엇을 하라는 건지는 없다.' : `<b>지목</b> 표시된 적과 <b>리더</b> 표시된 스킬이 오더다.`} 따르지 않아도 되지만, 리더는 기억한다. 오더를 따르면 리더와 사이가 좋아진다.</div>`);
+        this.coachPop(n, t || lf || null, 'order-tip');
+      }
+    }
+    // ⑤ 내가 동료에게 내린 오더: 동료에서 대상까지 선
+    const lines = [];
+    const sr = stage.getBoundingClientRect();
+    for (const u of cb.units) {
+      if (u.side !== 'ally' || u.isPlayer || !u.order || u.order.by !== 'player' || !u.order.target) continue;
+      const a = document.getElementById('u-' + u.id); const b = document.getElementById('u-' + u.order.target);
+      if (!a || !b) continue;
+      const ra = (a.querySelector('.fx-host') || a).getBoundingClientRect(); const rb = (b.querySelector('.fx-host') || b).getBoundingClientRect();
+      lines.push(`<line x1="${ra.left + ra.width / 2 - sr.left}" y1="${ra.top + ra.height / 2 - sr.top}" x2="${rb.left + rb.width / 2 - sr.left}" y2="${rb.top + rb.height / 2 - sr.top}"/>`);
+      b.classList.add('marked');
+    }
+    if (!lines.length) { if (svg) svg.remove(); return; }
+    if (!svg) { stage.insertAdjacentHTML('beforeend', '<svg class="order-lines"></svg>'); svg = stage.querySelector('svg.order-lines'); }
+    svg.setAttribute('viewBox', `0 0 ${sr.width} ${sr.height}`);
+    svg.innerHTML = lines.join('');
+  },
   // 이번 전투의 리더: 시험 교관, 소속 파티 리더, 아니면 플레이어
   pickLeader(c) {
     const cb = c.combat; const allies = cb.units.filter((u) => u.side === 'ally' && !u.summon);
@@ -268,13 +317,14 @@ Object.assign(UI, {
       el.classList.toggle('leader', u.id === c.combat.leaderId);
       el.classList.toggle('ordering', u.id === c.orderFor);
       let tag = el.querySelector('.order-tag');
-      const txt = u.order ? `오더 · ${(skillById(u.order.skill) || {}).name || ''}` : '';
-      if (txt && !tag) { el.insertAdjacentHTML('afterbegin', '<span class="order-tag"></span>'); tag = el.querySelector('.order-tag'); }
-      if (tag) { tag.textContent = txt; tag.style.display = txt ? '' : 'none'; }
+      const osk = u.order && !u.isPlayer && u.order.skill && skillById(u.order.skill);
+      if (osk && !tag) { el.insertAdjacentHTML('afterbegin', '<span class="order-tag"></span>'); tag = el.querySelector('.order-tag'); }
+      if (tag) { tag.innerHTML = osk ? `${FX.elemIcon(osk.elem, 11)}${osk.name}` : ''; tag.style.display = osk ? '' : 'none'; tag.title = osk ? `오더: ${osk.name}` : ''; }
       let crown = el.querySelector('.lead-tag');
       if (u.id === c.combat.leaderId && !crown) el.insertAdjacentHTML('afterbegin', '<span class="lead-tag">리더</span>');
       if (u.id !== c.combat.leaderId && crown) crown.remove();
     }
+    this.drawOrderMarks();
     return r;
   };
   const baseControls = UI.renderControls;
@@ -284,19 +334,18 @@ Object.assign(UI, {
     const box = document.getElementById('cb-ctrl'); if (!box) return;
     const cb = c.combat;
     if (c.orderFor && !cb.result) {
-      box.insertAdjacentHTML('afterbegin', fixJosa(this.orderPanelHtml()));
+      box.innerHTML = fixJosa(this.orderPanelHtml()); // 높이를 더하지 않도록 내 조작 대신 들어간다
       const aim = this.orderAim();
       const foes = document.getElementById('foes'), allies = document.getElementById('allies');
       if (foes) foes.classList.toggle('aim', aim === 'enemy');
       if (allies) allies.classList.toggle('aim', aim === 'ally');
     }
-    // NPC 리더가 나에게 내린 오더
+    // NPC 리더가 나에게 내린 오더: 스킬 버튼에 리더 표시
     const p = cb.player;
-    if (p && p.order && cb.waiting && !c.playing && !c.orderFor) {
-      const L = cb.leader(); const sk = skillById(p.order.skill); const t = p.order.target && cb.units.find((x) => x.id === p.order.target);
-      box.insertAdjacentHTML('afterbegin', fixJosa(`<div class="lead-order"><b>리더 ${L ? L.name : ''}의 오더</b>${L && L.npcId != null ? ` <span class="small dim">(${leadLabel(npcLead(G.npcById(L.npcId)))})</span>` : ''} · ${sk ? sk.name : ''}${t ? ` → ${t.name}` : ''} <span class="small dim">(따르지 않아도 된다. 리더는 기억한다)</span></div>`));
+    if (p && p.order && !p.order.vague && cb.waiting && !c.playing && !c.orderFor) {
       const btn = box.querySelector(`[data-act=c-skill][data-v="${p.order.skill}"]`); if (btn) btn.classList.add('ordered');
     }
+    this.drawOrderMarks();
   };
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
