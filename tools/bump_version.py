@@ -1,4 +1,4 @@
-"""업데이트마다 버전을 0.01 올린다.
+"""업데이트마다 버전을 0.001 올린다. (2026-11-09 사용자 요청: 0.01 → 0.001 단위)
 js/data.js 의 GAME_VERSION 과 index.html 의 스크립트·스타일 버전 표시를 함께 바꾼다.
 사용법: python3 tools/bump_version.py
 
@@ -18,7 +18,7 @@ index = root / 'index.html'
 src = data.read_text(encoding='utf-8')
 m = re.search(r"const GAME_VERSION = '([0-9.]+)';", src)
 old = m.group(1)
-new = f"{Decimal(old) + Decimal('0.01'):.2f}"
+new = f"{Decimal(old) + Decimal('0.001'):.3f}"
 data.write_text(src.replace(m.group(0), f"const GAME_VERSION = '{new}';"), encoding='utf-8')
 
 html = index.read_text(encoding='utf-8')
