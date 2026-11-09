@@ -1,21 +1,84 @@
-/* 대화창: 화면 아래에 붙는 인물 대사 상자 */
-#dlg { position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; padding: 0 12px calc(14px + env(safe-area-inset-bottom)); background: linear-gradient(to top, #000c 0%, #0008 38%, #0000 70%); }
-#dlg .dlg-box { position: relative; display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; max-width: 760px; width: 100%; margin: 0 auto; padding: 14px 16px 18px; background: #0d121bf2; border: 1px solid #3a4a62; border-top: 2px solid var(--amber, #ffb648); border-radius: 6px; box-shadow: 0 -6px 30px #0009; cursor: pointer; }
-#dlg .dlg-box.narr { grid-template-columns: 1fr; border-top-color: #6b7a90; }
-#dlg .dlg-box.narr .dlg-text { color: #c9d2de; font-style: italic; }
-#dlg .dlg-box.me { border-top-color: #5fd3c0; }
-#dlg .dlg-face .avatar, #dlg .dlg-face svg { display: block; }
-#dlg .dlg-name { font-weight: 700; color: var(--amber, #ffb648); font-size: 15px; margin-bottom: 4px; }
-#dlg .dlg-box.me .dlg-name { color: #5fd3c0; }
-#dlg .dlg-sub { font-weight: 400; color: #8a97a8; font-size: 12px; margin-left: 4px; }
-#dlg .dlg-text { font-size: 16px; line-height: 1.65; min-height: 3.2em; white-space: pre-wrap; word-break: keep-all; }
-#dlg .dlg-more { position: absolute; right: 14px; bottom: 6px; font-size: 11px; color: #8a97a8; animation: dlgBlink 1s steps(2) infinite; }
-@keyframes dlgBlink { 50% { opacity: 0; } }
-#dlg .dlg-choices { display: grid; gap: 8px; max-width: 760px; width: 100%; margin: 0 auto; }
-#dlg .dlg-choice { text-align: left; padding: 12px 14px; background: #121a26f2; border: 1px solid #3a4a62; border-left: 3px solid var(--amber, #ffb648); color: #e8edf4; font-size: 15px; border-radius: 4px; }
-#dlg .dlg-choice:hover, #dlg .dlg-choice:focus { background: #1b2636; }
+/* ===== 대화창: 상반신 + 이름표 + 유리 질감 대사 상자 ===== */
+#dlg {
+  position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column; justify-content: flex-end; gap: 12px;
+  padding: 0 14px calc(16px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, #04060aee 0%, #04060ad0 45%, #04060a99 100%);
+  backdrop-filter: blur(3px) saturate(.8); -webkit-backdrop-filter: blur(3px) saturate(.8);
+  opacity: 0; transition: opacity .25s ease;
+}
+#dlg.on { opacity: 1; }
+
+/* 말하는 사람의 상반신 */
+#dlg .dlg-stage { position: absolute; bottom: calc(112px + env(safe-area-inset-bottom)); width: min(46vw, 250px); pointer-events: none; filter: drop-shadow(0 18px 30px #000c); }
+#dlg .dlg-stage.left { left: max(8px, calc(50% - 380px)); }
+#dlg .dlg-stage.right { right: max(8px, calc(50% - 380px)); }
+/* 카드 테두리와 배경 모서리는 지우고 인물만 떠오르게 */
+#dlg .dlg-stage svg, #dlg .dlg-stage .portrait-img { display: block; width: 100%; height: auto;
+  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 52%, #000 48%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 52%, #000 48%, transparent 100%); }
+#dlg .dlg-stage::after { content: ''; position: absolute; left: 10%; right: 10%; bottom: -6px; height: 26px; background: radial-gradient(closest-side, var(--ac), transparent); opacity: .35; filter: blur(6px); }
+#dlg .dlg-stage.enter { animation: dlgRise .32s cubic-bezier(.2, .8, .2, 1); }
+@keyframes dlgRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* 대사 상자 */
+#dlg .dlg-box {
+  position: relative; z-index: 1; max-width: 760px; width: 100%; margin: 0 auto; padding: 24px 22px 22px; cursor: pointer;
+  background: linear-gradient(180deg, #172133f0 0%, #0c121df5 100%);
+  border: 1px solid #ffffff18; border-radius: 16px;
+  box-shadow: 0 18px 50px #000d, inset 0 1px 0 #ffffff14, 0 0 0 1px #00000060;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  animation: dlgIn .22s ease-out;
+}
+#dlg .dlg-box::before { content: ''; position: absolute; left: 18px; right: 18px; top: 0; height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, var(--ac), transparent); opacity: .9; }
+#dlg .dlg-box.still { animation: none; opacity: .92; }
+@keyframes dlgIn { from { opacity: .4; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* 이름표 */
+#dlg .dlg-plate {
+  position: absolute; top: -15px; left: 18px; display: flex; align-items: baseline; gap: 8px; padding: 5px 14px 5px 12px;
+  background: linear-gradient(135deg, #ffffff38, #00000050), var(--ac);
+  border-radius: 999px; box-shadow: 0 6px 16px #0009, inset 0 1px 0 #ffffff40; color: #0b0f16;
+}
+#dlg .dlg-box.me .dlg-plate { left: auto; right: 18px; }
+#dlg .dlg-plate b { font-size: 15px; letter-spacing: .02em; }
+#dlg .dlg-plate span { font-size: 11.5px; font-weight: 600; opacity: .75; }
+
+/* 대사 글 */
+#dlg .dlg-text { font-size: 16.5px; line-height: 1.75; color: #eef2f8; min-height: 2.6em; white-space: pre-wrap; word-break: keep-all; text-shadow: 0 1px 0 #0006; }
+#dlg .dlg-box.me .dlg-text { text-align: left; }
+
+/* 서술: 이름표 없이 가운데, 차분하게 */
+#dlg .dlg-box.narr { background: linear-gradient(180deg, #0e131cf0, #080b11f5); border-color: #ffffff10; }
+#dlg .dlg-box.narr::before { background: linear-gradient(90deg, transparent, #8a97a8, transparent); opacity: .5; }
+#dlg .dlg-box.narr .dlg-text { color: #c9d2de; font-style: italic; text-align: center; padding: 0 6px; }
+
+/* 결과·안내: 작고 노란 띠 */
+#dlg .dlg-box.sys { padding: 14px 18px; background: linear-gradient(180deg, #2a2110f0, #17120af5); border-color: #ffb64840; }
+#dlg .dlg-box.sys::before { background: linear-gradient(90deg, transparent, #ffb648, transparent); }
+#dlg .dlg-box.sys .dlg-text { font-style: normal; color: #ffd28a; font-size: 14px; min-height: 0; text-align: center; }
+
+/* 다음 표시 */
+#dlg .dlg-more { position: absolute; right: 18px; bottom: 10px; color: var(--ac); opacity: 0; transition: opacity .15s; }
+#dlg .dlg-box.done .dlg-more { opacity: .9; animation: dlgBob 1s ease-in-out infinite; }
+@keyframes dlgBob { 50% { transform: translateY(3px); } }
+
+/* 선택지 */
+#dlg .dlg-choices { position: relative; z-index: 2; display: grid; gap: 10px; max-width: 760px; width: 100%; margin: 0 auto 6px; }
+#dlg .dlg-choice {
+  display: flex; align-items: center; gap: 12px; text-align: left; padding: 13px 16px; font-size: 15.5px; line-height: 1.45; color: #eef2f8;
+  background: linear-gradient(90deg, #1c2a40f0, #121a28f0); border: 1px solid #ffffff1c; border-radius: 12px;
+  box-shadow: 0 8px 22px #000a, inset 0 1px 0 #ffffff10; cursor: pointer;
+  opacity: 0; animation: dlgIn .25s ease-out forwards; animation-delay: var(--d, 0ms);
+  transition: transform .12s ease, border-color .12s ease, background .12s ease;
+}
+#dlg .dlg-choice:hover, #dlg .dlg-choice:focus-visible { transform: translateX(4px); border-color: #ffb648aa; background: linear-gradient(90deg, #2a3a54f0, #16203030); outline: none; }
+#dlg .dlg-ck { flex: 0 0 auto; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; font-size: 12px; font-weight: 700; color: #0b0f16; background: #ffb648; box-shadow: 0 0 10px #ffb64866; }
+
+@media (max-width: 520px) {
+  #dlg .dlg-stage { bottom: calc(118px + env(safe-area-inset-bottom)); width: 56vw; }
+  #dlg .dlg-text { font-size: 15.5px; }
+}
+@media (prefers-reduced-motion: reduce) { #dlg, #dlg * { animation: none !important; transition: none !important; } #dlg .dlg-choice { opacity: 1; } }
+
 /* 리더 말풍선 안의 시스템 안내 (리더 말과 구분) */
 .coach .coach-sys, #coach-pop .coach-sys { margin-top: 6px; padding-top: 6px; border-top: 1px dashed #8a7a5a88; font-size: 12.5px; opacity: .85; }
 #coach-pop.speech .coach-sys { color: #5a4a2a; }
-#dlg .dlg-box.sys { border-top-color: var(--amber, #ffb648); }
-#dlg .dlg-box.sys .dlg-text { font-style: normal; color: #ffd28a; font-size: 14px; min-height: 0; }

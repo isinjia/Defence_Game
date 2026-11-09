@@ -2,59 +2,78 @@
 // 상황을 팝업 한 장으로 설명하지 않고, 인물이 한 줄씩 말하는 대화창으로 진행한다.
 // UI.talk(lines, onDone)
 //   lines: [{ who, text } | { narr: '서술' } | { sys: '결과·조작 안내(이야기 밖의 글)' } | { choices: [{ text, go: () => {} }] }]
-//   who: 'player' | NPC 객체 | { name, face } (face 는 아바타 HTML) | 문자열(이름만)
+//   who: 'player' | NPC 객체 | { name, sub, seed, gender, elem } | 문자열(이름만)
+// 말하는 사람의 상반신이 대사 상자 위에 서고(플레이어는 오른쪽), 이름표는 그 사람의 속성 색이다.
 // 화면을 누르면 다음 줄로 넘어간다. 글자가 다 나오기 전에 누르면 한 번에 다 보여 준다.
 
 Object.assign(UI, {
   talk(lines, onDone) {
-    this.dlg = { lines: lines.filter(Boolean), i: 0, onDone, typing: null };
+    this.dlg = { lines: lines.filter(Boolean), i: 0, onDone, typing: null, lastKey: null };
     this.dlgShow();
   },
   dlgSpeaker(who) {
     if (!who) return null;
-    if (who === 'player') return { name: G.player ? G.player.name : '나', face: this.playerAvatar(58), me: true };
-    if (typeof who === 'string') return { name: who, face: '' };
-    if (who.id != null && who.personality) return { name: who.name, face: this.npcAvatar(who, 58), sub: who.examLeader ? '선임 · 리더' : '' };
-    return { name: who.name, face: who.face || '', sub: who.sub || '' };
+    const ec = (e) => (e && ELEMENTS[e] ? ELEMENTS[e].color : '#9fb3c8');
+    const pw = Math.min(250, Math.round(window.innerWidth * 0.46));
+    if (who === 'player') { const p = G.player; return { key: 'player', name: p ? p.name : '나', art: p ? this.playerPortrait(pw) : '', color: ec(p && p.element), me: true }; }
+    if (typeof who === 'string') return { key: who, name: who, art: '', color: '#9fb3c8' };
+    if (who.id != null && who.personality) return { key: 'n' + who.id, name: who.name, art: this.npcPortrait(who, pw), color: ec(who.element), sub: who.examLeader ? '선임 · 리더' : who.examMate ? '시험 동기' : '' };
+    // 이름 있는 단역 (시험관, 측정관 등): 이름으로 얼굴을 정해 매번 같은 사람으로 보이게
+    const art = who.seed === false ? '' : FX.portrait('extra' + (who.seed || who.name), who.gender || (FX.hash(who.name) % 2 ? 'F' : 'M'), who.elem || 'steel', who.rank ?? 2, pw);
+    return { key: 'x' + who.name, name: who.name, art, color: who.color || ec(who.elem) || '#9fb3c8', sub: who.sub || '' };
   },
   dlgShow() {
     const d = this.dlg; if (!d) return;
     let el = document.getElementById('dlg');
-    if (!el) { el = document.createElement('div'); el.id = 'dlg'; document.body.appendChild(el); }
+    if (!el) { el = document.createElement('div'); el.id = 'dlg'; document.body.appendChild(el); requestAnimationFrame(() => el.classList.add('on')); }
     const line = d.lines[d.i];
     if (!line) return this.dlgEnd();
+    // 선택지는 직전 대사를 그대로 둔 채 그 위에 띄운다
     if (line.choices) {
       const prev = d.lines[d.i - 1]; const sp = prev && !prev.narr && !prev.sys && !prev.choices ? this.dlgSpeaker(prev.who) : null;
-      el.className = 'dlg';
-      el.innerHTML = `<div class="dlg-choices">${line.choices.map((c, k) => `<button class="dlg-choice" data-act="dlg-choice" data-v="${k}">${fixJosa(c.text)}</button>`).join('')}</div>
+      el.innerHTML = `<div class="dlg-choices">${line.choices.map((c, k) => `<button class="dlg-choice" style="--d:${k * 60}ms" data-act="dlg-choice" data-v="${k}"><span class="dlg-ck">${k + 1}</span><span>${fixJosa(c.text)}</span></button>`).join('')}</div>
         ${prev && !prev.choices ? this.dlgBoxHtml(prev, sp, true) : ''}`;
       return;
     }
     const sp = line.narr || line.sys ? null : this.dlgSpeaker(line.who);
-    el.className = 'dlg';
-    el.innerHTML = this.dlgBoxHtml(line, sp, false);
+    const fresh = !sp || sp.key !== d.lastKey; d.lastKey = sp ? sp.key : null;
+    el.innerHTML = this.dlgStageHtml(sp, fresh) + this.dlgBoxHtml(line, sp, false);
     // 한 글자씩
     const txt = el.querySelector('.dlg-text'); const full = fixJosa(line.narr || line.sys || line.text || '');
-    clearInterval(d.typing);
-    if (FX.reduced || full.length < 2) { txt.textContent = full; return; }
+    clearInterval(d.typing); d.full = full; d.typing = null;
+    if (FX.reduced || full.length < 2) { txt.textContent = full; el.querySelector('.dlg-box').classList.add('done'); return; }
     let n = 0; txt.textContent = '';
-    d.typing = setInterval(() => { n += 2; txt.textContent = full.slice(0, n); if (n >= full.length) { clearInterval(d.typing); d.typing = null; } }, 22);
-    d.full = full;
+    d.typing = setInterval(() => {
+      n += 2; txt.textContent = full.slice(0, n);
+      if (n >= full.length) { clearInterval(d.typing); d.typing = null; const b = el.querySelector('.dlg-box'); if (b) b.classList.add('done'); }
+    }, 24);
+  },
+  // 대사 상자 위에 서는 상반신
+  dlgStageHtml(sp, fresh) {
+    if (!sp || !sp.art) return '';
+    return `<div class="dlg-stage ${sp.me ? 'right' : 'left'} ${fresh ? 'enter' : ''}" style="--ac:${sp.color}">${sp.art}</div>`;
   },
   dlgBoxHtml(line, sp, still) {
     const text = fixJosa(line.narr || line.sys || line.text || '');
-    return `<div class="dlg-box ${line.narr ? 'narr' : ''} ${line.sys ? 'narr sys' : ''} ${sp && sp.me ? 'me' : ''}" ${still ? '' : 'data-act="dlg-next"'}>
-      ${sp && sp.face ? `<div class="dlg-face">${sp.face}</div>` : ''}
-      <div class="dlg-body">${sp ? `<div class="dlg-name">${sp.name}${sp.sub ? ` <span class="dlg-sub">${sp.sub}</span>` : ''}</div>` : ''}
-        <div class="dlg-text">${still ? text : ''}</div>${still ? '' : '<div class="dlg-more" aria-hidden="true">▼</div>'}</div></div>`;
+    const kind = line.sys ? 'sys' : line.narr ? 'narr' : 'talk';
+    return `<div class="dlg-box ${kind} ${sp && sp.me ? 'me' : ''} ${still ? 'done still' : ''}" style="--ac:${sp ? sp.color : '#7f8ea3'}" ${still ? '' : 'data-act="dlg-next"'}>
+      ${sp ? `<div class="dlg-plate"><b>${sp.name}</b>${sp.sub ? `<span>${sp.sub}</span>` : ''}</div>` : ''}
+      <div class="dlg-text">${still ? text : ''}</div>
+      ${still ? '' : '<div class="dlg-more" aria-hidden="true"><svg viewBox="0 0 12 8" width="12" height="8"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'}</div>`;
   },
   dlgNext() {
     const d = this.dlg; if (!d) return;
-    if (d.typing) { clearInterval(d.typing); d.typing = null; const t = document.querySelector('#dlg .dlg-text'); if (t) t.textContent = d.full; return; }
+    if (d.typing) {
+      clearInterval(d.typing); d.typing = null;
+      const t = document.querySelector('#dlg .dlg-text'); if (t) t.textContent = d.full;
+      const b = document.querySelector('#dlg .dlg-box'); if (b) b.classList.add('done');
+      return;
+    }
     d.i++; this.dlgShow();
   },
   dlgEnd(go) {
     const d = this.dlg; this.dlg = null;
+    if (d) clearInterval(d.typing);
     const el = document.getElementById('dlg'); if (el) el.remove();
     if (go) return go();
     if (d && d.onDone) d.onDone();
