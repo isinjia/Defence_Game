@@ -267,7 +267,7 @@ Object.assign(Game.prototype, {
   // 진행 확인: 끝난 과제는 보상, 다음 과제는 메시지로
   nbCheck() {
     const p = this.player; const nb = p && p.notebook; if (!nb || nb.i >= NB_TASKS.length || this.over) return;
-    const t = this.nbTask();
+    const t = this.nbTask(); if (!t) return;
     if (this.nbDone(t)) {
       nb.i++; nb.at = this.monthKey(); nb.nagAt = nb.at;
       const r = this.nbReward();
