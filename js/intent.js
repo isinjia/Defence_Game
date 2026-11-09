@@ -37,9 +37,10 @@ Object.assign(Combat.prototype, {
   // AI가 하려는 일을 실제로 하지 않고 미리 정해 둔다
   planIntent(u) {
     let cap = null;
+    const own = Object.prototype.hasOwnProperty.call(this, 'useSkill'); const prev = this.useSkill;
     this.useSkill = (uu, sk, t) => { cap = { skill: sk.id, target: t ? t.id : null }; };
     const saveLog = this.log.length;
-    try { this.aiActRaw(u); } catch (e) { cap = null; } finally { delete this.useSkill; this.log.length = saveLog; }
+    try { this.aiActRaw(u); } catch (e) { cap = null; } finally { if (own) this.useSkill = prev; else delete this.useSkill; this.log.length = saveLog; }
     u.next = cap || { skill: 'strike', target: (this.pickTarget(u) || {}).id || null };
     return u.next;
   },
