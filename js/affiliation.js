@@ -288,7 +288,7 @@ Object.assign(Game.prototype, {
 
 S({ id: 'nb_msg', trigger: 'system', npc: 'here',
   text: (g, c) => { const t = g.nbTask(); const nb = g.player.notebook; const v = NB_VOICE[nb.voice] || NB_VOICE.free; const first = nb.i === 0;
-    return `${first ? `${c.npc ? c.npc.name : v.who}에게서 메시지가 왔다. ${nb.voice === 'free' ? '' : `${v.who}로 배정된 사람이다.`}\n\n` : `${c.npc ? c.npc.name : v.who}: ${v.done}\n\n`}${v.give(t ? t.name : '')}\n\n${t ? `(${t.why})` : ''}`; },
+    return `${first ? `${c.npc ? c.npc.name : v.who}에게서 메시지가 왔다. ${nb.voice === 'free' ? '' : `${v.who}(으)로 배정된 사람이다.`}\n\n` : `${c.npc ? c.npc.name : v.who}: ${v.done}\n\n`}${v.give(t ? t.name : '')}\n\n${t ? `(${t.why})` : ''}`; },
   choices: [{ text: '알겠다고 답한다', do: (g) => '첫 해 수첩에 적어 두었다. 의뢰 창에서 언제든 다시 볼 수 있다.' }] });
 S({ id: 'nb_end', trigger: 'system', npc: 'here',
   text: (g, c) => { const v = g.player.notebook.voice; return v === 'free' ? `${c.npc ? c.npc.name : '친구'}이(가) 치킨을 사 들고 왔다. "야, 너 진짜 헌터 다 됐다. 이제 내가 알려 줄 게 없네."` : v === 'kama' ? '담당 주무관이 수료증을 건넨다. "연수 과정 수료를 축하드립니다. 이제부터는 정식 현장 요원입니다."' : `${c.npc ? c.npc.name : '사수'}이(가) 어깨를 툭 친다. "수습 딱지 뗄 때 됐네. 이제부터는 네가 알아서 해."`; },

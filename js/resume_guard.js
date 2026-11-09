@@ -7,6 +7,8 @@ if (typeof Game !== 'undefined') {
     const r = baseInit.apply(this, arguments);
     const p = this.player;
     if (p) p.onboard ??= null;
+    // 큐는 저장되지 않으니, 불러온 직후 '큐에 올렸음' 표시가 남아 있으면 데뷔 이야기가 영영 멈춘다
+    if (p && p.debut && p.debut.queued && !(this.queue || []).some((q) => q && /^debut_/.test(q.id || ''))) p.debut.queued = false;
     return r;
   };
 }
@@ -21,7 +23,12 @@ if (typeof UI !== 'undefined') {
   const baseEnd = UI.endExam;
   UI.endExam = function () {
     const r = baseEnd.apply(this, arguments);
-    if (G.player) { G.player.onboard = 'aff'; G.save(); }
+    if (G.player) {
+      // '측정 결과 하위' 장면은 판정 직후 이야기라 소속 권유보다 먼저 (나중에 나오면 이미 파티를 꾸린 뒤라 어긋난다)
+      const i = G.queue.findIndex((q) => q && q.id === 'debut_bottom_0');
+      if (i > 0) G.queue.unshift(G.queue.splice(i, 1)[0]);
+      G.player.onboard = 'aff'; G.save();
+    }
     return r;
   };
 
