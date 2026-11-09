@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.36";
+const GAME_VERSION = "0.37";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -3283,8 +3283,8 @@ class Game {
   }
   simulateNpcs() {
     var _a;
-    const NPC_BT = [0.6, 0.5, 0.4, 0.28, 0.15, 0.06, 0.015];
-    const NPC_SLOW = [1, 1, 1, 1, 0.8, 0.6, 0.45, 1];
+    const NPC_BT = [0.6, 0.5, 0.4, 0.32, 0.22, 0.15, 0.03];
+    const NPC_SLOW = [1, 1, 1, 1, 1, 1, 0.7, 1];
     for (const n of this.npcs) {
       if (!n.alive) continue;
       n.ageMonths++;
@@ -3313,7 +3313,7 @@ class Game {
           }
         } else n.progress = 1;
       }
-      if (!n.isCompanion && RNG.chance(15e-4 * reg.danger * (1 + Math.max(0, n.rankIdx - 3) * 0.35))) {
+      if (!n.isCompanion && RNG.chance(6e-4 * reg.danger * (1 + Math.max(0, n.rankIdx - 3) * 0.35))) {
         this.killNpc(n, "게이트");
         if (n.met || n.rankIdx >= 4) this.rumor("".concat(n.name, "이(가) ").concat(reg.name, "의 게이트에서 돌아오지 못했다."));
         if (n.met) this.log("".concat(n.name, "이(가) 게이트에서 전사했다는 비보가 들려왔다."), "bad");
@@ -4803,11 +4803,11 @@ Object.assign(Game.prototype, {
         if (victims.some((v) => v.met)) this.log("".concat(regionById(b.city).name, " 게이트 브레이크로 아는 얼굴이 희생됐다."), "bad");
       }
     }
-    if (RNG.chance(0.035) && this.world.breaks.length < 2) {
+    if (RNG.chance(6e-3) && this.world.breaks.length < 2) {
       const reg = RNG.pick(REGIONS.filter((r) => r.danger >= 2 && r.id !== "jeju" && !this.world.breaks.some((b) => b.city === r.id)));
       if (reg) {
-        this.world.breaks.push({ city: reg.id, until: mk + 2, tier: Math.min(7, GATE_RANGES[reg.danger][1]) });
-        this.rumor("긴급: ".concat(reg.name, "에서 게이트 브레이크 발생! 협회가 각성자를 소집하고 있다."));
+        this.world.breaks.push({ city: reg.id, until: mk + 2, tier: Math.min(7, GATE_RANGES[reg.danger][1]), blame: "관측되지 않은 균열" });
+        this.rumor("속보: ".concat(reg.name, "에 관측되지 않은 균열이 터졌다! 협회가 각성자를 소집하고 있다."));
         this.log("".concat(reg.name, "에서 게이트 브레이크가 발생했다."), "major");
       }
     }
@@ -14475,6 +14475,22 @@ const BAL = {
     this.npcs.length = len;
     return null;
   });
+  wrap("simulateNpcs", function(base) {
+    base.call(this);
+    const ad = this.adults();
+    const top = ad.filter((n) => n.rankIdx >= 6).length;
+    if (top < 3 && RNG.chance(0.035)) {
+      const cand = ad.filter((n) => n.rankIdx === 5 && !n.isCompanion).sort((a, b) => b.stage + b.talent * 0.3 - (a.stage + a.talent * 0.3))[0];
+      if (cand) {
+        cand.rankIdx = 6;
+        cand.stage = 0;
+        cand.progress = 0;
+        cand.lifespan += RANKS[6].life - RANKS[5].life;
+        this.rumor("속보: A급 ".concat(cand.name, "이(가) S급 판정을 받았다. 국내 ").concat(top + 1, "번째 현역 S급이다."));
+        if (cand.met) this.log("".concat(cand.name, "이(가) S급에 올랐다."), "major");
+      }
+    }
+  });
   if (GP.gain) wrap("gain", function(base, o, c) {
     const before = this.player.lifePenalty;
     const r = base.call(this, o, c);
@@ -16448,4 +16464,233 @@ Object.assign(Game.prototype, {
         return baseHandle.call(this, act, v);
     }
   };
+}
+const ECO = {
+  deadline: (tier) => tier >= 5 ? 2 : 3,
+  // 닫힘 기한(개월)
+  breakChance: [5e-3, 0.01, 0.02, 0.04, 0.08, 0.15, 0.25, 0.35],
+  // 기한까지 못 닫으면 터질 확률
+  attempt: [0.55, 0.5, 0.45, 0.4, 0.35, 0.3, 0.25, 0.2],
+  // 달마다 누군가 들어갈 확률
+  deathOnFail: 0.1
+};
+{
+  const GP = Game.prototype;
+  const wrap = (name, fn) => {
+    const base = GP[name];
+    GP[name] = function(...a) {
+      return fn.call(this, base, ...a);
+    };
+  };
+  wrap("initSandbox", function(base) {
+    var _a, _b, _c, _d;
+    base.call(this);
+    const w = this.world;
+    (_a = w.ecoLog) != null ? _a : w.ecoLog = [];
+    (_b = w.ecoStat) != null ? _b : w.ecoStat = { npc: 0, fail: 0, breaks: 0 };
+    (_c = w.damaged) != null ? _c : w.damaged = {};
+    for (const g of this.mapGates || []) (_d = g.deadline) != null ? _d : g.deadline = g.born + ECO.deadline(g.tier);
+  });
+  GP.ecoEligible = function(g) {
+    return !g.final && !g.mission && !g.crew && !g.breakCity && !g.cleared;
+  };
+  GP.ecoRealTier = function(g) {
+    var _a;
+    return (_a = g.realTier) != null ? _a : g.tier;
+  };
+  GP.ecoPool = function(regionId) {
+    const busy = /* @__PURE__ */ new Set();
+    for (const g of this.mapGates) if (g.raid) g.raid.ids.forEach((id) => busy.add(id));
+    return this.adults().filter((n) => n.region === regionId && !n.isCompanion && !n.hired && !(n.merc && n.merc.job) && !busy.has(n.id) && n.nemesis !== "player");
+  };
+  GP.ecoPower = function(team) {
+    return team.reduce((s, n) => s + RANKS[n.rankIdx].mult * (1 + n.stage * 0.1), 0);
+  };
+  GP.ecoForm = function(g) {
+    const t = g.tier;
+    const pool = this.ecoPool(g.region);
+    const fit = (n) => n.rankIdx >= t - 1 && n.rankIdx <= t + 2;
+    const reg = regionById(g.region);
+    let actor, team;
+    const roll = RNG.next();
+    if (t <= 3 && roll < 0.55) {
+      actor = { kind: "assoc", name: "협회 배정팀" };
+      team = pool.filter((n) => !n.guild || n.guild === "kama").filter(fit).sort(() => RNG.next() - 0.5).slice(0, 3);
+    } else if (t >= 2 && roll < 0.85) {
+      const gs = Object.keys(GUILDS);
+      const home = reg.guild;
+      const weights = gs.map((id) => (this.guildPower ? this.guildPower(id) : 50) * (id === home ? 2 : 1));
+      const gid = RNG.weighted(gs, weights);
+      actor = { kind: "guild", guild: gid, name: GUILDS[gid].name };
+      team = this.adults().filter((n) => n.guild === gid && !n.isCompanion && !n.hired && fit(n) && (n.region === g.region || regionDist(n.region, g.region) <= 1)).filter((n) => pool.includes(n) || n.region !== g.region).sort((a, b) => b.rankIdx - a.rankIdx).slice(0, 4);
+    } else {
+      actor = { kind: "free", name: "프리랜서" };
+      team = pool.filter(fit).sort(() => RNG.next() - 0.5).slice(0, RNG.int(1, 3));
+    }
+    if (!team.length && actor.kind !== "assoc") return null;
+    return { actor, team };
+  };
+  GP.ecoChance = function(g, actor, team) {
+    const real = this.ecoRealTier(g);
+    let need = RANKS[real].mult * 2.2 * (g.variant === "red" ? 1.6 : 1);
+    let pow = this.ecoPower(team);
+    if (actor.kind === "assoc") pow += RANKS[Math.min(7, g.tier + 1)].mult * 2.2;
+    if (actor.kind === "guild") pow += RANKS[g.tier].mult * 0.5 * Math.min(2, (this.guildPower ? this.guildPower(actor.guild) : 50) / 60);
+    return Math.max(0.03, Math.min(0.96, pow * pow / (pow * pow + need * need)));
+  };
+  GP.ecoNote = function(g, actor, team, ok) {
+    const w = this.world;
+    w.ecoLog.unshift({ mk: this.monthKey(), region: g.region, tier: this.ecoRealTier(g), actor: actor.name, kind: actor.kind, guild: actor.guild || null, ok, names: team.map((n) => n.name), x: g.x, y: g.y });
+    if (w.ecoLog.length > 40) w.ecoLog.length = 40;
+  };
+  GP.ecoResolve = function(g) {
+    const r = g.raid;
+    g.raid = null;
+    const team = r.ids.map((id) => this.npcById(id)).filter((n) => n && n.alive);
+    const actor = r.actor;
+    const reg = regionById(g.region);
+    const label = "".concat(reg.name, " ").concat(RANKS[g.tier].key, "급 게이트");
+    const known = team.filter((n) => n.met);
+    const ok = RNG.chance(this.ecoChance(g, actor, team));
+    this.ecoNote(g, actor, team, ok);
+    if (ok) {
+      this.world.ecoStat.npc++;
+      this.mapGates = this.mapGates.filter((x) => x.id !== g.id);
+      for (const n of team) {
+        n.progress = Math.min(1, (n.progress || 0) + 0.15);
+        n.renown = (n.renown || 0) + g.tier + 1;
+      }
+      if (actor.kind === "guild" && this.world.guildPrestige) this.world.guildPrestige[actor.guild] = (this.world.guildPrestige[actor.guild] || 0) + 1 + Math.floor(g.tier / 2);
+      if (g.tier >= 3 || known.length) this.rumor("".concat(actor.name).concat(team.length ? "(".concat(team.map((n) => n.name).join("·"), ")") : "", "이(가) ").concat(label, "을(를) 닫았다."));
+      if (known.length) this.log("".concat(known.map((n) => n.name).join("·"), "이(가) 속한 ").concat(actor.name, "이(가) ").concat(label, "을(를) 공략했다."), "good");
+      if (g.variant === "misrank") this.rumor("".concat(label, "은(는) 알고 보니 ").concat(RANKS[this.ecoRealTier(g)].key, "급이었다고 한다."));
+      return;
+    }
+    this.world.ecoStat.fail++;
+    g.failed = (g.failed || 0) + 1;
+    const dead = [];
+    const deathP = ECO.deathOnFail * (g.variant === "red" ? 2 : 1) * (this.ecoRealTier(g) > g.tier ? 1.5 : 1);
+    for (const n of team) if (RNG.chance(deathP)) {
+      this.killNpc(n, "게이트");
+      dead.push(n);
+    }
+    g.lastFail = actor.name;
+    if (g.tier >= 3 || dead.length || team.some((n) => n.met)) this.rumor("".concat(actor.name, "이(가) ").concat(label, " 공략에 실패했다.").concat(dead.length ? " ".concat(dead.map((n) => n.name).join("·"), "은(는) 돌아오지 못했다.") : " 전원 부상으로 철수."));
+    for (const n of dead) if (n.met) {
+      this.log("".concat(n.name, "이(가) ").concat(label, "에서 돌아오지 못했다."), "bad");
+      this.lifeEvent && n.relation >= 40 && this.lifeEvent("".concat(n.name, "을(를) 게이트에서 잃었다."));
+    }
+    for (const n of team) if (n.alive && n.met) this.log("".concat(n.name, "이(가) ").concat(label, "에서 다쳐 돌아왔다."), "bad");
+  };
+  GP.ecoExpire = function(g) {
+    const mk = this.monthKey();
+    const reg = regionById(g.region);
+    this.mapGates = this.mapGates.filter((x) => x.id !== g.id);
+    let p = ECO.breakChance[this.ecoRealTier(g)] * (g.variant === "red" ? 1.5 : 1) * (g.bid ? 1.4 : 1);
+    const strong = this.adults().filter((n) => n.region === g.region && n.rankIdx >= g.tier).length;
+    if (strong === 0) p *= 1.5;
+    if (reg.id === "jeju" || this.world.breaks.length >= 2 || this.world.breaks.some((b) => b.city === g.region) || !RNG.chance(Math.min(0.9, p))) {
+      if (g.tier >= 4 && reg.id !== "jeju") this.rumor("".concat(reg.name, "의 ").concat(RANKS[g.tier].key, "급 게이트가 기한을 넘겼지만 협회 봉쇄팀이 겨우 닫았다."));
+      return;
+    }
+    const blame = g.bid && this.player.guild ? GUILDS[this.player.guild].name : g.lastFail || (reg.guild ? GUILDS[reg.guild].name : "관리국");
+    this.world.breaks.push({ city: g.region, until: mk + 2, tier: this.ecoRealTier(g), blame, from: g.id, at: mk });
+    this.world.ecoStat.breaks++;
+    this.breakingNews("속보: ".concat(reg.name, " ").concat(RANKS[g.tier].key, "급 게이트 브레이크! 괴수가 도심으로 쏟아지고 있다."), "".concat(blame, "이(가) 맡은 게이트를 놓쳤다는 비난이 쏟아진다."));
+    if (g.bid) this.log("당신의 길드가 낙찰받고 방치한 게이트가 터졌다. 길드 안에서 책임론이 돈다.", "bad");
+  };
+  GP.breakingNews = function(head, tail) {
+    this.rumor(head + (tail ? " " + tail : ""));
+    this.log(head, "major");
+    this.queue.push({ type: "toast", text: head });
+    this.world.breaking = { text: head, mk: this.monthKey() };
+  };
+  GP.gateEcology = function() {
+    var _a;
+    const mk = this.monthKey();
+    for (const g of [...this.mapGates]) {
+      (_a = g.deadline) != null ? _a : g.deadline = g.born + ECO.deadline(g.tier);
+      if (g.raid) {
+        this.ecoResolve(g);
+        if (!this.mapGates.includes(g)) continue;
+      }
+      if (mk >= g.deadline && !g.final && !g.mission && !g.crew) {
+        this.ecoExpire(g);
+        continue;
+      }
+      if (!this.ecoEligible(g) || g.bid) continue;
+      if (mk - g.born < 1) continue;
+      if (!RNG.chance(ECO.attempt[g.tier])) continue;
+      const f = this.ecoForm(g);
+      if (!f) continue;
+      g.raid = { actor: f.actor, ids: f.team.map((n) => n.id), at: mk };
+      if (f.team.some((n) => n.met) || g.tier >= 4) this.rumor("".concat(f.actor.name, "이(가) ").concat(regionById(g.region).name, " ").concat(RANKS[g.tier].key, "급 게이트에 들어갔다."));
+    }
+  };
+  wrap("spawnMonthly", function(base) {
+    var _a;
+    if (this.player) this.gateEcology();
+    base.call(this);
+    const mk = this.monthKey();
+    for (const g of this.mapGates) (_a = g.deadline) != null ? _a : g.deadline = mk + ECO.deadline(g.tier);
+    for (const r of Object.keys(this.world.damaged || {})) if (this.world.damaged[r] < mk) delete this.world.damaged[r];
+  });
+  wrap("finishGate", function(base, gate, result, loot, hpLeft, mpLeft) {
+    const raid = gate && gate.raid;
+    const lines = base.call(this, gate, result, loot, hpLeft, mpLeft);
+    if (raid && result === "clear" && Array.isArray(lines)) {
+      lines.push("".concat(raid.actor.name, "보다 먼저 보스를 잡았다. 뒤늦게 도착한 팀이 허탈하게 웃는다."));
+      for (const id of raid.ids) {
+        const n = this.npcById(id);
+        if (n) this.changeRel(n, n.personality === "kind" ? 1 : -3);
+      }
+      gate.raid = null;
+    }
+    return lines;
+  });
+  wrap("worldMonthly", function(base) {
+    const mk = this.monthKey();
+    const ending = (this.world.breaks || []).filter((b) => mk > b.until).map((b) => __spreadValues({}, b));
+    for (const b of ending) {
+      const reg = regionById(b.city);
+      const heroes = this.adults().filter((n) => (n.region === b.city || regionDist(n.region, b.city) <= 1) && n.rankIdx >= b.tier && !n.isCompanion).sort((a, x) => x.rankIdx - a.rankIdx);
+      b.hero = heroes[0] && RNG.chance(0.6) ? heroes[0] : null;
+      if (b.hero) {
+        b.hero.renown = (b.hero.renown || 0) + 20 + b.tier * 5;
+        if (b.hero.guild && this.world.guildPrestige) this.world.guildPrestige[b.hero.guild] += 6;
+        this.rumor("".concat(RANKS[b.hero.rankIdx].key, "급 ").concat(b.hero.name, "이(가) ").concat(reg.name, " 브레이크의 핵을 베었다. 시민들이 이름을 연호한다."));
+        if (b.hero.met) this.log("".concat(b.hero.name, "이(가) ").concat(reg.name, " 브레이크를 막았다."), "good");
+      }
+    }
+    for (const b of ending) if (b.hero) {
+      this.world.breaks = this.world.breaks.filter((x) => x.city !== b.city);
+      const victims = this.adults().filter((n) => n.region === b.city && !n.isCompanion && n !== b.hero && RNG.chance(0.04));
+      for (const v of victims) this.killNpc(v, "게이트 브레이크");
+      if (victims.some((v) => v.met)) this.log("".concat(regionById(b.city).name, " 브레이크로 아는 얼굴이 희생됐다."), "bad");
+    }
+    base.call(this);
+    for (const b of ending) {
+      if (b.hero) continue;
+      this.world.damaged[b.city] = mk + 3;
+      this.addRep && this.addRep(b.city, -5);
+      this.rumor("".concat(regionById(b.city).name, "은(는) 브레이크의 상처가 깊다. 상점 일부가 문을 닫고 물가가 뛰었다."));
+    }
+  });
+  wrap("resolveBreak", function(base, regionId) {
+    const b = (this.world.breaks || []).find((x) => x.city === regionId);
+    const r = base.call(this, regionId);
+    if (b && b.blame) this.rumor("".concat(b.blame, "이(가) 놓친 게이트의 뒷수습을 ").concat(this.player.name, "이(가) 했다는 말이 돈다."));
+    return r;
+  });
+  if (GP.cityPriceMul) wrap("cityPriceMul", function(base, regionId) {
+    const m = base.call(this, regionId);
+    return this.world.damaged && this.world.damaged[regionId] ? m * 1.2 : m;
+  });
+  if (GP.rankScore) wrap("rankScore", function(base, n) {
+    return base.call(this, n) + Math.min(n.renown || 0, 500) * 0.6;
+  });
+  wrap("gateName", function(base, g) {
+    const n = base.call(this, g);
+    return g.raid ? "".concat(n, " · ").concat(g.raid.actor.name, " 공략 중") : n;
+  });
 }

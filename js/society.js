@@ -478,11 +478,12 @@ Object.assign(Game.prototype, {
         if (victims.some((v) => v.met)) this.log(`${regionById(b.city).name} 게이트 브레이크로 아는 얼굴이 희생됐다.`, 'bad');
       }
     }
-    if (RNG.chance(0.035) && this.world.breaks.length < 2) {
+    // 관측되지 않은 균열(드묾). 대부분의 브레이크는 게이트 생태계(gate_eco.js)에서 놓친 게이트로 생긴다
+    if (RNG.chance(0.006) && this.world.breaks.length < 2) {
       const reg = RNG.pick(REGIONS.filter((r) => r.danger >= 2 && r.id !== 'jeju' && !this.world.breaks.some((b) => b.city === r.id)));
       if (reg) {
-        this.world.breaks.push({ city: reg.id, until: mk + 2, tier: Math.min(7, GATE_RANGES[reg.danger][1]) });
-        this.rumor(`긴급: ${reg.name}에서 게이트 브레이크 발생! 협회가 각성자를 소집하고 있다.`);
+        this.world.breaks.push({ city: reg.id, until: mk + 2, tier: Math.min(7, GATE_RANGES[reg.danger][1]), blame: '관측되지 않은 균열' });
+        this.rumor(`속보: ${reg.name}에 관측되지 않은 균열이 터졌다! 협회가 각성자를 소집하고 있다.`);
         this.log(`${reg.name}에서 게이트 브레이크가 발생했다.`, 'major');
       }
     }

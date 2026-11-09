@@ -126,6 +126,22 @@ const BAL = {
     return null;
   });
 
+  // S급 하한: 세상에 S급이 너무 적으면 가끔 A급 중 하나가 벽을 넘는다 (뉴스거리)
+  wrap('simulateNpcs', function (base) {
+    base.call(this);
+    const ad = this.adults();
+    const top = ad.filter((n) => n.rankIdx >= 6).length;
+    if (top < 3 && RNG.chance(0.035)) {
+      const cand = ad.filter((n) => n.rankIdx === 5 && !n.isCompanion).sort((a, b) => (b.stage + b.talent * 0.3) - (a.stage + a.talent * 0.3))[0];
+      if (cand) {
+        cand.rankIdx = 6; cand.stage = 0; cand.progress = 0;
+        cand.lifespan += RANKS[6].life - RANKS[5].life;
+        this.rumor(`속보: A급 ${cand.name}이(가) S급 판정을 받았다. 국내 ${top + 1}번째 현역 S급이다.`);
+        if (cand.met) this.log(`${cand.name}이(가) S급에 올랐다.`, 'major');
+      }
+    }
+  });
+
   // 사건으로 잃은 수명도 기록
   if (GP.gain) wrap('gain', function (base, o, c) {
     const before = this.player.lifePenalty;
