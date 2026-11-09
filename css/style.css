@@ -112,7 +112,9 @@ p { margin: 6px 0; }
 .create-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 32px; }
 .create-grid { display: grid; grid-template-columns: 280px 1fr; gap: 14px; align-items: start; margin-top: 10px; }
 .create-grid > * { min-width: 0; }
-.id-preview { display: grid; gap: 10px; position: sticky; top: 0; }
+.id-preview { display: grid; gap: 10px; position: sticky; top: 0; justify-items: center; }
+.id-preview > .portrait, .id-preview > .portrait-img { max-width: 100%; height: auto; }
+.id-preview > button { justify-self: stretch; }
 .choice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px; }
 .choice-grid.elems { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); }
 .choice { display: grid; gap: 2px; text-align: left; padding: 10px; line-height: 1.45; align-content: start; }

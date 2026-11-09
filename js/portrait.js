@@ -38,14 +38,10 @@ const PORTRAIT = (() => {
     }
     return d;
   }
-  // 머리 광택: 결을 따라 흐르는 가는 빛줄기
+  // 머리 광택: 정수리 곡선을 따라 끊어지는 짧은 빛
   function shine(r) {
-    let d = '';
-    for (let k = 0; k < 4; k++) {
-      const x = 80 + k * 11 + r() * 4, y = 44 + Math.abs(k - 1.5) * 3;
-      d += `M${f(x)} ${f(y)}q${f(2 + r() * 2)} ${f(8 + r() * 6)} ${f(-1 + r() * 2)} ${f(16 + r() * 8)}`;
-    }
-    return d;
+    const off = r() * 6 - 3;
+    return `M${f(76 + off)} ${f(50)}Q${f(84 + off)} ${f(42)} ${f(93 + off)} ${f(40)}M${f(104 + off)} ${f(39)}Q${f(113 + off)} ${f(40)} ${f(119 + off)} ${f(45)}`;
   }
 
   function make(seed, gender, element, rankIdx) {
@@ -152,17 +148,18 @@ const PORTRAIT = (() => {
       : `<path d="${pick(['M95 134L105 133.6', 'M95 134.2Q101 135 105.5 132.8'])}" stroke="${shade(skin, -0.5)}" stroke-width="1.3" fill="none" stroke-linecap="round"/>`;
 
     // ---- 머리카락
-    const MASS = 'M62 120C54 60 76 28 100 28C124 28 146 60 138 120C135 128 131 130 129 126L130 90C128 70 116 60 100 60C84 60 72 70 70 90L71 126C69 130 65 128 62 120Z';
-    const CAP = 'M66 96C62 56 80 36 100 36C120 36 138 56 134 96C130 70 118 60 100 60C82 60 70 70 66 96Z';
+    const MASS = 'M62 122C53 60 76 27 100 27C124 27 147 60 138 122C135 130 131 131 128 126L127 104L73 104L72 126C69 131 65 130 62 122Z';
+    const CAP = 'M66 92C63 56 80 35 100 35C120 35 137 56 134 92C129 72 117 63 100 63C83 63 71 72 66 92Z';
     const LOCK = (back === 'none' || back === 'tail') ? 'M70 80C64 96 65 112 69 122L72 110L75 118C75 104 75 92 77 84Z' : 'M70 76C62 100 64 126 71 146L73 128L77 140C77 116 76 96 78 84Z';
     const bangD = bangs(r, bangStyle);
     const hairFront = `<path d="${CAP}" fill="${hair}"/>
       <path d="${bangD}" fill="${hair}" stroke="${line}" stroke-width=".9" stroke-linejoin="round"/>
-      <path d="${shine(r)}" stroke="${hairHi}" stroke-width="1.6" fill="none" opacity="${light ? 0.7 : 0.5}" stroke-linecap="round"/>
+      <path d="${shine(r)}" stroke="${hairHi}" stroke-width="2.4" fill="none" opacity="${light ? 0.55 : 0.4}" stroke-linecap="round"/>
       <path d="M68 70C76 54 90 46 100 45" stroke="${hairHi}" stroke-width="1.2" fill="none" opacity=".35"/>
       <path d="${LOCK}" fill="${hair}" stroke="${line}" stroke-width=".9"/><path d="${LOCK}" transform="translate(200 0) scale(-1 1)" fill="${hair}" stroke="${line}" stroke-width=".9"/>
       <path d="M131 76C138 96 137 118 132 132" stroke="${ec}" stroke-width="1.6" fill="none" opacity=".7"/>`;
     const massSvg = `<path d="${MASS}" fill="${hair}"/><path d="${MASS}" fill="none" stroke="${line}" stroke-width="1"/>
+      <path d="M72 82C80 68 90 64 100 64C110 64 120 68 128 82L128 104L72 104Z" fill="${hairSh}" opacity=".55"/>
       <path d="M138 120C146 60 124 28 100 28" stroke="${ec}" stroke-width="2" fill="none" opacity=".55"/>`;
     // 앞머리가 이마에 드리우는 그림자
     const bangShadow = `<clipPath id="${id}fc"><path d="${faceD}"/></clipPath><g clip-path="url(#${id}fc)"><path d="${bangD}" fill="${skinDeep}" opacity=".35" transform="translate(-2 4)"/></g>`;
