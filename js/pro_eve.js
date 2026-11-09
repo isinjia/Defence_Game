@@ -14,7 +14,7 @@ Object.assign(PROLOGUE, {
       { text: '손에 착 붙는 중고 단검을 고른다. "이거요."', t: { quick: 1 }, luck: 1, flag: 'hope_free', next: null },
       { text: '가게에서 제일 무거운 방패를 들어 본다. 내려놓기 싫다', t: { iron_body: 1, longevity: 1 }, flag: 'hope_kama', next: null },
       { text: '아무것도 안 사고, 아저씨의 옛날 게이트 이야기를 두 시간 듣는다', talent: 1, t: { mana_sense: 1 }, luck: 1, next: null },
-      { text: '"이걸로 할게요." {friend}이(가) 몰래 계산해 둔 장갑을 받는다', t: { charisma: 1 }, friend: 15, next: null },
+      { text: '아저씨가 내미는 장갑을 받아 든다. "이건 벌써 계산됐어. 아까 {friend}이(가) 왔다 갔거든."', t: { charisma: 1 }, friend: 15, next: null },
     ] },
   eve_dinner: { title: '등록 전날 저녁', text: '{friend}네 집 저녁 식탁. {friend}의 어머니가 반찬을 자꾸 이쪽으로 민다. "헌터 된다며? 밥이라도 든든히 먹어야지."\n\nTV에서는 게이트 사고 뉴스가 나오고, 아무도 채널을 돌리지 않는다.',
     choices: [
