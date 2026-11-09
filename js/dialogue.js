@@ -14,7 +14,7 @@ Object.assign(UI, {
   dlgSpeaker(who) {
     if (!who) return null;
     const ec = (e) => (e && ELEMENTS[e] ? ELEMENTS[e].color : '#9fb3c8');
-    const pw = Math.min(250, Math.round(window.innerWidth * 0.46));
+    const pw = window.innerWidth < 520 ? 74 : 92;
     if (who === 'player') { const p = G.player; return { key: 'player', name: p ? p.name : '나', art: p ? this.playerPortrait(pw) : '', color: ec(p && p.element), me: true }; }
     if (typeof who === 'string') return { key: who, name: who, art: '', color: '#9fb3c8' };
     if (who.id != null && who.personality) return { key: 'n' + who.id, name: who.name, art: this.npcPortrait(who, pw), color: ec(who.element), sub: who.examLeader ? '선임 · 리더' : who.examMate ? '시험 동기' : '' };
@@ -37,7 +37,7 @@ Object.assign(UI, {
     }
     const sp = line.narr || line.sys ? null : this.dlgSpeaker(line.who);
     const fresh = !sp || sp.key !== d.lastKey; d.lastKey = sp ? sp.key : null;
-    el.innerHTML = this.dlgStageHtml(sp, fresh) + this.dlgBoxHtml(line, sp, false);
+    el.innerHTML = this.dlgBoxHtml(line, sp, false, fresh);
     // 한 글자씩
     const txt = el.querySelector('.dlg-text'); const full = fixJosa(line.narr || line.sys || line.text || '');
     clearInterval(d.typing); d.full = full; d.typing = null;
@@ -53,12 +53,13 @@ Object.assign(UI, {
     if (!sp || !sp.art) return '';
     return `<div class="dlg-stage ${sp.me ? 'right' : 'left'} ${fresh ? 'enter' : ''}" style="--ac:${sp.color}">${sp.art}</div>`;
   },
-  dlgBoxHtml(line, sp, still) {
+  dlgBoxHtml(line, sp, still, fresh) {
     const text = fixJosa(line.narr || line.sys || line.text || '');
     const kind = line.sys ? 'sys' : line.narr ? 'narr' : 'talk';
-    return `<div class="dlg-box ${kind} ${sp && sp.me ? 'me' : ''} ${still ? 'done still' : ''}" style="--ac:${sp ? sp.color : '#7f8ea3'}" ${still ? '' : 'data-act="dlg-next"'}>
-      ${sp ? `<div class="dlg-plate"><b>${sp.name}</b>${sp.sub ? `<span>${sp.sub}</span>` : ''}</div>` : ''}
-      <div class="dlg-text">${still ? text : ''}</div>
+    return `<div class="dlg-box ${kind} ${sp && sp.me ? 'me' : ''} ${sp && sp.art ? 'has-face' : ''} ${still ? 'done still' : ''}" style="--ac:${sp ? sp.color : '#7f8ea3'}" ${still ? '' : 'data-act="dlg-next"'}>
+      ${sp && sp.art ? `<div class="dlg-face ${fresh ? 'enter' : ''}">${sp.art}</div>` : ''}
+      <div class="dlg-body">${sp ? `<div class="dlg-plate"><b>${sp.name}</b>${sp.sub ? `<span>${sp.sub}</span>` : ''}</div>` : ''}
+      <div class="dlg-text">${still ? text : ''}</div></div>
       ${still ? '' : '<div class="dlg-more" aria-hidden="true"><svg viewBox="0 0 12 8" width="12" height="8"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'}</div>`;
   },
   dlgNext() {

@@ -1,81 +1,68 @@
-/* ===== 대화창: 상반신 + 이름표 + 유리 질감 대사 상자 ===== */
+/* ===== 대화창: 게임 HUD 패널과 같은 모양 (각진 모서리, 위쪽 주황 줄, 작은 초상화 카드) ===== */
 #dlg {
-  position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column; justify-content: flex-end; gap: 12px;
-  padding: 0 14px calc(16px + env(safe-area-inset-bottom));
-  background: linear-gradient(to top, #04060aee 0%, #04060ad0 45%, #04060a99 100%);
-  backdrop-filter: blur(3px) saturate(.8); -webkit-backdrop-filter: blur(3px) saturate(.8);
-  opacity: 0; transition: opacity .25s ease;
+  position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px;
+  padding: 0 12px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, #04060ad9 0%, #04060a80 35%, #04060a26 70%, #0000 100%);
+  opacity: 0; transition: opacity .2s ease;
 }
 #dlg.on { opacity: 1; }
 
-/* 말하는 사람의 상반신 */
-#dlg .dlg-stage { position: absolute; bottom: calc(112px + env(safe-area-inset-bottom)); width: min(46vw, 250px); pointer-events: none; filter: drop-shadow(0 18px 30px #000c); }
-#dlg .dlg-stage.left { left: max(8px, calc(50% - 380px)); }
-#dlg .dlg-stage.right { right: max(8px, calc(50% - 380px)); }
-/* 카드 테두리와 배경 모서리는 지우고 인물만 떠오르게 */
-#dlg .dlg-stage svg, #dlg .dlg-stage .portrait-img { display: block; width: 100%; height: auto;
-  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 52%, #000 48%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 52%, #000 48%, transparent 100%); }
-#dlg .dlg-stage::after { content: ''; position: absolute; left: 10%; right: 10%; bottom: -6px; height: 26px; background: radial-gradient(closest-side, var(--ac), transparent); opacity: .35; filter: blur(6px); }
-#dlg .dlg-stage.enter { animation: dlgRise .32s cubic-bezier(.2, .8, .2, 1); }
-@keyframes dlgRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-
 /* 대사 상자 */
 #dlg .dlg-box {
-  position: relative; z-index: 1; max-width: 760px; width: 100%; margin: 0 auto; padding: 24px 22px 22px; cursor: pointer;
-  background: linear-gradient(180deg, #172133f0 0%, #0c121df5 100%);
-  border: 1px solid #ffffff18; border-radius: 16px;
-  box-shadow: 0 18px 50px #000d, inset 0 1px 0 #ffffff14, 0 0 0 1px #00000060;
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  animation: dlgIn .22s ease-out;
+  position: relative; max-width: 760px; width: 100%; margin: 0 auto; cursor: pointer;
+  display: grid; grid-template-columns: 1fr; gap: 14px; align-items: start;
+  padding: 14px 16px 18px;
+  background: var(--panel-solid, #0c121b); border: 1px solid var(--line-hi, #34507a); border-top: 2px solid var(--amber, #ffb547);
+  clip-path: var(--cut); box-shadow: 0 10px 30px #000c;
 }
-#dlg .dlg-box::before { content: ''; position: absolute; left: 18px; right: 18px; top: 0; height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, var(--ac), transparent); opacity: .9; }
-#dlg .dlg-box.still { animation: none; opacity: .92; }
-@keyframes dlgIn { from { opacity: .4; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+#dlg .dlg-box.has-face { grid-template-columns: auto 1fr; }
+#dlg .dlg-box.me.has-face { grid-template-columns: 1fr auto; }
+#dlg .dlg-box.me .dlg-face { order: 2; }
+#dlg .dlg-box.still { opacity: .9; }
 
-/* 이름표 */
-#dlg .dlg-plate {
-  position: absolute; top: -15px; left: 18px; display: flex; align-items: baseline; gap: 8px; padding: 5px 14px 5px 12px;
-  background: linear-gradient(135deg, #ffffff38, #00000050), var(--ac);
-  border-radius: 999px; box-shadow: 0 6px 16px #0009, inset 0 1px 0 #ffffff40; color: #0b0f16;
-}
-#dlg .dlg-box.me .dlg-plate { left: auto; right: 18px; }
-#dlg .dlg-plate b { font-size: 15px; letter-spacing: .02em; }
-#dlg .dlg-plate span { font-size: 11.5px; font-weight: 600; opacity: .75; }
+/* 초상화 카드 (게임의 다른 초상화와 같은 액자) */
+#dlg .dlg-face { line-height: 0; }
+#dlg .dlg-face svg, #dlg .dlg-face .portrait-img { display: block; }
+#dlg .dlg-face.enter { animation: dlgFade .25s ease-out; }
+@keyframes dlgFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-/* 대사 글 */
-#dlg .dlg-text { font-size: 16.5px; line-height: 1.75; color: #eef2f8; min-height: 2.6em; white-space: pre-wrap; word-break: keep-all; text-shadow: 0 1px 0 #0006; }
-#dlg .dlg-box.me .dlg-text { text-align: left; }
+/* 이름 */
+#dlg .dlg-plate { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--line, #22304a); }
+#dlg .dlg-plate b { color: var(--amber, #ffb547); font-size: 15px; font-weight: 700; }
+#dlg .dlg-plate b::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 7px; background: var(--ac); transform: rotate(45deg) translateY(-1px); }
+#dlg .dlg-plate span { color: var(--dim, #7f8ea3); font-size: 12px; }
+#dlg .dlg-box.me .dlg-plate b { color: #6fe0cf; }
 
-/* 서술: 이름표 없이 가운데, 차분하게 */
-#dlg .dlg-box.narr { background: linear-gradient(180deg, #0e131cf0, #080b11f5); border-color: #ffffff10; }
-#dlg .dlg-box.narr::before { background: linear-gradient(90deg, transparent, #8a97a8, transparent); opacity: .5; }
-#dlg .dlg-box.narr .dlg-text { color: #c9d2de; font-style: italic; text-align: center; padding: 0 6px; }
+/* 대사 */
+#dlg .dlg-text { font-size: 16px; line-height: 1.7; color: var(--text, #e6ecf3); min-height: 2.6em; white-space: pre-wrap; word-break: keep-all; }
 
-/* 결과·안내: 작고 노란 띠 */
-#dlg .dlg-box.sys { padding: 14px 18px; background: linear-gradient(180deg, #2a2110f0, #17120af5); border-color: #ffb64840; }
-#dlg .dlg-box.sys::before { background: linear-gradient(90deg, transparent, #ffb648, transparent); }
-#dlg .dlg-box.sys .dlg-text { font-style: normal; color: #ffd28a; font-size: 14px; min-height: 0; text-align: center; }
+/* 서술: 얼굴·이름 없이, 차분하게 */
+#dlg .dlg-box.narr { border-top-color: var(--line-hi, #34507a); background: #080c13f2; }
+#dlg .dlg-box.narr .dlg-text { color: #b9c4d2; font-style: italic; }
+
+/* 결과·안내 */
+#dlg .dlg-box.sys { padding: 10px 14px 12px; background: #1a1409f2; border-color: #6a4f22; border-top-color: var(--amber, #ffb547); }
+#dlg .dlg-box.sys .dlg-text { color: #ffd28a; font-size: 14px; min-height: 0; }
 
 /* 다음 표시 */
-#dlg .dlg-more { position: absolute; right: 18px; bottom: 10px; color: var(--ac); opacity: 0; transition: opacity .15s; }
+#dlg .dlg-more { position: absolute; right: 16px; bottom: 6px; color: var(--amber, #ffb547); opacity: 0; transition: opacity .15s; }
 #dlg .dlg-box.done .dlg-more { opacity: .9; animation: dlgBob 1s ease-in-out infinite; }
 @keyframes dlgBob { 50% { transform: translateY(3px); } }
 
-/* 선택지 */
-#dlg .dlg-choices { position: relative; z-index: 2; display: grid; gap: 10px; max-width: 760px; width: 100%; margin: 0 auto 6px; }
+/* 선택지: 게임의 다른 선택 버튼과 같은 모양 */
+#dlg .dlg-choices { display: grid; gap: 6px; max-width: 760px; width: 100%; margin: 0 auto; }
 #dlg .dlg-choice {
-  display: flex; align-items: center; gap: 12px; text-align: left; padding: 13px 16px; font-size: 15.5px; line-height: 1.45; color: #eef2f8;
-  background: linear-gradient(90deg, #1c2a40f0, #121a28f0); border: 1px solid #ffffff1c; border-radius: 12px;
-  box-shadow: 0 8px 22px #000a, inset 0 1px 0 #ffffff10; cursor: pointer;
-  opacity: 0; animation: dlgIn .25s ease-out forwards; animation-delay: var(--d, 0ms);
-  transition: transform .12s ease, border-color .12s ease, background .12s ease;
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 11px 14px; font-size: 15px; line-height: 1.45;
+  background: var(--panel-solid, #0c121b); border: 1px solid var(--line-hi, #34507a); border-left: 3px solid var(--amber, #ffb547); border-radius: 0;
+  clip-path: var(--cut); color: var(--text, #e6ecf3);
+  opacity: 0; animation: dlgFade .2s ease-out forwards; animation-delay: var(--d, 0ms);
 }
-#dlg .dlg-choice:hover, #dlg .dlg-choice:focus-visible { transform: translateX(4px); border-color: #ffb648aa; background: linear-gradient(90deg, #2a3a54f0, #16203030); outline: none; }
-#dlg .dlg-ck { flex: 0 0 auto; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; font-size: 12px; font-weight: 700; color: #0b0f16; background: #ffb648; box-shadow: 0 0 10px #ffb64866; }
+#dlg .dlg-choice:hover, #dlg .dlg-choice:focus-visible { background: #1a2333; border-color: var(--amber, #ffb547); outline: none; }
+#dlg .dlg-ck { flex: 0 0 auto; color: var(--amber, #ffb547); font-weight: 700; font-size: 13px; min-width: 14px; }
 
 @media (max-width: 520px) {
-  #dlg .dlg-stage { bottom: calc(118px + env(safe-area-inset-bottom)); width: 56vw; }
-  #dlg .dlg-text { font-size: 15.5px; }
+  #dlg .dlg-box { padding: 12px 12px 16px; gap: 11px; }
+  #dlg .dlg-text { font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) { #dlg, #dlg * { animation: none !important; transition: none !important; } #dlg .dlg-choice { opacity: 1; } }
 
