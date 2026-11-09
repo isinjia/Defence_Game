@@ -11,3 +11,7 @@
 .npc-strip .npc-chip > span { min-width: 0; overflow: hidden; }
 .npc-strip .npc-chip .small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (min-width: 641px) { .npc-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* 토스트가 창 제목·닫기(×)·전투 적 그림을 가리던 문제: 터치는 통과시키고, 창이 열려 있으면 아래쪽에 */
+.toast { pointer-events: none; }
+body:has(#modal:not(.hidden)) .toast { top: auto; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+.grow-band { pointer-events: none; }
