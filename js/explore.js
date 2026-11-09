@@ -89,7 +89,7 @@ Object.assign(Game.prototype, {
   regionExplore(regionId) {
     const tiles = EXPLORE.regionLand[regionId] || [];
     const seen = tiles.reduce((a, i) => a + (this.fog[i] ? 1 : 0), 0);
-    const ss = this.sites().filter((s) => s.region === regionId && s.kind !== 'merchant');
+    const ss = this.sites().filter((s) => s.region === regionId && s.kind !== 'merchant' && !s.north);
     const found = ss.filter((s) => s.visited).length;
     const tilePct = tiles.length ? seen / tiles.length : 1;
     const pct = Math.floor((tilePct * 0.6 + (ss.length ? found / ss.length : 1) * 0.4) * 100);
