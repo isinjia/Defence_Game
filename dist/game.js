@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.34";
+const GAME_VERSION = "0.35";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -4931,25 +4931,45 @@ Object.assign(Game.prototype, {
     return true;
   },
   pickStory(trigger = "month") {
-    var _a;
+    var _a, _b;
     const cands = [], weights = [];
     const mk = this.monthKey();
+    const f = this.flags;
+    (_a = f.seenN) != null ? _a : f.seenN = {};
     for (const ev2 of STORY) {
       if ((ev2.trigger || "month") !== trigger) continue;
       const c2 = {};
       if (ev2.npc) c2.npc = this.storyNpc(ev2.npc);
       if (!this.storyEligible(ev2, c2)) continue;
-      let w = (_a = ev2.weight) != null ? _a : 1;
+      const seen = f.seen[ev2.id];
+      const n = f.seenN[ev2.id] || (seen ? 1 : 0);
+      const free = ev2.chain && ev2.step > 0 || ev2.repeat;
+      if (!free && (n >= 2 || n === 1 && mk - seen < 60)) continue;
+      let w = (_b = ev2.weight) != null ? _b : 1;
       if (ev2.chain) w *= 2.2;
       if (ev2.chain && this.player.regress && (this.player.regress.chains || []).includes(ev2.chain)) w *= 2;
-      const seen = this.flags.seen[ev2.id];
-      if (seen && mk - seen < 36) w *= 0.15;
+      if (ev2.chain && f.clues && f.clues[ev2.chain]) w *= 1.5;
+      if (!free && !n) w *= 2;
+      if (ev2.repeat && seen && mk - seen < 12) continue;
+      if (free && seen && mk - seen < 36) w *= 0.15;
+      w *= this.storySalience(ev2);
       cands.push({ ev: ev2, c: c2 });
       weights.push(w);
     }
     if (!cands.length) return null;
     const { ev, c } = RNG.weighted(cands, weights);
     return { type: "story", id: ev.id, npc: c.npc ? c.npc.id : null };
+  },
+  storySalience(ev) {
+    let k = 0;
+    if (ev.region) k += 1.2;
+    if (ev.city || ev.field) k += 0.4;
+    if (ev.minRank) k += Math.min(1.2, ev.minRank * 0.25);
+    if (ev.maxRank != null) k += 0.5;
+    if (ev.npc) k += 0.8;
+    if (ev.when) k += 0.6;
+    if (ev.minAge) k += 0.3;
+    return k ? 1 + k * 0.5 : 0.7;
   },
   storyById(id) {
     return STORY.find((e) => e.id === id);
@@ -4958,7 +4978,13 @@ Object.assign(Game.prototype, {
     return { npc: q.npc != null ? this.npcById(q.npc) : null, victim: q.victim != null ? this.npcById(q.victim) : null, npc2: q.npc2 != null ? this.npcById(q.npc2) : null, extra: q.extra };
   },
   markSeen(id) {
-    this.flags.seen[id] = this.monthKey();
+    var _a;
+    const f = this.flags;
+    f.seen[id] = this.monthKey();
+    (_a = f.seenN) != null ? _a : f.seenN = {};
+    f.seenN[id] = (f.seenN[id] || 0) + 1;
+    const ev = this.storyById(id);
+    if (ev && !["system", "debut", "calendar"].includes(ev.trigger)) f.lastStory = this.monthKey();
   },
   chainNext(id) {
     this.flags.chains[id] = (this.flags.chains[id] || 0) + 1;
@@ -6883,7 +6909,8 @@ S({
     return p.rankIdx >= 3 && p.clsAdv < 1 || p.rankIdx >= 6 && p.clsAdv < 2;
   },
   weight: 3,
-  text: "협회에서 전직 시험 재응시 안내가 왔다.",
+  repeat: true,
+  text: () => RNG.pick(["협회에서 전직 시험 재응시 안내가 왔다.", '협회 의뢰소 직원이 서류철을 내민다. "전직 시험 다음 회차 접수가 열렸어요. 이번엔 붙으셔야죠?"', "휴대폰에 협회 알림이 떴다. [전직 시험 재응시 대상자 안내] 시험관 명단에 지난번 그 수석 헌터의 이름이 또 있다.", "같은 등급 헌터들이 하나둘 전직 배지를 달고 다닌다. 협회에서 재응시 일정이 담긴 메일이 왔다."]),
   choices: [{ text: "다시 도전한다", do: (g) => {
     g.queue.unshift({ type: "story", id: "class_advance" });
     return "마음을 다잡았다.";
@@ -15868,3 +15895,197 @@ Object.assign(UI, {
     }
   };
 }
+const STORY_QUIET_MAX = 8;
+Object.assign(Game.prototype, {
+  storyQuiet() {
+    const f = this.flags;
+    const mk = this.monthKey();
+    if (f.lastStory == null) f.lastStory = mk;
+    return mk - f.lastStory;
+  },
+  // 사건 확률 배수
+  storyPace() {
+    const q = this.storyQuiet();
+    if (q <= 1) return 0.5;
+    if (q >= 6) return 2;
+    if (q >= 4) return 1.4;
+    return 1;
+  },
+  inDebut() {
+    const d = this.player.debut;
+    return !!(d && !d.done);
+  },
+  storyCalendar() {
+    var _a;
+    const f = this.flags;
+    (_a = f.calYear) != null ? _a : f.calYear = {};
+    if (this.inDebut()) return false;
+    const cands = STORY.filter((ev2) => ev2.trigger === "calendar" && ev2.cal.includes(this.month) && (f.calYear[ev2.id] == null || this.year - f.calYear[ev2.id] >= 2) && this.storyEligible(ev2, {}));
+    if (!cands.length || !RNG.chance(0.2)) return false;
+    const ev = RNG.pick(cands);
+    f.calYear[ev.id] = this.year;
+    this.queue.push({ type: "story", id: ev.id, npc: null });
+    return true;
+  }
+});
+(() => {
+  const P = Game.prototype;
+  const baseMonth = P.advanceMonth;
+  P.advanceMonth = function(n = 1, opts = {}) {
+    if (opts.eventChance && this.flags) opts = __spreadProps(__spreadValues({}, opts), { eventChance: Math.min(0.9, opts.eventChance * this.storyPace()) });
+    return baseMonth.call(this, n, opts);
+  };
+  const baseMonthly = P.storyMonthly;
+  P.storyMonthly = function() {
+    baseMonthly.call(this);
+    if (this.storyCalendar()) return;
+    if (!this.inDebut() && this.storyQuiet() >= STORY_QUIET_MAX && !this.queue.some((q) => q.type === "story")) {
+      const ev = this.pickStory("month");
+      if (ev) this.queue.push(ev);
+    }
+  };
+})();
+const CAL = (ev) => S(__spreadValues({ trigger: "calendar", repeat: true }, ev));
+CAL({
+  id: "cal_seollal",
+  cal: [1, 2],
+  text: '설 연휴. 협회 게시판도 반쯤 비었다. 고향 쪽에서 문자가 온다. "올해는 내려오니? 떡국 끓여 놨다. 요즘 마을 뒷산에 작은 게이트가 자꾸 열린다더라."',
+  choices: [
+    { text: "고향에 내려가 뒷산 게이트까지 정리한다", do: (g) => {
+      g.advanceDays(5, { noSave: true });
+      return '떡국 한 그릇을 비우고 뒷산에 올랐다. 작은 게이트 세 개를 닫고 내려오자 동네 어르신들이 세뱃돈을 쥐여 줬다. "우리 동네 헌터 왔네."' + g.gain({ hp: 1, rep: 4, money: 60, fame: 1 });
+    } },
+    { text: "연휴 특근 게이트를 맡는다 (수당 두 배)", do: (g) => "빈 도시를 지키는 연휴 특근. 텅 빈 거리에서 혼자 먹는 편의점 떡국도 나쁘지 않았다." + g.gain({ money: 220, merit: 5 }) },
+    { text: "전화로 안부만 전한다", do: (g) => '"그래, 몸조심하고." 끊긴 전화 너머로 텔레비전 소리가 오래 남았다.' + g.gain({ hp: 0.3 }) }
+  ]
+});
+CAL({
+  id: "cal_daeboreum",
+  cal: [2],
+  text: '정월대보름. 한강 둔치에서 쥐불놀이 대신 "에테르 불꽃놀이" 행사가 열린다. 화염 계열 각성자들이 하늘에 불꽃을 그린다. 주최 측이 당신에게도 참가를 청한다.',
+  choices: [
+    { text: "무대에 올라 실력을 보여 준다", do: (g) => g.player.element === "fire" ? "하늘 가득 커다란 보름달을 그렸다. 환호성이 강을 건너 퍼졌다." + g.gain({ fame: 4, rep: 4 }) : "불꽃은 아니지만 당신만의 빛을 그렸다. 박수가 조금 늦게, 그러나 길게 이어졌다." + g.gain({ fame: 2, rep: 2 }) },
+    { text: "부럼을 깨며 구경한다", do: (g) => "호두를 깨물자 딱 소리가 났다. 올 한 해 부스럼은 없겠지." + g.gain({ hp: 0.4 }) }
+  ]
+});
+CAL({
+  id: "cal_newcomer",
+  cal: [3],
+  text: '3월, 협회 신규 각성자 등록 시즌. 접수창구 앞에 갓 각성한 신입들이 긴 줄을 섰다. 그중 하나가 당신을 알아보고 머뭇거리며 다가온다. "저… 처음엔 다들 뭐부터 하셨어요?"',
+  choices: [
+    { text: "아는 걸 하나하나 알려 준다", do: (g) => '신입은 수첩에 받아 적었다. "게이트 등급표는 외우는 게 아니라 몸으로 아는 거야." 자기가 한 말에 스스로 놀랐다.' + g.gain({ rep: 3, fame: 1, ether: 5 }) },
+    { text: '"살아남는 게 먼저야"라고만 말한다', do: (g) => "신입은 고개를 끄덕였다. 몇 년 뒤, 그 말을 기억한다며 인사하러 올지도 모른다." + g.gain({ fame: 1 }) }
+  ]
+});
+CAL({
+  id: "cal_cherry",
+  cal: [4],
+  text: "벚꽃 철. 꽃잎이 흩날리는 강변 산책로 한복판에 분홍빛 게이트가 열렸다. 꽃잎을 닮은 괴수들이 사람들 사이로 떠다닌다. 아름다운데, 닿으면 살이 벤다.",
+  choices: [
+    { text: "산책객을 대피시키고 게이트를 닫는다", do: (g) => {
+      g.storyFight({ title: "벚꽃 게이트", mobs: { tier: g.player.rankIdx, n: 3, elem: "spirit" }, win: { text: "마지막 꽃잎 괴수가 흩어지자 진짜 벚꽃만 남았다. 누군가 그 장면을 찍어 올렸다.", gain: { fame: 3, rep: 5 } } });
+      return "꽃잎 사이로 뛰어들었다.";
+    } },
+    { text: "관리국에 신고만 한다", do: (g) => "진압팀이 오기까지 한 시간. 그 사이 산책로는 텅 비었다." + g.gain({ merit: 2 }) }
+  ]
+});
+CAL({
+  id: "cal_children",
+  cal: [5],
+  text: '어린이날. 협회가 "헌터 체험의 날" 행사에 현역 헌터를 모집한다. 아이들에게 장비를 보여 주고, 안전 수칙을 알려 주는 자리다.',
+  choices: [
+    { text: "참가한다", do: (g) => '아이 하나가 당신 무기를 들어 보려다 낑낑댔다. 다른 아이는 "헌터님도 무서운 적 있어요?"라고 물었다. 있다고 대답했다.' + g.gain({ fame: 3, rep: 5, hp: 0.3 }) },
+    { text: "그날도 게이트에 들어간다", do: (g) => "돌아오는 길, 풍선을 든 아이들과 스쳤다. 그 아이들이 무사히 자라는 세상이면 됐다." + g.gain({ money: 80 }) }
+  ]
+});
+CAL({
+  id: "cal_memorial",
+  cal: [6],
+  text: "현충일. 대붕괴와 그 뒤의 게이트에서 쓰러진 헌터들의 이름이 새겨진 추모벽 앞. 해마다 이름이 한 줄씩 늘어난다. 묵념 사이렌이 울린다.",
+  choices: [
+    { text: "아는 이름을 찾아 꽃을 놓는다", do: (g) => {
+      const dead = g.npcs.filter((n) => !n.alive && n.met && n.relation >= 20);
+      return (dead.length ? "".concat(RNG.pick(dead).name, '의 이름 앞에 꽃을 놓았다. "다음엔 더 잘할게."') : "아는 이름은 아직 없었다. 그 사실에 조용히 감사했다.") + g.gain({ ether: 10, fame: 1 });
+    } },
+    { text: "추모벽을 지키는 경계 근무를 선다", do: (g) => '하루 종일 서 있었다. 저녁 무렵 노인 하나가 따뜻한 보리차를 건넸다. "우리 아들도 헌터였어요."' + g.gain({ merit: 4, rep: 3 }) }
+  ]
+});
+CAL({
+  id: "cal_monsoon",
+  cal: [7],
+  text: "장마. 사흘째 폭우가 쏟아지고, 침수된 지하 주차장에 게이트가 열렸다. 물속에서 무언가가 움직인다. 차 안에 갇힌 사람이 있다는 신고가 들어왔다.",
+  choices: [
+    { text: "물속으로 뛰어든다", do: (g) => {
+      g.storyFight({ title: "침수 게이트", mobs: { tier: g.player.rankIdx, n: 2, elem: "ice" }, win: { text: "흙탕물 속에서 차 문을 뜯어냈다. 운전석의 남자가 기침을 하며 숨을 몰아쉬었다.", gain: { fame: 3, rep: 6, merit: 4 } }, lose: { text: "물살에 밀려 나왔다. 사람은 뒤늦게 온 구조대가 꺼냈다.", gain: { injure: 1 } } });
+      return "차가운 물이 목까지 차올랐다.";
+    } },
+    { text: "양수 작업을 돕고 진압팀을 기다린다", do: (g) => "모래주머니를 나르며 밤을 새웠다. 진압팀은 새벽에야 왔다." + g.gain({ rep: 3, hp: -0.2 }) }
+  ]
+});
+CAL({
+  id: "cal_summer",
+  cal: [8],
+  text: "한여름. 해수욕장 앞바다에 소형 게이트 경보가 떴다. 피서객으로 붐비는 백사장, 구조대는 각성자 한 명의 지원을 요청한다.",
+  choices: [
+    { text: "해변 경계를 선다", do: (g) => "파도 사이로 올라오는 작은 괴수 몇 마리를 조용히 처리했다. 아이들은 끝까지 아무것도 몰랐다. 그게 제일 좋은 결과다." + g.gain({ money: 120, rep: 4 }) },
+    { text: "휴가를 낸다", do: (g) => "모래 위에 누워 아무것도 하지 않았다. 각성 이후 처음 있는 일이다." + g.gain({ hp: 1, ether: 8 }) }
+  ]
+});
+CAL({
+  id: "cal_chuseok",
+  cal: [9],
+  text: "추석. 고속도로는 귀성 차량으로 꽉 막혔고, 휴게소마다 헌터 경계 근무가 배치됐다. 송편 한 상자가 택배로 도착했다. 보낸 사람 칸에 낯익은 글씨.",
+  choices: [
+    { text: "고향에 내려간다", do: (g) => {
+      g.advanceDays(4, { noSave: true });
+      return '차례를 지내고 성묘를 했다. 할머니가 "우리 손주가 헌터라니" 하며 몇 번이고 손을 쓰다듬었다.' + g.gain({ hp: 1, fame: 1, ether: 6 });
+    } },
+    { text: "휴게소 경계 근무를 선다", do: (g) => "명절 수당이 두둑하다. 지나가는 가족들이 송편과 식혜를 건넸다." + g.gain({ money: 200, merit: 4, rep: 2 }) },
+    { text: "송편을 동료들과 나눈다", do: (g) => {
+      const f = g.adults().filter((n) => n.met && n.relation >= 20 && n.region === g.player.region);
+      for (const n of f.slice(0, 3)) g.changeRel(n, 4);
+      return (f.length ? "".concat(f.slice(0, 3).map((n) => n.name).join(", "), "와(과) 송편을 나눠 먹었다.") : "혼자 먹기엔 많아서 이웃들과 나눴다.") + g.gain({ rep: 2 });
+    } }
+  ]
+});
+CAL({
+  id: "cal_awaken_day",
+  cal: [10],
+  text: '"각성자의 날". 대붕괴로 첫 게이트가 열리고 첫 각성자가 나타난 날을 기리는 기념일이다. 광장에서 기념식이 열리고, 관리국장이 연설한다. "우리는 재앙 속에서 다시 일어섰습니다."',
+  choices: [
+    { text: "기념식에 참석한다", do: (g) => "연설 내내 박수가 이어졌다. 단상 뒤 커다란 화면에 20년 전 그날의 하늘이 비쳤다. 보랏빛이었다." + g.gain({ merit: 4, fame: 1 }) },
+    { text: "조용히 수련한다", do: (g) => "각성한 날을 떠올리며 에테르를 돌렸다. 그날보다는 조금 강해졌다." + g.gain({ ether: 15 }) },
+    { text: "비각성자 추모 집회에 간다", do: (g) => '"그날 각성하지 못하고 죽은 사람들도 기억해 주세요." 집회의 목소리는 작았지만 또렷했다.' + g.gain({ rep: 4, merit: -1 }) }
+  ]
+});
+CAL({
+  id: "cal_suneung",
+  cal: [11],
+  text: '수능 날. 협회가 "수험생 호위" 긴급 의뢰를 냈다. 시험장 근처에 게이트 징후가 있어, 시험이 끝날 때까지 주변을 지켜야 한다. 듣기 평가 시간엔 비행 괴수 한 마리도 날아선 안 된다.',
+  choices: [
+    { text: "의뢰를 맡는다", do: (g) => {
+      if (g.roll(0.6 + g.player.rankIdx * 0.05)) return "듣기 평가 내내 숨죽여 지켰다. 시험이 끝나고 교문을 나서는 수험생들이 당신을 보고 꾸벅 인사했다." + g.gain({ money: 160, merit: 6, rep: 5 });
+      g.storyFight({ title: "시험장 근처 게이트", mobs: { tier: g.player.rankIdx, n: 2, elem: "bolt" }, win: { text: "소리 없이 처리했다. 시험장 안에서는 아무도 몰랐다.", gain: { money: 200, merit: 8, rep: 6 } } });
+      return "3교시 직전, 게이트가 열렸다.";
+    } },
+    { text: "교문 앞에서 응원만 한다", do: (g) => '"찍은 거 다 맞아라!" 핫팩을 나눠 줬다.' + g.gain({ rep: 2 }) }
+  ]
+});
+CAL({
+  id: "cal_awards",
+  cal: [12],
+  minRank: 1,
+  text: '연말 "헌터 대상" 시상식. 올해의 신인상, 최다 게이트 공략상, 시민이 뽑은 헌터상… 레드카펫 위로 플래시가 터진다. 당신에게도 초대장이 왔다.',
+  choices: [
+    { text: "참석한다", do: (g) => {
+      const p = g.player;
+      const won = p.fame >= 30 + p.rankIdx * 15 && g.roll(0.5);
+      if (won) {
+        g.lifeEvent("".concat(g.year, "년 헌터 대상 시상식에서 상을 받았다."));
+        return "이름이 불렸다. 무대에 올라 트로피를 받았다. 무슨 말을 했는지는 기억나지 않는다." + g.gain({ fame: 8, money: 300 });
+      }
+      return "수상자 명단에 이름은 없었다. 그래도 뒤풀이에서 좋은 사람을 여럿 만났다." + g.gain({ fame: 1, relAll: 3 });
+    } },
+    { text: "그 시간에 게이트에 들어간다", do: (g) => "시상식 생중계를 라디오로 들으며 마지막 괴수를 베었다. 한 해의 마무리로는 이쪽이 더 어울렸다." + g.gain({ ether: 12, money: 60 }) }
+  ]
+});

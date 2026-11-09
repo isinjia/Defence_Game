@@ -59,26 +59,45 @@ Object.assign(Game.prototype, {
   },
   pickStory(trigger = 'month') {
     const cands = [], weights = [];
-    const mk = this.monthKey();
+    const mk = this.monthKey(); const f = this.flags; f.seenN ??= {};
     for (const ev of STORY) {
       if ((ev.trigger || 'month') !== trigger) continue;
       const c = {};
       if (ev.npc) c.npc = this.storyNpc(ev.npc);
       if (!this.storyEligible(ev, c)) continue;
+      const seen = f.seen[ev.id]; const n = f.seenN[ev.id] || (seen ? 1 : 0);
+      const free = (ev.chain && ev.step > 0) || ev.repeat;
+      // 한 생에 최대 2번, 두 번째는 5년 뒤부터 (연계·반복 사건 제외)
+      if (!free && (n >= 2 || (n === 1 && mk - seen < 60))) continue;
       let w = ev.weight ?? 1;
       if (ev.chain) w *= 2.2;
       if (ev.chain && this.player.regress && (this.player.regress.chains || []).includes(ev.chain)) w *= 2;
-      const seen = this.flags.seen[ev.id];
-      if (seen && mk - seen < 36) w *= 0.15;
+      if (ev.chain && f.clues && f.clues[ev.chain]) w *= 1.5;
+      if (!free && !n) w *= 2;
+      if (ev.repeat && seen && mk - seen < 12) continue;
+      if (free && seen && mk - seen < 36) w *= 0.15;
+      // 현저성: 지금 상황에 들어맞는 조건이 많을수록 자주
+      w *= this.storySalience(ev);
       cands.push({ ev, c }); weights.push(w);
     }
     if (!cands.length) return null;
     const { ev, c } = RNG.weighted(cands, weights);
     return { type: 'story', id: ev.id, npc: c.npc ? c.npc.id : null };
   },
+  storySalience(ev) {
+    let k = 0;
+    if (ev.region) k += 1.2;
+    if (ev.city || ev.field) k += 0.4;
+    if (ev.minRank) k += Math.min(1.2, ev.minRank * 0.25);
+    if (ev.maxRank != null) k += 0.5;
+    if (ev.npc) k += 0.8;
+    if (ev.when) k += 0.6;
+    if (ev.minAge) k += 0.3;
+    return k ? 1 + k * 0.5 : 0.7;
+  },
   storyById(id) { return STORY.find((e) => e.id === id); },
   storyCtx(q) { return { npc: q.npc != null ? this.npcById(q.npc) : null, victim: q.victim != null ? this.npcById(q.victim) : null, npc2: q.npc2 != null ? this.npcById(q.npc2) : null, extra: q.extra }; },
-  markSeen(id) { this.flags.seen[id] = this.monthKey(); },
+  markSeen(id) { const f = this.flags; f.seen[id] = this.monthKey(); f.seenN ??= {}; f.seenN[id] = (f.seenN[id] || 0) + 1; const ev = this.storyById(id); if (ev && !['system', 'debut', 'calendar'].includes(ev.trigger)) f.lastStory = this.monthKey(); },
   chainNext(id) { this.flags.chains[id] = (this.flags.chains[id] || 0) + 1; this.flags.chainAt[id] = this.monthKey(); },
   chainSet(id, step) { this.flags.chains[id] = step; this.flags.chainAt[id] = this.monthKey(); },
   chainEnd(id) { this.flags.chains[id] = 99; },
