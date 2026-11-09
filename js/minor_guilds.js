@@ -4,7 +4,7 @@
 // - NPC: 낮은 등급(C 이하)은 거대 길드보다 지역 중소 길드에 주로 들어간다.
 // - 신규 등록 문자(debut_rising_0): 등급에 맞는 길드 두 곳이 실제로 연락하고, 본문 이름과 선택지가 일치한다.
 // - 선택지 정보(B의 info_btn.js 규약): 선택지에 info: { type: 'guild', id }, 버튼 글에 길드 이름이 있으면 ⓘ가 자동으로 붙는다.
-//   중소 길드 카드에는 본거지·규모·성향·특기·평판·가입 등급을 더한다(UI.INFO.guild 감싸기). 길드 화면에 지역 중소 길드 목록·가입.
+//   중소 길드 카드 상세는 B(info_btn.js)가 그린다. 길드 화면에 지역 중소 길드 목록·가입.
 
 const GUILD_TIER = { baekho: 'giant', cheongryong: 'giant', hyeonmu: 'giant', jujak: 'giant', kama: 'gov' };
 // size: 인원, rep: 평판(0~100), minRank: 가입 최소 공식 등급, fameReq, style: 성향, spec: 특기
@@ -213,28 +213,9 @@ if (typeof UI !== 'undefined' && UI.guildHtml) {
   };
 }
 
-// ---------- 정보 카드: 중소 길드 상세 (info_btn.js 의 UI.INFO.guild 감싸기) ----------
+// ---------- 정보 카드: 중소 길드 상세는 info_btn.js(B)가 GUILDS의 minor 필드를 직접 읽는다 ----------
 if (typeof UI !== 'undefined') {
   UI.infoGuildExtra = (id) => GUILDS[id] || null;
-  const hook = () => {
-    if (!UI.INFO || !UI.INFO.guild || UI.INFO.guild._minor) return;
-    const base = UI.INFO.guild;
-    UI.INFO.guild = function (id) {
-      const info = base.call(this, id); const g = GUILDS[id];
-      if (!info || !g) return info;
-      const row = (k, v) => `<div class="ic-row"><span>${k}</span><b>${v}</b></div>`;
-      const home = guildHome(id);
-      const extra = [row('구분', guildTierName(id)), row('본거지', home ? home.name : '-')];
-      if (g.minor) extra.push(row('규모', `약 ${g.size}명`), row('성향', g.style), row('특기', g.spec), row('평판', `${g.rep >= 60 ? '좋음' : g.rep >= 45 ? '보통' : '호불호'} (${g.rep})`), row('가입 등급', `공식 ${RANKS[g.minRank].key}급 이상`));
-      else if (g.tier === 'giant') extra.push(row('가입 등급', '보통 C급 이상만 스카우트'));
-      info.sub = guildTierName(id);
-      const at = info.body.indexOf('</p>');
-      info.body = at >= 0 ? info.body.slice(0, at + 4) + extra.join('') + info.body.slice(at + 4) : extra.join('') + info.body;
-      return info;
-    };
-    UI.INFO.guild._minor = true;
-  };
-  hook();
   // 버튼 글에 줄인 이름(주작 연합, 현무 등)만 있어도 길드 ⓘ를 붙인다
   if (UI.infoGuess && !UI.infoGuess._minor) {
     const baseGuess = UI.infoGuess;
@@ -249,5 +230,4 @@ if (typeof UI !== 'undefined') {
     };
     UI.infoGuess._minor = true;
   }
-  if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', hook);
 }
