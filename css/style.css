@@ -647,3 +647,15 @@ svg.order-lines { position: absolute; inset: 0; width: 100%; height: 100%; point
 svg.order-lines line { stroke: #8cc4ff; stroke-width: 2; stroke-dasharray: 5 4; opacity: .85; }
 #cb-ctrl > .order-panel { margin: 0; }
 @keyframes sayin { from { opacity: 0; } to { opacity: 1; } }
+
+/* ===== 탐색 선택 팀 상의 (council.js) ===== */
+.council-ov { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 6; }
+.modal-box:has(.council-ov) { position: relative; }
+.cn-card { background: var(--panel-solid, #0d141f); border: 1px solid var(--amber); border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px; box-shadow: 0 -8px 24px #000c; max-height: 70vh; overflow: auto; }
+.cn-mems { display: grid; gap: 6px; }
+.cn-mem { display: flex; align-items: center; gap: 8px; position: relative; }
+.cn-badge { position: absolute; left: 22px; top: -4px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 12px; color: #05080d; }
+.cn-badge.o { background: #7be0a0; } .cn-badge.x { background: #ff6f7f; }
+.cn-say { display: grid; font-size: 13px; line-height: 1.35; } .cn-say span { color: var(--dim, #9aa6b8); }
+.cn-btns { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.cn-btns button { min-height: 40px; }

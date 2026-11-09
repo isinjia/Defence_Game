@@ -95,7 +95,7 @@ const { chromium, devices } = require('playwright');
       const acts = await ev(() => [...document.querySelectorAll('#modal-box [data-act]')].map((e) => e.dataset.act + '|' + (e.dataset.v || '')));
       // 진짜 전투 중이면 자동 전투로 돌린다(층 지도 단계의 ctx.combat 은 전투 객체가 아니다)
       if (await ev(() => !!(UI.ctx && UI.ctx.combat && typeof UI.ctx.combat.toggleAuto === 'function' && !UI.ctx.combat.result))) { await ev(() => { const c = UI.ctx; if (!c.combat.auto) c.combat.toggleAuto(); c.speed = 2; }); await page.waitForFunction(() => !UI.ctx || !UI.ctx.combat || typeof UI.ctx.combat.toggleAuto !== 'function' || (UI.ctx.combat.result && !UI.ctx.playing), null, { timeout: 90000 }); continue; }
-      const pick = acts.find((a) => /^(g-next|g-finish\|clear|c-done)/.test(a)) || acts.find((a) => /^g-node/.test(a)) || acts.find((a) => /^modal-close/.test(a)) || acts.find((a) => !/^(c-|zoom|sheet|focus|g-leave)/.test(a));
+      const pick = acts.find((a) => /^(g-next|g-finish\|clear|c-done)/.test(a)) || acts.find((a) => /^cn-(go|force|vote\|O)/.test(a)) || acts.find((a) => /^g-node/.test(a)) || acts.find((a) => /^modal-close/.test(a)) || acts.find((a) => !/^(c-|cn-|zoom|sheet|focus|g-leave)/.test(a));
       if (!pick) break;
       seen.push(pick.split('|')[0]);
       const [a, v] = pick.split('|'); await act(a, v || undefined); await page.waitForTimeout(200);
@@ -104,6 +104,22 @@ const { chromium, devices } = require('playwright');
     await closeAll();
     if (still) throw new Error('150번 눌러도 게이트가 끝나지 않음: ' + [...new Set(seen)].join(','));
     if (!seen.some((x) => /g-finish|c-done|modal-close/.test(x))) throw new Error('게이트 종료 버튼을 못 거침: ' + [...new Set(seen)].join(','));
+  });
+  await step('게이트 팀 상의 패널 (O/X 의견 → 진행)', async () => {
+    const r = await ev(() => {
+      const p = G.player; p.hp = p.maxHp; p.mp = p.maxMp; p.councilAsk = true;
+      if (!G.party().length) { const n = G.makeNpc(false, 'human'); Object.assign(n, { region: p.region, met: true, relation: 50, links: {}, disciples: [], parents: [], isCompanion: true }); G.npcs.push(n); (p.party ||= []).push(n.id); }
+      const g = { id: 999002, kind: 'gate', x: p.x, y: p.y, region: p.region, tier: 0, theme: '상의', elem: 'fire', born: G.monthKey(), variant: 'normal' }; G.mapGates.push(g); UI.startGate(g.id);
+      const nd = document.querySelector('#modal-box [data-act="g-node"]'); if (!nd) return '층 지도 칸 없음';
+      UI.handle('g-node', nd.dataset.v);
+      const ov = document.getElementById('council-ov'); if (!ov) return '상의 패널이 뜨지 않음';
+      const go = ov.querySelector('[data-act="cn-go"],[data-act="cn-force"],[data-act="cn-vote"]'); if (!go) return '진행 버튼 없음';
+      UI.handle(go.dataset.act, go.dataset.v || 'O');
+      if (document.getElementById('council-ov')) return '진행 뒤에도 패널이 남음';
+      p.councilAsk = false; return '';
+    });
+    await closeAll(); await ev(() => { UI.ctx = null; });
+    if (r) throw new Error(r);
   });
   await step('지도 탐험: 탐사 지점·탐사 기록·차량 대여소·재앙·북부', async () => {
     const r = await ev(() => {
