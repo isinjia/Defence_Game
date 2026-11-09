@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.59";
+const GAME_VERSION = "0.60";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -15924,8 +15924,8 @@ Object.assign(Game.prototype, {
     if (f.lastStory == null) f.lastStory = mk;
     return mk - f.lastStory;
   },
-  // 사건 확률 배수
-  storyPace() {
+  // 개인 사건 확률 배수 (세계 긴장도 storyPace 는 영역 C의 pacing.js)
+  storyGapPace() {
     const q = this.storyQuiet();
     if (q <= 1) return 0.5;
     if (q >= 6) return 2;
@@ -15959,7 +15959,7 @@ Object.assign(Game.prototype, {
   };
   const baseMonth = P.advanceMonth;
   P.advanceMonth = function(n = 1, opts = {}) {
-    if (opts.eventChance && this.flags) opts = __spreadProps(__spreadValues({}, opts), { eventChance: Math.min(0.9, opts.eventChance * this.storyPace()) });
+    if (opts.eventChance && this.flags) opts = __spreadProps(__spreadValues({}, opts), { eventChance: Math.min(0.9, opts.eventChance * this.storyGapPace()) });
     return baseMonth.call(this, n, opts);
   };
   const baseMonthly = P.storyMonthly;

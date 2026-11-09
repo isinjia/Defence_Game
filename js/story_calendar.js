@@ -10,8 +10,8 @@ Object.assign(Game.prototype, {
     if (f.lastStory == null) f.lastStory = mk;
     return mk - f.lastStory;
   },
-  // 사건 확률 배수
-  storyPace() {
+  // 개인 사건 확률 배수 (세계 긴장도 storyPace 는 영역 C의 pacing.js)
+  storyGapPace() {
     const q = this.storyQuiet();
     if (q <= 1) return 0.5;
     if (q >= 6) return 2;
@@ -37,7 +37,7 @@ Object.assign(Game.prototype, {
   if (baseDebut) P.debutStart = function () { baseDebut.call(this); const d = this.player.debut; if (d && d.start == null) d.start = this.monthKey(); };
   const baseMonth = P.advanceMonth;
   P.advanceMonth = function (n = 1, opts = {}) {
-    if (opts.eventChance && this.flags) opts = { ...opts, eventChance: Math.min(0.9, opts.eventChance * this.storyPace()) };
+    if (opts.eventChance && this.flags) opts = { ...opts, eventChance: Math.min(0.9, opts.eventChance * this.storyGapPace()) };
     return baseMonth.call(this, n, opts);
   };
   const baseMonthly = P.storyMonthly;
