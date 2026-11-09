@@ -1,5 +1,5 @@
 // ===== 게이트 크로니클: 이적시장과 전속 계약 (영역 C) =====
-// docs/헌터물_제안3.md 4. 길드 가입을 "계약"으로 바꾼다: 기간(1~3년), 연봉(월 보너스), 계약금, 위약금, 의무(분기당 게이트 n회).
+// docs/헌터물_제안3.md 4. 길드 가입을 "계약"으로 바꾼다: 기간(1~3년), 연봉(월급), 계약금, 위약금, 의무(분기당 게이트 n회).
 // 계약이 끝나면 다른 길드들이 제안을 넣고(공식 등급·명성·랭킹), 중간 이적은 위약금. 서약을 걸면 연봉이 오르지만 깨면 몸이 대가를 치른다.
 // NPC도 매년 1월 이적시장 뉴스. 저장: p.contract = { guild, start, until, salary, buyout, duty, qStart, qDone, warn, oath }
 
@@ -94,7 +94,7 @@
     if (big) this.world.transferRecord = c.sign;
     this.rumor(`${p.name}, ${GUILDS[c.guild].name}과(와) ${c.years}년 ${o.renew ? '재계약' : '전속 계약'}. 계약금 ${fmt(c.sign)} 크레딧${big ? ' · 역대 최고' : ''}.${c.oath ? ' 마나 서약까지 걸었다.' : ''}`, { kind: 'transfer', score: big ? 5 : 2 });
     this.lifeEvent(`${GUILDS[c.guild].name}과(와) ${c.years}년 계약을 맺었다.`);
-    return `${GUILDS[c.guild].name}과(와) ${c.years}년 계약. 계약금 ${fmt(c.sign)} 크레딧, 월 보너스 ${fmt(c.salary)} 크레딧, 분기당 게이트 ${c.duty}회.`;
+    return `${GUILDS[c.guild].name}과(와) ${c.years}년 계약. 계약금 ${fmt(c.sign)} 크레딧, 월급 ${fmt(c.salary)} 크레딧, 분기당 게이트 ${c.duty}회.`;
   };
 
   // 의무 집계: 게이트 공략
@@ -154,7 +154,7 @@ if (typeof UI !== 'undefined') {
     const p = G.player; const c = p.contract;
     const head = reason === 'end' ? `${GUILDS[c.guild].name}과(와)의 계약이 끝났다. 제안서가 쌓였다.` : reason === 'scout' ? `몸값이 올랐다. 다른 길드에서 스카우트 제의가 왔다. 지금 옮기면 위약금 ${fmt(G.currentBuyout())} 크레딧 중 절반을 새 길드가 부담한다.` : '자유 계약 신분인 당신에게 길드들이 연락해 왔다.';
     const row = (o, i) => `<div class="item-row"><div class="grow"><b style="color:${GUILDS[o.guild].color}">${GUILDS[o.guild].name}</b> <span class="small">${o.renew ? '재계약' : '영입'} · ${o.years}년</span>
-      <div class="small dim">계약금 ${fmt(o.sign)} · 월 보너스 ${fmt(o.salary)} · 분기당 게이트 ${o.duty}회 · 위약금 ${fmt(o.buyout)}</div>
+      <div class="small dim">계약금 ${fmt(o.sign)} · 월급 ${fmt(o.salary)} · 분기당 게이트 ${o.duty}회 · 위약금 ${fmt(o.buyout)}</div>
       <div class="row"><button class="sm primary" data-act="offer-sign" data-v="${i}:0">계약</button><button class="sm" data-act="offer-sign" data-v="${i}:1">마나 서약까지 (연봉 +30%, 깨면 수명)</button></div></div></div>`;
     if (!offers.length) return this.processQueue();
     this.modal(`<div class="eyebrow">이적시장</div><h3>계약 제안</h3><p class="event-text">${head}</p>
@@ -182,7 +182,7 @@ if (typeof UI !== 'undefined') {
   UI.guildHtml = function () {
     const html = baseGuild.call(this);
     const c = G.player.contract; if (!c || G.player.guild !== c.guild) return html;
-    const card = `<div class="panel sec"><h3>전속 계약</h3><div class="small">남은 기간 <b>${G.contractLeft()}개월</b> · 월 보너스 ${fmt(c.salary)} · 이번 분기 게이트 <b>${c.qDone}/${c.duty}</b>${c.warn ? ' <span class="bad">경고 1회</span>' : ''}${c.oath ? ' · <span class="bad">마나 서약</span>' : ''}</div>
+    const card = `<div class="panel sec"><h3>전속 계약</h3><div class="small">남은 기간 <b>${G.contractLeft()}개월</b> · 월급 ${fmt(c.salary)} · 이번 분기 게이트 <b>${c.qDone}/${c.duty}</b>${c.warn ? ' <span class="bad">경고 1회</span>' : ''}${c.oath ? ' · <span class="bad">마나 서약</span>' : ''}</div>
       <div class="small dim">중간에 나가면 위약금 ${fmt(G.currentBuyout())} 크레딧. 몸값(월) ${fmt(G.marketValue())}.</div></div>`;
     return html + card;
   };

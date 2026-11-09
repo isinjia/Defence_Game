@@ -639,7 +639,7 @@ const UI = {
       cur = `<div class="guild-card" style="--c:${g.color}"><div class="guild-crest">${FX.elemIcon(g.elem, 34)}</div><div class="grow"><h3>${g.name}</h3><p class="dim">${g.desc}</p>
         <div>직위 <b>${GUILD_RANKS[p.guildRank].name}</b> · 공헌도 <span class="num">${p.contrib}${next ? ` / ${next.req}` : ''}</span>${next ? ` <span class="dim">다음: ${next.name}</span>` : ''}</div>
         ${next ? this.bar('ether', p.contrib, next.req) : ''}
-        <div class="dim small">월급 ${fmt(40 * RANKS[p.official].mult * (1 + p.guildRank))} 크레딧 (공식 등급 기준) · 본부(${home.name}) 상점 20% 할인 · 본부에서 길드 임무 게이트가 열립니다.${p.guild === 'cheongryong' ? ' · 수련 효율 +15%' : ''}</div>
+        <div class="dim small">월급·성과급은 아래 급여 카드 참고 · 본부(${home.name}) 상점 20% 할인 · 본부에서 길드 임무 게이트가 열립니다.${p.guild === 'cheongryong' ? ' · 수련 효율 +15%' : ''}</div>
         <div class="row sec"><button class="danger sm" data-act="guild-leave">탈퇴</button></div></div></div>`;
     } else if (reg.guild) {
       const g = GUILDS[reg.guild];

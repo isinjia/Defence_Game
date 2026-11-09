@@ -476,7 +476,7 @@ class Game {
         p.hp = Math.min(p.maxHp, p.hp + Math.floor(p.maxHp * 0.2));
         p.mp = Math.min(p.maxMp, p.mp + Math.floor(p.maxMp * 0.3));
       }
-      if (p.guild) {
+      if (p.guild && !this.payrollActive) { // 소속 급여는 js/payroll.js 가 계약·공무원 봉급으로 한 번만 준다
         const sal = Math.floor(40 * RANKS[p.official ?? p.rankIdx].mult * (1 + p.guildRank));
         p.money += sal;
       }
