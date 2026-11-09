@@ -207,3 +207,68 @@
     return r;
   };
 }
+
+// ---------- 9. 지도의 손맛: 도착 파문, 지나가는 게이트의 반응, 브레이크 게이트 붉은 맥박과 가장자리 방향 표시 ----------
+if (typeof MapView !== 'undefined') {
+  const MP = MapView.prototype;
+  MP.addRipple = function (x, y, color, big) { (this.fxr ||= []).push({ x, y, color, big: !!big, t0: this.t }); };
+  const baseDraw = MP.draw;
+  MP.draw = function () {
+    baseDraw.call(this);
+    if (!G.player) return;
+    const c = this.ctx, s = this.tile, t = this.t;
+    try {
+      // 파문
+      if (this.fxr && this.fxr.length) {
+        this.fxr = this.fxr.filter((r) => t - r.t0 < (r.big ? 50 : 36));
+        for (const r of this.fxr) {
+          const k = (t - r.t0) / (r.big ? 50 : 36);
+          const [px, py] = this.toScreen(r.x + 0.5, r.y + 0.5);
+          c.save(); c.globalAlpha = 1 - k; c.strokeStyle = r.color; c.lineWidth = 2;
+          c.beginPath(); c.ellipse(px, py + s * 0.28, s * (0.2 + k * (r.big ? 0.9 : 0.55)), s * (0.08 + k * (r.big ? 0.4 : 0.22)), 0, 0, Math.PI * 2); c.stroke(); c.restore();
+        }
+      }
+      // 브레이크 게이트: 붉은 맥박, 화면 밖이면 가장자리에 방향 표시
+      const brk = (G.mapGates || []).filter((g) => g.breakCity && !g.cleared);
+      for (const g of brk) {
+        const [px, py] = this.toScreen(g.x + 0.5, g.y + 0.5);
+        const pad = 56;
+        if (px > -s && py > -s && px < this.w + s && py < this.hgt + s) {
+          const k = FX.reduced ? 0.5 : (t % 60) / 60;
+          c.save(); c.globalAlpha = 0.9 * (1 - k); c.strokeStyle = '#ff4f6a'; c.lineWidth = 3;
+          c.beginPath(); c.arc(px, py, s * (0.45 + k * 0.5), 0, Math.PI * 2); c.stroke(); c.restore();
+        } else {
+          const cx = this.w / 2, cy = this.hgt / 2; const dx = px - cx, dy = py - cy;
+          const sc = Math.min((cx - pad) / Math.abs(dx || 1), (cy - pad) / Math.abs(dy || 1));
+          const ex = cx + dx * sc, ey = cy + dy * sc; const ang = Math.atan2(dy, dx);
+          const blink = FX.reduced || (t % 40) < 28;
+          if (blink) {
+            c.save(); c.translate(ex, ey); c.rotate(ang); c.fillStyle = '#ff4f6a'; c.shadowColor = '#ff4f6a'; c.shadowBlur = 10;
+            c.beginPath(); c.moveTo(12, 0); c.lineTo(-6, -9); c.lineTo(-2, 0); c.lineTo(-6, 9); c.closePath(); c.fill(); c.restore();
+          }
+        }
+      }
+    } catch (e) { /* 연출 실패 무시 */ }
+  };
+
+  // 걷기가 끝나면 발밑에 파문
+  const baseEnd = UI.endWalk;
+  if (baseEnd) UI.endWalk = function (...a) {
+    const r = baseEnd.apply(this, a);
+    if (this.map && G.player) this.map.addRipple(G.player.x, G.player.y, '#46e0d0');
+    return r;
+  };
+  // 게이트 근처를 지나면 게이트가 꿈틀
+  const baseStep = Game.prototype.walkStep;
+  Game.prototype.walkStep = function (x, y, ...a) {
+    const r = baseStep.call(this, x, y, ...a);
+    try {
+      if (this === G && UI.map) for (const g of this.mapGates || []) {
+        if (g.cleared || Math.max(Math.abs(g.x - x), Math.abs(g.y - y)) > 1) continue;
+        const seen = (UI.map._ripSeen ||= new Map()); if (seen.get(g.id) === UI.map.t) continue; seen.set(g.id, UI.map.t);
+        UI.map.addRipple(g.x, g.y, g.variant === 'red' || g.breakCity ? '#ff4f6a' : '#c58cff', true);
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+}
