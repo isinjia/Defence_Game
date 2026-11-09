@@ -1,36 +1,36 @@
 // ===== 게이트 크로니클: 각성 전야 (스토리로 시작하기) =====
-// 출신은 무작위로 정해지고, 출신마다 10가지 사연 중 하나로 시작한다. 어느 경로든 선택은 8번. 장면마다의 선택이 속성(e), 직업 계열(g), 직업(c), 특성(t), 재능(talent)에 점수를 쌓는다.
+// 출신은 무작위로 정해지고, 출신마다 10가지 사연 중 하나로 시작한다. 도입에서 고른 선택에 따라 13가지 각성 이야기 중 하나로 이어진다. 어느 경로든 선택은 8번 이하. 장면마다의 선택이 속성(e), 직업 계열(g), 직업(c), 특성(t), 재능(talent)에 점수를 쌓는다.
 // {name} 플레이어, {friend} 소꿉친구 이름
 
 const PROLOGUE = {
   // ---------- 1. 출신별 도입 (출신마다 1장면) ----------
-  chaebol_1: { title: '강남, 펜트하우스', text: '대리석 식탁 위로 샹들리에 빛이 쏟아진다. 아버지가 와인잔을 내려놓는다.\n\n"백호 시큐리티 지분 일부를 네 앞으로 돌렸다. 각성자가 아니어도 괜찮다. 각성자를 부리는 쪽에 서면 되니까."\n\n창밖, 강남 돔 너머로 게이트 하나가 희미하게 깜빡인다. 그날 밤 {friend}에게서 문자가 온다. "폐상가 쪽 하늘 봤어? 이상해."',
+  chaebol_1: { title: '강남, 펜트하우스', text: '대리석 식탁 위로 샹들리에 빛이 쏟아진다. 아버지가 와인잔을 내려놓는다.\n\n"백호 시큐리티 지분 일부를 네 앞으로 돌렸다. 각성자가 아니어도 괜찮다. 각성자를 부리는 쪽에 서면 되니까."\n\n창밖, 강남 돔 너머로 게이트 하나가 희미하게 깜빡인다. 그날 밤 {friend}에게서 문자가 온다. "요즘 좀 이상하지 않아? 뉴스 봤어?"',
     choices: [
       { text: '"전 부리는 쪽이 되기 싫어요." 자리를 박차고 일어난다', e: { fire: 1 }, g: { fighter: 2 }, c: { swordsman: 1 }, t: { berserk: 1 }, next: 'gate_break' },
       { text: '고개를 끄덕이며 아버지의 계획을 듣는다', e: { steel: 1 }, g: { guard: 1, support: 1 }, t: { merchant: 2 }, next: 'gate_break' },
       { text: '대답 대신 창밖의 게이트를 오래 바라본다', e: { spirit: 1 }, g: { mage: 1, esper: 1 }, t: { mana_sense: 1 }, next: 'gate_break' },
       { text: '경호 실장의 총을 떠올린다. 배워 두고 싶다', e: { bolt: 1 }, g: { shooter: 2 }, c: { gunslinger: 1 }, t: { quick: 1 }, next: 'gate_break' },
     ] },
-  orphan_1: { title: '희망의 집', text: '보육원의 아침은 늘 전쟁이다. 동생 여섯의 도시락을 싸고, 열이 나는 원장 할머니께 죽을 쑤고 나면 해가 중천이다. 냉장고도, 통장도 비었다.\n\n오후에는 재개발 용역들이 대문을 걷어차고 갔다. 저녁 무렵 {friend}가 찾아와 말한다. "폐상가 쪽 하늘, 아까부터 보랏빛이야."',
+  orphan_1: { title: '희망의 집', text: '보육원의 아침은 늘 전쟁이다. 동생 여섯의 도시락을 싸고, 열이 나는 원장 할머니께 죽을 쑤고 나면 해가 중천이다. 냉장고도, 통장도 비었다.\n\n오후에는 재개발 용역들이 대문을 걷어차고 갔다. 저녁 무렵 {friend}가 찾아와 귤 봉지를 내민다. "또 굶었지? 먹어."',
     choices: [
       { text: '대문 앞을 몸으로 막아섰던 손이 아직 떨린다', e: { steel: 1 }, g: { guard: 2 }, t: { iron_body: 2 }, next: 'gate_break' },
       { text: '동생들을 먼저 먹이고 오늘도 굶는다', e: { ice: 1 }, g: { support: 2 }, t: { charisma: 1 }, talent: 1, next: 'gate_break' },
       { text: '용역 차량의 블랙박스를 몰래 빼 온다', e: { bolt: 1 }, g: { shadow: 2 }, c: { thief: 1 }, t: { quick: 1, lucky: 1 }, next: 'gate_break' },
     ] },
-  soldier_1: { title: '전역 신고', text: '전역하는 날. 위병소를 나서는데 자꾸 박 상병 얼굴이 떠오른다. 작년 게이트 경계 작전에서 돌아오지 못한 녀석. 주머니 속 녀석의 군번줄이 차갑다.\n\n집에 오니 {friend}가 기다리고 있다. "전역 축하해. 그런데 저기 폐상가 하늘, 좀 이상하지 않아?"',
+  soldier_1: { title: '전역 신고', text: '전역하는 날. 위병소를 나서는데 자꾸 박 상병 얼굴이 떠오른다. 작년 게이트 경계 작전에서 돌아오지 못한 녀석. 주머니 속 녀석의 군번줄이 차갑다.\n\n집에 오니 {friend}가 기다리고 있다. "전역 축하해. 이제 뭐 할 거야?"',
     choices: [
       { text: '"네 몫까지 싸운다." 헌터 등록 안내서를 챙긴다', e: { fire: 1 }, g: { fighter: 2 }, c: { lancer: 1 }, t: { berserk: 1 }, next: 'gate_break' },
       { text: '녀석의 가족을 찾아가 군번줄을 전한다', e: { spirit: 1 }, g: { support: 2 }, t: { charisma: 1 }, next: 'gate_break' },
       { text: '총구를 겨누던 감각을 떠올리며 숨을 고른다', e: { ice: 1 }, g: { shooter: 2 }, c: { sniper: 1 }, t: { loner: 1 }, next: 'gate_break' },
     ] },
-  subject_1: { title: '하얀 방', text: '꿈을 꾼다. 하얀 방, 하얀 가운, 손목의 바코드. "피험자 12번, 에테르 주입 7차." 바늘이 들어오고, 세상이 뒤집힌다.\n\n연구소가 폐쇄된 지 2년. 깨어나도 손목엔 바코드 흉터가 있고, 요즘은 형광등이 저절로 깜빡인다. {friend}가 창밖을 가리킨다. "저 보랏빛, 너도 보여?"',
+  subject_1: { title: '하얀 방', text: '꿈을 꾼다. 하얀 방, 하얀 가운, 손목의 바코드. "피험자 12번, 에테르 주입 7차." 바늘이 들어오고, 세상이 뒤집힌다.\n\n연구소가 폐쇄된 지 2년. 깨어나도 손목엔 바코드 흉터가 있고, 요즘은 형광등이 저절로 깜빡인다. {friend}가 그 흉터를 보고도 모른 척 웃어 준다.',
     choices: [
       { text: '이를 악물고 고통을 견디던 기억', e: { steel: 1 }, g: { guard: 1, fighter: 1 }, t: { iron_body: 2 }, next: 'gate_break' },
       { text: '연구원의 생각이 들렸던 기억', e: { spirit: 1 }, g: { esper: 2 }, c: { telepath: 2 }, next: 'gate_break' },
       { text: '벽 너머로 몸이 미끄러졌던 기억', e: { bolt: 1 }, g: { esper: 1, shadow: 1 }, c: { teleporter: 2 }, next: 'gate_break' },
       { text: '아무 기억도 없는 척, 힘을 숨기며 산다', e: { ice: 1 }, g: { shadow: 2 }, c: { telekinetic: 1 }, t: { loner: 1 }, next: 'gate_break' },
     ] },
-  student_1: { title: '편의점 야간', text: '대학 2학년. 조별 과제는 혼자 떠안았고, 새벽에는 편의점 야간 근무다. 취한 손님이 계산대를 내리치며 소리친다. "나 D급 헌터야!"\n\n손님이 나가고 나서야 {friend}의 문자를 본다. "폐상가 쪽 하늘 갈라졌대. 너 거기 근처잖아."',
+  student_1: { title: '편의점 야간', text: '대학 2학년. 조별 과제는 혼자 떠안았고, 새벽에는 편의점 야간 근무다. 취한 손님이 계산대를 내리치며 소리친다. "나 D급 헌터야!"\n\n손님이 나가고 나서야 {friend}의 문자를 본다. "살아 있냐? 내일 밥 먹자."',
     choices: [
       { text: '눈을 똑바로 보며 "나가 주세요"라고 했었다', e: { fire: 1 }, g: { fighter: 2 }, t: { reckless: 1 }, next: 'gate_break' },
       { text: '과제를 하며 게이트 논문을 뒤적이던 참이다', e: { ice: 1 }, g: { mage: 2 }, t: { genius: 1, mana_sense: 1 }, next: 'gate_break' },
@@ -128,6 +128,22 @@ const PROLOGUE = {
       { text: '일부러 힘을 숨긴다. "돈이요. 솔직히."', t: { merchant: 2, lucky: 1 }, next: null },
       { text: '"게이트가 왜 열렸는지 알아내려고요."', talent: 1, t: { mana_sense: 1, genius: 1 }, next: null },
       { text: '유리 너머 {friend}를 본다. "저 녀석 옆에 서 있으려고요."', t: { charisma: 1, iron_body: 1 }, friend: 25, next: null },
+    ] },
+  verdict_guild: { title: '길드 면접', text: '관리국 등록을 마친 다음 날, 모르는 번호로 전화가 온다. "청룡 길드 신인 발굴팀입니다. 소문 듣고 연락드렸어요."\n\n삼성동 길드 빌딩 28층 면접실. 정장 차림의 스카우터 셋이 태블릿을 넘기며 묻는다. "F급 신입한테 우리가 왜 투자해야 하죠?"',
+    choices: [
+      { text: '"아직 F급이니까요. 제일 싸게 살 수 있을 때잖아요."', t: { merchant: 1, charisma: 1 }, luck: 1, next: null },
+      { text: '말 대신 손바닥 위로 에테르를 끌어올린다. 태블릿 화면이 지직거린다', talent: 1, t: { mana_sense: 1, reckless: 1 }, next: null },
+      { text: '"투자 말고 계약서부터 보여 주세요."', t: { genius: 1 }, talent: 1, next: null },
+      { text: '"길드는 아직 생각 없어요. 같이 다닐 사람이 있어서요." {friend}의 얼굴이 떠오른다', t: { charisma: 1 }, friend: 20, next: null },
+      { text: '면접 내내 창밖 한강만 본다. "다음에 제가 부르면 오세요."', t: { loner: 1, berserk: 1 }, luck: 2, next: null },
+    ] },
+  verdict_street: { title: '미등록 각성자', text: '관리국 대기 번호는 412번. 오늘 안엔 어림도 없다. 청사 앞 흡연 구역에서 모자를 눌러쓴 사람이 다가온다.\n\n"등록 대행해 드려요. 기록은 깨끗하게, 등급은 원하는 대로. 아니면… 아예 등록 안 하고 사는 법도 알려 드리고요."',
+    choices: [
+      { text: '무시하고 412번 표를 꼭 쥔 채 다시 줄을 선다', talent: 1, t: { iron_body: 1 }, next: null },
+      { text: '"얼마예요?" 일단 조건부터 듣는다', t: { merchant: 2 }, luck: 1, next: null },
+      { text: '브로커의 손목 문신을 기억해 둔다. 언젠가 쓸모가 있겠지', t: { quick: 1, lucky: 1 }, next: null },
+      { text: '{friend}에게 전화한다. "나 오늘 늦어. 그래도 정식으로 할게."', t: { charisma: 1 }, friend: 15, next: null },
+      { text: '브로커의 멱살을 잡고 관리국 경비를 부른다', t: { berserk: 1, reckless: 1 }, talent: 1, next: null },
     ] },
 };
 
@@ -470,6 +486,26 @@ Object.assign(PROLOGUE, {
       { text: '짖는 개들이 한 방향을 가리킨다. 따라간다', e: { spirit: 1 }, g: { summon: 2 }, c: { tamer: 1 }, friend: 5, next: 'gear' },
     ] },
 });
+
+// ---------- 도입 → 각성 이야기 갈래 ----------
+// 도입 장면의 선택지마다 다른 갈래로 이어진다. 'gb' 는 원래의 게이트 브레이크(장소 변형)로 간다.
+// 갈래: 게이트 브레이크, 병상, 유물, 꿈과 신병, 에테르 폭풍, 각성자 범죄, 불법 각성제, 결투, 조난, 체험 관광, 친구의 폭주, 정기 검진, 짐꾼
+const PRO_ARC_POOL = {
+  chaebol: ['gb', 'relic', 'crime', 'drug', 'duel', 'tour', 'late', 'storm', 'dream'],
+  orphan: ['gb', 'ill', 'crime', 'duel', 'storm', 'friend', 'dream', 'nest', 'relic'],
+  soldier: ['gb', 'wild', 'storm', 'crime', 'nest', 'duel', 'ill', 'tour', 'friend'],
+  subject: ['gb', 'drug', 'late', 'friend', 'relic', 'dream', 'ill', 'crime', 'wild'],
+  student: ['gb', 'tour', 'late', 'duel', 'friend', 'dream', 'drug', 'storm', 'wild', 'nest', 'ill'],
+};
+for (const [bg, pool] of Object.entries(PRO_ARC_POOL)) {
+  for (let k = 1; k <= 10; k++) {
+    const sc = PROLOGUE[`${bg}_${k}`]; if (!sc) continue;
+    sc.choices.forEach((ch, i) => {
+      const arc = pool[(k * 2 + i) % pool.length];
+      if (arc !== 'gb') ch.next = `${arc}_1`;
+    });
+  }
+}
 
 const PROLOGUE_START = Object.fromEntries(['chaebol', 'orphan', 'soldier', 'subject', 'student'].map((bg) => [bg, Array.from({ length: 10 }, (_, i) => `${bg}_${i + 1}`)]));
 
