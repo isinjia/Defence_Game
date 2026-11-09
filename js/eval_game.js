@@ -22,3 +22,32 @@ if (typeof UI !== 'undefined') {
     return baseHandle.call(this, act, v);
   };
 }
+
+// 2) 전투 긴장 (독립 평가: '공격'만 눌러도 체력 10~20%만 잃고 이김 → 전투 재미 과락).
+// 자기 등급 게이트를 파티로 돌면 끝 체력 약 80%였다. 일반 괴수·보스의 위협을 올려 50~65% 선으로.
+// 헌터 시험(튜토리얼) 괴수는 그대로 둔다.
+const THREAT = { atk: 1.1, hp: 1.08, bossAtk: 1.15, bossHp: 1.25 };
+if (typeof Game !== 'undefined') {
+  const baseMake = Game.prototype.makeMonster;
+  Game.prototype.makeMonster = function (tier, boss, prefElem) {
+    const m = baseMake.call(this, tier, boss, prefElem);
+    if (this._tutorialMobs || !m) return m;
+    const a = boss ? THREAT.bossAtk : THREAT.atk; const h = boss ? THREAT.bossHp : THREAT.hp;
+    m.atk = Math.round(m.atk * a); m.hp = m.maxHp = Math.round(m.maxHp * h);
+    return m;
+  };
+}
+if (typeof UI !== 'undefined' && UI.examEnemies) {
+  const baseExamEn = UI.examEnemies;
+  UI.examEnemies = function (...a) { G._tutorialMobs = true; try { return baseExamEn.apply(this, a); } finally { G._tutorialMobs = false; } };
+}
+
+// 파티는 머릿수만큼 적 체력만 늘고 공격은 거의 그대로라 여전히 쉬웠다 → 3인 이상이면 적 공격을 조금 더.
+if (typeof Game !== 'undefined') {
+  const baseScale = Game.prototype.scaleForParty;
+  Game.prototype.scaleForParty = function (list, tier) {
+    const r = baseScale.call(this, list, tier); const n = this.partySize();
+    if (n >= 3 && !this._tutorialMobs) for (const e of r) e.atk = Math.round(e.atk * (1 + 0.13 * (n - 2)));
+    return r;
+  };
+}
