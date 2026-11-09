@@ -3045,3 +3045,21 @@ button.item-row {
     height: 112px;
   }
 }
+.set-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--line);
+}
+.set-row input[type=range] {
+  width: min(200px, 50%);
+  accent-color: var(--amber);
+  min-height: 32px;
+}
+.set-row button {
+  min-width: 72px;
+  justify-content: center;
+  flex: none;
+}
