@@ -272,3 +272,41 @@ if (typeof MapView !== 'undefined') {
     return r;
   };
 }
+
+// ---------- 5. 적 행동 예고의 몸짓 (A의 행동 예고 js/intent.js 와 짝) ----------
+// 예고가 뜬 적: 보통 공격은 가볍게 들썩, 큰 기술(전체·기절·약화·소환·강한 스킬)은 웅크리며 빛을 모은다.
+// 게이지가 찰수록 세지고(--chg 0~1), 실행하는 순간 한 번 크게 번쩍.
+{
+  const BIG = ['aoe', 'stun', 'debuff', 'summon', 'multi'];
+  const isBig = (sk) => !!sk && (BIG.includes(typeof intentKind === 'function' ? intentKind(sk) : sk.type) || (sk.power || 0) >= 1.6);
+  UI.intentPose = function () {
+    const c = this.ctx; if (!c || !c.combat) return; const cb = c.combat;
+    for (const u of cb.units) {
+      if (u.side !== 'enemy') continue;
+      const el = document.getElementById('u-' + u.id); if (!el) continue;
+      const on = !!(u.alive && u.next && !cb.result);
+      const sk = on ? skillById(u.next.skill) : null;
+      const big = on && isBig(sk);
+      el.classList.toggle('pose-ready', on && !big);
+      el.classList.toggle('pose-charge', big);
+      if (on) {
+        el.style.setProperty('--chg', Math.max(0, Math.min(1, (u.atb - 60) / 40)).toFixed(2));
+        if (big) el.style.setProperty('--pc', sk && sk.elem && ELEMENTS[sk.elem] ? elemColor(sk.elem) : (u.elem && ELEMENTS[u.elem] ? elemColor(u.elem) : '#ff4f6a'));
+      }
+    }
+  };
+  const baseGauges = UI.drawGauges;
+  UI.drawGauges = function (...a) { const r = baseGauges.apply(this, a); try { this.intentPose(); } catch (e) { /* 무시 */ } return r; };
+  // 실행 순간: 모으던 적이 번쩍
+  const baseApply = UI.applyEvent;
+  UI.applyEvent = function (l) {
+    const ev = l && l.ev;
+    try {
+      if (ev && ev.k === 'cast' && ev.side === 'enemy') {
+        const el = document.getElementById('u-' + ev.src);
+        if (el && el.classList.contains('pose-charge')) { el.classList.remove('pose-charge'); FX.pulse(el, 'unleash', 450); }
+      }
+    } catch (e) { /* 무시 */ }
+    return baseApply.call(this, l);
+  };
+}
