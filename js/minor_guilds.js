@@ -3,7 +3,8 @@
 // 중소 길드는 GUILDS에 함께 들어가 기존 길드 코드(소속·월급·공략권·세력·이적)를 그대로 쓴다. minor: true, home: 본거지.
 // - NPC: 낮은 등급(C 이하)은 거대 길드보다 지역 중소 길드에 주로 들어간다.
 // - 신규 등록 문자(debut_rising_0): 등급에 맞는 길드 두 곳이 실제로 연락하고, 본문 이름과 선택지가 일치한다.
-// - 선택지 정보: ch.info(g) → 길드 소개 문자열(B의 선택지 정보 버튼이 띄운다). 길드 화면에 지역 중소 길드 목록·가입.
+// - 선택지 정보(B의 info_btn.js 규약): 선택지에 info: { type: 'guild', id }, 버튼 글에 길드 이름이 있으면 ⓘ가 자동으로 붙는다.
+//   중소 길드 카드에는 본거지·규모·성향·특기·평판·가입 등급을 더한다(UI.INFO.guild 감싸기). 길드 화면에 지역 중소 길드 목록·가입.
 
 const GUILD_TIER = { baekho: 'giant', cheongryong: 'giant', hyeonmu: 'giant', jujak: 'giant', kama: 'gov' };
 // size: 인원, rep: 평판(0~100), minRank: 가입 최소 공식 등급, fameReq, style: 성향, spec: 특기
@@ -156,7 +157,7 @@ if (typeof STORY !== 'undefined') {
         },
       };
       Object.defineProperty(ch, 'text', { get: () => { const id = G.debutGuildOffers()[k]; return id ? `${GUILDS[id].name}에 수습으로 들어간다` : '…'; }, enumerable: true });
-      ch.info = (g) => guildInfo(g.debutGuildOffers()[k]);
+      Object.defineProperty(ch, 'info', { get: () => ({ type: 'guild', id: G.debutGuildOffers()[k] }), enumerable: true });
       return ch;
     };
     const keep = ev.choices.filter((c) => !/주작 프리랜서 연합 수습/.test(c.text));
@@ -178,14 +179,15 @@ if (typeof STORY !== 'undefined') {
       },
     };
     Object.defineProperty(ch, 'text', { get: () => { const id = G.minorGuildsNear(G.player.region, 1)[0]; return id ? `지역 중소 길드 ${GUILDS[id].name}에 연락한다` : '지역 중소 길드에 연락한다'; }, enumerable: true });
-    ch.info = (g) => { const id = g.minorGuildsNear(g.player.region, 1)[0]; return id ? guildInfo(id) : ''; };
+    Object.defineProperty(ch, 'info', { get: () => ({ type: 'guild', id: G.minorGuildsNear(G.player.region, 1)[0] }), enumerable: true });
     aff.choices.splice(aff.choices.length - 1, 0, ch);
   }
   // 거대 길드 선택지에도 정보
   for (const e of STORY) for (const c of e.choices || []) {
+    const d = Object.getOwnPropertyDescriptor(c, 'text'); if (!d || d.get) continue; // 동적 선택지(게터)는 건너뛴다
     if (c.info) continue;
     const m = Object.keys(GUILDS).find((id) => typeof c.text === 'string' && GUILDS[id].name && c.text.includes(GUILDS[id].name.split(' ')[0]) && /들어간|계약|가입|수습/.test(c.text));
-    if (m) c.info = () => guildInfo(m);
+    if (m) c.info = { type: 'guild', id: m };
   }
 }
 
@@ -209,4 +211,43 @@ if (typeof UI !== 'undefined' && UI.guildHtml) {
     if (act === 'minor-join') return this.after(G.joinMinorGuild(v));
     return baseHandle.call(this, act, v);
   };
+}
+
+// ---------- 정보 카드: 중소 길드 상세 (info_btn.js 의 UI.INFO.guild 감싸기) ----------
+if (typeof UI !== 'undefined') {
+  UI.infoGuildExtra = (id) => GUILDS[id] || null;
+  const hook = () => {
+    if (!UI.INFO || !UI.INFO.guild || UI.INFO.guild._minor) return;
+    const base = UI.INFO.guild;
+    UI.INFO.guild = function (id) {
+      const info = base.call(this, id); const g = GUILDS[id];
+      if (!info || !g) return info;
+      const row = (k, v) => `<div class="ic-row"><span>${k}</span><b>${v}</b></div>`;
+      const home = guildHome(id);
+      const extra = [row('구분', guildTierName(id)), row('본거지', home ? home.name : '-')];
+      if (g.minor) extra.push(row('규모', `약 ${g.size}명`), row('성향', g.style), row('특기', g.spec), row('평판', `${g.rep >= 60 ? '좋음' : g.rep >= 45 ? '보통' : '호불호'} (${g.rep})`), row('가입 등급', `공식 ${RANKS[g.minRank].key}급 이상`));
+      else if (g.tier === 'giant') extra.push(row('가입 등급', '보통 C급 이상만 스카우트'));
+      info.sub = guildTierName(id);
+      const at = info.body.indexOf('</p>');
+      info.body = at >= 0 ? info.body.slice(0, at + 4) + extra.join('') + info.body.slice(at + 4) : extra.join('') + info.body;
+      return info;
+    };
+    UI.INFO.guild._minor = true;
+  };
+  hook();
+  // 버튼 글에 줄인 이름(주작 연합, 현무 등)만 있어도 길드 ⓘ를 붙인다
+  if (UI.infoGuess && !UI.infoGuess._minor) {
+    const baseGuess = UI.infoGuess;
+    UI.infoGuess = function (text) {
+      const out = baseGuess.call(this, text) || [];
+      const t = String(text || '');
+      for (const id of ['baekho', 'cheongryong', 'hyeonmu', 'jujak', 'kama']) {
+        const short = id === 'kama' ? '관리국' : GUILDS[id].name.split(' ')[0];
+        if (t.includes(short) && /들어간|계약|가입|수습|입단|연락/.test(t) && !out.includes('guild:' + id)) out.push('guild:' + id);
+      }
+      return out;
+    };
+    UI.infoGuess._minor = true;
+  }
+  if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', hook);
 }
