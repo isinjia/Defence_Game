@@ -238,10 +238,12 @@ Object.assign(UI, {
       if (t) t.classList.add('marked');
       // ⑥ 처음 한 번만 설명
       let seen = false; try { seen = localStorage.getItem('gc_order_tip') === '1'; } catch (e) { seen = true; }
-      if (!seen && this.coachPop) {
+      // 자격 시험의 조작 안내가 진행 중이면 그 뒤로 미룬다 (안내를 가리지 않게)
+      const tutoring = c.tutorial && !c.tutorial.boss && c.tutorial.acted < 3;
+      if (!seen && !tutoring && this.coachPop) {
         try { localStorage.setItem('gc_order_tip', '1'); } catch (e) { /* 무시 */ }
         const n = document.createElement('div'); n.className = 'coach';
-        n.innerHTML = fixJosa(`<span class="eyebrow">리더 ${L.name.replace(/\(.*\)$/, '')}의 오더</span><div>${p.order.vague ? '리더가 말을 던졌지만 무엇을 하라는 건지는 없다.' : `<b>지목</b> 표시된 적과 <b>리더</b> 표시된 스킬이 오더다.`} 따르지 않아도 되지만, 리더는 기억한다. 오더를 따르면 리더와 사이가 좋아진다.</div>`);
+        n.innerHTML = fixJosa(`<span class="eyebrow">전투 안내 · 오더</span><div>${p.order.vague ? '리더가 말을 던졌지만 무엇을 하라는 건지는 없다.' : `<b>지목</b> 표시된 적과 <b>리더</b> 표시된 스킬이 오더다.`} 따르지 않아도 되지만, 리더는 기억한다. 오더를 따르면 리더와 사이가 좋아진다.</div>`);
         this.coachPop(n, t || lf || null, 'order-tip');
       }
     }

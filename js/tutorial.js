@@ -76,18 +76,29 @@ Object.assign(UI, {
       ex1after: { just: '좋아. 이제 진짜 전투다. 동료들은 각자 알아서 싸운다. 넌 네 차례에만 집중해.', kind: '잘했어요. 이제 싸움이에요. 동료들은 알아서 움직이니까, 자기 차례만 챙기면 돼요.', cold: '됐다. 전투 준비.' },
       ex2: { just: '보급 상자다. 게이트 안의 상자는 반은 선물, 반은 함정이야. 열기 전에 확인하는 방법도 있다. 그리고 이 앞이 보스 구역이다.', kind: '상자가 있네요. 게이트 상자는 반쯤은 함정이에요. 돌을 던져 보는 것도 방법이고요. 이 앞이 보스예요.', cold: '상자. 절반은 함정. 이 앞이 보스.' },
       ex2after: { just: '보스는 체력이 많고 한 방이 세다. 막는 사람이 끌고, 치는 사람이 약점을 노린다. 위험하면 회복약을 아끼지 마.', kind: '보스는 오래 버티고 세게 때려요. 무리하지 말고, 위험하면 회복약 꼭 쓰세요.', cold: '보스는 세다. 아프면 약 먹어. 죽지 마.' },
-      // 전투 조작 안내 (리더가 직접 말한다)
-      gauge: { just: '각자 발밑 게이지 보이지? 빠른 사람일수록 빨리 차고, 꽉 차면 그 사람이 움직인다. 동료들은 알아서 싸우니까 넌 네 게이지만 봐.', kind: '캐릭터마다 게이지가 차요. 빠를수록 빨리 차고, 다 차면 움직여요. 동료들은 알아서 싸우니까 {name} 씨는 자기 게이지만 보면 돼요.', cold: '게이지. 차면 움직인다. 동료는 알아서 싸운다. 네 것만 봐.' },
-      turn: { just: '{name}, 네 차례다. 고르는 동안은 시간이 멈춰 있으니 서두르지 마. 아래 메뉴에서 공격이든 스킬이든 골라.', kind: '{name} 씨 차례예요! 고르는 동안은 시간이 멈춰 있으니까 천천히요. 아래 메뉴에서 공격이나 스킬을 골라 보세요.', cold: '네 차례. 시간은 멈춰 있다. 메뉴에서 골라.' },
-      aimEnemy: { just: '좋아. 이제 칠 놈을 눌러. 누르는 순간 나간다.', kind: '좋아요. 이제 노릴 적을 눌러 주세요. 누르면 바로 나가요.', cold: '칠 놈을 눌러.' },
-      aimAlly: { just: '누굴 돌볼지 동료를 눌러.', kind: '도와줄 동료를 눌러 주세요.', cold: '동료를 눌러.' },
-      aimNone: { just: '대상이 필요 없는 기술이다. 사용만 누르면 된다.', kind: '이건 대상이 필요 없는 기술이에요. 사용을 누르면 돼요.', cold: '사용을 눌러.' },
-      done: { just: '그거다. 아프면 아이템에서 회복약, 버거우면 방어. 오른쪽 위 아이콘으로 속도를 올리거나 자동으로 맡길 수도 있다. 이제 알아서 해 봐.', kind: '잘했어요! 아프면 아이템에서 회복약, 버거우면 방어도 있어요. 오른쪽 위 아이콘으로 빠르게 하거나 자동으로 맡길 수도 있고요.', cold: '됐다. 아프면 회복약, 버거우면 방어. 속도랑 자동은 오른쪽 위. 이제 혼자 해.' },
+      // 전투 중 리더의 말 (세계 안의 말만 한다. 조작 방법은 따로 작은 글씨로 붙인다)
+      gauge: { just: '다들 움직이는 속도가 달라. 빠른 놈이 먼저 친다. 동료들은 알아서 싸우니까 넌 네 몫만 해.', kind: '사람마다 움직이는 속도가 달라요. 빠른 쪽이 먼저 쳐요. 동료들은 알아서 싸우니까 {name} 씨는 자기 몫만 챙겨요.', cold: '빠른 놈이 먼저 친다. 네 몫만 해.' },
+      turn: { just: '{name}, 지금이다. 서두르지 말고 판단해.', kind: '{name} 씨, 지금이에요. 침착하게요.', cold: '지금.' },
+      aimEnemy: { just: '어느 놈부터 칠지 정해.', kind: '누구부터 노릴지 정해요.', cold: '골라.' },
+      aimAlly: { just: '누굴 돌볼 거야?', kind: '누굴 도와줄 거예요?', cold: '누구.' },
+      aimNone: { just: '그건 겨눌 필요 없는 기술이다. 바로 써.', kind: '그건 겨누지 않아도 되는 기술이에요. 바로 써요.', cold: '바로 써.' },
+      done: { just: '좋아. 다치면 바로 약 먹고, 버거우면 막으면서 버텨. 무리하지 마.', kind: '잘했어요! 아프면 바로 약 먹고, 힘들면 막으면서 버텨요.', cold: '됐다. 아프면 약. 버거우면 막아.' },
       boss: { just: '보스다. 속성 상성을 봐라. 상성이면 피해가 크게 들어간다.', kind: '보스예요! 속성 상성을 노려 보세요. 잘 맞으면 훨씬 아프게 들어가요.', cold: '상성 노려.' },
       win: { just: '"수고했다. 처음치곤 나쁘지 않았어. 밖에선 내가 없다. 오늘 한 순서, 잊지 마라."', kind: '"다들 정말 잘했어요. 오늘 순서대로만 하면 쉽게 안 죽어요. 무슨 일 있으면 연락해요."', cold: '"합격. …살아서 또 보자."' },
       lose: { just: '"내가 끼어든 건 이번이 마지막이다. 밖에서는 아무도 대신 안 싸워 준다."', kind: '"괜찮아요, 다들 처음이니까. 그래도 밖에서는 제가 없어요. 꼭 기억해요."', cold: '"구해 주는 건 오늘뿐이다."' },
     };
     return ((T[key] || {})[pers] || (T[key] || {}).just || '').replace(/\{name\}/g, G.player ? G.player.name : '');
+  },
+  // 리더 말 아래에 작게 붙는 조작 설명 (게임 시스템 안내)
+  coachSys(key) {
+    return {
+      gauge: '발밑 게이지가 차면 그 캐릭터가 행동합니다.',
+      turn: '내 차례에는 시간이 흐르지 않습니다. 아래 메뉴에서 공격·스킬·방어·아이템을 고르세요.',
+      aimEnemy: '공격할 적을 누르면 바로 발동합니다.',
+      aimAlly: '도울 동료를 누르면 발동합니다.',
+      aimNone: '사용을 누르면 발동합니다.',
+      done: '아이템: 회복약 · 방어: 받는 피해 감소 · 오른쪽 위: 배속·자동 전투',
+    }[key] || '';
   },
   examGateCtx(stage) {
     const ex = this.exam;
@@ -149,14 +160,16 @@ Object.assign(UI, {
     if (t.boss) return t.acted >= 2 ? '' : `<div class="coach"><span class="eyebrow">${who}</span><div>${this.leadSay('boss')}</div></div>`;
     if (t.acted >= 3) return '';
     // 안내는 리더가 플레이어에게 직접 하는 말로 (시스템 문구를 리더 입에 넣지 않는다)
-    if (t.acted >= 1) { step = '안내 3/3'; text = this.leadSay('done'); }
-    else if (!cb.waiting) { step = '안내 1/3'; text = this.leadSay('gauge'); }
-    else if (!c.sel) { step = '안내 2/3'; text = this.leadSay('turn'); }
+    let key;
+    if (t.acted >= 1) { step = '안내 3/3'; key = 'done'; }
+    else if (!cb.waiting) { step = '안내 1/3'; key = 'gauge'; }
+    else if (!c.sel) { step = '안내 2/3'; key = 'turn'; }
     else {
       step = '안내 2/3';
       const aim = SKILL_AIM[skillById(c.sel).type] || 'none';
-      text = this.leadSay(aim === 'enemy' ? 'aimEnemy' : aim === 'ally' ? 'aimAlly' : 'aimNone');
+      key = aim === 'enemy' ? 'aimEnemy' : aim === 'ally' ? 'aimAlly' : 'aimNone';
     }
+    text = `"${this.leadSay(key)}"<div class="small dim coach-sys">${this.coachSys(key)}</div>`;
     return `<div class="coach"><span class="eyebrow">${who} · ${step}</span><div>${text}</div></div>`;
   },
 
