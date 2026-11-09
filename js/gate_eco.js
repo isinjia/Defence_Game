@@ -6,7 +6,7 @@
 
 const ECO = {
   deadline: (tier) => (tier >= 5 ? 2 : 3),                                // 닫힘 기한(개월)
-  breakChance: [0.005, 0.01, 0.02, 0.04, 0.08, 0.15, 0.25, 0.35],            // 기한까지 못 닫으면 터질 확률
+  breakChance: [0.004, 0.008, 0.016, 0.032, 0.065, 0.12, 0.2, 0.3],            // 기한까지 못 닫으면 터질 확률
   attempt: [0.55, 0.5, 0.45, 0.4, 0.35, 0.3, 0.25, 0.2],                  // 달마다 누군가 들어갈 확률
   deathOnFail: 0.1,
 };
@@ -52,7 +52,7 @@ const ECO = {
       const weights = gs.map((id) => (this.guildPower ? this.guildPower(id) : 50) * (id === home ? 2 : 1));
       const gid = RNG.weighted(gs, weights);
       actor = { kind: 'guild', guild: gid, name: GUILDS[gid].name };
-      team = this.adults().filter((n) => n.guild === gid && !n.isCompanion && !n.hired && fit(n) && (n.region === g.region || regionDist(n.region, g.region) <= 1))
+      team = this.adults().filter((n) => n.guild === gid && !n.isCompanion && !n.hired && !n.retired && !(n.hurt > 0) && fit(n) && (n.region === g.region || regionDist(n.region, g.region) <= 1))
         .filter((n) => pool.includes(n) || n.region !== g.region).sort((a, b) => b.rankIdx - a.rankIdx).slice(0, 4);
     } else {
       actor = { kind: 'free', name: '프리랜서' };
