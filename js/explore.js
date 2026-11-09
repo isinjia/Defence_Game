@@ -147,36 +147,50 @@ Object.assign(Game.prototype, {
     const s = this.siteById(id); if (!s) return '';
     const p = this.player; const key = this.monthKey();
     const pr = p.rankIdx; const tierNear = Math.max(0, Math.min(7, pr + RNG.int(-1, 0)));
-    const hurt = (f) => { const d = Math.max(1, Math.round(p.maxHp * f)); p.hp = Math.max(1, p.hp - d); return d; };
+    // 판정(js/check.js): this._ck = true(성공)/false(실패)/undefined(판정 없음), 결과 목록은 gain/loss 로 모은다
+    const ck = this._ck; const who = this._ckNpc || null;
+    const gain = (t) => { if (this._ckOut) this._ckOut.gains.push(t); };
+    const loss = (t) => { if (this._ckOut) this._ckOut.losses.push(t); };
+    const hurt = (f) => {
+      if (who) { loss(`${who.name} 부상 (체력 -${Math.round(f * 100)}%)`); return 0; }
+      const d = Math.max(1, Math.round(p.maxHp * f)); p.hp = Math.max(1, p.hp - d); loss(`체력 -${fmt(d)}`); return d;
+    };
+    const ok = ck == null ? RNG.chance(0.6) : ck;
     s.visited = true; s.known = true;
     let out = '';
     switch (s.kind) {
       case 'ruin': {
         if (choice !== 'search') return '폐허를 지나쳤다.';
         s.used = key; this.advanceDays(2, { noSave: true });
-        const r = RNG.weighted(['relic', 'core', 'trap', 'beast', 'none'], [14 + p.luck / 10, 36, 20, 18, 12]);
-        if (r === 'relic') out = `잔해 밑에서 ${this.addRelic()}을(를) 찾아냈다.`;
-        else if (r === 'core') { const n = RNG.int(1, 3); this.addCore(tierNear, n); out = `괴수 사체 더미에서 ${coreName(tierNear)} ${n}개를 건졌다.`; }
-        else if (r === 'trap') out = `무너지는 천장에 깔렸다. 체력 -${fmt(hurt(0.25))}.`;
+        loss('2일 소요');
+        const r = ok ? RNG.weighted(['relic', 'core', 'cache'], [22 + p.luck / 10, 50, 28]) : RNG.weighted(['trap', 'beast', 'none'], [40, 35, 25]);
+        if (r === 'relic') { const t = this.addRelic(); gain(t); out = `무너진 잔해를 조심스럽게 들어내자 그 밑에 ${t}이(가) 묻혀 있었다.`; }
+        else if (r === 'core') { const n = RNG.int(2, 3); this.addCore(tierNear, n); gain(`${coreName(tierNear)} ${n}개`); out = `괴수 사체 더미를 헤집어 쓸 만한 코어를 골라냈다.`; }
+        else if (r === 'cache') { const m = Math.round(70 * RANKS[pr].mult * RNG.range(0.8, 1.3)); p.money += m; p.items.potion = (p.items.potion || 0) + 1; gain(`크레딧 +${fmt(m)}`); gain('응급 회복제 1개'); out = '무너진 약국 창고에서 아직 멀쩡한 물자를 찾아냈다.'; }
+        else if (r === 'trap') { hurt(0.25); out = '발밑이 꺼지며 무너지는 천장에 깔렸다. 간신히 빠져나왔다.'; }
         else if (r === 'beast') {
           const near = MONSTERS.filter((m) => Math.abs(m.tier - tierNear) <= 1); const tpl = RNG.pick(near.length ? near : MONSTERS);
           const mob = { id: this.nextObjId++, kind: 'mob', x: s.x, y: s.y, region: s.region, tier: tierNear, elem: tpl.elem, name: tpl.name, shape: tpl.shape, count: RNG.int(1, 2), born: key };
           this.mobs.push(mob); this.queue.push({ type: 'mobAmbush', mobId: mob.id });
-          out = `잔해 속에 잠들어 있던 ${tpl.name}이(가) 눈을 떴다!`;
-        } else out = '샅샅이 뒤졌지만 쓸 만한 것은 없었다.';
+          loss(`${tpl.name} 무리의 습격`);
+          out = `잔해를 건드린 소리에 안에 잠들어 있던 ${tpl.name}이(가) 눈을 떴다!`;
+        } else out = '한참을 뒤졌지만 이미 누가 다 털어 간 뒤였다.';
         break;
       }
       case 'spring': {
         if (choice !== 'absorb') return '샘을 그대로 두고 떠났다.';
-        s.used = key; this.advanceDays(3, { noSave: true });
-        const v = this.etherGift(RNG.int(90, 140));
-        out = `샘의 에테르를 들이마셨다. 에테르 +${fmt(v)}.`;
-        if (RNG.chance(0.3)) { const d = hurt(0.2); out += ` 넘치는 에테르에 혈관이 타는 듯하다. 체력 -${fmt(d)}.`; if (RNG.chance(0.35)) { p.injured = Math.max(p.injured || 0, 1); out += ' 한 달은 무리하면 안 되겠다.'; } }
+        s.used = key; this.advanceDays(3, { noSave: true }); loss('3일 소요');
+        if (ok) { const v = this.etherGift(RNG.int(100, 150)); gain(`에테르 +${fmt(v)}`); out = '호흡을 고르며 샘의 에테르를 천천히 받아들였다. 흐름이 몸 구석구석에 고르게 스민다.'; }
+        else {
+          const v = this.etherGift(RNG.int(35, 60)); gain(`에테르 +${fmt(v)}`);
+          hurt(0.2); out = '에테르가 한꺼번에 밀려들었다. 혈관이 타는 듯해 중간에 손을 뗐다.';
+          if (!who && RNG.chance(0.4)) { p.injured = Math.max(p.injured || 0, 1); loss('부상 1개월'); }
+        }
         break;
       }
       case 'outpost': {
-        s.used = key; this.advanceDays(1, { noSave: true });
-        const pot = RNG.int(1, 2), man = RNG.int(0, 2);
+        s.used = key; this.advanceDays(1, { noSave: true }); loss('1일 소요');
+        const pot = ok ? RNG.int(2, 3) : RNG.int(0, 1), man = ok ? RNG.int(1, 2) : 0;
         p.items.potion = (p.items.potion || 0) + pot; if (man) p.items.mana = (p.items.mana || 0) + man;
         const lore = RNG.pick([
           '"대붕괴 3일째. 북쪽 통신 두절. 제주 방향에서 에테르 수치가 계속 오른다."',
@@ -185,18 +199,27 @@ Object.assign(Game.prototype, {
           '"북부 봉쇄선 너머로 정찰조 셋이 들어갔다. 아무도 돌아오지 않았다."',
           '"게이트는 무작위가 아니다. 사람이 많은 곳을 따라 열린다. 상부는 이 보고를 묻었다."',
         ]);
-        const n = this.revealSitesNear(s.x, s.y, 7);
-        out = `초소의 일지: ${lore} 보급 상자에서 응급 회복제 ${pot}개${man ? `, 마나 앰플 ${man}개` : ''}를 챙겼다.${n ? ` 벽의 작전 지도에서 주변 지점 ${n}곳의 위치를 알아냈다.` : ''}`;
+        const n = ok ? this.revealSitesNear(s.x, s.y, 7) : 0;
+        if (pot) gain(`응급 회복제 ${pot}개`); if (man) gain(`마나 앰플 ${man}개`); if (n) gain(`주변 지점 ${n}곳 위치`);
+        if (!ok) hurt(0.08);
+        out = ok ? `잠긴 서랍을 따고 초소 일지를 찾아냈다. ${lore} 벽에 붙은 작전 지도도 고스란히 남아 있었다.` : `녹슨 문을 억지로 열다 손을 다쳤다. 일지는 물에 젖어 한 줄만 읽혔다. ${lore}`;
         this.rumor(`버려진 초소의 기록: ${lore}`);
         break;
       }
       case 'village': {
         s.used = key;
         if (choice === 'help') {
-          this.advanceDays(3, { noSave: true });
-          const money = Math.round(80 * RANKS[pr].mult * RNG.range(0.8, 1.2));
-          p.money += money; this.addRep(s.region, 4); p.fame += 1;
-          out = `무너진 방벽을 고치고 근처 괴수를 쫓아 줬다. 촌장이 모은 돈 ${fmt(money)} 크레딧을 받았다. 지역 평판이 올랐다.`;
+          this.advanceDays(3, { noSave: true }); loss('3일 소요');
+          if (ok) {
+            const money = Math.round(90 * RANKS[pr].mult * RNG.range(0.8, 1.2));
+            p.money += money; this.addRep(s.region, 5); p.fame += 1;
+            gain(`크레딧 +${fmt(money)}`); gain('지역 평판 +5'); gain('명성 +1');
+            out = '무너진 방벽을 다시 쌓고, 밤마다 마을을 넘보던 괴수 무리를 쫓아냈다. 촌장이 마을 사람들이 모은 돈을 내밀었다.';
+          } else {
+            const money = Math.round(30 * RANKS[pr].mult); p.money += money; this.addRep(s.region, 1);
+            gain(`크레딧 +${fmt(money)}`); gain('지역 평판 +1'); hurt(0.12);
+            out = '방벽을 쌓다 무너지는 돌무더기에 휘말렸다. 일은 반쯤밖에 못 했지만, 마을 사람들은 고맙다며 조금이라도 쥐여 줬다.';
+          }
         } else if (choice === 'trade') {
           const herb = p.mats.herb || 0;
           if (herb > 0) { const v = herb * 60; p.mats.herb = 0; p.money += v; out = `약초 ${herb}다발을 넘기고 ${fmt(v)} 크레딧을 받았다.`; }
@@ -227,14 +250,15 @@ Object.assign(Game.prototype, {
       case 'altar': {
         s.used = key;
         if (choice === 'destroy') {
-          p.fame += 6; this.addRep(s.region, 8); p.cultGrudge = (p.cultGrudge || 0) + 1;
-          out = '제단을 부숴 버렸다. 근처 마을이 안도했다. 하지만 어디선가 누군가 이 일을 지켜보고 있었다.';
+          p.cultGrudge = (p.cultGrudge || 0) + 1; loss('균열교의 원한');
+          if (ok) { p.fame += 6; this.addRep(s.region, 8); gain('명성 +6'); gain('지역 평판 +8'); out = '단숨에 제단을 박살 냈다. 근처 마을이 안도했다. 하지만 어디선가 누군가 이 일을 지켜보고 있었다.'; }
+          else { p.fame += 2; this.addRep(s.region, 3); gain('명성 +2'); gain('지역 평판 +3'); hurt(0.15); out = '제단에 손을 대자 붉은 에테르가 터져 나왔다. 간신히 부수긴 했지만 대가를 치렀다.'; }
           this.lifeEvent('균열교의 제단을 부쉈다.');
           this.rumor(`누군가 ${regionById(s.region).name} 외곽의 균열교 제단을 박살 냈다고 한다.`);
         } else {
-          const v = this.etherGift(RNG.int(40, 70));
           p.cultFavor = (p.cultFavor || 0) + 1;
-          out = `제단에 새겨진 문양을 해독했다. 게이트의 맥동을 읽는 법이 어렴풋이 보인다. 에테르 +${fmt(v)}.`;
+          if (ok) { const v = this.etherGift(RNG.int(45, 75)); gain(`에테르 +${fmt(v)}`); out = '제단에 새겨진 문양을 해독했다. 게이트의 맥동을 읽는 법이 어렴풋이 보인다.'; }
+          else { const v = this.etherGift(RNG.int(10, 20)); gain(`에테르 +${fmt(v)}`); if (who) loss(`${who.name} 정신 피로`); else { const d = Math.round(p.maxMp * 0.3); p.mp = Math.max(0, p.mp - d); loss(`정신력 -${fmt(d)}`); } out = '문양을 오래 들여다보자 머릿속에 낯선 속삭임이 차올랐다. 서둘러 눈을 돌렸다.'; }
         }
         break;
       }
@@ -252,10 +276,12 @@ Object.assign(Game.prototype, {
         break;
       }
       case 'tower': {
-        s.used = key; this.advanceDays(1, { noSave: true });
-        this.reveal(s.x, s.y, 8);
-        const n = this.revealSitesNear(s.x, s.y, 10);
-        out = `감시탑 꼭대기에 올라 망원 장비를 켰다. 주변 지형이 넓게 드러났다.${n ? ` 볼 만한 지점 ${n}곳을 지도에 표시했다.` : ''}`;
+        s.used = key; this.advanceDays(1, { noSave: true }); loss('1일 소요');
+        this.reveal(s.x, s.y, ok ? 8 : 5);
+        const n = this.revealSitesNear(s.x, s.y, ok ? 10 : 5);
+        gain(`주변 지형 공개 (반경 ${ok ? 8 : 5}칸)`); if (n) gain(`볼 만한 지점 ${n}곳 표시`);
+        if (!ok) hurt(0.1);
+        out = ok ? '녹슨 사다리를 단숨에 올라 망원 장비를 켰다. 주변 지형이 넓게 드러났다.' : '중간에 사다리 칸이 부러져 미끄러졌다. 반쯤 올라간 곳에서 보이는 만큼만 지도에 옮겼다.';
         break;
       }
     }
@@ -297,12 +323,18 @@ Object.assign(Game.prototype, {
   ruinScavenge(search) {
     if (!search) return '그냥 지나쳤다.';
     const p = this.player; this.advanceDays(1, { noSave: true });
-    const r = RNG.weighted(['core', 'money', 'hurt', 'none'], [35, 30, 15, 20]);
+    const ok = this._ck == null ? RNG.chance(0.6) : this._ck; const who = this._ckNpc || null;
+    const gain = (t) => { if (this._ckOut) this._ckOut.gains.push(t); };
+    const loss = (t) => { if (this._ckOut) this._ckOut.losses.push(t); };
+    loss('1일 소요');
     let out;
-    if (r === 'core') { const t = Math.max(0, p.rankIdx - 1); this.addCore(t); out = `${coreName(t)} 1개를 주웠다.`; }
-    else if (r === 'money') { const m = Math.round(40 * RANKS[p.rankIdx].mult * RNG.range(0.6, 1.4)); p.money += m; out = `버려진 금고에서 ${fmt(m)} 크레딧을 찾았다.`; }
-    else if (r === 'hurt') { const d = Math.max(1, Math.round(p.maxHp * 0.1)); p.hp = Math.max(1, p.hp - d); out = `녹슨 철근에 베였다. 체력 -${fmt(d)}.`; }
-    else out = '쓸 만한 건 다 털려 있었다.';
+    const r = ok ? RNG.weighted(['core', 'money'], [50, 50]) : RNG.weighted(['hurt', 'none'], [55, 45]);
+    if (r === 'core') { const t = Math.max(0, p.rankIdx - 1); this.addCore(t); gain(`${coreName(t)} 1개`); out = '셔터 안쪽 진열장 밑에서 괴수 코어 하나를 주웠다.'; }
+    else if (r === 'money') { const m = Math.round(40 * RANKS[p.rankIdx].mult * RNG.range(0.8, 1.4)); p.money += m; gain(`크레딧 +${fmt(m)}`); out = '계산대 밑 버려진 금고를 열어 냈다.'; }
+    else if (r === 'hurt') {
+      if (who) loss(`${who.name} 부상 (체력 -10%)`); else { const d = Math.max(1, Math.round(p.maxHp * 0.1)); p.hp = Math.max(1, p.hp - d); loss(`체력 -${fmt(d)}`); }
+      out = '어둠 속에서 녹슨 철근에 베였다.';
+    } else out = '쓸 만한 건 다 털려 있었다.';
     this.save();
     return out;
   },

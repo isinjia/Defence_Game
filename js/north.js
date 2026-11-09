@@ -93,10 +93,13 @@ Object.assign(Game.prototype, {
     s.used = key; s.visited = true; s.known = true;
     if (s.kind === 'oldcity') {
       this.advanceDays(3, { noSave: true });
+      const ok = this._ck == null ? true : this._ck; const who = this._ckNpc || null;
       const out = [];
-      const t = Math.min(7, Math.max(5, p.rankIdx)); const n = RNG.int(2, 4); this.addCore(t, n); out.push(`${coreName(t)} ${n}개`);
-      out.push(this.addRelic(null, RNG.weighted([2, 3], [60, 40])));
-      if (RNG.chance(0.5)) { const it = this.makeEquipment(RNG.pick(['weapon', 'armor', 'acc']), Math.min(7, p.rankIdx + 1), RNG.weighted([2, 3], [65, 35])); p.inventory.push(it); out.push(it.name); }
+      const t = Math.min(7, Math.max(5, p.rankIdx)); const n = ok ? RNG.int(3, 4) : RNG.int(1, 2); this.addCore(t, n); out.push(`${coreName(t)} ${n}개`);
+      out.push(this.addRelic(null, ok ? RNG.weighted([2, 3], [55, 45]) : 1));
+      if (ok && RNG.chance(0.6)) { const it = this.makeEquipment(RNG.pick(['weapon', 'armor', 'acc']), Math.min(7, p.rankIdx + 1), RNG.weighted([2, 3], [65, 35])); p.inventory.push(it); out.push(it.name); }
+      if (this._ckOut) { this._ckOut.gains.push(...out); this._ckOut.losses.push('3일 소요'); }
+      if (!ok) { if (who) { if (this._ckOut) this._ckOut.losses.push(`${who.name} 부상 (체력 -20%)`); } else { const d = Math.round(p.maxHp * 0.2); p.hp = Math.max(1, p.hp - d); if (this._ckOut) this._ckOut.losses.push(`체력 -${fmt(d)}`); } }
       const lore = RNG.pick([
         '멈춘 시계탑은 20년 전 그날 오전 9시 14분을 가리킨다.',
         '학교 칠판에 아이들 글씨가 남아 있다. "내일은 소풍".',

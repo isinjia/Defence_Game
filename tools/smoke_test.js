@@ -227,6 +227,22 @@ const { chromium, devices } = require('playwright');
     if (r) throw new Error(r);
     await closeAll();
   });
+  await step('탐색 판정: 사건 선택 → 맡을 사람 → 주사위 → 결과 팝업', async () => {
+    const r = await ev(() => {
+      UI.closeModal(); G.queue = [];
+      const s = G.sites().find((x) => x.kind === 'ruin') || G.sites().find((x) => x.kind === 'tower');
+      if (!s) return '판정 지점 없음';
+      s.used = 0; UI.showSite(s.id);
+      const b = document.querySelector('#modal-box [data-act="ck-site"]'); if (!b) return '판정 버튼 없음';
+      UI.handle('ck-site', b.dataset.v);
+      const who = document.querySelector('#modal-box [data-act="ck-who"]'); if (who) UI.handle('ck-who', who.dataset.v);
+      if (!document.getElementById('ck-die') || !document.getElementById('ck-verdict')) return '결과 팝업 없음';
+      UI.handle('ck-next'); UI.closeModal(); G.queue = []; G.mobs = G.mobs.filter((m) => m.x !== s.x || m.y !== s.y);
+      return '';
+    });
+    if (r) throw new Error(r);
+    await closeAll();
+  });
   await step('시간 진행 3년 (수련·휴식·월간 처리)', async () => {
     await ev(() => { for (let i = 0; i < 36 && !G.over; i++) { if (i % 3) G.train(); else G.rest(); G.queue = []; } });
   });
