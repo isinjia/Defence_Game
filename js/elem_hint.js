@@ -1,7 +1,7 @@
 // 상성 공격이 먹혔는지/막혔는지 눈에 보이게 (영역 B, docs/구현_대기목록.md 4-6)
 // - 맞는 순간: 우위 "약점! ▲"(크게·금색·크게 흔들림·강한 소리), 열세 "저항 ▼"(작게·회청색·방패에 튕김·둔한 소리)
 //   아군이 약점을 맞으면 빨강. 색만이 아니라 ▲▼ 글자를 함께.
-// - 고르기 전: 스킬을 고르면 적 위에 ▲/▼, 스킬 목록에도 지금 대상 기준 ▲/▼. 처음 보는 괴수(한 번도 쓰러뜨린 적 없는 종)는 "?".
+// - 고르기 전: 스킬을 고르면 적 위에 ▲/▼, 스킬 목록에도 지금 대상 기준 ▲/▼. 처음 보는 괴수도 처음부터 표시.
 {
   const unitOf = (c, id) => c && c.combat && c.combat.units.find((u) => u.id === id);
   const kind = (name) => String(name || '').replace(/^\[[^\]]*\]\s*/, '');
@@ -11,11 +11,8 @@
     if (typeof elemEdge === 'function') return elemEdge(e, t); // 4-9 속성 개편 뒤의 상성 함수
     return elemEdge(e, t);
   };
-  UI.foeKnown = function (u) {
-    if (!u || u.side !== 'enemy') return true;
-    const p = G.player; const seen = (p && p.foeSeen) || [];
-    return seen.includes(kind(u.name));
-  };
+  // 상성은 처음 보는 괴수도 처음부터 다 보여 준다 (사용자 요청: "?" 없음)
+  UI.foeKnown = function () { return true; };
   const skillElem = (sk, att) => (sk.elem === 'self' ? att.elem : sk.elem);
 
   // ---------- 맞는 순간 ----------
