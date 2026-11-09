@@ -116,3 +116,9 @@
 .modal-box.red-gate { border-color: #ff4f6a; animation: redpulse 1.6s ease-in-out infinite; }
 @keyframes redpulse { 50% { box-shadow: 0 0 0 2px #ff4f6a88, 0 0 30px #ff4f6a55, 0 20px 60px #000c; } }
 @media (max-width: 640px) { .boss-call b { font-size: 22px; } }
+
+/* 보상 확인 */
+.reward-pop { animation: rewardpop .45s ease-out both; }
+@keyframes rewardpop { 0% { opacity: 0; transform: translateY(8px) scale(.97); } 100% { opacity: 1; transform: none; } }
+.reward-pop.rare { border-left: 3px solid var(--amber); padding: 6px 10px; background: linear-gradient(90deg, #2a1f0c, transparent); color: #ffe2a8; animation: rewardpop .45s ease-out both, rareglow 1.6s ease-in-out .45s 2; }
+@keyframes rareglow { 50% { box-shadow: 0 0 18px #ffb54766; } }

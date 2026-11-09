@@ -171,3 +171,39 @@
     return r;
   };
 }
+
+// ---------- 6. 보상 확인의 순간: 결과 줄을 하나씩, 크레딧은 숫자가 올라가고, 귀한 것은 빛과 소리 ----------
+{
+  const snd = (n) => { if (typeof SFX !== 'undefined') SFX.play(n); };
+  const RARE = /보스 드롭|유물|히든|숨겨진|전설|각성|재앙 저지|희귀|감정|성장형|코어/;
+  UI.revealRewards = function () {
+    const box = document.getElementById('modal-box'); if (!box) return;
+    const ps = [...box.querySelectorAll(':scope > p')];
+    if (!ps.length) return;
+    const step = FX.reduced ? 0 : 260;
+    ps.forEach((p, i) => {
+      const rare = RARE.test(p.textContent);
+      p.classList.add('reward-pop'); if (rare) p.classList.add('rare');
+      p.style.animationDelay = (i * step) + 'ms';
+      if (step) setTimeout(() => { if (p.isConnected) snd(rare ? 'fanfare' : 'click'); }, i * step + 40);
+    });
+    // 첫 "획득: N 크레딧" 숫자 올리기
+    const first = ps.find((p) => /[0-9][0-9,]*\s*크레딧/.test(p.innerHTML));
+    if (first && !FX.reduced) {
+      const m = /([0-9][0-9,]*)\s*크레딧/.exec(first.innerHTML);
+      if (m) {
+        const target = +m[1].replace(/,/g, ''); const id = 'cnt-' + Date.now();
+        first.innerHTML = first.innerHTML.replace(m[0], `<span class="num" id="${id}">0</span> 크레딧`);
+        const el = document.getElementById(id); const t0 = performance.now(); const dur = 800;
+        const tick = (now) => { if (!el.isConnected) return; const k = Math.min(1, (now - t0) / dur); el.textContent = fmt(Math.round(target * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(tick); };
+        requestAnimationFrame(tick);
+      }
+    }
+  };
+  const baseFinish = UI.finishGate;
+  UI.finishGate = function (result, ...a) {
+    const r = baseFinish.call(this, result, ...a);
+    if (result !== 'lose') try { this.revealRewards(); } catch (e) { /* 무시 */ }
+    return r;
+  };
+}
