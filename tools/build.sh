@@ -5,7 +5,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p dist
-SRC=(js/data.js js/data_classes.js js/prologue.js js/pro_arcs_a.js js/pro_arcs_b.js js/pro_arcs_c.js js/pro_hooks.js js/game.js js/world.js js/society.js js/story.js js/story_events.js js/story_chains.js js/situation.js js/combat.js js/fx.js assets/portraits/portraits.js js/portrait.js js/mapview.js js/ui.js js/ui_town.js js/merc.js js/crew.js js/gate_explore.js js/ui_prologue.js js/tutorial.js js/hunter.js js/debut.js js/gate_run.js js/formation.js js/ui_mobile.js js/balance.js js/ascend.js js/story_clues.js)
+SRC=(js/data.js js/data_classes.js js/prologue.js js/pro_arcs_a.js js/pro_arcs_b.js js/pro_arcs_c.js js/pro_hooks.js js/game.js js/world.js js/society.js js/story.js js/story_events.js js/story_chains.js js/situation.js js/combat.js js/fx.js assets/portraits/portraits.js js/portrait.js js/mapview.js js/ui.js js/ui_town.js js/merc.js js/crew.js js/gate_explore.js js/ui_prologue.js js/tutorial.js js/hunter.js js/debut.js js/gate_run.js js/formation.js js/ui_mobile.js js/balance.js js/ascend.js js/story_clues.js js/explore.js)
 cat "${SRC[@]}" > dist/game.src.js
 ESBUILD="npx --yes esbuild@0.24.0"
 $ESBUILD dist/game.src.js --target=es2017,chrome61,safari11 --charset=utf8 --log-level=warning --outfile=dist/game.js
