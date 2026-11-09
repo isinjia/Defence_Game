@@ -82,3 +82,15 @@ if (typeof Game !== 'undefined') {
     return n;
   };
 }
+
+// 4) 지도 걷기: 한 칸마다 이야기 사건 30%라 몇 칸 못 가 멈췄다(독립 평가 첫 30분). 걷는 중에는 절반으로.
+if (typeof Game !== 'undefined') {
+  const GP = Game.prototype;
+  const baseWalk = GP.walkStep;
+  GP.walkStep = function (...a) { this._walking = true; try { return baseWalk.apply(this, a); } finally { this._walking = false; } };
+  const baseDays = GP.advanceDays;
+  GP.advanceDays = function (n, opts = {}) {
+    if (this._walking && opts.eventChance === 0.3) opts = { ...opts, eventChance: 0.15 };
+    return baseDays.call(this, n, opts);
+  };
+}
