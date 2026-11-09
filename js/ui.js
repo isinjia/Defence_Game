@@ -363,7 +363,7 @@ const UI = {
       const p = G.player;
       const from = [p.x, p.y]; const to = WORLD.xy(w.steps[w.i++]);
       const diag = from[0] !== to[0] && from[1] !== to[1];
-      const ms = FX.reduced ? 0 : (WORLD.type(to[0], to[1]) === WORLD.T.MOUNTAIN ? 330 : 210) * (diag ? 1.25 : 1);
+      const ms = (WORLD.type(to[0], to[1]) === WORLD.T.MOUNTAIN ? 330 : 210) * (diag ? 1.25 : 1) * (FX.reduced ? 0.5 : 1);
       this.map.walkPath = w.steps.slice(w.i);
       this.map.tween(from, to, ms, () => {
         if (this.walking !== w) return;
@@ -872,7 +872,7 @@ const UI = {
       if (i >= evs.length) { c.playing = false; return this.afterPlay(); }
       let wait = 200;
       try { wait = this.applyEvent(evs[i++]); } catch (e) { i++; if (window.console) console.error('연출 오류', e); }
-      setTimeout(step, FX.reduced ? 0 : wait * speed);
+      setTimeout(step, wait * speed * (FX.reduced ? 0.6 : 1));
     };
     step();
   },
@@ -895,7 +895,7 @@ const UI = {
         if (cb.waiting) {
           if (cb.auto) { cb.autoStep(); this.play(); }
         } else {
-          const ready = cb.tick(FX.reduced ? 1 : dt);
+          const ready = cb.tick(dt);
           this.drawGauges();
           if (ready) {
             const r = cb.takeTurn(ready);

@@ -484,3 +484,23 @@ p { margin: 6px 0; }
 .ver { position: fixed; right: max(4px, env(safe-area-inset-right, 0px)); bottom: max(1px, env(safe-area-inset-bottom, 0px)); z-index: 50; font-family: var(--font-num); font-size: 10px; letter-spacing: .06em; color: var(--dim); opacity: .75; pointer-events: none; }
 .title-ver { font-family: var(--font-num); font-size: 12px; letter-spacing: .2em; color: var(--ether); opacity: .8; margin-top: 2px; }
 .tag.race { color: #9be36b; border-color: #9be36b55; }
+
+/* ---------- 헌터 시험 튜토리얼 ---------- */
+.coach { border: 1px solid var(--amber); border-left: 3px solid var(--amber); background: #241b0c; padding: 8px 12px; margin-bottom: 8px; display: grid; gap: 2px; font-size: 13.5px; line-height: 1.5; }
+.coach .eyebrow { color: var(--amber); }
+.tut-glow { outline: 2px solid var(--amber); outline-offset: 4px; animation: tutglow 1.2s ease-in-out infinite; }
+@keyframes tutglow { 50% { outline-color: transparent; } }
+button.item-row { width: 100%; text-align: left; }
+
+/* ---------- 세로가 짧은 화면 (폴더블 커버 화면 등) ---------- */
+@media (max-height: 600px) and (max-width: 640px) {
+  .hud-tr { display: none; }
+  .hud-bottom { flex-direction: row; align-items: flex-end; }
+  .hud-card { width: auto; }
+  .card-body { display: none; }
+  .card-portrait .avatar { width: 48px; height: 48px; }
+  .hud-tip { top: calc(50px + env(safe-area-inset-top, 0px)); bottom: auto; }
+  .foes { min-height: 90px; }
+  .foe { width: 78px; }
+  .foe.boss { width: 104px; }
+}

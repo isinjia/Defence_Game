@@ -2415,3 +2415,63 @@ p {
   color: #9be36b;
   border-color: rgba(155, 227, 107, .333);
 }
+.coach {
+  border: 1px solid var(--amber);
+  border-left: 3px solid var(--amber);
+  background: #241b0c;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  display: grid;
+  gap: 2px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.coach .eyebrow {
+  color: var(--amber);
+}
+.tut-glow {
+  outline: 2px solid var(--amber);
+  outline-offset: 4px;
+  animation: tutglow 1.2s ease-in-out infinite;
+}
+@keyframes tutglow {
+  50% {
+    outline-color: transparent;
+  }
+}
+button.item-row {
+  width: 100%;
+  text-align: left;
+}
+@media (max-height: 600px) and (max-width: 640px) {
+  .hud-tr {
+    display: none;
+  }
+  .hud-bottom {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+  .hud-card {
+    width: auto;
+  }
+  .card-body {
+    display: none;
+  }
+  .card-portrait .avatar {
+    width: 48px;
+    height: 48px;
+  }
+  .hud-tip {
+    top: calc(50px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+  }
+  .foes {
+    min-height: 90px;
+  }
+  .foe {
+    width: 78px;
+  }
+  .foe.boss {
+    width: 104px;
+  }
+}
