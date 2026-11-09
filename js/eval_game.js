@@ -13,12 +13,17 @@ if (typeof Game !== 'undefined') {
       : `에테르가 가득 찼다. 더 수련해도 늘지 않는다. 공방이나 헌터 마켓에서 각성 촉매를 구해 ${next}급 돌파를 하자.`;
   };
   const baseTrainAt = GP.trainAt;
-  if (baseTrainAt) GP.trainAt = function (place) { if (this.etherCapped()) return this.etherCapMsg(); return baseTrainAt.call(this, place); };
+  // 첫 해 수첩 '한 달 수련'은 G.train 만 감싸서, 도시 수련(trainAt)으로는 영영 안 끝나던 문제(독립 평가 치명)도 여기서.
+  const nbTrain = (g) => { const nb = g.player && g.player.notebook; if (nb && nb.f) nb.f.train = true; };
+  if (baseTrainAt) GP.trainAt = function (place) {
+    if (this.etherCapped()) { nbTrain(this); return this.etherCapMsg(); }
+    const r = baseTrainAt.call(this, place); if (!r) nbTrain(this); return r;
+  };
 }
 if (typeof UI !== 'undefined') {
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
-    if ((act === 'train' || act === 'train-pick') && G.player && G.etherCapped()) { this.toast(G.etherCapMsg()); return; }
+    if ((act === 'train' || act === 'train-pick') && G.player && G.etherCapped()) { const nb = G.player.notebook; if (nb && nb.f) nb.f.train = true; this.toast(G.etherCapMsg()); if (G.nbCheck) G.nbCheck(); return this.processQueue(); }
     return baseHandle.call(this, act, v);
   };
 }
@@ -103,5 +108,16 @@ if (typeof Game !== 'undefined' && Game.prototype.shareMates) {
     const p = this.player;
     if (p && p.guild && this.payKind && this.payKind(p.guild)) return [];
     return baseShare.call(this);
+  };
+}
+
+// 6) 같은 수첩 과제 창(nb_msg)이 연달아 두 번 뜨던 문제: 큐에 같은 수첩 사건이 둘 이상이면 하나만.
+if (typeof Game !== 'undefined' && Game.prototype.nbCheck) {
+  const baseNb = Game.prototype.nbCheck;
+  Game.prototype.nbCheck = function (...a) {
+    const r = baseNb.apply(this, a);
+    const seen = new Set();
+    this.queue = (this.queue || []).filter((q) => { if (!q || q.type !== 'story' || !/^nb_/.test(q.id || '')) return true; const k = q.id; if (seen.has(k)) return false; seen.add(k); return true; });
+    return r;
   };
 }
