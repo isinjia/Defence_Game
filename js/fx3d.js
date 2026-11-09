@@ -95,17 +95,14 @@ const _fxR = (a, b) => a + Math.random() * (b - a);
 const _fxPick = (a) => a[Math.floor(Math.random() * a.length)];
 
 // ---------- 속성별 모양 ----------
-// 새 속성 키(fire·bolt·water·wood·holy·dark)와 지금 키(ice·steel·spirit) 모두 받는다.
+// 속성 키: fire·bolt·water·wood·holy·dark (4-9). 모르는 키는 none.
 const FX3D_EL = {
   fire:   { c: ['#ff4b1f', '#ff8a2a', '#ffd36b'], trail: 'flame', speed: 900 },
   bolt:   { c: ['#fffbd0', '#ffe14d', '#9fdcff'], trail: 'zap', speed: 0 },
   water:  { c: ['#3aa8ff', '#8fdcff', '#e8fbff'], trail: 'drop', speed: 850 },
-  ice:    { c: ['#bfefff', '#6fd3ff', '#ffffff'], trail: 'drop', speed: 850 },
   wood:   { c: ['#4fcf5f', '#b6f07a', '#ff9ad5'], trail: 'leaf', speed: 760 },
   holy:   { c: ['#fff3c4', '#ffd166', '#ffffff'], trail: 'spear', speed: 1300 },
   dark:   { c: ['#7a3cff', '#c58cff', '#ff4fd8'], trail: 'orb', speed: 620 },
-  spirit: { c: ['#c58cff', '#7affea', '#ffffff'], trail: 'orb', speed: 700 },
-  steel:  { c: ['#e4ebf5', '#9aa6b8', '#ffffff'], trail: 'shard', speed: 1100 },
   none:   { c: ['#e3e8f1', '#9aa6b8', '#ffffff'], trail: 'shard', speed: 1100 },
 };
 const elOf = (e) => FX3D_EL[e] || FX3D_EL.none;
@@ -123,7 +120,7 @@ Object.assign(FX3D, {
     }
     this.add({ x, y, life: 0.25, s: 70 * big, s1: 110 * big, a: 0.6, c: E.c[2] }); // 섬광
     if (e === 'holy') for (let i = 0; i < this.n(16); i++) { const d = i < 8 ? [1, 0] : [0, 1]; const s = (i % 8 - 3.5) * 9; this.add({ x: x + d[0] * s, y: y + d[1] * s, life: 0.4, s: 10, c: '#fff3c4' }); }
-    if (e === 'dark' || e === 'spirit') for (let i = 0; i < this.n(18); i++) this.add({ x, y, life: 0.8, s: 14, c: _fxPick(E.c), orb: { cx: x, cy: y, rx: _fxR(10, 40), ry: _fxR(8, 30), a: Math.random() * 6.3, w: _fxR(5, 9), dy: -20 } });
+    if (e === 'dark') for (let i = 0; i < this.n(18); i++) this.add({ x, y, life: 0.8, s: 14, c: _fxPick(E.c), orb: { cx: x, cy: y, rx: _fxR(10, 40), ry: _fxR(8, 30), a: Math.random() * 6.3, w: _fxR(5, 9), dy: -20 } });
     if (e === 'wood') for (let i = 0; i < this.n(12); i++) this.add({ x, y, vx: _fxR(-120, 120), vy: _fxR(-200, -60), ay: 120, drag: 0.94, life: 1.1, s: 10, c: _fxPick(['#ff9ad5', '#b6f07a']) });
   },
   // 단일: 투사체가 날아가 터진다. opts: big(치명), pierce(관통), edge(1 약점 / -1 저항), then()
@@ -197,12 +194,12 @@ Object.assign(FX3D, {
   },
   // 흡혈: 대상 → 시전자로 빨려 오는 입자
   drain(from, to, e) {
-    if (!from || !to) return; const c = e === 'dark' || e === 'spirit' ? ['#ff4f6a', '#c58cff'] : elOf(e).c;
+    if (!from || !to) return; const c = e === 'dark' ? ['#ff4f6a', '#c58cff'] : elOf(e).c;
     for (let i = 0; i < this.n(26); i++) { const d = _fxR(0, 0.25); const T = _fxR(0.45, 0.7); const sx = from.x + _fxR(-20, 20), sy = from.y + _fxR(-20, 20); const mx = (sx + to.x) / 2 + _fxR(-60, 60), my = (sy + to.y) / 2 + _fxR(-40, 40); let t = -d; this.task((dt) => { t += dt; if (t < 0) return true; const k = Math.min(1, t / T); const x = (1 - k) * (1 - k) * sx + 2 * (1 - k) * k * mx + k * k * to.x, y = (1 - k) * (1 - k) * sy + 2 * (1 - k) * k * my + k * k * to.y; this.add({ x, y, life: 0.12, s: 9, c: _fxPick(c) }); return k < 1; }); }
   },
   // 회복: 아래에서 위로 오르는 빛 입자
   heal(p, e, revive) {
-    if (!p) return; const c = e === 'wood' ? ['#4fcf5f', '#b6f07a', '#ff9ad5'] : e === 'water' || e === 'ice' ? ['#8fdcff', '#e8fbff'] : ['#fff3c4', '#ffd166', '#b6f07a'];
+    if (!p) return; const c = e === 'wood' ? ['#4fcf5f', '#b6f07a', '#ff9ad5'] : e === 'water' ? ['#8fdcff', '#e8fbff'] : ['#fff3c4', '#ffd166', '#b6f07a'];
     for (let i = 0; i < this.n(revive ? 60 : 30); i++) this.add({ x: p.x + _fxR(-p.w / 2, p.w / 2), y: p.y + p.h / 2 + _fxR(-10, 10), vy: _fxR(-160, -60) * (revive ? 1.6 : 1), vx: _fxR(-10, 10), drag: 0.96, life: _fxR(0.6, 1.1), s: _fxR(6, 12), c: _fxPick(c) });
     if (revive) for (let j = 0; j < this.n(40); j++) this.add({ x: p.x + _fxR(-8, 8), y: _fxR(0, p.y + p.h / 2), vy: -60, life: 0.7, s: 12, a: 0.6, c: '#fff3c4' });
   },
