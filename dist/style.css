@@ -2813,6 +2813,9 @@ button.item-row {
   background: rgba(70, 224, 208, .08);
   color: #9ff0e6;
 }
+.weather-tag {
+  color: var(--amber, #ffb547);
+}
 .modal-box.combat-box {
   overscroll-behavior: contain;
 }

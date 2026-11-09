@@ -583,3 +583,4 @@ button.item-row { width: 100%; text-align: left; }
 /* ===== 지도 탐험 (explore.js) ===== */
 .site-ico { display: inline-flex; align-items: center; justify-content: center; width: 1.5em; height: 1.5em; border-radius: 50%; border: 1.5px solid var(--c); color: var(--c); background: rgba(5, 8, 13, .8); font-weight: 700; line-height: 1; flex: none; }
 .explore-chip { float: right; min-height: 28px; padding: 2px 10px; margin-left: 8px; font-size: 12px; border-radius: 14px; border: 1px solid rgba(70, 224, 208, .5); background: rgba(70, 224, 208, .08); color: #9ff0e6; }
+.weather-tag { color: var(--amber, #ffb547); }
