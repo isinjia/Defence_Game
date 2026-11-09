@@ -38,3 +38,17 @@ if (typeof UI !== 'undefined' && UI.hudQuests) {
     return html;
   };
 }
+
+// 이름을 비운 채 '이야기 시작'을 누르면 오류 토스트만 뜨던 문제: 무작위 이름으로 채워 바로 시작(나중에 바꿀 필요 없이).
+if (typeof UI !== 'undefined') {
+  const basePs = UI.handle;
+  UI.handle = function (act, v) {
+    if (act === 'ps-start' && this.pro && !(this.pro.name || '').trim() && this.randomName) {
+      const inp = document.querySelector('input[data-act="ps-name"], #ps-name, .ps-name input, input.pro-name-input');
+      const typed = inp && inp.value ? inp.value.trim() : '';
+      this.pro.name = typed || this.randomName(this.pro.gender || 'M');
+      if (!typed) this.toast(`이름을 비워 두어 무작위 이름으로 시작한다: ${this.pro.name}`);
+    }
+    return basePs.call(this, act, v);
+  };
+}
