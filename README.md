@@ -21,7 +21,7 @@
 
 https://isinjia.github.io/Defence_Game/
 
-GitHub Pages로 배포됩니다. 저장소의 Settings → Pages에서 Source를 "Deploy from a branch"로, 브랜치를 `claude/happy-turing-czlfa3`, 폴더를 `/ (root)`로 한 번 지정하면 이후 푸시마다 자동 갱신됩니다.
+GitHub Pages로 배포됩니다. `claude/happy-turing-czlfa3` 브랜치에 푸시할 때마다 GitHub Actions가 빌드·배포합니다.
 
 ## 버전
 
@@ -35,7 +35,7 @@ python3 tools/bump_version.py
 
 ## 빌드
 
-`index.html` 은 빌드된 `dist/game.js` 와 `dist/style.css` 만 불러옵니다. 소스(`js/`, `css/`)를 고친 뒤에는 빌드해야 반영됩니다.
+`index.html` 은 빌드된 `dist/game.js` 와 `dist/style.css` 만 불러옵니다. `dist/` 는 저장소에 올리지 않습니다. 브랜치에 푸시하면 GitHub Actions(`.github/workflows/pages.yml`)가 빌드해서 GitHub Pages에 배포합니다(저장소 Settings → Pages → Source: GitHub Actions). 로컬에서 확인할 때만 직접 빌드합니다.
 
 ```bash
 bash tools/build.sh
