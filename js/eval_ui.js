@@ -16,6 +16,11 @@ if (typeof UI !== 'undefined' && UI.coachPop) {
         const overlap = pr.bottom > ar.top + 4 && pr.top < ar.bottom - 4;
         const top = ar.top - pr.height - 10;
         if (overlap && top >= 56) pop.style.top = top + 'px';
+        else if (overlap) {
+          // 작은 화면: 아군 줄 위에 자리가 없으면 머리말 바로 아래로 올리고 화살표는 숨긴다(대상은 빛나는 테두리로 보인다)
+          const head = document.querySelector('.modal-box .cb-head'); const hb = head ? head.getBoundingClientRect().bottom : 48;
+          pop.style.top = Math.max(8, hb + 6) + 'px'; pop.classList.add('no-arrow');
+        }
       }
     } catch (e) { /* 무시 */ }
     return r;
