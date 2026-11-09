@@ -65,6 +65,7 @@ Object.assign(UI, {
       <div class="pro-steps">${Array.from({ length: 8 }, (_, i) => `<i class="${i < s.step ? 'on' : i === s.step ? 'now' : ''}"></i>`).join('')}</div>`);
     const el = document.getElementById('pro-scene');
     el.innerHTML = `<div class="eyebrow">${s.step === 0 ? `출신 · ${bg.name}` : `장면 ${s.step + 1}`}</div><h2>${this.proFill(sc.title)}</h2>
+      ${s.step === 1 && s.introTitle && !/^(gb_|gate_break)/.test(s.id) ? `<p class="pro-gap dim small">— 「${s.introTitle}」, 그날 이후로 시간이 흘렀다 —</p>` : ''}
       <div class="pro-text">${this.proFill(sc.text).split('\n').map((l) => (l ? `<p>${l}</p>` : '')).join('')}</div>
       <div class="cards pro-choices">${this.proShown(s.id).map((i) => `<button class="choice-btn" data-act="pro-choice" data-v="${i}">${this.proFill(sc.choices[i].text)}</button>`).join('')}</div>`;
     el.classList.remove('fade-in'); void el.offsetWidth; el.classList.add('fade-in');
@@ -85,6 +86,7 @@ Object.assign(UI, {
     for (const k of ['e', 'g', 'c', 't']) for (const [x, v] of Object.entries(ch[k] || {})) s.sc[k][x] = (s.sc[k][x] || 0) + v;
     s.sc.talent += ch.talent || 0; s.sc.luck += ch.luck || 0; s.friendBonus += ch.friend || 0;
     s.log.push(this.proFill(ch.text));
+    if (s.step === 0) s.introTitle = PROLOGUE[s.id].title;
     s.step++;
     // 마지막 선택이 끝나면 결과를 보여 주지 않고 바로 헌터 자격 시험으로 간다. 판정 결과는 시험이 끝난 뒤에 공개된다
     if (!ch.next) { s.result = resolvePrologue(s.sc); return this.handle('pro-begin'); }

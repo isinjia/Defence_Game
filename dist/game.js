@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.17";
+const GAME_VERSION = "0.18";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -1705,7 +1705,7 @@ Object.assign(PROLOGUE, {
   // ===== 각성자 범죄: 은행 인질극 =====
   crime_1: {
     title: "은행 창구 번호표 47번",
-    text: '그 무렵, 대출 서류를 내러 은행에 갔다. 번호표 47번. 대기 인원 열두 명.\n\n유리문이 녹아내린다. 손바닥에서 연기를 피우는 남자가 들어선다. "다들 엎드려. 협회 진압팀 오려면 20분은 걸리거든. 그동안 착하게 있자고." 뒤따라 들어온 둘이 셔터를 내린다.',
+    text: '그 무렵, 볼일이 있어 은행에 들렀다. 번호표 47번. 대기 인원 열두 명.\n\n유리문이 녹아내린다. 손바닥에서 연기를 피우는 남자가 들어선다. "다들 엎드려. 협회 진압팀 오려면 20분은 걸리거든. 그동안 착하게 있자고." 뒤따라 들어온 둘이 셔터를 내린다.',
     choices: [
       { text: "시키는 대로 엎드려서 그들의 숫자와 위치를 센다", e: { ice: 1 }, g: { shadow: 1, shooter: 1 }, t: { quick: 1 }, next: "crime_2" },
       { text: "옆에서 떨고 있는 할머니를 몸으로 가린다", e: { steel: 1 }, g: { guard: 2 }, t: { iron_body: 1 }, next: "crime_2" },
@@ -1831,7 +1831,7 @@ Object.assign(PROLOGUE, {
   // ===== 결투: 동네를 괴롭히는 각성자 깡패 =====
   duel_1: {
     title: "보호비",
-    text: '그해 겨울, 동네 시장에 낯선 사람들이 드나들기 시작했다. 검은 패딩에 E급 배지. "흑사회" 소속이라는 각성자 셋이 가게마다 돌며 "게이트 보호비"를 걷는다.\n\n단골 떡볶이집 사장님이 봉투를 내밀다 손을 떤다. 셋 중 하나가 웃으며 떡볶이 판을 엎는다.',
+    text: '그해 겨울, 자주 들르던 시장에 낯선 사람들이 드나들기 시작했다. 검은 패딩에 E급 배지. "흑사회" 소속이라는 각성자 셋이 가게마다 돌며 "게이트 보호비"를 걷는다.\n\n단골 떡볶이집 사장님이 봉투를 내밀다 손을 떤다. 셋 중 하나가 웃으며 떡볶이 판을 엎는다.',
     choices: [
       { text: '"그만하시죠." 떡볶이 판을 다시 세운다', e: { steel: 1 }, g: { guard: 1, fighter: 1 }, t: { iron_body: 1 }, next: "duel_2" },
       { text: "휴대폰 카메라를 켜고 그들의 얼굴을 찍는다", e: { bolt: 1 }, g: { shooter: 1, shadow: 1 }, t: { quick: 1 }, next: "duel_2" },
@@ -11138,7 +11138,7 @@ Object.assign(UI, {
     const bg = BACKGROUNDS.find((b) => b.id === s.bg);
     document.getElementById("pro-side").innerHTML = fixJosa("".concat(FX.portrait(s.look, s.gender, lead, 0, 200), '\n      <div class="pro-name">').concat(s.name, '</div>\n      <div class="small dim">').concat(bg.name, " · ").concat(regionById(bg.region).name, "</div>\n      ").concat(lead ? '<div class="small">'.concat(this.elemTag(lead), " 기운이 감돈다</div>") : '<div class="small dim">아직 아무것도 깨어나지 않았다</div>', '\n      <div class="pro-steps">').concat(Array.from({ length: 8 }, (_, i) => '<i class="'.concat(i < s.step ? "on" : i === s.step ? "now" : "", '"></i>')).join(""), "</div>"));
     const el = document.getElementById("pro-scene");
-    el.innerHTML = '<div class="eyebrow">'.concat(s.step === 0 ? "출신 · ".concat(bg.name) : "장면 ".concat(s.step + 1), "</div><h2>").concat(this.proFill(sc.title), '</h2>\n      <div class="pro-text">').concat(this.proFill(sc.text).split("\n").map((l) => l ? "<p>".concat(l, "</p>") : "").join(""), '</div>\n      <div class="cards pro-choices">').concat(this.proShown(s.id).map((i) => '<button class="choice-btn" data-act="pro-choice" data-v="'.concat(i, '">').concat(this.proFill(sc.choices[i].text), "</button>")).join(""), "</div>");
+    el.innerHTML = '<div class="eyebrow">'.concat(s.step === 0 ? "출신 · ".concat(bg.name) : "장면 ".concat(s.step + 1), "</div><h2>").concat(this.proFill(sc.title), "</h2>\n      ").concat(s.step === 1 && s.introTitle && !/^(gb_|gate_break)/.test(s.id) ? '<p class="pro-gap dim small">— 「'.concat(s.introTitle, "」, 그날 이후로 시간이 흘렀다 —</p>") : "", '\n      <div class="pro-text">').concat(this.proFill(sc.text).split("\n").map((l) => l ? "<p>".concat(l, "</p>") : "").join(""), '</div>\n      <div class="cards pro-choices">').concat(this.proShown(s.id).map((i) => '<button class="choice-btn" data-act="pro-choice" data-v="'.concat(i, '">').concat(this.proFill(sc.choices[i].text), "</button>")).join(""), "</div>");
     el.classList.remove("fade-in");
     void el.offsetWidth;
     el.classList.add("fade-in");
@@ -11166,6 +11166,7 @@ Object.assign(UI, {
     s.sc.luck += ch.luck || 0;
     s.friendBonus += ch.friend || 0;
     s.log.push(this.proFill(ch.text));
+    if (s.step === 0) s.introTitle = PROLOGUE[s.id].title;
     s.step++;
     if (!ch.next) {
       s.result = resolvePrologue(s.sc);
