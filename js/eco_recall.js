@@ -13,7 +13,7 @@
   GP.ecoHasRecall = function (actor) {
     if (!actor || actor.kind !== 'guild' || !this.guildPower) return false;
     const top = Object.keys(GUILDS).sort((a, b) => this.guildPower(b) - this.guildPower(a)).slice(0, 2);
-    return top.includes(actor.guild) && RNG.chance(0.15);
+    return top.includes(actor.guild) && RNG.chance(0.3);
   };
 
   // 변이 게이트 실패: 사망 대신 갇힘
