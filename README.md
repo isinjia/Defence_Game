@@ -2,7 +2,13 @@
 
 귀곡팔황(鬼谷八荒)의 자유 성장 구조를 한국형 SF 헌터물로 옮긴 브라우저 RPG입니다.
 
-## 실행
+## 바로 플레이
+
+https://isinjia.github.io/Defence_Game/
+
+GitHub Pages로 배포됩니다. 저장소의 Settings → Pages에서 Source를 "Deploy from a branch"로, 브랜치를 `claude/happy-turing-czlfa3`, 폴더를 `/ (root)`로 한 번 지정하면 이후 푸시마다 자동 갱신됩니다.
+
+## 로컬 실행
 
 빌드 없이 정적 파일로 동작합니다.
 
