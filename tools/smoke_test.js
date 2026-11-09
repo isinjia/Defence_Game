@@ -180,6 +180,35 @@ const { chromium, devices } = require('playwright');
     });
     if (!r.types || !r.tab || !r.detail || !r.dex) throw new Error(JSON.stringify(r));
   });
+  await step('전투 A-β: 연합 레이드 (소집 → 편성 → 전투 → 분배)', async () => {
+    await closeAll(); await ev(() => { UI.ctx = null; });
+    const r0 = await ev(() => {
+      const p = G.player; window.__aβ = { rank: p.rankIdx, raid: G.world.raid, money: p.money };
+      p.rankIdx = Math.max(p.rankIdx, 3); p.hp = p.maxHp; p.mp = p.maxMp;
+      G.world.raid = null; const m0 = G.month; while (G.monthKey() % 3 !== 0) G.month = (G.month % 12) + 1;
+      G.raidMonthly(); G.month = m0;
+      if (!G.world.raid || !G.queue.some((q) => q.type === 'raid')) return '레이드 공고가 나오지 않음';
+      G.queue = G.queue.filter((q) => q.type === 'raid'); UI.processQueue();
+      if (!document.querySelector('.raid-box [data-act="raid-go"]')) return '소집 공문 창 없음';
+      UI.handle('raid-go');
+      if (!UI.ctx || UI.ctx.kind !== 'raid') return '레이드 전투가 열리지 않음';
+      const c = UI.ctx; if (!c.combat.auto) c.combat.toggleAuto(); c.speed = 4;
+      // 시험 시간을 줄이려고 보스 체력을 낮춘다
+      for (const u of c.combat.enemies()) { u.hp = Math.min(u.hp, 30); }
+      return '';
+    });
+    if (r0) { await ev(() => { const s = window.__aβ; G.player.rankIdx = s.rank; G.world.raid = s.raid; }); throw new Error(r0); }
+    await page.waitForFunction(() => !UI.ctx || (UI.ctx.combat.result && !UI.ctx.playing), null, { timeout: 90000 });
+    const r = await ev(() => {
+      if (UI.ctx) UI.handle('c-done');
+      const ok = !!document.querySelector('.raid-share');
+      const st = G.world.raid && G.world.raid.status;
+      const s = window.__aβ; G.player.rankIdx = s.rank; G.world.raid = s.raid; G.player.money = s.money;
+      return ok ? (['clear', 'fail', 'fled'].includes(st) ? '' : '레이드 상태가 이상함: ' + st) : '분배 결과 창 없음';
+    });
+    await closeAll(); await ev(() => { UI.ctx = null; });
+    if (r) throw new Error(r);
+  });
   await step('지도 탐험: 탐사 지점·탐사 기록·차량 대여소·재앙·북부', async () => {
     const r = await ev(() => {
       if (!G.sites || !G.sites().length) return '탐사 지점 없음';
