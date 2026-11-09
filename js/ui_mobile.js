@@ -47,7 +47,8 @@
     this.liftCoach();
     const c = this.ctx;
     const box = document.getElementById('cb-ctrl');
-    if (box && c && c.combat) box.classList.toggle('cb-done', !!c.combat.result && !c.playing); // 결과 화면은 고정 풀기 (길어질 수 있음) if (!c || !c.combat || c.combat.result || c.sel || !this.quickFireOk()) return;
+    if (box && c && c.combat) box.classList.toggle('cb-done', !!c.combat.result && !c.playing); // 결과 화면은 고정 풀기 (길어질 수 있음)
+    if (!c || !c.combat || c.combat.result || c.sel || !this.quickFireOk()) return;
     const hint = document.querySelector('#cb-ctrl .cb-hint'); if (!hint) return;
     const t = this.rememberedFoe();
     hint.innerHTML = t
