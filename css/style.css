@@ -664,3 +664,6 @@ svg.order-lines line { stroke: #8cc4ff; stroke-width: 2; stroke-dasharray: 5 4; 
 .cn-blocker .event-text { margin: 4px 0 0; }
 @keyframes gm-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 50% { transform: translateX(3px); } 75% { transform: translateX(-2px); } }
 .gm-shake { animation: gm-shake 0.5s ease; }
+
+/* 전장 안의 표식(오더 선·말풍선)은 전장 층 안에서만 쌓인다: 아래 조작 영역·스킬 창보다 항상 낮게 */
+.combat-box .stage { isolation: isolate; z-index: 0; }
