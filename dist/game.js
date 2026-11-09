@@ -17,7 +17,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-const GAME_VERSION = "0.23";
+const GAME_VERSION = "0.24";
 const RANKS = [
   { key: "F", name: "F급 각성자", mult: 1, cost: 40, life: 0, color: "#8a8f98" },
   { key: "E", name: "E급 각성자", mult: 1.35, cost: 90, life: 4, color: "#7cb47c" },
@@ -11615,18 +11615,6 @@ Object.assign(UI, {
   }
 });
 {
-  const baseStartRoom = UI.startRoom;
-  UI.startRoom = function() {
-    const c = this.ctx;
-    if (c && c.kind === "gate" && !c.inHidden) {
-      c.explored = c.explored || {};
-      if (!c.explored[c.roomIdx]) {
-        c.explored[c.roomIdx] = true;
-        return this.showExplore(this.pickExplore(), { then: () => baseStartRoom.call(this) });
-      }
-    }
-    return baseStartRoom.call(this);
-  };
   const baseHandle = UI.handle;
   UI.handle = function(act, v) {
     switch (act) {
@@ -11969,7 +11957,7 @@ Object.assign(UI, {
       return n.id;
     });
   },
-  // 시험 파티를 이끄는 선임 각성자 (협회 교관). 시험이 끝나도 인연으로 남는다
+  // 시험 파티를 이끄는 선임 각성자 (협회 소속 교관). 시험이 끝나도 인연으로 남는다
   makeExamLeader() {
     const p = G.player;
     const n = G.makeNpc(false, "human");
@@ -11978,7 +11966,7 @@ Object.assign(UI, {
     n.region = p.region;
     n.met = true;
     n.relation = 25;
-    n.guild = null;
+    n.guild = "kama";
     n.examLeader = true;
     n.personality = RNG.pick(["just", "kind", "cold"]);
     n.cls = RNG.pick(["guardian", "paladin", "swordsman", "lancer"]);
@@ -12032,7 +12020,7 @@ Object.assign(UI, {
     const L = G.npcById(leader);
     this.screen = "game";
     this.render();
-    this.modal('<div class="eyebrow">'.concat(G.dateStr(), " · ").concat(G.region().name, ' · 헌터 협회 시험장</div><h3>헌터 자격 시험</h3>\n      <p class="event-text">각성자 등록을 마친 ').concat(p.name, '에게 협회가 실기 시험 통지서를 보냈다. 시험장 로비에는 오늘 처음 각성한 사람들이 긴장한 얼굴로 앉아 있다.</p>\n      <p class="event-text">시험관: "실기는 임시 파티 단위로 본다. 협회 훈련용 게이트를 끝까지 통과하면 합격이다. 각 파티엔 선임 각성자가 리더로 붙는다."</p>\n      <div class="sec-title sec">파티 리더</div>\n      <div class="cards"><div class="item-row">').concat(this.npcAvatar(L, 48), '<div class="grow"><b>').concat(L.name, '</b> <span class="small dim">협회 교관 · 선임 각성자</span>\n        <div>').concat(this.rankTag(L.rankIdx, L.stage), ' <span class="tag cls tiny" style="--c:').concat(groupColor(classById(L.cls).g), '">').concat(className(L.cls), '</span> <span class="small dim">').concat(persById(L.personality).name, '한 성격</span></div>\n        <div class="small">"').concat(this.leadSay("brief"), '"</div></div></div></div>\n      <div class="sec-title sec">배정된 임시 파티</div>\n      <div class="cards">').concat(mates.map((n) => '<div class="item-row">'.concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, "</b> ").concat(this.raceTag(n), '\n        <div><span class="tag cls tiny" style="--c:').concat(groupColor(classById(n.cls).g), '">').concat(className(n.cls), '</span> <span class="small dim">').concat(persById(n.personality).name, "한 성격</span></div></div></div>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="exam-skip">튜토리얼 건너뛰기</button><button class="primary" data-act="exam-go">시험장으로</button></div>'), "event-box");
+    this.modal('<div class="eyebrow">'.concat(G.dateStr(), " · ").concat(G.region().name, ' · 헌터 협회 시험장</div><h3>헌터 자격 시험</h3>\n      <p class="event-text">각성자 등록을 마친 ').concat(p.name, '에게 협회가 실기 시험 통지서를 보냈다. 시험장 로비에는 오늘 처음 각성한 사람들이 긴장한 얼굴로 앉아 있다.</p>\n      <p class="event-text">시험관: "실기는 임시 파티 단위로 본다. 협회 훈련용 게이트를 끝까지 통과하면 합격이다. 각 파티엔 협회 소속 선임 각성자가 리더로 붙는다."</p>\n      <div class="sec-title sec">파티 리더</div>\n      <div class="cards"><div class="item-row">').concat(this.npcAvatar(L, 48), '<div class="grow"><b>').concat(L.name, '</b> <span class="small dim">헌터 협회 소속 교관 · 선임 각성자</span>\n        <div>').concat(this.rankTag(L.rankIdx, L.stage), ' <span class="tag cls tiny" style="--c:').concat(groupColor(classById(L.cls).g), '">').concat(className(L.cls), '</span> <span class="small dim">').concat(persById(L.personality).name, '한 성격</span></div>\n        <div class="small">"').concat(this.leadSay("brief"), '"</div></div></div></div>\n      <div class="sec-title sec">배정된 임시 파티</div>\n      <div class="cards">').concat(mates.map((n) => '<div class="item-row">'.concat(this.npcAvatar(n, 40), '<div class="grow"><b>').concat(n.name, "</b> ").concat(this.raceTag(n), '\n        <div><span class="tag cls tiny" style="--c:').concat(groupColor(classById(n.cls).g), '">').concat(className(n.cls), '</span> <span class="small dim">').concat(persById(n.personality).name, "한 성격</span></div></div></div>")).join(""), '</div>\n      <div class="row end"><button class="ghost" data-act="exam-skip">튜토리얼 건너뛰기</button><button class="primary" data-act="exam-go">시험장으로</button></div>'), "event-box");
   },
   examEnemies(boss) {
     const list = boss ? [G.makeMonster(0, true), G.makeMonster(0, false)] : [G.makeMonster(0, false), G.makeMonster(0, false), G.makeMonster(0, false)];

@@ -57,10 +57,10 @@ Object.assign(UI, {
     });
   },
 
-  // 시험 파티를 이끄는 선임 각성자 (협회 교관). 시험이 끝나도 인연으로 남는다
+  // 시험 파티를 이끄는 선임 각성자 (협회 소속 교관). 시험이 끝나도 인연으로 남는다
   makeExamLeader() {
     const p = G.player; const n = G.makeNpc(false, 'human');
-    n.rankIdx = 3; n.stage = 1; n.region = p.region; n.met = true; n.relation = 25; n.guild = null; n.examLeader = true;
+    n.rankIdx = 3; n.stage = 1; n.region = p.region; n.met = true; n.relation = 25; n.guild = 'kama'; n.examLeader = true;
     n.personality = RNG.pick(['just', 'kind', 'cold']); n.cls = RNG.pick(['guardian', 'paladin', 'swordsman', 'lancer']);
     n.ageMonths = RNG.int(34, 46) * 12; n.lifespan = Math.max(n.lifespan, 80);
     n.links = {}; n.disciples = []; n.parents = [];
@@ -104,9 +104,9 @@ Object.assign(UI, {
     this.screen = 'game'; this.render();
     this.modal(`<div class="eyebrow">${G.dateStr()} · ${G.region().name} · 헌터 협회 시험장</div><h3>헌터 자격 시험</h3>
       <p class="event-text">각성자 등록을 마친 ${p.name}에게 협회가 실기 시험 통지서를 보냈다. 시험장 로비에는 오늘 처음 각성한 사람들이 긴장한 얼굴로 앉아 있다.</p>
-      <p class="event-text">시험관: "실기는 임시 파티 단위로 본다. 협회 훈련용 게이트를 끝까지 통과하면 합격이다. 각 파티엔 선임 각성자가 리더로 붙는다."</p>
+      <p class="event-text">시험관: "실기는 임시 파티 단위로 본다. 협회 훈련용 게이트를 끝까지 통과하면 합격이다. 각 파티엔 협회 소속 선임 각성자가 리더로 붙는다."</p>
       <div class="sec-title sec">파티 리더</div>
-      <div class="cards"><div class="item-row">${this.npcAvatar(L, 48)}<div class="grow"><b>${L.name}</b> <span class="small dim">협회 교관 · 선임 각성자</span>
+      <div class="cards"><div class="item-row">${this.npcAvatar(L, 48)}<div class="grow"><b>${L.name}</b> <span class="small dim">헌터 협회 소속 교관 · 선임 각성자</span>
         <div>${this.rankTag(L.rankIdx, L.stage)} <span class="tag cls tiny" style="--c:${groupColor(classById(L.cls).g)}">${className(L.cls)}</span> <span class="small dim">${persById(L.personality).name}한 성격</span></div>
         <div class="small">"${this.leadSay('brief')}"</div></div></div></div>
       <div class="sec-title sec">배정된 임시 파티</div>

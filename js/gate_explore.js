@@ -1,6 +1,6 @@
-// ===== 게이트 크로니클: 게이트 탐색 =====
-// 게이트에 들어가면 곧바로 싸우지 않는다. 구역마다 먼저 길을 살피고, 고른 행동에 따라
-// 다음 전투의 적 수·체력, 내 체력·정신력, 전리품이 달라진다. 보스 구역 앞에는 늘 숨 고를 자리가 있다.
+// ===== 게이트 크로니클: 헌터 자격 시험용 탐색 장면 =====
+// 시험 리더가 탐색을 가르칠 때 쓰는 장면들. 고른 행동에 따라 다음 전투의 적 수·체력, 내 체력·정신력, 전리품이 달라진다.
+// 실제 게이트의 탐색 시스템은 별도 작업에서 만든다. 그쪽이 들어오면 시험도 그 시스템을 쓰도록 바꾼다.
 
 const EX_GROUP_SCOUT = ['shadow', 'esper', 'shooter'];
 const exGroup = () => (classById(G.player.cls) || {}).g;
@@ -124,19 +124,6 @@ Object.assign(UI, {
 });
 
 {
-  // 게이트 구역에 들어가기 전에 탐색을 먼저 한다 (숨겨진 구역과 최종 게이트 보스방 제외)
-  const baseStartRoom = UI.startRoom;
-  UI.startRoom = function () {
-    const c = this.ctx;
-    if (c && c.kind === 'gate' && !c.inHidden) {
-      c.explored = c.explored || {};
-      if (!c.explored[c.roomIdx]) {
-        c.explored[c.roomIdx] = true;
-        return this.showExplore(this.pickExplore(), { then: () => baseStartRoom.call(this) });
-      }
-    }
-    return baseStartRoom.call(this);
-  };
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
     switch (act) {
