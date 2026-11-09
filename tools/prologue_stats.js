@@ -12,7 +12,7 @@ const LIFE = ['nap', 'cvs', 'game', 'bloom', 'quest', 'late'];
 const N = +process.argv[2] || 20000;
 const isAwaken = (id) => P[id].choices.length && P[id].choices.every((c) => c.e && Math.max(...Object.values(c.e)) >= 3);
 const arcOf = (n) => (/^(gb_|gate_break)/.test(n) ? n : n.replace(/_\d+$/, ''));
-const arcs = {}, grpEl = {}, el = {}, ce = {};
+const arcs = {}, grpEl = {}, el = {}, ce = {}; let match = 0;
 for (let i = 0; i < N; i++) {
   const bg = pickBg ? pickBg() : Object.keys(PS)[i % 5];
   const sc = { e: {}, g: {}, c: {}, t: {}, talent: 0, luck: 0, lean: {} }; const flags = {};
@@ -34,7 +34,7 @@ for (let i = 0; i < N; i++) {
   }
   const r = R(sc); const g = CLASSES.find((c) => c.id === r.cls).g;
   el[r.element] = (el[r.element] || 0) + 1;
-  if (CE) { const k = CE(r.cls, r.element) || '없음'; ce[k] = (ce[k] || 0) + 1; if (process.env.CLS) (ce['@' + k + ':' + r.cls] = (ce['@' + k + ':' + r.cls] || 0) + 1); }
+  if (CE) { const k = CE(r.cls, r.element) || '없음'; if (k === r.element) match++; ce[k] = (ce[k] || 0) + 1; if (process.env.CLS) (ce['@' + k + ':' + r.cls] = (ce['@' + k + ':' + r.cls] || 0) + 1); }
   (grpEl[g] ||= {})[r.element] = (grpEl[g][r.element] || 0) + 1;
 }
 const pct = (a, b) => Math.round((a / b) * 1000) / 10;
@@ -49,6 +49,7 @@ if (pct(life, N) < 30 || pct(life, N) > 40) { fail++; console.log('  ✗ 생활�
 console.log('속성:', Object.entries(el).map(([k, v]) => `${k} ${pct(v, N)}%`).join(' · '));
 if (CE) {
   console.log('직업 친화 속성(4-10):', Object.entries(ce).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${pct(v, N)}%`).join(' · '));
+  console.log(`직업 친화 속성 = 각성 속성: ${pct(match, N)}%`);
   for (const k of ['holy', 'dark']) if (pct(ce[k] || 0, N) < 10 || pct(ce[k] || 0, N) > 15) console.log(`  ! ${k} 친화 직업 ${pct(ce[k] || 0, N)}% (목표 10~15%)`);
 }
 console.log('계열 × 속성:');

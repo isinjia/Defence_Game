@@ -790,6 +790,15 @@ function resolvePrologue(sc, rng = Math.random) {
   // 마지막 장면에서 드러난 힘(운명)은 대개 그대로 직업이 된다. 희귀할수록 조금 덜 확실하다
   const fate = sc.fate && CLASSES.find((c) => c.id === sc.fate && c.r < 3);
   if (fate && rng() < [0.95, 0.88, 0.75][fate.r] + Math.min(0.1, luck * 0.02)) best = fate;
+  // 4-10: 드러난 힘이 각성 속성과 어긋나면, 같은 계열의 속성 친화 직업으로 자주 기운다 (새 성·암·목 직업이 실제로 나오게)
+  if (!affine(best) && rng() < 0.6) {
+    const alt = CLASSES.filter((c) => c.g === best.g && c.r < 3 && c.r <= best.r + 1 && affine(c));
+    if (alt.length) {
+      const w = alt.map((c) => rare[c.r] * (1 + (sc.c[c.id] || 0) * 1.5));
+      let x = rng() * w.reduce((a, b) => a + b, 0);
+      for (let i = 0; i < alt.length; i++) { x -= w[i]; if (x < 0) { best = alt[i]; break; } }
+    }
+  }
   // 특성: 점수 높은 순으로 3개 (서로 충돌하는 특성은 제외)
   const clash = { genius: 'slow_learner', slow_learner: 'genius', lucky: 'cursed', cursed: 'lucky', charisma: 'loner', loner: 'charisma' };
   const traits = [];
