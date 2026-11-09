@@ -141,3 +141,40 @@ Object.assign(Game.prototype, {
     return i > 0 ? html.slice(0, i) + box + html.slice(i) : html + box;
   };
 })();
+
+// (tutorial.js 의 전투 안내와 짝. ui_mobile.js 가 coachTarget 을 정의한 뒤에 덮어써야 해서 여기에 둔다)
+// 튜토리얼 안내 말풍선이 가리키는 곳 (안내 내용과 맞춘다)
+//  1/3 게이지 → 아군 줄 · 2/3 내 차례 → 아래 메뉴(스킬·아이템 목록을 열었으면 그 목록) · 겨누기 → 적
+//  3/3 회복약·방어 → 아이템 버튼 · 3/3 더 → 오른쪽 위 배속·자동
+{
+  const baseTarget = UI.coachTarget;
+  UI.coachTarget = function (label) {
+    const c = this.ctx; const t = c && c.tutorial; const box = document.getElementById('cb-ctrl');
+    if (!t || !box || t.boss) return baseTarget ? baseTarget.call(this, label) : null;
+    const k = t.key;
+    if (k === 'gauge') return document.getElementById('allies') || document.getElementById('foes');
+    if (k === 'turn') return (c.cmd && box.querySelector('.cmd-list')) || box.querySelector('.cmd-main') || box.querySelector('.skill-btns');
+    if (k === 'aimEnemy') return document.getElementById('foes');
+    if (k === 'aimAlly') return document.getElementById('allies');
+    if (k === 'aimNone') return box.querySelector('.use-btn') || box.querySelector('.cmd-main');
+    if (k === 'done') return box.querySelector('[data-act="c-cmd"][data-v="item"]') || box.querySelector('.cmd-main');
+    if (k === 'tools') return document.querySelector('#modal-box .cb-tools');
+    return baseTarget ? baseTarget.call(this, label) : null;
+  };
+}
+// 전투 화면은 처음 그려진 뒤 배치가 한 번 더 바뀐다(전투 한 화면 맞춤). 말풍선 위치를 그 뒤에 다시 잡는다.
+{
+  const basePop = UI.coachPop;
+  UI.coachPop = function (node, target, key) {
+    const r = basePop.call(this, node, target, key);
+    if (node && target && !this._coachRe) {
+      clearTimeout(this._coachReT);
+      this._coachReT = setTimeout(() => {
+        const pop = document.getElementById('coach-pop'); const n = pop && pop.querySelector('.coach-card');
+        if (!n || pop._key !== (key || '') || !document.body.contains(target)) return;
+        this._coachRe = true; try { basePop.call(this, n, target, key); } finally { this._coachRe = false; }
+      }, 120);
+    }
+    return r;
+  };
+}

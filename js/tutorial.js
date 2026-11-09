@@ -97,7 +97,8 @@ Object.assign(UI, {
       aimEnemy: '공격할 적을 누르면 바로 발동합니다.',
       aimAlly: '도울 동료를 누르면 발동합니다.',
       aimNone: '사용을 누르면 발동합니다.',
-      done: '아이템: 회복약 · 방어: 받는 피해 감소 · 오른쪽 위: 배속·자동 전투',
+      done: '아이템: 회복약으로 체력 회복 · 방어: 받는 피해 감소',
+      tools: '오른쪽 위 버튼: 전투 속도(배속)와 자동 전투. 익숙해지면 써 보세요.',
     }[key] || '';
   },
   examGateCtx(stage) {
@@ -164,7 +165,8 @@ Object.assign(UI, {
     if (t.acted >= 3) return '';
     // 안내는 리더가 플레이어에게 직접 하는 말로 (시스템 문구를 리더 입에 넣지 않는다)
     let key;
-    if (t.acted >= 1) { step = '안내 3/3'; key = 'done'; }
+    if (t.acted >= 2) { step = '안내 3/3 · 더'; key = 'tools'; }
+    else if (t.acted >= 1) { step = '안내 3/3'; key = 'done'; }
     else if (!cb.waiting) { step = '안내 1/3'; key = 'gauge'; }
     else if (!c.sel) { step = '안내 2/3'; key = 'turn'; }
     else {
@@ -172,7 +174,9 @@ Object.assign(UI, {
       const aim = SKILL_AIM[skillById(c.sel).type] || 'none';
       key = aim === 'enemy' ? 'aimEnemy' : aim === 'ally' ? 'aimAlly' : 'aimNone';
     }
-    text = `"${this.leadSay(key)}"<div class="small dim coach-sys">${this.coachSys(key)}</div>`;
+    t.key = key;
+    const sys = key === 'turn' && c.cmd === 'skill' ? '쓸 스킬을 누르세요. 그다음 공격할 적을 누르면 발동합니다.' : key === 'turn' && c.cmd === 'item' ? '쓸 물건을 누르세요.' : this.coachSys(key);
+    text = `${key === 'tools' ? '' : `"${this.leadSay(key)}"`}<div class="small dim coach-sys">${sys}</div>`;
     return `<div class="coach"><span class="eyebrow">${who} · ${step}</span><div>${text}</div></div>`;
   },
 
@@ -291,3 +295,4 @@ Object.assign(UI, {
     }
   };
 }
+
