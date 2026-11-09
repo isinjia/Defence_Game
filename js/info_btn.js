@@ -13,6 +13,7 @@
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const row = (k, v) => `<div class="ic-row"><span>${k}</span><b>${v == null || v === '' ? '<i class="unk">알 수 없음</i>' : v}</b></div>`;
 
+  const GUILD_TIER_GIANT = (id) => typeof GUILD_TIER !== 'undefined' && GUILD_TIER[id] === 'giant';
   // ---------- 대상별 정보 ----------
   UI.INFO = {
     guild(id) {
@@ -21,10 +22,21 @@
       const pres = w.guildPrestige && w.guildPrestige[id];
       const members = G.npcs ? G.npcs.filter((n) => n.alive && n.guild === id) : [];
       const known = members.filter((n) => n.met);
-      return { title: g.name, sub: '길드', color: g.color,
+      const tier = typeof guildTierName === 'function' ? guildTierName(id) : (g.minor ? '중소 길드' : '거대 길드');
+      const home = typeof guildHome === 'function' ? guildHome(id) : (g.home ? regionById(g.home) : null);
+      const off = p.official ?? p.rankIdx;
+      const join = g.minor
+        ? `공식 ${RANKS[g.minRank || 0].key}급 이상${g.fameReq ? `, 명성 ${g.fameReq}` : ''} <span class="small dim">(나: ${RANKS[off].key}급 · 명성 ${fmt(p.fame)})</span>`
+        : g.fameReq != null ? `명성 ${g.fameReq} 이상${GUILD_TIER_GIANT(id) ? ' · 보통 C급 이상만 스카우트' : ''} <span class="small dim">(나: 명성 ${fmt(p.fame)})</span>` : null;
+      return { title: g.name, sub: tier, color: g.color,
         body: [g.desc ? `<p>${g.desc}</p>` : '',
+          row('본거지', home ? home.name : null),
+          g.minor ? row('규모', g.size ? `약 ${g.size}명` : null) : '',
+          g.minor ? row('성향', g.style || null) : '',
+          g.minor ? row('특기', g.spec || null) : '',
+          g.minor ? row('평판', g.rep != null ? `${g.rep >= 60 ? '좋음' : g.rep >= 45 ? '보통' : '호불호'} (${g.rep})` : null) : '',
           row('속성 성향', g.elem && ELEMENTS[g.elem] ? `${FX.elemIcon(g.elem, 12)} ${ELEMENTS[g.elem].name}` : null),
-          row('가입 조건', g.fameReq != null ? `명성 ${g.fameReq} 이상 (지금 ${fmt(p.fame)})` : null),
+          row('가입 조건', join),
           row('위상', pres != null ? `${Math.round(pres)}` : null),
           row('소속 헌터', members.length ? `${members.length}명${known.length ? ` · 아는 사람 ${known.slice(0, 3).map((n) => n.name).join(', ')}${known.length > 3 ? ' 외' : ''}` : ''}` : null),
           row('나와의 관계', p.guild === id ? '<span class="good">소속 중</span>' : p.guild ? '다른 길드 소속' : '무소속'),
