@@ -95,6 +95,22 @@ Object.assign(UI, {
   // 탐색 지점 하나를 보여 준다. lead 가 있으면 리더가 한마디 덧붙인다
   showExplore(node, opts = {}) {
     const c = this.ctx; this.exNode = { node, opts };
+    // 리더가 함께하는 장면(헌터 자격 시험)은 대화창으로 진행한다
+    if (opts.lead && this.talk) {
+      const L = this.examLeader ? this.examLeader() : null; const who = L || { name: opts.leadName || '리더' };
+      const text0 = typeof node.text === 'function' ? node.text(c) : node.text;
+      const choices = node.choices.filter((ch) => !ch.when || ch.when(c));
+      return this.talk([
+        { narr: text0 },
+        { who, text: opts.lead },
+        { choices: choices.map((ch) => ({ text: ch.text, go: () => {
+          const res = fixJosa(ch.do(c)); G.save();
+          const effects = (res.match(/\([^()]*\)/g) || []).join(' ');
+          const story = res.replace(/\s*\([^()]*\)/g, '').trim();
+          this.talk([{ narr: story }, effects ? { sys: effects } : null, opts.after ? { who, text: opts.after } : null], () => { if (G.over) return this.after(); return opts.then ? opts.then() : this.after(); });
+        } })) },
+      ]);
+    }
     const text = typeof node.text === 'function' ? node.text(c) : node.text;
     const choices = node.choices.map((ch, i) => ({ ch, i })).filter(({ ch }) => !ch.when || ch.when(c));
     const head = c && c.gate ? `${G.gateName(c.gate)} · ${c.roomIdx === c.rooms.length - 1 ? '보스 구역 앞' : `구역 ${c.roomIdx + 1}`}` : '게이트 안';

@@ -120,17 +120,20 @@ Object.assign(UI, {
     this.exam.rooms = [this.examEnemies(false), this.examEnemies(true)];
     const mates = ids.map((id) => G.npcById(id)); const L = G.npcById(leader);
     this.screen = 'game'; this.render();
-    this.modal(`<div class="eyebrow">${G.dateStr()} · ${G.region().name} · 헌터 협회 시험장</div><h3>헌터 자격 시험</h3>
-      <p class="event-text">각성자 등록을 마친 ${p.name}에게 협회가 실기 시험 통지서를 보냈다. 시험장 로비에는 오늘 처음 각성한 사람들이 긴장한 얼굴로 앉아 있다.</p>
-      <p class="event-text">시험관: "실기는 임시 파티 단위로 본다. 협회 훈련용 게이트를 끝까지 통과하면 합격이다. 각 파티엔 협회 소속 선임 각성자가 리더로 붙는다."</p>
-      <div class="sec-title sec">파티 리더</div>
-      <div class="cards"><div class="item-row">${this.npcAvatar(L, 48)}<div class="grow"><b>${L.name}</b> <span class="small dim">헌터 협회 소속 교관 · 선임 각성자</span>
-        <div>${this.rankTag(L.rankIdx, L.stage)} <span class="tag cls tiny" style="--c:${groupColor(classById(L.cls).g)}">${className(L.cls)}</span> <span class="small dim">${persById(L.personality).name}한 성격</span></div>
-        <div class="small">"${this.leadSay('brief')}"</div></div></div></div>
-      <div class="sec-title sec">배정된 임시 파티</div>
-      <div class="cards">${mates.map((n) => `<div class="item-row">${this.npcAvatar(n, 40)}<div class="grow"><b>${n.name}</b> ${this.raceTag(n)}
-        <div><span class="tag cls tiny" style="--c:${groupColor(classById(n.cls).g)}">${className(n.cls)}</span> <span class="small dim">${persById(n.personality).name}한 성격</span></div></div></div>`).join('')}</div>
-      <div class="row end"><button class="ghost" data-act="exam-skip">튜토리얼 건너뛰기</button><button class="primary" data-act="exam-go">시험장으로</button></div>`, 'event-box');
+    const examiner = { name: '시험관', sub: '헌터 협회' };
+    // 받침에 따라 '이에요/예요', '이다/다'
+    const jong = (w) => { const c = String(w).charCodeAt(String(w).length - 1) - 0xac00; return c >= 0 && c < 11172 && c % 28 !== 0; };
+    const yo = (w) => w + (jong(w) ? '이에요' : '예요'); const da = (w) => w + (jong(w) ? '이다' : '다');
+    const intro = { kind: (n) => `${yo(n.name)}. ${yo(className(n.cls))}. 잘 부탁해요.`, just: (n) => `${n.name}. ${da(className(n.cls))}. 등 맡길 수 있게 해 줘.`, warlike: (n) => `${n.name}. ${className(n.cls)}. 괴수는 내가 먼저 친다.`, cold: (n) => `…${n.name}. ${className(n.cls)}.` };
+    this.talk([
+      { narr: `${G.region().name}, 헌터 협회 시험장. 로비엔 오늘 처음 각성한 사람들이 긴장한 얼굴로 앉아 있다. 전광판에 ${p.name}의 이름이 뜬다.` },
+      { who: examiner, text: '실기는 임시 파티 단위로 본다. 협회 훈련용 게이트를 끝까지 통과하면 합격이다.' },
+      { who: examiner, text: `각 파티엔 협회 선임이 리더로 붙는다. ${p.name}, 네 파티 리더는 ${L.name} 교관이다.` },
+      { who: L, text: this.leadSay('brief') },
+      ...mates.map((n) => ({ who: n, text: (intro[n.personality] || intro.kind)(n) })),
+      { who: L, text: { just: '인사는 됐다. 들어간다. 내 뒤에 붙어.', kind: '자, 그럼 들어가 볼까요? 제 뒤로 따라오세요.', cold: '간다.' }[L.personality] || '간다.' },
+      { choices: [{ text: '리더를 따라 게이트로 들어간다', go: () => this.handle('exam-go') }, { text: '(튜토리얼 건너뛰기)', go: () => this.handle('exam-skip') }] },
+    ]);
   },
 
   examEnemies(boss) {
@@ -194,15 +197,39 @@ Object.assign(UI, {
     ex.text = win
       ? `마지막 괴수가 쓰러지자 훈련용 게이트가 닫혔다. ${L ? `${L.name}이(가) 무기를 거두며 말한다. ${this.leadSay('win')}` : '시험관이 고개를 끄덕였다.'} 시험관이 기록판에 합격 도장을 찍었다.`
       : `파티가 밀리자 ${L ? L.name : '시험관'}이(가) 봉인을 풀고 앞으로 나섰다. 보스가 한 번에 갈라졌다. ${L ? this.leadSay('lose') : ''} 합격은 합격이다.`;
-    this.renderExamEnd();
+    this.examResultTalk(win);
+  },
+  // 시험이 끝난 뒤: 리더의 말 → 측정실 → 동기들 (대화창으로)
+  examResultTalk(win) {
+    const ex = this.exam; const L = this.examLeader(); const p = G.player;
+    const mates = ex.ids.map((id) => G.npcById(id)).filter(Boolean);
+    const meter = { name: '측정관', sub: '헌터 협회' }; const chief = { name: '지부장', sub: '헌터 협회' };
+    const r = ex.reveal ? ex.reveal.rank : p.rankIdx;
+    const RANK_TALK = [
+      [{ who: meter, text: 'F급. 대부분 여기서 시작합니다.' }, { who: meter, text: '실망할 것 없어요. S급도 처음엔 다 F였으니까.' }],
+      [{ who: meter, text: '…E급이네요. 신규 각성자 중엔 위쪽입니다.' }, { narr: '대기실의 동기들이 수군거린다.' }],
+      [{ narr: '측정기가 두 번 울린다. 측정관이 기록을 다시 확인하고 자리에서 일어난다.' }, { who: meter, text: 'D급. 신규 등록으로 D급은 이 지부에서 올해 처음입니다.' }],
+      [{ narr: '측정실 문이 열리고 협회 지부장이 직접 들어온다.' }, { who: chief, text: 'C급 신인이라… 오늘 오후부터 길드들 전화가 빗발칠 겁니다.' }, { who: chief, text: '몸조심하세요. 좋은 뜻으로든, 나쁜 뜻으로든.' }],
+      [{ narr: '측정기 화면이 붉게 깜빡인다. 아무도 말을 하지 않는다.' }, { who: chief, text: '본부죠? …B급입니다. 신규 각성자가요. 네, 지금 당장요.' }],
+    ][Math.max(0, Math.min(4, r))];
+    const speaker = mates.find((n) => n.personality === 'kind') || mates[0];
+    ex.talked = true;
+    this.talk([
+      win ? { narr: '마지막 괴수가 쓰러지자 훈련용 게이트가 닫혔다.' } : { narr: `파티가 밀리자 ${L ? L.name : '시험관'}이(가) 봉인을 풀고 앞으로 나섰다. 보스가 한 번에 갈라졌다.` },
+      L ? { who: L, text: this.leadSay(win ? 'win' : 'lose').replace(/^"|"$/g, '') } : null,
+      { narr: '협회 측정실. 원통형 측정기 안에 들어선다.' },
+      ...RANK_TALK,
+      { narr: '시험장을 나서자 임시 파티원들이 기다리고 있다.' },
+      speaker ? { who: speaker, text: '…우리, 연락처라도 주고받을까? 어디로 뽑힐지는 모르지만.' } : null,
+    ], () => this.renderExamEnd());
   },
   renderExamEnd() {
     const ex = this.exam; const mates = ex.ids.map((id) => G.npcById(id)).filter(Boolean);
     const R = RANKS[G.player.rankIdx];
     this.modal(`<div class="eyebrow">헌터 자격 시험 · 결과</div><h3><span class="tag rank" style="--c:${R.color}">${R.key}급</span> 헌터 자격증 발급</h3>
-      <p class="event-text">${fixJosa(ex.text)}</p>
-      ${ex.reveal ? `<div class="sec-title sec">협회 등급 측정</div><p class="event-text">${fixJosa(ex.reveal.text)}</p>` : ''}
-      <p class="event-text">시험장을 나서자 임시 파티원들이 당신을 바라본다. "…우리, 연락처라도 주고받을까? 어디로 뽑힐지는 모르지만."</p>
+      ${ex.talked ? '' : `<p class="event-text">${fixJosa(ex.text)}</p>`}
+      ${ex.reveal && !ex.talked ? `<div class="sec-title sec">협회 등급 측정</div><p class="event-text">${fixJosa(ex.reveal.text)}</p>` : ''}
+      ${ex.talked ? '' : `<p class="event-text">시험장을 나서자 임시 파티원들이 당신을 바라본다. "…우리, 연락처라도 주고받을까? 어디로 뽑힐지는 모르지만."</p>`}
       <div class="sec-title sec">연락처를 교환할 동기 <span class="small dim">(눌러서 선택·해제 · 측정 뒤 같은 곳에 뽑히면 첫 파티 후보가 된다)</span></div>
       <div class="cards">${mates.map((n) => `<button class="item-row choice-btn ${ex.pick.has(n.id) ? 'on' : ''}" data-act="exam-pick" data-v="${n.id}">${this.npcAvatar(n, 40)}<div class="grow"><b>${n.name}</b>
         <div><span class="tag cls tiny" style="--c:${groupColor(classById(n.cls).g)}">${className(n.cls)}</span> <span class="small dim">${persById(n.personality).name}</span></div></div><b class="${ex.pick.has(n.id) ? 'amber' : 'dim'}">${ex.pick.has(n.id) ? '함께' : '각자'}</b></button>`).join('')}</div>

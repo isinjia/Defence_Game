@@ -1,0 +1,21 @@
+/* 대화창: 화면 아래에 붙는 인물 대사 상자 */
+#dlg { position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; padding: 0 12px calc(14px + env(safe-area-inset-bottom)); background: linear-gradient(to top, #000c 0%, #0008 38%, #0000 70%); }
+#dlg .dlg-box { position: relative; display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; max-width: 760px; width: 100%; margin: 0 auto; padding: 14px 16px 18px; background: #0d121bf2; border: 1px solid #3a4a62; border-top: 2px solid var(--amber, #ffb648); border-radius: 6px; box-shadow: 0 -6px 30px #0009; cursor: pointer; }
+#dlg .dlg-box.narr { grid-template-columns: 1fr; border-top-color: #6b7a90; }
+#dlg .dlg-box.narr .dlg-text { color: #c9d2de; font-style: italic; }
+#dlg .dlg-box.me { border-top-color: #5fd3c0; }
+#dlg .dlg-face .avatar, #dlg .dlg-face svg { display: block; }
+#dlg .dlg-name { font-weight: 700; color: var(--amber, #ffb648); font-size: 15px; margin-bottom: 4px; }
+#dlg .dlg-box.me .dlg-name { color: #5fd3c0; }
+#dlg .dlg-sub { font-weight: 400; color: #8a97a8; font-size: 12px; margin-left: 4px; }
+#dlg .dlg-text { font-size: 16px; line-height: 1.65; min-height: 3.2em; white-space: pre-wrap; word-break: keep-all; }
+#dlg .dlg-more { position: absolute; right: 14px; bottom: 6px; font-size: 11px; color: #8a97a8; animation: dlgBlink 1s steps(2) infinite; }
+@keyframes dlgBlink { 50% { opacity: 0; } }
+#dlg .dlg-choices { display: grid; gap: 8px; max-width: 760px; width: 100%; margin: 0 auto; }
+#dlg .dlg-choice { text-align: left; padding: 12px 14px; background: #121a26f2; border: 1px solid #3a4a62; border-left: 3px solid var(--amber, #ffb648); color: #e8edf4; font-size: 15px; border-radius: 4px; }
+#dlg .dlg-choice:hover, #dlg .dlg-choice:focus { background: #1b2636; }
+/* 리더 말풍선 안의 시스템 안내 (리더 말과 구분) */
+.coach .coach-sys, #coach-pop .coach-sys { margin-top: 6px; padding-top: 6px; border-top: 1px dashed #8a7a5a88; font-size: 12.5px; opacity: .85; }
+#coach-pop.speech .coach-sys { color: #5a4a2a; }
+#dlg .dlg-box.sys { border-top-color: var(--amber, #ffb648); }
+#dlg .dlg-box.sys .dlg-text { font-style: normal; color: #ffd28a; font-size: 14px; min-height: 0; }
