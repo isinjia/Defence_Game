@@ -8,6 +8,16 @@ https://isinjia.github.io/Defence_Game/
 
 GitHub Pages로 배포됩니다. 저장소의 Settings → Pages에서 Source를 "Deploy from a branch"로, 브랜치를 `claude/happy-turing-czlfa3`, 폴더를 `/ (root)`로 한 번 지정하면 이후 푸시마다 자동 갱신됩니다.
 
+## 버전
+
+현재 버전은 화면 오른쪽 아래와 타이틀에 표시됩니다. 업데이트할 때마다 0.01씩 올립니다.
+
+```bash
+python3 tools/bump_version.py
+```
+
+`js/data.js` 의 버전과 `index.html` 의 캐시 방지용 버전 표시가 함께 바뀝니다.
+
 ## 로컬 실행
 
 빌드 없이 정적 파일로 동작합니다.

@@ -68,6 +68,7 @@ const UI = {
           <div class="logo-en">GATE CHRONICLE</div>
           <h1 class="logo">게이트 크로니클</h1>
           <div class="logo-sub">각성 연대기</div>
+          <div class="title-ver">v${GAME_VERSION}</div>
           <p class="sub">2087년, 대붕괴로부터 20년.<br>한반도 곳곳에 열린 게이트, 그리고 각성자들.<br>한정된 수명 안에서 얼마나 높이 오를 수 있는가.</p>
           <div class="btns">
             <button class="primary big" data-act="new">새로운 각성</button>
