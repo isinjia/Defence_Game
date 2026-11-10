@@ -845,3 +845,6 @@ html body .cmd-main .cmd.ordered::after { top: -5px; }
 .unit-hold .uh-art svg, .unit-hold .uh-art img, .unit-hold .uh-art .avatar { width: 64px !important; height: 64px !important; }
 .unit-hold { max-height: 86vh; overflow-y: auto; }
 #stage .foe, #stage .ally { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+/* 아이템 대상 지정 중: 앞·뒤 줄 아군 모두 강조 */
+#allies-front.aim .ally:not(.summon), #allies-back.aim .ally:not(.summon) { cursor: crosshair; outline: 2px dashed var(--amber); outline-offset: 2px; }
+.order-banner.item-banner { border-color: #7be0a0; }

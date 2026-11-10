@@ -127,3 +127,75 @@ Object.assign(UI, {
   document.addEventListener('click', (e) => { if (fired) { fired = false; e.stopPropagation(); e.preventDefault(); } }, true);
   document.addEventListener('contextmenu', (e) => { if (e.target.closest && e.target.closest('#stage .foe, #stage .ally')) e.preventDefault(); }, true);
 }
+
+// ---------- 3. 아이템을 지정한 대상에게 ----------
+// 전에는 아이템이 언제나 나에게만 쓰였다. 이제 아이템을 고르면 아군(나 포함)을 눌러 쓸 대상을 정한다.
+Object.assign(Combat.prototype, {
+  playerItemOn(id, targetId) {
+    if (!this.waiting || this.result) return;
+    const g = this.game; const p = this.player;
+    if (!g.player.items[id]) return;
+    const it = CONSUMABLES.find((x) => x.id === id);
+    if (!it || (it.effect !== 'hp' && it.effect !== 'mp')) return;
+    const t = this.units.find((u) => u.id === targetId && u.side === 'ally' && u.alive) || p;
+    g.player.items[id]--;
+    const mul = 1 + g.mod('heal');
+    if (t !== p) this.push(`${p.name}이(가) ${t.name}에게 ${it.name}을(를) 건넸다.`, 'heal', { k: 'note', dst: t.id });
+    if (it.effect === 'hp') this.healUnit(t, t.maxHp * it.val * mul, p);
+    else { const v = Math.round(t.maxMp * it.val * mul); t.mp = Math.min(t.maxMp, t.mp + v); this.push(`${it.name} 사용: ${t === p ? '' : t.name + '의 '}정신력 +${v}`, 'heal', { k: 'mp', dst: t.id, mp: t.mp }); }
+    this.endPlayerTurn();
+  },
+});
+
+{
+  const aimable = (id) => { const it = CONSUMABLES.find((x) => x.id === id); return !!it && (it.effect === 'hp' || it.effect === 'mp'); };
+  const clearAim = (c) => { if (c) c.itemSel = null; };
+  const baseControls = UI.renderControls;
+  UI.renderControls = function (...a) {
+    const c = this.ctx;
+    // 차례가 끝났거나 전투가 끝나면 고르던 아이템은 취소
+    if (c && c.itemSel && c.combat && (!c.combat.waiting || c.combat.result || c.combat.auto || c.orderFor || !G.player.items[c.itemSel])) c.itemSel = null;
+    const r = baseControls.apply(this, a);
+    try {
+      const box = document.getElementById('cb-ctrl'); if (!box || !c || !c.combat) return r;
+      const rows = document.querySelectorAll('#allies, #allies-front, #allies-back');
+      const aiming = !!c.itemSel;
+      if (aiming || !c.orderFor) for (const el of rows) if (!(c.sel && !aiming)) el.classList.toggle('aim', aiming);
+      // 안내는 전장 맨 위 띠로 (아군 줄을 가리지 않게, 오더 띠와 같은 자리·모양)
+      const st = document.getElementById('stage');
+      if (st) st.querySelectorAll('.item-banner').forEach((e) => e.remove());
+      if (!aiming) return r;
+      const it = CONSUMABLES.find((x) => x.id === c.itemSel);
+      const wrap = box.querySelector(':scope > .cmd-wrap'); if (!wrap) return r;
+      if (st) st.insertAdjacentHTML('beforeend', `<div class="order-banner item-banner"><div class="row between"><b>${it.name} <span class="small dim">×${G.player.items[c.itemSel]}</span></b><span class="row"><span class="small dim">${it.effect === 'hp' ? `체력 ${Math.round(it.val * 100)}% 회복` : `정신력 ${Math.round(it.val * 100)}% 회복`}</span><button class="sm ghost" data-act="c-item-cancel">취소</button></span></div>
+        <div class="small amber"><b>쓸 대상을 누르세요.</b> 나 또는 동료 (쓰러진 동료에게는 쓸 수 없다)</div></div>`);
+      const ib = wrap.querySelector('.cmd-main [data-v=item]'); if (ib) ib.classList.add('sel');
+    } catch (e) { /* 표시 실패는 전투를 막지 않는다 */ }
+    return r;
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function (act, v) {
+    const c = this.ctx; const cb = c && c.combat;
+    if (cb && cb.units && !cb.result) {
+      if (act === 'c-item' && aimable(v)) {
+        if (!cb.waiting || cb.auto || c.playing) return;
+        if (!G.player.items[v]) return this.toast('가진 것이 없다.');
+        c.itemSel = v; c.sel = null; c.cmd = null;
+        return this.renderControls();
+      }
+      if (act === 'c-item-cancel') { clearAim(c); return this.renderControls(); }
+      if (c.itemSel && act === 'c-ally') {
+        if (!cb.waiting || c.playing) return;
+        const t = cb.units.find((u) => u.id === v && u.side === 'ally');
+        if (!t) return;
+        if (!t.alive) return this.toast(`${t.name}은(는) 쓰러져 있어 쓸 수 없다.`);
+        if (t.summon) return this.toast('소환수에게는 쓸 수 없다.');
+        const id = c.itemSel; c.itemSel = null;
+        return this.combatAction((x) => x.playerItemOn(id, t.id));
+      }
+      // 다른 행동을 고르면 아이템 지정은 취소
+      if (c.itemSel && ['c-skill', 'c-cmd', 'c-defend', 'c-use', 'c-flee', 'c-auto', 'c-target'].includes(act)) { clearAim(c); if (act === 'c-target') return this.renderControls(); }
+    }
+    return baseHandle.call(this, act, v);
+  };
+}
