@@ -153,6 +153,8 @@ const { chromium, devices } = require('playwright');
     await page.waitForFunction(() => UI.ctx && UI.ctx.combat && UI.ctx.combat.waiting && !UI.ctx.playing, null, { timeout: 30000 });
     const r = await ev(() => {
       const cb = UI.ctx.combat; const pair = cb.comboPairs()[0]; if (!pair) return '합동기가 열리지 않음';
+      UI.ctx.played = cb.log.length; // 차례 시작 때 밀린 연출(리더 대사 등)이 재생되면 그동안 입력이 잠기므로, 시험에서는 이미 본 것으로 친다
+      for (const u of cb.units) if (u.side === 'ally') { u.stun = 0; u.mp = u.maxMp; } // 기습당해 동료가 기절한 채 시작하면 합동기가 막힌다(정상). 시험은 그 경우를 뺀다
       cb.units.find((u) => u.id === pair.id).atb = 90; UI.renderControls(); UI.handle('c-cmd', 'skill');
       const b = document.querySelector('.cmd-pop .combo-btn'); if (!b) return '스킬 목록에 합동기 버튼 없음';
       cb.player.ult = 100; UI.renderControls();

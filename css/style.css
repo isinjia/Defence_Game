@@ -951,3 +951,12 @@ html body .settle-box .row.end { display: flex; gap: 8px; }
 html body .settle-box .row.end > button { flex: 1 1 0; min-height: 48px; font-size: 15px; justify-content: center; }
 .cn-lead-line { margin: 6px 0; padding: 6px 8px; border-left: 3px solid var(--amber, #f5b84a); background: rgba(255,255,255,.04); border-radius: 4px; font-size: 13px; }
 .cn-lead-line b { margin-right: 4px; color: var(--amber, #f5b84a); }
+
+/* 창 아래 버튼 줄(확인·떠난다·시작 등)은 오른쪽 아래 작은 버튼이 아니라 줄 전체 너비로 크게 (사용자 요청). 여럿이면 똑같이 나눈다. */
+html body #modal-box .row.end, html body .settle-box .row.end, html body .skill-hold .row.end { display: flex; flex-wrap: wrap; gap: 8px; justify-content: stretch; }
+html body #modal-box .row.end > button:not(.sm):not(.icon-btn), html body #modal-box .row.end > a.btn { flex: 1 1 0; min-width: 0; min-height: 48px; font-size: 15px; justify-content: center; text-align: center; }
+html body #modal-box .row.end > button.sm { flex: 0 0 auto; }
+/* 전투 조작 영역·띠 안의 작은 버튼 줄은 그대로 */
+html body #cb-ctrl .row.end > button, html body .order-banner .row > button, html body .cmd-pop-head button { flex: 0 0 auto; min-height: 32px; font-size: inherit; }
+/* 글자가 긴 버튼이 셋 이상이면 줄을 바꿔 한 줄에 하나씩 */
+@media (max-width: 420px) { html body #modal-box .row.end > button:not(.sm):not(.icon-btn):nth-last-child(n+3), html body #modal-box .row.end > button:not(.sm):not(.icon-btn):nth-last-child(n+3) ~ button { flex-basis: 100%; } }
