@@ -848,3 +848,12 @@ html body .cmd-main .cmd.ordered::after { top: -5px; }
 /* 아이템 대상 지정 중: 앞·뒤 줄 아군 모두 강조 */
 #allies-front.aim .ally:not(.summon), #allies-back.aim .ally:not(.summon) { cursor: crosshair; outline: 2px dashed var(--amber); outline-offset: 2px; }
 .order-banner.item-banner { border-color: #7be0a0; }
+
+/* 분열·소환 등장, 소환물 소멸 (js/spawn_fx.js) */
+.foe.splitting .fx-host { animation: splitTear var(--split-ms, 500ms) ease-in forwards; transform-origin: 50% 80%; }
+@keyframes splitTear { 0% { transform: scale(1, 1); } 18% { transform: scale(1.18, .84); } 36% { transform: scale(.86, 1.14); } 54% { transform: scale(1.3, .78); } 72% { transform: scale(1.5, .7); filter: brightness(1.5); } 100% { transform: scale(1.9, .35); opacity: 0; filter: brightness(2); } }
+.foe.split-gone { display: none !important; }
+.foe.spawn-move, .ally.spawn-move { will-change: transform; pointer-events: none; }
+.foe.vanishing { animation: vanishOut .38s ease-out forwards; }
+@keyframes vanishOut { to { opacity: 0; transform: translateY(-10px) scale(.7); filter: blur(2px); } }
+@media (prefers-reduced-motion: reduce) { .foe.splitting .fx-host { animation-duration: 160ms; } }

@@ -167,6 +167,34 @@ const { chromium, devices } = require('playwright');
     await closeAll(); await ev(() => { UI.ctx = null; });
     if (r) throw new Error(r);
   });
+  await step('전투 A: 본체 처치 뒤 소환물만 남으면 종료 · 분열 괴수 전투 (계산)', async () => {
+    await closeAll(); await ev(() => { UI.ctx = null; });
+    const r = await ev(() => {
+      const mk = (nm) => { for (let i = 0; i < 800; i++) { const m = G.makeMonster(0); if (m.name.includes(nm) && !m.variant) return m; } return null; };
+      const allies = () => [G.playerUnit()];
+      // 1) 본체 하나 + 소환물 둘: 본체가 쓰러지면 소환물은 흩어지고 승리, 처치 수에는 본체만
+      const cb = new Combat(G, { allies: allies(), enemies: [G.makeMonster(0)], canFlee: true, title: '점검' });
+      const boss = cb.enemies()[0]; if (!cb.monSpawn) return 'monSpawn 없음';
+      cb.monSpawn(boss, '졸개', 'slime', 0.5, 0.3, {}); cb.monSpawn(boss, '졸개', 'slime', 0.5, 0.3, {});
+      boss.hp = 0; cb.down(boss); cb.checkEnd();
+      if (cb.result !== 'win') return '본체가 쓰러졌는데 전투가 끝나지 않음 (' + cb.result + ')';
+      if (cb.enemies().length) return '승리했는데 적이 남아 있음';
+      if (cb.kills.length !== 1) return '흩어진 소환물이 처치 수에 들어감 (' + cb.kills.length + ')';
+      // 2) 분열 괴수: 조각이 남아 있는 동안은 끝나지 않고, 조각까지 잡으면 끝난다
+      const sl = mk('슬라임'); if (!sl) return '';
+      const c2 = new Combat(G, { allies: allies(), enemies: [sl], canFlee: true, title: '점검' });
+      const s0 = c2.enemies()[0]; s0.hp = 0; c2.down(s0); c2.checkEnd();
+      const kids = c2.enemies();
+      if (s0.mtype === 'splitter' || s0.mtype2 === 'splitter') {
+        if (!kids.length) return '분열형이 갈라지지 않음';
+        if (c2.result) return '분열 조각이 남았는데 전투가 끝남';
+        for (const k of kids) { k.hp = 0; c2.down(k); } c2.checkEnd();
+        if (c2.result !== 'win') return '분열 조각을 다 잡았는데 끝나지 않음';
+      }
+      return '';
+    });
+    if (r) throw new Error(r);
+  });
   await step('전투 A-γ: 역할 구성 보너스 (파티 창 · 계산)', async () => {
     const r = await ev(() => {
       UI.handle('sheet', 'party'); const ok = !!document.querySelector('#modal-box .pb-line'); UI.closeModal();

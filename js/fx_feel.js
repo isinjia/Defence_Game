@@ -61,8 +61,10 @@
           this.coreDrop(host, u);
           const st = document.getElementById('stage');
           if (u.boss && st) { st.style.setProperty('--fc', colorOf(u.elem)); FX.pulse(st, 'flash', 500); if (!FX.reduced) FX.pulse(st, 'quake', 380); }
-          const left = c.combat.units.some((x) => x.side === 'enemy' && x.alive && !x.fled && !x.summon);
+          // [A 수정, 사용자 제보] "전투 승리" 도장은 실제로 이겼을 때(result === 'win') 한 전투에 한 번만. 전에는 소환물을 빼고 세어서 전투가 안 끝났는데도 떴고, 소환물을 잡을 때마다 또 떴다.
+          const left = !(c.combat.result === 'win' && c._winStamp !== c.combat);
           if (!left) {
+            c._winStamp = c.combat;
             // 마지막 일격: 조금 더 길게 + 확대 + "전투 승리"
             const ms = Math.round(220 * (k || 0.5));
             hitstop(ms); wait += ms;

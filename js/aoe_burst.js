@@ -58,7 +58,7 @@ UI.play = function () {
     if (burstStart) {
       const same = (x) => (l.grp ? x.grp === l.grp : (x.act === l.act || x.act == null) && !x.grp && !(x.ev && (x.ev.k === 'cast' || x.ev.k === 'aoe')));
       const st = document.getElementById('stage');
-      if (st && FX.pulse) FX.pulse(st, 'quake', 260);
+      if (st && FX.pulse && typeof l.grp !== 'string') FX.pulse(st, 'quake', 260); // 등장·소멸 묶음(문자 번호)은 흔들지 않는다
       let n = 0;
       while (i < evs.length && same(evs[i])) { wait = Math.max(wait, apply(evs[i++])); n++; }
       if (n) wait = Math.max(wait, 520);
