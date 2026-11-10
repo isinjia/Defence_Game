@@ -290,6 +290,42 @@ const { chromium, devices } = require('playwright');
   // 지금은 경고만 낸다. STRICT_COMBAT_FIT=1 이면 실패로 친다.
   let fitFails = 0;
   console.log('\n전투 한 화면 검사 (내용 높이 / 보이는 높이)');
+  // 튜토리얼(시험 탐색·첫 전투)을 건너뛰지 않고 진행하며 말풍선을 센다 (js/speech.js): 동시에 2개 이상이거나 같은 말풍선이 튀면 실패
+  await step('튜토리얼 탐색·전투 중 말풍선은 동시에 하나, 자리 튐 없음', async () => {
+    const c3 = await browser.newContext({ ...devices['iPhone SE'] }); const pg = await c3.newPage();
+    const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
+    try {
+      await pg.goto(url); await pg.evaluate(() => localStorage.clear()); await pg.reload(); await pg.waitForTimeout(300);
+      await pg.evaluate(() => { UI.handle('new'); UI.handle('mode-manual'); UI.create.name = '말풍선'; UI.handle('c-start'); });
+      await pg.evaluate(() => {
+        window.__sp = { max: 0, jumps: 0, note: '' }; let last = null, lastKey = null;
+        setInterval(() => {
+          const n = UI.speech ? UI.speech.count() : 0; if (n > window.__sp.max) { window.__sp.max = n; window.__sp.note = '말풍선 ' + n + '개'; }
+          const pop = document.getElementById('coach-pop');
+          if (pop && pop.style.visibility !== 'hidden') { const t = Math.round(pop.getBoundingClientRect().top); const k = pop.textContent.slice(0, 30); if (lastKey === k && last !== null && Math.abs(t - last) > 3) { window.__sp.jumps++; window.__sp.note = '자리 튐 ' + last + '→' + t; } last = t; lastKey = k; } else { last = null; lastKey = null; }
+        }, 40);
+      });
+      const st = () => pg.evaluate(() => ({ acts: [...new Set([...document.querySelectorAll('#modal-box [data-act]')].map((e) => e.dataset.act))], dlg: !!UI.dlg, hold: !!UI._hold, kind: UI.ctx && UI.ctx.kind, wait: !!(UI.ctx && UI.ctx.combat && UI.ctx.combat.waiting), acted: UI.ctx && UI.ctx.tutorial ? UI.ctx.tutorial.acted : -1 }));
+      let fought = false;
+      for (let i = 0; i < 70; i++) {
+        const s = await st();
+        if (s.hold) { await pg.waitForTimeout(320); await pg.mouse.click(160, 300); await pg.waitForTimeout(280); continue; }
+        if (s.dlg) { if (await pg.$('.dlg-choice')) await pg.click('.dlg-choice >> nth=0'); else await pg.mouse.click(160, 480); await pg.waitForTimeout(150); continue; }
+        if (s.kind === 'exam') {
+          if (s.acted >= 2) { fought = true; break; }
+          if (s.wait) await pg.evaluate(() => { const c = UI.ctx, cb = c.combat; if (c.playing) return; if (!c.sel) UI.handle('c-skill', cb.player.skills[0]); else { const f = cb.units.find((u) => u.side === 'enemy' && u.alive); UI.handle('c-target', f.id); } });
+          await pg.waitForTimeout(400); continue;
+        }
+        const pick = ['cn-tut', 'exam-party', 'exm-watch', 'exm-node', 'ex-go', 'ex-pick', 'story-choice', 'modal-close'].find((a) => s.acts.includes(a)) || s.acts[0];
+        if (pick) await pg.click('#modal-box [data-act="' + pick + '"]:not([disabled]) >> nth=0', { timeout: 3000 }).catch(() => {});
+        await pg.waitForTimeout(400);
+      }
+      const r = await pg.evaluate(() => window.__sp);
+      if (errs.length) throw new Error('화면 오류: ' + errs[0]);
+      if (!fought) throw new Error('시험 첫 전투까지 가지 못함');
+      if (r.max > 1 || r.jumps > 0) throw new Error(r.note + ' (최대 ' + r.max + '개, 튐 ' + r.jumps + '회)');
+    } finally { await c3.close(); }
+  });
   for (const D of ['iPhone SE', 'Galaxy S9+', 'Galaxy Z Fold 7 Cover', 'Pixel 7']) {
     const c2 = await browser.newContext({ ...devices[D] }); await c2.addInitScript(() => { window.TUT_AUTO_TAP = true; }); const pg = await c2.newPage();
     try {
