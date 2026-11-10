@@ -18,6 +18,7 @@ const PAY_TERMS = {
 };
 const KAMA_SERVICE = 24; // 의무 복무 개월
 // 집결 지각·불참 불이익(D leader_rule.js RALLY와 이어짐). docs/E_수치.md
+const LEADER_CUT = 0.1; // 리더 몫 (팀 수입에서 먼저 뗀다)
 const RALLY_PAY = {
   latePerDay: 0.1, lateMin: 0.6,   // 무소속 팀: 늦은 날마다 그 원정 배당 −10%(최저 60%)
   incPerDay: 0.1, incMin: 0.5,      // 소속: 그달 지각 일수마다 성과급 비율 −10%(최저 절반)
@@ -80,10 +81,22 @@ Object.assign(Game.prototype, {
     const v = (p.crew && typeof p.crew.share === 'number') ? p.crew.share : (typeof p.crewShare === 'number' ? p.crewShare : null);
     return v != null ? Math.max(0.01, Math.min(1, v)) : null;
   },
-  crewShareRate() {
-    const v = this.freeShare(); const base = v != null ? v : (typeof CREW_SHARE !== 'undefined' ? CREW_SHARE : 0.75);
+  // 리더 몫: 리더는 팀 수입의 LEADER_CUT(10%)을 먼저 챙기고, 나머지를 배당대로 나눈다. 내가 리더면 내가 챙긴다.
+  leaderCut() { return LEADER_CUT; },
+  lateMul() {
     const late = (this.player.pay && this.player.pay.lateNow) || 0;
-    return late && !this.payKind(this.player.guild) ? base * Math.max(RALLY_PAY.lateMin, 1 - RALLY_PAY.latePerDay * late) : base;
+    return late && !this.payKind(this.player.guild) ? Math.max(RALLY_PAY.lateMin, 1 - RALLY_PAY.latePerDay * late) : 1;
+  },
+  // 팀 원정(게이트·토벌) 전리품 중 내 몫 비율. 옛 팀(배당률 없음)의 75%는 리더 몫 10% + 공용 경비 15%를 뺀 값이다.
+  crewShareRate() {
+    const v = this.freeShare(); const base = v != null ? v * (1 - LEADER_CUT) : (typeof CREW_SHARE !== 'undefined' ? CREW_SHARE : 0.75);
+    return base * this.lateMul();
+  },
+  // 리더가 따 온 의뢰 보수(1인당 기준 금액 × 인원 = 총액) 중 내 몫. 배당률이 없으면 리더 몫을 뗀 뒤 균등.
+  crewPayTotal(perHead) { return Math.round(perHead * (this.party().length + 1)); },
+  crewPay(perHead) {
+    const n = this.party().length + 1; const total = perHead * n; const v = this.freeShare();
+    return Math.round(total * (1 - LEADER_CUT) * (v != null ? v : 1 / n) * this.lateMul());
   },
   payInit() {
     const p = this.player; if (!p) return;
@@ -150,8 +163,9 @@ Object.assign(Game.prototype, {
     const fs = this.freeShare();
     if (fs != null && !this.noPool && result !== 'lose' && loot && this.party().length) {
       const n = this.party().length + 1; const total = loot.money || 0;
-      loot.money = Math.round(total * fs); loot.ether = Math.round((loot.ether || 0) * Math.max(fs, 1 / n));
-      teamNote = `팀 배당: 전리품 ${fmt(total)} 크레딧 중 내 몫 ${Math.round(fs * 100)}% (${fmt(loot.money)} 크레딧). 나머지는 리더와 팀원·공용 경비로.`;
+      const rate = fs * (1 - LEADER_CUT);
+      loot.money = Math.round(total * rate); loot.ether = Math.round((loot.ether || 0) * Math.max(fs, 1 / n));
+      teamNote = `팀 배당: 전리품 ${fmt(total)} 크레딧에서 리더 몫 ${Math.round(LEADER_CUT * 100)}%를 먼저 떼고, 내 배당 ${Math.round(fs * 100)}% → ${fmt(loot.money)} 크레딧. 나머지는 팀원·공용 경비로.`;
     }
     const before = p.money;
     const lines = base.call(this, gate, result, loot, ...rest);
@@ -164,6 +178,24 @@ Object.assign(Game.prototype, {
     const name = GUILDS[gid].name;
     for (let i = 0; i < lines.length; i++) if (typeof lines[i] === 'string' && lines[i].startsWith('획득:')) { lines[i] = lines[i].replace(/^획득: [\d,]+ 크레딧/, `획득: 크레딧 ${fmt(got)}은(는) ${name}에 귀속`); break; }
     lines.push(`소속 규정: 전리품 크레딧은 ${name}에 귀속된다. 월말 정산 때 ${Math.round(rate * 100)}%를 성과급으로 돌려받는다. (이번 달 누적 ${fmt(p.pay.pool)})`);
+    return lines;
+  });
+  // 팀 토벌(리더 일정·집결): 토벌 보상도 게이트와 같은 배당·지각 규칙으로 나눈다
+  wrap('finishMob', function (base, mob, result, kills, ...rest) {
+    const p = this.player; const ctx = typeof UI !== 'undefined' ? UI.ctx : null;
+    const team = !!(ctx && ctx.kind === 'mob' && ctx.crewRaid && this.crew && this.crew());
+    const before = p.money;
+    const lines = base.call(this, mob, result, kills, ...rest);
+    if (!team) return lines;
+    try {
+      const got = p.money - before;
+      if (result === 'win' && got > 0) {
+        const rate = this.crewShareRate(); const mine = Math.round(got * rate); const late = (p.pay && p.pay.lateNow) || 0;
+        p.money -= got - mine;
+        if (Array.isArray(lines)) lines.push(`파티 분배: 토벌 보상 ${fmt(got)} 크레딧 중 내 몫 ${Math.round(rate * 100)}% (${fmt(mine)} 크레딧). 리더 몫 ${Math.round(LEADER_CUT * 100)}%와 팀원 몫·공용 경비를 뺐다.${late ? ` 집결에 ${late}일 늦어 배당이 깎였다.` : ''}`);
+        if (this.crewTrust) this.crewTrust(3);
+      }
+    } finally { if (p.pay) p.pay.lateNow = 0; }
     return lines;
   });
   wrap('worldMonthly', function (base) { base.call(this); this.payMonthly(); });

@@ -147,7 +147,7 @@ Object.assign(Game.prototype, {
         const m = this.mobs.find((x) => x.id === plan.mobId); if (!m) return null;
         return { title: '토벌 일정', text: `"${when}, ${regionById(m.region).name}에 나타난 ${m.name} 무리를 정리하러 갑니다. 협회 토벌 수당이 붙어 있어요."`, accept: '참가한다', tag: `${m.name} ×${m.count}` };
       }
-      case 'escort': return { title: '호위 의뢰', text: `"${when}, 에테르 결정 운송 차량 호위 의뢰를 받았어요. 보수는 1인당 ${fmt(plan.pay)} 크레딧. 요즘 길목에 약탈 헌터가 나온다니까 각오는 해 두고요."`, accept: '참가한다', tag: '호위' };
+      case 'escort': return { title: '호위 의뢰', text: `"${when}, 에테르 결정 운송 차량 호위 의뢰를 받았어요. 보수는 총 ${fmt(this.crewPayTotal ? this.crewPayTotal(plan.pay) : plan.pay)} 크레딧, 리더 몫을 떼고 배당대로 나눠요.${this.crewPay ? ` 당신 몫은 ${fmt(this.crewPay(plan.pay))} 크레딧쯤.` : ''} 요즘 길목에 약탈 헌터가 나온다니까 각오는 해 두고요."`, accept: '참가한다', tag: '호위' };
       case 'train': return { title: '합동 훈련', text: `"${when}부터 한 달은 합동 훈련이에요. 연계 동작부터 다시 맞춰 봅시다. ${c.style === 'mentor' ? '신입은 내가 직접 봐 줄게요.' : '빠지면 손발이 안 맞아요.'}"`, accept: '훈련에 나간다', tag: '훈련' };
       case 'handover': return { title: '리더 교대', text: `${L.name}이(가) 조용히 말한다. "솔직히 말할게요. 이제 이 파티에서 제일 강한 건 당신이에요. 리더를 맡아 줄래요? 아니면… 더 큰 데로 가도 붙잡진 않을게요."`, accept: '리더를 맡는다', decline: '지금처럼 지낸다', tag: '리더 교대' };
       default: return null;
@@ -307,13 +307,15 @@ Object.assign(UI, {
       travel(m.region, m.x, m.y);
       if (G.over) return this.after();
       this.renderGame(); if (this.map) this.map.centerOn(p.x, p.y);
-      return this.startMob(m.id);
+      this.startMob(m.id); if (this.ctx && this.ctx.kind === 'mob') this.ctx.crewRaid = true; // 팀 토벌: 보상 분배(payroll.js)
+      return;
     }
     if (plan.kind === 'escort') {
+      const pay = G.crewPay ? G.crewPay(plan.pay) : plan.pay; // 의뢰 보수도 리더 몫·배당대로 나눈다(payroll.js)
       G.advanceDays(Math.max(1, plan.day - G.day), { noSave: true });
       G.storyFight({ title: `${c.name} · 운송 차량 호위`, mobs: { tier: plan.tier, n: 2, human: true }, spar: false,
-        win: { text: '약탈 헌터들을 쫓아냈다. 화물은 무사히 도착했다.', gain: { money: plan.pay, fame: 1 }, after: (g) => { g.crewTrust(4); for (const n of g.party()) g.changeRel(n, 2); } },
-        lose: { text: '화물 일부를 빼앗겼다. 리더가 보수를 깎았다.', gain: { money: Math.round(plan.pay * 0.2), injure: 1 }, after: (g) => g.crewTrust(-3) } });
+        win: { text: `약탈 헌터들을 쫓아냈다. 화물은 무사히 도착했다. (의뢰 보수 분배: 내 몫 ${fmt(pay)} 크레딧)`, gain: { money: pay, fame: 1 }, after: (g) => { g.crewTrust(4); for (const n of g.party()) g.changeRel(n, 2); } },
+        lose: { text: '화물 일부를 빼앗겼다. 리더가 보수를 깎았다.', gain: { money: Math.round(pay * 0.2), injure: 1 }, after: (g) => g.crewTrust(-3) } });
       return this.after();
     }
     // 합동 훈련

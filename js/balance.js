@@ -50,12 +50,15 @@ const BAL = {
         let mine = 1, theirs = [];
         try { mine = pow(this.playerUnit()); theirs = mates.map((n) => pow(this.npcUnit(n, 'ally'))); } catch (e) { theirs = mates.map(() => mine); }
         const total = mine + theirs.reduce((x, y) => x + y, 0);
-        const keep = mine / total;
+        // 내가 모은 파티면 내가 리더: 리더 몫(payroll.js LEADER_CUT)을 먼저 챙기고 나머지를 능력 비례로
+        const lc = this.leaderCut ? this.leaderCut() : 0;
+        theirs = theirs.map((x) => x * (1 - lc));
+        const keep = 1 - theirs.reduce((x, y) => x + y, 0) / total;
         const each = Math.round(loot.money * keep);
         const total$ = loot.money;
         loot.money = each; loot.ether = Math.round(loot.ether * keep);
         const parts = mates.map((n, i) => `${n.name} ${Math.round(theirs[i] / total * 100)}% (${fmt(Math.round(total$ * theirs[i] / total))})`);
-        note.push(`무소속 파티 분배: 능력에 비례해 나눴다. 내 몫 ${Math.round(keep * 100)}% (${fmt(each)} 크레딧) · ${parts.join(', ')}`);
+        note.push(`무소속 파티 분배: ${lc ? `리더 몫 ${Math.round(lc * 100)}%를 챙기고 ` : ''}능력에 비례해 나눴다. 내 몫 ${Math.round(keep * 100)}% (${fmt(each)} 크레딧) · ${parts.join(', ')}`);
         mates.forEach((n, i) => { this.changeRel(n, 2); if (typeof n.money === 'number') n.money += Math.round(total$ * theirs[i] / total); });
       }
     }
