@@ -134,13 +134,14 @@ Object.assign(UI, {
     // 받침에 따라 '이에요/예요', '이다/다'
     const jong = (w) => { const c = String(w).charCodeAt(String(w).length - 1) - 0xac00; return c >= 0 && c < 11172 && c % 28 !== 0; };
     const yo = (w) => w + (jong(w) ? '이에요' : '예요'); const da = (w) => w + (jong(w) ? '이다' : '다');
+    const seen = G.personaGreetScene ? G.personaGreetScene() : null; const pl = (n, k) => (n && G.personaLine ? G.personaLine(n, k, {}, seen) : null);
     const intro = { kind: (n) => `${yo(n.name)}. ${yo(className(n.cls))}. 잘 부탁해요.`, just: (n) => `${n.name}. ${da(className(n.cls))}. 등 맡길 수 있게 해 줘.`, warlike: (n) => `${n.name}. ${className(n.cls)}. 괴수는 내가 먼저 친다.`, cold: (n) => `…${n.name}. ${className(n.cls)}.` };
     this.talk([
       { narr: `${G.region().name}, 헌터 협회 시험장. 로비엔 오늘 처음 각성한 사람들이 긴장한 얼굴로 앉아 있다. 전광판에 ${p.name}의 이름이 뜬다.` },
       { who: examiner, text: `실기는 임시 파티 단위로 본다. 훈련용 게이트를 끝까지 통과하면 합격이다. 각 파티엔 협회가 위촉한 현역 헌터가 리더로 붙는다. ${p.name}, 네 파티 리더는 ${L.name}. ${L.guild && GUILDS[L.guild] ? `${GUILDS[L.guild].name} 소속이다.` : `${L.crewName || '자기 파티'}를 꾸리는 파티장이다.`}` },
-      { who: L, text: this.leadSay('brief') },
-      { narr: '임시 파티원들이 차례로 인사한다.', group: mates.map((n) => ({ who: n, text: (intro[n.personality] || intro.kind)(n) })) },
-      { who: L, text: { just: '인사는 됐다. 들어간다. 내 뒤에 붙어.', kind: '자, 그럼 들어가 볼까요? 제 뒤로 따라오세요.', cold: '간다.' }[L.personality] || '간다.' },
+      { who: L, text: [pl(L, 'leadGreet'), this.leadSay('brief')].filter(Boolean).join(' ') },
+      { narr: '임시 파티원들이 차례로 인사한다.', group: mates.map((n) => ({ who: n, text: pl(n, 'greet') || (intro[n.personality] || intro.kind)(n) })) },
+      { who: L, text: pl(L, 'leadBrief') || { just: '인사는 됐다. 들어간다. 내 뒤에 붙어.', kind: '자, 그럼 들어가 볼까요? 제 뒤로 따라오세요.', cold: '간다.' }[L.personality] || '간다.' },
     ], () => { this.tutSkipBtn(false); this.handle('exam-go'); });
     this.tutSkipBtn(true);
   },

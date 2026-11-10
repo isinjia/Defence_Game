@@ -82,7 +82,8 @@ if (typeof UI !== 'undefined') {
     warlike: (L, t) => `우리 ${t.name}, ${TEAM_SLOT_NAME[t.mySlot]}가 비어서 근질근질하다. 들어와. 대신 따라오기 벅찰 거다.`,
     greedy: (L, t) => `${t.name}의 ${L.name}. ${TEAM_SLOT_NAME[t.mySlot]} 자리 비었어. 조건은 깔끔하게 맞춰 줄게.`,
   };
-  const ask = (L, t) => (LEAD_ASK[L.personality] || LEAD_ASK.just)(L, t);
+  const ask = (L, t) => { const g = G.personaLine ? G.personaLine(L, 'leadGreet', {}, null) : null; return g ? g : (LEAD_ASK[L.personality] || LEAD_ASK.just)(L, t); };
+  const welcome = (t) => { const seen = G.personaGreetScene ? G.personaGreetScene() : null; const m = G.npcById(t.members[0]); const w = m && G.personaLine ? G.personaLine(m, 'welcome', {}, seen) : null; return w ? `<p class="small"><b>${m.name}</b> "${w}"</p>` : ''; };
   const rowHtml = (ui, n, tag) => `<div class="item-row">${ui.npcAvatar(n, 36)}<div class="grow"><b>${n.name}</b> ${ui.rankTag(n.rankIdx, n.stage)} ${tag ? `<span class="tag">${tag}</span>` : ''}
     <div><span class="tag cls tiny" style="--c:${groupColor(classById(n.cls).g)}">${className(n.cls)}</span> <span class="small dim">${TEAM_SLOT_NAME[slotOfRole(classById(n.cls).role)]}${n.examMate ? ' · 시험 동기' : n.friendhood ? ' · 소꿉친구' : ''}</span></div></div></div>`;
   const teamHtml = (ui, t) => {
@@ -102,7 +103,7 @@ if (typeof UI !== 'undefined') {
       this.ftOffers = [t];
       this.modal(fixJosa(`<div class="eyebrow">${G.dateStr()} · 영입 제안</div><h3>${t.name}</h3>
         <div class="story-portrait">${this.npcPortrait(L, 96)}<div><p class="event-text">"${ask(L, t)}"</p></div></div>
-        <div class="cards">${teamHtml(this, t)}</div>
+        <div class="cards">${teamHtml(this, t)}</div>${welcome(t)}
         ${G.payTermsText ? `<p class="small dim">${G.payTermsText(p.guild)}</p>` : ''}
         <div class="row end"><button class="ghost" data-act="ft-solo">혼자 시작한다</button><button class="primary" data-act="ft-join" data-v="0">팀에 들어간다</button></div>`), 'event-box');
     },
