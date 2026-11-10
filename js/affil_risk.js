@@ -21,6 +21,7 @@ const RISK = {
   insure: { premium: 70, rescue: 0.25, self: 0.3 },
   failLife: 3, failInjury: 8, deathChance: 0.12,
   debtRate: 0.02, repay: 0.3,
+  rescueLife: 1,         // 4-19 사용자 결정: 구출 성공 시 수명 손상 −1년(길드원 수명 소진 방지)
   waves: 2,              // 4-19 수치 조정: 한 번의 판정은 20년 사망률이 너무 높아(길드 5/6) 두 차례 수색으로
 };
 const SENIOR_TRAIN = 0.15;
@@ -101,8 +102,8 @@ Object.assign(Game.prototype, {
       return out;
     }
     // 구출 성공: 지금보다 무겁게 (부상 +1개월, 수명 −2년)
-    p.injured = Math.max(p.injured, 4) + 1; p.lifePenalty += 2; if (this.noteLifeLoss) this.noteLifeLoss(2, '게이트 패배 · 구출'); this.recalc();
-    out.unshift(`${b.who}이(가) 들어와 당신을 끌어냈다. (구출 확률 ${Math.round(rc * 100)}%) 수명 −2년, 부상 ${p.injured}개월.`);
+    p.injured = Math.max(p.injured, 4) + 1; p.lifePenalty += RISK.rescueLife; if (this.noteLifeLoss) this.noteLifeLoss(RISK.rescueLife, '게이트 패배 · 구출'); this.recalc();
+    out.unshift(`${b.who}이(가) 들어와 당신을 끌어냈다. (구출 확률 ${Math.round(rc * 100)}%) 수명 −${RISK.rescueLife}년, 부상 ${p.injured}개월.`);
     if (k === 'kama') { out.push('공상 처리로 치료비는 국가가 낸다.'); return out; }
     if ((k === 'big' || k === 'minor') && gate.variant !== 'red') {
       const c = p.contract; const rate = c && c.prospect ? RISK.guildSelf.prospect : RISK.guildSelf[k];
