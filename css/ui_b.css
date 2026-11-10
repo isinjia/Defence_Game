@@ -123,7 +123,7 @@
 
 /* 지도 패널 접기 */
 #hud-card .card-portrait[data-act] { cursor: pointer; }
-#world.fold-card .card-body > :not(.card-bars) { display: none; }
+#world.fold-card .card-body > :not(.card-bars):not(.card-date) { display: none; } /* 접어도 날짜는 남긴다 (사용자 제보) */
 #world.fold-card .card-bars .cb:nth-child(n+3) { display: none; }
 #world.fold-card .card-body { padding-top: 6px; padding-bottom: 6px; }
 .fold-obj-btn { position: absolute; right: 4px; top: 4px; z-index: 2; width: 36px; height: 32px; min-height: 32px; padding: 0; justify-content: center; background: transparent; border-color: transparent; color: var(--dim); font-size: 14px; }
