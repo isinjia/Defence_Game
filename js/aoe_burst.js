@@ -10,16 +10,26 @@ const AOE_TYPES = ['aoe', 'debuff', 'heal_all', 'shield_all', 'buff_all'];
   let grpN = 0;
   const baseUse = C.useSkill;
   C.useSkill = function (u, skill, target) {
-    if (!skill || !(AOE_TYPES.includes(skill.type) || skill.aoe) || this._grp) return baseUse.call(this, u, skill, target);
-    this._grp = ++grpN;
-    try { return baseUse.call(this, u, skill, target); } finally { this._grp = 0; }
+    // 전체 기술: 종류가 전체 계열이거나, 괴수 전용 전체기(자폭·숨결·진동 등 intent 'aoe')
+    const wide = skill && (AOE_TYPES.includes(skill.type) || skill.aoe || skill.intent === 'aoe' || /aoe|blast|_all$/.test(skill.type || ''));
+    if (!wide || this._grp) return baseUse.call(this, u, skill, target);
+    this._grp = ++grpN; const from = this.log.length; const g = this._grp;
+    try { return baseUse.call(this, u, skill, target); } finally {
+      this._grp = 0;
+      // push를 거치지 않고 기록에 바로 넣은 것(게이지·시전 표시 등)도 같은 묶음으로: 중간에 빠진 기록이 있으면 묶음이 둘로 쪼개져 차례로 맞는 것처럼 보인다
+      for (let i = from; i < this.log.length; i++) { const l = this.log[i]; if (l && !l.grp && !(l.ev && l.ev.k === 'cast')) l.grp = g; }
+    }
   };
   const basePush = C.push;
   C.push = function (t, cls, ev) {
     const r = basePush.call(this, t, cls, ev);
-    if (this._grp) { const l = this.log[this.log.length - 1]; if (l && !(l.ev && l.ev.k === 'cast')) l.grp = this._grp; }
+    const l = this.log[this.log.length - 1];
+    if (l) { l.act = this._actN || 0; if (this._grp && !(l.ev && l.ev.k === 'cast')) l.grp = this._grp; }
     return r;
   };
+  // 행동 번호: 한 사람의 한 차례에서 나온 기록은 같은 번호 (합동기·필살기·섬광탄처럼 useSkill을 거치지 않는 전체기를 묶는 데 쓴다)
+  const baseTurn = C.takeTurn;
+  C.takeTurn = function (u) { this._actN = (this._actN || 0) + 1; return baseTurn.call(this, u); };
 }
 
 // 재생: 같은 묶음은 한 박자에
@@ -39,12 +49,16 @@ UI.play = function () {
     if (i >= evs.length) { c.playing = false; return this.afterPlay(); }
     const l = evs[i++];
     let wait = apply(l);
-    if (l.grp) {
-      // 묶음 시작: 전장 전체 번쩍임 한 번, 나머지는 동시에
+    // 묶음: 전체 기술에서 나온 기록(피해·쓰러짐·상태 이상·반응)을 한 박자에 모두 적용한다.
+    //  - useSkill 전체기: 같은 grp
+    //  - 그 밖에 '전체' 알림(k: 'aoe')으로 시작하는 것(합동기·필살기·섬광탄 등): 같은 행동 번호의 나머지
+    const burstStart = l.grp || (l.ev && l.ev.k === 'aoe' && l.act != null);
+    if (burstStart) {
+      const same = (x) => (l.grp ? x.grp === l.grp : (x.act === l.act || x.act == null) && !x.grp && !(x.ev && (x.ev.k === 'cast' || x.ev.k === 'aoe')));
       const st = document.getElementById('stage');
       if (st && FX.pulse) FX.pulse(st, 'quake', 260);
       let n = 0;
-      while (i < evs.length && evs[i].grp === l.grp) { wait = Math.max(wait, apply(evs[i++])); n++; }
+      while (i < evs.length && same(evs[i])) { wait = Math.max(wait, apply(evs[i++])); n++; }
       if (n) wait = Math.max(wait, 520);
     }
     setTimeout(step, wait * speed * (FX.reduced ? 0.6 : 1));

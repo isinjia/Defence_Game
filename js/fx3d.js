@@ -170,20 +170,24 @@ Object.assign(FX3D, {
   },
   multi(from, to, e, opts) { for (let i = 0; i < 3; i++) setTimeout(() => this.proj(from, { x: to.x + _fxR(-14, 14), y: to.y + _fxR(-10, 10) }, e, i === 2 ? opts : { ...opts, then: null }), i * 110 / this.speed()); },
 
-  // 범위: 적(또는 아군) 진영 위에서 내려꽂힘
-  aoe(area, e) {
+  // 범위: 대상 모두에게 한꺼번에 떨어진다 (사용자 요청: 한 명씩 차례로 맞는 것처럼 보이지 않게).
+  // pts = 실제 대상들의 자리. 없으면 진영 안 임의의 자리 5곳.
+  aoe(area, e, pts) {
     if (!area) return;
     const E = elOf(e); const { x, y, w, h } = area; const L = x - w / 2, T = y - h / 2;
-    const spots = Array.from({ length: 5 }, () => ({ x: L + _fxR(0.1, 0.9) * w, y: T + _fxR(0.3, 0.8) * h }));
+    const spots = pts && pts.length ? pts.map((p) => ({ x: p.x, y: p.y })) : Array.from({ length: 5 }, () => ({ x: L + _fxR(0.1, 0.9) * w, y: T + _fxR(0.3, 0.8) * h }));
     const tr = E.trail;
-    if (tr === 'flame' || tr === 'shard') spots.forEach((s, i) => setTimeout(() => this.proj({ x: s.x - 60, y: T - 120 }, s, e), i * 70));
-    else if (tr === 'zap') spots.forEach((s, i) => setTimeout(() => { this.zap({ x: s.x + _fxR(-20, 20), y: 0 }, s, E, 1.2); this.burst(s.x, s.y, e, 0.7); }, i * 80));
-    else if (tr === 'drop') { let t = 0; this.task((dt) => { t += dt; const k = t / 0.6; const fx = L - 20 + (w + 40) * k; for (let i = 0; i < this.n(10); i++) this.add({ x: fx + _fxR(-10, 10), y: T + h * _fxR(0.2, 1) + Math.sin((fx + i * 20) / 30) * 12, vx: 120, vy: _fxR(-160, -40), ay: 500, life: 0.5, s: _fxR(8, 14), c: _fxPick(E.c) }); return k < 1; }); }
-    else if (tr === 'leaf') spots.forEach((s) => { for (let i = 0; i < this.n(30); i++) this.add({ x: s.x + _fxR(-8, 8), y: T + h, vx: _fxR(-20, 20), vy: _fxR(-420, -200), drag: 0.92, life: 0.8, s: _fxR(8, 14), c: _fxPick(E.c) }); });
-    else if (tr === 'spear') spots.slice(0, 4).forEach((s, i) => setTimeout(() => { for (let j = 0; j < this.n(40); j++) this.add({ x: s.x + _fxR(-10, 10), y: _fxR(T - 60, T + h), vy: _fxR(-200, -80), life: 0.6, s: _fxR(8, 14), c: _fxPick(E.c) }); this.burst(s.x, s.y, e, 0.8); }, i * 90));
-    else { // 어둠: 검은 안개가 덮쳤다 터짐
+    if (tr === 'flame' || tr === 'shard') spots.forEach((s) => this.proj({ x: s.x - 60, y: s.y - 150 }, s, e));
+    else if (tr === 'zap') spots.forEach((s) => { this.zap({ x: s.x + _fxR(-20, 20), y: 0 }, s, E, 1.2); this.burst(s.x, s.y, e, 0.7); });
+    else if (tr === 'drop') spots.forEach((s) => { // 물기둥이 대상마다 동시에 솟는다
+      for (let i = 0; i < this.n(26); i++) this.add({ x: s.x + _fxR(-12, 12), y: s.y + _fxR(0, 26), vx: _fxR(-50, 50), vy: _fxR(-380, -160), ay: 620, life: 0.6, s: _fxR(8, 14), c: _fxPick(E.c) });
+      this.burst(s.x, s.y, e, 0.6);
+    });
+    else if (tr === 'leaf') spots.forEach((s) => { for (let i = 0; i < this.n(30); i++) this.add({ x: s.x + _fxR(-8, 8), y: s.y + 30, vx: _fxR(-20, 20), vy: _fxR(-420, -200), drag: 0.92, life: 0.8, s: _fxR(8, 14), c: _fxPick(E.c) }); this.burst(s.x, s.y, e, 0.5); });
+    else if (tr === 'spear') spots.forEach((s) => { for (let j = 0; j < this.n(40); j++) this.add({ x: s.x + _fxR(-10, 10), y: _fxR(s.y - 150, s.y + 20), vy: _fxR(-200, -80), life: 0.6, s: _fxR(8, 14), c: _fxPick(E.c) }); this.burst(s.x, s.y, e, 0.8); });
+    else { // 어둠: 검은 안개가 덮치며 동시에 터진다
       for (let i = 0; i < this.n(80); i++) this.add({ x: x + _fxR(-w / 2, w / 2), y: y + _fxR(-h / 2, h / 2), life: 0.9, s: _fxR(18, 34), a: 0.5, c: _fxPick(E.c), orb: { cx: x, cy: y, rx: _fxR(20, w / 2), ry: _fxR(10, h / 3), a: Math.random() * 6.3, w: _fxR(2, 4), dy: 0 } });
-      setTimeout(() => spots.forEach((s) => this.burst(s.x, s.y, e, 0.8)), 600);
+      spots.forEach((s) => this.burst(s.x, s.y, e, 0.8));
     }
   },
   // 맴도는 입자 (dot·debuff·stun)
@@ -228,7 +232,11 @@ Object.assign(FX3D, {
       if (ev.k === 'cast') { this._cast = { src: ev.src, elem: ev.elem, side: ev.side, type: typeOfName(ev.name), shots: 0 }; return r; }
       const cast = this._cast || {};
       const e = ev.elem || cast.elem || 'none';
-      if (ev.k === 'aoe') { FX3D.aoe(sideArea(ev.side === 'ally' ? 'enemy' : 'ally'), e); cast.aoe = true; return r; }
+      if (ev.k === 'aoe') {
+        const tside = ev.side === 'ally' ? 'enemy' : 'ally';
+        const pts = c.combat.units.filter((u) => u.side === tside && u.alive).map((u) => FX3D.at(unitEl(u.id))).filter(Boolean);
+        FX3D.aoe(sideArea(tside), e, pts); cast.aoe = true; return r;
+      }
       if (ev.k === 'dmg') {
         const to = FX3D.at(unitEl(ev.dst)); const src = ev.src != null ? ev.src : cast.src; const from = FX3D.at(unitEl(src));
         const dst = unit(ev.dst); const edge = dst && UI.elemEdge ? UI.elemEdge(ev.elem, dst.elem) : 0;
