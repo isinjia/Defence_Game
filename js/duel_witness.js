@@ -18,7 +18,7 @@ Object.assign(Game.prototype, {
       for (const g of Object.values(this.gates || {}).flat()) {
         if (!g || !g.raid || !this.raidPos) continue;
         const pos = this.raidPos(g); if (!pos || pos.arrived) continue;
-        if (Math.max(Math.abs(pos.x - p.x), Math.abs(pos.y - p.y)) <= WITNESS.fieldNear) for (const id of g.raid.ids || []) { const n = this.npcById(id); if (!skip(n)) out.add(n.id); }
+        if (Math.max(Math.abs(pos.x - p.x), Math.abs(pos.y - p.y)) <= Math.round(WITNESS.fieldNear * (WORLD.K || 1)) /* 지도 5배 확대(v0.346): 칸 거리는 WORLD.K 배 */) for (const id of g.raid.ids || []) { const n = this.npcById(id); if (!skip(n)) out.add(n.id); }
       }
       // 지나가던 사람 (가끔)
       if (RNG.chance(WITNESS.fieldRandom)) {

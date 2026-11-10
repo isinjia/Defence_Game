@@ -32,17 +32,18 @@ Object.assign(Game.prototype, {
     e.trainSpots = true;
     const T = WORLD.T; const sites = e.sites; let id = sites.reduce((a, s) => Math.max(a, s.id), 0) + 1;
     const far = (i, d) => { const [x, y] = WORLD.xy(i); return !sites.some((s) => Math.max(Math.abs(s.x - x), Math.abs(s.y - y)) < d) && !this.objAt(x, y); };
+    const K = WORLD.K || 1; // 지도 5배 확대(v0.346): 칸으로 정한 거리는 K배
     const land = EXPLORE.land;
     const pick = (kind, pool, n) => {
       for (let k = 0; k < n; k++) {
-        const free = pool.filter(([i]) => far(i, 3)); if (!free.length) return;
+        const free = pool.filter(([i]) => far(i, Math.round(3 * K))); if (!free.length) return;
         const i = RNG.weighted(free.map((f) => f[0]), free.map((f) => f[1]));
         const [x, y] = WORLD.xy(i);
         sites.push({ id: id++, kind, x, y, region: REGIONS[WORLD.region[i]].id, known: false, visited: false, used: 0 });
       }
     };
-    pick('hermit', land.filter((i) => WORLD.tiles[i] === T.MOUNTAIN && EXPLORE.cityDist(i) >= 4).map((i) => [i, EXPLORE.cityDist(i)]), 3);
-    pick('leyline', land.filter((i) => WORLD.tiles[i] === T.ETHER).map((i) => [i, 1]), 2);
+    pick('hermit', land.filter((i) => WORLD.tiles[i] === T.MOUNTAIN && EXPLORE.cityDist(i) >= Math.round(4 * K)).map((i) => [i, EXPLORE.cityDist(i)]), Math.round(3 * K));
+    pick('leyline', land.filter((i) => WORLD.tiles[i] === T.ETHER).map((i) => [i, 1]), Math.round(2 * K));
   },
   trainSpotHere() { const s = this.siteAt && this.siteAt(this.player.x, this.player.y); return s && (s.kind === 'hermit' || s.kind === 'leyline') ? s : null; },
   hasBaseHere() { return !!(this.atBase ? this.atBase() && this.onCity() : (this.player.base && this.onCity() && this.player.base.region === this.player.region)); },
