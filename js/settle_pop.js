@@ -29,12 +29,15 @@
           const kills = cb.kills || []; const b0 = c._lootBefore || { money: 0, ether: 0 };
           const money = Math.max(0, (c.loot.money || 0) - (b0.money || 0)), ether = Math.max(0, (c.loot.ether || 0) - (b0.ether || 0));
           const sub = res.querySelector('b'); const what = sub ? sub.textContent : '';
+          // 코어·부산물·장비는 나갈 때 몰아서가 아니라 이 전투가 끝난 지금 바로 정산한다 (한 전투에 한 번)
+          if (!cb._lootLines) { let got = []; try { got = G.lootFromKills(kills.filter((k) => !k._paid), false) || []; } catch (e) { got = []; } for (const k of kills) k._paid = true; cb._lootLines = got; G.save(); }
+          const drops = cb._lootLines.map((l) => `<div class="sr-line">${fixJosa(l)}</div>`).join('');
           res.outerHTML = `<div class="settle-rows">${what && what !== '승리' ? `<div class="settle-sub">${what}</div>` : ''}
             <div class="sr"><span>처치</span><b>${kills.length}마리</b></div>
             <div class="sr"><span>크레딧</span><b class="amber">+${fmt(money)}</b></div>
             <div class="sr"><span>에테르</span><b class="ether">+${fmt(ether)}</b></div>
-            <div class="sr dim"><span>이번 게이트 누적</span><b>${fmt(c.loot.money)} 크레딧 · 에테르 ${fmt(c.loot.ether)}</b></div>
-            <div class="small dim">코어·장비는 게이트를 나갈 때 한꺼번에 정산된다.</div></div>`;
+            ${drops || '<div class="sr-line dim">이번에는 건진 코어가 없다.</div>'}
+            <div class="sr dim"><span>이번 게이트 누적</span><b>${fmt(c.loot.money)} 크레딧 · 에테르 ${fmt(c.loot.ether)}</b></div></div>`;
         } else res.remove();
       }
       const el = pop(mb, `<div class="settle-head ${cb.result}">${head}</div>`, 'combat ' + cb.result);
@@ -48,6 +51,10 @@
   // 전투 시작 때 게이트 누적 보상을 기억해 두고, 끝나면 차이를 "이번 전투"로 보여 준다
   const baseOpen = UI.openCombat;
   UI.openCombat = function (...a) { const c = this.ctx; if (c && c.loot) c._lootBefore = { money: c.loot.money || 0, ether: c.loot.ether || 0 }; return baseOpen.apply(this, a); };
+
+  // 이미 전투 직후 정산한 괴수는 게이트를 나갈 때 다시 주지 않는다 (가장 바깥에서 걸러 안쪽 보상 전부에 적용)
+  const baseLoot = Game.prototype.lootFromKills;
+  if (baseLoot) Game.prototype.lootFromKills = function (kills, ...a) { return baseLoot.call(this, (kills || []).filter((k) => !k._paid), ...a); };
 
   // ---------- 게이트 층 지도의 결과 줄 ----------
   const baseMap = UI.renderGateMap;
