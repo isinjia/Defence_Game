@@ -376,7 +376,7 @@ if (typeof UI !== 'undefined') {
       this.renderGame();
       return this.after(`집결: ${c.rally.label}. 현재 퀘스트 목록에서 누르면 자동으로 이동한다.`);
     }
-    if (act === 'rally-travel') { const r = G.rally(); if (r && this.travelStart) return this.travelStart(r.x, r.y, `집결지 (${regionById(r.region).name})`); return; }
+    if (act === 'rally-travel') { const r = G.rally(); const live = r && (r.kind === 'gate' ? G.mapGates.find((x) => x.id === r.id) : G.mobs.find((x) => x.id === r.id)); if (live) { r.x = live.x; r.y = live.y; r.region = live.region; } /* 지도가 바뀌어도(확대 이전 저장) 살아 있는 목표의 지금 자리로 */ if (r && this.travelStart) return this.travelStart(r.x, r.y, `집결지 (${regionById(r.region).name})`); return; }
     return baseH.call(this, act, v);
   };
 }
