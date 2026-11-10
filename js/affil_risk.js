@@ -46,7 +46,8 @@ Object.assign(Game.prototype, {
     if (p.guild === owner) return { c: 0.95, who: `${GUILDS[owner].name} 구조팀` };
     if (k === 'kama') return { c: 0.7, who: '관리국 구조대' };
     if (k) return { c: 0.6, who: `${GUILDS[p.guild].name} 구조팀(${GUILDS[owner].name} 협조)` };
-    return { c: this.atBoss ? 0.05 : 0.3, who: `${GUILDS[owner].name} 구조팀`, poach: this.atBoss };
+    const poach = this.isPoaching ? this.isPoaching(gate) : false; // boss_poach.js: 외부인의 길드 게이트 최종층 진입
+    return { c: poach ? 0.05 : 0.3, who: `${GUILDS[owner].name} 구조팀`, poach };
   },
   // 구조대는 두 차례 수색한다(1차·2차). 실효 구출 확률 = 1 − (1 − 한 차례 확률)²
   rescueChance(gate) { const w = this.rescueWave(gate); return Math.max(0.03, Math.min(0.99, 1 - (1 - w) ** RISK.waves)); },
@@ -60,6 +61,7 @@ Object.assign(Game.prototype, {
     if (p.risk.insured && !(this.payKind && this.payKind(p.guild)) && gate.variant !== 'red') c += RISK.insure.rescue;
     if (this.seniorNpc && this.seniorNpc() && (gate.realTier ?? gate.tier) >= p.rankIdx + 1) c += 0.1;
     if (this.crewRescue) c += 0.15;
+    if (this.gateRescueBonus) c += this.gateRescueBonus(gate) || 0; // gate_parties.js: 같은 게이트 다른 팀 +15%, 우호 파티 +25%
     c += Math.min(0.05, (p.merit || 0) / 1000) + Math.min(0.05, (p.fame || 0) / 4000);
     return Math.max(0.03, Math.min(0.97, c));
   },
@@ -218,8 +220,8 @@ Object.assign(Game.prototype, {
   // 남의 파티(crew) 게이트: 그 리더 소속 보호를 일부 받는다
   const baseFinishGate = UI.finishGate;
   UI.finishGate = function (result) {
-    const c = this.ctx; G.crewRescue = !!(c && c.crewRaid); G.atBoss = !!(c && c.run && c.run.floor >= c.run.floors - 1);
-    try { return baseFinishGate.call(this, result); } finally { G.crewRescue = false; G.atBoss = false; }
+    const c = this.ctx; G.crewRescue = !!(c && c.crewRaid);
+    try { return baseFinishGate.call(this, result); } finally { G.crewRescue = false; }
   };
   // 선임 동행: 내 등급 +1 이상 게이트
   const baseAllies = UI.allyUnits;
