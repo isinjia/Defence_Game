@@ -904,3 +904,25 @@ html body #foes.foe-grid .foe.row-shift { transform: none !important; left: auto
 html body .combat-box.fit #foes.foe-grid .foe.span-rows { align-self: center !important; }
 /* 적 두 줄은 전장 가운데에 모아 둔다 (아군 줄에 붙지 않게). 줄 높이는 기준 크기에 맞춰 고정이라 한 줄만 써도 자리가 변하지 않는다. */
 html body .combat-box.fit #foes.foe-grid { grid-template-rows: repeat(2, calc(var(--fs, 72px) * 1.45 + 54px)); align-content: center; row-gap: 6px; padding-bottom: 0; }
+
+/* 시험 직전 내 상태 확인 (영역 D, status_check.js): 한 화면에, 버튼은 맨 아래 고정 */
+.modal-box.st-modal { display: flex; flex-direction: column; max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); overflow: hidden; padding-bottom: 10px; }
+.st-check { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.st-scroll { overflow-y: auto; min-height: 0; flex: 1; }
+.st-head { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; }
+.st-name { font-size: 17px; margin-right: 4px; }
+.st-box { border-left: 3px solid; padding: 4px 8px; background: rgba(255,255,255,.03); border-radius: 4px; }
+.st-t { font-size: 11px; color: var(--dim, #8a97ab); margin: 7px 0 3px; letter-spacing: .05em; }
+.st-sks { display: grid; gap: 2px; }
+.st-sk { display: flex; align-items: center; gap: 5px; font-size: 13px; min-width: 0; }
+.st-sk b { white-space: nowrap; }
+.st-sk .tag { flex: none; font-size: 10px; padding: 0 4px; }
+.st-sk-d { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.st-dot { width: 14px; height: 14px; flex: none; }
+.st-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px 8px; margin-top: 4px; font-size: 12px; }
+.st-stats span { display: flex; justify-content: space-between; }
+.st-stats i { font-style: normal; color: var(--dim, #8a97ab); }
+.st-traits { display: flex; flex-wrap: wrap; gap: 4px; }
+.st-traits .tag { font-size: 11px; white-space: normal; }
+.st-foot { flex: none; padding-top: 8px; }
+.st-foot button { width: 100%; }

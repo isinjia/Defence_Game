@@ -28,42 +28,35 @@ if (typeof UI !== 'undefined') {
   Object.assign(UI, {
     statusSkillHtml(id) {
       const sk = skillById(id); if (!sk) return '';
-      const p = G.player;
-      if (this.skillHoldHtml) return `<div class="st-skill">${this.skillHoldHtml(sk, { elem: p.element, name: '', mp: p.maxMp }).replace(/<div class="small dim sh-tip">.*?<\/div>/, '').replace(/ <span class="(?:dim|bad)">\(남은 [^)]*\)<\/span>/, '')}</div>`;
-      return `<div class="trait"><b>${sk.name}</b><span class="dim">${sk.desc || ''} · MP ${sk.mp}</span></div>`;
+      const p = G.player; const e = sk.elem === 'self' ? p.element : sk.elem;
+      const aim = (typeof orderAimOf === 'function' ? orderAimOf(sk) : (typeof SKILL_AIM !== 'undefined' && SKILL_AIM[sk.type])) || 'none';
+      const aimTxt = { enemy: '적 하나', ally: '아군 하나' }[aim] || (['aoe', 'debuff'].includes(sk.type) ? '적 전체' : ['heal_all', 'shield_all', 'buff_all'].includes(sk.type) ? '아군 전체' : '자신');
+      return `<div class="st-sk">${e && ELEMENTS[e] ? FX.elemIcon(e, 14) : '<i class="st-dot"></i>'}<b>${sk.name}</b><span class="tag">${TYPE_NAME[sk.type] || '특수'}</span><span class="small dim st-sk-d">${aimTxt} · MP ${sk.mp}${sk.desc ? ` · ${sk.desc}` : ''}</span></div>`;
     },
     statusSituation() {
       const p = G.player; const bg = BACKGROUNDS.find((b) => b.id === p.bg);
-      const reg = G.region();
       const friend = G.npcs.find((n) => n.friendhood && n.alive !== false);
-      const log = p.proLog || [];
-      const last = log.length ? log[log.length - 1] : null;
-      const gear = ['weapon', 'armor', 'acc'].map((s) => p.equip[s]).filter(Boolean).map((it) => it.name).join(', ');
-      const items = (typeof CONSUMABLES !== 'undefined' ? CONSUMABLES : []).filter((c) => p.items[c.id]).map((c) => `${c.name} ×${p.items[c.id]}`).join(', ');
-      const lines = [
-        `${G.ageYears()}세. ${bg ? `${bg.name}(으)로 살아오다 ` : ''}얼마 전 각성했다.`,
-        last ? `지난 일: ${last}` : null,
-        `지금 ${reg.name}에 있다. 각성자는 협회 자격 시험을 통과해야 게이트에 들어갈 수 있다. 그래서 오늘 시험장으로 간다.`,
-        friend ? `소꿉친구 ${friend.name}이(가) 같은 도시에 있다.` : null,
-        `가진 돈 <b class="num">${fmt(p.money)}</b> 크레딧${gear ? ` · 장비 ${gear}` : ''}${items ? ` · ${items}` : ''}`,
-        `각성 등급은 아직 측정 전이다. 시험이 끝나면 협회가 알려 준다.`,
-      ].filter(Boolean);
-      return lines.map((l) => `<p class="small">${l}</p>`).join('');
+      const log = p.proLog || []; const last = log.length ? log[log.length - 1] : null;
+      const items = (typeof CONSUMABLES !== 'undefined' ? CONSUMABLES : []).filter((c) => p.items[c.id]).map((c) => `${c.name} ${p.items[c.id]}`).join(' · ');
+      return `<div class="small">${G.ageYears()}세 · ${G.region().name} · <b class="num">${fmt(p.money)}</b> 크레딧${items ? ` · ${items}` : ''}</div>
+        <div class="small dim">${bg ? `${bg.name}(으)로 살다 얼마 전 각성했다. ` : ''}${last ? `${last} ` : ''}게이트에 들어가려면 협회 자격 시험부터 통과해야 한다.${friend ? ` 소꿉친구 ${friend.name}도 이 도시에 있다.` : ''}</div>`;
     },
     statusHtml(forExam) {
       const p = G.player; const k = classById(p.cls); const g = CLASS_GROUPS[k.g]; const E = ELEMENTS[p.element];
-      const skills = p.skills.filter((id) => id !== 'strike');
+      const skills = p.skills.filter((id) => id !== 'strike').concat('strike');
       return `<div class="st-check">
-        <div class="char-head">${this.playerPortrait(110)}<div><div class="eyebrow">${forExam ? '시험 전에 · 내 상태 확인' : '내 상태 한눈에'}</div><h3>${p.name}</h3><div class="row">${this.clsTag(p.cls, p.clsAdv)} ${this.elemTag(p.element)}</div></div></div>
-        <div class="sec"><div class="sec-title">직업</div><div class="trait" style="border-left-color:${g.color}"><b>${className(p.cls, p.clsAdv)} <span class="small" style="color:${g.color}">${g.name} · ${CLASS_RARITY[k.r]}</span></b>
-          <span class="small">역할: ${ROLE_TXT[k.role] || k.role}</span><span class="dim">${k.desc}</span>
-          <span class="small">전직 경로: ${[k.name, ...k.adv].map((n, i) => (i === p.clsAdv ? `<b class="amber">${n}</b>` : n)).join(' → ')} <span class="dim">(C급·S급에서 전직 시험)</span></span></div></div>
-        <div class="sec"><div class="sec-title">가진 기술 (${skills.length + 1})</div><div class="cards st-skills">${skills.map((id) => this.statusSkillHtml(id)).join('')}${this.statusSkillHtml('strike')}</div></div>
-        <div class="sec"><div class="sec-title">속성과 상성</div><div class="trait" style="border-left-color:${E.color}"><b>${FX.elemIcon(p.element, 14)} ${E.name}</b><span class="small">${elemVsText(p.element)}</span><span class="small dim">같은 속성 기술은 위력 +20%. 강한 속성으로 치면 더 아프고, 약한 속성에게 맞으면 더 아프다.</span></div></div>
-        <div class="sec"><div class="sec-title">능력치 · 재능</div><div class="stat-grid">${STAT.map(([key, nm]) => `<div><span class="dim">${nm}</span><b class="num">${Math.round(p[key] || 0)}</b></div>`).join('')}<div><span class="dim">재능</span><b class="num">${p.talent} / 10</b></div></div></div>
-        <div class="sec"><div class="sec-title">선천 특성</div><div class="cards traits">${p.traits.map((id) => { const t = traitById(id); return t ? `<div class="trait"><b>${t.name}</b><span class="dim">${t.desc}</span></div>` : ''; }).join('')}</div></div>
-        <div class="sec"><div class="sec-title">지금 상황</div>${this.statusSituation()}</div>
-        <div class="row end sec">${forExam ? '<button class="primary" data-act="st-go">시험 보러 가기</button>' : '<button class="primary" data-act="st-back">닫기</button>'}</div></div>`;
+        <div class="st-scroll">
+        <div class="st-head">${this.playerPortrait(56)}<div><div class="eyebrow">${forExam ? '시험 전에 · 내 상태 확인' : '내 상태 한눈에'}</div><b class="st-name">${p.name}</b> ${this.clsTag(p.cls, p.clsAdv)} ${this.elemTag(p.element)}</div></div>
+        <div class="st-box" style="border-left-color:${g.color}"><b>${className(p.cls, p.clsAdv)}</b> <span class="small" style="color:${g.color}">${g.name} · ${CLASS_RARITY[k.r]} · ${ROLE_TXT[k.role] || k.role}</span>
+          <div class="small dim">${k.desc} 전직: ${[k.name, ...k.adv].map((n, i) => (i === p.clsAdv ? `<b class="amber">${n}</b>` : n)).join('→')} (C·S급)</div></div>
+        <div class="st-t">기술</div><div class="st-sks">${skills.map((id) => this.statusSkillHtml(id)).join('')}</div>
+        <div class="st-t">속성 · 능력치</div>
+        <div class="small">${FX.elemIcon(p.element, 13)} <b>${E.name}</b> ${elemVsText(p.element)} <span class="dim">(같은 속성 기술 위력 +20%)</span></div>
+        <div class="st-stats">${STAT.map(([key, nm]) => `<span><i>${nm}</i><b class="num">${Math.round(p[key] || 0)}</b></span>`).join('')}<span><i>재능</i><b class="num">${p.talent}/10</b></span></div>
+        <div class="st-t">선천 특성</div><div class="st-traits">${p.traits.map((id) => { const t = traitById(id); return t ? `<span class="tag" title="${t.desc}"><b>${t.name}</b> <span class="dim">${t.desc}</span></span>` : ''; }).join('')}</div>
+        <div class="st-t">지금 상황</div>${this.statusSituation()}
+        </div>
+        <div class="st-foot">${forExam ? '<button class="primary full" data-act="st-go">시험 보러 가기</button>' : '<button class="primary full" data-act="st-back">닫기</button>'}</div></div>`;
     },
     showStatusCheck(forExam) {
       if (forExam) { this.screen = 'game'; this.render(); }
