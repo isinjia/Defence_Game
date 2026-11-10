@@ -1,13 +1,16 @@
 // 튜토리얼 대사 멈춤 (영역 B, 사용자 제보 — 조사 세션 경유)
 // 자격 시험(전투·탐색 지도)의 선임 대사와 첫 오더 설명이 휙 지나가지 않게:
 //  - 말풍선이 뜨면 전투 시간(게이지)과 자동 전투, 시험 지도의 자동 진행을 멈춘다.
-//  - 화면을 터치해야 다음으로. 여러 문장이면 터치마다 한 문장씩. 말풍선 아래 "▼ 터치하여 계속".
-//  - 다 읽으면 풀린다. 내 차례 안내는 읽은 뒤에도 남아서 무엇을 누를지 알려 준다.
+//  - 화면을 터치해야 다음으로. 말풍선 하나당 터치 한 번(문장은 한꺼번에 다 보인다). 말풍선 아래 "▼ 터치하여 계속".
+//  - 터치하면 그 말풍선이 닫히고 멈춤이 풀린다.
 //  - 시험이 끝난 뒤의 일반 대사는 건드리지 않는다.
 // 자동 시험(tools/smoke_test.js)은 window.TUT_AUTO_TAP 을 켜서 멈춤 없이 지나간다.
 {
   // 문장 단위로 자르기 (꾸밈 태그가 섞인 말은 자르지 않는다)
+  // (사용자 정정: 문장마다가 아니라 말풍선 하나당 터치 한 번 → 지금은 통째로 한 번에 보여 준다. ONE_TOUCH 를 끄면 문장 단위)
+  const ONE_TOUCH = true;
   const cut = (txt) => {
+    if (ONE_TOUCH) return [txt];
     if (/</.test(txt)) return [txt];
     const quoted = /^\s*["“]/.test(txt);
     const body = txt.trim().replace(/^["“]|["”]$/g, '');
@@ -87,9 +90,8 @@
     }
     this.tutRelease(true);
     const c = this.ctx; const cb = c && c.combat;
-    const stay = cb && cb.waiting && !cb.auto && !cb.result; // 내 차례 안내는 남긴다
-    if (node) { const n = node.querySelector('.tp-next'); if (n) n.remove(); }
-    if (!stay && pop) { pop.remove(); for (const el of document.querySelectorAll('.coach-spot')) el.classList.remove('coach-spot'); }
+    // 터치 한 번에 말풍선을 닫는다 (같은 안내는 다시 뜨지 않게 닫힘 표시)
+    if (pop) { this._coachShut = pop._key; pop.remove(); for (const el of document.querySelectorAll('.coach-spot')) el.classList.remove('coach-spot'); }
     if (cb && this.renderControls && document.getElementById('cb-ctrl')) try { this.renderControls(); } catch (e) { /* 무시 */ }
   };
   // 말풍선이 사라졌는데 멈춤만 남는 일이 없게
