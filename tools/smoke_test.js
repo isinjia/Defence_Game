@@ -327,21 +327,8 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
-  await step('프롤로그 컷씬: 모든 장면 연결과 감상 뒤 상태 보존', async () => {
-    const r = await ev(() => {
-      const missing = Object.keys(PROLOGUE).filter((id) => !PrologueCinema.config(id, UI.pro));
-      if (missing.length) return '컷씬 없는 프롤로그 장면 있음';
-      const before = JSON.stringify({ player: G.player, flags: UI.pro.flags, score: UI.pro.sc, log: UI.pro.log });
-      const key = PrologueCinema.prepare(UI.pro);
-      if (!key) return '컷씬 준비 실패';
-      ExploreCinema.show(key, true);
-      if (!document.querySelector('.pc-screen svg')) return '컷씬 화면 없음';
-      let limit = 4;
-      while (ExploreCinema.active && limit-- > 0) document.querySelector('.ec-next').click();
-      if (ExploreCinema.active) return '컷씬 종료 실패';
-      if (before !== JSON.stringify({ player: G.player, flags: UI.pro.flags, score: UI.pro.sc, log: UI.pro.log })) return '감상으로 게임 상태 변경';
-      return '';
-    });
+  await step('프롤로그에는 컷씬이 없다 (사용자 요청: 글과 선택지만)', async () => {
+    const r = await ev(() => (typeof PrologueCinema !== 'undefined' ? '프롤로그 컷씬 코드가 남아 있음' : document.querySelector('.pro-cinema, [data-act="pro-cinema"]') ? '프롤로그 컷씬 요소가 남아 있음' : ''));
     if (r) throw new Error(r);
   });
   await step('시간 진행 3년 (수련·휴식·월간 처리)', async () => {
