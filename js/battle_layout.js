@@ -58,16 +58,30 @@ Object.assign(Combat.prototype, {
     if (!list.length) return;
     const placed = this.units.some((u) => u.side === 'enemy' && u.slot);
     if (placed) { for (const u of list) this.foeAssign(u); return; }
-    const ws = list.map((u) => this.foeWidth(u)); const total = ws.reduce((a, b) => a + b, 0);
-    const rows = [[], []]; // [아랫줄, 윗줄]
-    if (total <= FOE_COLS) rows[0] = list.map((u, i) => [u, ws[i]]);
-    else {
-      let acc = 0; const half = Math.ceil(total / 4) * 2; // 아랫줄이 같거나 한 마리 더 많게
-      list.forEach((u, i) => { if (acc + ws[i] <= Math.min(FOE_COLS, Math.max(half, ws[i]))) { rows[0].push([u, ws[i]]); acc += ws[i]; } else rows[1].push([u, ws[i]]); });
-    }
-    rows.forEach((row, ri) => {
-      let width = row.reduce((a, x) => a + x[1], 0);
-      while (width > FOE_COLS && row.length) { const x = row.find((y) => y[1] === 4); if (!x) break; x[1] = 2; width -= 2; }
+    // 큰 괴수를 가운데에, 작은 괴수를 양옆에 나눠 세워 줄이 좌우 대칭이 되게 한다
+    const items = list.map((u) => [u, this.foeWidth(u)]).sort((x, y) => y[1] - x[1]); // 큰 것부터
+    const total = items.reduce((a, x) => a + x[1], 0);
+    const mirror = (row) => { // 큰 것 가운데, 작은 것을 좌우로 번갈아
+      const big = row.filter((x) => x[1] === 4), small = row.filter((x) => x[1] !== 4);
+      const L = [], R = []; small.forEach((x, i) => (i % 2 ? L : R).push(x));
+      return [...L.reverse(), ...big, ...R];
+    };
+    const isSym = (row) => row.every((x, i) => x[1] === row[row.length - 1 - i][1]);
+    const build = (cap) => {
+      const rows = [[], []]; let acc = 0;
+      for (const x of items) { if (acc + x[1] <= cap) { rows[0].push(x); acc += x[1]; } else rows[1].push(x); }
+      const top = rows[1].reduce((a, x) => a + x[1], 0);
+      const out = rows.map(mirror);
+      // 점수: 비대칭 줄이 없을수록, 줄 수가 적을수록, 아랫줄이 윗줄보다 넓거나 같을수록 좋다
+      const used = out.filter((r) => r.length);
+      return { rows: out, ok: top <= FOE_COLS, score: -10 * used.filter((r) => !isSym(r)).length - (used.length - 1) - (top > acc ? 1 : 0) };
+    };
+    const half = Math.min(FOE_COLS, Math.ceil(total / 4) * 2);
+    const caps = total <= FOE_COLS ? [FOE_COLS, 4, 6, 2] : [half, FOE_COLS, Math.max(2, half - 2), 4];
+    const cands = caps.map(build).filter((c) => c.ok);
+    const plan = cands.sort((x, y) => y.score - x.score)[0] || build(FOE_COLS);
+    plan.rows.forEach((row, ri) => {
+      const width = row.reduce((a, x) => a + x[1], 0);
       let c = Math.max(0, Math.floor((FOE_COLS - width) / 2));
       for (const [u, w] of row) { if (c + w > FOE_COLS) { this.foeAssign(u); continue; } u.slot = { r: FOE_ROW_ORDER[ri], c, w }; c += w; }
     });
