@@ -352,7 +352,8 @@ const { chromium, devices } = require('playwright');
         if (G.party().length < G.crewMembers().length) return '팀원 일부가 모이지 않았다';
         for (let i = 0; i < 6 && UI.dlg; i++) UI.dlgEnd();
         // 출발 뒤: 게이트·토벌이면 리더가 이끄는 화면, 호위·훈련이면 끝나고 거점으로
-        if (UI.ctx) { if (!UI.ctx.crewRaid) return '팀 일인데 팀 진입이 아니다'; UI.ctx = null; UI.closeModal(); UI.crewJobDone(); }
+        if (UI.crewMarch) { if (!UI.walking && !UI.travel) return '리더가 팀을 이끌고 출발하지 않았다'; UI.walking = null; UI.crewMarch = null; UI.travel = null; UI.crewJobDone(); }
+        else if (UI.ctx) { if (!UI.ctx.crewRaid) return '팀 일인데 팀 진입이 아니다'; UI.ctx = null; UI.closeModal(); UI.crewJobDone(); }
         if (c.on) return '일이 끝났는데 개인 시간으로 돌아가지 않았다';
         // 기한 넘기기
         G.queue = []; c.dueMixed = false; const trust = c.trust; c.due = G.monthKey() * 30 + G.day - 1; G.crewDayTick();
@@ -360,11 +361,36 @@ const { chromium, devices } = require('playwright');
         G.crewMissDue(); if (!(c.trust < trust) && G.crew()) return '기한을 넘겼는데 불이익이 없다';
         return '';
       } finally {
-        if (UI.ctx) { UI.ctx = null; } UI.closeModal(); if (UI.dlg) UI.dlgEnd();
+        if (UI.ctx) { UI.ctx = null; } UI.walking = null; UI.crewMarch = null; UI.travel = null; UI.closeModal(); if (UI.dlg) UI.dlgEnd();
         if (p.crew) G.withCrew(() => { for (const n of G.npcs) if (n.crewOf === p.crew.id) { n.crewOf = null; n.isCompanion = false; } });
         p.crew = null; p.party = keep.party; G.queue = keep.queue; p.x = keep.x; p.y = keep.y; p.region = keep.region; p.fame = keep.fame;
         if (G.flags.story) delete G.flags.story.firstTeam;
         UI.renderGame();
+      }
+    });
+    if (r) throw new Error(r);
+  });
+  await step('대칭: 내가 리더일 때 자유 시간 → 팀원은 거점에 남음 → 거점에서 팀을 모음 · 기한 넘긴 팀원은 불이익', async () => {
+    const r = await ev(() => {
+      const p = G.player; if (p.crew) return '';
+      const keep = { party: p.party.slice(), x: p.x, y: p.y, region: p.region };
+      const made = [];
+      try {
+        while (G.withCrew(() => G.party().length) < 2) { const n = G.makeNpc(true); n.isCompanion = true; n.relation = 5; n.persona = 'lazy'; G.npcs.push(n); p.party.push(n.id); made.push(n); }
+        const pos = WORLD.cityPos[p.region]; p.x = pos[0]; p.y = pos[1];
+        if (!G.leadDisperse()) return '자유 시간을 줄 수 없다';
+        if (G.party().length) return '자유 시간인데 팀원이 따라온다';
+        if (!UI.hudQuests().includes('lead-gather')) return '퀘스트 목록에 팀 소집 줄이 없다';
+        p.lead.due = G.monthKey() * 30 + G.day - 1; // 기한이 지났다
+        const before = G.withCrew(() => G.party().map((n) => n.relation));
+        const old = RNG.chance; RNG.chance = () => true; let t; try { t = G.leadGather(); } finally { RNG.chance = old; }
+        if (!t) return '팀을 모으지 못했다';
+        if (!G.party().length) return '모았는데 팀원이 없다';
+        if (!/기한을 어겨/.test(t)) return '기한을 넘긴 팀원에게 불이익 안내가 없다';
+        return '';
+      } finally {
+        p.lead = null; p.party = keep.party; p.x = keep.x; p.y = keep.y; p.region = keep.region;
+        for (const n of made) n.isCompanion = false;
       }
     });
     if (r) throw new Error(r);

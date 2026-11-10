@@ -101,6 +101,7 @@ if (typeof UI !== 'undefined') {
       <p class="small">"${say}"</p><div class="cn-btns"><button class="primary" data-act="lead-ok">따른다</button><button class="danger" data-act="lead-no">반대한다</button></div></div>`);
     UI.autoFollow(box.querySelector('[data-act="lead-ok"]'), 5);
   };
+  UI.leaderGate = leaderGate; // 팀 이동 중 길 사건에도 쓴다 (crew_time.js)
   const baseEv = UI.gateEvent;
   if (baseEv) UI.gateEvent = function () { const r = baseEv.apply(this, arguments); leaderGate(['g-ev', 'ck-ev']); return r; };
   const baseEx = UI.showExplore;
