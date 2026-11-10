@@ -491,3 +491,10 @@
 .settle-box .row.end { position: static !important; margin: 10px 0 0 !important; padding: 0 !important; border: 0 !important; background: none !important; }
 .settle-text { font-size: 14.5px; line-height: 1.7; }
 .combat-box.fit #cb-ctrl.settled > * { visibility: hidden; }
+.settle-rows { display: grid; gap: 2px; }
+.settle-sub { text-align: center; color: var(--dim); font-size: 13px; margin-bottom: 4px; }
+.sr { display: flex; justify-content: space-between; padding: 6px 2px; border-bottom: 1px dashed var(--line); font-size: 14px; }
+.sr b.ether { color: var(--ether); }
+.sr.dim { font-size: 12.5px; color: var(--dim); }
+.modal-box.settle-modal { border-top: 3px solid var(--amber); }
+.settle-title { font-family: var(--font-display); font-weight: 400; font-size: 24px; letter-spacing: .12em; color: var(--amber); text-align: center; }
