@@ -66,6 +66,14 @@ Object.assign(UI, {
     n.links = {}; n.disciples = []; n.parents = [];
     G.npcs.push(n); return n.id;
   },
+  // 시험 입장 대화 동안만 뜨는 작은 '튜토리얼 건너뛰기' 버튼 (대화가 끝나면 자동으로 게이트 입장)
+  tutSkipBtn(on) {
+    const old = document.getElementById('tut-skip'); if (old) old.remove();
+    if (!on) return;
+    const b = document.createElement('button'); b.id = 'tut-skip'; b.className = 'ghost small'; b.textContent = '튜토리얼 건너뛰기';
+    b.onclick = (e) => { e.stopPropagation(); this.tutSkipBtn(false); this.dlgEnd(() => this.handle('exam-skip')); };
+    document.body.appendChild(b);
+  },
   examLeader() { return this.exam && G.npcById(this.exam.leader); },
   // 리더의 말투: 성격에 따라 조금씩 다르다
   leadSay(key) {
@@ -132,8 +140,8 @@ Object.assign(UI, {
       { who: L, text: this.leadSay('brief') },
       { narr: '임시 파티원들이 차례로 인사한다.', group: mates.map((n) => ({ who: n, text: (intro[n.personality] || intro.kind)(n) })) },
       { who: L, text: { just: '인사는 됐다. 들어간다. 내 뒤에 붙어.', kind: '자, 그럼 들어가 볼까요? 제 뒤로 따라오세요.', cold: '간다.' }[L.personality] || '간다.' },
-      { choices: [{ text: '리더를 따라 게이트로 들어간다', go: () => this.handle('exam-go') }, { text: '(튜토리얼 건너뛰기)', go: () => this.handle('exam-skip') }] },
-    ]);
+    ], () => { this.tutSkipBtn(false); this.handle('exam-go'); });
+    this.tutSkipBtn(true);
   },
 
   examEnemies(boss) {
