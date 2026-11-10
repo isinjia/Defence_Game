@@ -17,6 +17,13 @@ const PAY_TERMS = {
   kama: { salary: 0, inc: [0.12, 0.12], sign: 0, label: '관리국(보호국)' },
 };
 const KAMA_SERVICE = 24; // 의무 복무 개월
+// 집결 지각·불참 불이익(D leader_rule.js RALLY와 이어짐). docs/E_수치.md
+const RALLY_PAY = {
+  latePerDay: 0.1, lateMin: 0.6,   // 무소속 팀: 늦은 날마다 그 원정 배당 −10%(최저 60%)
+  incPerDay: 0.1, incMin: 0.5,      // 소속: 그달 지각 일수마다 성과급 비율 −10%(최저 절반)
+  missSalaryCut: 0.2,               // 소속: 불참 1회마다 그달 월급 20% 감봉
+  disciplineAfter: 2,               // 소속: 한 달에 불참 2회면 징계(계약 경고 +1)
+};
 
 Object.assign(Game.prototype, {
   payrollActive: true,
@@ -73,7 +80,11 @@ Object.assign(Game.prototype, {
     const v = (p.crew && typeof p.crew.share === 'number') ? p.crew.share : (typeof p.crewShare === 'number' ? p.crewShare : null);
     return v != null ? Math.max(0.01, Math.min(1, v)) : null;
   },
-  crewShareRate() { const v = this.freeShare(); return v != null ? v : (typeof CREW_SHARE !== 'undefined' ? CREW_SHARE : 0.75); },
+  crewShareRate() {
+    const v = this.freeShare(); const base = v != null ? v : (typeof CREW_SHARE !== 'undefined' ? CREW_SHARE : 0.75);
+    const late = (this.player.pay && this.player.pay.lateNow) || 0;
+    return late && !this.payKind(this.player.guild) ? base * Math.max(RALLY_PAY.lateMin, 1 - RALLY_PAY.latePerDay * late) : base;
+  },
   payInit() {
     const p = this.player; if (!p) return;
     p.pay ??= { pool: 0, mk: this.monthKey(), last: null, gearYear: -1 };
@@ -85,7 +96,12 @@ Object.assign(Game.prototype, {
     if (k) {
       out.salary = k === 'kama' ? (this.isCivil && this.isCivil() ? this.civilSalary() : 0) : (c && c.guild === gid ? c.salary : 0);
       const rate = k === 'kama' ? PAY_TERMS.kama.inc[0] : (c && c.inc) || PAY_TERMS[k].inc[0];
-      out.inc = rate; out.incentive = Math.round(pay.pool * rate);
+      const lateD = pay.lateDays || 0; const miss = pay.missMonth || 0;
+      const rateEff = lateD ? rate * Math.max(RALLY_PAY.incMin, 1 - RALLY_PAY.incPerDay * lateD) : rate;
+      out.inc = rateEff; out.incentive = Math.round(pay.pool * rateEff);
+      if (lateD) out.extra.push(`집결 지각 ${lateD}일: 성과급 ${Math.round(rate * 100)}% → ${Math.round(rateEff * 100)}%`);
+      if (miss && out.salary) { const cut = Math.min(out.salary, Math.round(out.salary * RALLY_PAY.missSalaryCut * miss)); p.money = Math.max(0, p.money - cut); out.extra.push(`집결 불참 ${miss}회 감봉 −${fmt(cut)}`); }
+      if (miss >= RALLY_PAY.disciplineAfter) { if (c) c.warn = (c.warn || 0) + 1; this.log(`${GUILDS[gid].name} 징계: 한 달에 집결 불참 ${miss}회. 계약 경고가 쌓였다.`, 'bad'); }
       if (out.incentive) p.money += out.incentive;
       const pk = (c && c.perks) || this.payPerks(gid, false);
       if (pk.train) { const v = this.etherGift(12); out.extra.push(`훈련비 에테르 +${fmt(v)}`); }
@@ -99,9 +115,9 @@ Object.assign(Game.prototype, {
         if (p.injured > 0 && out.salary) { const v = Math.round(out.salary * 0.5); p.money += v; out.extra.push(`공상 보상 ${fmt(v)}`); }
       }
       const name = GUILDS[gid].name;
-      this.log(`월말 정산 · ${name}: 월급 ${fmt(out.salary)}${pay.pool ? ` · 성과급 ${fmt(out.incentive)} (귀속 전리품 ${fmt(pay.pool)}의 ${Math.round(rate * 100)}%)` : ' · 성과급 없음'}${out.extra.length ? ` · ${out.extra.join(', ')}` : ''}`, 'good');
+      this.log(`월말 정산 · ${name}: 월급 ${fmt(out.salary)}${pay.pool ? ` · 성과급 ${fmt(out.incentive)} (귀속 전리품 ${fmt(pay.pool)}의 ${Math.round(out.inc * 100)}%)` : ' · 성과급 없음'}${out.extra.length ? ` · ${out.extra.join(', ')}` : ''}`, 'good');
     }
-    pay.pool = 0; pay.last = out;
+    pay.pool = 0; pay.lateDays = 0; pay.missMonth = 0; pay.last = out;
   },
 });
 
@@ -177,7 +193,7 @@ Object.assign(Game.prototype, {
   const baseFinishGate = UI.finishGate;
   UI.finishGate = function (result) {
     const c = this.ctx; G.noPool = !!(c && c.crewRaid);
-    try { return baseFinishGate.call(this, result); } finally { G.noPool = false; }
+    try { return baseFinishGate.call(this, result); } finally { G.noPool = false; if (G.player && G.player.pay) G.player.pay.lateNow = 0; }
   };
   const payCard = () => {
     const p = G.player; const k = G.payKind(p.guild); if (!k) return '';
