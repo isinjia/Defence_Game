@@ -23,7 +23,7 @@ Object.assign(Combat.prototype, {
     const g = Array.from({ length: FOE_ROWS }, () => Array(FOE_COLS).fill(null));
     for (const u of this.units) {
       if (u.side !== 'enemy' || !u.alive || u.fled || !u.slot) continue;
-      for (let k = 0; k < u.slot.w; k++) if (g[u.slot.r] && u.slot.c + k < FOE_COLS) g[u.slot.r][u.slot.c + k] = u;
+      for (let h = 0; h < (u.slot.h || 1); h++) for (let k = 0; k < u.slot.w; k++) if (g[u.slot.r + h] && u.slot.c + k < FOE_COLS) g[u.slot.r + h][u.slot.c + k] = u;
     }
     return g;
   },
@@ -58,7 +58,46 @@ Object.assign(Combat.prototype, {
     if (!list.length) return;
     const placed = this.units.some((u) => u.side === 'enemy' && u.slot);
     if (placed) { for (const u of list) this.foeAssign(u); return; }
-    // 큰 괴수를 가운데에, 작은 괴수를 양옆에 나눠 세워 줄이 좌우 대칭이 되게 한다
+    // 보스·아주 큰 괴수와 큰 괴수의 자리 (사용자 설계): 괴수에게는 전열·후열이 없으므로
+    //  - 보스(아주 큰 괴수) 하나: 가운데에서 위아래 두 줄을 다 차지하고 졸개는 좌우에 짝지어 선다.
+    //    졸개가 홀수면 보스는 뒷줄(윗줄) 가운데, 졸개는 앞줄 가운데에 선다.
+    //  - 큰 괴수: 뒷줄 가운데. 작은 괴수는 앞줄.
+    //  어느 경우든 줄마다 좌우 대칭.
+    {
+      const giant = (u) => !!u.boss || (UI.monBody ? UI.monBody(u) >= 1.6 : false);
+      const G1 = list.filter(giant), rest = list.filter((u) => !giant(u));
+      const bigs = rest.filter((u) => this.foeWidth(u) === 4), smalls = rest.filter((u) => this.foeWidth(u) !== 4);
+      const put = (u, r, c, w, h) => { u.slot = h ? { r, c, w, h } : { r, c, w }; };
+      const rowFill = (units, r) => { const width = units.reduce((a, u) => a + (u._w || 2), 0); let c = Math.floor((FOE_COLS - width) / 2); for (const u of units) { const w = u._w || 2; put(u, r, c, w); c += w; delete u._w; } };
+      const TOP = 0, BOT = 1;
+      if (G1.length === 1 && !bigs.length && smalls.length <= 4) {
+        const g = G1[0];
+        if (smalls.length % 2 === 0) {
+          put(g, TOP, 2, 4, 2); // 가운데, 두 줄
+          const seats = [[BOT, 0], [BOT, 6], [TOP, 0], [TOP, 6]];
+          smalls.forEach((u, i) => put(u, seats[i][0], seats[i][1], 2));
+        } else {
+          put(g, TOP, 2, 4); // 뒷줄 가운데
+          const front = smalls.slice(0, Math.min(3, smalls.length)); const side = smalls.slice(front.length);
+          rowFill(front, BOT);
+          side.forEach((u, i) => put(u, TOP, i % 2 ? 6 : 0, 2));
+        }
+        return;
+      }
+      if (!G1.length && bigs.length && smalls.length && bigs.length <= 2) {
+        // 큰 괴수는 뒷줄 가운데, 작은 괴수는 앞줄. 앞줄에 다 못 서는 작은 괴수는 뒷줄 양옆에 짝지어.
+        let front = Math.min(4, smalls.length); let left = smalls.length - front;
+        if (left % 2 === 1 && front > 1) { front--; left++; }
+        if (bigs.length * 4 + left * 2 <= FOE_COLS) {
+          rowFill(smalls.slice(0, front), BOT);
+          const sides = smalls.slice(front); const L = sides.filter((_, i) => i % 2 === 0), R = sides.filter((_, i) => i % 2 === 1);
+          bigs.forEach((u) => { u._w = 4; });
+          rowFill([...L, ...bigs, ...R], TOP);
+          return;
+        }
+      }
+    }
+    // 그 밖: 큰 괴수를 가운데에, 작은 괴수를 양옆에 나눠 세워 줄이 좌우 대칭이 되게 한다
     const items = list.map((u) => [u, this.foeWidth(u)]).sort((x, y) => y[1] - x[1]); // 큰 것부터
     const total = items.reduce((a, x) => a + x[1], 0);
     const mirror = (row) => { // 큰 것 가운데, 작은 것을 좌우로 번갈아
@@ -142,9 +181,9 @@ Object.assign(Combat.prototype, {
         if (u.side !== 'enemy') continue;
         const el = document.getElementById('u-' + u.id); if (!el) continue;
         const s = u.slot;
-        if (s) { const col = `${s.c + 1} / span ${s.w}`; if (el.style.gridColumn !== col) el.style.gridColumn = col; const row = String(s.r + 1); if (el.style.gridRow !== row) el.style.gridRow = row; el.dataset.w = s.w / 2; }
+        if (s) { const col = `${s.c + 1} / span ${s.w}`; if (el.style.gridColumn !== col) el.style.gridColumn = col; const row = s.h === 2 ? '1 / span 2' : String(s.r + 1); if (el.style.gridRow !== row) el.style.gridRow = row; el.dataset.w = s.w / 2; el.classList.toggle('span-rows', s.h === 2); }
         // 쓰러진 적의 그림은 그 칸에 새 적이 "화면에 등장한 뒤"에 치운다 (등장 전에는 쓰러지는 연출이 보여야 한다)
-        const taken = s && (!u.alive || u.fled) && cb.units.some((x) => x !== u && x.side === 'enemy' && x.alive && !x._pendingSpawn && x.slot && x.slot.r === s.r && x.slot.c < s.c + s.w && s.c < x.slot.c + x.slot.w);
+        const taken = s && (!u.alive || u.fled) && cb.units.some((x) => x !== u && x.side === 'enemy' && x.alive && !x._pendingSpawn && x.slot && x.slot.r < s.r + (s.h || 1) && s.r < x.slot.r + (x.slot.h || 1) && x.slot.c < s.c + s.w && s.c < x.slot.c + x.slot.w);
         el.classList.toggle('slot-freed', !!taken || (!s && !u.alive));
       }
       // 아군도 줄마다 보이지 않는 5칸: 소환체가 나오거나 사라져도 다른 사람의 자리는 그대로

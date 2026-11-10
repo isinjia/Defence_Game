@@ -901,3 +901,4 @@ html body .combat-box.fit .foe.foe-card > .status { order: 5; }
 
 /* 반 칸 배치에서는 줄을 따로 밀지 않는다 (js/foe_rows.js 의 row-shift 무효) */
 html body #foes.foe-grid .foe.row-shift { transform: none !important; left: auto !important; margin-left: 0 !important; }
+html body .combat-box.fit #foes.foe-grid .foe.span-rows { align-self: center !important; }
