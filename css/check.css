@@ -36,3 +36,10 @@ button.ck-who:active { transform: translateY(1px); }
 .owner-tag { --c: #9aa6b8; border-color: var(--c) !important; color: var(--c); }
 .gate-access { margin: 8px 0; padding: 8px 10px; border-left: 3px solid var(--amber, #ffb547); background: #0e1622; border-radius: 0 8px 8px 0; display: flex; flex-direction: column; gap: 3px; font-size: 14px; }
 .gnode .guild-only { position: absolute; bottom: 100%; margin-bottom: 4px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 6px; border: 1px solid var(--c); color: var(--c); background: rgba(5, 8, 13, .9); pointer-events: none; }
+
+/* ===== 다른 파티 카드 (js/map_parties.js, 4-20) ===== */
+.party-hero { display: flex; gap: 12px; align-items: center; margin: 6px 0 10px; padding: 10px; border: 1px solid var(--c, #9aa6b8); border-radius: 12px; background: #0b121c; }
+.party-hero > :first-child { flex: none; width: 96px; }
+.party-hero h3 { margin: 2px 0 4px; }
+.party-acts { flex-wrap: wrap; gap: 6px; }
+.party-acts button { min-height: 44px; }
