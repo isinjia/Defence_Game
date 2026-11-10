@@ -174,7 +174,9 @@ const { chromium, devices } = require('playwright');
       const mk = (nm) => { for (let i = 0; i < 800; i++) { const m = G.makeMonster(0); if (m.name.includes(nm) && !m.variant) return m; } return null; };
       const allies = () => [G.playerUnit()];
       // 1) 본체 하나 + 소환물 둘: 본체가 쓰러지면 소환물은 흩어지고 승리, 처치 수에는 본체만
-      const cb = new Combat(G, { allies: allies(), enemies: [G.makeMonster(0)], canFlee: true, title: '점검' });
+      // 본체는 분열형·소환형이 아닌 괴수로 (분열형이면 조각이 남아 끝나지 않는 것이 맞다)
+      let m0 = null; for (let i = 0; i < 400 && !m0; i++) { const m = G.makeMonster(0); if (!['splitter', 'summoner'].includes(m.mtype) && !['splitter', 'summoner'].includes(m.mtype2)) m0 = m; }
+      const cb = new Combat(G, { allies: allies(), enemies: [m0 || G.makeMonster(0)], canFlee: true, title: '점검' });
       const boss = cb.enemies()[0]; if (!cb.monSpawn) return 'monSpawn 없음';
       cb.monSpawn(boss, '졸개', 'slime', 0.5, 0.3, {}); cb.monSpawn(boss, '졸개', 'slime', 0.5, 0.3, {});
       boss.hp = 0; cb.down(boss); cb.checkEnd();

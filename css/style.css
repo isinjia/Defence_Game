@@ -946,3 +946,6 @@ html body .skill-hold-wrap, html body .skill-hold-wrap .skill-hold { animation: 
 html body .dlg-group .dlg-gl > .avatar, html body .dlg-group .dlg-gl > svg, html body .dlg-group .dlg-gl > .avatar-img { flex: 0 0 40px; width: 40px !important; height: 40px !important; min-width: 40px; border-radius: 50%; overflow: hidden; }
 html body .dlg-group .dlg-gl > .avatar-img img { width: 100%; height: 100%; object-fit: cover; }
 html body .dlg-group .dlg-gl > :not(.avatar):not(svg):not(.avatar-img) { flex: 1 1 auto; min-width: 0; }
+/* 전투 결과 팝업: 버튼은 그 줄 전체 너비로 크게 (여럿이면 똑같이 나눠) */
+html body .settle-box .row.end { display: flex; gap: 8px; }
+html body .settle-box .row.end > button { flex: 1 1 0; min-height: 48px; font-size: 15px; justify-content: center; }
