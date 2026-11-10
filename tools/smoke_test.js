@@ -156,7 +156,7 @@ const { chromium, devices } = require('playwright');
       const b = document.querySelector('.cmd-pop .combo-btn'); if (!b) return '스킬 목록에 합동기 버튼 없음';
       cb.player.ult = 100; UI.renderControls();
       if (!document.querySelector('.cmd-pop .ult-btn')) return '스킬 목록에 필살 버튼 없음';
-      if (!document.querySelector('#allies .ult-bar')) return '필살 게이지 줄 없음';
+      if (!document.querySelector('#allies .ult-aura')) return '필살 오라 없음'; // 막대 → 초상 뒤 오라 (js/ally_card.js)
       UI.handle('c-combo', pair.id); if (!(cb.comboUsed || {})[pair.id]) return '합동기가 발동하지 않음';
       if (cb.result) return '';
       cb.waiting = true; cb.player.ult = 100; if (!cb.playerUlt(null)) return '필살기가 발동하지 않음';
