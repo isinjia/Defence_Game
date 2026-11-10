@@ -327,8 +327,14 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
-  await step('프롤로그에는 컷씬이 없다 (사용자 요청: 글과 선택지만)', async () => {
-    const r = await ev(() => (typeof PrologueCinema !== 'undefined' ? '프롤로그 컷씬 코드가 남아 있음' : document.querySelector('.pro-cinema, [data-act="pro-cinema"]') ? '프롤로그 컷씬 요소가 남아 있음' : ''));
+  await step('프롤로그 그림: 모든 장면에 정지 그림, 컷씬식 연출(화면 가림·다시 보기)은 없음', async () => {
+    const r = await ev(() => {
+      const missing = Object.keys(PROLOGUE).filter((id) => !PrologueCinema.config(id, UI.pro));
+      if (missing.length) return '그림 없는 프롤로그 장면 있음: ' + missing.slice(0, 5).join(', ');
+      if (document.querySelector('[data-act="pro-cinema"]')) return '컷씬 다시 보기 버튼이 남아 있음';
+      if (Object.keys(ExploreCinema.scenes).some((k) => k.startsWith('prologue_'))) return '프롤로그 컷씬 장면이 등록됨';
+      return '';
+    });
     if (r) throw new Error(r);
   });
   await step('시간 진행 3년 (수련·휴식·월간 처리)', async () => {
