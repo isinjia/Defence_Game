@@ -46,3 +46,6 @@ button.ck-who:active { transform: translateY(1px); }
 .gp-mark { position: absolute; transform: translate(-50%, -150%); display: flex; align-items: center; gap: 2px; padding: 2px 5px 2px 2px; border-radius: 16px; border: 1.5px solid var(--c); background: rgba(5, 8, 13, .92); pointer-events: none; z-index: 2; }
 .gp-mark b { font-size: 11px; color: var(--c); }
 .gp-line { margin: 2px 0 4px; }
+/* 담당자 지정 버튼 3개는 좁은 화면에서도 한 줄에 */
+.ck-box .row.end { flex-wrap: nowrap; gap: 6px; }
+.ck-box .row.end button { flex: 1 1 auto; min-width: 0; padding-left: 8px; padding-right: 8px; white-space: nowrap; font-size: 14px; }

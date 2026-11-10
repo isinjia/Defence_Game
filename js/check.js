@@ -54,7 +54,9 @@ Object.assign(Game.prototype, {
   checkLeaderPick(L, members, stat, base, tier) {
     const ranked = members.map((m) => ({ m, c: this.checkChance(m, stat, base, tier).chance })).sort((a, b) => b.c - a.c);
     const best = ranked[0].m; const self = members.find((m) => m.npc === L);
-    const acc = Math.min(0.95, Math.max(0.3, (LEADER_ACC[L.personality] ?? 0.65) + Math.max(-0.1, Math.min(0.1, (L.rankIdx - 3) * 0.03))));
+    // 적임자를 알아보는 눈: 리더 품질(orders.js npcLead 0~100)이 있으면 그것으로, 없으면 성격으로
+    const acc = typeof npcLead === 'function' ? Math.min(0.95, Math.max(0.25, 0.2 + npcLead(L) * 0.0085))
+      : Math.min(0.95, Math.max(0.3, (LEADER_ACC[L.personality] ?? 0.65) + Math.max(-0.1, Math.min(0.1, (L.rankIdx - 3) * 0.03))));
     const S = CHECK_STATS[stat].name;
     const call = (m) => (m.npc ? m.name : this.player.name);
     if (RNG.chance(acc) || members.length < 2) {
@@ -67,9 +69,9 @@ Object.assign(Game.prototype, {
     if ((L.personality === 'warlike' || L.personality === 'greedy') && self && self !== best) {
       pick = self; line = L.personality === 'warlike' ? '"내가 한다. 다들 뒤에서 구경이나 해."' : '"좋은 건 내가 먼저 봐야지. 내가 간다."';
     } else if (L.personality === 'kind') {
-      pick = others[others.length - 1] || best; line = `"${call(pick)}, 이번엔 네가 해 볼래? 해 봐야 늘지."`;
+      pick = others[others.length - 1] || best; line = pick === self ? '"이번엔 내가 해 볼게. 나도 해 봐야 늘지."' : `"${call(pick)}, 이번엔 네가 해 볼래? 해 봐야 늘지."`;
     } else {
-      pick = RNG.pick(others) || best; line = `"${call(pick)}, 네가 가 봐."`;
+      pick = RNG.pick(others) || best; line = pick === self ? '"됐어, 내가 가 볼게."' : `"${call(pick)}, 네가 가 봐."`;
     }
     return { member: pick, apt: pick === best, line };
   },
@@ -85,7 +87,7 @@ Object.assign(UI, {
     const mem = G.checkMembers(); const L = G.checkLeader();
     const best = mem.map((m) => G.checkChance(m, stat, base, tier).chance).sort((a, b) => b - a)[0];
     if (mem.length < 2) return this.ckTag(stat, best);
-    return this.ckTag(stat, best, L ? `리더 ${L.name}이(가) 맡길 사람을 정함 · 최대` : '최대');
+    return this.ckTag(stat, best, L ? `맡을 사람은 리더 ${L.name} 지정 · 최대` : '최대');
   },
   // 판정 시작. spec = { title, eyebrow, stat, base, tier, run(ok, member) → 결과 문장, next() }
   ckBegin(spec) {
@@ -104,12 +106,35 @@ Object.assign(UI, {
     }
     const pick = G.checkLeaderPick(L, mem, spec.stat, spec.base, spec.tier);
     const c = G.checkChance(pick.member, spec.stat, spec.base, spec.tier);
-    spec.leaderLine = pick.line; spec.leader = L;
+    spec.leaderLine = pick.line; spec.leader = L; spec.leadPick = pick.member.key;
     return this.modal(`<div class="eyebrow">${spec.eyebrow || '탐색 판정'}</div><h3>${spec.title}</h3>
       <div class="ck-lead">${this.npcAvatar(L, 48)}<div><span class="small dim">파티 리더 ${L.name}</span><p class="ck-say">${pick.line}</p></div></div>
       <div class="ck-who on">${this.ckAvatar(pick.member, 44)}<span class="grow"><span class="small dim">맡을 사람</span><b>${pick.member.name}${pick.member.npc ? '' : ' (나)'}</b><span class="small dim">${S} ${fmt(c.val)} · ${this.ckBreak(c)}</span></span><span class="ck-pct num">${c.chance}%</span></div>
       ${pick.apt ? '' : '<p class="small amber">더 잘할 사람이 있었지만, 리더의 결정이다.</p>'}
-      <div class="row end"><button class="ghost" data-act="ck-cancel">그만두자고 한다</button><button class="primary" data-act="ck-who" data-v="${pick.member.key}">맡긴다</button></div>`, 'event-box ck-box');
+      <div class="row end"><button class="ghost" data-act="ck-cancel">그만두자</button><button data-act="ck-suggest">다른 사람 추천</button><button class="primary" data-act="ck-who" data-v="${pick.member.key}">따른다</button></div>`, 'event-box ck-box');
+  },
+  // 내 의견: 리더가 고른 사람 말고 다른 사람을 추천한다 (받아들일지는 리더 성격·관계·리더십)
+  ckSuggest() {
+    const spec = this._ck; const L = spec && spec.leader; if (!L) return;
+    const S = CHECK_STATS[spec.stat].name;
+    const rows = G.checkMembers().filter((m) => m.key !== spec.leadPick).map((m) => { const c = G.checkChance(m, spec.stat, spec.base, spec.tier);
+      return `<button class="ck-who" data-act="ck-sugg-who" data-v="${m.key}">${this.ckAvatar(m, 44)}<span class="grow"><b>${m.name}${m.npc ? '' : ' (나)'}</b><span class="small dim">${S} ${fmt(c.val)} · ${this.ckBreak(c)}</span></span><span class="ck-pct num">${c.chance}%</span></button>`; }).join('');
+    this.modal(`<div class="eyebrow">${spec.eyebrow || '탐색 판정'} · 내 의견</div><h3>${spec.title}</h3>
+      <p class="small dim">누구를 추천할까. 정하는 것은 리더 ${L.name}이다.</p><div class="cards ck-list">${rows}</div>
+      <div class="row end"><button class="ghost" data-act="ck-who" data-v="${spec.leadPick}">그냥 리더 뜻대로</button></div>`, 'event-box ck-box');
+    if (this.exWrapScene) this.exWrapScene();
+  },
+  ckSuggestWho(key) {
+    const spec = this._ck; const L = spec && spec.leader; if (!L) return;
+    const mem = G.checkMembers(); const m = mem.find((x) => x.key === key); const lp = mem.find((x) => x.key === spec.leadPick) || mem[0];
+    if (!m) return this.ckRoll(lp);
+    const q = typeof npcLead === 'function' ? npcLead(L) : 60;
+    const better = G.checkChance(m, spec.stat, spec.base, spec.tier).chance > G.checkChance(lp, spec.stat, spec.base, spec.tier).chance;
+    const chance = 0.3 + (L.relation || 0) / 200 + (['kind', 'just'].includes(L.personality) ? 0.15 : L.personality === 'cold' ? -0.1 : L.personality === 'warlike' ? -0.15 : 0) + (better && q >= 50 ? 0.25 : 0);
+    if (RNG.chance(Math.max(0.05, Math.min(0.9, chance)))) { this.toast(`${L.name}: "${better ? '…네 말이 맞다.' : '그래, 그렇게 해 보자.'} ${m.npc ? m.name : '네가'} 맡아."`); G.changeRel(L, 1, '의견을 들어줬다'); return this.ckRoll(m); }
+    G.changeRel(L, -1, '결정에 토를 달았다');
+    this.toast(`${L.name}: "${L.personality === 'cold' ? '내가 정한다.' : '아니, 이번엔 내 판단대로 간다.'}"`);
+    return this.ckRoll(lp);
   },
   ckBreak(c) {
     const sg = (v) => (v > 0 ? `+${v}` : `${v}`);
@@ -275,6 +300,8 @@ Object.assign(UI, {
       case 'ck-ev': return this.ckGateChoice(+v);
       case 'ck-site': { const [id, ch] = String(v).split('|'); return this.ckSite(+id, ch); }
       case 'ck-scav': return this.ckScav();
+      case 'ck-suggest': return this.ckSuggest();
+      case 'ck-sugg-who': return this.ckSuggestWho(v);
       case 'ck-who': { const m = G.checkMembers().find((x) => x.key === v); if (m) return this.ckRoll(m); return; }
       case 'ck-cancel': {
         const spec = this._ck; this._ck = null;

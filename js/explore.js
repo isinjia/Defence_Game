@@ -222,13 +222,13 @@ Object.assign(Game.prototype, {
           }
         } else if (choice === 'trade') {
           const herb = p.mats.herb || 0;
-          if (herb > 0) { const v = herb * 60; p.mats.herb = 0; p.money += v; out = `약초 ${herb}다발을 넘기고 ${fmt(v)} 크레딧을 받았다.`; }
+          if (herb > 0) { const v = herb * 60; p.mats.herb = 0; p.money += v; gain(`크레딧 +${fmt(v)}`); loss(`약초 ${herb}다발`); out = `약초 ${herb}다발을 넘기고 ${fmt(v)} 크레딧을 받았다.`; }
           const cost = 80;
-          if (p.money >= cost) { p.money -= cost; p.items.potion = (p.items.potion || 0) + 1; out += ` 직접 달인 회복제 하나를 ${cost} 크레딧에 샀다.`; }
+          if (p.money >= cost) { p.money -= cost; p.items.potion = (p.items.potion || 0) + 1; gain('응급 회복제 1개'); loss(`크레딧 −${cost}`); out += ` 직접 달인 회복제 하나를 ${cost} 크레딧에 샀다.`; }
           out = out.trim() || '팔 것도 살 돈도 없다.';
         } else {
           this.advanceDays(2, { noSave: true });
-          p.hp = p.maxHp; p.mp = p.maxMp;
+          p.hp = p.maxHp; p.mp = p.maxMp; gain('체력·정신력 완전 회복'); loss('2일 소요');
           out = `마을 사람들이 내준 방에서 푹 쉬었다. 체력과 정신이 회복됐다. ${RNG.pick(['"작년 브레이크 때 아들을 잃었어요. 협회 차는 사흘 뒤에야 왔죠."', '"도시요? 거긴 등급 없는 사람한테 방 한 칸 안 내줍니다."', '"밤에 북쪽 산에서 불빛이 보여요. 균열교 놈들이 뭘 하는지."'])}`;
         }
         break;
@@ -237,11 +237,11 @@ Object.assign(Game.prototype, {
         s.used = key;
         if (choice === 'take') {
           const it = this.makeEquipment(RNG.pick(['weapon', 'armor', 'acc']), tierNear);
-          p.inventory.push(it);
+          p.inventory.push(it); gain(it.name);
           out = `유품 가방에서 ${it.name}을(를) 챙겼다.`;
         } else {
           this.addRep(s.region, 6); p.fame += 3; const m = Math.round(60 * RANKS[pr].mult);
-          p.money += m;
+          p.money += m; gain(`크레딧 +${fmt(m)}`); gain('지역 평판 +6'); gain('명성 +3');
           out = `인식표를 협회에 보내 유족에게 닿게 했다. 협회가 감사의 뜻으로 ${fmt(m)} 크레딧을 보냈다. 지역 평판과 명성이 올랐다.`;
           this.lifeEvent('들판에 쓰러진 헌터의 인식표를 유족에게 돌려보냈다.');
         }

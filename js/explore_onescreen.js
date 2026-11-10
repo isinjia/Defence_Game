@@ -41,20 +41,22 @@
   const wrapAfter = (name) => { const base = UI[name]; if (!base) return; UI[name] = function (...a) { const r = base.apply(this, a); oneScreen(); return r; }; };
   ['gateEvent', 'showExplore', 'showSite'].forEach(wrapAfter);
 
-  // 맡을 사람 고르기(판정 시작) 창에도 그림과 본문을 남긴다
+  // 맡을 사람 고르기(판정 시작)·내 의견 창에도 그림과 본문을 남긴다
+  UI.exWrapScene = function () {
+    const sc = this._exScene; const box = document.getElementById('modal-box');
+    if (!sc || !box || box.querySelector('.ex-one')) return;
+    const wrap = document.createElement('div'); wrap.className = 'ex-one';
+    const foot = document.createElement('div'); foot.className = 'ex-foot ex-pick';
+    while (box.firstChild) foot.appendChild(box.firstChild);
+    wrap.innerHTML = `${sc.art}<div class="ex-body">${sc.body}</div>`;
+    wrap.appendChild(foot); box.appendChild(wrap); box.classList.add('ex-box');
+  };
   const baseBegin = UI.ckBegin;
   if (baseBegin) UI.ckBegin = function (spec) {
     const sc = this._exScene;
     const r = baseBegin.call(this, spec);
     const box = document.getElementById('modal-box');
-    if (sc && box && box.querySelector('[data-act="ck-who"]') && !box.querySelector('.ex-one')) {
-      const wrap = document.createElement('div'); wrap.className = 'ex-one';
-      const foot = document.createElement('div'); foot.className = 'ex-foot ex-pick';
-      while (box.firstChild) foot.appendChild(box.firstChild);
-      wrap.innerHTML = `${sc.art}<div class="ex-body">${sc.body}</div>`;
-      wrap.appendChild(foot); box.appendChild(wrap); box.classList.add('ex-box');
-      this._exScene = sc; // 그만두고 돌아가도 다시 쓸 수 있게
-    }
+    if (sc && box && box.querySelector('[data-act="ck-who"]')) { this._exScene = sc; this.exWrapScene(); }
     return r;
   };
   const baseClose = UI.closeModal;
