@@ -351,7 +351,7 @@ Object.assign(PROLOGUE, {
     ['수치 그래프를 들여다보며 직접 계산해 본다', 'bolt', { mage: 2 }, { chronomancer: 1 }, { genius: 1 }],
     ['진료실 창문 유리가 손끝에서 녹아내린다', 'fire', { mage: 1, esper: 1 }, { elementalist: 1 }, { reckless: 1 }],
   ]),
-  subject_5: PRO_INTRO('위탁 가정', '연구소 폐쇄 후 배정된 위탁 가정. 아파트 12층, 다정한 부부와 열 살짜리 동생. 처음 가져 본 내 방이다.\n\n그런데 밤마다 동생이 말한다. "{name}, 너 어젯밤에 자는데 침대가 떠 있었어."', 'gb_apartment', [
+  subject_5: PRO_INTRO('위탁 가정', '연구소 폐쇄 후 배정된 위탁 가정. 아파트 12층, 다정한 부부와 열 살짜리 동생. 처음 가져 본 내 방이다.\n\n그런데 아침마다 동생이 조심스럽게 말한다. "저기… 어젯밤에 자는데, 침대가 떠 있었어요. 진짜예요."', 'gb_apartment', [
     ['동생에게 비밀로 해 달라고 새끼손가락을 건다', 'dark', { support: 1, esper: 1 }, null, { charisma: 1 }],
     ['밤마다 침대를 붙잡고 잔다. 들키면 끝이다', 'wood', { guard: 1, esper: 1 }, { telekinetic: 1 }, { iron_body: 1 }],
     ['일부러 더 띄워 본다. 얼마나 되는지', 'bolt', { esper: 2 }, { telekinetic: 2 }, { reckless: 1 }],
