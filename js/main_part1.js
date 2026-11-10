@@ -124,7 +124,7 @@ MAIN.ch(2, {
       { who: YEONHEE, text: '교주님이 그러셨어요. 남은 사람도 사람이라고. 저는 그 말 한마디에 여기 왔어요. 교리는 솔직히 잘 몰라요.' },
     ], choices: [
       { text: '"교주라는 사람은 어떤 사람이에요?"', set: { c2_ask: 'leader' }, say: [
-        { who: YEONHEE, text: '저도 직접 뵌 건 몇 번 없어요. 늘 가면을 쓰고 계시고. 이름도 없대요. 그래서 다들 무명(無名)님이라고 불러요.' },
+        { who: YEONHEE, text: '저도 직접 뵌 건 몇 번 없어요. 늘 가면을 쓰고 계시고. 이름도 없대요. 그래서 다들 무명님이라고 불러요.' },
         { who: YEONHEE, text: '목소리가… 이상하게 슬퍼요. 문 얘기를 할 때마다요. 꼭 그 문을 직접 본 사람처럼.' },
       ] },
       { text: '"문이 열리면 모두 각성한다는 걸 믿어요?"', set: { c2_ask: 'doctrine' }, say: [
@@ -243,7 +243,7 @@ MAIN.ch(4, {
       { narr: '틈 너머에서 무언가가 움직인다. 괴수의 그림자다.' },
     ], choices: [
       { text: '코어 원을 부수고 의식을 막는다', when: (g, M) => M.flags.cult !== 'join', set: { c4: 'stop' }, next: 'c4_end',
-        fight: (g) => ({ title: '역사(驛舍)의 문', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 3, human: true, elem: 'dark' }, win: { text: '코어 원을 걷어찼다. 틈이 비명 같은 소리를 내며 닫힌다. 신도들이 흩어지는 사이, 열차 지붕 위의 가면은 사라졌다.', gain: { fame: 12, merit: 12, core: [0, 4] } }, lose: { text: '사제들에게 밀려났다. 틈은 저절로 닫혔다. 쓰러진 신도가 여럿이다.', gain: { injure: 2 } } }) },
+        fight: (g) => ({ title: '폐역의 문', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 3, human: true, elem: 'dark' }, win: { text: '코어 원을 걷어찼다. 틈이 비명 같은 소리를 내며 닫힌다. 신도들이 흩어지는 사이, 열차 지붕 위의 가면은 사라졌다.', gain: { fame: 12, merit: 12, core: [0, 4] } }, lose: { text: '사제들에게 밀려났다. 틈은 저절로 닫혔다. 쓰러진 신도가 여럿이다.', gain: { injure: 2 } } }) },
       { text: '진압팀과 함께 돌입한다', when: (g, M) => M.flags.cult === 'report', set: { c4: 'raid' }, next: 'c4_end',
         fight: (g) => ({ title: '균열교 사제단', mobs: { tier: Math.max(0, g.player.rankIdx), n: 3, human: true, elem: 'dark' }, ally: { name: '협회 진압팀장', rank: Math.min(7, g.player.rankIdx + 2), elem: 'bolt' }, win: { text: '진압팀이 코어 원을 해체했다. 체포된 신도들 사이에 가면은 없었다.', gain: { merit: 20, fame: 5 } }, lose: { text: '진압팀이 밀렸다. 사제들은 신도들을 데리고 선로 너머로 사라졌다.', gain: { injure: 1 } } }) },
       { text: '앞줄에 서서 빛을 받는다', when: (g, M) => M.flags.cult === 'join', set: { c4: 'join' }, next: 'c4_join', run: (g) => { g.flags.story.cultist = true; g.lifeEvent('균열교의 보름 의식에 참여했다.'); } },

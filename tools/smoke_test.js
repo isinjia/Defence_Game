@@ -370,7 +370,7 @@ const { chromium, devices } = require('playwright');
         for (let i = 0; i < 6 && UI.dlg; i++) UI.dlgEnd();
         // 출발 뒤: 게이트·토벌이면 리더가 이끄는 화면, 호위·훈련이면 끝나고 거점으로
         if (UI.crewMarch) { if (!UI.walking && !UI.travel) return '리더가 팀을 이끌고 출발하지 않았다'; UI.walking = null; UI.crewMarch = null; UI.travel = null; UI.crewJobDone(); }
-        else if (UI.ctx) { if (!UI.ctx.crewRaid) return '팀 일인데 팀 진입이 아니다'; UI.ctx = null; UI.closeModal(); UI.crewJobDone(); }
+        else if (UI.ctx) { if (!UI.ctx.crewRaid && UI.ctx.kind !== 'story') return '팀 일인데 팀 진입이 아니다 (' + UI.ctx.kind + ')'; /* 호위 의뢰는 이야기 전투 */ UI.ctx = null; UI.closeModal(); UI.crewJobDone(); }
         if (c.on) return '일이 끝났는데 개인 시간으로 돌아가지 않았다';
         // 기한 넘기기
         G.queue = []; c.dueMixed = false; const trust = c.trust; c.due = G.monthKey() * 30 + G.day - 1; G.crewDayTick();
