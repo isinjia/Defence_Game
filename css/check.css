@@ -43,3 +43,6 @@ button.ck-who:active { transform: translateY(1px); }
 .party-hero h3 { margin: 2px 0 4px; }
 .party-acts { flex-wrap: wrap; gap: 6px; }
 .party-acts button { min-height: 44px; }
+.gp-mark { position: absolute; transform: translate(-50%, -150%); display: flex; align-items: center; gap: 2px; padding: 2px 5px 2px 2px; border-radius: 16px; border: 1.5px solid var(--c); background: rgba(5, 8, 13, .92); pointer-events: none; z-index: 2; }
+.gp-mark b { font-size: 11px; color: var(--c); }
+.gp-line { margin: 2px 0 4px; }
