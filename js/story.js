@@ -220,7 +220,7 @@ const REQUESTS = {
   },
   spar_invite: {
     who: (g) => g.npcsHere().filter((n) => n.met && n.personality === 'warlike' && n.relation >= 0 && n.lastSpar !== g.monthKey()),
-    text: (g, c) => `${c.npc.name}이(가) 어깨를 툭 친다.\n\n"요즘 소문이 좋던데. 실력이 소문만큼인지 한 판 붙어 보자고. 살살 할게."`,
+    text: (g, c) => `${c.npc.name}이(가) 어깨를 툭 친다.\n\n${(g.player.fame || 0) >= 20 ? '"요즘 소문이 좋던데. 실력이 소문만큼인지 한 판 붙어 보자고. 살살 할게."' : '"신입이지? 몸 좀 풀 상대가 필요했는데. 한 판 붙어 보자고. 살살 할게."'}`,
     accept: '대련을 받아들인다',
     onAccept: (g, c) => { g.queue.unshift({ type: 'spar', npcId: c.npc.id }); return '두 사람은 근처 공터로 향했다.'; },
     onDecline: (g, c) => { g.changeRel(c.npc, -6); return '"쳇, 겁먹긴."'; },

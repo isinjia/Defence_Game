@@ -295,7 +295,7 @@ class Game {
       p.fame += 5 * p.rankIdx;
       this.recalc();
       p.hp = p.maxHp; p.mp = p.maxMp;
-      msg = `돌파 성공! ${RANKS[p.rankIdx].name}이 되었다. 수명이 늘어났다.`;
+      msg = fixJosa(`돌파 성공! ${RANKS[p.rankIdx].name}이(가) 되었다. 수명이 늘어났다.`);
       const learned = this.grantClassSkills();
       if (learned.length) msg += ` 새 직업 스킬: ${learned.join(', ')}.`;
       if ((p.rankIdx >= 3 && p.clsAdv < 1) || (p.rankIdx >= 6 && p.clsAdv < 2)) this.queue.push({ type: 'story', id: 'class_advance' });
