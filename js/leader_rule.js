@@ -183,3 +183,128 @@ if (typeof Game !== 'undefined' && Game.prototype.firstTeamBuild) {
     return t;
   };
 }
+
+// ---------- 집결과 지각 (사용자 요청: "집결지 늦을 때 불이익") ----------
+// 리더 일정(게이트·토벌)을 수락할 때 "같이 이동"(바로 출발) 또는 "집결지에서 만나기"를 고른다.
+// 집결지에서 만나기로 했으면 그 날까지 그 지역에 가야 한다(현재 퀘스트 목록 · 누르면 자동 이동).
+// 조금 늦음(RALLY.lateOk일 이내): 리더·팀원 관계 소폭↓·신뢰↓, 리더 한마디. 그 뒤 함께 들어간다.
+// 크게 늦음·불참: 파티가 먼저 들어가 그 보상은 없다. 관계·명성·신뢰 크게↓, RALLY.kickAfter번째 불참이면 제명.
+// 리더가 날짜를 헷갈린 일정(plan.mixed)은 내 탓이 아니다: 불이익 없음, 리더가 사과하거나 남 탓을 한다.
+const RALLY = { lateOk: 3, relPerDay: 2, relMax: 6, memberLate: 1, trustLate: 4, missLeader: 8, missMember: 3, missFame: 2, missTrust: 15, kickAfter: 3 };
+{
+  const GP = Game.prototype;
+  const absDay = (g) => g.monthKey() * 30 + g.day;
+  GP.rally = function () { const c = this.crew && this.crew(); return c && c.rally ? c.rally : null; };
+  GP.rallyCheck = function () {
+    const r = this.rally(); if (!r || r.queued || this.over) return;
+    const now = absDay(this); const p = this.player;
+    if (p.region === r.region && now <= r.at + RALLY.lateOk) { r.queued = true; this.queue.unshift({ type: 'rallyGo', late: Math.max(0, now - r.at) }); }
+    else if (now > r.at + RALLY.lateOk) { r.queued = true; this.queue.unshift({ type: 'rallyMiss' }); }
+  };
+  const baseAdv = GP.advanceDays;
+  GP.advanceDays = function (n, opts = {}) { const res = baseAdv.call(this, n, opts); if (!this._rallyBusy) this.rallyCheck(); return res; };
+}
+
+if (typeof UI !== 'undefined') {
+  const LATE_SAY = {
+    cold: '늦었다. 다음엔 두고 간다.', just: '늦었군. 사정이 있었겠지만, 팀은 기다려 주는 곳이 아니다.', kind: '왔네요! 걱정했어요. …다음엔 연락이라도 줘요.',
+    warlike: '얼마나 기다렸는지 알아? 몸은 다 풀렸다고.', greedy: '시간이 돈이야. 이번 몫에서 깎을까 하다 참는다.',
+  };
+  const MIX_SAY = { cold: '…내가 날짜를 잘못 말했군. 내 실수다.', just: '미안하다. 공지가 틀렸다. 네 잘못이 아니다.', kind: '아, 제가 날짜를 헷갈렸어요! 미안해요.', warlike: '누가 날짜를 그렇게 적어 놨어? …아, 나구나.', greedy: '공지 정리하는 애가 틀렸네. 나 말고.' };
+  const sayOf = (T, L) => T[L && L.personality] || T.just;
+
+  // 수락할 때: 같이 이동 / 집결지에서 만나기
+  const baseAns = UI.answerCrewPlan;
+  UI.answerCrewPlan = function (v) {
+    const c = G.crew(); const plan = c && c.plan;
+    if (v === '1' && plan && (plan.kind === 'gate' || plan.kind === 'hunt') && !this.rallyAsked) {
+      const tgt = plan.kind === 'gate' ? G.mapGates.find((x) => x.id === plan.gateId) : G.mobs.find((x) => x.id === plan.mobId);
+      if (tgt) {
+        this.rallyAsked = true;
+        return this.modal(fixJosa(`<div class="eyebrow">${c.name} · 일정 참가</div><h3>어떻게 갈까?</h3>
+          <p class="event-text">집결: ${G.month}월 ${plan.day}일 · ${regionById(tgt.region).name}</p>
+          <div class="cards"><button class="choice-btn" data-act="rally-with">리더와 같이 이동한다 (지금 출발)</button>
+          <button class="choice-btn" data-act="rally-meet">집결지에서 만난다 (그날까지 ${regionById(tgt.region).name}에 도착 · 늦으면 불이익)</button></div>`), 'event-box');
+      }
+    }
+    this.rallyAsked = false;
+    return baseAns.call(this, v);
+  };
+
+  UI.rallyGo = function (late) {
+    const c = G.crew(); const r = G.rally(); const L = G.crewLeader();
+    if (!c || !r || !L) { if (c) c.rally = null; return this.processQueue(); }
+    c.rally = null;
+    let lines = [];
+    if (late > 0 && !r.mixed) {
+      const d = Math.min(RALLY.relMax, RALLY.relPerDay * late);
+      G.changeRel(L, -d, `집결에 ${late}일 늦었다`); for (const n of G.party()) if (n !== L) G.changeRel(n, -RALLY.memberLate, '집결에 늦었다');
+      G.crewTrust(-RALLY.trustLate * late);
+      lines = [`${L.name}: "${sayOf(LATE_SAY, L)}" (리더 관계 -${d}, 신뢰 -${RALLY.trustLate * late})`];
+    } else if (r.mixed && late > 0) lines = [`${L.name}: "${sayOf(MIX_SAY, L)}"`];
+    const now = G.monthKey() * 30 + G.day;
+    G._rallyBusy = true; try { if (now < r.at) G.advanceDays(r.at - now, { noSave: true }); } finally { G._rallyBusy = false; }
+    const p = G.player;
+    if (r.kind === 'gate') {
+      const g = G.mapGates.find((x) => x.id === r.id);
+      if (!g) return this.after('도착해 보니 이미 다른 파티가 게이트를 닫은 뒤였다.');
+      p.x = g.x; p.y = g.y; G.syncParty && G.syncParty();
+      if (lines.length) this.toast(lines.join(' '));
+      this.renderGame(); this.startGate(g.id); if (this.ctx && this.ctx.kind === 'gate') this.ctx.crewRaid = true; return;
+    }
+    const m = G.mobs.find((x) => x.id === r.id);
+    if (!m) return this.after('목표 무리는 이미 흩어진 뒤였다.');
+    p.x = m.x; p.y = m.y; if (lines.length) this.toast(lines.join(' '));
+    this.renderGame(); return this.startMob(m.id);
+  };
+  UI.rallyMiss = function () {
+    const c = G.crew(); const r = G.rally(); const L = G.crewLeader();
+    if (!c || !r) return this.processQueue();
+    c.rally = null;
+    if (r.mixed) { if (L) return this.after(`${L.name}: "${sayOf(MIX_SAY, L)} 이번 건은 다음 달로 미루자." (불이익 없음)`); return this.processQueue(); }
+    if (r.kind === 'gate') { const g = G.mapGates.find((x) => x.id === r.id); if (g) g.cleared = true; }
+    c.missed = (c.missed || 0) + 1; G.crewTrust(-RALLY.missTrust);
+    if (L) G.changeRel(L, -RALLY.missLeader, '집결에 나타나지 않았다');
+    for (const n of G.party()) if (n !== L) G.changeRel(n, -RALLY.missMember, '집결에 나타나지 않았다');
+    G.player.fame = Math.max(0, (G.player.fame || 0) - RALLY.missFame);
+    G.lifeEvent(`${c.name}의 집결에 나타나지 않았다. 파티는 먼저 들어갔다.`);
+    const miss = c.missed;
+    if (miss >= RALLY.kickAfter || c.trust <= 0) return this.after(`${L ? `${L.name}: "세 번이면 충분해." ` : ''}${G.crewLeave('kicked')}`);
+    return this.after(`${L ? `${L.name}: "${miss === RALLY.kickAfter - 1 ? '한 번만 더 이러면 같이 못 간다.' : '우리끼리 들어갔다. 몫은 없다.'}" ` : ''}(리더 관계 -${RALLY.missLeader}, 명성 -${RALLY.missFame}, 신뢰 -${RALLY.missTrust} · 불참 ${miss}/${RALLY.kickAfter})`);
+  };
+
+  const baseQ = UI.processQueue;
+  UI.processQueue = function () {
+    if (this.modalOpen && this.modalOpen()) return;
+    const q = G.queue && G.queue[0];
+    if (q && q.type === 'rallyGo') { G.queue.shift(); return this.rallyGo(q.late); }
+    if (q && q.type === 'rallyMiss') { G.queue.shift(); return this.rallyMiss(); }
+    return baseQ.call(this);
+  };
+
+  // 현재 퀘스트 목록 맨 위에 집결 (누르면 자동 이동)
+  const baseHQ = UI.hudQuests;
+  if (baseHQ) UI.hudQuests = function () {
+    const html = baseHQ.call(this); const r = G.player && G.rally && G.rally(); if (!r) return html;
+    const left = r.at - (G.monthKey() * 30 + G.day);
+    const row = `<button class="obj-link hq rally" data-act="rally-travel"><span class="hq-mark">⚑</span><span class="hq-t">집결 · ${r.label}</span><span class="hq-r ${left < 0 ? 'bad' : left <= 2 ? 'amber' : ''}">${left > 0 ? `${left}일 남음` : left === 0 ? '오늘' : `${-left}일 늦음`}</span></button>`;
+    return html.replace('<div class="obj-title">현재 퀘스트</div>', `<div class="obj-title">현재 퀘스트</div>${row}`).replace('<div class="obj-sub">진행 중인 의뢰가 없다. 도시 의뢰소에서 받을 수 있다.</div>', '');
+  };
+
+  const baseH = UI.handle;
+  UI.handle = function (act, v) {
+    if (act === 'rally-with') { this.closeModal(); this.rallyAsked = true; return this.answerCrewPlan('1'); }
+    if (act === 'rally-meet') {
+      const c = G.crew(); const plan = c && c.plan; this.closeModal(); this.rallyAsked = false;
+      if (!plan) return this.after();
+      const tgt = plan.kind === 'gate' ? G.mapGates.find((x) => x.id === plan.gateId) : G.mobs.find((x) => x.id === plan.mobId);
+      c.plan = null; c.done = (c.done || 0) + 1; G.crewTrust(3);
+      c.rally = { kind: plan.kind, id: tgt.id, x: tgt.x, y: tgt.y, region: tgt.region, at: G.monthKey() * 30 + plan.day, mixed: !!plan.mixed, label: `${G.month}월 ${plan.day}일 ${regionById(tgt.region).name}` };
+      G.rallyCheck();
+      this.renderGame();
+      return this.after(`집결: ${c.rally.label}. 현재 퀘스트 목록에서 누르면 자동으로 이동한다.`);
+    }
+    if (act === 'rally-travel') { const r = G.rally(); if (r && this.travelStart) return this.travelStart(r.x, r.y, `집결지 (${regionById(r.region).name})`); return; }
+    return baseH.call(this, act, v);
+  };
+}
