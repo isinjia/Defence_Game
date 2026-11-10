@@ -175,7 +175,7 @@ if (typeof UI !== 'undefined') {
       this.toast(`${L.name}: "${L.personality === 'cold' ? '내가 정한다.' : '미안, 이번엔 내 판단대로 갈게.'}"`);
       return baseHandle.call(this, d.act, String(d.pick));
     }
-    if (act === 'gate' && crewNpcLead() && !this.ctx && !(G.mapGates.find((x) => String(x.id) === String(v)) || {}).final && !(G.mapGates.find((x) => String(x.id) === String(v)) || {}).mission) {
+    if (act === 'gate' && !this._soloGate && crewNpcLead() && !this.ctx && !(G.mapGates.find((x) => String(x.id) === String(v)) || {}).final && !(G.mapGates.find((x) => String(x.id) === String(v)) || {}).mission) {
       const L = crewNpcLead(); const g = G.mapGates && G.mapGates.find((x) => String(x.id) === String(v));
       if (g) return this.leadGateAsk(L, g);
     }
@@ -267,10 +267,11 @@ const RALLY = { lateOk: 3, relPerDay: 2, relMax: 6, memberLate: 1, trustLate: 4,
   const GP = Game.prototype;
   const absDay = (g) => g.monthKey() * 30 + g.day;
   GP.rally = function () { const c = this.crew && this.crew(); return c && c.rally ? c.rally : null; };
+  // 집결일 전에는 개인 시간이다(같은 지역에 있어도 미리 모이지 않는다)
   GP.rallyCheck = function () {
     const r = this.rally(); if (!r || r.queued || this.over) return;
     const now = absDay(this); const p = this.player;
-    if (p.region === r.region && now <= r.at + RALLY.lateOk) { r.queued = true; this.queue.unshift({ type: 'rallyGo', late: Math.max(0, now - r.at) }); }
+    if (p.region === r.region && now >= r.at && now <= r.at + RALLY.lateOk) { r.queued = true; this.queue.unshift({ type: 'rallyGo', late: Math.max(0, now - r.at) }); }
     else if (now > r.at + RALLY.lateOk) { r.queued = true; this.queue.unshift({ type: 'rallyMiss' }); }
   };
   const baseAdv = GP.advanceDays;
@@ -374,7 +375,7 @@ if (typeof UI !== 'undefined') {
       c.rally = { kind: plan.kind, id: tgt.id, x: tgt.x, y: tgt.y, region: tgt.region, at: G.monthKey() * 30 + plan.day, mixed: !!plan.mixed, label: `${G.month}월 ${plan.day}일 ${regionById(tgt.region).name}` };
       G.rallyCheck();
       this.renderGame();
-      return this.after(`집결: ${c.rally.label}. 현재 퀘스트 목록에서 누르면 자동으로 이동한다.`);
+      return this.after(`집결: ${c.rally.label}. 그때까지는 개인 시간이다. 현재 퀘스트 목록의 [집결일까지 보내기]로 넘기거나, 직접 집결지로 가면 된다.`);
     }
     if (act === 'rally-travel') { const r = G.rally(); const live = r && (r.kind === 'gate' ? G.mapGates.find((x) => x.id === r.id) : G.mobs.find((x) => x.id === r.id)); if (live) { r.x = live.x; r.y = live.y; r.region = live.region; } /* 지도가 바뀌어도(확대 이전 저장) 살아 있는 목표의 지금 자리로 */ if (r && this.travelStart) return this.travelStart(r.x, r.y, `집결지 (${regionById(r.region).name})`); return; }
     return baseH.call(this, act, v);

@@ -327,6 +327,38 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
+  await step('팀 일정과 개인 시간: 팀원일 때 혼자 움직임 · 같은 게이트 재제안 불가 · 집결일까지 보내기', async () => {
+    const r = await ev(() => {
+      const save = JSON.stringify(G.player.crew || null); const p = G.player; const keep = { party: p.party.slice(), day: G.day, month: G.month, year: G.year, queue: G.queue.slice(), x: p.x, y: p.y, region: p.region, ether: p.ether };
+      if (p.crew || !G.firstTeamBuild) return ''; // 이미 소속이 있으면 건너뛴다
+      try {
+        G.firstTeamJoin(G.firstTeamBuild('free:mid')); const c = G.crew(); const L = G.crewLeader();
+        if (!c || !L) return '팀 만들기 실패';
+        if (G.party().length) return '개인 시간인데 팀원이 따라온다 (' + G.party().length + '명)';
+        if (G.crewMembers().length < 2) return '팀원 명단이 비었다';
+        const g = G.mapGates.find((x) => !x.final && !x.mission); if (!g) return '';
+        const a = G.crewProposeGate(g); const b = G.crewProposeGate(g);
+        if (!b.again) return '같은 게이트를 다시 제안할 수 있다';
+        if (a.ok === false && !/"/.test(a.text)) return '거절 이유가 없다';
+        c.asked = {}; c.plan = { kind: 'gate', gateId: g.id, day: Math.min(29, G.day + 4) }; c.rally = null; G.queue = [];
+        UI.answerCrewPlan('1'); for (let i = 0; i < 6 && UI.modalOpen(); i++) UI.closeModal();
+        if (!c.rally) return '수락한 일정이 집결 약속이 되지 않았다';
+        if (G.party().length) return '집결 전인데 팀원이 따라온다';
+        if (!UI.hudQuests().includes('rally-skip')) return '퀘스트 목록에 [집결일까지 보내기]가 없다';
+        const at = c.rally.at; const res = G.crewSkipToRally();
+        if (!res.done && !G.queue.length) return '집결일까지 넘어가지 않았다';
+        if (res.done && G.monthKey() * 30 + G.day !== at) return '집결일이 아닌 날에 멈췄다';
+        return '';
+      } finally {
+        if (UI.ctx) { try { UI.ctx = null; UI.closeModal(); } catch (e) { /* 무시 */ } }
+        G.withCrew(() => { for (const n of G.npcs) if (n.crewOf && p.crew && n.crewOf === p.crew.id) { n.crewOf = null; n.isCompanion = false; } });
+        p.crew = JSON.parse(save); p.party = keep.party; G.queue = keep.queue; p.x = keep.x; p.y = keep.y; p.region = keep.region;
+        if (G.flags.story) { delete G.flags.story.firstTeam; }
+        UI.renderGame();
+      }
+    });
+    if (r) throw new Error(r);
+  });
   await step('프롤로그 그림: 모든 장면에 정지 그림, 컷씬식 연출(화면 가림·다시 보기)은 없음', async () => {
     const r = await ev(() => {
       const missing = Object.keys(PROLOGUE).filter((id) => !PrologueCinema.config(id, UI.pro));
