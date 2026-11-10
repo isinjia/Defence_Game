@@ -18,6 +18,7 @@
 
   // 성향: 거대·정부 길드는 법적 대응·현상금, 평판 낮은 중소 길드나 수장이 거친 길드는 바로 생사결
   GP.guildTemper = function (gid) {
+    if (GUILDS[gid] && GUILDS[gid].lawless) return 'lawless';
     if (typeof GUILD_TIER !== 'undefined' && GUILD_TIER[gid] !== 'minor') return 'legal';
     const L = this.factionLeader ? this.factionLeader(gid) : null;
     if ((GUILDS[gid].rep ?? 50) < 50 || (L && ['warlike', 'greedy'].includes(L.personality))) return 'lawless';
@@ -132,7 +133,7 @@
         if (p.hnet && p.hnet.card) this.queue.push({ type: 'hnet', id: post.id });
       }
     }
-    delete g.poachShare;
+    delete g.poachShare; delete g.poachShareA;
     for (let i = 0; i < out.length; i++) out[i] = typeof fixJosa === 'function' ? fixJosa(out[i]) : out[i];
     if (Array.isArray(lines)) lines.push(...out);
     this.log(out[0], 'bad');
@@ -140,7 +141,7 @@
 
   wrap('finishGate', function (base, gate, result, loot, ...rest) {
     const gid = result === 'clear' ? this.isGuildGateOutsider(gate) : null;
-    if (gid && gate.poachShare === gid && loot) { loot.money = Math.round(loot.money / 2); loot.ether = Math.round(loot.ether / 2); }
+    if (gid && gate.poachShare === gid && !gate.poachShareA && loot) { loot.money = Math.round(loot.money / 2); loot.ether = Math.round(loot.ether / 2); }
     const lines = base.call(this, gate, result, loot, ...rest);
     if (gid) this.bossPoach(gate, lines);
     return lines;
@@ -164,4 +165,33 @@
     const n = RNG.pick(this.adults().filter((x) => x.guild === b.guild && !x.isCompanion && !x.retired && Math.abs(x.rankIdx - p.rankIdx) <= 1));
     if (n) this.queue.push({ type: 'ambush', npcId: n.id });
   });
+
+  // A의 추격대 연출(js/gate_pursuit.js) 결과 통보: 관계·뉴스·현상금
+  GP.gatePursuitResult = function ({ guild, result, amount = 0 }) {
+    const gid = guild; if (!GUILDS[gid]) return;
+    const name = GUILDS[gid].name; const p = this.player;
+    const g = typeof UI !== 'undefined' && UI.ctx ? UI.ctx.gate : null;
+    const legal = this.guildTemper(gid) === 'legal';
+    if (result === 'share') { if (g) { g.poachShare = gid; g.poachShareA = true; } this.guildFeud(gid, -8); }
+    else if (result === 'bribe') this.guildFeud(gid, -10);
+    else if (result === 'apology') this.guildFeud(gid, -3);
+    else if (result === 'win') {
+      this.guildFeud(gid, -30);
+      for (const n of this.adults()) if (n.guild === gid && n.met && this.changeRel) this.changeRel(n, -15);
+      this.rumor(`${p.name}이(가) ${name} 추격대를 게이트 안에서 쓰러뜨렸다는 소문이다.`, { kind: 'poach', score: 3 });
+      if (legal) { p.poachBounty = { guild: gid, until: this.monthKey() + 6 }; this.log(`${name}이(가) 추격대 일로 현상금을 걸었다. 한동안 길드 쪽 사람들이 노린다.`, 'bad'); }
+      if (this.hnetReact) this.hnetReact(`${p.name}, ${name} 추격대 역관광`, `게이트 안에서 길드 추격대와 붙었다는 목격담.`, 'gate');
+    } else if (result === 'lose') {
+      this.guildFeud(gid, 10);
+      this.rumor(`${name} 추격대가 관리권 게이트에 몰래 들어간 ${p.name}을(를) 붙잡아 전리품을 압수했다.`, { kind: 'poach', score: 2 });
+    } else if (result === 'dead') {
+      this.rumor(`${name} 관리권 게이트 안에서 ${p.name}이(가) 숨졌다. 길드 추격대와 마찰이 있었다는 증언이 나온다.`, { kind: 'poach', score: 4 });
+    }
+  };
+}
+
+// 성향 필드(A gate_pursuit.js가 읽는다): tier = 거대·정부·중소, lawless = 평판 낮은 중소 길드
+for (const id of Object.keys(GUILDS)) {
+  if (typeof GUILD_TIER !== 'undefined' && GUILD_TIER[id] && GUILDS[id].tier == null) GUILDS[id].tier = GUILD_TIER[id];
+  if (GUILDS[id].minor && GUILDS[id].lawless == null) GUILDS[id].lawless = (GUILDS[id].rep ?? 50) < 50;
 }
