@@ -101,11 +101,12 @@
   // 멈춘 동안에는 화면 어디를 눌러도 "다음"
   // (window 단계에서 잡는다: 문서 단계의 다른 잠금(tut_lock.js)보다 먼저 받아야 한다)
   window.addEventListener('click', (e) => {
+    if (typeof ExploreCinema !== 'undefined' && ExploreCinema.active) return;
     if (!UI.tutHeld()) return;
     e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
     UI.tutNext();
   }, true);
-  window.addEventListener('pointerdown', (e) => { if (UI._hold) e.stopPropagation(); }, true); // 길게 누르기 등도 막는다
+  window.addEventListener('pointerdown', (e) => { if (typeof ExploreCinema !== 'undefined' && ExploreCinema.active) return; if (UI._hold) e.stopPropagation(); }, true); // 길게 누르기 등도 막는다
 
   // 전투 시간 정지
   const baseTick = Combat.prototype.tick;

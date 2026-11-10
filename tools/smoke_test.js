@@ -109,7 +109,7 @@ const { chromium, devices } = require('playwright');
       const acts = await ev(() => [...document.querySelectorAll('#modal-box [data-act]')].map((e) => e.dataset.act + '|' + (e.dataset.v || '')));
       // 진짜 전투 중이면 자동 전투로 돌린다(층 지도 단계의 ctx.combat 은 전투 객체가 아니다)
       if (await ev(() => !!(UI.ctx && UI.ctx.combat && typeof UI.ctx.combat.toggleAuto === 'function' && !UI.ctx.combat.result))) { await ev(() => { const c = UI.ctx; if (!c.combat.auto) c.combat.toggleAuto(); c.speed = 2; }); await page.waitForFunction(() => !UI.ctx || !UI.ctx.combat || typeof UI.ctx.combat.toggleAuto !== 'function' || (UI.ctx.combat.result && !UI.ctx.playing), null, { timeout: 90000 }); continue; }
-      const pick = acts.find((a) => /^(g-next|g-finish\|clear|c-done)/.test(a)) || acts.find((a) => /^cn-(go|force|vote\|O)/.test(a)) || acts.find((a) => /^g-node/.test(a)) || acts.find((a) => /^modal-close/.test(a)) || acts.find((a) => !/^(c-|cn-|zoom|sheet|focus|g-leave)/.test(a));
+      const pick = acts.find((a) => /^(g-next|g-finish\|clear|c-done)/.test(a)) || acts.find((a) => /^cn-(go|force|vote\|O)/.test(a)) || acts.find((a) => /^g-node/.test(a)) || acts.find((a) => /^modal-close/.test(a)) || acts.find((a) => !/^(c-|cn-|ec-|zoom|sheet|focus|g-leave)/.test(a));
       if (!pick) break;
       seen.push(pick.split('|')[0]);
       const [a, v] = pick.split('|'); await act(a, v || undefined); await page.waitForTimeout(200);
@@ -281,6 +281,46 @@ const { chromium, devices } = require('playwright');
     if (r) throw new Error(r);
     await closeAll();
   });
+  await step('탐색 컷씬: 모든 사건 연결·세 장면·다시 보기·판정 복귀', async () => {
+    const r = await ev(() => {
+      const oldCtx = UI.ctx; const auto = window.TUT_AUTO_TAP;
+      try {
+        UI.closeModal(); window.TUT_AUTO_TAP = false;
+        const missing = [...GATE_EVENTS, ...EXPLORE_NODES, EXPLORE_BOSS].filter((n) => !ExploreCinema.scenes[n.id]);
+        if (missing.length) return '연결되지 않은 탐색 장면 있음';
+        const before = JSON.stringify({ p: G.player, queue: G.queue });
+        for (const id of Object.keys(ExploreCinema.scenes)) {
+          ExploreCinema.show(id, true);
+          if (!document.querySelector('.ec-screen svg') || ExploreCinema.active.step !== 0) return '첫 장면 없음';
+          document.querySelector('.ec-next').click(); document.querySelector('.ec-next').click();
+          if (ExploreCinema.active.step !== 2) return '세 번째 장면 없음';
+          document.querySelector('.ec-next').click();
+          if (ExploreCinema.active || document.querySelector('.ec-screen')) return '닫힘 실패';
+        }
+        if (before !== JSON.stringify({ p: G.player, queue: G.queue })) return '감상 중 게임 상태 변경';
+        UI.ctx = { gate: { tier: 0, elem: 'water' }, run: { floor: 0, seen: [], ev: null } };
+        UI.gateEvent();
+        const chosen = UI.ctx.run.ev;
+        if (!document.querySelector('[data-act="ck-ev"]') || !document.querySelector('[data-act="ec-replay"]')) return '사건 선택지 또는 다시 보기 없음';
+        UI.handle('ec-replay', chosen.id);
+        document.querySelector('.ec-skip').click();
+        if (document.getElementById('modal').hasAttribute('inert')) return '사건 화면 잠금 잔류';
+        if (UI.ctx.run.ev !== chosen) return '다시 보기로 사건 변경';
+        ExploreCinema.show(chosen.id);
+        if (ExploreCinema.active) return '읽은 컷씬 자동 반복';
+        const site = G.sites().find((s) => s.kind === 'tower');
+        UI.ctx = null;
+        if (site) {
+          UI.showSite(site.id); ExploreCinema.finish();
+          if (!document.querySelector('[data-act="ck-site"]')) return '지도 판정 연결 끊김';
+        }
+        ExploreCinema.show('fork', true); UI.closeModal();
+        if (ExploreCinema.active || document.body.classList.contains('ec-playing')) return '외부 종료 뒤 컷씬 잔류';
+        return '';
+      } finally { ExploreCinema.finish(); UI.ctx = oldCtx; window.TUT_AUTO_TAP = auto; UI.closeModal(); }
+    });
+    if (r) throw new Error(r);
+  });
   await step('시간 진행 3년 (수련·휴식·월간 처리)', async () => {
     await ev(() => { for (let i = 0; i < 36 && !G.over; i++) { if (i % 3) G.train(); else G.rest(); G.queue = []; } });
   });
@@ -337,6 +377,7 @@ const { chromium, devices } = require('playwright');
       const st = () => pg.evaluate(() => ({ acts: [...new Set([...document.querySelectorAll('#modal-box [data-act]')].map((e) => e.dataset.act))], dlg: !!UI.dlg, hold: !!UI._hold, kind: UI.ctx && UI.ctx.kind, wait: !!(UI.ctx && UI.ctx.combat && UI.ctx.combat.waiting), acted: UI.ctx && UI.ctx.tutorial ? UI.ctx.tutorial.acted : -1 }));
       let fought = false;
       for (let i = 0; i < 70; i++) {
+        if (await pg.evaluate(() => !!ExploreCinema.active)) { await pg.click('.ec-skip'); continue; }
         const s = await st();
         if (s.hold) { await pg.waitForTimeout(320); await pg.mouse.click(160, 300); await pg.waitForTimeout(280); continue; }
         if (s.dlg) { if (await pg.$('.dlg-choice')) await pg.click('.dlg-choice >> nth=0'); else await pg.mouse.click(160, 480); await pg.waitForTimeout(150); continue; }

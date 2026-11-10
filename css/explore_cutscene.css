@@ -1,0 +1,68 @@
+/* 탐색 전용 세 장면 컷씬. 그림·서술·조작을 화면 크기에 맞춰 나눈다. */
+.ec-screen { position: fixed; inset: 0; z-index: 1500; display: flex; flex-direction: column; background: #060c15; color: #eef2f4; font-family: 'IBM Plex Sans KR', sans-serif; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); isolation: isolate; }
+.ec-header, .ec-footer { display: flex; align-items: center; justify-content: space-between; flex: 0 0 auto; gap: 12px; padding: 18px 6vw; background: #080f19; }
+.ec-header { border-bottom: 1px solid #ffffff12; font-size: 11px; letter-spacing: .12em; color: #92a3b7; }
+.ec-header i { margin: 0 10px; color: var(--ec-color); font-style: normal; }
+.ec-screen button { min-height: 44px; cursor: pointer; font: inherit; }
+.ec-skip { color: #c1ccd9; background: transparent; border: 1px solid #ffffff24; padding: 8px 16px; border-radius: 4px; letter-spacing: 0; }
+.ec-stage { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; background: #0a1321; }
+.ec-art { display: block; width: 100%; height: 100%; }
+.ec-stage > .ec-art { position: absolute; inset: 0; animation: ec-reveal 600ms ease-out both; }
+.ec-subject { transform-origin: 325px 195px; transition: transform 1.8s ease; }
+.ec-shot-1 .ec-subject { transform: translate(-20px, 7px) scale(1.09); }
+.ec-shot-2 .ec-subject { transform: translate(10px, 0) scale(1.04); }
+.ec-near { transform-origin: 320px 180px; animation: ec-near 12s ease-in-out infinite alternate; }
+.ec-far { transform-origin: 320px 180px; animation: ec-far 15s ease-in-out infinite alternate; }
+.ec-dust, .ec-mist, .ec-drift { animation: ec-drift 9s ease-in-out infinite alternate; }
+.ec-glow, .ec-egg { animation: ec-glow 4s ease-in-out infinite alternate; }
+.ec-ripple { transform-origin: center; animation: ec-glow 3s ease-in-out infinite alternate; }
+.ec-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(0deg, #060c15 0%, #060c15e8 15%, #060c1540 44%, transparent 68%), linear-gradient(90deg, #060c1550, transparent 30%, transparent 70%, #060c1550); }
+.ec-caption { position: absolute; bottom: 7%; left: max(6vw, 20px); right: max(6vw, 20px); max-width: 760px; }
+.ec-kicker { display: block; margin-bottom: 12px; font-size: 11px; letter-spacing: .22em; color: var(--ec-color); }
+.ec-caption h2 { margin: 0 0 17px; font-size: clamp(25px, 4vw, 46px); font-weight: 500; letter-spacing: -.045em; line-height: 1.2; }
+.ec-caption p { margin: 0; max-width: 560px; font-size: clamp(14px, 1.8vw, 18px); line-height: 1.9; color: #d1d9e2; word-break: keep-all; animation: ec-caption 450ms ease-out both; }
+.ec-footer { border-top: 1px solid #ffffff12; padding-top: 18px; padding-bottom: 22px; }
+.ec-progress { display: flex; align-items: center; gap: 6px; }
+.ec-progress i { display: block; width: 28px; height: 2px; background: #2b3543; }
+.ec-progress i.on { background: var(--ec-color); }
+.ec-progress span { margin-left: 12px; font-size: 11px; color: #9eacba; white-space: nowrap; }
+.ec-next { padding: 12px 20px; border: 1px solid var(--ec-color); border-radius: 4px; color: var(--ec-color); background: #17212b; font-size: 13px !important; white-space: nowrap; }
+.ec-next span { margin-left: 16px; }
+.ec-screen button:focus-visible, .ec-preview button:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+.ec-preview { position: relative; flex: 0 0 auto; height: clamp(130px, 25vh, 230px); margin: 0 0 16px; border: 1px solid #ffffff15; border-radius: 8px; overflow: hidden; background: #07101c; }
+.ec-preview .ec-art { object-fit: cover; }
+.ec-preview button { position: absolute; right: 10px; bottom: 10px; min-height: 38px; padding: 8px 12px; border: 1px solid #ffffff35; border-radius: 4px; background: #08101de8; color: #dbe7ed; font-size: 11px; cursor: pointer; }
+.ec-preview .ec-near, .ec-preview .ec-far, .ec-preview .ec-dust, .ec-preview .ec-glow, .ec-preview .ec-egg, .ec-preview .ec-ripple, .ec-preview .ec-mist, .ec-preview .ec-drift { animation: none; }
+.ec-playing { overflow: hidden; }
+.ec-playing #coach-pop, .ec-playing #party-chatter, .ec-playing #dlg, .ec-playing .order-bubble { visibility: hidden !important; pointer-events: none; }
+@keyframes ec-reveal { from { opacity: .35; } to { opacity: 1; } }
+@keyframes ec-caption { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes ec-near { to { transform: scale(1.035) translateX(-3px); } }
+@keyframes ec-far { to { transform: scale(1.025) translateX(3px); } }
+@keyframes ec-drift { to { transform: translate(9px, -6px); opacity: .6; } }
+@keyframes ec-glow { from { opacity: .45; } to { opacity: 1; } }
+@media (max-width: 520px) {
+  .ec-header, .ec-footer { padding-left: 20px; padding-right: 20px; }
+  .ec-header { font-size: 10px; letter-spacing: .04em; }
+  .ec-header i { margin: 0 4px; }
+  .ec-stage > .ec-art { height: 80%; }
+  .ec-caption { bottom: 6%; }
+  .ec-caption h2 { font-size: 29px; }
+  .ec-caption p { font-size: 14px; }
+  .ec-progress i { width: 18px; }
+  .ec-progress span { margin-left: 5px; }
+  .ec-next { padding: 10px 13px; }
+  .ec-next span { margin-left: 8px; }
+}
+@media (max-height: 480px) and (min-width: 521px) {
+  .ec-header, .ec-footer { padding-top: 7px; padding-bottom: 7px; }
+  .ec-caption { left: 48%; bottom: 12%; right: 4%; }
+  .ec-caption h2 { font-size: 25px; margin-bottom: 9px; }
+  .ec-caption p { font-size: 13px; line-height: 1.7; }
+  .ec-kicker { margin-bottom: 7px; }
+  .ec-stage > .ec-art { width: 68%; }
+  .ec-shade { background: linear-gradient(90deg, transparent 10%, #060c1533 35%, #060c15 57%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ec-screen *, .ec-preview * { animation: none !important; transition: none !important; }
+}
