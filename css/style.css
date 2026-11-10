@@ -1003,3 +1003,11 @@ html body #cb-ctrl .row.end > button, html body .order-banner .row > button, htm
 #modal-box .wallet-chip b { font-family: var(--font-num); font-size: 17px; color: var(--amber); font-variant-numeric: tabular-nums; }
 #modal-box .cant-afford { opacity: .55; }
 #modal-box .afford-tag { margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: #3a1218; color: #ff9aa6; font-size: 11px; font-weight: 700; vertical-align: 1px; }
+
+/* ===== 알림 띠 (사용자 제보: 가운데 작은 네모 상자가 다른 창과 겹치고 잘 안 보임) =====
+   화면 맨 위, 양옆 16px 여백의 전체 폭 띠. 불투명 배경·왼쪽 주황 줄·큰 글씨로 무엇과 겹쳐도 읽히게 하고, 위에서 내려온다. 누르면 아래가 그대로 눌린다. */
+.toast { left: 16px; right: 16px; top: calc(10px + env(safe-area-inset-top, 0px)); transform: none; max-width: none; margin: 0 auto; width: auto; max-width: 560px;
+  z-index: 1400; padding: 12px 16px 12px 18px; background: #0c121c; border: 1px solid #ffb54766; border-left: 4px solid var(--amber); border-radius: 6px;
+  font-size: 15px; line-height: 1.45; color: #f2f5f9; box-shadow: 0 10px 30px #000c, 0 0 0 1px #0008; pointer-events: none; animation: toastdown .22s cubic-bezier(.2, .9, .3, 1); }
+@keyframes toastdown { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
+@media (orientation: portrait) and (max-width: 640px) { .toast { top: calc(10px + env(safe-area-inset-top, 0px)); } }
