@@ -1011,3 +1011,19 @@ html body #cb-ctrl .row.end > button, html body .order-banner .row > button, htm
   font-size: 15px; line-height: 1.45; color: #f2f5f9; box-shadow: 0 10px 30px #000c, 0 0 0 1px #0008; pointer-events: none; animation: toastdown .22s cubic-bezier(.2, .9, .3, 1); }
 @keyframes toastdown { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
 @media (orientation: portrait) and (max-width: 640px) { .toast { top: calc(10px + env(safe-area-inset-top, 0px)); } }
+
+/* 팀 정산 · 얻은 물건 (js/loot_split.js) */
+.settle-sheet .loot-split, .loot-split { gap: 10px; }
+.loot-split .ls-row { display: grid; gap: 7px; padding: 9px 0 10px; border-top: 1px solid #1f2b3c; }
+.loot-split .ls-row:first-of-type { border-top: 0; padding-top: 2px; }
+.loot-split .ls-name { display: grid; gap: 2px; }
+.loot-split .ls-name b { font-size: 14px; }
+.loot-split .ls-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.loot-split .ls-btns button { flex: 1 1 auto; min-height: 38px; padding: 6px 10px; font-size: 13px; }
+.loot-split .ls-btns button b { font-family: var(--font-num); margin-left: 4px; }
+.loot-split .ls-done { font-size: 13px; color: var(--good); padding: 6px 10px; background: #12241a; border-radius: 4px; }
+.loot-split .ls-bid { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; padding: 6px 10px; background: #1d1608; border: 1px solid #ffb54744; border-radius: 4px; }
+.loot-split .ls-bid b { color: var(--amber); font-family: var(--font-num); }
+.loot-split .ls-lead { color: #c9d4e2; }
+.loot-split .ok { color: var(--good); }
+.loot-split .ls-foot { font-size: 11.5px; }
