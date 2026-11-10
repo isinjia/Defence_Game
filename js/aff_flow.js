@@ -228,7 +228,7 @@ if (typeof UI !== 'undefined') {
         { narr: known ? '어디에도 들어가지 않은 지 일주일. 동네 국밥집에서 낯익은 얼굴이 손을 흔든다.' : '어디에도 들어가지 않은 지 일주일. 헌터넷 무소속 게시판으로 쪽지가 왔다.' },
         sp ? { who: sp, text: sp.friendhood ? '너 아무 데도 안 갔다며? 나도 그래. 그럼 우리끼리 다니자. 혼자는 위험해.' : '우리도 다 무소속이에요. 혼자 다니면 위험하잖아요. 같이 다닐래요?' } : null,
         list.length > 1 ? { narr: `함께하자는 사람들: ${list.map((n) => `${n.name}(${className(n.cls)})`).join(', ')}` } : null,
-        { sys: '무소속 파티: 월급은 없다. 전리품은 각자의 전투력에 비례해 나누고, 혼자 다니면 조금 더 갖는다.' },
+        { sys: G.payTermsText ? String(G.payTermsText(null)).replace(/<[^>]+>/g, '') : '무소속: 월급은 없다. 전리품은 전투력에 비례해 나누고, 혼자 다니면 조금 더 갖는다.' },
         { choices: [
           { text: '같이 다닌다', info: sp ? { type: 'npc', id: sp.id } : undefined, go: () => this.affFreeYes() },
           { text: '"고마워. 그래도 당분간은 혼자 다녀 볼게."', go: () => this.affSolo(sp) },
