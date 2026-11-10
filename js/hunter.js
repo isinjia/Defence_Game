@@ -542,7 +542,7 @@ Object.assign(UI, {
   hunterHtml() {
     const p = G.player;
     const t = p.title && titleById(p.title);
-    const { list, pos } = G.ranking();
+    const { list, pos, total } = G.ranking();
     const s = G.sponsor();
     const off = p.official;
     const titleRows = TITLES.map((x) => {
@@ -556,7 +556,7 @@ Object.assign(UI, {
       <div class="sec"><div class="sec-title">관리국 등록</div>
         <div class="item-row ${off < p.rankIdx ? 'hl' : ''}"><div class="grow"><b>공식 등급 ${RANKS[off].key}급</b> <span class="small dim">실제 ${rankLabel(p.rankIdx, p.stage)}</span>
           <div class="small dim">${off < p.rankIdx ? '실력이 등록 등급보다 높다. 도시의 협회 의뢰소에서 재측정을 받으면 공식 등급이 오르고, 차이가 클수록 화제가 된다.' : '등록 등급이 실력과 같다.'} 의뢰 난이도, 길드 월급, 랭킹, 제주 출입은 공식 등급을 따른다.</div></div></div></div>
-      <div class="sec"><div class="sec-title">국내 헌터 랭킹 · 내 순위 ${pos}위 / ${list.length}명</div>
+      <div class="sec"><div class="sec-title">국내 헌터 랭킹 · 내 순위 ${fmt(pos)}위 / ${fmt(total || list.length)}명</div>
         <p class="small dim">공식 등급, 명성, 공략 횟수로 매달 집계된다.${p.bestRankPos ? ` 최고 ${p.bestRankPos}위.` : ''}</p>
         <div class="cards">${top}</div></div>
       <div class="sec"><div class="sec-title">후원자</div>

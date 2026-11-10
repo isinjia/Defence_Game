@@ -23,6 +23,8 @@ const ROSTER = {
       if (tierOf(id) === 'giant' && !young && n.rankIdx < ROSTER.giantRankFloor) n.rankIdx = ROSTER.giantRankFloor;
       const home = typeof guildHome === 'function' ? guildHome(id) : null;
       if (home && (home.id !== 'jeju' || n.rankIdx >= 6)) n.region = home.id;
+      // 일반 대원 명단에서 한 명을 올린다(있으면): 등급은 명단의 것을 따른다
+      if (this.rfTake && young) { const t = tierOf(id); const r = this.rfTake(id, t === 'giant' && !young ? ROSTER.giantRankFloor : 0, young ? 1 : 7); if (r != null) n.rankIdx = r; }
       n.guild = id; this.npcs.push(n);
       return n;
     },
@@ -49,7 +51,7 @@ const ROSTER = {
   wrap('initSandbox', function (base) {
     base.call(this);
     if (this.world && (this.world.rosterV || 0) < 2) {
-      try { if (!this.world.rosterV) this.guildFill(99, false); this.freeFill(999, false); } catch (e) { console.warn('guildFill', e); }
+      try { if (this.rfInit) this.rfInit(); if (!this.world.rosterV) this.guildFill(99, false); this.freeFill(999, false); } catch (e) { console.warn('guildFill', e); }
       this.world.rosterV = 2;
     }
   });

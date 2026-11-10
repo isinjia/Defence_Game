@@ -37,6 +37,16 @@ const GPARTY = {
       };
       if (mine) out.push(make(mates, true));
       for (let i = 0; i < rest.length; i += GPARTY.size) out.push(make(rest.slice(i, i + GPARTY.size), false));
+      // 일반 대원(rank_file.js): 등급순으로 4명씩 공격대
+      const rf = this.rfOf ? this.rfOf(id) : null;
+      if (rf) {
+        const pool = []; for (let r = 7; r >= 0; r--) for (let i = 0; i < (rf[r] || 0); i++) pool.push(r);
+        for (let i = 0; i < pool.length; i += GPARTY.size) {
+          const ranks = pool.slice(i, i + GPARTY.size); const base = ranks.reduce((s2, r) => s2 + RANKS[r].mult * GPARTY.perRank, 0);
+          const syn = (typeof RF !== 'undefined' ? RF.rfSyn : 1) * (1 - (GPARTY.size - ranks.length) * GPARTY.short);
+          out.push({ members: [], rf: true, ranks, mine: false, leader: null, playerLeads: false, size: ranks.length, base: Math.round(base), syn, power: Math.round(base * syn), top: ranks[0] });
+        }
+      }
       out.sort((a, b) => b.power - a.power);
       out.forEach((t, i) => { t.no = i + 1; t.name = `${i + 1}공격대`; });
       return (cache.m[id] = out);
@@ -49,10 +59,16 @@ const GPARTY = {
   // 길드 세력 = 위세 + 공격대 전력 합
   wrap('guildPower', function (base, id) {
     if (!GUILDS[id] || !this.world || !this.world.guildPrestige) return base.call(this, id);
-    let v = this.world.guildPrestige[id] || 0;
-    for (const t of this.guildParties(id)) v += t.power;
-    return Math.round(v);
+    const k = typeof RF !== 'undefined' ? RF.clout : 0;
+    if (!k) { let v = this.world.guildPrestige[id] || 0; for (const t of this.guildParties(id)) v += t.power; return Math.round(v); }
+    // 영향력은 규모만큼 늘지 않는다: 위세 + k × √전력
+    let pres = this.world.guildPrestige[id] || 0; const cap = RF.presSoft;
+    if (cap && pres > cap) pres = cap + 3 * Math.sqrt(pres - cap);
+    return Math.round(pres + k * Math.sqrt(this.guildStrength(id)));
   });
+  // 길드 전력 = 공격대 전력의 합 (있는 그대로의 크기)
+  GP.guildStrength = function (id) { let v = 0; for (const t of this.guildParties(id)) v += t.power; return v; };
+  GP.guildSize = function (id) { let v = 0; for (const t of this.guildParties(id)) v += t.size; return v; };
   // 내 팀 전력에도 같은 조합 보정
   wrap('teamPower', function (base, npcs, withPlayer = true) {
     const r = base.call(this, npcs, withPlayer); if (!r) return r;
@@ -70,19 +86,19 @@ const GPARTY = {
       for (const id of Object.keys(GUILDS)) {
         const ts = G.guildParties(id); if (!ts.length) continue;
         const v = G.guildPower(id);
-        html = html.replace(`<span class="small dim">세력 ${v}</span>`, `<span class="small dim">세력 ${v} · 공격대 ${ts.length}개 · 최강 ${RANKS[ts[0].top].key}급</span>`);
+        html = html.replace(`<span class="small dim">세력 ${v}</span>`, `<span class="small dim">세력 ${v} · 전력 ${fmt(G.guildStrength(id))} · ${fmt(G.guildSize(id))}명 · 공격대 ${ts.length}개</span>`);
       }
-      html = html.replace('길드원들의 실력과 위세로 매달 바뀐다.', '길드의 힘은 공격대 전력의 합이고, 공격대의 힘은 대원 개개인의 실력과 조합에서 나온다. 여기에 위세가 더해진다.');
+      html = html.replace('길드원들의 실력과 위세로 매달 바뀐다.', (() => { const c = G.census ? G.census() : null; return `길드의 전력은 공격대 전력의 합이고, 공격대의 힘은 대원 개개인의 실력과 조합에서 나온다. 세력(영향력)은 위세에 전력을 더해 매기되, 규모만큼 그대로 늘지는 않는다.${c ? ` 전국 각성자 약 ${fmt(c.total)}명: 무소속 ${fmt(c.free)} · 거대 길드 ${fmt(c.giant)} · 중소 길드 ${fmt(c.minor)} · 관리국 ${fmt(c.gov)}.` : ''}`; })());
       if (!p.guild || !GUILDS[p.guild]) return html;
       const ts = G.guildParties(p.guild); const pres = (G.world.guildPrestige && G.world.guildPrestige[p.guild]) || 0;
       const max = Math.max(1, ...ts.map((t) => t.power));
       const rows = ts.slice(0, 8).map((t) => {
-        const who = t.mine ? (t.playerLeads ? '리더 <b>나</b>' : `리더 <b>${t.leader ? t.leader.name : '-'}</b> · 내 소속`) : `리더 <b>${t.leader.name}</b>(${RANKS[t.leader.rankIdx].key}급)`;
+        const who = t.mine ? (t.playerLeads ? '리더 <b>나</b>' : `리더 <b>${t.leader ? t.leader.name : '-'}</b> · 내 소속`) : t.rf ? `일반 대원 · 최고 ${RANKS[t.top].key}급` : `리더 <b>${t.leader.name}</b>(${RANKS[t.leader.rankIdx].key}급)`;
         const syn = Math.round((t.syn - 1) * 100);
         return `<div class="item-row ${t.mine ? 'hl' : ''}"><b class="num rank-pos">${t.no}</b><div class="grow"><b>${t.name}</b> <span class="small dim">${who} · ${t.size}인 · 전력 ${t.power}${syn ? ` (조합 ${syn > 0 ? '+' : ''}${syn}%)` : ''}</span>${this.bar('ether', t.power, max)}</div></div>`;
       }).join('');
       const sum = ts.reduce((s, t) => s + t.power, 0);
-      return html + `<div class="panel sec"><h3>${GUILDS[p.guild].name} 공격대</h3><p class="small dim">세력 ${G.guildPower(p.guild)} = 위세 ${Math.round(pres)} + 공격대 ${ts.length}개 전력 합 ${sum}. 계열이 고른 공격대일수록 강하고, 인원이 모자라면 약하다.</p><div class="cards">${rows}</div>${ts.length > 8 ? `<p class="small dim">그 밖에 ${ts.length - 8}개 공격대</p>` : ''}</div>`;
+      return html + `<div class="panel sec"><h3>${GUILDS[p.guild].name} 공격대</h3><p class="small dim">길드원 ${fmt(G.guildSize(p.guild))}명(간부·주요 인물 ${ts.filter((t) => !t.rf).reduce((a, t) => a + t.size, 0)} · 일반 대원 ${fmt(G.rfCount ? G.rfCount(p.guild) : 0)}) · 공격대 ${ts.length}개 · 전력 합 ${fmt(sum)} · 위세 ${Math.round(pres)} → 세력 ${G.guildPower(p.guild)}. 계열이 고른 공격대일수록 강하고, 인원이 모자라면 약하다.</p><div class="cards">${rows}</div>${ts.length > 8 ? `<p class="small dim">그 밖에 ${ts.length - 8}개 공격대</p>` : ''}</div>`;
     };
     // 인물 카드: 길드 공격대 소속(팀 명성 대신 공격대 전력)
     const baseCard = UI.npcCard;

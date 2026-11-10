@@ -602,7 +602,7 @@ class Game {
         if (opts.length) n.region = RNG.pick(opts).id;
       }
       // 길드 가입
-      if (!n.guild && n.rankIdx >= 1 && RNG.chance(0.01)) n.guild = RNG.pick(Object.keys(GUILDS));
+      if (!this.rfFlow && !n.guild && n.rankIdx >= 1 && RNG.chance(0.01)) n.guild = RNG.pick(Object.keys(GUILDS));
       // NPC끼리의 결투
       if (persById(n.personality).id === 'warlike' && RNG.chance(0.002)) {
         const victims = this.npcs.filter((o) => o.alive && o !== n && o.region === n.region && o.rankIdx < n.rankIdx && !o.isCompanion);
