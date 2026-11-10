@@ -779,3 +779,6 @@ html body .skill-btn > .sk-tags > .sk-tag { display: inline-block !important; wi
 .scout-line { margin: 2px 0 4px; line-height: 1.4; }
 .scout-line .scout-who { color: #5ee0c8; }
 .scout-line .scout-who.none { color: #ffb36b; }
+
+/* 암살 기습 배너 (js/assassin_trait.js) */
+.intro-banner.assassin { top: 64%; --ib: #b79bff; }
