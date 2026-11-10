@@ -15,7 +15,10 @@
     // 값: "○○ 크레딧" 글자, 또는 동전 아이콘 + 숫자만 있는 버튼(시장·공방의 가격 버튼)
     const priceOf = (b) => { const m = PRICE.exec(b.textContent); if (m) return m[1]; const t = b.textContent.trim(); return b.querySelector('svg') && /^[0-9][0-9,]*$/.test(t) ? t : null; };
     const btns = [...box.querySelectorAll('button, .choice-btn, [data-act]')].filter((b) => priceOf(b) && !b.closest('.wallet-chip'));
-    if (!btns.length && !shop) return;
+    // 값이 본문에만 있는 선택 창(돈을 빌려 달라는 부탁, 몸값·뇌물 요구 등)도 내 돈을 보고 고르게 한다
+    const choices = box.querySelectorAll('.choice-btn, .cards button, .row button[data-act]:not([data-act="modal-close"])').length;
+    const askText = choices && PRICE.test((box.textContent || '').replace(/보유\s*[0-9,]+\s*크레딧/, ''));
+    if (!btns.length && !shop && !askText) return;
     const money = G.player.money || 0;
     for (const b of btns) {
       b.classList.remove('cant-afford'); const t = b.querySelector('.afford-tag'); if (t) t.remove();
