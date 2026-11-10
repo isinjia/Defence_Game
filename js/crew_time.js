@@ -379,76 +379,108 @@ if (typeof UI !== 'undefined') {
   };
 }
 
-// ===== 대칭: 내가 리더일 때 NPC 팀원에게 합류 기한을 준다 =====
-// 도시에서 파티 화면의 [자유 시간을 준다]를 누르면 팀원들은 그 도시(내 거점)에 남고, 나는 혼자 움직인다(G.party()에 없음).
-// 기한(7일) 안에 거점에 와서 [팀을 모은다]를 누르면 다시 함께 다닌다. 팀원이 기한을 어기면(관계 낮음·게으른 성격일수록)
-// 그 팀원이 불이익을 받는다: 관계 −3, 명성 −2, 어긴 횟수 +1. 세 번이면 내가 내보낸다.
-const LEAD_TIME = { days: 7, lateBase: 0.06, lateLowRel: 0.12, lateLazy: 0.15, missFame: 2, missRel: 3, kickAfter: 3 };
+// ===== 대칭: 내가 리더일 때도 같은 흐름 — 호출 → 함께 이동·일 → 일이 끝나면 해산 =====
+// 평소 팀원들은 거점(마지막으로 해산한 도시)에 있고 나는 혼자 움직인다(G.party()에 없음).
+// 도시에서 [팀 호출] → 팀원들이 그 도시로 온다(거리만큼 1~6일, 늦는 팀원도 있다). 다 모이면 함께 다닌다.
+// 게이트·토벌이 끝나면 팀은 해산해 거점으로 돌아간다. 늦은 팀원: 관계 −3, 명성 −2, 어긴 횟수 +1, 세 번이면 내보냄.
+const LEAD_TIME = { lateBase: 0.06, lateLowRel: 0.12, lateLazy: 0.15, missFame: 2, missRel: 3, kickAfter: 3 };
 {
   const GP = Game.prototype;
   const absDay = (g) => g.monthKey() * 30 + g.day;
-  const playerLed = (g) => { const p = g.player; return p && !p.crew && p.lead && !p.lead.on ? p.lead : null; };
+  const mine = (g) => { const p = g.player; return p && !p.crew ? p.lead : null; };
   const baseParty = GP.party;
   GP.party = function () {
-    const all = baseParty.call(this);
-    if (this._crewAll || !playerLed(this)) return all;
-    return [];
+    const all = baseParty.call(this); const L = mine(this);
+    if (this._crewAll || !L) return all;
+    if (L.state !== 'on') return [];
+    const now = absDay(this);
+    return all.filter((n) => !L.late || !L.late[n.id] || L.late[n.id] <= now);
   };
   for (const name of ['canRecruit', 'dismiss', 'recruit']) {
     const base = GP[name]; if (!base) continue;
     GP[name] = function (...a) { return this.withCrew(() => base.apply(this, a)); };
   }
-  GP.leadDisperse = function () {
-    const p = this.player; if (p.crew || !this.withCrew(() => this.party().length) || !this.onCity()) return '';
-    p.lead = { base: p.region, due: absDay(this) + LEAD_TIME.days, on: false, late: [] };
-    this.withCrew(() => { for (const n of this.party()) n.region = p.region; });
-    return `팀원들에게 자유 시간을 줬다. ${LEAD_TIME.days}일 뒤까지 ${regionById(p.region).name}에서 다시 모인다.`;
+  GP.leadMembers = function () { return this.withCrew(() => (this.player.crew ? [] : this.party())); };
+  // 해산: 팀원은 거점으로 돌아간다
+  GP.leadDisband = function (why) {
+    const p = this.player; if (p.crew || !this.leadMembers().length) return '';
+    const base = (p.lead && p.lead.base) || p.region;
+    p.lead = { state: 'free', base };
+    for (const n of this.leadMembers()) n.region = base;
+    return why || `팀이 해산했다. 팀원들은 ${regionById(base).name}(으)로 돌아갔다. 다음 일은 도시에서 [팀 호출]로.`;
   };
-  GP.leadGather = function () {
-    const p = this.player; const L = p.lead; if (!L || L.on) return '';
-    if (p.region !== L.base || !this.onCity()) return '';
-    const now = absDay(this); const msgs = [];
-    this.withCrew(() => {
-      for (const n of this.party()) {
-        n.region = p.region;
-        if (now >= L.due && !L.rolled) {
-          const lazy = /lazy|spacey|gambler|drifter/.test(n.persona || '');
-          const ch = LEAD_TIME.lateBase + (n.relation < 20 ? LEAD_TIME.lateLowRel : 0) + (lazy ? LEAD_TIME.lateLazy : 0);
-          if (RNG.chance(ch)) {
-            n.teamMiss = (n.teamMiss || 0) + 1; this.changeRel(n, -LEAD_TIME.missRel, '합류 기한을 어겼다'); n.fame = Math.max(0, (n.fame || 0) - LEAD_TIME.missFame);
-            msgs.push(n.teamMiss >= LEAD_TIME.kickAfter ? `${n.name}이(가) 세 번째로 기한을 어겼다. 팀에서 내보냈다. ${this.dismiss(n.id) || ''}` : `${n.name}이(가) 기한을 어겨 늦게 왔다. (관계 −${LEAD_TIME.missRel}, 명성 −${LEAD_TIME.missFame}, 어긴 횟수 ${n.teamMiss}/${LEAD_TIME.kickAfter})`);
-          }
-        }
-      }
-    });
-    p.lead = null; this.syncParty();
-    return ['팀원들이 모였다. 다시 함께 움직인다.', ...msgs].join(' ');
+  // 호출: 지금 있는 도시로 모인다
+  GP.leadCall = function () {
+    const p = this.player; const L = mine(this); if (!L || L.state !== 'free' || !this.onCity()) return '';
+    const now = absDay(this); const due = now + Math.max(1, Math.min(6, regionDist(L.base, p.region) * 2));
+    const late = {};
+    for (const n of this.leadMembers()) {
+      const lazy = /lazy|spacey|gambler|drifter/.test(n.persona || '');
+      if (RNG.chance(LEAD_TIME.lateBase + ((n.relation || 0) < 20 ? LEAD_TIME.lateLowRel : 0) + (lazy ? LEAD_TIME.lateLazy : 0))) late[n.id] = due + RNG.int(1, 3);
+    }
+    p.lead = { state: 'called', base: p.region, due, late, at: p.region };
+    return `팀원들에게 연락했다. ${due - now}일 안에 ${regionById(p.region).name}(으)로 모인다.`;
   };
+  // 날마다: 다 모였는지, 늦은 팀원 도착
+  GP.leadTick = function () {
+    const p = this.player; const L = mine(this); if (!L || this.over) return;
+    const now = absDay(this);
+    if (L.state === 'called' && now >= L.due && p.region === L.at) {
+      L.state = 'on'; L.base = L.at;
+      const here = this.party(); for (const n of here) n.region = p.region;
+      this.queue.push({ type: 'toast', text: `팀이 모였다: ${here.map((n) => n.name).join(', ') || '없음'}.${Object.keys(L.late || {}).length ? ' 아직 안 온 팀원이 있다.' : ''}` });
+    }
+    if (L.state === 'on' && L.late) for (const id of Object.keys(L.late)) {
+      if (L.late[id] > now) continue;
+      const n = this.npcById(+id); delete L.late[id]; if (!n || !n.alive) continue;
+      n.teamMiss = (n.teamMiss || 0) + 1; this.changeRel(n, -LEAD_TIME.missRel, '호출에 늦었다'); n.fame = Math.max(0, (n.fame || 0) - LEAD_TIME.missFame); n.region = p.region;
+      this.queue.push({ type: 'toast', text: n.teamMiss >= LEAD_TIME.kickAfter ? `${n.name}이(가) 세 번째로 늦었다. 팀에서 내보냈다. ${this.dismiss(n.id) || ''}` : `${n.name}이(가) 늦게 합류했다. (관계 −${LEAD_TIME.missRel}, 명성 −${LEAD_TIME.missFame}, 늦은 횟수 ${n.teamMiss}/${LEAD_TIME.kickAfter})` });
+    }
+  };
+  const baseAdv = GP.advanceDays;
+  GP.advanceDays = function (n, opts = {}) { const r = baseAdv.call(this, n, opts); this.leadTick(); return r; };
+  // 일이 끝나면 해산 (게이트·토벌)
+  const baseMob = GP.finishMob;
+  GP.finishMob = function (...a) { const r = baseMob.apply(this, a); const L = mine(this); if (L && L.state === 'on' && !this.over) this.queue.push({ type: 'toast', text: this.leadDisband(`일이 끝나 팀이 해산했다. 팀원들은 ${regionById(L.base).name}(으)로 돌아갔다.`) }); return r; };
+  // 새 팀원: 함께 있을 때 들어오면 함께, 아니면 거점으로
+  const baseRec = GP.recruit;
+  GP.recruit = function (id) { const r = baseRec.call(this, id); const L = mine(this); const n = this.npcById(id); if (L && n && n.isCompanion && L.state !== 'on') n.region = L.base; return r; };
   const baseInit = GP.initSandbox;
-  GP.initSandbox = function () { baseInit.call(this); if (this.player) this.player.lead ??= null; };
+  GP.initSandbox = function () { baseInit.call(this); const p = this.player; if (p) { if (p.lead && !p.lead.state) p.lead = null; p.lead ??= null; } };
 }
 if (typeof UI !== 'undefined') {
   const absDay = () => G.monthKey() * 30 + G.day;
+  const mine = () => { const p = G.player; return p && !p.crew ? p.lead : null; };
+  const baseFG = UI.finishGate;
+  if (baseFG) UI.finishGate = function (...a) { const r = baseFG.apply(this, a); const L = mine(); if (L && L.state === 'on' && !G.over) this.toast(G.leadDisband(`일이 끝나 팀이 해산했다. 팀원들은 ${regionById(L.base).name}(으)로 돌아갔다.`)); return r; };
+  // 팀원이 있는데 아직 이 흐름이 아니면(옛 저장·처음 영입) 함께 있는 상태로 시작한다
+  const ensure = () => { const p = G.player; if (p && !p.crew && !p.lead && G.leadMembers().length) p.lead = { state: 'on', base: p.region }; if (p && !p.crew && p.lead && !G.leadMembers().length) p.lead = null; };
   const basePH = UI.partyHtml;
   if (basePH) UI.partyHtml = function () {
-    let html = basePH.call(this); const p = G.player;
-    if (p.crew) return html;
-    if (p.lead) return html.replace('</h3>', `</h3><p class="small amber">자유 시간 · 팀원들은 ${regionById(p.lead.base).name}에 있다. ${p.region === p.lead.base && G.onCity() ? '<button class="sm primary" data-act="lead-gather">팀을 모은다</button>' : '거점에 가서 팀을 모을 수 있다.'}</p>`);
-    if (G.withCrew(() => G.party().length) && G.onCity()) html = html.replace('</h3>', '</h3><p class="small"><button class="sm" data-act="lead-disperse">자유 시간을 준다 (이 도시에서 7일 뒤까지 다시 모임)</button></p>');
-    return html;
+    ensure(); let html = basePH.call(this); const L = mine(); if (!L) return html;
+    const line = L.state === 'free' ? `팀은 해산 중 · 팀원들은 ${regionById(L.base).name}에 있다. ${G.onCity() ? '<button class="sm primary" data-act="lead-call">팀 호출 (이 도시로)</button>' : '도시에서 호출할 수 있다.'}`
+      : L.state === 'called' ? `팀 호출 중 · ${regionById(L.at).name}(으)로 ${Math.max(0, L.due - absDay())}일 안에 모인다.`
+      : `팀과 함께 움직이는 중. <button class="sm" data-act="lead-disband">해산한다</button>`;
+    return html.replace('</h3>', `</h3><p class="small amber">${line}</p>`);
   };
   const baseHQ = UI.hudQuests;
   if (baseHQ) UI.hudQuests = function () {
-    const html = baseHQ.call(this); const L = G.player && !G.player.crew && G.player.lead; if (!L) return html;
-    const left = L.due - absDay(); const here = G.player.region === L.base && G.onCity();
-    const row = `<button class="obj-link hq rally" data-act="${here ? 'lead-gather' : 'lead-go'}"><span class="hq-mark">⚑</span><span class="hq-t">${here ? '팀을 모은다' : `${regionById(L.base).name}에서 팀 소집`}</span><span class="hq-r ${left < 0 ? 'amber' : ''}">${left > 0 ? `${left}일 뒤 기한` : '기한 지남 · 팀원 대기 중'}</span></button>`;
+    ensure(); const html = baseHQ.call(this); const L = mine(); if (!L || L.state === 'on') return html;
+    const here = G.onCity();
+    const row = L.state === 'free'
+      ? `<button class="obj-link hq rally" data-act="lead-call"><span class="hq-mark">⚑</span><span class="hq-t">${here ? '팀 호출 · 이 도시로 모은다' : '팀 호출 (도시에서)'}</span><span class="hq-r">해산 중</span></button>`
+      : `<button class="obj-link hq rally" data-act="lead-wait"><span class="hq-mark">⚑</span><span class="hq-t">${regionById(L.at).name}에서 팀 집결 · 기다린다</span><span class="hq-r amber">${Math.max(0, L.due - absDay())}일</span></button>`;
     return html.replace('<div class="obj-title">현재 퀘스트</div>', `<div class="obj-title">현재 퀘스트</div>${row}`).replace('<div class="obj-sub">진행 중인 의뢰가 없다. 도시 의뢰소에서 받을 수 있다.</div>', '');
   };
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
-    if (act === 'lead-disperse') { const t = G.leadDisperse(); if (t) { this.closeModal(); this.renderGame(); return this.toast(t); } return; }
-    if (act === 'lead-gather') { const t = G.leadGather(); if (t) { this.closeModal(); this.renderGame(); return this.after(t); } return this.toast('거점 도시에서 모을 수 있다.'); }
-    if (act === 'lead-go') { const L = G.player.lead; if (L && this.travelRegion) return this.travelRegion(L.base); return; }
+    if (act === 'lead-call') { ensure(); const t = G.leadCall(); if (t) { this.closeModal(); this.renderGame(); return this.toast(t); } return this.toast('도시에서 팀을 호출할 수 있다.'); }
+    if (act === 'lead-disband') { const t = G.leadDisband(); if (t) { this.closeModal(); this.renderGame(); return this.toast(t); } return; }
+    if (act === 'lead-wait') {
+      const L = mine(); if (!L || L.state !== 'called' || this.ctx) return;
+      if (G.player.region !== L.at) return this.travelRegion ? this.travelRegion(L.at) : null;
+      const d = Math.max(1, L.due - absDay()); G.advanceDays(d); this.renderGame(); return this.processQueue();
+    }
     return baseHandle.call(this, act, v);
   };
 }

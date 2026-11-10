@@ -370,26 +370,29 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
-  await step('대칭: 내가 리더일 때 자유 시간 → 팀원은 거점에 남음 → 거점에서 팀을 모음 · 기한 넘긴 팀원은 불이익', async () => {
+  await step('대칭: 내가 리더일 때 해산 → 팀 호출 → 모여 함께 → 일이 끝나면 해산 · 늦은 팀원 불이익', async () => {
     const r = await ev(() => {
       const p = G.player; if (p.crew) return '';
-      const keep = { party: p.party.slice(), x: p.x, y: p.y, region: p.region };
+      const keep = { party: p.party.slice(), x: p.x, y: p.y, region: p.region, lead: p.lead, queue: G.queue.slice() };
       const made = [];
       try {
-        while (G.withCrew(() => G.party().length) < 2) { const n = G.makeNpc(true); n.isCompanion = true; n.relation = 5; n.persona = 'lazy'; G.npcs.push(n); p.party.push(n.id); made.push(n); }
+        while (G.leadMembers().length < 2) { const n = G.makeNpc(true); n.isCompanion = true; n.relation = 5; n.persona = 'lazy'; G.npcs.push(n); p.party.push(n.id); made.push(n); }
         const pos = WORLD.cityPos[p.region]; p.x = pos[0]; p.y = pos[1];
-        if (!G.leadDisperse()) return '자유 시간을 줄 수 없다';
-        if (G.party().length) return '자유 시간인데 팀원이 따라온다';
-        if (!UI.hudQuests().includes('lead-gather')) return '퀘스트 목록에 팀 소집 줄이 없다';
-        p.lead.due = G.monthKey() * 30 + G.day - 1; // 기한이 지났다
-        const before = G.withCrew(() => G.party().map((n) => n.relation));
-        const old = RNG.chance; RNG.chance = () => true; let t; try { t = G.leadGather(); } finally { RNG.chance = old; }
-        if (!t) return '팀을 모으지 못했다';
-        if (!G.party().length) return '모았는데 팀원이 없다';
-        if (!/기한을 어겨/.test(t)) return '기한을 넘긴 팀원에게 불이익 안내가 없다';
+        p.lead = { state: 'on', base: p.region };
+        if (!G.party().length) return '함께일 때 팀원이 없다';
+        G.leadDisband(); if (G.party().length) return '해산했는데 팀원이 따라온다';
+        if (!UI.hudQuests().includes('lead-call')) return '퀘스트 목록에 팀 호출 줄이 없다';
+        const old = RNG.chance; RNG.chance = () => true; try { if (!G.leadCall()) return '호출할 수 없다'; } finally { RNG.chance = old; }
+        if (p.lead.state !== 'called') return '호출 상태가 아니다';
+        G.queue = []; G.advanceDays(Math.max(1, p.lead.due - (G.monthKey() * 30 + G.day)), { noSave: true });
+        if (p.lead.state !== 'on') return '기한이 됐는데 팀이 모이지 않았다';
+        G.advanceDays(3, { noSave: true });
+        if (!G.queue.some((q) => q.type === 'toast' && /늦게 합류|내보냈다/.test(q.text))) return '늦은 팀원 불이익 안내가 없다';
+        if (!G.party().length) return '모였는데 팀원이 없다';
+        const t = G.leadDisband('x'); if (!t || p.lead.state !== 'free') return '일이 끝나 해산하지 않았다';
         return '';
       } finally {
-        p.lead = null; p.party = keep.party; p.x = keep.x; p.y = keep.y; p.region = keep.region;
+        p.lead = keep.lead; p.party = keep.party; p.x = keep.x; p.y = keep.y; p.region = keep.region; G.queue = keep.queue;
         for (const n of made) n.isCompanion = false;
       }
     });
