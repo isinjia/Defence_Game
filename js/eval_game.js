@@ -267,3 +267,12 @@ if (typeof Game !== 'undefined' && Game.prototype.rollGateVariant) {
     return r;
   };
 }
+
+// 17) 리더 권유는 "합격 도장을 받고 사흘 뒤"인데 날짜가 3월 1일 그대로이던 어긋남(5차 평가): 권유를 받아들이면 사흘이 흐른다.
+if (typeof UI !== 'undefined' && UI.affLeaderYes) {
+  const baseYes = UI.affLeaderYes;
+  UI.affLeaderYes = function (...a) {
+    try { const p = G.player; if (p && !G.over && (G.day || 1) <= 7 && !p.fpWeek) { p.fpWeek = true; G.advanceDays(3, { noSave: true }); } } catch (e) { /* 무시 */ }
+    return baseYes.apply(this, a);
+  };
+}

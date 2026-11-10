@@ -157,7 +157,7 @@ Object.assign(UI, {
     const L = this.examLeader();
     // 리더는 시험이므로 힘을 아끼고 막는 역할만 한다 (신규 각성자 수준으로 싸운다)
     const lu = L ? G.npcUnit({ ...L, rankIdx: 0, stage: 1 }, 'ally') : null;
-    if (lu) { lu.name = `${L.name}(리더)`; lu.npcId = L.id; }
+    if (lu) { lu.npcId = L.id; }
     const allies = [G.playerUnit(), ...(lu ? [lu] : []), ...ex.ids.map((id) => G.npcUnit(G.npcById(id), 'ally'))];
     this.ctx = { kind: 'exam', tutorial: stage === 0 ? { acted: 0 } : { acted: 0, boss: true }, elem: ex.gate.elem, combat: new Combat(G, { allies, enemies: ex.rooms[stage], canFlee: false, spar: true, title: `헌터 자격 시험 · ${stage === 0 ? '첫 구역' : '보스 구역'}` }) };
     this.openCombat();
