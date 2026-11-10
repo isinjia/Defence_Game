@@ -59,7 +59,7 @@ if (typeof UI !== 'undefined') {
         <div class="st-sit">${this.statusSituation()}</div>
         <div class="st-t">기술 · 누르면 자세히</div><div class="st-sks">${skills.map((id) => this.statusSkillHtml(id)).join('')}</div>
         <div class="st-t">능력치</div>
-        <div class="st-stats">${STAT.map(([key, nm]) => `<span><i>${nm}</i><b class="num">${Math.round(p[key] || 0)}</b></span>`).join('')}<span><i>재능</i><b class="num">${p.talent}/10</b></span></div>
+        <div class="st-stats">${STAT.map(([key, nm]) => `<span><i>${nm}</i><b class="num">${Math.round(p[key] || 0)}</b></span>`).join('')}</div>
         <div class="st-t">선천 특성</div><div class="st-traits">${p.traits.map((id) => { const t = traitById(id); return t ? `<div class="st-tr"><b>${t.name}</b> <span class="small dim">${t.desc}</span></div>` : ''; }).join('')}</div>
         <div class="st-t">소지품</div><div class="st-inv">${this.statusInvHtml()}</div>
         </div>
