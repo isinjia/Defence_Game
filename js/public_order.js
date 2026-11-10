@@ -45,10 +45,14 @@ const WANTED_NAME = ['', '관리국 주의 인물', '지명 수배', '1급 현�
 
   // 무고한 생사결
   wrap('finishDuel', function (base, n, won, ...rest) {
-    const innocent = n && !(n.relation <= -20 || persById(n.personality).id === 'warlike' || n.arch === 'villain' || n.bountyHunter || n.nemesis === 'player');
+    // 4-18: 죄는 장소로 판정한다(duel_after.js). 게이트 안·봉쇄 구역은 무법, 도시·월드맵에서 죽이면 살인.
+    const k = this._duelKill || {};
+    const place = k.place || (this.duelPlace ? this.duelPlace() : 'city');
+    const innocent = n && !(this.duelSelfDefense ? this.duelSelfDefense(n) : (n.relation <= -20 || persById(n.personality).id === 'warlike' || n.arch === 'villain' || n.bountyHunter || n.nemesis === 'player'));
     const r = base.call(this, n, won, ...rest);
-    if (won && n) {
-      if (innocent) this.addSin(3, '무고한 헌터 살해');
+    if (won && n && place === 'city') {
+      if (innocent) { this.player.infamy = Math.max(this.player.infamy || 0, WANTED_STEPS[1] - 30); this.addSin(5, '살인'); /* 중범죄: 수배 2단계 이상 */ this.rumor(`관리국 감찰과가 ${n.name} 살해 사건을 수사 중이다. 용의자로 ${this.player.name}이(가) 거론된다.`, { kind: 'wanted', score: 4 }); }
+      else if (!n.bountyHunter) this.addSin(1, '정당방위 살해(감경)');
       else if (n.bountyHunter) { this.player.infamy += 4; this.updateWanted('현상금 사냥꾼 살해'); }
     }
     return r;
