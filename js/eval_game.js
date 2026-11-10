@@ -276,3 +276,15 @@ if (typeof UI !== 'undefined' && UI.affLeaderYes) {
     return baseYes.apply(this, a);
   };
 }
+
+// 14-2) 내가 먼저 고백·청혼하는 경로(인물 창)에도 같은 기간 조건: 고백은 헌터 6개월 뒤, 청혼은 사귄 지 1년 뒤.
+if (typeof Game !== 'undefined' && Game.prototype.approachOptions) {
+  const baseOpt = Game.prototype.approachOptions;
+  Game.prototype.approachOptions = function (n, ...a) {
+    const out = baseOpt.call(this, n, ...a) || [];
+    try {
+      const p = this.player; const mk = this.monthKey();
+      return out.filter((o) => !(o.k === 'confess' && mk - (p.startMk ?? mk) < 6) && !(o.k === 'propose' && mk - (p.partnerSince ?? mk) < 12));
+    } catch (e) { return out; }
+  };
+}
