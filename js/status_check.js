@@ -31,6 +31,12 @@ if (typeof UI !== 'undefined') {
       const p = G.player; const e = sk.elem === 'self' ? p.element : sk.elem;
       return `<button class="st-sk" data-act="st-sk" data-v="${id}">${e && ELEMENTS[e] ? FX.elemIcon(e, 14) : '<i class="st-dot"></i>'}<b>${sk.name}</b><span class="tag">${TYPE_NAME[sk.type] || '특수'}</span><span class="small dim">MP ${sk.mp}</span><span class="st-more">›</span></button>`;
     },
+    statusInvHtml() {
+      const p = G.player;
+      const gear = ['weapon', 'armor', 'acc'].map((sl) => p.equip[sl]).filter(Boolean).map((it) => `<div class="small"><span class="dim">${this.slotName ? this.slotName(it.slot) : ''}</span> ${it.name}</div>`).join('');
+      const cons = (typeof CONSUMABLES !== 'undefined' ? CONSUMABLES : []).filter((c) => p.items[c.id]).map((c) => `<div class="small"><span class="dim">소모품</span> ${c.name} ×${p.items[c.id]}</div>`).join('');
+      return gear + cons || '<div class="small dim">없음</div>';
+    },
     statusPop(html) {
       if (this.hideSkillHold) this.hideSkillHold();
       document.body.insertAdjacentHTML('beforeend', `<div class="skill-hold-wrap" id="skill-hold">${fixJosa(html)}</div>`);
@@ -39,8 +45,7 @@ if (typeof UI !== 'undefined') {
       const p = G.player; const bg = BACKGROUNDS.find((b) => b.id === p.bg);
       const friend = G.npcs.find((n) => n.friendhood && n.alive !== false);
       const log = p.proLog || []; const last = log.length ? log[log.length - 1] : null;
-      const items = (typeof CONSUMABLES !== 'undefined' ? CONSUMABLES : []).filter((c) => p.items[c.id]).map((c) => `${c.name} ${p.items[c.id]}`).join(' · ');
-      return `<div class="small">${G.ageYears()}세 · ${G.region().name} · <b class="num">${fmt(p.money)}</b> 크레딧${items ? ` · ${items}` : ''}</div>
+      return `<div class="small">${G.ageYears()}세 · ${G.region().name} · <b class="num">${fmt(p.money)}</b> 크레딧</div>
         <div class="small dim">${bg ? `${bg.name}(으)로 살다 얼마 전 각성했다. ` : ''}${last ? `${last} ` : ''}게이트에 들어가려면 협회 자격 시험부터 통과해야 한다.${friend ? ` 소꿉친구 ${friend.name}도 이 도시에 있다.` : ''}</div>`;
     },
     statusHtml(forExam) {
@@ -48,14 +53,15 @@ if (typeof UI !== 'undefined') {
       const skills = p.skills.filter((id) => id !== 'strike');
       return `<div class="st-check">
         <div class="st-scroll">
-        <div class="st-head">${this.playerPortrait(56)}<div><div class="eyebrow">${forExam ? '내 상태 확인' : '내 상태 한눈에'}</div><b class="st-name">${p.name}</b> ${this.clsTag(p.cls, p.clsAdv)} ${this.elemTag(p.element)}</div></div>
+        <div class="st-head">${this.playerPortrait(56)}<div><div class="eyebrow">${forExam ? '내 상태 확인' : '내 상태 한눈에'}</div><div class="st-nameline"><b class="st-name">${p.name}</b>${this.clsTag(p.cls, p.clsAdv)}${this.elemTag(p.element)}</div></div></div>
         <div class="st-box" style="border-left-color:${g.color}"><b>${className(p.cls, p.clsAdv)}</b> <span class="small" style="color:${g.color}">${g.name} · ${CLASS_RARITY[k.r]} · ${ROLE_TXT[k.role] || k.role}</span>
           <div class="small dim">${k.desc}<br>전직: ${[k.name, ...k.adv].map((n, i) => (i === p.clsAdv ? `<b class="amber">${n}</b>` : n)).join('→')} (C·S급)</div></div>
         <div class="st-sit">${this.statusSituation()}</div>
         <div class="st-t">기술 · 누르면 자세히</div><div class="st-sks">${skills.map((id) => this.statusSkillHtml(id)).join('')}</div>
         <div class="st-t">능력치</div>
         <div class="st-stats">${STAT.map(([key, nm]) => `<span><i>${nm}</i><b class="num">${Math.round(p[key] || 0)}</b></span>`).join('')}<span><i>재능</i><b class="num">${p.talent}/10</b></span></div>
-        <div class="st-t">선천 특성</div><div class="st-traits">${p.traits.map((id) => { const t = traitById(id); return t ? `<button class="tag st-tr" data-act="st-tr" data-v="${id}"><b>${t.name}</b> ›</button>` : ''; }).join('')}</div>
+        <div class="st-t">선천 특성</div><div class="st-traits">${p.traits.map((id) => { const t = traitById(id); return t ? `<div class="st-tr"><b>${t.name}</b> <span class="small dim">${t.desc}</span></div>` : ''; }).join('')}</div>
+        <div class="st-t">소지품</div><div class="st-inv">${this.statusInvHtml()}</div>
         </div>
         <div class="st-foot">${forExam ? '<button class="primary full" data-act="st-go">시험 보러 가기</button>' : '<button class="primary full" data-act="st-back">닫기</button>'}</div></div>`;
     },
