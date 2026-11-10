@@ -960,3 +960,4 @@ html body #modal-box .row.end > button.sm { flex: 0 0 auto; }
 html body #cb-ctrl .row.end > button, html body .order-banner .row > button, html body .cmd-pop-head button { flex: 0 0 auto; min-height: 32px; font-size: inherit; }
 /* 글자가 긴 버튼이 셋 이상이면 줄을 바꿔 한 줄에 하나씩 */
 @media (max-width: 420px) { html body #modal-box .row.end > button:not(.sm):not(.icon-btn):nth-last-child(n+3), html body #modal-box .row.end > button:not(.sm):not(.icon-btn):nth-last-child(n+3) ~ button { flex-basis: 100%; } }
+#tut-skip.armed { background: rgba(120, 40, 40, .9); color: #fff; border-color: rgba(255, 140, 140, .6); }
