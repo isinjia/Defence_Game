@@ -92,6 +92,7 @@ Object.assign(UI, {
     if (act === 'gp-won' && this.ctx && this.ctx.run) {
       const c = this.ctx; const pu = c.run.pursuit; const ids = pu && pu.chase && pu.chase.ids;
       const lead = ids && ids.map((id) => G.npcById(id)).find((n) => n && n.alive);
+      if (pu && pu.chase) c.run.lastChase = pu.chase; // 함께 쓰러진 추격대원은 목격자 (js/duel_witness.js)
       const r = baseHandle.call(this, act, v);
       if (lead && !G.over && this.ctx === c) {
         const p = G.player;
