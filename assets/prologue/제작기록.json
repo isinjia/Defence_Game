@@ -1,0 +1,469 @@
+{
+  "제작방식": "내장 image_gen 이미지 생성 도구",
+  "참조": "assets/monsters/web/서리 늑대.webp — 기존 몬스터 원화의 화풍과 완성도",
+  "원칙": "프롤로그의 장소·핵심 사물·각성 흔적으로 이야기 표현. 사람·실루엣·손·초상화 제외.",
+  "images": [
+    {
+      "id": "abandoned-hospital",
+      "file": "abandoned-hospital.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. The supplied wolf is a STYLE REFERENCE ONLY. Do not include that wolf or its ice crystals. Do not add any creature unless explicitly requested in the scene. Scene: A derelict Korean hospital corridor abandoned after a gate catastrophe, peeling paint, overturned empty beds, cracked floor, half-open operating room door with very faint cyan glow, an unattended video camera with spare batteries and flashlight on dusty cabinet, eerie night, no creatures or people."
+    },
+    {
+      "id": "airport",
+      "file": "airport.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty Incheon airport arrivals concourse at evening. A travel suitcase and a folded unmarked note on a metal bench; huge glass windows show parked aircraft and rainy runway. Lonely return after years abroad."
+    },
+    {
+      "id": "alley",
+      "file": "alley.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: precise-object-edit. Edit target: the supplied Korean alley illustration. Remove the entire white wolf monster and all loose blue ice crystals and their reflections. Reconstruct the now-empty wet alley, fence and puddle reflections naturally in exactly the same detailed hand-drawn Korean webtoon game illustration style. Preserve camera, architecture, red and blue lighting, CCTV camera, envelope, trash cans, and all other scene details. This is an ordinary back-alley confrontation between humans who are deliberately off-screen: do not depict any person, silhouette, body part, animal or monster at all. No text or watermark."
+    },
+    {
+      "id": "apartment",
+      "file": "apartment.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: precise-object-edit. Edit target: supplied apartment illustration. Remove the entire white wolf monster and ALL ice crystals, frost, and creature reflections. Seamlessly reconstruct the empty floor, architecture and background now revealed. Preserve every other detail, objects, perspective, detailed ink illustration style, cel shading, colors and light. Do not add any new object, anomaly, animal, monster, person, silhouette or body part. This must be a completely UNINHABITED environment illustration, with absolutely no creatures or people. No new text or watermark."
+    },
+    {
+      "id": "auction",
+      "file": "auction.webp",
+      "width": 1536,
+      "height": 864,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty luxury underground auction room, a single crimson glowing dragon-heart core suspended inside a glass display case on stage, rows of empty velvet seats and one bidding paddle in foreground, warm spotlights and dark red shadows."
+    },
+    {
+      "id": "auditorium",
+      "file": "auditorium.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: precise-object-edit. Edit target: supplied auditorium illustration. Remove the entire white wolf monster and ALL ice crystals, frost, and creature reflections. Seamlessly reconstruct the empty floor, architecture and background now revealed. Preserve every other detail, objects, perspective, detailed ink illustration style, cel shading, colors and light. Do not add any new object, anomaly, animal, monster, person, silhouette or body part. This must be a completely UNINHABITED environment illustration, with absolutely no creatures or people. No new text or watermark."
+    },
+    {
+      "id": "awakening",
+      "file": "awakening.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: precise-object-edit. Edit target: supplied awakening illustration. Remove the ENTIRE foreground white wolf creature, every part of its body, its ice crystals, frosty breath and creature reflections. Reconstruct the revealed empty environment naturally in exactly the existing detailed ink and cel-shaded illustration style. Preserve camera, composition, backdrop, materials, all foreground objects, and lighting. Do not add any person, silhouette, face, hands or human body parts. No new animal or monster, no text or watermark. Preserve the SIX colored ether-energy strands converging on the bright core, the floating pebbles and street. Energy alone is the subject; absolutely no creature at all."
+    },
+    {
+      "id": "bank",
+      "file": "bank.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: precise-object-edit. Edit target: supplied bank illustration. Remove the ENTIRE foreground white wolf creature, every part of its body, its ice crystals, frosty breath and creature reflections. Reconstruct the revealed empty environment naturally in exactly the existing detailed ink and cel-shaded illustration style. Preserve camera, composition, backdrop, materials, all foreground objects, and lighting. Do not add any person, silhouette, face, hands or human body parts. No new animal or monster, no text or watermark. "
+    },
+    {
+      "id": "bathhouse",
+      "file": "bathhouse.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty Korean public bathhouse at night, folded towel and locker key on tiled ledge, steaming blue soaking pool, vacant wash stations and hazy windows, warm overhead light, detailed ceramic and water reflections."
+    },
+    {
+      "id": "bedroom",
+      "file": "bedroom.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Unoccupied small Korean one-room apartment, rumpled empty bed, smartphone on low desk, unfinished instant noodles on floor, job application papers with no readable writing, potted plant beside a window, soft afternoon sun and blue shadows. Ordinary unemployed life."
+    },
+    {
+      "id": "bridge",
+      "file": "bridge.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: An empty Korean pedestrian overpass collapsing in a storm, cracked concrete stairs and broken railing, stopped wall clock on nearby tower, abandoned umbrella, twisted structure above wet road, dramatic lightning and cold dawn light. No people or bodies."
+    },
+    {
+      "id": "cafe",
+      "file": "cafe.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty Korean neighborhood cafe, two ceramic tea cups on small wooden table beside rainy window, vacant chairs, warm pendant lights and soft city glow outside, thoughtful quiet interval."
+    },
+    {
+      "id": "camp",
+      "file": "camp.webp",
+      "width": 1536,
+      "height": 864,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty Jirisan forest campsite on third night lost, dying small campfire, worn backpack, torn map with abstract unreadable markings and empty tent, dense ancient trunks and moss, strange emerald glow from tree roots, midnight mist, no figures."
+    },
+    {
+      "id": "cat-alley",
+      "file": "cat-alley.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. The supplied wolf is a STYLE REFERENCE ONLY. Do not include that wolf or its ice crystals. Do not add any creature unless explicitly requested in the scene. Scene: Empty Korean residential alley beside an open low-rise apartment doorway, three ordinary wary stray cats watching a bowl of dry kibble from a distance, a small cat shelters under the steps, night streetlamp and soft apartment window glow, warm yet lonely, no monsters or people."
+    },
+    {
+      "id": "cave",
+      "file": "cave.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: precise-object-edit. Edit target: supplied cave illustration. Remove the ENTIRE foreground white wolf creature, every part of its body, its ice crystals, frosty breath and creature reflections. Reconstruct the revealed empty environment naturally in exactly the existing detailed ink and cel-shaded illustration style. Preserve camera, composition, backdrop, materials, all foreground objects, and lighting. Do not add any person, silhouette, face, hands or human body parts. No new animal or monster, no text or watermark. Keep the existing distant winged insectlike maternal monster silhouette at the rear, the eggs, cave rocks and scattered porter supplies; only the foreground wolf and its frost are removed. This nest belongs to the winged creature, not a wolf."
+    },
+    {
+      "id": "checkpoint",
+      "file": "checkpoint.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty Korean military checkpoint at dawn, pair of metal dog tags and folded discharge papers resting on a duffel bag, chain-link gate, guard booth and distant mountains, solemn blue mist and pale gold light."
+    },
+    {
+      "id": "church",
+      "file": "church.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty Korean church interior with vacant pews, a wooden cross far behind a foreground bowl and white cleaning cloth, soft golden light through high windows, quiet sacred mood, no icon paintings or statues."
+    },
+    {
+      "id": "club",
+      "file": "club.webp",
+      "width": 1536,
+      "height": 864,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty underground Korean nightclub, small blue capsules and cracked vial on abandoned counter, shut heavy steel door and silent dance floor, deep blue and violet spotlights with sharply detailed glass, dangerous mystery."
+    },
+    {
+      "id": "courtyard",
+      "file": "courtyard.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Unoccupied courtyard of a humble Korean orphanage at morning. Six packed lunchboxes and a small bag of tangerines on a worn wooden bench by an old gate, chipped walls, weeds, warm hopeful sunlight."
+    },
+    {
+      "id": "dream",
+      "file": "dream.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Surreal empty riverbank in an awakening dream, black still water, a tree wrapped with strips of red cloth, a weathered folded letter and luminous metallic orb on foreground stone, empty shore across mist, abstract violet ring anomaly reflected in water, ethereal blue-lilac light, no figure or face."
+    },
+    {
+      "id": "fallen-gear",
+      "file": "fallen-gear.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Close view of abandoned hunter equipment after battle, dented shield, ether sword, pistol, talismans and glowing mana stone scattered across cracked Korean street paving beside a flickering E-rank badge with no legible writing, empty bus shelter behind, no injured person or bodies."
+    },
+    {
+      "id": "festival",
+      "file": "festival.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: precise-object-edit. Edit target: supplied festival illustration. Remove the entire white wolf monster and ALL ice crystals, frost, and creature reflections. Seamlessly reconstruct the empty floor, architecture and background now revealed. Preserve every other detail, objects, perspective, detailed ink illustration style, cel shading, colors and light. Do not add any new object, anomaly, animal, monster, person, silhouette or body part. This must be a completely UNINHABITED environment illustration, with absolutely no creatures or people. No new text or watermark."
+    },
+    {
+      "id": "first-fight",
+      "file": "first-fight.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty gritty Korean back alley and vacant lot at night, chain-link fence, dented trash cans, discarded demand envelope and surveillance camera, puddles reflecting muted red neon and cold blue light, confrontation aftermath, no bodies."
+    },
+    {
+      "id": "forest",
+      "file": "forest.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Unoccupied otherworldly forest inside a tourist gate, towering mossy trees, dense turquoise mist and luminous spore motes, abandoned visitor helmet and guide flag on trail, a narrow cyan gate seam fading between roots, detailed foliage, no people."
+    },
+    {
+      "id": "friend-surge",
+      "file": "friend-surge.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: An unoccupied small Korean one-room apartment during an ether rampage, empty desk torn free and levitating near ceiling, chair and household objects floating in two intertwined blue-white energy vortices, shattered window and forced-open door, no people, no silhouettes or hands."
+    },
+    {
+      "id": "garden",
+      "file": "garden.webp",
+      "width": 1536,
+      "height": 864,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Unoccupied grandmother's medicinal herb garden, richly detailed herbs and overflowing ceramic plant pots, gardening checklist with abstract unreadable marks, weathered shears, roots with very subtle emerald ether glow, warm morning sun."
+    },
+    {
+      "id": "gate-apartment",
+      "file": "gate-apartment.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. The supplied wolf is a STYLE REFERENCE ONLY. Do not include that wolf or its ice crystals. Do not add any creature unless explicitly requested in the scene. Scene: A Korean apartment complex playground during a gate break: a jagged violet-cyan rift beside swings, uprooted swing chains and damaged slide, sand pit with hunter shield and sword, open first-floor windows and emergency lights, abandoned bags. No creature or people."
+    },
+    {
+      "id": "gate-break",
+      "file": "gate-break.webp",
+      "width": 1536,
+      "height": 864,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Unoccupied Korean bus stop during a gate break, massive luminous purple-blue rift tearing open over cracked wet street, shattered shelter glass, abandoned scooter, scattered bags and orange emergency lights, exquisite urban details, no people or bodies."
+    },
+    {
+      "id": "gate-festival",
+      "file": "gate-festival.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. The supplied wolf is a STYLE REFERENCE ONLY. Do not include that wolf or its ice crystals. Do not add any creature unless explicitly requested in the scene. Scene: A Korean riverside festival during a gate break: a violet-cyan rift tearing the sky above collapsing stage truss, an overturned empty food truck, scattered guitar and lighting equipment, hunter shield and sword on pavement, drifting smoke. No creature or people."
+    },
+    {
+      "id": "gate-hospital",
+      "file": "gate-hospital.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. The supplied wolf is a STYLE REFERENCE ONLY. Do not include that wolf or its ice crystals. Do not add any creature unless explicitly requested in the scene. Scene: A Korean hospital emergency staircase during a gate break: a jagged cyan-violet rift in concrete wall, twisted metal railings, cracked landing, unoccupied gurney behind fire door, dropped hunter shield and sword, flickering red emergency lights. No creature or people."
+    },
+    {
+      "id": "gate-market",
+      "file": "gate-market.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. The supplied wolf is a STYLE REFERENCE ONLY. Do not include that wolf or its ice crystals. Do not add any creature unless explicitly requested in the scene. Scene: A Korean traditional fish market during a gate break: a brilliant cyan-violet rift over torn stalls, shattered fish tank spilling seawater across wet tiles, overturned crates, hunter shield and sword on ground, awnings flapping. No creature or people."
+    },
+    {
+      "id": "gate-school",
+      "file": "gate-school.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. The supplied wolf is a STYLE REFERENCE ONLY. Do not include that wolf or its ice crystals. Do not add any creature unless explicitly requested in the scene. Scene: A Korean school during a gate break: a jagged violet-cyan rift above the gymnasium, broken auditorium steps, scattered school bags, dropped hunter shield and sword on dirt sports field, shattered glass and evacuation lights, vacant campus. No creature or people."
+    },
+    {
+      "id": "gate-subway",
+      "file": "gate-subway.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. The supplied wolf is a STYLE REFERENCE ONLY. Do not include that wolf or its ice crystals. Do not add any creature unless explicitly requested in the scene. Scene: A Korean subway station during a gate break: a jagged luminous purple rift tearing through a platform wall, stopped empty train with ripped-open door, cracked tiles, emergency red lights, scattered hunter shield, sword and small blue mana stone. Absolutely no creature or people."
+    },
+    {
+      "id": "gatehall",
+      "file": "gatehall.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Unoccupied stabilized F-rank gate visitor center in Songdo, luminous vertical cyan portal in secure circular metal frame, fencing, safety helmets and folded fluorescent vests on bench, visitor ticket without legible writing, modern Korean facility, muted amber and teal."
+    },
+    {
+      "id": "hospital",
+      "file": "hospital.webp",
+      "width": 1536,
+      "height": 864,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty Korean hospital isolation ward at blue hour, neatly made vacant bed, IV stand, cardiac monitor showing only an abstract green waveform, medical tray and a small bouquet, precise clinical detail, quiet apprehension."
+    },
+    {
+      "id": "karaoke",
+      "file": "karaoke.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. The supplied wolf is a STYLE REFERENCE ONLY. Do not include that wolf or its ice crystals. Do not add any creature unless explicitly requested in the scene. Scene: Unoccupied modest Korean coin karaoke room at night, two microphones on table, remote control, half-finished drinks, empty padded sofa, large wall screen showing only abstract colored waveform and landscape, vivid indigo and magenta lighting, NO pills, monsters or people, no faces on screen."
+    },
+    {
+      "id": "kitchen",
+      "file": "kitchen.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty family Korean fried-chicken shop back kitchen, commercial fryer, steel wok, hanging apron, neatly stacked takeaway boxes and unattended motorcycle keys on counter, warm exhaust hood light, intricate stainless steel and oil reflections."
+    },
+    {
+      "id": "laboratory",
+      "file": "laboratory.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Unoccupied high security subterranean Korean ether laboratory, a vacant cylindrical glass induction capsule with glowing cyan liquid lines and cables, scanner and discarded keycard on metal console, cracked glass shard, clinical white light and ominous blue shadows."
+    },
+    {
+      "id": "market",
+      "file": "market.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty Korean traditional market alley after rain, awnings, fruit crates and a cluttered antique stall, mysterious small jade bead and an old brass bell on a cloth in foreground, wet pavement, amber stall lamps and cool twilight."
+    },
+    {
+      "id": "memorial",
+      "file": "memorial.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Unoccupied Korean memorial hall, white chrysanthemums and incense before a dark blank memorial tablet, vacant low table, folded dark cloth, soft candle glow and blue window light. No portraits or faces or human statues."
+    },
+    {
+      "id": "monument",
+      "file": "monument.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. The supplied wolf is a STYLE REFERENCE ONLY. Do not include that wolf or its ice crystals. Do not add any creature unless explicitly requested in the scene. Scene: Unoccupied outdoor memorial plaza in front of a Korean city hall at dawn, a simple tall black polished stone memorial covered with abstract tiny engraved marks rather than readable lettering, many white chrysanthemum bouquets at its base, wet stone paving, quiet pale gold light, no statues, human imagery or people."
+    },
+    {
+      "id": "mountain",
+      "file": "mountain.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Unoccupied Jirisan mountain trail, rugged granite ridgeline and dense Korean forest, a hiking backpack and binoculars resting on a flat foreground rock, deep valleys with drifting mist, dawn light, detailed bark and moss."
+    },
+    {
+      "id": "office",
+      "file": "office.webp",
+      "width": 1536,
+      "height": 864,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty modern Korean government registration office, thick forms and pen on desk, queue ticket and scanner, unoccupied visitor chairs, cool overhead lighting and city window. No legible words."
+    },
+    {
+      "id": "pcbang",
+      "file": "pcbang.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty Korean PC gaming cafe, curved gaming monitor showing only abstract landscape and glowing UI shapes, keyboard and unattended headset prominent in foreground, rows of empty gaming chairs, blue-purple RGB lighting, no character art or people on screens."
+    },
+    {
+      "id": "penthouse",
+      "file": "penthouse.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Night in an affluent Gangnam penthouse. An elegant marble dining table holds one half-full red wine glass and a sealed document envelope, crystal chandelier overhead, enormous window reveals Seoul skyline and a faint small cyan gate anomaly beyond the city dome. Warm amber interior against cool blue city. Quiet unresolved family tension, tabletop foreground in sharp detail. Empty chairs, entirely unoccupied."
+    },
+    {
+      "id": "relic",
+      "file": "relic.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Macro still life inside a modest Korean bedroom: a mysterious old corroded metallic orb, patches of rust peeling to reveal intricate etched silver patterns and cyan-violet ether filaments, hovering a few centimeters above wooden desk, open old notebook with only unreadable strokes, empty room. This is a metal orb, NOT a jade jewel."
+    },
+    {
+      "id": "rest-stop",
+      "file": "rest-stop.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. The supplied wolf is a STYLE REFERENCE ONLY. Do not include that wolf or its ice crystals. Do not add any creature unless explicitly requested in the scene. Scene: An empty South Korean highway rest-stop parking area near mountains at early morning, a huge worn porter backpack with tied tent and climbing tools resting beside an unoccupied utility van, broken walkie talkie and folded road map on bench, blue dusk and distant cyan gate glimmer, no creatures or people."
+    },
+    {
+      "id": "restaurant",
+      "file": "restaurant.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty modest Korean soup restaurant at night, steaming gukbap bowl, metal spoon, chopsticks and small side dishes on worn wooden table, vacant stools and warm kitchen light, intimate daily life."
+    },
+    {
+      "id": "river",
+      "file": "river.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Unoccupied Han river bank after heavy rain, newspaper with abstract unreadable layout and folded letter on damp wooden bench, running shoes beneath it, river and long Seoul bridge in distance, early morning silver light and soft gold horizon."
+    },
+    {
+      "id": "rooftop",
+      "file": "rooftop.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty Korean apartment rooftop during a storm, struck lightning conductor and a narrow brilliant lightning filament branching over wet concrete, distant blacked-out city, turbulent indigo sky, small cyan ether sparks floating above floor. No hands or bodies."
+    },
+    {
+      "id": "school",
+      "file": "school.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty South Korean school campus and gymnasium at dusk. Playground slide in foreground, school sports field, open auditorium entrance, neat rows of windows and a faint purple ether seam over the roof. A dropped school bag beside empty steps, detailed ink architecture, no children or people."
+    },
+    {
+      "id": "sea",
+      "file": "sea.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Deep underwater near Incheon at night, a huge nonhuman reptilian eye glimpsed beyond murky blue water and rocky seabed, cone of light from an abandoned diving torch in foreground, suspended bubbles, silent mystery. No divers."
+    },
+    {
+      "id": "shrine",
+      "file": "shrine.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: precise-object-edit. Edit target: supplied shrine illustration. Remove the ENTIRE foreground white wolf creature, every part of its body, its ice crystals, frosty breath and creature reflections. Reconstruct the revealed empty environment naturally in exactly the existing detailed ink and cel-shaded illustration style. Preserve camera, composition, backdrop, materials, all foreground objects, and lighting. Do not add any person, silhouette, face, hands or human body parts. No new animal or monster, no text or watermark. Keep the brass bell, incense burner, tea and altar. Replace the red writing on paper talismans with abstract unreadable flowing brush marks, no Chinese or other readable writing. Absolutely no being at all in this shrine room."
+    },
+    {
+      "id": "sky",
+      "file": "sky.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: An empty open parachute canopy and its webbing suspended high over patchwork Korean hills and river, pale dawn clouds, distant transport aircraft, dramatic vast sky, absolutely no person or body in the harness."
+    },
+    {
+      "id": "stadium",
+      "file": "stadium.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Unoccupied university athletics track in South Korea, stopwatch and running shoes beside starting blocks in foreground, empty red running lanes leading toward a gymnasium roof touched by faint purple light, early morning, crisp architecture."
+    },
+    {
+      "id": "stag",
+      "file": "stag.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: A terrifying original giant antlered beast in turquoise gate forest, muscular quadrupedal dark moss-covered hide, branching jagged antlers, predatory mouth gripping a torn guide flag, amber eyes, lowered threatening stance. Match supplied monster quality, detailed ink and cel shading. Entirely nonhuman creature; no humans or body parts."
+    },
+    {
+      "id": "store",
+      "file": "store.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: precise-object-edit. Edit target: supplied store illustration. Remove the entire white wolf monster and ALL ice crystals, frost, and creature reflections. Seamlessly reconstruct the empty floor, architecture and background now revealed. Preserve every other detail, objects, perspective, detailed ink illustration style, cel shading, colors and light. Do not add any new object, anomaly, animal, monster, person, silhouette or body part. This must be a completely UNINHABITED environment illustration, with absolutely no creatures or people. No new text or watermark."
+    },
+    {
+      "id": "street",
+      "file": "street.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Unoccupied modern Korean neighborhood street at dusk, bus shelter and empty bench, an unattended smartphone on the seat with abstract notification glow, power lines, dense small shops, cool violet clouds with a faint unusual sky glow. Ordinary life before awakening."
+    },
+    {
+      "id": "studio",
+      "file": "studio.webp",
+      "width": 1536,
+      "height": 864,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty art student studio, unfinished abstract landscape canvas on wooden easel, paint tubes and brushes, pigment-stained floor and large window, soft late afternoon light, no portraits or figure drawings."
+    },
+    {
+      "id": "study",
+      "file": "study.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty Noryangjin study cubicle, open administrative-law textbook with abstract unreadable lines, fluorescent highlighter, sticky notes, stacked textbooks and silent desk lamp, narrow partitioned desk, exhausted late night atmosphere."
+    },
+    {
+      "id": "subway",
+      "file": "subway.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: precise-object-edit. Edit target: supplied subway illustration. Remove the entire white wolf monster and ALL ice crystals, frost, and creature reflections. Seamlessly reconstruct the empty floor, architecture and background now revealed. Preserve every other detail, objects, perspective, detailed ink illustration style, cel shading, colors and light. Do not add any new object, anomaly, animal, monster, person, silhouette or body part. This must be a completely UNINHABITED environment illustration, with absolutely no creatures or people. No new text or watermark."
+    },
+    {
+      "id": "temple",
+      "file": "temple.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty traditional Korean Buddhist temple hall, foreground incense burner with three incense sticks, wooden floor, paper lanterns and open doorway toward misty green mountain, warm sacred sunlight, no statues or paintings of beings."
+    },
+    {
+      "id": "tiger",
+      "file": "tiger.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. The supplied wolf is a STYLE REFERENCE ONLY. Do not include that wolf or its ice crystals. Do not add any creature unless explicitly requested in the scene. Scene: A gigantic silver-furred Korean mountain tiger spirit seated on a mossy rock in Jirisan forest at midnight, immense but calm and watchful, deep intelligent amber eyes, anatomically convincing quadruped tiger with clear black stripes and thick silver coat, NOT a wolf and NO crystals or antlers. A tiny abandoned campfire and backpack below the rock, emerald forest mist. No humans or humanoids."
+    },
+    {
+      "id": "training",
+      "file": "training.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Unoccupied basement hunter training hall, nicked practice sword and dented shield on equipment bench, sandbags, barbell and weight rack, scuffed rubber flooring, cool ceiling lights with warm edge illumination. No mannequins."
+    },
+    {
+      "id": "workshop",
+      "file": "workshop.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Empty Korean hunter equipment repair workshop, lovingly detailed nicked sword and dented metal shield on workbench, leather straps, tools and spare parts, steel shelving and warm forge light, crisp material surfaces."
+    },
+    {
+      "id": "yacht",
+      "file": "yacht.webp",
+      "width": 1536,
+      "height": 1024,
+      "prompt": "Use case: illustration-story. Asset type: horizontal prologue illustration for Korean hunter RPG Gate Chronicle. Match the supplied monster style reference: premium Korean action webtoon game illustration, meticulous crisp ink contours, sophisticated cel shading, richly drawn material details, convincing depth, cinematic light and controlled highlights. Fully finished commercial game art, not simple shapes, not flat vector, not 3D render, not photography. Landscape 1536x1024 composition with all key subject matter in central horizontal band so a 16:9 crop remains legible on mobile. Modern South Korean urban fantasy setting. Full-bleed single scene, no frame. ABSOLUTELY NO PEOPLE, no human silhouettes, no hands, no human body parts, no human portraits, no humanoid statues, no human images on screens or posters. Tell story through empty environment and objects. No lettering, no readable text, no watermark. Scene: Unoccupied yacht deck on the Han river at night, abandoned wine glasses on polished teak table, city towers reflecting in dark water, subtle distant cyan gate, elegant railing and deep blue sky."
+    }
+  ]
+}

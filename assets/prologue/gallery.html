@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>각성 전야 · 프롤로그 삽화</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #080e18; color: #e2e9f0; font: 15px/1.6 system-ui, sans-serif; }
+  main { max-width: 1500px; margin: auto; padding: 32px 20px; }
+  h1 { margin: 0; font-size: clamp(25px, 4vw, 38px); }
+  .intro { color: #9eafc2; margin: 10px 0 30px; }
+  #gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 20px; }
+  figure { margin: 0; border: 1px solid #25334a; border-radius: 10px; overflow: hidden; background: #111b2b; }
+  img { display: block; width: 100%; aspect-ratio: 16/9; object-fit: cover; object-position: center 55%; }
+  figcaption { padding: 12px 16px; font-weight: 600; }
+  a { color: inherit; text-decoration: none; }
+  a:focus-visible { outline: 3px solid #7cdcca; outline-offset: -3px; }
+</style>
+<main>
+  <h1>각성 전야 · 프롤로그 삽화</h1>
+  <p class="intro">사람 없이 장소와 사물로 표현한 이야기. 그림을 누르면 원본 크기로 볼 수 있습니다. <span id="count"></span></p>
+  <div id="gallery" aria-label="프롤로그 장면별 삽화"></div>
+</main>
+<script>
+const labels = {
+  'gate-subway': '지하철역 게이트 브레이크', 'gate-school': '학교 게이트 브레이크',
+  'gate-market': '시장 게이트 브레이크', 'gate-hospital': '병원 게이트 브레이크',
+  'gate-festival': '축제장 게이트 브레이크', 'gate-apartment': '아파트 게이트 브레이크',
+  tiger: '산신 · 은빛 호랑이', 'cat-alley': '길고양이 밥 주기', karaoke: '송별회 노래방',
+  'abandoned-hospital': '폐병원 탐방', monument: '대붕괴 추모비', 'rest-stop': '포터 집결지 · 귀환',
+  'first-fight': '처음 마주한 괴수',
+  airport: '귀국 · 공항', alley: '뒷골목 · 공터', apartment: '원룸 · 봉쇄선', auction: '에테르 경매장',
+  auditorium: '책임자의 강연장', awakening: '각성의 순간', bank: '은행 · 터진 금고', bathhouse: '목욕탕',
+  bedroom: '평범한 삶 · 방 안', bridge: '무너지는 육교', cafe: '동네 카페', camp: '사흘째 밤 · 야영지',
+  cave: '괴수 둥지', checkpoint: '전역 신고 · 초소', church: '성당 봉사', club: '지하 클럽', courtyard: '희망의 집',
+  dream: '꿈속 강가', 'fallen-gear': '쓰러진 헌터의 장비', festival: '거리 축제', forest: '게이트 숲',
+  'friend-surge': '친구의 폭주 · 연쇄 각성', garden: '할머니 약초밭', 'gate-break': '게이트 브레이크',
+  gatehall: '게이트 체험관', hospital: '격리 병동', kitchen: '치킨집 뒷주방', laboratory: '에테르 연구소',
+  market: '벼룩시장', memorial: '장례식장', mountain: '지리산 종주', office: '관리국 등록', pcbang: '게임 · 헌터넷',
+  penthouse: '강남 펜트하우스', relic: '금속 구슬의 비밀', restaurant: '등록 전날 저녁', river: '폭풍이 지난 강변',
+  rooftop: '낙뢰 · 옥상', school: '학교 · 운동장', sea: '바닷속 거대한 눈', shrine: '신당 · 굿판', sky: '고공 강하',
+  stadium: '육상부', stag: '숲의 주인', store: '편의점 야간', street: '각성 전야의 거리', studio: '졸업 전시',
+  study: '공시생의 독서실', subway: '지하철', temple: '새벽의 산사', training: '비밀 훈련장', workshop: '장비점', yacht: '한강 요트 파티',
+};
+fetch('제작기록.json').then(response => {
+  if (!response.ok) throw new Error('삽화 목록을 불러오지 못했습니다.');
+  return response.json();
+}).then(data => {
+  document.getElementById('count').textContent = `총 ${data.images.length}종`;
+  const gallery = document.getElementById('gallery');
+  data.images.forEach(item => {
+    const figure = document.createElement('figure');
+    const link = document.createElement('a'); link.href = item.file; link.target = '_blank'; link.rel = 'noopener';
+    const image = document.createElement('img'); image.src = item.file; image.alt = labels[item.id] || '프롤로그 삽화';
+    image.width = item.width; image.height = item.height; image.loading = 'lazy';
+    const caption = document.createElement('figcaption'); caption.textContent = image.alt;
+    link.append(image, caption); figure.append(link); gallery.append(figure);
+  });
+}).catch(error => { document.getElementById('count').textContent = error.message; });
+</script>
+</html>
