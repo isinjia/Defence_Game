@@ -8,7 +8,7 @@
 //   연대기 탭에서 보고 복사할 수 있다.
 
 const MENU_GATES = {
-  people: { name: '인물', why: '아는 사람이 생겼다. 대화·선물·함께하기로 관계를 쌓을 수 있다.', ok: (g, p) => g.npcs.some((n) => n.met && n.alive && !n.isCompanion) },
+  people: { name: '인물', why: '아는 사람이 생겼다. 대화·선물로 관계를 쌓을 수 있다.', ok: (g, p) => g.npcs.some((n) => n.met && n.alive && !n.isCompanion) },
   guild: { name: '길드', why: '길드 소식과 가입 조건을 볼 수 있다.', ok: (g, p) => !!p.guild || p.fame >= Math.min(...Object.values(GUILDS).map((x) => x.fameReq)) - 2 },
   hunter: { name: '헌터', why: '헌터로서의 기록(칭호·방송·후원·은퇴)을 볼 수 있다.', ok: (g, p) => p.rankIdx >= 3 || (p.titles || []).length > 0 || !!p.remeasured || !!p.sponsor || g.ageYears() >= 50 },
 };

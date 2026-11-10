@@ -1,59 +1,12 @@
-// ===== 게이트 크로니클: 관계 깊이 2 (함께하기 · 식고 틀어짐 · 단계 장면 · 관계도) =====
-// - 관계 30 이상이면 "함께하기": 같이 수련, 포차 한잔, 연인·배우자와 데이트.
+// ===== 게이트 크로니클: 관계 깊이 2 (식고 틀어짐 · 단계 장면 · 관계도) — 함께하기는 사용자 결정으로 삭제 =====
 // - 가까운 사이도 6개월 넘게 연락이 없으면 조금씩 식는다. "연락"으로 늦출 수 있다. 약속을 어기면 앙금이 남고, 사과로 푼다.
 // - 관계 10·30·50·70에서 그 사람의 장면이 열린다. 장면을 보기 전엔 문턱을 넘지 못한다. 50·70 장면에서 관계의 방향이 갈린다.
 // - 교류 창에서 그 사람 주변의 인연(배우자·연인·스승·제자·원수·친한 사람)이 보인다.
 
 const BOND_T = [10, 30, 50, 70];
-const DATE_SPOTS = {
-  gangnam: '돔 꼭대기 루프탑 바', gangbuk: '폐구 옥상에 누군가 가꾼 작은 정원', incheon: '월미도 야경이 보이는 방파제', gangneung: '해안 전선 너머 일출 전망대',
-  suwon: '성곽길 야간 산책로', daejeon: '연구 단지 천문대', daegu: '근대 골목 카페', ulsan: '대왕암 해안 산책로', gwangju: '금남로 야시장',
-  jeonju: '한옥마을 골목', busan: '해상 도시 끝 해변', jeju: '오름 능선',
-};
 
 Object.assign(Game.prototype, {
   bondSeen(n) { if (n) n.lastSeen = this.monthKey(); },
-  // ---------- 함께하기 ----------
-  togetherOptions(n) {
-    const p = this.player; const out = [];
-    if (!n || !n.alive || n.child || n.relation < 30 || n.region !== p.region) return out;
-    out.push({ k: 'train', name: '같이 수련한다 · 1개월' });
-    if (this.onCity()) out.push({ k: 'drink', name: `포차에서 한잔한다 · ${fmt(this.drinkCost())} 크레딧` });
-    if ((p.partner === n.id || p.spouse === n.id) && this.onCity()) out.push({ k: 'date', name: `데이트 · ${DATE_SPOTS[p.region] || '도시의 밤거리'}` });
-    return out;
-  },
-  together(id, k) {
-    const n = this.npcById(id); const p = this.player; if (!n || !this.canAct()) return '';
-    if (n.lastTogether === this.monthKey()) return `${n.name}와(과)는 이번 달에 이미 시간을 보냈다.`;
-    if (!this.togetherOptions(n).some((o) => o.k === k)) return '';
-    n.lastTogether = this.monthKey(); this.bondSeen(n);
-    if (k === 'train') {
-      const g = Math.round(this.trainGain(1.25)); this.addEther(g);
-      n.progress = (n.progress || 0) + 0.35;
-      this.changeRel(n, this.relGain(n, 6), '함께 수련했다');
-      if (!(n.memories || []).some((m) => m.text.includes('수련'))) this.addMemory(n, '같이 수련하며 서로의 버릇을 고쳐 줬다');
-      this.log(`${n.name}와(과) 한 달간 함께 수련했다. 에테르 +${fmt(g)}`, 'good');
-      this.advanceMonth(1, { eventChance: 0.15 });
-      return `${n.name}와(과) 한 달 동안 같이 수련했다. 혼자일 때보다 숨이 잘 맞았다. 에테르 +${fmt(g)}`;
-    }
-    if (k === 'drink') {
-      const c = this.drinkCost(); if (p.money < c) { n.lastTogether = null; return '크레딧이 부족하다.'; }
-      p.money -= c; p.hp = Math.min(p.maxHp, p.hp + Math.round(p.maxHp * 0.15));
-      this.changeRel(n, this.relGain(n, 5), '포차에서 한잔했다');
-      const line = RNG.pick([`${n.name}이(가) 세 잔째에 옛날 이야기를 꺼냈다.`, '닭발 하나를 두고 실랑이하다 둘 다 웃었다.', `"다음엔 내가 살게." ${n.name}이(가) 말했지만 아마 또 당신이 낼 것이다.`, '비 오는 포장마차 천막 아래, 별말 없이도 편했다.']);
-      if (RNG.chance(0.3)) this.addMemory(n, `${this.region().name} 포차에서 밤새 마셨다`);
-      this.advanceDays(1, { noSave: true });
-      return line;
-    }
-    if (k === 'date') {
-      const spot = DATE_SPOTS[p.region] || '도시의 밤거리';
-      this.changeRel(n, this.relGain(n, 8), '데이트를 했다');
-      this.addMemory(n, `${spot}에서 데이트했다`);
-      p.hp = p.maxHp; this.advanceDays(1, { noSave: true });
-      return RNG.pick([`${spot}. ${n.name}이(가) 손을 잡았다. 오늘만큼은 게이트 경보도 울리지 않았다.`, `${spot}에서 오래 걸었다. "우리, 이렇게 늙어 가면 좋겠다." ${n.name}이(가) 말했다.`, `${spot}. 사진을 찍어 주겠다는 ${n.name}의 손이 자꾸 흔들렸다. 둘 다 웃음이 터졌다.`]);
-    }
-    return '';
-  },
   // ---------- 연락 (멀리 있어도) ----------
   canContact(n) { return n && n.alive && n.met && !n.child && n.relation >= 30 && n.region !== this.player.region && n.lastContact !== this.monthKey(); },
   contact(id) {
@@ -207,15 +160,6 @@ for (const [pers, lines] of Object.entries(PERS_BOND)) {
 })();
 
 Object.assign(UI, {
-  showTogether(id) {
-    const n = G.npcById(id); if (!n) return;
-    if (n.lastTogether === G.monthKey()) return this.after(`${n.name}와(과)는 이번 달에 이미 시간을 보냈다.`);
-    this.bondBack = this.sheet;
-    this.modal(fixJosa(`<div class="story-portrait">${this.npcPortrait(n, 110)}<div><div class="eyebrow">함께하기</div><b>${n.name}</b><div class="small dim">관계 ${relationLabel(n.relation)} (${n.relation})</div></div></div>
-      <p class="event-text">무엇을 함께할까?</p>
-      <div class="cards">${G.togetherOptions(n).map((o) => `<button class="choice-btn" data-act="together" data-v="${id}:${o.k}">${o.name}</button>`).join('')}</div>
-      <div class="row end"><button class="ghost" data-act="bond-back">그만둔다</button></div>`), 'event-box');
-  },
   // 그 사람 주변의 인연 (아는 사람 위주)
   bondMapHtml(n) {
     const rows = []; const add = (id, label, cls) => { const m = typeof id === 'number' && id >= 0 ? G.npcById(id) : null; if (m) rows.push({ m, label, cls }); };
@@ -240,7 +184,6 @@ Object.assign(UI, {
     let html = baseCard.call(this, n, here);
     if (!n || !n.alive || n.child) return html;
     const btns = [];
-    if (here && G.togetherOptions(n).length) btns.push(`<button class="sm" data-act="together-open" data-v="${n.id}" ${n.lastTogether === G.monthKey() ? 'disabled' : ''}>함께하기</button>`);
     if (!here && G.canContact(n)) btns.push(`<button class="sm ghost" data-act="contact" data-v="${n.id}">연락</button>`);
     if (!here && n.grudge) btns.push(`<span class="small bad">앙금: ${n.grudge}</span>`);
     if (btns.length) {
@@ -266,8 +209,6 @@ Object.assign(UI, {
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
     switch (act) {
-      case 'together-open': return this.showTogether(+v);
-      case 'together': { const [id, k] = v.split(':'); return this.bondResult(G.together(+id, k)); }
       case 'contact': return this.after(G.contact(+v));
       default: return baseHandle.call(this, act, v);
     }
