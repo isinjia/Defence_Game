@@ -337,6 +337,23 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
+  await step('괴수 원화: 전 종 이미지·전용 보스·도감 확대와 복귀', async () => {
+    const r = await ev(async () => {
+      const missing = [...MONSTERS, MON_TREASURE].filter((m) => !MonsterArt.data[m.name]);
+      if (missing.length) return '종별 원화 연결 누락';
+      if (MonsterArt.resolve({ name: '[최종] 심연의 군주', shape: 'lord', _tpl: '서리 늑대' }) !== '심연의 군주') return '최종 보스 원화 불일치';
+      await Promise.all(Object.keys(MonsterArt.data).map(async (name) => { const img = new Image(); img.src = MonsterArt.url(name, 'thumb'); await img.decode(); if (!img.naturalWidth) throw new Error('원화 로드 실패'); }));
+      const name = '가시털 들개'; const entry = G.player.dex[name]; G.player.dex[name] = { seen: 1, kills: 1 };
+      try {
+        UI.handle('monster-art', name);
+        const art = document.querySelector('.monster-art-full img'); if (!art) return '원화 확대 화면 없음';
+        await art.decode(); UI.handle('dex-mon', name);
+        if (!document.querySelector('.monster-art-action')) return '원화 확대 뒤 도감 복귀 실패';
+        UI.closeModal(); return '';
+      } finally { if (entry) G.player.dex[name] = entry; else delete G.player.dex[name]; }
+    });
+    if (r) throw new Error(r);
+  });
   await step('시간 진행 3년 (수련·휴식·월간 처리)', async () => {
     await ev(() => { for (let i = 0; i < 36 && !G.over; i++) { if (i % 3) G.train(); else G.rest(); G.queue = []; } });
   });

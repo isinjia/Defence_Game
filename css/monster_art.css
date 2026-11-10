@@ -1,0 +1,7 @@
+.monster-art { display: inline-block; max-width: 100%; object-fit: contain; object-position: center bottom; vertical-align: middle; user-select: none; -webkit-user-drag: none; }
+.foe .monster-art, .ally .monster-art { pointer-events: none; }
+.monster-art-action { display: flex; justify-content: flex-end; margin: 8px 0 12px; }
+.monster-art-box { width: min(96vw, 1000px); max-width: 1000px; }
+.monster-art-full { display: flex; justify-content: center; align-items: center; width: 100%; min-height: 200px; background: radial-gradient(ellipse at 50% 52%, #263143, #0b111e 75%); border: 1px solid #4b5c7344; border-radius: 8px; }
+.monster-art-full .monster-art { width: 100%; height: min(74vh, 800px); }
+@media (max-width: 520px) { .monster-art-full .monster-art { height: min(65vh, 570px); } }
