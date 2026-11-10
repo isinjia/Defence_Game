@@ -44,7 +44,7 @@
     if (!box || (m && m.classList.contains('full')) || box.classList.contains('combat-box') || box.classList.contains('money-pop')) return 0;
     // [A 수정, 사용자 제보] '크레딧'이라는 글자만 있어도 창 위로 올라와, 사건·결과·정보 창 어디서나 맨 위에 떠 버그처럼 보였다.
     // 돈을 쓰는 곳(도시·시설 화면)에서만 창 위에 보이고, 그 밖의 창이 열려 있으면 숨긴다.
-    return box.querySelector('.city-hero, .fac-grid, .shop-list') ? 2 : 0;
+    return 0; // [A, 사용자 제보] 창 위에 떠 있는 표시와 창 안 표시가 둘 다 보여 헷갈렸다. 창이 열리면 창 안의 보유 크레딧(js/wallet_chip.js) 하나만 쓴다
   };
   const roll = (el, from, to) => {
     const id = ++anim; const t0 = performance.now(); const dur = FX && FX.reduced ? 1 : 600;
