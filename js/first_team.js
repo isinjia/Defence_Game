@@ -82,7 +82,7 @@ if (typeof UI !== 'undefined') {
     warlike: (L, t) => `우리 ${t.name}, ${TEAM_SLOT_NAME[t.mySlot]}가 비어서 근질근질하다. 들어와. 대신 따라오기 벅찰 거다.`,
     greedy: (L, t) => `${t.name}의 ${L.name}. ${TEAM_SLOT_NAME[t.mySlot]} 자리 비었어. 조건은 깔끔하게 맞춰 줄게.`,
   };
-  const ask = (L, t) => { const g = G.personaLine ? G.personaLine(L, 'leadGreet', {}, null) : null; if (g) return g; const v = voiceKey(L); return v === 'hao' ? VOICE_HAO.ask(L, TEAM_SLOT_NAME[t.mySlot], t) : (LEAD_ASK[v] || LEAD_ASK.just)(L, t); };
+  const ask = (L, t) => { const g = G.personaLine ? G.personaLine(L, 'leadGreet', {}, null) : null; if (g) return g; const v = voiceKey(L); return VOICE_EXTRA.ask[v] ? VOICE_EXTRA.ask[v](L, TEAM_SLOT_NAME[t.mySlot], t) : (LEAD_ASK[v] || LEAD_ASK.just)(L, t); };
   const welcome = (t) => { const seen = G.personaGreetScene ? G.personaGreetScene() : null; const m = G.npcById(t.members[0]); const w = m && G.personaLine ? G.personaLine(m, 'welcome', {}, seen) : null; return w ? `<p class="small"><b>${m.name}</b> "${w}"</p>` : ''; };
   const rowHtml = (ui, n, tag) => `<div class="item-row">${ui.npcAvatar(n, 36)}<div class="grow"><b>${n.name}</b> ${ui.rankTag(n.rankIdx, n.stage)} ${tag ? `<span class="tag">${tag}</span>` : ''}
     <div><span class="tag cls tiny" style="--c:${groupColor(classById(n.cls).g)}">${className(n.cls)}</span> <span class="small dim">${TEAM_SLOT_NAME[slotOfRole(classById(n.cls).role)]}${n.examMate ? ' · 시험 동기' : n.friendhood ? ' · 소꿉친구' : ''}</span></div></div></div>`;

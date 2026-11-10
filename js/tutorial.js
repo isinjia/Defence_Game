@@ -77,7 +77,7 @@ Object.assign(UI, {
   examLeader() { return this.exam && G.npcById(this.exam.leader); },
   // 리더의 말투: 성격에 따라 조금씩 다르다
   leadSay(key) {
-    const L = this.examLeader(); const pers = L ? voiceKey(L) : 'just';
+    const L = this.examLeader(); const pers = L ? voiceCol(L) : 'just'; // 실제 줄은 C의 persona_voice.js 감싸기가 말투별로 낸다. 여기는 리더가 없을 때의 바탕
     const T = {
       brief: { just: '오늘 너희 임시 파티 리더를 맡은 선임이다. 게이트는 문 열자마자 싸우는 곳이 아니야. 먼저 살피고, 고르고, 그다음에 싸운다. 순서 틀리면 죽는다.', kind: '오늘 여러분을 이끌 선임이에요. 긴장되죠? 저도 처음엔 그랬어요. 게이트는 들어가자마자 싸우는 곳이 아니에요. 먼저 둘러보고, 판단하고, 그다음에 싸워요.', cold: '리더다. 말은 한 번만 한다. 게이트에선 먼저 본다. 고른다. 그다음에 싸운다. 이상.' },
       ex1: { just: '갈림길이다. 탐색에선 고른 행동이 다음 전투를 바꾼다. 정찰하면 적이 약해지고, 욕심내면 적이 늘어난다. 정답은 없어. 결과를 감당하는 게 헌터다.', kind: '갈림길이네요. 여기서 고르는 길에 따라 다음 싸움이 쉬워지기도, 어려워지기도 해요. 정찰은 안전하게, 욕심은 보상을, 대신 대가가 있어요.', cold: '갈림길. 고른 길이 다음 전투를 바꾼다. 정찰, 욕심, 우회. 골라.' },
@@ -96,7 +96,7 @@ Object.assign(UI, {
       win: { just: '"수고했다. 처음치곤 나쁘지 않았어. 밖에선 내가 없다. 오늘 한 순서, 잊지 마라."', kind: '"다들 정말 잘했어요. 오늘 순서대로만 하면 쉽게 안 죽어요. 무슨 일 있으면 연락해요."', cold: '"합격. …살아서 또 보자."' },
       lose: { just: '"내가 끼어든 건 이번이 마지막이다. 밖에서는 아무도 대신 안 싸워 준다."', kind: '"괜찮아요, 다들 처음이니까. 그래도 밖에서는 제가 없어요. 꼭 기억해요."', cold: '"구해 주는 건 오늘뿐이다."' },
     };
-    return ((pers === 'hao' && VOICE_HAO.leadSay[key]) || (T[key] || {})[pers] || (T[key] || {}).just || '').replace(/\{name\}/g, G.player ? G.player.name : '');
+    return ((T[key] || {})[pers] || (T[key] || {}).just || '').replace(/\{name\}/g, G.player ? G.player.name : '');
   },
   // 리더 말 아래에 작게 붙는 조작 설명 (게임 시스템 안내)
   coachSys(key) {
@@ -141,7 +141,7 @@ Object.assign(UI, {
       { who: examiner, text: `실기는 임시 파티 단위로 본다. 훈련용 게이트를 끝까지 통과하면 합격이다. 각 파티엔 협회가 위촉한 현역 헌터가 리더로 붙는다. ${p.name}, 네 파티 리더는 ${L.name}. ${L.guild && GUILDS[L.guild] ? `${GUILDS[L.guild].name} 소속이다.` : `${L.crewName || '자기 파티'}를 꾸리는 파티장이다.`}` },
       { who: L, text: [pl(L, 'leadGreet'), this.leadSay('brief')].filter(Boolean).join(' ') },
       { narr: '임시 파티원들이 차례로 인사한다.', group: mates.map((n) => ({ who: n, text: pl(n, 'greet') || (intro[n.personality] || intro.kind)(n) })) },
-      { who: L, text: pl(L, 'leadBrief') || voicePick({ just: '인사는 됐다. 들어간다. 내 뒤에 붙어.', kind: '자, 그럼 들어가 볼까요? 제 뒤로 따라오세요.', cold: '간다.' }, L, VOICE_HAO.examMap.go) || '간다.' },
+      { who: L, text: pl(L, 'leadBrief') || voicePick({ just: '인사는 됐다. 들어간다. 내 뒤에 붙어.', kind: '자, 그럼 들어가 볼까요? 제 뒤로 따라오세요.', cold: '간다.' }, L, VOICE_EXTRA.go) || '간다.' },
     ], () => { this.tutSkipBtn(false); this.handle('exam-go'); });
     this.tutSkipBtn(true);
   },
