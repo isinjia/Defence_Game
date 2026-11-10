@@ -128,7 +128,7 @@ const { chromium, devices } = require('playwright');
       // '매번 묻기'는 사용자 요청으로 삭제: 전원 찬성이면 패널 없이 바로 진행하는 것도 정상
       const ov = document.getElementById('council-ov');
       if (!ov) { const run = UI.ctx && UI.ctx.run; const moved = !!(run && run.map && run.map.pos) || !!document.getElementById('stage') || !UI.ctx; if (!moved) return '상의 패널도 없고 진행도 안 됨'; p.councilAsk = false; return ''; }
-      const go = ov.querySelector('[data-act="cn-go"],[data-act="cn-force"],[data-act="cn-vote"]'); if (!go) return '진행 버튼 없음';
+      const go = ov.querySelector('[data-act="cn-go"],[data-act="cn-force"],[data-act="cn-vote"],[data-act="cn-tut"],[data-act="blk"]'); if (!go) return '진행 버튼 없음 ' + ov.innerText.replace(/\s+/g, ' ').slice(0, 200);
       UI.handle(go.dataset.act, go.dataset.v || 'O');
       if (document.getElementById('council-ov')) return '진행 뒤에도 패널이 남음';
       p.councilAsk = false; return '';
