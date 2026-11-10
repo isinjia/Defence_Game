@@ -791,3 +791,24 @@ html body .skill-btn > .sk-tags > .sk-tag { display: inline-block !important; wi
 .pvp-res { text-align: center; line-height: 1.6; margin: 4px 0 10px; }
 .pvp-res b { font-size: 16px; }
 .pvp-res.lose b { color: #ff8a9a; }
+
+/* 생사결 뒤 선택 화면 (js/duel_after_ui.js) */
+.duel-choice .dc-head { display: flex; gap: 14px; align-items: center; margin-bottom: 8px; }
+.duel-choice .dc-head h3 { margin: 2px 0; }
+.dc-place { display: grid; gap: 2px; padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid; }
+.dc-place.lawful { border-color: #ff6a7a66; background: #ff4f6a12; }
+.dc-place.lawful b { color: #ff8a9a; }
+.dc-place.lawless { border-color: #9a7bff66; background: #9a7bff12; }
+.dc-place.lawless b { color: #b79bff; }
+.dc-place span { color: var(--dim, #9aa6b8); }
+.dc-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; }
+.dc-tag { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px; border: 1px solid currentColor; white-space: nowrap; }
+.dc-tag.ok { color: #7fe0a0; }
+.dc-tag.warn { color: #ffd84d; }
+.dc-tag.bad { color: #ff6a7a; background: #ff4f6a1a; }
+.dc-result { display: grid; gap: 4px; padding: 10px 12px; border-radius: 8px; margin: 8px 0; border: 1px solid; }
+.dc-result b { font-size: 17px; }
+.dc-result.spare { border-color: #7fe0a066; } .dc-result.spare b { color: #7fe0a0; }
+.dc-result.rob { border-color: #ffb36b66; } .dc-result.rob b { color: #ffb36b; }
+html body .duel-choice .choice-btn { display: flex; flex-direction: column; align-items: stretch; gap: 4px; text-align: left; }
+html body .duel-choice .choice-btn::before { display: none; }
