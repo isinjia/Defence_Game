@@ -3,7 +3,7 @@
 //  보호국도 확률이지만 보호국이 안 뜨면 무소속은 무조건 뜸. 길드 권유는 F급은 안 뜨고 등급에 따라 확률."
 // 1) 길드 권유  : 판정 등급별 확률(AFF_ODDS.guild). F급은 0. 낮은 등급은 지역 중소 길드, C급 이상·특출하면 거대 길드도.
 // 2) 보호국 권유: 길드를 거절했거나 길드 권유가 없었을 때, 등급별 확률(AFF_ODDS.kama). 보호국 = 관리국 산하 헌터 보호국.
-// 3) 무소속 파티: 보호국이 안 떴으면 반드시. 보호국을 거절했으면 등급별 확률(AFF_ODDS.freeAfterKama).
+// 3) 무소속 파티: 항상 온다(보호국을 거절했어도). 거절하면 혼자 시작.
 // 4) 모두 거절 → 완전 솔로.
 // 시험 리더가 그 단계의 소속(길드·보호국·무소속 파티장)이면 리더가 직접 권유하고, 수락하면 리더 파티에 시험 동기와 함께 들어간다.
 // 결과: flags.story.affPath = 'leader' | 'guild' | 'kama' | 'party' | 'solo'. 확률표는 docs/첫_30분_점검.md "시험 뒤 소속 흐름".
@@ -12,7 +12,6 @@
 const AFF_ODDS = {
   guild:         [0,    0.35, 0.6,  0.8,  0.95, 1,    1,   1],   // 길드 권유
   kama:          [0.45, 0.55, 0.65, 0.75, 0.85, 0.9,  0.95, 1],  // 보호국 권유
-  freeAfterKama: [0.85, 0.75, 0.6,  0.5,  0.4,  0.3,  0.2, 0.1], // 보호국을 거절한 뒤 무소속 파티 권유
 };
 const AFF_LEADER = { guild: 0.5, kama: 0.25 }; // 시험 리더 소속: 지역 중소 길드 50% · 보호국 25% · 나머지는 무소속 파티장
 
@@ -129,7 +128,7 @@ if (typeof UI !== 'undefined') {
       const f = G.affFlow(); if (!f || f.done) return this.processQueue();
       if (step === 'guild') { f.guildShown = RNG.chance(odds('guild')); return f.guildShown ? this.affGuildOffer() : this.affStep('kama'); }
       if (step === 'kama') { f.kamaShown = RNG.chance(odds('kama')); return f.kamaShown ? this.affKamaOffer() : this.affStep('free'); }
-      if (step === 'free') { const show = !f.kamaShown || RNG.chance(odds('freeAfterKama')); return show ? this.affFreeOffer() : this.affSolo(null); }
+      if (step === 'free') { return this.affFreeOffer(); }
       return this.processQueue();
     },
     // 리더가 직접 권유하는 장면 (그 단계의 소속이 리더 소속과 같을 때)
