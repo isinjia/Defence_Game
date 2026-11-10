@@ -321,7 +321,7 @@
 
 /* 대화창: 휴대폰 세로에서는 화면 가운데쯤에 (맨 아래는 엄지·제스처 막대와 겹치고 시선이 멀다) */
 @media (orientation: portrait) and (max-width: 640px) {
-  body #dlg { justify-content: center; padding-bottom: calc(12vh + env(safe-area-inset-bottom, 0px)); background: radial-gradient(ellipse at 50% 55%, #04060ad9 0%, #04060a99 45%, #04060a40 80%, #0000 100%); }
+  body #dlg { justify-content: center; padding-bottom: calc(12vh + env(safe-area-inset-bottom, 0px)); background: #04060a59; } /* 가운데가 진한 원형 그림자는 지도 한가운데에 검은 덩어리처럼 보여서(사용자 제보) 화면 전체를 고르게 살짝 어둡게 */
 }
 
 /* ===== 판정 통지서 (종이 공문) ===== */
