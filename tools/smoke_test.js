@@ -54,6 +54,7 @@ const { chromium, devices } = require('playwright');
   await step('헌터 자격 시험(건너뛰기 또는 자동 전투) → 지도', async () => {
     for (let i = 0; i < 12; i++) {
       const acts = await ev(() => [...document.querySelectorAll('#modal-box [data-act]')].map((e) => e.dataset.act));
+      if (acts.includes('st-go')) { await act('st-go'); continue; }
       if (acts.includes('exam-skip')) { await act('exam-skip'); continue; }
       if (await ev(() => !!document.getElementById('tut-skip'))) { await page.click('#tut-skip'); await page.waitForTimeout(200); continue; }
       if (acts.includes('exam-party')) { await act('exam-party'); continue; }
@@ -344,7 +345,7 @@ const { chromium, devices } = require('playwright');
           if (s.wait) await pg.evaluate(() => { const c = UI.ctx, cb = c.combat; if (c.playing) return; if (!c.sel) UI.handle('c-skill', cb.player.skills[0]); else { const f = cb.units.find((u) => u.side === 'enemy' && u.alive); UI.handle('c-target', f.id); } });
           await pg.waitForTimeout(400); continue;
         }
-        const pick = ['cn-tut', 'exam-party', 'exm-watch', 'exm-node', 'ex-go', 'ex-pick', 'story-choice', 'modal-close'].find((a) => s.acts.includes(a)) || s.acts[0];
+        const pick = ['st-go', 'cn-tut', 'exam-party', 'exm-watch', 'exm-node', 'ex-go', 'ex-pick', 'story-choice', 'modal-close'].find((a) => s.acts.includes(a)) || s.acts[0];
         if (pick) await pg.click('#modal-box [data-act="' + pick + '"]:not([disabled]) >> nth=0', { timeout: 3000 }).catch(() => {});
         await pg.waitForTimeout(400);
       }
