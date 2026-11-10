@@ -68,9 +68,14 @@ if (typeof UI !== 'undefined') {
     showStatusCheck(forExam) {
       if (forExam) { this.screen = 'game'; this.render(); }
       this.modal(this.statusHtml(forExam), 'st-modal');
+      document.body.classList.add('st-open'); // 소지품에 돈이 나오니 위쪽 크레딧 표시(hud_money)는 숨긴다
       const box = document.getElementById('modal-box'); if (box) box.scrollTop = 0;
     },
   });
+
+  const baseModal = UI.modal, baseCloseM = UI.closeModal;
+  UI.modal = function (html, cls = '') { if (!String(cls).includes('st-modal')) document.body.classList.remove('st-open'); return baseModal.apply(this, arguments); };
+  UI.closeModal = function () { document.body.classList.remove('st-open'); return baseCloseM.apply(this, arguments); };
 
   // 시험 시작 전에 한 번 끼워 넣는다
   const baseStart = UI.startExam;
