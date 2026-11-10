@@ -528,3 +528,12 @@ body.tut-hold #coach-pop { z-index: 60; }
 .money-pop .ml-why { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .money-pop .ml-gap { margin-top: 12px; }
 .money-pop .good { color: #5fe08a; } .money-pop .bad { color: #ff6b6b; }
+
+/* 버프·약화 글자 (buff_fx.js): 받는 사람마다, 겹치지 않게 엇갈려 */
+.float-num.bfx { z-index: 6; font-family: var(--font-body); font-size: 14px; font-weight: 800; white-space: nowrap; }
+.float-num.bfx.up { color: #8dffb0; }
+.float-num.bfx.down { color: #ff8a8a; }
+.bfx-dim { animation: bfxdim .6s ease-out; }
+@keyframes bfxdim { 30% { filter: brightness(.6) saturate(1.4); box-shadow: 0 0 16px var(--hc, #ff6b6b); } }
+.st-flash { animation: stflash .7s ease-out; }
+@keyframes stflash { 0%, 100% { filter: none; transform: none; } 30% { filter: brightness(2.2) drop-shadow(0 0 6px #fff); transform: scale(1.25); } }
