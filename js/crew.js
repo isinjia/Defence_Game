@@ -348,12 +348,12 @@ Object.assign(UI, {
   const baseFinishGate = UI.finishGate;
   UI.finishGate = function (result) {
     const c = this.ctx;
-    if (c && c.crewRaid && result !== 'lose') c.loot.money = Math.round(c.loot.money * CREW_SHARE);
+    if (c && c.crewRaid && result !== 'lose') c.loot.money = Math.round(c.loot.money * (G.crewShareRate ? G.crewShareRate() : CREW_SHARE)); // 4-22: 무소속 팀 배당(payroll.js)
     baseFinishGate.call(this, result);
     if (c && c.crewRaid && G.crew()) {
       if (result === 'clear') { G.crewTrust(4); for (const n of G.party()) G.changeRel(n, 2); }
       if (result === 'retreat') G.crewTrust(-2);
-      this.toast(result === 'lose' ? '파티원들이 당신을 업고 나왔다.' : `파티 분배: 리더 몫과 공용 경비를 빼고 ${Math.round(CREW_SHARE * 100)}%를 받았다.`);
+      this.toast(result === 'lose' ? '파티원들이 당신을 업고 나왔다.' : `파티 분배: 리더 몫과 공용 경비를 빼고 ${Math.round((G.crewShareRate ? G.crewShareRate() : CREW_SHARE) * 100)}%를 받았다.`);
       G.save();
     }
   };

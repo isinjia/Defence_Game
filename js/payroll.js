@@ -48,7 +48,7 @@ Object.assign(Game.prototype, {
   },
   // 권유 장면·제안서에 쓰는 조건 요약 (D·C 영역에서 불러 쓴다)
   payTermsText(gid) {
-    const k = this.payKind(gid); if (!k) return '무소속: 전리품을 직접 갖는다. 자유 동료와는 능력(전투력)에 비례해 나누고, 혼자 가면 조금 더(크레딧 +10%).';
+    const k = this.payKind(gid); if (!k) return '무소속: 전리품을 직접 갖는다. 자유 동료와는 능력(전투력)에 비례해 나누고, 리더가 있는 팀에선 정해진 배당(실력 좋은 팀 8~10%·보통 15%·초보끼리 20%), 혼자 가면 조금 더(크레딧 +10%).';
     const T = PAY_TERMS[k]; const pr = k !== 'kama' && this.isProspect();
     const sal = k === 'kama' ? this.payBase(gid) : Math.round(this.payBase(gid) * (pr ? 1.4 : 1));
     const inc = Math.round(((T.inc[0] + T.inc[1]) / 2) * 100);
@@ -66,6 +66,14 @@ Object.assign(Game.prototype, {
     const sign = Math.round(sal * 6 * T.sign * (pr ? (k === 'big' ? 2.5 : 1.5) : 1));
     return `월급 ${fmt(sal)} + 성과급 약 ${inc}%${sign ? ` · 계약금 약 ${fmt(sign)}` : ''}${pr ? ` · 유망주 지원(${k === 'big' ? '훈련비·장비' : '장비'})` : ''}`;
   },
+  // 4-22 무소속 팀 배당: D가 팀에 들 때 p.crewShare(또는 p.crew.share)를 0.08~0.2로 저장한다.
+  // 무소속이고 배당률이 있으면 balance.js의 능력 비례 분배 대신 이 배당을, crew.js 원정은 75% 대신 이 배당을 쓴다.
+  freeShare() {
+    const p = this.player; if (!p || this.payKind(p.guild)) return null;
+    const v = (p.crew && typeof p.crew.share === 'number') ? p.crew.share : (typeof p.crewShare === 'number' ? p.crewShare : null);
+    return v != null ? Math.max(0.01, Math.min(1, v)) : null;
+  },
+  crewShareRate() { const v = this.freeShare(); return v != null ? v : (typeof CREW_SHARE !== 'undefined' ? CREW_SHARE : 0.75); },
   payInit() {
     const p = this.player; if (!p) return;
     p.pay ??= { pool: 0, mk: this.monthKey(), last: null, gearYear: -1 };
@@ -119,10 +127,19 @@ Object.assign(Game.prototype, {
     return c;
   });
   // 게이트 전리품 크레딧은 소속에 귀속
+  wrap('shareMates', function (base) { return this.freeShare() != null && !this.noPool ? [] : base.call(this); });
   wrap('finishGate', function (base, gate, result, loot, ...rest) {
     const p = this.player; const gid = p.guild; const k = this.payKind(gid);
+    let teamNote = '';
+    const fs = this.freeShare();
+    if (fs != null && !this.noPool && result !== 'lose' && loot && this.party().length) {
+      const n = this.party().length + 1; const total = loot.money || 0;
+      loot.money = Math.round(total * fs); loot.ether = Math.round((loot.ether || 0) * Math.max(fs, 1 / n));
+      teamNote = `팀 배당: 전리품 ${fmt(total)} 크레딧 중 내 몫 ${Math.round(fs * 100)}% (${fmt(loot.money)} 크레딧). 나머지는 리더와 팀원·공용 경비로.`;
+    }
     const before = p.money;
     const lines = base.call(this, gate, result, loot, ...rest);
+    if (teamNote && Array.isArray(lines)) lines.unshift(teamNote);
     if (!k || result === 'lose' || this.noPool || !loot || !(loot.money > 0)) return lines;
     const got = Math.min(loot.money, Math.max(0, p.money - before));
     if (got <= 0) return lines;
