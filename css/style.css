@@ -903,4 +903,4 @@ html body .combat-box.fit .foe.foe-card > .status { order: 5; }
 html body #foes.foe-grid .foe.row-shift { transform: none !important; left: auto !important; margin-left: 0 !important; }
 html body .combat-box.fit #foes.foe-grid .foe.span-rows { align-self: center !important; }
 /* 적 두 줄은 전장 가운데에 모아 둔다 (아군 줄에 붙지 않게). 줄 높이는 기준 크기에 맞춰 고정이라 한 줄만 써도 자리가 변하지 않는다. */
-html body .combat-box.fit #foes.foe-grid { grid-template-rows: repeat(2, calc(var(--fs, 72px) * 1.45 + 54px)); align-content: center; row-gap: 6px; padding-bottom: 6%; }
+html body .combat-box.fit #foes.foe-grid { grid-template-rows: repeat(2, calc(var(--fs, 72px) * 1.45 + 54px)); align-content: center; row-gap: 6px; padding-bottom: 0; }
