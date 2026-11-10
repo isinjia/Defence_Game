@@ -308,8 +308,7 @@ Object.assign(UI, {
     if (p && p.order && myTurn && L && !L.isPlayer) {
       const lf = document.getElementById('u-' + L.id);
       if (lf && p.order.say) { const host = lf.querySelector('.fx-host') || lf; host.insertAdjacentHTML('beforeend', `<span class="order-bubble">${fixJosa(p.order.say)}</span>`); }
-      const t = p.order.target && document.getElementById('u-' + p.order.target);
-      if (t) t.classList.add('marked');
+      const t = p.order.target && p.order.target !== p.id && document.getElementById('u-' + p.order.target);
       // ⑥ 처음 한 번만 설명
       let seen = false; try { seen = localStorage.getItem('gc_order_tip') === '1'; } catch (e) { seen = true; }
       // 자격 시험의 조작 안내가 진행 중이면 그 뒤로 미룬다 (안내를 가리지 않게)
@@ -350,6 +349,12 @@ Object.assign(UI, {
     for (const u of cb.units) {
       if (u.side !== 'ally' || !u.order || !u.order.target) continue;
       if (u.isPlayer && !myTurn) continue;
+      // 점선은 스킬이 실제로 향하는 대상에게만: 적 대상 스킬은 적, 아군 대상 스킬(치유·강화·방어 등)은 그 아군.
+      // 자기 대상·아군 전체 스킬이나 자기 자신을 가리키는 오더는 점선 없이 시전자 머리 위 오더 표식만 둔다.
+      const tu = cb.units.find((x) => x.id === u.order.target);
+      const osk = u.order.skill && skillById(u.order.skill);
+      const aim = u.order.act === 'item' ? 'ally' : osk ? orderAimOf(osk) : 'none';
+      if (!tu || tu === u || aim === 'none' || (aim === 'enemy' && tu.side === u.side) || (aim === 'ally' && tu.side !== u.side)) continue;
       const a = document.getElementById('u-' + u.id); const b = document.getElementById('u-' + u.order.target);
       if (!a || !b) continue;
       const ra = (a.querySelector('.fx-host') || a).getBoundingClientRect();

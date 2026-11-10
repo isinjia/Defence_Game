@@ -10,6 +10,8 @@ const AOE_TYPES = ['aoe', 'debuff', 'heal_all', 'shield_all', 'buff_all'];
   let grpN = 0;
   const baseUse = C.useSkill;
   C.useSkill = function (u, skill, target) {
+    // 적을 겨냥하지 않는 스킬(치유·강화·방어·도발·소환 등)에 적이 대상으로 넘어오면 버린다 (연출이 적을 때리는 것처럼 보이지 않게)
+    if (skill && target && target.side !== u.side && ['heal', 'heal_ally', 'heal_all', 'revive', 'buff', 'buff_all', 'shield', 'shield_all', 'evade', 'taunt', 'summon'].includes(skill.type)) target = null;
     // 전체 기술: 종류가 전체 계열이거나, 괴수 전용 전체기(자폭·숨결·진동 등 intent 'aoe')
     const wide = skill && (AOE_TYPES.includes(skill.type) || skill.aoe || skill.intent === 'aoe' || /aoe|blast|_all$/.test(skill.type || ''));
     if (!wide || this._grp) return baseUse.call(this, u, skill, target);
