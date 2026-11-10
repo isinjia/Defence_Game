@@ -167,7 +167,7 @@ S({ id: 'vow_revenge', trigger: 'system', npc: 'here', text: '{npc}에게서 메
   ] });
 S({ id: 'child_born', trigger: 'system', npc: 'here', text: '아이가 태어났다. {npc}. 작은 손가락이 당신 손가락을 꽉 쥔다. 에테르 냄새가 난다. 언젠가 이 아이도 각성하겠지.',
   choices: [
-    { text: '"아빠/엄마가 지켜 줄게"', do: (g) => '세상이 조금 달라 보였다.' + g.gain({ hp: 1, fame: 3 }) },
+    { text: '"내가 지켜 줄게"', do: (g) => '세상이 조금 달라 보였다.' + g.gain({ hp: 1, fame: 3 }) },
   ] });
 
 

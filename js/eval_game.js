@@ -198,3 +198,52 @@ if (typeof Game !== 'undefined' && Game.prototype.playerRankScore) {
     return p.official * 1000 + (p.official === p.rankIdx ? p.stage * 300 : 0) + Math.min(p.fame || 0, 1000) * 0.35 + Math.min((p.record && p.record.gates) || 0, 150) * 1.5;
   };
 }
+
+// 14) 연애·결혼·출산 속도(5차 평가 스토리 과락): 3월에 처음 만나 4월 연인 → 7월 결혼 → 11월 출산, 동성 부부 출산까지.
+//     고백은 헌터가 되고 6개월 뒤부터, 청혼은 사귄 지 1년 뒤부터, 아이는 결혼 10개월 뒤부터(이성 부부만).
+if (typeof Game !== 'undefined' && typeof REQUESTS !== 'undefined') {
+  const GP = Game.prototype;
+  const baseInit = GP.initSandbox;
+  GP.initSandbox = function (...a) {
+    const r = baseInit.apply(this, a);
+    const p = this.player;
+    if (p) { p.startMk ??= this.monthKey(); if (p.partner) p.partnerSince ??= this.monthKey() - 12; if (p.spouse) p.spouseSince ??= this.monthKey() - 12; }
+    return r;
+  };
+  const C = REQUESTS.confess, P = REQUESTS.propose;
+  if (C) {
+    const w = C.who, on = C.onAccept;
+    C.who = (g) => (g.monthKey() - (g.player.startMk ?? g.monthKey()) < 6 ? [] : w(g));
+    C.onAccept = (g, c) => { g.player.partnerSince = g.monthKey(); return on(g, c); };
+  }
+  if (P) {
+    const w = P.who, on = P.onAccept;
+    P.who = (g) => (g.monthKey() - (g.player.partnerSince ?? g.monthKey()) < 12 ? [] : w(g));
+    P.onAccept = (g, c) => { g.player.spouseSince = g.monthKey(); return on(g, c); };
+  }
+  const baseSM = GP.storyMonthly;
+  GP.storyMonthly = function (...a) {
+    const p = this.player; const sp = p && p.spouse && this.npcById(p.spouse);
+    const hide = !!sp && (this.monthKey() - (p.spouseSince ?? this.monthKey()) < 10 || sp.gender === p.gender);
+    const keep = p && p.spouse; if (hide) p.spouse = null;
+    try { return baseSM.apply(this, a); } finally { if (hide) p.spouse = keep; }
+  };
+}
+
+// 15) 시험 동기와 측정 일주일 만에 '절친 95'(5차 평가): 헌터가 된 첫 몇 달은 새로 만난 사람과의 관계가 천천히 쌓인다.
+//     첫 달 최대 60, 한 달마다 +10 (소꿉친구·가족은 예외).
+if (typeof Game !== 'undefined') {
+  const baseRel = Game.prototype.changeRel;
+  Game.prototype.changeRel = function (n, d, ...a) {
+    const before = n ? n.relation : 0;
+    const r = baseRel.call(this, n, d, ...a);
+    try {
+      const p = this.player;
+      if (n && d > 0 && p && p.startMk != null && !n.friendhood && !(n.parents || []).includes(-1)) {
+        const cap = 60 + 10 * Math.max(0, this.monthKey() - p.startMk);
+        if (cap < 100 && n.relation > cap) n.relation = Math.max(before, cap);
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+}
