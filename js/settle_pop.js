@@ -37,7 +37,8 @@
             <div class="sr"><span>크레딧</span><b class="amber">+${fmt(money)}</b></div>
             <div class="sr"><span>에테르</span><b class="ether">+${fmt(ether)}</b></div>
             ${drops || '<div class="sr-line dim">이번에는 건진 코어가 없다.</div>'}
-            <div class="sr dim"><span>이번 게이트 누적</span><b>${fmt(c.loot.money)} 크레딧 · 에테르 ${fmt(c.loot.ether)}</b></div></div>`;
+            <div class="sr dim"><span>이번 게이트 누적</span><b>${fmt(c.loot.money)} 크레딧 · 에테르 ${fmt(c.loot.ether)}</b></div>
+            <div class="small dim">이 게이트 안에서 쓰러지면 여기서 얻은 것을 거의 다 잃고, 차고 있던 장비도 잃을 수 있다.</div></div>`;
         } else res.remove();
       }
       const el = pop(mb, `<div class="settle-head ${cb.result}">${head}</div>`, 'combat ' + cb.result);
