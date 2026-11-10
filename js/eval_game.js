@@ -61,6 +61,11 @@ if (typeof Game !== 'undefined') {
   Game.prototype.scaleForParty = function (list, tier) {
     const r = baseScale.call(this, list, tier); const n = this.partySize();
     if (n >= 3 && !this._tutorialMobs) for (const e of r) e.atk = Math.round(e.atk * (1 + 0.13 * (n - 2)));
+    // 4차 평가: 솔로 F·E급은 첫 게이트 보스에서 8번 중 7번 졌다(파티는 5/5). 혼자일 때 F·E 게이트는 강화분을 걷어 내고 보스는 조금 더 약하게.
+    if (n <= 1 && tier <= 1 && !this._tutorialMobs) for (const e of r) {
+      const a = e.boss ? THREAT.bossAtk : THREAT.atk; const h = (e.boss ? THREAT.bossHp : THREAT.hp) * (e.boss ? 1.15 : 1);
+      e.atk = Math.round(e.atk / a); e.hp = e.maxHp = Math.round(e.maxHp / h);
+    }
     return r;
   };
 }
@@ -166,14 +171,14 @@ if (typeof GateRun !== 'undefined' && GateRun.tier) {
 
 // 11) 후반 크레딧 인플레이션(독립 평가: 70년에 900만~1,300만): 등급별 기준(30만 × 등급 배수)을 넘는 자산에 매달 1.5% '각성자 고소득 특별세'.
 //     초반·가난한 판에는 닿지 않고, 쌓아 두기만 한 돈을 깎아 투자·후원·장비로 쓰게 민다.
-const WEALTH_TAX = { base: 300000, rate: 0.015 };
+const WEALTH_TAX = { base: 250000, rate: 0.02 }; // 4차 평가: 70년 뒤 수백만이 쌓임 → 기준을 등급 배수의 제곱근으로, 세율 2%
 if (typeof Game !== 'undefined') {
   const baseMonth = Game.prototype.advanceMonth;
   Game.prototype.advanceMonth = function (n = 1, opts = {}) {
     const r = baseMonth.call(this, n, opts);
     try {
       const p = this.player; if (!p || this.over) return r;
-      const thr = Math.round(WEALTH_TAX.base * RANKS[p.rankIdx].mult);
+      const thr = Math.round(WEALTH_TAX.base * Math.sqrt(RANKS[p.rankIdx].mult));
       if (p.money > thr) {
         const tax = Math.round((p.money - thr) * WEALTH_TAX.rate * n);
         if (tax > 0) { p.money -= tax; p.taxPaid = (p.taxPaid || 0) + tax; this.log(`각성자 고소득 특별세 ${fmt(tax)} 크레딧 납부 (자산 ${fmt(thr)} 초과분의 ${WEALTH_TAX.rate * 100}%)`); }
@@ -184,3 +189,12 @@ if (typeof Game !== 'undefined') {
 }
 
 
+
+// 13) 랭킹 독주(4차 평가: 게이트·파티형 12판 중 8판이 70년 내내 1위): 플레이어 점수에 게이트 횟수 ×4가 상한 없이 붙어
+//     2,000번 돌면 등급 8단계보다 큰 가산이 됐다. 명성·게이트 가산에 상한(합쳐 최대 등급 반 단계 남짓)을 둔다.
+if (typeof Game !== 'undefined' && Game.prototype.playerRankScore) {
+  Game.prototype.playerRankScore = function () {
+    const p = this.player;
+    return p.official * 1000 + (p.official === p.rankIdx ? p.stage * 300 : 0) + Math.min(p.fame || 0, 1000) * 0.35 + Math.min((p.record && p.record.gates) || 0, 150) * 1.5;
+  };
+}

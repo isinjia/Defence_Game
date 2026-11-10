@@ -117,3 +117,23 @@ if (typeof UI !== 'undefined' && UI.showIdCard) {
     return baseShow.apply(this, arguments);
   };
 }
+
+// 4차 평가: 솔로 F급 첫 과제 '가까운 게이트 하나 공략하기'에 이동 버튼이 없었다(알맞은 게이트가 아직 지도에서 안 밝혀짐).
+// 수첩 창을 열 때 알맞은 게이트가 하나도 안 보이면, 가장 가까운 것 하나를 협회 앱 공지로 밝혀 준다.
+if (typeof UI !== 'undefined' && UI.questsHtml) {
+  const baseQ = UI.questsHtml;
+  UI.questsHtml = function () {
+    try {
+      const p = G.player; const nb = p && p.notebook; const t = nb && G.nbTask && G.nbTask();
+      if (t && t.id === 'gate' && G.mapGates && G.revealed) {
+        const cap = p.rankIdx + (G.party().length >= 2 ? 1 : 0); const d = (o) => Math.max(Math.abs(o.x - p.x), Math.abs(o.y - p.y));
+        const fit = G.mapGates.filter((x) => x.tier <= cap && !x.cleared).sort((a, b) => d(a) - d(b));
+        if (fit.length && !fit.some((x) => G.revealed(x.x, x.y))) {
+          const g = fit[0]; if (G.reveal) G.reveal(g.x, g.y, 1);
+          G.log(`헌터 협회 앱 공지: ${RANKS[g.tier].key}급 게이트 위치가 공개됐다. (걸어서 약 ${d(g) * 2}일)`);
+        }
+      }
+    } catch (e) { /* 무시 */ }
+    return baseQ.apply(this, arguments);
+  };
+}

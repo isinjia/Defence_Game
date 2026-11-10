@@ -362,7 +362,7 @@ S({ id: 'nb_end', trigger: 'system', npc: 'here',
       return '';
     };
     const rows = NB_TASKS.map((t, i) => `<div class="item-row ${i === nb.i ? 'hl' : ''}"><div class="grow"><b>${i < nb.i ? '✔' : i === nb.i ? '▸' : '·'} ${t.name}</b>${i === nb.i ? `<div class="small dim">${t.why}</div>` : ''}</div>${i === nb.i ? go(t) : ''}</div>`).join('');
-    return `<div class="panel"><h3>첫 해 수첩</h3><p class="dim small">${m ? `${m.name}(${v.who})` : v.who}이(가) 내려 준 과제. 하나씩 끝낼 때마다 다음 과제가 온다.</p><div class="cards">${rows}</div></div>` + html;
+    return `<div class="panel"><h3>첫 해 수첩</h3><p class="dim small">${fixJosa(`${m ? `${v.who} ${m.name}` : v.who}이(가)`)} 내려 준 과제. 하나씩 끝낼 때마다 다음 과제가 온다.</p><div class="cards">${rows}</div></div>` + html;
   };
 })();
 
