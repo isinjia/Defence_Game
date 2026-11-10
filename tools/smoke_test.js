@@ -52,11 +52,11 @@ const { chromium, devices } = require('playwright');
     if (m) throw new Error('한자가 남아 있음: ' + [...new Set(m)].slice(0, 8).join(' '));
   });
   await step('헌터 자격 시험(건너뛰기 또는 자동 전투) → 지도', async () => {
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 14; i++) {
       const acts = await ev(() => [...document.querySelectorAll('#modal-box [data-act]')].map((e) => e.dataset.act));
       if (acts.includes('st-go')) { await act('st-go'); continue; }
       if (acts.includes('exam-skip')) { await act('exam-skip'); continue; }
-      if (await ev(() => !!document.getElementById('tut-skip'))) { await page.click('#tut-skip'); await page.waitForTimeout(200); continue; }
+      if (await ev(() => !!document.getElementById('tut-skip'))) { await page.click('#tut-skip', { timeout: 3000 }).catch(() => {}); await page.waitForTimeout(250); continue; }
       if (acts.includes('exam-party')) { await act('exam-party'); continue; }
       if (await ev(() => !!document.querySelector('.dlg-choice'))) { await page.click('.dlg-choice >> nth=0'); await page.waitForTimeout(150); continue; }
       if (await ev(() => !!UI.dlg)) { await ev(() => UI.dlgEnd()); continue; }
