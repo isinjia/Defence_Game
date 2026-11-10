@@ -33,6 +33,20 @@ const { chromium, devices } = require('playwright');
   const act = (a, v) => ev(([a, v]) => UI.handle(a, v), [a, v]);
   const closeAll = () => ev(() => { for (let i = 0; i < 10 && UI.modalOpen(); i++) UI.closeModal(); G.queue = []; });
 
+  await step('세계관 오프닝: 이미지·다음·이전·스킵·다시 보기', async () => {
+    await page.waitForSelector('.world-opening');
+    await page.waitForFunction(() => document.querySelector('.opening-art').naturalWidth > 0);
+    await page.click('[data-opening="pause"]');
+    await page.click('[data-opening="next"]');
+    if (!await page.locator('.opening-era').textContent().then(t => t.includes('대붕괴'))) throw new Error('두 번째 장면 아님');
+    await page.click('[data-opening="prev"]');
+    if (!await page.locator('.opening-era').textContent().then(t => t.includes('2067'))) throw new Error('첫 장면 복귀 실패');
+    await page.click('[data-opening="skip"]');
+    if (await page.locator('.world-opening').count()) throw new Error('스킵 실패');
+    await page.click('[data-act="world-opening"]');
+    await page.keyboard.press('Escape');
+    if (await page.locator('.world-opening').count()) throw new Error('다시 보기 종료 실패');
+  });
   await step('타이틀 화면', async () => { const n = await ev(() => document.querySelectorAll('#app [data-act]').length); if (!n) throw new Error('버튼 없음'); });
   await step('타이틀 배경 이미지 로드', async () => {
     await page.waitForFunction(() => { const img = document.querySelector('.title-art'); return img && img.complete && img.naturalWidth > 0; });
@@ -453,7 +467,8 @@ const { chromium, devices } = require('playwright');
   await step('저장 → 새로고침 → 이어하기', async () => {
     const before = await ev(() => { G.save(); return { name: G.player.name, ym: G.year * 12 + G.month }; });
     await page.reload(); await page.waitForTimeout(600);
-    await act('continue'); await page.waitForTimeout(300);
+    await page.click('[data-opening="skip"]');
+    await page.click('[data-act="continue"]'); await page.waitForTimeout(300);
     const after = await ev(() => G.player ? { name: G.player.name, ym: G.year * 12 + G.month } : null);
     if (!after || after.name !== before.name || after.ym !== before.ym) throw new Error(`불러온 값이 다름: ${JSON.stringify(before)} → ${JSON.stringify(after)}`);
   });
@@ -465,7 +480,8 @@ const { chromium, devices } = require('playwright');
       localStorage.setItem(SAVE_KEY, JSON.stringify(d));
     });
     await page.reload(); await page.waitForTimeout(600);
-    await act('continue'); await page.waitForTimeout(300);
+    await page.click('[data-opening="skip"]');
+    await page.click('[data-act="continue"]'); await page.waitForTimeout(300);
     const r = await ev(() => ({ p: G.player.element, n: G.npcs[0].element, g: (G.mapGates.find((x) => x.id === 999777) || {}).elem, f: G.player.foeSeen[0], m: elemMult('holy', 'dark') + elemMult('water', 'fire') + elemMult('fire', 'water') }));
     if (r.p !== 'water' || r.n !== 'dark' || (r.g && r.g !== 'wood') || r.f !== '고목 거신' || Math.abs(r.m - 3.7) > 1e-9) throw new Error('이전 결과: ' + JSON.stringify(r));
   });
@@ -490,7 +506,7 @@ const { chromium, devices } = require('playwright');
     const c3 = await browser.newContext({ ...devices['iPhone SE'] }); const pg = await c3.newPage();
     const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
     try {
-      await pg.goto(url); await pg.evaluate(() => localStorage.clear()); await pg.reload(); await pg.waitForTimeout(300);
+      await pg.goto(url); await pg.evaluate(() => localStorage.clear()); await pg.reload(); await pg.waitForTimeout(300); await pg.click('[data-opening="skip"]');
       await pg.evaluate(() => { UI.handle('new'); UI.handle('mode-manual'); UI.create.name = '말풍선'; UI.handle('c-start'); });
       await pg.evaluate(() => {
         window.__sp = { max: 0, jumps: 0, note: '' }; let last = null, lastKey = null;
@@ -525,7 +541,7 @@ const { chromium, devices } = require('playwright');
   for (const D of ['iPhone SE', 'Galaxy S9+', 'Galaxy Z Fold 7 Cover', 'Pixel 7']) {
     const c2 = await browser.newContext({ ...devices[D] }); await c2.addInitScript(() => { window.TUT_AUTO_TAP = true; }); const pg = await c2.newPage();
     try {
-      await pg.goto(url); await pg.evaluate(() => localStorage.clear()); await pg.reload(); await pg.waitForTimeout(400);
+      await pg.goto(url); await pg.evaluate(() => localStorage.clear()); await pg.reload(); await pg.waitForTimeout(400); await pg.click('[data-opening="skip"]');
       await pg.evaluate(() => {
         UI.handle('new'); UI.handle('mode-manual'); UI.create.name = '화면'; UI.handle('c-start');
         for (let i = 0; i < 12 && UI.modalOpen(); i++) UI.closeModal(); G.queue = []; G.player.examDone = true;
