@@ -880,7 +880,6 @@ html body .cmd-list .skill-btn.ordered { margin-top: 0; }
 html body .combat-box.fit .allies.ally-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); justify-items: center; align-items: start; gap: 0; }
 html body .allies.ally-grid .ally.slot-freed { display: none !important; }
 html body .combat-box.fit .allies.ally-grid .ally { margin: 0; }
-<<<<<<< Updated upstream
 
 /* 적 카드도 아군 카드와 같은 구성: 그림(둘레 고리 = 턴 게이지) → 체력 막대 → 이름 → 상태 줄 */
 .foe .fx-host > .turn-ring { position: absolute; inset: -3px; border-radius: 50%; z-index: 0; pointer-events: none; --atb: 0;
@@ -895,9 +894,7 @@ html body .combat-box.fit .foe.foe-card > .brk { order: 2; }
 html body .combat-box.fit .foe.foe-card > .foe-hp { order: 3; font-size: 9.5px; line-height: 1.1; }
 html body .combat-box.fit .foe.foe-card > .foe-name { order: 4; font-size: 10.5px; line-height: 1.2; }
 html body .combat-box.fit .foe.foe-card > .status { order: 5; }
-=======
 /* 리더 결정 (D) */
 .choice-btn.lead-pick { outline: 2px solid var(--amber, #f5b84a); opacity: 1 !important; }
 .choice-btn:disabled:not(.lead-pick) { opacity: .45; }
 .lead-dec { margin-top: 8px; }
->>>>>>> Stashed changes
