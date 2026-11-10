@@ -26,21 +26,26 @@ const pursuitStyle = (gid) => {
 };
 
 Object.assign(UI, {
+  // gid 자리에 C의 G.guildChaseCheck(g) 결과(chase 객체)를 그대로 넘겨도 된다
   gatePursuitStart(gid, opts = {}) {
     const c = this.ctx; if (!c || !c.run) return;
-    c.run.pursuit = { guild: gid, steps: Math.max(1, opts.steps ?? 2), style: pursuitStyle(gid) };
+    const chase = gid && typeof gid === 'object' ? gid : null; if (chase) gid = chase.guild;
+    c.run.pursuit = { guild: gid, chase, steps: Math.max(1, opts.steps ?? 2), style: chase && chase.temper === 'lawless' ? 'lawless' : pursuitStyle(gid) };
     this.renderGateMap(`<b>${(GUILDS[gid] || {}).name || '길드'} 추격대</b>가 게이트 안으로 들어왔다. 뒤에서 발소리가 다가온다.`);
   },
   gatePursuitCatch(gid) {
     const c = this.ctx; if (!c || !c.run) return;
-    c.run.pursuit = { guild: gid || (c.run.pursuit && c.run.pursuit.guild), steps: 0, style: pursuitStyle(gid || c.run.pursuit.guild) };
+    const chase = gid && typeof gid === 'object' ? gid : (c.run.pursuit && c.run.pursuit.chase) || null; if (chase) gid = chase.guild;
+    gid = gid || (c.run.pursuit && c.run.pursuit.guild);
+    c.run.pursuit = { guild: gid, chase, steps: 0, style: chase && chase.temper === 'lawless' ? 'lawless' : pursuitStyle(gid) };
     this.pursuitCaught();
   },
   // 추격대 구성: 그 길드의 실제 길드원 중 게이트 등급 언저리, 모자라면 이름 없는 길드원
   pursuitTeam() {
     const c = this.ctx; const pu = c.run.pursuit; const t = GateRun.tier(c.gate);
-    const real = G.npcs.filter((n) => n.alive && !n.child && n.guild === pu.guild && !n.isCompanion && Math.abs((n.rankIdx || 0) - t) <= 1)
-      .sort((a, b) => (b.rankIdx || 0) - (a.rankIdx || 0)).slice(0, PURSUIT.teamMax);
+    const real = pu.chase && pu.chase.ids ? pu.chase.ids.map((id) => G.npcById(id)).filter((n) => n && n.alive)
+      : G.npcs.filter((n) => n.alive && !n.child && n.guild === pu.guild && !n.isCompanion && Math.abs((n.rankIdx || 0) - t) <= 1)
+        .sort((a, b) => (b.rankIdx || 0) - (a.rankIdx || 0)).slice(0, PURSUIT.teamMax);
     const units = real.map((n) => G.npcUnit(n, 'enemy'));
     while (units.length < 2) {
       const n = G.makeNpc(true); n.rankIdx = Math.max(0, t); n.guild = pu.guild; n.id = -1000 - units.length;
@@ -56,7 +61,7 @@ Object.assign(UI, {
     const c = this.ctx; const pu = c.run.pursuit; const G0 = GUILDS[pu.guild] || {}; const p = G.player;
     const team = this.pursuitTeam(); pu.team = team;
     const lead = pu.names && pu.names[0];
-    if (pu.style === 'lawless') {
+    if (pu.style === 'lawless' || (pu.chase && pu.chase.mood === 'kill')) {
       return this.modal(`<div class="eyebrow">${G0.name || '길드'} 추격대</div><h3>따라잡혔다</h3>
         <p class="event-text">어둠 속에서 칼날이 번뜩인다. ${lead ? `${lead}이(가) 이를 드러낸다. ` : ''}"남의 밥그릇에 손대면 어떻게 되는지 알지?" 말이 통할 상대가 아니다.</p>
         <div class="row end"><button class="danger" data-act="gp-fight">맞서 싸운다</button></div>`, 'event-box');
@@ -80,6 +85,14 @@ Object.assign(UI, {
   pursuitDeal(kind) {
     const c = this.ctx; const pu = c.run.pursuit; const p = G.player; const G0 = GUILDS[pu.guild] || {};
     const say = (t) => fixJosa(t);
+    // C의 협상 판정이 있으면 그것을 쓴다 (관계·평판·뉴스까지 C가 처리)
+    if (G.guildChaseDeal) {
+      const res = G.guildChaseDeal(c.gate, kind, pu.chase || { guild: pu.guild, temper: pu.style === 'lawless' ? 'lawless' : 'legal' }) || {};
+      if (!res.ok) return res.cost == null && kind === 'bribe' && /모자라/.test(res.text || '') ? this.toast(res.text) : this.pursuitFail(res.text || '"말로 끝날 일이 아니야."');
+      c.run.pursuit = null;
+      if (res.leave) { this.toast(res.text); this.gateStub(); return UI.handle('g-finish', 'retreat'); }
+      return this.renderGateMap(`<b>협상</b> · ${say(res.text)}`);
+    }
     if (kind === 'share') {
       const ok = Math.random() < (pu.style === 'giant' ? 0.85 : 0.7);
       if (ok) {
@@ -173,20 +186,30 @@ Object.assign(UI, {
       case 'gp-deal': return this.pursuitDeal(v);
       case 'gp-fight': return this.pursuitFight();
       case 'gp-won': {
-        const p = G.player; p.infamy = (p.infamy || 0) + PURSUIT.infamyWin;
-        this.pursuitNotify('win');
+        const p = G.player; let txt = '';
+        if (G.guildChaseResult) txt = G.guildChaseResult(c.gate, (c.run.pursuit && c.run.pursuit.chase) || { guild: c.pvp && c.pvp.guild }, true) || '';
+        else { p.infamy = (p.infamy || 0) + PURSUIT.infamyWin; this.pursuitNotify('win'); }
         const key = c.run.pursuit && c.run.pursuit.pending;
         c.run.pursuit = null; c.pvp = null; c.nodeKind = null;
         this.gateSync(); this.gateStub();
         if (key) return baseHandle.call(this, 'g-node', key);
-        return this.renderGateMap('<b>대인 전투</b> · 추격대를 물리쳤다. 보스까지 가는 길이 열렸다.');
+        return this.renderGateMap(`<b>대인 전투</b> · ${fixJosa(txt || '추격대를 물리쳤다.')} 보스까지 가는 길이 열렸다.`);
       }
       case 'gp-lost': {
         const p = G.player; const pu = c.pvp || {};
         const lostM = c.loot.money, lostE = c.loot.ether;
-        c.loot.money = 0; c.loot.ether = 0; c.loot.list = []; c.loot.kills = 0;
-        p.injured = Math.max(p.injured || 0, PURSUIT.injury); p.hp = 1; p.mp = 0; G.recalc && G.recalc();
+        const chase = (c.run.pursuit && c.run.pursuit.chase) || { guild: pu.guild };
+        c.loot.money = 0; c.loot.ether = 0; c.loot.list = []; c.loot.kills = 0; // 게이트 안 전리품은 빼앗긴다
+        p.hp = 1; p.mp = 0;
         c.pvp = null; c.run.pursuit = null;
+        if (G.guildChaseResult) {
+          // 부상·돈·수명 같은 벌은 C가 정한다
+          const txt = G.guildChaseResult(c.gate, chase, false) || '';
+          this.toast(fixJosa(txt || '추격대에게 졌다.'));
+          this.gateStub();
+          return baseHandle.call(this, 'g-finish', 'retreat');
+        }
+        p.injured = Math.max(p.injured || 0, PURSUIT.injury); G.recalc && G.recalc();
         if (Math.random() < (PURSUIT.deathChance[pu.style] ?? PURSUIT.deathChance.normal)) {
           this.pursuitNotify('dead');
           return G.gameOver(`${(GUILDS[pu.guild] || {}).name || '길드'} 추격대와의 생사결에서 쓰러져, 게이트 안에서 돌아오지 못했다.`);
