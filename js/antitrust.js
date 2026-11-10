@@ -18,6 +18,10 @@ const ANTI = {
   // 중소·무소속 보호
   rescueBonus: 0.1,    // 관리국 관리 게이트에서 무소속·중소 길드원 구출 확률(한 차례) +10%p
   minorPayFloor: 1.0,  // 중소 길드 월급 하한 = 기준 월급 × 이 값 (관리국 지원금)
+  // 5) 관리국 전력 연동: 견제 강도 = 관리국 전력 / 처음 전력 (0.5~1.5배)
+  powMin: 0.5, powMax: 1.5, banAt: 0.8, // 견제력이 0.8 아래면 3연속 참가 금지를 못 건다
+  breakLoss: 3,        // 브레이크가 터져 있는 동안 한 달에 관리국 일반 대원이 이만큼 순직
+  kamaRecruit: 1,      // 관리국 정원이 비면 매달 공채로 이만큼 채운다(rank_file의 기본 충원과 별도)
   report: { chance: 0.6, meritBonus: 0.002, max: 0.9, reward: 180, prestige: 6, rel: 4 }, // 가로채기 신고: 인정 확률, 공적 1당 가산, 상한, 보상금(×등급 배율), 그 길드 위세 감소, 그 길드원 관계 감소
 };
 {
@@ -31,16 +35,26 @@ const ANTI = {
     // 1) 입찰 점수 배율
     bidScoreMul(id) {
       const a = this.antiState(); if (id === 'kama' || a.streak !== id) return 1;
-      return a.n >= ANTI.streakBan ? 0 : a.n >= 2 ? ANTI.streakPenalty : 1;
+      const f = this.antiPower();
+      return a.n >= ANTI.streakBan && f >= ANTI.banAt ? 0 : a.n >= 2 ? Math.max(0.1, 1 - (1 - ANTI.streakPenalty) * f) : 1;
     },
     bidLoseCut() { return ANTI.loseCut; },
     bidWon(id) {
       const a = this.antiState(); const was = a.streak === id ? a.n : 0;
       a.streak = id; a.n = was + 1;
-      if (id !== 'kama' && a.n === ANTI.streakBan) this.rumor(`관리국이 ${GUILDS[id].name}의 ${ANTI.streakBan}연속 낙찰에 제동을 걸었다. 다음 공략권 입찰에는 참가할 수 없다.`);
+      if (id !== 'kama' && a.n === ANTI.streakBan && this.antiPower() >= ANTI.banAt) this.rumor(`관리국이 ${GUILDS[id].name}의 ${ANTI.streakBan}연속 낙찰에 제동을 걸었다. 다음 공략권 입찰에는 참가할 수 없다.`);
     },
     // 2) 등급별 할당: NPC 공략 배정 가중치
-    quotaMul(id, tier) { const k = tierOf(id); if (k === 'gov') return 1; const q = ANTI.quota[band(tier)]; return k === 'giant' ? q[0] : q[1]; },
+    quotaMul(id, tier) {
+      const k = tierOf(id); if (k === 'gov') return 1; const q = ANTI.quota[band(tier)]; const f = this.antiPower();
+      return Math.max(0.05, 1 + ((k === 'giant' ? q[0] : q[1]) - 1) * f);
+    },
+    // 관리국 견제력: 관리국 전력이 처음보다 얼마나 되나
+    antiPower() {
+      const a = this.antiState(); if (!this.guildStrength || !GUILDS.kama) return 1;
+      const now = this.guildStrength('kama'); if (!a.kamaBase) a.kamaBase = Math.max(1, now);
+      return Math.max(ANTI.powMin, Math.min(ANTI.powMax, now / a.kamaBase));
+    },
     ecoGuildWeight(id, tier, home) { return (this.guildPower ? this.guildPower(id) : 50) * (id === home ? 2 : 1) * this.quotaMul(id, tier); },
     // 3) 위세: 독과점 조사와 바닥 회복
     antiMonthly() {
@@ -50,13 +64,22 @@ const ANTI = {
       for (const id of ids) {
         const v = pr[id] || 0; const lim = Math.max(80, avg * ANTI.probeAt);
         if (v > lim) {
-          pr[id] = v - (1 + (v - lim) * ANTI.probeCut);
+          pr[id] = v - (1 + (v - lim) * ANTI.probeCut) * this.antiPower();
           if (!a.probe[id]) { a.probe[id] = this.monthKey(); this.rumor(`관리국이 ${GUILDS[id].name}의 공략권 독과점 조사에 들어갔다. 당분간 위세가 꺾일 전망이다.`); if (this.player.guild === id) this.log(`관리국이 소속 길드 ${GUILDS[id].name}을(를) 독과점 혐의로 조사한다.`, 'bad'); }
         } else if (a.probe[id]) delete a.probe[id];
         const k = tierOf(id); const fl = ANTI.floor[k] || 40;
         if (v < fl) pr[id] = Math.min(fl, v + ANTI.floorRegen * (k === 'giant' ? 2 : 1));
       }
       if ((pr.kama || 0) > ANTI.kamaCap) pr.kama = ANTI.kamaCap;
+      // 브레이크 대응으로 관리국 인원이 줄면 견제력이 약해진다
+      const mkNow = this.monthKey(); const live = (w.breaks || []).filter((b) => b.until == null || b.until >= mkNow).length;
+      if (live && this.rfTake) { const f0 = this.antiPower(); for (let i = 0; i < live * ANTI.breakLoss; i++) this.rfTake('kama'); this._gpCache = null;
+        const f1 = this.antiPower(); if (f0 >= ANTI.banAt && f1 < ANTI.banAt) this.rumor('브레이크 대응에 관리국 인력이 대거 빠졌다. 거대 길드를 견제할 여력이 없다는 말이 돈다.'); }
+      // 관리국 공채: 정원이 비면 매달 채운다
+      const kr = this.rfOf ? this.rfOf('kama') : null;
+      if (kr && typeof RF !== 'undefined' && kr.reduce((x, y) => x + y, 0) < RF.size.gov) {
+        for (let i = 0; i < ANTI.kamaRecruit; i++) { const d = RF.dist.gov; kr[RNG.weighted(d.map((_, j) => j), d)]++; } this._gpCache = null;
+      }
     },
   });
   // 0) 관리권 게이트 방치: A급 이상만 크게 깎는다 (gate_tender.js의 -5를 고쳐 쓴다)
@@ -74,7 +97,7 @@ const ANTI = {
     antiReportResolve(q, go) {
       const p = this.player; const R = ANTI.report; const g = GUILDS[q.guild];
       if (!go) return `${g.name}의 일을 문제 삼지 않기로 했다.`;
-      const ch = Math.min(R.max, R.chance + (p.merit || 0) * R.meritBonus);
+      const ch = Math.max(0.1, Math.min(R.max, (R.chance + (p.merit || 0) * R.meritBonus) * Math.min(1.2, this.antiPower())));
       for (const n of this.npcs) if (n.alive && n.guild === q.guild && n.met) this.changeRel(n, -R.rel, '관리국에 신고했다');
       if (!RNG.chance(ch)) return `관리국 조사관: "증거가 부족합니다. 이번 건은 기각입니다." ${g.name} 쪽에서는 신고 사실을 알아챘다.`;
       const money = Math.round(R.reward * RANKS[Math.max(p.rankIdx, q.tier)].mult);
@@ -88,7 +111,7 @@ const ANTI = {
   wrap('rescueWave', function (base, gate) {
     let c = base.call(this, gate);
     const owner = this.gateOwner ? this.gateOwner(gate) : 'kama';
-    if ((owner === 'kama' || !GUILDS[owner]) && this.antiProtected() && gate.variant !== 'red') c = Math.min(0.97, c + ANTI.rescueBonus);
+    if ((owner === 'kama' || !GUILDS[owner]) && this.antiProtected() && gate.variant !== 'red') c = Math.min(0.97, c + ANTI.rescueBonus * this.antiPower());
     return c;
   });
   // 4-c) 중소 길드 월급 하한: 관리국 지원금으로 기준 월급은 보장
@@ -128,13 +151,19 @@ const ANTI = {
       const q = G.queue[0];
       if (q && q.type === 'antiReport') {
         G.queue.shift(); this.antiQ = q; const g = GUILDS[q.guild]; const R = ANTI.report;
-        const ch = Math.round(Math.min(R.max, R.chance + (G.player.merit || 0) * R.meritBonus) * 100);
+        const ch = Math.round(Math.max(0.1, Math.min(R.max, (R.chance + (G.player.merit || 0) * R.meritBonus) * Math.min(1.2, G.antiPower()))) * 100);
         return this.modal(`<div class="eyebrow">${G.dateStr()} · ${regionById(q.region).name}</div><h3>거대 길드의 하급 게이트 독식</h3>
           <p class="event-text"><b style="color:${g.color}">${g.name}</b> 공격대가 이 지역의 ${RANKS[q.tier].key}급 게이트를 닫고 갔다. D급 이하 게이트는 관리국 방침상 무소속과 중소 길드 몫이다.</p>
           <p class="small dim">관리국에 신고하면 인정 확률 ${ch}%. 인정되면 보상금과 공적을 받고 ${g.name} 위세가 깎인다. 어느 쪽이든 ${g.name} 사람들과는 사이가 나빠진다.</p>
           <div class="row end"><button class="ghost" data-act="anti-report" data-v="0">넘어간다</button><button class="primary" data-act="anti-report" data-v="1">관리국에 신고한다</button></div>`, 'event-box');
       }
       return baseQueue.call(this);
+    };
+    const baseGuildA = UI.guildHtml;
+    if (baseGuildA) UI.guildHtml = function () {
+      const html = baseGuildA.call(this); const f = G.antiPower();
+      const t = f >= 1.15 ? '강함' : f >= ANTI.banAt ? '보통' : '약함';
+      return html.replace('<div class="sec-title sec">공략권 입찰</div>', `<p class="small ${f < ANTI.banAt ? 'bad' : 'dim'}">관리국 견제력 <b>${Math.round(f * 100)}%</b> (${t}). 관리국 전력이 줄면 연속 낙찰 제한·하급 게이트 할당·구출 지원이 약해진다.</p><div class="sec-title sec">공략권 입찰</div>`);
     };
     const baseHandle = UI.handle;
     UI.handle = function (act, v) {

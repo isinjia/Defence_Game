@@ -16,6 +16,7 @@
 //  - C의 solo_relief.js 연패 치료비 환급은 이 규칙으로 대체된다(벼랑 끝 집중 버프는 그대로).
 
 const RISK = {
+  spot: { cityR: 3, city: 0.1, midR: 3, mid: 0.07, townR: 2, town: 0.04, remoteR: 8, remote: -0.1 }, // 게이트 위치 보정(한 차례 확률): 광역·중도시 3칸, 읍 2칸 이내 ↑, 어디서든 8칸 이상(육지의 약 6%) ↓
   bill: 260,            // 청구서 기준(등급 배율^1.3)
   guildSelf: { big: 0.1, minor: 0.2, prospect: 0 },
   insure: { premium: 70, rescue: 0.25, self: 0.3 },
@@ -49,6 +50,20 @@ Object.assign(Game.prototype, {
     const poach = this.isPoaching ? this.isPoaching(gate) : false; // boss_poach.js: 외부인의 길드 게이트 최종층 진입
     return { c: poach ? 0.05 : 0.3, who: `${GUILDS[owner].name} 구조팀`, poach };
   },
+  // 게이트 위치: 가까운 도시·읍이 있으면 구조대가 빨리 온다 (지도 5배 확대 뒤, WORLD.towns)
+  rescueSpot(gate) {
+    if (!gate || gate.x == null || typeof WORLD === 'undefined' || !WORLD.cityPos) return { bonus: 0, label: '' };
+    const d = (x, y) => Math.max(Math.abs(x - gate.x), Math.abs(y - gate.y));
+    let city = 99, mid = 99, town = 99;
+    for (const r of REGIONS) { const c = WORLD.cityPos[r.id]; if (c) city = Math.min(city, d(c[0], c[1])); }
+    for (const t of WORLD.towns || []) { const v = d(t.x, t.y); if (t.tier === 2) mid = Math.min(mid, v); else town = Math.min(town, v); }
+    const S = RISK.spot;
+    if (city <= S.cityR) return { bonus: S.city, label: '광역 도시 인근' };
+    if (mid <= S.midR) return { bonus: S.mid, label: '중도시 인근' };
+    if (town <= S.townR) return { bonus: S.town, label: '읍 인근' };
+    if (Math.min(city, mid, town) >= S.remoteR) return { bonus: S.remote, label: '오지' };
+    return { bonus: 0, label: '' };
+  },
   // 구조대는 두 차례 수색한다(1차·2차). 실효 구출 확률 = 1 − (1 − 한 차례 확률)²
   rescueChance(gate) { const w = this.rescueWave(gate); return Math.max(0.03, Math.min(0.99, 1 - (1 - w) ** RISK.waves)); },
   rescueWave(gate) {
@@ -56,7 +71,9 @@ Object.assign(Game.prototype, {
     const b = this.rescueBase(gate); let c = b.c;
     if (gate.variant === 'red') c *= 0.3;
     else if (gate.variant && gate.variant !== 'normal') c -= 0.15;
-    if (reg.id === 'jeju' || reg.north || /north/.test(reg.id) || (reg.danger || 1) >= 4) c -= 0.2;
+    const harsh = reg.id === 'jeju' || reg.north || /north/.test(reg.id) || (reg.danger || 1) >= 4;
+    if (harsh) c -= 0.2;
+    { const sp = this.rescueSpot(gate); if (sp.bonus > 0 || !harsh) c += sp.bonus; } // 도시 인근 ↑, 오지 ↓ (험지 감점과 오지 감점은 겹치지 않음)
     if (this.world.breaks && this.world.breaks.length) c -= 0.15;
     if (p.risk.insured && !(this.payKind && this.payKind(p.guild)) && gate.variant !== 'red') c += RISK.insure.rescue;
     if (this.seniorNpc && this.seniorNpc() && (gate.realTier ?? gate.tier) >= p.rankIdx + 1) c += 0.1;
@@ -246,7 +263,7 @@ Object.assign(Game.prototype, {
       row.insertAdjacentHTML('beforebegin', `<p class="small bad">${why}</p>`);
     } else if (row) {
       const rc = G.rescueChance(obj);
-      row.insertAdjacentHTML('beforebegin', `<p class="small ${rc < 0.5 ? 'bad' : 'dim'}">지면 구출 확률 <b>${Math.round(rc * 100)}%</b> (${G.rescueBase(obj).who}). 구출되지 못하면 죽는다.${!k ? ` 병원비 본인 부담${p.risk.insured ? ' · 보험 가입 중' : ''}.` : ''}${G.seniorNpc() && (obj.realTier ?? obj.tier) >= p.rankIdx + 1 ? ` 선임 ${G.seniorNpc().name}이(가) 함께 들어간다.` : ''}</p>`);
+      row.insertAdjacentHTML('beforebegin', `<p class="small ${rc < 0.5 ? 'bad' : 'dim'}">지면 구출 확률 <b>${Math.round(rc * 100)}%</b> (${G.rescueBase(obj).who}${(() => { const sp = G.rescueSpot(obj); return sp.label ? ` · ${sp.label}` : ''; })()}). 구출되지 못하면 죽는다.${!k ? ` 병원비 본인 부담${p.risk.insured ? ' · 보험 가입 중' : ''}.` : ''}${G.seniorNpc() && (obj.realTier ?? obj.tier) >= p.rankIdx + 1 ? ` 선임 ${G.seniorNpc().name}이(가) 함께 들어간다.` : ''}</p>`);
     }
     return r;
   };
