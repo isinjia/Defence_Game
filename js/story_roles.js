@@ -22,7 +22,7 @@ const ROLE_NM = (c) => (c && c.npc ? c.npc.name : '그 사람');
       case 'rivalRank': return pick(met.filter((n) => (n.rival || n.relation <= -20) && Math.abs(n.rankIdx - p.rankIdx) <= 1));
       case 'examMate': return pick(this.npcs.filter((n) => n.examMate && n.alive && n.met));
       case 'mentor': { const id = p.notebook && p.notebook.mentor; const n = id != null && this.npcById(id); return n && n.alive && n.mentorOf ? n : null; }
-      case 'closeFriend': return pick(met.filter((n) => n.relation >= 50 && n.id !== p.spouse && n.id !== p.partner));
+      case 'closeFriend': return pick(met.filter((n) => n.relation >= 50 && n.id !== p.spouse && n.id !== p.partner && n.region === p.region)); // 같은 도시에 있는 친구만 (다른 도시로 이사 간 친구가 다음 달 이 도시 사건에 다시 나오던 문제)
       case 'companion': return pick(this.party());
       default: return baseNpc.call(this, kind);
     }
