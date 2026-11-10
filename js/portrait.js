@@ -209,7 +209,14 @@ const PORTRAIT = (() => {
 
     // ---- 장신구
     let accSvg = '';
-    if (acc.scar) accSvg += `<path d="M112 90L118 116" stroke="#a04a52" stroke-width="1.6" stroke-linecap="round"/>`;
+    // 흉터는 피부 층: 눈·눈썹·앞머리보다 먼저 그리고 얼굴 안으로 자른다. 눈알 구간은 끊어 눈썹 위~눈꺼풀, 눈 아래~뺨 두 조각.
+    let scarSvg = '';
+    if (acc.scar) {
+      const scarC = mix(skin, '#8a2f3a', 0.55), scarHi = mix(skin, '#ffffff', 0.4);
+      scarSvg = `<clipPath id="${id}sc"><path d="${faceD}"/></clipPath><g clip-path="url(#${id}sc)" fill="none" stroke-linecap="round">
+        <path d="M111.6 85.5Q112.6 91 113.9 96.6" stroke="${scarC}" stroke-width="1.7"/><path d="M112.5 86Q113.4 91 114.6 96.2" stroke="${scarHi}" stroke-width=".6" opacity=".7"/>
+        <path d="M115.9 109.6Q117 114 117.6 119" stroke="${scarC}" stroke-width="1.7"/><path d="M116.8 110Q117.8 114 118.4 118.6" stroke="${scarHi}" stroke-width=".6" opacity=".7"/></g>`;
+    }
     if (acc.marks) accSvg += `<path d="M77 116L82 112L80 120M123 116L118 112L120 120" stroke="${ec}" stroke-width="1.3" fill="none"/><path d="M100 64L97 70L100 76L103 70Z" fill="${ec}" opacity=".9"/>`;
     if (acc.earring) accSvg += `<path d="M66 114V122" stroke="${ec}" stroke-width="1.4"/><circle cx="66" cy="123.5" r="1.8" fill="${ec}"/><path d="M134 114V122" stroke="${ec}" stroke-width="1.4"/><circle cx="134" cy="123.5" r="1.8" fill="${ec}"/>`;
     if (acc.hairpin) accSvg += `<path d="M120 58L140 48" stroke="#d9c9a0" stroke-width="2.4" stroke-linecap="round"/><circle cx="121" cy="57.5" r="3" fill="${ec}"/>`;
@@ -225,7 +232,7 @@ const PORTRAIT = (() => {
     const headT = st === 'baby' ? 'translate(100 118) scale(1.32) translate(-100 -96)' : st === 'child' ? 'translate(100 108) scale(1.14) translate(-100 -96)' : st === 'teen' ? 'translate(100 100) scale(1.04) translate(-100 -96)' : '';
     const bodyT = st === 'baby' ? 'translate(100 240) scale(.62) translate(-100 -240)' : st === 'child' ? 'translate(100 240) scale(.8) translate(-100 -240)' : '';
     const content = `${defs}${bg}<g transform="${headT}">${backSvg}</g><g transform="${bodyT}">${body}${neck}</g>
-      <g transform="${headT}">${massSvg}${face}${feat}${bangShadow}${eyeOne(false)}${eyeOne(true)}${brows}${mouth}${extra}${hairFront}${accSvg}</g>`;
+      <g transform="${headT}">${massSvg}${face}${feat}${scarSvg}${bangShadow}${eyeOne(false)}${eyeOne(true)}${brows}${mouth}${extra}${hairFront}${accSvg}</g>`;
     return { content, id, ring: RANKS[rank].color, ec };
   }
 
