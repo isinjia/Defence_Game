@@ -12,7 +12,7 @@ const SITE_KINDS = {
   merchant: { name: '떠돌이 상인',          icon: '◈', color: '#ffb547', desc: '길목을 떠도는 행상. 물건은 진짜일 수도, 아닐 수도.' },
   tower:    { name: '감시탑',               icon: '▲', color: '#46e0d0', desc: '산꼭대기의 낡은 통신 감시탑. 올라가면 주변이 넓게 보인다.' },
 };
-const SITE_PLAN = { ruin: 6, spring: 3, outpost: 3, village: 3, remains: 3, altar: 2, merchant: 1, tower: 4 };
+const SITE_PLAN = { ruin: 20, spring: 10, outpost: 10, village: 10, remains: 10, altar: 6, merchant: 3, tower: 12 }; // 지도 5배에 맞춰 약 80곳
 
 const EXPLORE = (() => {
   const T = WORLD.T;
@@ -31,7 +31,7 @@ const EXPLORE = (() => {
   };
   const cityDist = (i) => {
     const [x, y] = WORLD.xy(i);
-    return Math.min(...REGIONS.map((r) => { const [cx, cy] = WORLD.cityPos[r.id]; return Math.max(Math.abs(cx - x), Math.abs(cy - y)); }));
+    return Math.min(...REGIONS.map((r) => { const [cx, cy] = WORLD.cityPos[r.id]; return Math.max(Math.abs(cx - x), Math.abs(cy - y)); }), ...(WORLD.towns || []).map((t) => Math.max(Math.abs(t.x - x), Math.abs(t.y - y))));
   };
   // 지점 종류별 후보 칸과 선호 점수
   const land = [];
@@ -40,10 +40,10 @@ const EXPLORE = (() => {
     ruin: () => land.filter((i) => WORLD.tiles[i] === T.RUIN).map((i) => [i, 1]),
     spring: () => land.filter((i) => WORLD.tiles[i] === T.ETHER).map((i) => [i, 1 + around(i, 1, (t) => t === T.ETHER) * 2]),
     outpost: () => land.filter((i) => WORLD.tiles[i] === T.MOUNTAIN && around(i, 1, (t) => t === T.PLAIN) >= 2).map((i) => [i, 1]),
-    village: () => land.filter((i) => WORLD.tiles[i] === T.PLAIN && cityDist(i) >= 5).map((i) => [i, cityDist(i)]),
+    village: () => land.filter((i) => WORLD.tiles[i] === T.PLAIN && cityDist(i) >= 6).map((i) => [i, cityDist(i)]),
     remains: () => land.filter((i) => WORLD.tiles[i] === T.PLAIN || WORLD.tiles[i] === T.RUIN).map((i) => [i, 1]),
-    altar: () => land.filter((i) => cityDist(i) >= 6).map((i) => [i, cityDist(i) ** 2]),
-    merchant: () => land.filter((i) => WORLD.tiles[i] === T.PLAIN && cityDist(i) >= 2 && cityDist(i) <= 5).map((i) => [i, 1]),
+    altar: () => land.filter((i) => cityDist(i) >= 8).map((i) => [i, cityDist(i) ** 2]),
+    merchant: () => land.filter((i) => WORLD.tiles[i] === T.PLAIN && cityDist(i) >= 4 && cityDist(i) <= 11).map((i) => [i, 1]),
     tower: () => land.filter((i) => WORLD.tiles[i] === T.MOUNTAIN).map((i) => [i, 1 + around(i, 2, (t) => t === T.MOUNTAIN) ** 1.5]),
   };
   return { regionLand, cand, land, cityDist };
@@ -58,7 +58,7 @@ Object.assign(Game.prototype, {
   // 판마다 한 번, 지도 위에 탐사 지점을 깐다
   genSites() {
     const sites = []; let id = 1;
-    const taken = (i) => { const [x, y] = WORLD.xy(i); return sites.some((s) => Math.max(Math.abs(s.x - x), Math.abs(s.y - y)) < 3); };
+    const taken = (i) => { const [x, y] = WORLD.xy(i); return sites.some((s) => Math.max(Math.abs(s.x - x), Math.abs(s.y - y)) < 5); };
     for (const [kind, n] of Object.entries(SITE_PLAN)) {
       const pool = EXPLORE.cand[kind]();
       for (let k = 0; k < n; k++) {
@@ -199,7 +199,7 @@ Object.assign(Game.prototype, {
           '"북부 봉쇄선 너머로 정찰조 셋이 들어갔다. 아무도 돌아오지 않았다."',
           '"게이트는 무작위가 아니다. 사람이 많은 곳을 따라 열린다. 상부는 이 보고를 묻었다."',
         ]);
-        const n = ok ? this.revealSitesNear(s.x, s.y, 7) : 0;
+        const n = ok ? this.revealSitesNear(s.x, s.y, 15) : 0;
         if (pot) gain(`응급 회복제 ${pot}개`); if (man) gain(`마나 앰플 ${man}개`); if (n) gain(`주변 지점 ${n}곳 위치`);
         if (!ok) hurt(0.08);
         out = ok ? `잠긴 서랍을 따고 초소 일지를 찾아냈다. ${lore} 벽에 붙은 작전 지도도 고스란히 남아 있었다.` : `녹슨 문을 억지로 열다 손을 다쳤다. 일지는 물에 젖어 한 줄만 읽혔다. ${lore}`;
@@ -278,8 +278,8 @@ Object.assign(Game.prototype, {
       case 'tower': {
         s.used = key; this.advanceDays(1, { noSave: true }); loss('1일 소요');
         this.reveal(s.x, s.y, ok ? 8 : 5);
-        const n = this.revealSitesNear(s.x, s.y, ok ? 10 : 5);
-        gain(`주변 지형 공개 (반경 ${ok ? 8 : 5}칸)`); if (n) gain(`볼 만한 지점 ${n}곳 표시`);
+        const n = this.revealSitesNear(s.x, s.y, ok ? 22 : 11);
+        gain(`주변 지형 공개 (${ok ? '넓게' : '반쯤'})`); if (n) gain(`볼 만한 지점 ${n}곳 표시`);
         if (!ok) hurt(0.1);
         out = ok ? '녹슨 사다리를 단숨에 올라 망원 장비를 켰다. 주변 지형이 넓게 드러났다.' : '중간에 사다리 칸이 부러져 미끄러졌다. 반쯤 올라간 곳에서 보이는 만큼만 지도에 옮겼다.';
         break;

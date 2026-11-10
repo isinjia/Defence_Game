@@ -146,7 +146,7 @@ Object.assign(UI, {
     let days = 0; let px = p.x, py = p.y; const regs = new Set(); let mobs = 0;
     for (const i of steps) {
       const [sx, sy] = WORLD.xy(i); const diag = sx !== px && sy !== py;
-      days += Math.max(1, Math.round(WORLD.T_COST[WORLD.type(sx, sy)] * (diag ? 1.4 : 1) * WORLD.DAYS_PER_COST));
+      days += WORLD.stepCostAt(sx, sy) * (diag ? 1.4 : 1) * WORLD.DAYS_PER_COST;
       const r = WORLD.regionAt(sx, sy); if (r) regs.add(r.id);
       px = sx; py = sy;
     }
@@ -154,7 +154,7 @@ Object.assign(UI, {
     for (const m of G.mobs) for (const i of steps) { const [sx, sy] = WORLD.xy(i); if (Math.max(Math.abs(m.x - sx), Math.abs(m.y - sy)) <= 1) { near.add(m); break; } }
     for (const m of near) if (m.tier > p.rankIdx) mobs++;
     const danger = [...regs].map(regionById).filter((r) => r && r.danger > p.rankIdx + 2);
-    return { steps, days, regs: [...regs], near: near.size, strongMobs: mobs, danger };
+    return { steps, days: Math.max(1, Math.round(days)), regs: [...regs], near: near.size, strongMobs: mobs, danger };
   },
   travelConfirm(x, y, label) {
     const plan = this.travelPlan(x, y);

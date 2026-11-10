@@ -308,7 +308,7 @@ const UI = {
         <button data-act="rest">${FX.icon('rest')} 휴식 <span class="dim-in">1개월</span></button>
 
       </div>
-      <div class="act-hint small dim">빛나는 칸을 눌러 이동 · 평지 한 칸 ${WORLD.DAYS_PER_COST}일(대각선·험지는 더) · 이동력 ${G.moveRange()}</div>`;
+      <div class="act-hint small dim">빛나는 칸을 눌러 이동 · 평지 한 칸 ${WORLD.DAYS_PER_COST}일 · 국도 ${WORLD.DAYS_PER_COST * WORLD.ROAD_COST}일(대각선·산은 더) · 이동력 ${G.moveRange()}</div>`;
   },
 
   // NPC의 지도 위치 (매달 도시 근처에서 바뀜)
@@ -373,7 +373,7 @@ const UI = {
       const p = G.player;
       const from = [p.x, p.y]; const to = WORLD.xy(w.steps[w.i++]);
       const diag = from[0] !== to[0] && from[1] !== to[1];
-      const ms = (WORLD.type(to[0], to[1]) === WORLD.T.MOUNTAIN ? 330 : 210) * (diag ? 1.25 : 1) * (FX.reduced ? 0.5 : 1);
+      const ms = (WORLD.type(to[0], to[1]) === WORLD.T.MOUNTAIN ? 200 : 125) * (diag ? 1.25 : 1) * (FX.reduced ? 0.5 : 1);
       this.map.walkPath = w.steps.slice(w.i);
       this.map.tween(from, to, ms, () => {
         if (this.walking !== w) return;

@@ -10,9 +10,9 @@ const BASE_DAYS_PER_COST = WORLD.DAYS_PER_COST;
 WORLD.daysFor = (cost) => Math.max(1, Math.round(cost * WORLD.DAYS_PER_COST));
 
 const VEHICLES = [
-  { id: 'bike', name: '오토바이', price: 250, desc: '한 달 동안 이동력 +2.', range: 2 },
-  { id: 'truck', name: '장갑차', price: 1200, desc: '한 달 동안 한 칸에 1일, 괴수 기습을 받지 않는다. 이동력 +1.', range: 1 },
-  { id: 'heli', name: '헬기 대절', price: 4000, desc: '다음 한 번의 이동만. 이동력 +8, 산도 평지처럼 건넌다. 길 위의 일도 피한다.', range: 8, once: true },
+  { id: 'bike', name: '오토바이', price: 250, desc: '한 달 동안 이동력 +5.', range: 5 },
+  { id: 'truck', name: '장갑차', price: 1200, desc: '한 달 동안 이동에 드는 날이 절반, 괴수 기습을 받지 않는다. 이동력 +3.', range: 3 },
+  { id: 'heli', name: '헬기 대절', price: 4000, desc: '다음 한 번의 이동만. 이동력 +18, 산도 평지처럼 건넌다. 길 위의 일도 피한다.', range: 18, once: true },
 ];
 const vehicleById = (id) => VEHICLES.find((v) => v.id === id);
 
@@ -84,9 +84,9 @@ Object.assign(Game.prototype, {
     if (s === 'rain') { c[T.PLAIN] = 1.5; c[T.RUIN] = 1.5; }
     if (s === 'winter') c[T.MOUNTAIN] = 3;
     const v = this.player && this.player.vehicle;
-    if (v && v.id === 'heli') for (let i = 0; i < c.length; i++) if (c[i] > 0) c[i] = 1;
+    if (v && v.id === 'heli') for (let i = 0; i < c.length; i++) if (c[i] > 1) c[i] = 1;
     for (let i = 0; i < c.length; i++) WORLD.T_COST[i] = c[i];
-    WORLD.DAYS_PER_COST = v && v.id === 'truck' ? 1 : BASE_DAYS_PER_COST;
+    WORLD.DAYS_PER_COST = v && v.id === 'truck' ? BASE_DAYS_PER_COST / 2 : BASE_DAYS_PER_COST;
   },
   weatherNote() {
     const p = this.player; const s = this.season(); const out = [];
@@ -145,7 +145,8 @@ Object.assign(Game.prototype, {
     }
   });
   wrap('trainGain', function (base, mult = 1) { return base.call(this, this.player && this.stormAt(this.player.region) && !this.onCity() ? mult * 1.6 : mult); });
-  wrap('moveRange', function (base) { const v = this.player.vehicle && vehicleById(this.player.vehicle.id); return base.call(this) + (v ? v.range : 0); });
+  // 지도가 넓어진 만큼 이동력도 늘린다 (기본 5~9칸 → 11~20칸)
+  wrap('moveRange', function (base) { const v = this.player.vehicle && vehicleById(this.player.vehicle.id); return Math.round(base.call(this) * WORLD.K) + (v ? v.range : 0); });
   wrap('walkStep', function (base, x, y, diag) {
     const res = base.call(this, x, y, diag);
     const v = this.player.vehicle;

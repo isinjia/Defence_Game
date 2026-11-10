@@ -138,7 +138,15 @@ class Game {
     if (data.player.x == null) return false; // 지도 도입 전 저장 데이터
     Object.assign(this, data);
     this.fog = Uint8Array.from(String(data.fog || ''), (c) => (c === '1' ? 1 : 0));
-    if (this.fog.length !== WORLD.COLS * WORLD.ROWS) this.fog = new Uint8Array(WORLD.COLS * WORLD.ROWS);
+    if (this.fog.length !== WORLD.COLS * WORLD.ROWS) {
+      // 옛 지도(36×58) 저장: 밝혀 둔 곳을 새 지도 크기로 옮긴다 (좌표 변환은 world_scale.js)
+      const old = this.fog; const nf = new Uint8Array(WORLD.COLS * WORLD.ROWS);
+      if (old.length === WORLD.OLD_COLS * WORLD.OLD_ROWS) for (let y = 0; y < WORLD.ROWS; y++) for (let x = 0; x < WORLD.COLS; x++) {
+        const ox = Math.min(WORLD.OLD_COLS - 1, Math.floor(x / WORLD.K)), oy = Math.min(WORLD.OLD_ROWS - 1, Math.floor(y * WORLD.OLD_ROWS / WORLD.ROWS));
+        nf[y * WORLD.COLS + x] = old[oy * WORLD.OLD_COLS + ox];
+      }
+      this.fog = nf; this._oldMap = true;
+    }
     this.over = null; this.queue = [];
     this.initSandbox();
     this.recalc();
@@ -362,7 +370,9 @@ class Game {
   walkStep(x, y, diag) {
     const p = this.player;
     const t = WORLD.type(x, y);
-    const days = Math.max(1, Math.round(WORLD.T_COST[t] * (diag ? 1.4 : 1) * WORLD.DAYS_PER_COST));
+    // 칸마다 걸린 시간을 소수로 모았다가 하루가 차면 날짜가 넘어간다 (국도 0.5일, 평지 1일, 산 2일, 대각선 1.4배)
+    p.dayFrac = (p.dayFrac || 0) + WORLD.stepCostAt(x, y) * (diag ? 1.4 : 1) * WORLD.DAYS_PER_COST;
+    const days = Math.floor(p.dayFrac + 1e-9); p.dayFrac -= days;
     p.x = x; p.y = y;
     this.reveal(x, y, 3);
     const reg = WORLD.regionAt(x, y);

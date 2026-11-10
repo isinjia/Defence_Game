@@ -14,7 +14,7 @@ Object.assign(Game.prototype, {
       r.from = WORLD.cityPos[rid].slice();
     }
     const dist = Math.max(Math.abs(r.from[0] - g.x), Math.abs(r.from[1] - g.y));
-    r.eta ??= Math.max(2, Math.min(20, dist + 1)); // 공략팀은 차량으로 하루 한 칸쯤
+    r.eta ??= Math.max(2, Math.min(20, Math.round(dist / 2) + 1)); // 공략팀은 차량으로 하루 두 칸쯤
     return { from: r.from, to: [g.x, g.y], eta: r.eta, dist };
   },
   // 이번 달 경과일 기준 공략팀 위치 (도착하면 게이트 안)
@@ -41,7 +41,7 @@ Object.assign(Game.prototype, {
     for (let k = 0; k * 2 < pool.length && k < 3; k++) {
       const mem = pool.slice(k * 2, k * 2 + 2); const lead = mem[0];
       const [sx, sy] = WORLD.cityPos[lead.region];
-      const spd = 0.5 + (FX.hash(`${b.city}:${b.at}:${k}`) % 5) * 0.12;
+      const spd = (0.5 + (FX.hash(`${b.city}:${b.at}:${k}`) % 5) * 0.12) * WORLD.K;
       const d = Math.hypot(cx - sx, cy - sy) || 1; const k2 = Math.min(1, (elapsed * spd) / d);
       if (k2 >= 1) continue; // 도착하면 도시 안
       out.push({ key: `brk:${b.city}:${k}`, kind: 'break', leader: lead, members: mem, guild: lead.guild || null, x: sx + (cx - sx) * k2, y: sy + (cy - sy) * k2, dir: [cx - sx, cy - sy], dest: `${regionById(b.city).name} 브레이크 출동`, left: Math.ceil((d - elapsed * spd) / spd) });
@@ -64,7 +64,7 @@ Object.assign(Game.prototype, {
     // 현상금 사냥꾼: 당신을 쫓아 가까이 와 있다
     for (const n of this.adults()) {
       if (!n.alive || !n.bountyHunter || n.target !== 'player') continue;
-      const h = FX.hash(`${n.id}:${mk}`); const ang = (h % 360) * Math.PI / 180; const r = Math.max(2, 6 - this.day / 6);
+      const h = FX.hash(`${n.id}:${mk}`); const ang = (h % 360) * Math.PI / 180; const r = Math.max(3, 12 - this.day / 3);
       const x = p.x + Math.cos(ang) * r, y = p.y + Math.sin(ang) * r; const ix = Math.round(x), iy = Math.round(y);
       if (!WORLD.inb(ix, iy) || !WORLD.passable(WORLD.idx(ix, iy), true)) continue;
       out.push({ key: `bounty:${n.id}`, kind: 'bounty', leader: n, members: [n], guild: n.guild || null, x, y, dir: [p.x - x, p.y - y], dest: '당신을 쫓는 중', hostile: true });

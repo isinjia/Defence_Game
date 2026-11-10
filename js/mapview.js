@@ -50,7 +50,7 @@ class MapView {
   }
   zoom(f, sx = this.w / 2, sy = this.hgt / 2) {
     const before = [(sx - this.w / 2) / this.tile + this.camX, (sy - this.hgt / 2) / this.tile + this.camY];
-    this.tile = Math.max(22, Math.min(80, this.tile * f));
+    this.tile = Math.max(12, Math.min(80, this.tile * f));
     this.camX = before[0] - (sx - this.w / 2) / this.tile; this.camY = before[1] - (sy - this.hgt / 2) / this.tile;
     this.clampCam();
   }

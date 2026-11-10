@@ -139,7 +139,7 @@ Object.assign(Game.prototype, {
     let snap = null;
     if (north) {
       snap = [];
-      for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) {
+      for (let dy = -7; dy <= 7; dy++) for (let dx = -7; dx <= 7; dx++) {
         if (Math.max(Math.abs(dx), Math.abs(dy)) <= 1 || !WORLD.inb(x + dx, y + dy)) continue;
         const i = WORLD.idx(x + dx, y + dy); if (NORTH.has(i)) snap.push([i, this.fog[i]]);
       }
