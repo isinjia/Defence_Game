@@ -770,3 +770,12 @@ html body .skill-btn > .sk-tags > .sk-tag { display: inline-block !important; wi
 .dlg-group .dlg-gl b { color: var(--ac); }
 @keyframes dlgGl { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 #tut-skip { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); right: 12px; z-index: 1300; padding: 6px 12px; border-radius: 999px; background: rgba(10, 14, 24, .75); color: #cfd8e3; border: 1px solid rgba(255, 255, 255, .18); font-size: 12px; }
+
+/* 게이트 층 지도: 정찰 (js/gate_scout.js) */
+.gnode.unknown { --c: #8a94a6; }
+.gnode.unknown svg { opacity: .85; }
+.gnode.scouted.unsure { border-style: dashed !important; }
+.gnode.scouted.unsure::after { content: "?"; position: absolute; right: -4px; top: -4px; width: 14px; height: 14px; border-radius: 50%; background: #2a3242; color: #ffd84d; font-size: 10px; font-weight: 800; line-height: 14px; text-align: center; }
+.scout-line { margin: 2px 0 4px; line-height: 1.4; }
+.scout-line .scout-who { color: #5ee0c8; }
+.scout-line .scout-who.none { color: #ffb36b; }
