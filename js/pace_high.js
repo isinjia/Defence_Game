@@ -7,3 +7,10 @@ if (typeof stageReq === 'function') {
   // eslint-disable-next-line no-global-assign
   stageReq = function (r, s) { return Math.floor(baseStageReq(r, s) * (HIGH_PACE[r] || 1)); };
 }
+
+// 5차 평가: 돌파해도 체력이 +3~4%뿐(후기 ×1.3 → 다음 등급 초기 ×1.0으로 상쇄). 단계 보너스를 15% → 10%로 줄여
+// 등급이 오를 때 확실히 강해지게 한다(F 후기 1.2 → E 초기 1.35, +12%).
+if (typeof statMult === 'function' && typeof RANKS !== 'undefined') {
+  // eslint-disable-next-line no-global-assign
+  statMult = function (r, s) { return RANKS[r].mult * (1 + 0.10 * s); };
+}
