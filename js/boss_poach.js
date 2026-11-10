@@ -37,8 +37,13 @@
   };
 
   // 최종층 진입 때 F가 부른다 → 추격대가 오는가
+  // 보스 가로채기 중인가(E의 구출 확률 등이 읽는다): 외부인이 길드 게이트 최종층에 들어섰으면 true
+  GP.isPoaching = function (g) { return !!(g && g.poaching && this.isGuildGateOutsider(g)); };
+  GP.markPoaching = function (g) { if (g && this.isGuildGateOutsider(g)) g.poaching = true; };
+
   GP.guildChaseCheck = function (g) {
     const gid = this.isGuildGateOutsider(g); if (!gid) return null;
+    g.poaching = true;
     const inside = g.raid && g.raid.actor && g.raid.actor.guild === gid;
     const temper = this.guildTemper(gid);
     let p = inside ? 0.8 : 0.25;
@@ -59,7 +64,7 @@
     const name = GUILDS[gid].name; const lawless = (chase && chase.temper) === 'lawless';
     if (kind === 'apology') {
       const ok = RNG.chance(lawless ? 0.35 : 0.75);
-      if (ok) { this.guildFeud(gid, -5); return { ok, leave: true, text: `${name} 추격대에 고개를 숙이고 보스층에서 물러났다. 체면은 구겼지만 피는 보지 않았다.` }; }
+      if (ok) { this.guildFeud(gid, -5); delete g.poaching; return { ok, leave: true, text: `${name} 추격대에 고개를 숙이고 보스층에서 물러났다. 체면은 구겼지만 피는 보지 않았다.` }; }
       return { ok, text: `${name} 추격대는 사과를 받아 주지 않았다. "말로 끝날 일이 아니야."` };
     }
     if (kind === 'bribe') {
@@ -85,6 +90,8 @@
       this.rumor(`${p.name}이(가) ${name} 추격대를 게이트 안에서 쓰러뜨렸다는 소문이다.`, { kind: 'poach', score: 3 });
       return `${name} 추격대를 물리쳤다. 악명이 퍼진다.`;
     }
+    // 4-18 틀: 추격대 승리는 탈취 위주, 무법 길드는 드물게 죽인다
+    if (chase.temper === 'lawless' && RNG.chance(0.08)) { this.gameOver(`${name} 추격대에게 게이트 안에서 목숨을 잃었다.`); return `${name} 추격대의 칼이 마지막이었다.`; }
     const lost = Math.floor(p.money * 0.2); p.money -= lost;
     p.injured = Math.max(p.injured || 0, 5); this.recalc();
     if (RNG.chance(0.03)) { p.lifePenalty += 2; if (this.noteLifeLoss) this.noteLifeLoss(2, `${name} 추격대에 당함`); }
@@ -133,7 +140,7 @@
         if (p.hnet && p.hnet.card) this.queue.push({ type: 'hnet', id: post.id });
       }
     }
-    delete g.poachShare; delete g.poachShareA;
+    delete g.poachShare; delete g.poachShareA; delete g.poaching;
     for (let i = 0; i < out.length; i++) out[i] = typeof fixJosa === 'function' ? fixJosa(out[i]) : out[i];
     if (Array.isArray(lines)) lines.push(...out);
     this.log(out[0], 'bad');
@@ -150,7 +157,7 @@
   // 보스층 앞에서 물러난 외부인(F가 부른다): 매너 좋은 헌터
   GP.guildGateMannerly = function (g) {
     const gid = this.isGuildGateOutsider(g); if (!gid) return '';
-    this.guildFeud(gid, 4);
+    this.guildFeud(gid, 4); delete g.poaching;
     if (this.factionPrestige) this.factionPrestige(gid, 0);
     return `${GUILDS[gid].name} 관리 게이트의 보스층 앞에서 물러났다. 규칙을 지키는 헌터라는 평이 돈다.`;
   };

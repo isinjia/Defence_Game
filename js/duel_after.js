@@ -123,25 +123,33 @@ TITLES.push({ id: 'merciful', name: '자비로운 승자', how: '생사결에서
     if (ch === 'kill') return base.call(this, n, false, hpLeft, mpLeft);
     p.hp = 1; p.mp = 0;
     if (ch === 'rob') {
-      const lost = Math.floor(p.money * 0.4); p.money -= lost;
+      // 4-19: 탈취는 무겁게 — 돈 30~50%, 장비 1~2개, 부상 3~6개월
+      const lost = Math.floor(p.money * RNG.range(0.3, 0.5)); p.money -= lost;
       if (typeof n.money === 'number') n.money += lost;
-      const slots = Object.keys(p.equip || {}).filter((k) => p.equip[k]);
-      let gear = '';
-      if (slots.length && RNG.chance(0.6)) { const k = RNG.pick(slots); gear = p.equip[k].name; p.equip[k] = null; }
-      p.injured = Math.max(p.injured || 0, 4); this.recalc();
+      const gears = [];
+      for (let i = RNG.int(1, 2); i > 0; i--) {
+        const slots = Object.keys(p.equip || {}).filter((k) => p.equip[k]);
+        if (!slots.length) break;
+        const k = RNG.pick(slots); gears.push(p.equip[k].name); p.equip[k] = null;
+      }
+      const gear = gears.join('·');
+      const inj = RNG.int(3, 6);
+      p.injured = Math.max(p.injured || 0, inj); this.recalc();
       this.changeRel(n, -10);
       this.rumor(`${n.name}이(가) 생사결 끝에 ${p.name}을(를) 털고 살려 보냈다.`, { kind: 'duel', score: 2 });
       this.log(`${n.name}에게 졌다. 목숨은 붙어 있지만 털렸다.`, 'bad');
       if (this.duelLawful(place) && RNG.chance(0.5) && n.alive) { n.wanted = (n.wanted || 0) + 1; this.rumor(`관리국이 ${n.name}을(를) 강도 혐의로 수배했다.`, { kind: 'wanted', score: 1 }); }
-      return `${n.name}에게 졌다. ${fmt(lost)} 크레딧${gear ? `과 ${gear}` : ''}을(를) 빼앗겼다. (부상 4개월)`;
+      return `${n.name}에게 졌다. ${fmt(lost)} 크레딧${gear ? `과 ${gear}` : ''}을(를) 빼앗겼다. (부상 ${inj}개월)`;
     }
-    // spare
-    p.injured = Math.max(p.injured || 0, 3); this.recalc();
+    // spare (4-19: 살려 줘도 대가는 크다 — 부상 3~5개월, 체면 손상)
+    const inj = RNG.int(3, 5);
+    p.injured = Math.max(p.injured || 0, inj); this.recalc();
+    p.fame = Math.max(0, (p.fame || 0) - 3);
     this.changeRel(n, 10);
     if (n.nemesis === 'player') n.nemesis = null;
     this.rumor(`${n.name}이(가) 생사결 끝에 쓰러진 ${p.name}을(를) 살려 보냈다.`, { kind: 'duel', score: 1 });
     this.log(`${n.name}에게 졌지만 목숨은 건졌다.`, 'bad');
-    return `${n.name}에게 졌다. "오늘은 여기까지다." 그가 칼을 거뒀다. (부상 3개월)`;
+    return `${n.name}에게 졌다. "오늘은 여기까지다." 그가 칼을 거뒀다. (부상 ${inj}개월, 명성 -3)`;
   };
 }
 
