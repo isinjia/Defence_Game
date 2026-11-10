@@ -73,7 +73,8 @@ const PORTRAIT = (() => {
     const iris = glowEyes ? ec : pick(EYES);
     const bangStyle = young ? pick(['curtain', 'swept']) : F ? pick(['curtain', 'swept', 'cover', 'curtain']) : pick(['swept', 'spiky', 'cover', 'curtain', 'swept']);
     const back = st === 'baby' ? 'none' : st === 'child' ? (F ? pick(['bob', 'pony']) : 'none') : F ? pick(['long', 'long', 'pony', 'bob']) : pick(['none', 'none', 'nape', 'tail']);
-    const outfitKind = pick(['coat', 'hanbok', 'mandarin', 'tactical']);
+    const outfitPick = pick(['coat', 'hanbok', 'mandarin', 'tactical']);
+    const outfitKind = opts.outfit || outfitPick; // opts.outfit: 의상 확인용(시험·미리 보기)
     const acc = young ? { hairpin: F && r() < 0.5 } : { earpiece: r() < 0.18, scar: !F && r() < 0.2, marks: rank >= 5 || r() < 0.12, earring: F ? r() < 0.45 : r() < 0.2, mask: !F && race === 'human' && r() < 0.1, hairpin: F && r() < 0.35 };
     const beard = race === 'dwarf' ? (!F || r() < 0.15) : !F && (st === 'elder' ? r() < 0.45 : st === 'middle' ? r() < 0.2 : 0);
 
@@ -104,27 +105,64 @@ const PORTRAIT = (() => {
     const cloth = st === 'baby' ? babyCol : st === 'child' ? pick(['#3a5a8a', '#8a3a4a', '#4a7a5a', '#6a4a8a']) : outfit, clothSh = shade(outfit, outfit === '#f0eee8' ? -0.25 : -0.45), clothHi = shade(outfit, outfit === '#f0eee8' ? 0.3 : 0.18);
     let body = `<path d="M22 240C26 206 50 186 84 178L116 178C150 186 174 206 178 240Z" fill="${cloth}"/>
       <path d="M22 240C26 206 50 186 84 178L92 190C70 200 56 216 52 240Z" fill="${clothSh}"/>`;
-    if (st === 'baby') body += `<circle cx="100" cy="200" r="5" fill="#fff" opacity=".8"/><path d="M84 186Q100 196 116 186" stroke="#fff" stroke-width="3" fill="none" opacity=".7"/>`;
-    else if (st === 'child') body += `<path d="M84 178Q100 190 116 178" stroke="${clothHi}" stroke-width="4" fill="none"/><rect x="88" y="206" width="24" height="14" rx="3" fill="${clothHi}" opacity=".6"/>`;
-    else if (outfitKind === 'coat') body += `
-      <path d="M70 164L84 200L100 212L116 200L130 164L140 176L126 214L100 226L74 214L60 176Z" fill="${clothSh}" stroke="${line}" stroke-width="1"/>
-      <path d="M140 176L126 214L100 226" stroke="${ec}" stroke-width="1.4" fill="none" opacity=".8"/>
-      <path d="M100 226V240" stroke="${line}" stroke-width="1.5"/>`;
-    else if (outfitKind === 'hanbok') body += `
-      <path d="M84 178L118 178L72 240L52 240Z" fill="${clothHi}"/>
-      <path d="M118 178L128 186L82 240L72 240Z" fill="${shade(ec, -0.35)}"/>
-      <path d="M119 179L76 238" stroke="#f4f1ea" stroke-width="3.2"/>
-      <path d="M84 178L100 206" stroke="${line}" stroke-width="1.2"/>
+    // 옷깃은 목보다 나중에 그린다(목 앞을 감싸게). body = 몸통 바탕, collar = 목 위에 얹는 옷깃·V 안쪽 피부.
+    // 목은 x 87~113(너비 약 25), 어깨선은 y 178. 깃 폭은 목 너비 +6~12 안쪽으로 맞춘다.
+    const skinShC = mix(skin, '#8a5a6a', 0.28), skinDeepC = mix(skin, '#5a3040', 0.45);
+    const clavicle = `<path d="M91.5 184.5Q95.5 186.5 99 185.2M108.5 184.5Q104.5 186.5 101 185.2" stroke="${skinDeepC}" stroke-width=".9" fill="none" opacity=".55" stroke-linecap="round"/>`;
+    let collar = '';
+    if (st === 'baby') {
+      body += `<circle cx="100" cy="200" r="5" fill="#fff" opacity=".8"/>`;
+      collar = `<path d="M84 181Q100 194 116 181" stroke="#fff" stroke-width="3.4" fill="none" opacity=".85" stroke-linecap="round"/>`;
+    } else if (st === 'child') {
+      body += `<rect x="88" y="206" width="24" height="14" rx="3" fill="${clothHi}" opacity=".6"/>`;
+      collar = `<path d="M84.5 179.5Q100 192 115.5 179.5" stroke="${clothHi}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    } else if (outfitKind === 'coat') {
+      // 안에 받쳐 입은 옷(둥근 목선) + 그 위로 여민 코트 깃
+      const inner = outfit === '#f0eee8' ? '#2a2f3a' : shade(outfit, 0.55);
+      collar = `
+      <path d="M86.5 177Q100 190 113.5 177L117 196L100 214L83 196Z" fill="${inner}"/>
+      <path d="M86.5 177Q100 190 113.5 177" stroke="${shade(inner, -0.35)}" stroke-width="1.4" fill="none"/>
+      <path d="M87 178.5Q100 191.5 113 178.5" stroke="${skinDeepC}" stroke-width="1.6" fill="none" opacity=".28" transform="translate(0 -3)"/>
+      <path d="M87.5 171L78 178L75 213L100 227L100 214L87 201L85.5 181Z" fill="${clothSh}" stroke="${line}" stroke-width="1" stroke-linejoin="round"/>
+      <path d="M112.5 171L122 178L125 213L100 227L100 214L113 201L114.5 181Z" fill="${clothSh}" stroke="${line}" stroke-width="1" stroke-linejoin="round"/>
+      <path d="M87.5 171L85.5 181L87 201M112.5 171L114.5 181L113 201" stroke="${clothHi}" stroke-width=".9" fill="none" opacity=".7"/>
+      <path d="M122 178L125 213L100 227" stroke="${ec}" stroke-width="1.4" fill="none" opacity=".8"/>
+      <path d="M100 227V240" stroke="${line}" stroke-width="1.5"/>`;
+    } else if (outfitKind === 'hanbok') {
+      // 여밈 바탕(몸통)은 그대로 두고, 깃 두 줄이 목 양옆에서 내려와 가슴에서 겹친다. V 안쪽은 피부.
+      body += `
+      <path d="M84 178L118 178L72 240L52 240Z" fill="${clothHi}"/>`;
+      collar = `
+      <path d="M87 175L113 175L101.8 194Z" fill="${skin}"/>
+      <path d="M87 175L113 175L110 180Q100 184 90 180Z" fill="${skinShC}" opacity=".5"/>
+      ${clavicle}
+      <path d="M84 177L87.6 173.2L103.4 193L100 197Z" fill="#f4f1ea" stroke="${line}" stroke-width=".7" stroke-linejoin="round"/>
+      <path d="M112.4 173.2L121 180.5L84 240L73 240Z" fill="${shade(ec, -0.35)}" stroke="${line}" stroke-width=".7" stroke-linejoin="round"/>
+      <path d="M113.6 175.4L75.6 239" stroke="#f4f1ea" stroke-width="3.2" stroke-linecap="round"/>
       <path d="M96 212Q108 214 118 222M96 212Q100 226 96 238" stroke="${ec}" stroke-width="2" fill="none" opacity=".85"/>`;
-    else if (outfitKind === 'mandarin') body += `
-      <path d="M82 166Q100 172 118 166L120 184Q100 192 80 184Z" fill="${clothSh}" stroke="${line}" stroke-width="1"/>
+    } else if (outfitKind === 'mandarin') {
+      // 세운 깃(차이나 칼라): 목 앞을 감싸고 가운데가 살짝 벌어진다
+      body += `
       <path d="M100 188V240" stroke="${line}" stroke-width="1.4"/>
       ${[198, 210, 222, 234].map((y) => `<path d="M94 ${y}H106" stroke="${ec}" stroke-width="2.2" stroke-linecap="round"/><circle cx="100" cy="${y}" r="1.6" fill="${ec}"/>`).join('')}`;
-    else body += `
-      <path d="M76 172L100 192L124 172L128 188L100 206L72 188Z" fill="${clothSh}"/>
+      collar = `
+      <path d="M86 166.5Q93 170.5 99.2 171.2L100 174.5L100.8 171.2Q107 170.5 114 166.5" stroke="${skinDeepC}" stroke-width="2.4" fill="none" opacity=".3" transform="translate(0 -2)"/>
+      <path d="M84 167Q92.5 171.5 99.2 172L100 176L100.8 172Q107.5 171.5 116 167L118.5 183.5Q100 191.5 81.5 183.5Z" fill="${clothSh}" stroke="${line}" stroke-width="1" stroke-linejoin="round"/>
+      <path d="M85.2 168.4Q92.8 172.6 99 173.2M114.8 168.4Q107.2 172.6 101 173.2" stroke="${clothHi}" stroke-width="1" fill="none" opacity=".8"/>
+      <path d="M100 176V188" stroke="${line}" stroke-width="1"/>`;
+    } else {
+      // 전술복 브이넥: V 안쪽은 피부(쇄골), 꼭짓점은 목 아래 가운데
+      body += `
       <path d="M50 214L84 198M150 214L116 198" stroke="${shade(outfit, 0.3)}" stroke-width="3"/>
-      <path d="M100 206V240" stroke="${ec}" stroke-width="1.6" opacity=".9"/>
+      <path d="M100 208V240" stroke="${ec}" stroke-width="1.6" opacity=".9"/>
       <rect x="112" y="216" width="22" height="9" fill="${clothSh}"/><rect x="115" y="219" width="7" height="2" fill="${ec}"/>`;
+      collar = `
+      <path d="M87 175.5L113 175.5L100 196Z" fill="${skin}"/>
+      <path d="M87 175.5L113 175.5L110.5 180Q100 184 89.5 180Z" fill="${skinShC}" opacity=".5"/>
+      ${clavicle}
+      <path d="M87.4 174L100 195.5L112.6 174L120 180.5L100 209L80 180.5Z" fill="${clothSh}" stroke="${line}" stroke-width=".9" stroke-linejoin="round"/>
+      <path d="M88.6 176.4L100 195.5L111.4 176.4" stroke="${clothHi}" stroke-width=".9" fill="none" opacity=".7"/>`;
+    }
 
     // ---- 목과 얼굴 (V라인)
     const faceD = young ? 'M68 92C68 62 82 48 100 48C118 48 132 62 132 92C132 118 121 136 100 143C79 136 68 118 68 92Z'
@@ -231,7 +269,7 @@ const PORTRAIT = (() => {
     // 아이는 머리를 크게, 몸을 작게 (아기는 더 과장)
     const headT = st === 'baby' ? 'translate(100 118) scale(1.32) translate(-100 -96)' : st === 'child' ? 'translate(100 108) scale(1.14) translate(-100 -96)' : st === 'teen' ? 'translate(100 100) scale(1.04) translate(-100 -96)' : '';
     const bodyT = st === 'baby' ? 'translate(100 240) scale(.62) translate(-100 -240)' : st === 'child' ? 'translate(100 240) scale(.8) translate(-100 -240)' : '';
-    const content = `${defs}${bg}<g transform="${headT}">${backSvg}</g><g transform="${bodyT}">${body}${neck}</g>
+    const content = `${defs}${bg}<g transform="${headT}">${backSvg}</g><g transform="${bodyT}">${body}${neck}${collar}</g>
       <g transform="${headT}">${massSvg}${face}${feat}${scarSvg}${bangShadow}${eyeOne(false)}${eyeOne(true)}${brows}${mouth}${extra}${hairFront}${accSvg}</g>`;
     return { content, id, ring: RANKS[rank].color, ec };
   }
