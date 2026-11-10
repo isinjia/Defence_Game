@@ -1058,3 +1058,5 @@ html body #cb-ctrl .row.end > button, html body .order-banner .row > button, htm
 #dlg .cn-vt { display: inline-block; padding: 0 6px; margin-right: 4px; border-radius: 3px; font-size: 11px; font-weight: 700; vertical-align: 1px; }
 #dlg .cn-vt.o { background: #1f4a2c; color: #9ef0b6; }
 #dlg .cn-vt.x { background: #4a1f26; color: #ffb0ba; }
+.obj-link.main-q .hq-mark { color: var(--amber, #f5b84a); }
+.obj-link.main-q .hq-t { font-weight: 700; }

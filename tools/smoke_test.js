@@ -401,6 +401,25 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
+  await step('메인 시나리오: 1장이 조건에 맞춰 열리고 → 퀘스트 맨 위에 뜨고 → 장면이 끝까지 재생되고 → 2장으로 넘어간다', async () => {
+    const r = await ev(() => {
+      if (typeof MAIN === 'undefined' || !MAIN.chapters[1]) return '메인 시나리오 틀이 없다';
+      const M = G.mainState(); const keep = JSON.stringify(M); const q = G.queue.slice(); const p = G.player; const pos0 = [p.x, p.y, p.region];
+      try {
+        M.ch = 1; M.open = {}; M.done = {}; M.started = {}; M.flags = {}; M.scene = null; M.pending = null; M.startMk = G.monthKey() - 5;
+        G.mainCheck(); if (!M.open[1]) return '1장이 열리지 않았다';
+        const city = WORLD.cityPos[p.region]; p.x = city[0]; p.y = city[1];
+        if (!UI.hudQuests().includes('main-go')) return '퀘스트 목록에 메인 줄이 없다';
+        UI.mainPlay(null);
+        for (let i = 0; i < 400 && UI.dlg; i++) { const d = UI.dlg; const line = d.lines[d.i]; if (line && line.choices) UI.handle('dlg-choice', '0'); else UI.dlgNext(); }
+        if (UI.dlg) return '장면이 끝나지 않는다';
+        if (!M.done[1]) return '1장이 완료되지 않았다';
+        if (M.ch !== 2) return '다음 장으로 넘어가지 않았다';
+        return '';
+      } finally { G.flags.main = JSON.parse(keep); G.queue = q; [p.x, p.y, p.region] = pos0; if (UI.dlg) UI.dlgEnd(); }
+    });
+    if (r) throw new Error(r);
+  });
   await step('프롤로그 그림: 모든 장면에 정지 그림, 컷씬식 연출(화면 가림·다시 보기)은 없음', async () => {
     const r = await ev(() => {
       const missing = Object.keys(PROLOGUE).filter((id) => !PrologueCinema.config(id, UI.pro));
