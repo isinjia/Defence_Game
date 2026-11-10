@@ -857,3 +857,26 @@ html body .cmd-main .cmd.ordered::after { top: -5px; }
 .foe.vanishing { animation: vanishOut .38s ease-out forwards; }
 @keyframes vanishOut { to { opacity: 0; transform: translateY(-10px) scale(.7); filter: blur(2px); } }
 @media (prefers-reduced-motion: reduce) { .foe.splitting .fx-host { animation-duration: 160ms; } }
+
+/* ===== 전투 배치 고정 (js/battle_layout.js) ===== */
+/* 아군: 고리 = 턴 게이지 (필살은 뒤쪽 오라만) */
+html body .ally .fx-host .ult-aura::before { background: conic-gradient(from 0deg, #ffc857 calc(var(--atb, 0) * 360deg), #ffffff1c 0); opacity: .9; filter: none; }
+html body .ally .fx-host .ult-aura.turn-ready::before { background: conic-gradient(#fff3c4, #ffc857, #fff3c4); opacity: 1; filter: drop-shadow(0 0 3px #ffc857); }
+/* 고리가 턴 게이지를 맡으므로 아군의 가는 행동 막대는 숨긴다 */
+html body .combat-box .ally.fig:not(.summon) .bar.atb { display: none; }
+/* 상태·버프 줄: 비어 있어도 자리를 차지한다 (초상화가 위아래로 움직이지 않게) */
+html body .combat-box.fit .ally .status, html body .combat-box.fit .ally .status:empty { display: flex; flex-wrap: nowrap; justify-content: center; gap: 2px; min-height: 14px; height: 14px; overflow: hidden; }
+html body .combat-box.fit .foe .status, html body .combat-box.fit .foe .status:empty { display: flex; flex-wrap: nowrap; justify-content: center; gap: 2px; min-height: 14px; height: 14px; overflow: hidden; }
+/* 적: 보이지 않는 칸 4 × 2 */
+html body .combat-box.fit #foes.foe-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 2px 0; align-content: stretch; justify-items: center; align-items: center; }
+html body .combat-box.fit #foes.foe-grid .foe { margin: 0; max-width: none; }
+html body #foes.foe-grid .foe.slot-freed { display: none !important; }
+/* 스킬 버튼: 오더 표시는 이름 오른쪽 */
+html body .skill-btn.ordered::after, html body .cmd-main .cmd.ordered::after { content: none; }
+.order-chip { display: inline-block; vertical-align: middle; font-style: normal; font-size: 10px; font-weight: 800; line-height: 14px; color: #08131f; background: var(--order, #8cc4ff); padding: 0 5px; border-radius: 7px; margin-left: 4px; }
+html body .cmd-list .skill-btn.ordered { margin-top: 0; }
+.ally.vanishing { animation: vanishOut .38s ease-out forwards; }
+/* 아군 줄: 보이지 않는 5칸 */
+html body .combat-box.fit .allies.ally-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); justify-items: center; align-items: start; gap: 0; }
+html body .allies.ally-grid .ally.slot-freed { display: none !important; }
+html body .combat-box.fit .allies.ally-grid .ally { margin: 0; }

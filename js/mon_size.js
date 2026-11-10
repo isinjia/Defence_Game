@@ -54,7 +54,9 @@ Object.assign(UI, {
     };
     // 전장 자체의 scrollHeight 는 바닥 장식 때문에 늘 넘쳐 보여 쓰지 않는다. 적 줄·아군 줄과 전투 상자만 본다.
     const al = document.getElementById('allies');
-    const over = () => box.scrollHeight > box.clientHeight + 1 || spill(fz) || spill(al);
+    // 칸 배치(js/battle_layout.js)에서는 한 칸(두 칸짜리는 두 칸) 너비를 넘으면 옆 적과 겹치므로 그것도 넘침으로 본다
+    const cellOver = () => { if (!fz || !fz.classList.contains('foe-grid')) return false; const cw = fz.clientWidth / 4; for (const ch of fz.children) { if (!ch.offsetWidth) continue; if (ch.offsetWidth > cw * (+ch.dataset.w || 1) + 1) return true; } return false; };
+    const over = () => box.scrollHeight > box.clientHeight + 1 || spill(fz) || spill(al) || cellOver();
     const apply = (k) => {
       box.style.setProperty('--fs', MON_BASE[Math.min(k, MON_BASE.length - 1)] + 'px');
       box.classList.toggle('fit-tight', k >= MON_BASE.length);
