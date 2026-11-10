@@ -56,3 +56,9 @@ for (const [id, list] of Object.entries(PRO_ALT)) {
   };
 }
 
+
+// 다음 장면 위의 "「앞 장면」 그 뒤 — 이어지는 한 줄"은 뺀다 (사용자: 이어지는 이야기를 못 받쳐 주면 오히려 어색하다)
+{
+  const baseR = UI.renderPrologue;
+  UI.renderPrologue = function () { const r = baseR.apply(this, arguments); for (const el of document.querySelectorAll('#pro-scene .pro-gap')) el.remove(); return r; };
+}
