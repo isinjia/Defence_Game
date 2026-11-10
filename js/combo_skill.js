@@ -135,7 +135,7 @@ Object.assign(Combat.prototype, {
 }
 
 Object.assign(UI, {
-  // 명령 버튼 위 작은 표시(合·必)
+  // 명령 버튼 위 작은 표시(합·필)
   cmdBadge(btn, key, on, text) {
     if (!btn) return;
     let s = btn.querySelector(`.cmd-badge[data-k="${key}"]`);
@@ -150,7 +150,7 @@ Object.assign(UI, {
       const why = cb.comboBlock(x); const u = cb.units.find((y) => y.id === x.id);
       const who = u ? u.name.replace(/\(.*\)$/, '') : '';
       return `<button class="skill-btn combo-btn ${why ? '' : 'go'}" data-act="c-combo" data-v="${x.id}" ${why || !ready ? 'disabled' : ''} title="${COMBO_KIND[x.kind].desc}">
-        <span class="combo-ic">合</span><span><b>${x.name}</b><span class="small dim">${who} · ${why || COMBO_KIND[x.kind].desc}</span></span></button>`;
+        <span class="combo-ic">합</span><span><b>${x.name}</b><span class="small dim">${who} · ${why || COMBO_KIND[x.kind].desc}</span></span></button>`;
     }).join('');
   },
 });
@@ -165,7 +165,7 @@ Object.assign(UI, {
     const r = baseMenu.apply(this, a);
     if (cb && !cb.result && cb.comboPairs) {
       const on = cb.waiting && !c.playing && !cb.auto && cb.comboReady().length > 0;
-      this.cmdBadge(document.querySelector('#cb-ctrl .cmd-main [data-v=skill]'), 'combo', on, '合');
+      this.cmdBadge(document.querySelector('#cb-ctrl .cmd-main [data-v=skill]'), 'combo', on, '합');
     }
     return r;
   };

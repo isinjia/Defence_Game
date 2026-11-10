@@ -75,7 +75,7 @@ Object.assign(Game.prototype, {
       this.rumor(`${reg.name}에 에테르 폭풍이 몰아친다. 간 큰 수련자들이 몰려든다고.`);
     }
     if (this.month === 7) this.log('장마가 시작됐다. 황무지와 폐허가 진창이 되어 걷기 힘들다.');
-    if (this.month === 12) this.log('겨울이 왔다. 산길이 얼어붙고, 얼음 낀 수(水) 속성 괴수가 늘어난다.');
+    if (this.month === 12) this.log('겨울이 왔다. 산길이 얼어붙고, 얼음 낀 수 속성 괴수가 늘어난다.');
   },
   // 계절·탈것에 따라 지형 이동 비용을 다시 계산한다 (WORLD.T_COST 를 그 자리에서 바꾼다)
   applyTerrain() {

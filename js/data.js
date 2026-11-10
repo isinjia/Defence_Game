@@ -1,5 +1,5 @@
 // 게임 버전 (화면 오른쪽 아래에 표시)
-const GAME_VERSION = '0.279';
+const GAME_VERSION = '0.281';
 
 // ===== 게이트 크로니클: 데이터 정의 =====
 // 귀곡팔황의 "경지"를 각성 등급으로, "오행"을 에테르 속성으로 옮겼다.
@@ -18,12 +18,12 @@ const STAGE_NAMES = ['초기', '중기', '후기'];
 const BASE_LIFESPAN = 60; // 에테르 오염으로 평균 수명이 줄었다
 
 const ELEMENTS = {
-  fire:  { name: '염(炎)', icon: '🔥', color: '#ff7a45', beats: ['wood'] },
-  bolt:  { name: '뇌(雷)', icon: '⚡', color: '#ffd84d', beats: ['water'] },
-  water: { name: '수(水)', icon: '💧', color: '#4fb3ff', beats: ['fire'] },
-  wood:  { name: '목(木)', icon: '🌿', color: '#5fcf6a', beats: ['bolt'] },
-  holy:  { name: '성(聖)', icon: '✨', color: '#fff0b3', beats: ['dark'] },
-  dark:  { name: '암(暗)', icon: '🌑', color: '#a36cff', beats: ['holy'] },
+  fire:  { name: '염', icon: '🔥', color: '#ff7a45', beats: ['wood'] },
+  bolt:  { name: '뇌', icon: '⚡', color: '#ffd84d', beats: ['water'] },
+  water: { name: '수', icon: '💧', color: '#4fb3ff', beats: ['fire'] },
+  wood:  { name: '목', icon: '🌿', color: '#5fcf6a', beats: ['bolt'] },
+  holy:  { name: '성', icon: '✨', color: '#fff0b3', beats: ['dark'] },
+  dark:  { name: '암', icon: '🌑', color: '#a36cff', beats: ['holy'] },
 };
 // 상성 (docs/구현_대기목록.md 4-9): 수→염→목→뇌→수 순환(우위 ×1.5, 열세 ×0.7), 성↔암은 서로 ×1.5. 성·암과 4속성은 중립.
 function elemMult(atk, def) {
@@ -77,7 +77,7 @@ const TRAITS = [
 // type: dmg(단일), aoe(전체), heal, buff(공격 상승), shield(방어 상승)
 const SKILLS = [
   { id: 'strike',     name: '기본 타격',    elem: null,     rankReq: 0, power: 1.0, mp: 0,  type: 'dmg', price: 0, desc: '무기로 공격한다.' },
-  { id: 'flame_fist', name: '염권(炎拳)',   elem: 'fire',   rankReq: 0, power: 1.5, mp: 12, type: 'dmg', price: 300, desc: '불꽃을 머금은 주먹.' },
+  { id: 'flame_fist', name: '염권',   elem: 'fire',   rankReq: 0, power: 1.5, mp: 12, type: 'dmg', price: 300, desc: '불꽃을 머금은 주먹.' },
   { id: 'static',     name: '정전기 방출',  elem: 'bolt',   rankReq: 0, power: 1.3, mp: 10, type: 'dmg', price: 300, desc: '빠르게 전격을 쏜다.' },
   { id: 'frost',      name: '물살 손길',    elem: 'water',  rankReq: 0, power: 1.4, mp: 12, type: 'dmg', price: 300, desc: '세찬 물살로 적을 후려친다.' },
   { id: 'harden',     name: '수피 갑주',    elem: 'wood',   rankReq: 0, power: 0.4, mp: 10, type: 'shield', price: 350, desc: '살갗이 단단한 나무껍질로 덮인다. 3턴간 방어력 상승.' },
@@ -87,11 +87,11 @@ const SKILLS = [
   { id: 'chain',      name: '연쇄 번개',    elem: 'bolt',   rankReq: 2, power: 1.1, mp: 26, type: 'aoe', price: 1500, desc: '전체 공격.' },
   { id: 'glacier',    name: '빙하 창',      elem: 'water',    rankReq: 2, power: 2.3, mp: 30, type: 'dmg', price: 1600, desc: '강력한 단일 공격.' },
   { id: 'overdrive',  name: '생장 폭주',    elem: 'wood',   rankReq: 2, power: 0.5, mp: 24, type: 'buff', price: 1600, desc: '몸속 생기를 끌어올린다. 3턴간 공격력 상승.' },
-  { id: 'soulfire',   name: '흑염(黑炎)',   elem: 'dark',   rankReq: 3, power: 2.6, mp: 40, type: 'dmg', price: 4000, desc: '영혼을 태우는 검은 불꽃.' },
+  { id: 'soulfire',   name: '흑염',   elem: 'dark',   rankReq: 3, power: 2.6, mp: 40, type: 'dmg', price: 4000, desc: '영혼을 태우는 검은 불꽃.' },
   { id: 'meteor',     name: '유성 낙하',    elem: 'fire',   rankReq: 4, power: 2.2, mp: 60, type: 'aoe', price: 9000, desc: '광역 괴멸.' },
   { id: 'thunder_god',name: '뇌신 강림',    elem: 'bolt',   rankReq: 4, power: 3.8, mp: 65, type: 'dmg', price: 9500, desc: '단일 대상 극대 피해.' },
   { id: 'absolute',   name: '절대영도',     elem: 'water',    rankReq: 5, power: 3.0, mp: 90, type: 'aoe', price: 20000, desc: '모든 것을 멈춘다.' },
-  { id: 'rebirth',    name: '환생(還生)',   elem: 'holy',   rankReq: 5, power: 1.0, mp: 100, type: 'heal', price: 22000, desc: '체력을 전부 회복한다.' },
+  { id: 'rebirth',    name: '환생',   elem: 'holy',   rankReq: 5, power: 1.0, mp: 100, type: 'heal', price: 22000, desc: '체력을 전부 회복한다.' },
 ];
 
 // 장비: slot(weapon/armor/acc), tier(0~7) 에 따라 능력치 생성

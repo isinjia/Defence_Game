@@ -618,7 +618,7 @@ const UI = {
     (p.children || []).forEach((id) => add(id, '자녀'));
     G.npcs.filter((n) => n.family).forEach((n) => list.push([n, '혈육']));
     G.adults().filter((n) => n.nemesis === 'player').forEach((n) => list.push([n, '원수']));
-    return list.map(([n, label]) => `<button class="npc-chip ${n.alive ? '' : 'dead'}" data-act="sheet" data-v="npc:${n.id}">${this.npcAvatar(n, 40)}<span><b>${n.name}</b><span class="small ${label === '원수' ? 'bad' : 'dim'}">${label}${n.alive ? (n.child ? ` · ${Math.floor(n.ageMonths / 12)}세` : ` · ${RANKS[n.rankIdx].key}급`) : ' · 故'}</span></span></button>`).join('') || '<span class="dim small">아직 깊은 인연이 없다.</span>';
+    return list.map(([n, label]) => `<button class="npc-chip ${n.alive ? '' : 'dead'}" data-act="sheet" data-v="npc:${n.id}">${this.npcAvatar(n, 40)}<span><b>${n.name}</b><span class="small ${label === '원수' ? 'bad' : 'dim'}">${label}${n.alive ? (n.child ? ` · ${Math.floor(n.ageMonths / 12)}세` : ` · ${RANKS[n.rankIdx].key}급`) : ' · 고'}</span></span></button>`).join('') || '<span class="dim small">아직 깊은 인연이 없다.</span>';
   },
 
   skillsHtml() {

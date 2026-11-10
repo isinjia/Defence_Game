@@ -2,7 +2,7 @@
 // 피해를 주거나 받거나 동료가 쓰러지면 차는 아군 개인 게이지. 가득 차면 직업 역할에 맞는 필살기를 한 번(대가 없음, 한 전투에 한 사람 한 번).
 // 혼자이거나 둘일 때, 체력 35% 미만으로 몰렸을 때 더 빨리 찬다.
 // 한계 돌파(curse.js, 오염을 감수하는 강제 폭발)와는 별개다. 이쪽은 전투 흐름이 주는 보상.
-// - 플레이어: 스킬 목록 맨 위의 필살 버튼(가득 차면 스킬 버튼에 '必' 표시). 자동 전투면 알아서 쓴다.
+// - 플레이어: 스킬 목록 맨 위의 필살 버튼(가득 차면 스킬 버튼에 '필' 표시). 자동 전투면 알아서 쓴다.
 // - 동료: 자기 차례에 가득 차 있으면 바로 쓴다.
 // 화면: 아군 그림 아래 얇은 줄(그림 위에 겹쳐 높이를 더하지 않는다).
 
@@ -119,7 +119,7 @@ Object.assign(UI, {
     const v = Math.floor(p.ult || 0); const info = cb.ultInfo(p);
     const ready = cb.waiting && !c.playing && !cb.auto && cb.ultReady(p);
     return `<button class="skill-btn ult-btn ${cb.ultReady(p) ? 'go' : ''}" data-act="c-ult" ${ready ? '' : 'disabled'} title="${info.desc}">
-      <span class="ult-ic">必</span><span><b>필살 · ${info.name}</b><span class="small dim">${p.ultUsed ? '이번 전투에서 이미 썼다' : cb.ultReady(p) ? info.desc : `필살 게이지 ${v}%`}</span></span></button>`;
+      <span class="ult-ic">필</span><span><b>필살 · ${info.name}</b><span class="small dim">${p.ultUsed ? '이번 전투에서 이미 썼다' : cb.ultReady(p) ? info.desc : `필살 게이지 ${v}%`}</span></span></button>`;
   },
   drawUlt() {
     const c = this.ctx; const cb = c && c.combat; if (!cb || !cb.units || !cb.ultOk) return;
@@ -147,7 +147,7 @@ Object.assign(UI, {
     const r = baseMenu.apply(this, a);
     if (cb && !cb.result && cb.ultReady) {
       const on = cb.waiting && !c.playing && !cb.auto && cb.ultReady(cb.player);
-      this.cmdBadge(document.querySelector('#cb-ctrl .cmd-main [data-v=skill]'), 'ult', on, '必');
+      this.cmdBadge(document.querySelector('#cb-ctrl .cmd-main [data-v=skill]'), 'ult', on, '필');
     }
     return r;
   };

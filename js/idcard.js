@@ -47,7 +47,7 @@
         <tr><th>비고</th><td colspan="3">협회 실기 시험 결과 반영</td></tr>
       </table>
       <div class="doc-sign"><span>담당 심사관</span><b>${judge}</b><i class="doc-sig">${judge}</i></div>
-      <div class="doc-stamp" aria-hidden="true"><span>國家覺醒者<br>管理局</span></div>
+      <div class="doc-stamp" aria-hidden="true"><span>국가각성자<br>관리국</span></div>
     </div>
     <div class="row end doc-btns"><button class="ghost" data-act="id-skip">건너뛰기</button><button class="primary" data-act="id-card" id="doc-next" disabled>헌터 ID 카드 받기</button></div>`;
   };

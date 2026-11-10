@@ -316,7 +316,7 @@ Object.assign(UI, {
     G.over = null; G.queue = [];
     G.recalc(); p.hp = p.maxHp; p.mp = p.maxMp;
     G.lifeEvent(`부모 ${old.name}의 뒤를 이었다.`);
-    G.rumor(`故 ${old.name}의 자녀 ${p.name}이(가) 헌터로서 첫발을 내디뎠다.`);
+    G.rumor(`고 ${old.name}의 자녀 ${p.name}이(가) 헌터로서 첫발을 내디뎠다.`);
     G.save();
     this.closeModal(); this.renderGame(); this.map.centerOn(p.x, p.y);
     this.modal(`${UI.playerPortrait(150)}<div class="eyebrow">${G.fullDate()}</div><h2>계승</h2><p class="event-text">${p.name}은(는) 부모가 남긴 장비와 유물, 그리고 원한과 인연을 함께 물려받았다.</p><div class="row end"><button class="primary" data-act="modal-close">시작</button></div>`, 'event-box');

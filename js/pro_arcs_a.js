@@ -142,9 +142,9 @@ Object.assign(PROLOGUE, {
     ] },
   dream_5: { title: '강 건너의 이름', text: '아이가 깨어났다. 할머니가 처음으로 웃는다. "이제 너도 이쪽 사람이다. 그런데 네 신은 내 신하고 좀 다르구나."\n\n그날 밤 꿈속 강가. 존재가 마침내 자신의 이름을 알려 준다. 그 이름이 당신의 길을 정한다.',
     choices: [
-      { text: '"만신(萬神)." 수많은 신의 무리가 당신 뒤에 선다', g: { east: 2 }, c: { shaman: 4 }, next: 'verdict' },
-      { text: '"검선(劍仙)." 꿈속에서 칼 한 자루를 건네받는다. 깨어나 보니 맨손에 칼의 무게가 남아 있다', g: { east: 2 }, c: { swordmonk: 4 }, next: 'verdict' },
-      { text: '"사자(使者)." 저승길 망자들이 고개를 숙인다', g: { summon: 2 }, c: { necromancer: 4 }, t: { loner: 1 }, next: 'verdict_street' },
+      { text: '"만신." 수많은 신의 무리가 당신 뒤에 선다', g: { east: 2 }, c: { shaman: 4 }, next: 'verdict' },
+      { text: '"검선." 꿈속에서 칼 한 자루를 건네받는다. 깨어나 보니 맨손에 칼의 무게가 남아 있다', g: { east: 2 }, c: { swordmonk: 4 }, next: 'verdict' },
+      { text: '"사자." 저승길 망자들이 고개를 숙인다', g: { summon: 2 }, c: { necromancer: 4 }, t: { loner: 1 }, next: 'verdict_street' },
       { text: '"예언자." 강물에 아직 오지 않은 날들이 비친다', g: { esper: 2 }, c: { seer: 4 }, luck: 1, next: 'verdict' },
       { text: '"계약자." 존재가 대가를 요구하는 붉은 문서를 내민다', g: { mage: 2 }, c: { warlock: 4 }, t: { cursed: 1 }, next: 'verdict_street' },
       { text: '"시간지기." 강물이 거꾸로 흐르기 시작한다', g: { mage: 2 }, c: { chronomancer: 4 }, talent: 1, next: 'verdict_guild' },

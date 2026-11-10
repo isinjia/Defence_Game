@@ -46,6 +46,11 @@ const { chromium, devices } = require('playwright');
     const begin = await page.$('[data-act="pro-begin"]'); if (begin) { await begin.click(); await page.waitForTimeout(300); }
     const ok = await ev(() => !!(G.player && G.player.name)); if (!ok) throw new Error('플레이어 생성 안 됨');
   });
+  await step('화면 글자에 한자 없음 (공통 규칙 9: 한국어판은 한글로)', async () => {
+    const src = require('fs').readFileSync(require('path').join(__dirname, '..', 'dist', 'game.js'), 'utf8');
+    const m = src.match(/[\u3400-\u9fff\uf900-\ufaff]+/g);
+    if (m) throw new Error('한자가 남아 있음: ' + [...new Set(m)].slice(0, 8).join(' '));
+  });
   await step('헌터 자격 시험(건너뛰기 또는 자동 전투) → 지도', async () => {
     for (let i = 0; i < 12; i++) {
       const acts = await ev(() => [...document.querySelectorAll('#modal-box [data-act]')].map((e) => e.dataset.act));

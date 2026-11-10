@@ -6,7 +6,7 @@
 //  - 회귀자는 지난 생에 본 히든 피스를 기억한다(세계가 달라 일부만 맞는다).
 
 const HIDDEN_TPL = [
-  { id: 'hp_blackflame', kind: 'class', cls: 'blackflame', name: '흑염의 검총(劍塚)', minRank: 2, guard: true, hint: '검은 불꽃이 꺼지지 않는 무덤' },
+  { id: 'hp_blackflame', kind: 'class', cls: 'blackflame', name: '흑염의 검총', minRank: 2, guard: true, hint: '검은 불꽃이 꺼지지 않는 무덤' },
   { id: 'hp_machine', kind: 'class', cls: 'machinist', name: '봉인된 기계 신전', minRank: 2, guard: true, hint: '밤마다 톱니 소리가 나는 폐공장' },
   { id: 'hp_gate', kind: 'class', cls: 'gatekeeper', name: '첫 문의 잔해', minRank: 3, guard: true, hint: '대붕괴 첫날 열린 문의 파편' },
   { id: 'hp_sword', kind: 'weapon', name: '말하는 검이 꽂힌 바위', minRank: 1, guard: true, hint: '뽑으려는 자에게 말을 거는 칼' },
