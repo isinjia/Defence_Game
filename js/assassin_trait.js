@@ -25,6 +25,7 @@ Object.assign(Game.prototype, {
   const foeRank = (c) => {
     const cb = c.combat; if (!cb) return 0;
     if (c.kind === 'duel') { const n = G.npcById(c.npcId); return n ? n.rankIdx || 0 : 0; }
+    if (c.pvp) return c.pvp.rank || 0; // 게이트 안 길드 추격대 (js/gate_pursuit.js)
     return Math.max(0, ...cb.units.filter((u) => u.side === 'enemy').map((u) => u.tier || 0));
   };
   const bossFight = (c) => c.nodeKind === 'boss' || (c.combat && c.combat.units.some((u) => u.side === 'enemy' && (u.boss || u.isBoss)));
@@ -55,7 +56,7 @@ Object.assign(Game.prototype, {
         const bn = document.querySelector('#stage .intro-banner.ambush span');
         if (bn) bn.textContent = `${c.assassinAmbush.name}(암살계)의 기척 지우기 · 적 전원 1턴 기절`;
       }
-      if (c.kind !== 'duel' || bossFight(c)) return r;
+      if ((c.kind !== 'duel' && !c.pvp) || bossFight(c)) return r; // 생사결·게이트 안 대인 전투
       const a = G.bestAssassin(); if (!a) return r;
       const gap = a.rank - foeRank(c);
       const ch = Math.max(0, Math.min(ASSASSIN.strikeMax, ASSASSIN.strikeBase + ASSASSIN.strikePerGap * gap + ASSASSIN.strikePerAdv * a.adv)) * gapFactor(a, foeRank(c));

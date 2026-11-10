@@ -782,3 +782,12 @@ html body .skill-btn > .sk-tags > .sk-tag { display: inline-block !important; wi
 
 /* 암살 기습 배너 (js/assassin_trait.js) */
 .intro-banner.assassin { top: 64%; --ib: #b79bff; }
+
+/* 길드 추격대 (js/gate_pursuit.js) */
+.gtoken.pursuer { position: absolute; transform: translate(-50%, -50%); width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: #3a0d16; border: 2px solid #ff4f6a; color: #ff8a9a; font-size: 15px; z-index: 3; box-shadow: 0 0 12px #ff4f6a99; animation: pursuerPulse 1.2s ease-in-out infinite; }
+@keyframes pursuerPulse { 50% { box-shadow: 0 0 20px #ff4f6acc; } }
+.pursuit-line { color: #ff8a9a; margin: 0 0 4px; }
+@media (prefers-reduced-motion: reduce) { .gtoken.pursuer { animation: none; } }
+.pvp-res { text-align: center; line-height: 1.6; margin: 4px 0 10px; }
+.pvp-res b { font-size: 16px; }
+.pvp-res.lose b { color: #ff8a9a; }
