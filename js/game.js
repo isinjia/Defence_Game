@@ -373,7 +373,8 @@ class Game {
     const before = this.queue.length;
     this.advanceDays(days, { eventChance: 0.3, noSave: true });
     if (this.over) return { stop: true, days };
-    let stop = this.queue.length > before || !!city;
+    // 도시는 목적지일 때만 멈춘다. 지나가는 길의 도시에서는 들어가지 않고 계속 걷는다 (사용자 요청)
+    let stop = this.queue.length > before || (!!city && this._walkLast !== false);
     if (!city && !stop) {
       // 노상 사건
       if (RNG.chance(0.03)) { const ev = this.pickStory('road') || this.pickStory('month'); if (ev) { this.queue.push(ev); stop = true; } }

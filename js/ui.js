@@ -377,7 +377,8 @@ const UI = {
       this.map.walkPath = w.steps.slice(w.i);
       this.map.tween(from, to, ms, () => {
         if (this.walking !== w) return;
-        const res = G.walkStep(to[0], to[1], diag);
+        G._walkLast = w.i >= w.steps.length; // 이 칸이 목적지인가
+        let res; try { res = G.walkStep(to[0], to[1], diag); } finally { G._walkLast = undefined; }
         w.days += res.days;
         let stop = res.stop;
         // 길에서 다른 각성자와 마주침
