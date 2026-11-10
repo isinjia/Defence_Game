@@ -5,3 +5,4 @@
 .tp-btn .small { opacity: .85; white-space: nowrap; }
 .tp-eta { margin-top: 6px; }
 @media (max-width: 360px) { .tp-row { flex-wrap: wrap; } .tp-btns { width: 100%; justify-content: flex-end; } }
+.ov-btns { display: flex; flex-direction: column; gap: 4px; flex: 0 0 auto; }
