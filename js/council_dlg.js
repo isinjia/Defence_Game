@@ -1,16 +1,8 @@
 // ===== 게이트 크로니클: 팀 상의를 대화로 (영역 A, 사용자 요청) =====
-// 게이트 층 지도의 "팀 상의"를 지도 위 패널(#council-ov) 대신 대화창으로 보여 준다.
-//   제안(리더 한마디) → 팀원들의 의견(한 화면에 O/X와 한마디) → 내 선택(대화 선택지) → 리더의 화답(대화) → 이동
+// 상의 창(팀원 O/X·한마디·내 선택 버튼)은 그대로 두고, 리더의 말만 창 밖 대화로 보여 준다(사용자 요청).
+//   리더 제안(대화) → 상의 창 → 내가 고르면 창이 사라지고 → 내 한마디·리더의 화답(대화) → 이동
 // 판정·관계 변화는 council.js · council_exam.js 의 함수를 그대로 쓰고, 그 안의 알림(toast)·패널·지연 이동만 대화로 옮긴다.
 {
-  const OK_LINES = ['"좋아."', '"찬성."', '"가자."', '"괜찮아 보여."'];
-  const NO_LINES = ['"난 반대야."', '"글쎄, 별로야."', '"다른 길은 없어?"'];
-  const voteLine = (n, v) => v.line || (typeof personaCouncil === 'function' ? personaCouncil(n, v.vote === 'X' ? 1 : 0) : null) || RNG.pick(v.vote === 'X' ? NO_LINES : OK_LINES);
-  const tag = (v) => (v.vote === 'X' ? '<span class="cn-vt x">반대</span> ' : '<span class="cn-vt o">찬성</span> ');
-  const groupOf = (votes) => {
-    const g = votes.map((v) => { const n = G.npcById(v.id); return n ? { who: n, text: tag(v) + voteLine(n, v) } : null; }).filter(Boolean);
-    return g.length ? { group: g } : null;
-  };
   const say = (L, T) => { const k = L ? (L.personality === 'cold' ? 'cold' : L.personality === 'kind' ? 'kind' : 'just') : 'just'; return T[k] || T.just; };
   // 알림 문장 "이름: "말"" 을 그 사람의 대사로
   const toLine = (msg) => {
@@ -33,52 +25,19 @@
     return out;
   };
   const closeOv = () => { const ov = document.getElementById('council-ov'); if (ov) ov.remove(); };
-  const autoPick = (k) => { if (window.TUT_AUTO_TAP) setTimeout(() => { if (UI.dlg) UI.handle('dlg-choice', k); }, 30); };
 
-  // ---------- 일반 게이트 ----------
-  UI.renderCouncil = function () {
-    const c = this.ctx; const cn = c && c.council; if (!cn) return;
-    closeOv();
-    const nd = this.nodeOf(cn.key); const N = GNODE[nd.t]; const nm = N.name;
-    const L = cn.leader != null ? G.npcById(cn.leader) : null;
-    const xs = cn.votes.filter((v) => v.vote === 'X');
-    const lines = [];
-    if (cn.stage === 'consult') {
-      const alts = this.reachable().map(([r, i]) => r + ':' + i).filter((k) => k !== cn.key);
-      lines.push({ narr: '반대한 팀원들의 이야기를 들었다. 어떻게 할까?' });
-      lines.push({ choices: [
-        ...alts.map((k) => ({ text: `${GNODE[this.nodeOf(k).t].name}(으)로 바꾼다`, go: () => this.handle('cn-alt', k) })),
-        { text: '설득한다', go: () => this.handle('cn-persuade') },
-        { text: '지도로 돌아가 다시 고른다', go: () => this.handle('cn-back') },
-      ] });
-      return this.talk(lines);
+  // ---------- 일반 게이트: 상의 창(팀원 의견·내 선택)은 그대로, 리더의 말만 창 밖 대화로 ----------
+  const baseRender0 = UI.renderCouncil;
+  const stripLead = () => { document.querySelectorAll('#council-ov .cn-lead-line, #council-ov .lead-say').forEach((e) => e.remove()); };
+  UI.renderCouncil = function (...a) {
+    const c = this.ctx; const cn = c && c.council;
+    const L = cn && cn.leader != null ? G.npcById(cn.leader) : null;
+    if (cn && L && cn.stage === 'vote' && !cn.leadSaid) {
+      cn.leadSaid = true; closeOv();
+      const nm = GNODE[this.nodeOf(cn.key).t].name;
+      return this.talk([{ who: L, text: say(L, { just: `"${nm}(으)로 간다. 반대 있으면 지금 말해."`, kind: `"${nm} 쪽으로 가 볼까요? 의견 있으면 말해 줘요."`, cold: `"${nm}. 간다. 할 말 있으면 해."` }) }], () => { if (this.ctx === c && c.council === cn) { baseRender0.apply(this, a); stripLead(); } });
     }
-    if (!cn.talked) {
-      cn.talked = true;
-      if (L) lines.push({ who: L, text: say(L, { just: `"${nm}(으)로 간다. 반대 있으면 지금 말해."`, kind: `"${nm} 쪽으로 가 볼까요? 의견 있으면 말해 줘요."`, cold: `"${nm}. 간다. 할 말 있으면 해."` }) + (cn.clicked && cn.clicked !== cn.key ? ` (당신이 가리킨 곳은 ${GNODE[this.nodeOf(cn.clicked).t].name} 칸이었다)` : '') });
-      else lines.push({ who: 'player', text: `"${nm}(으)로 가려는데, 다들 어때?"` });
-      const g = groupOf(cn.votes); if (g) lines.push(g);
-    }
-    if (L) {
-      lines.push({ choices: [
-        { text: '찬성한다', go: () => this.handle('cn-vote', 'O') },
-        { text: '반대한다', go: () => this.handle('cn-vote', 'X') },
-        { text: cn.clicked && cn.clicked !== cn.key ? '"저쪽이 낫지 않아?"' : '"좀 더 생각해 보자."', go: () => this.handle('cn-vote', 'X!') },
-        ...(c.run && !c.run.blocked && this.showBlock ? [{ text: '막아선다 (리더와 관계가 크게 흔들린다)', go: () => this.handle('cn-vote', 'B') }] : []),
-      ] });
-    } else if (xs.length) {
-      lines.push({ choices: [
-        { text: '상의한다', go: () => this.handle('cn-consult') },
-        { text: '그냥 진행한다 (반대한 팀원과 관계 하락)', go: () => this.handle('cn-force') },
-      ] });
-    } else {
-      lines.push({ choices: [
-        { text: '진행한다', go: () => this.handle('cn-go') },
-        { text: '다시 고른다', go: () => this.handle('cn-back') },
-      ] });
-    }
-    this.talk(lines);
-    autoPick(0);
+    const r = baseRender0.apply(this, a); stripLead(); return r;
   };
 
   const wrapSay = (name, pre) => {
@@ -97,12 +56,7 @@
     };
   };
   wrapSay('councilNpcDecide', (v) => ({ mine: { who: 'player', text: v === 'B' ? '"잠깐. 거긴 안 돼. 내가 막겠어."' : v === 'O' ? '"좋아, 따를게."' : v === 'X!' ? '"저쪽이 낫지 않아?"' : '"난 반대야."' } }));
-  wrapSay('councilForce', () => ({ mine: { who: 'player', text: '"반대는 들었어. 그래도 간다."' } }));
-  wrapSay('councilAltPick', function (k) { return { mine: { who: 'player', text: `"알았어. ${GNODE[this.nodeOf(k).t].name}(으)로 가자."` } }; });
-  wrapSay('councilPersuade', function () {
-    const cn = this.ctx.council; const ids = cn.votes.filter((x) => x.vote === 'X').map((x) => x.id);
-    return { mine: { who: 'player', text: '"내 말 좀 들어 봐. 이쪽이 맞아."' }, extra: () => { const g = groupOf(cn.votes.filter((v) => ids.includes(v.id))); return g ? [g] : []; } };
-  });
+  // 내가 리더일 때(강행·다른 칸·설득)는 리더의 화답이 없으므로 원래 상의 창 그대로 둔다
   // 설득 뒤 다시 그릴 때는 의견을 또 읊지 않는다(cn.talked 유지). 대화 중에 원래 함수가 창을 다시 그리지 않게 막는다
   const baseRC = UI.renderCouncil;
   UI.renderCouncil = function (...a) { if (this.dlg) return; return baseRC.apply(this, a); };
@@ -111,15 +65,10 @@
   const baseLead = UI.councilLeadStart;
   if (baseLead) UI.councilLeadStart = function (...a) {
     const cap = capture(this, () => baseLead.apply(this, a));
-    const t = this.councilLead; if (!t) return;
-    const L = this.examLeader(); const nm = GNODE[t.nd.t].name;
-    const lines = [
-      { who: L || '리더', text: say(L, { just: `"${nm}(으)로 간다. 반대 있으면 지금 말해."`, kind: `"${nm} 쪽으로 가 볼까요? 의견 있으면 말해 줘요."`, cold: `"${nm}. 간다."` }) },
-      groupOf(t.votes),
-      { choices: [{ text: '따른다', go: () => this.handle('cn-lead', 'O') }, { text: '반대한다', go: () => this.handle('cn-lead', 'X') }] },
-    ];
-    closeOv(); this.talk(lines); autoPick(0);
-    return cap;
+    const t = this.councilLead; if (!t || !cap.panel) return;
+    const L = this.examLeader(); const nm = GNODE[t.nd.t].name; const ctx = this.ctx;
+    this.talk([{ who: L || '리더', text: say(L, { just: `"${nm}(으)로 간다. 반대 있으면 지금 말해."`, kind: `"${nm} 쪽으로 가 볼까요? 의견 있으면 말해 줘요."`, cold: `"${nm}. 간다."` }) }],
+      () => { if (this.ctx !== ctx || this.councilLead !== t) return; this.councilPanel(cap.panel); stripLead(); if (window.TUT_AUTO_TAP) this.autoFollow(document.querySelector('#council-ov [data-act="cn-lead"][data-v="O"]'), 1); });
   };
   const baseRes = UI.councilLeadResolve;
   if (baseRes) UI.councilLeadResolve = function (...a) {
@@ -138,18 +87,12 @@
   const baseTut = UI.councilTutStart;
   if (baseTut) UI.councilTutStart = function (k) {
     const cap = capture(this, () => baseTut.call(this, k));
-    const t = this.councilTut; if (!t) return;
-    const L = this.examLeader();
-    let lead = ''; let note = '';
-    if (cap.panel) { const d = document.createElement('div'); d.innerHTML = cap.panel; const ls = d.querySelector('.lead-say div'); lead = ls ? ls.textContent.trim() : ''; const p = d.querySelector('p.small.dim'); note = p ? p.textContent.trim() : ''; }
-    closeOv();
-    this.talk([
-      lead ? { who: L || '리더', text: `"${lead}"` } : null,
-      groupOf(t.votes),
-      note ? { sys: note.split('일반 게이')[0].trim() } : null,
-      { choices: [{ text: '상의한다', go: () => this.handle('cn-tut', 'talk') }, { text: '그냥 진행한다', go: () => this.handle('cn-tut', 'force') }] },
-    ]);
-    autoPick(0);
+    const t = this.councilTut; if (!t || !cap.panel) return;
+    const L = this.examLeader(); const d = document.createElement('div'); d.innerHTML = cap.panel;
+    const ls = d.querySelector('.lead-say'); const lead = ls ? ls.querySelector('div') : null; const text = lead ? lead.textContent.trim() : '';
+    if (ls) ls.remove();
+    const ctx = this.ctx; const show = () => { if (this.ctx === ctx && this.councilTut === t) this.councilPanel(d.innerHTML); };
+    if (!text) return show();
+    this.talk([{ who: L || '리더', text: `"${text}"` }], show);
   };
-  wrapSay('councilTutNext', (v) => ({ mine: { who: 'player', text: v === 'force' ? '"걱정은 알겠어. 그래도 가자."' : '"무슨 걱정인지 들어 볼게."' } }));
 }
