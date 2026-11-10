@@ -303,7 +303,9 @@ const { chromium, devices } = require('playwright');
         UI.ctx = { gate: { tier: 0, elem: 'water' }, run: { floor: 0, seen: [], ev: null } };
         UI.gateEvent();
         const chosen = UI.ctx.run.ev;
-        if (!document.querySelector('[data-act="ck-ev"]') || !document.querySelector('[data-act="ec-replay"]')) return '사건 선택지 또는 다시 보기 없음';
+        // 한 화면 배치(js/explore_onescreen.js): 컷씬을 자동으로 띄우지 않고 그림·본문·선택지가 함께 보인다
+        if (document.querySelector('.ec-screen')) return '사건에서 컷씬이 자동으로 뜸';
+        if (!document.querySelector('.ex-one .ex-art svg') || !document.querySelector('.ex-one .ex-body') || !document.querySelector('.ex-one .ex-foot [data-act="ck-ev"]')) return '한 화면 배치(그림·본문·선택지) 없음';
         UI.handle('ec-replay', chosen.id);
         document.querySelector('.ec-skip').click();
         if (document.getElementById('modal').hasAttribute('inert')) return '사건 화면 잠금 잔류';

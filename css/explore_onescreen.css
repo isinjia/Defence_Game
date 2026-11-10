@@ -1,0 +1,30 @@
+/* ===== 탐색 사건 한 화면 (js/explore_onescreen.js) : 그림 / 본문(스크롤) / 선택지 ===== */
+.modal-box.ex-box { display: flex; flex-direction: column; overflow: hidden; }
+.modal-box.ex-box > .ex-one { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; width: 100%; max-width: 680px; margin: 0 auto; gap: 8px; }
+.modal-box.ex-box:not(.gscene) { max-height: calc(100dvh - 24px); }
+.ex-one > .ex-art { flex: 0 0 auto; height: clamp(96px, 24vh, 240px); margin: 0; }
+.ex-one > .ex-body { flex: 1 1 auto; min-height: 64px; overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
+.ex-one > .ex-body h3 { margin: 2px 0 6px; }
+.ex-one > .ex-body .event-text { margin: 6px 0 0; }
+.ex-lines { margin: 0; color: #c9d4e2; font-size: 15px; line-height: 1.7; }
+.ex-one > .ex-foot { flex: 0 1 auto; max-height: 58%; overflow-y: auto; overscroll-behavior: contain; padding-bottom: max(6px, env(safe-area-inset-bottom, 0px)); }
+.ex-one > .ex-foot > .cards { margin-top: 0; }
+.ex-one > .ex-foot .row.end { position: static; margin-top: 8px; }
+.ex-pick > .eyebrow, .ex-pick > h3 { display: none; }
+@media (max-height: 640px) {
+  .ex-one > .ex-art { height: clamp(72px, 18vh, 120px); }
+  .ex-one .choice-btn { padding: 9px 12px; font-size: 14px; }
+  .ex-one > .ex-body h3 { font-size: 19px; }
+  .ex-lines, .ex-one .event-text { font-size: 14px; line-height: 1.55; }
+  .ex-one .ck-who { min-height: 46px; padding: 5px 8px; }
+}
+.ex-one > .ex-foot.ex-pick { max-height: 66%; }
+@media (max-height: 640px) {
+  .ex-one > .ex-foot.ex-pick > p.small { display: none; }
+  .ex-one .ck-who .avatar { width: 34px !important; height: 34px !important; }
+  .ex-one .ck-who { min-height: 40px; padding: 4px 8px; }
+  .ex-one .ck-who .small { font-size: 11.5px; }
+  .ex-one .ck-pct { font-size: 17px; }
+  .ex-one > .ex-foot .row.end { margin-top: 4px; }
+  .ex-one > .ex-foot .row.end button { min-height: 38px; padding: 6px 12px; }
+}
