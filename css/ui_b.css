@@ -563,3 +563,12 @@ body.tut-hold #coach-pop { z-index: 60; }
 
 /* 말풍선 관리자 (speech.js): 안내 말풍선이 떠 있는 동안 오더 말풍선·외침은 숨긴다 */
 body.speech-on .order-bubble, body.speech-on .float-num.say { display: none !important; }
+
+/* 시전 연출 가르기 (buff_fx.js): 지원계는 제자리 시전 자세, 아군 대상 고르기는 적을 흐리게 */
+.cast-pose .fx-host { animation: castpose .56s ease-out; }
+@keyframes castpose { 0% { transform: none; filter: none; } 35% { transform: translateY(-4px) scale(1.08); filter: brightness(1.5) drop-shadow(0 0 10px var(--hc, #8dffb0)); } 100% { transform: none; filter: none; } }
+#stage.cast-support .foe .reticle, #stage.aim-ally .foe .reticle, #stage.aim-self .foe .reticle { opacity: 0 !important; animation: none !important; }
+#stage.aim-ally #foes { opacity: .4; filter: saturate(.5); transition: opacity .15s; }
+#stage.aim-ally #allies.aim .ally:not(.summon) { outline: 2px solid #8dffb0; box-shadow: 0 0 12px #8dffb088; animation: allyaim 1s ease-in-out infinite alternate; }
+@keyframes allyaim { to { box-shadow: 0 0 18px #8dffb0cc; } }
+@media (prefers-reduced-motion: reduce) { #stage.aim-ally #allies.aim .ally:not(.summon) { animation: none; } }

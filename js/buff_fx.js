@@ -41,9 +41,36 @@
   let turn = 0;
   const stagger = (f) => { const k = turn++ % 3; f.classList.add('bfx'); f.style.marginTop = (k - 1) * 15 + 'px'; };
   const flash = (t) => { const st = t && t.querySelector('.status'); if (st) FX.pulse(st, 'st-flash', 700); };
+  // 시전 연출 가르기 (사용자 제보): 버프·회복처럼 적을 때리지 않는 시전에는 돌진·타격 모션을 쓰지 않는다.
+  //  이 시전 뒤에 (다음 시전 전까지) 피해·광역 이벤트가 따라오면 공격계, 없으면 지원계로 본다 → 스킬·아이템·괴수 기술·오더 모두 같은 규칙.
+  const isSupportCast = (ui, l) => {
+    const cb = ui.ctx && ui.ctx.combat; if (!cb) return false;
+    const i = cb.log.indexOf(l); if (i < 0) return false;
+    let any = false;
+    for (let j = i + 1; j < cb.log.length; j++) {
+      const e = cb.log[j].ev; if (!e) continue;
+      if (e.k === 'cast') break;
+      if (e.k === 'dmg' || e.k === 'aoe' || e.k === 'miss') return false;
+      any = true;
+    }
+    return any;
+  };
   const baseApply = UI.applyEvent;
   UI.applyEvent = function (l) {
     const ev = l && l.ev;
+    if (ev && ev.k === 'cast' && isSupportCast(this, l)) {
+      const r = baseApply.call(this, l);
+      try {
+        const s = document.getElementById('u-' + ev.src);
+        if (s) {
+          s.classList.remove('lunge-up', 'lunge-down'); // 돌진 대신 제자리 시전 자세
+          s.style.setProperty('--hc', ev.elem && ELEMENTS[ev.elem] ? elemColor(ev.elem) : '#8dffb0');
+          FX.pulse(s, 'cast-pose', 560);
+        }
+        const st = document.getElementById('stage'); if (st) FX.pulse(st, 'cast-support', 900); // 적 조준 표시는 잠깐 숨긴다
+      } catch (e) { /* 무시 */ }
+      return r;
+    }
     if (ev && ev.k === 'bfxd') { // 약화: 받는 적(또는 아군)마다 붉은 글자
       const t = document.getElementById('u-' + ev.dst);
       if (t) {
@@ -70,6 +97,23 @@
       if (ev.k === 'heal' && host && ev.amt != null) {
         const f = [...host.querySelectorAll('.float-num.heal')].reverse().find((x) => x.textContent === `+${ev.amt}`);
         if (f) { f.textContent = `회복 +${ev.amt}`; stagger(f); }
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+
+  // 대상 고르기: 아군 대상·대상 없는 스킬을 골랐으면 적 조준 표시를 숨기고, 아군 대상이면 적을 흐리게 한다
+  const baseGlow = UI.aimGlow;
+  if (baseGlow) UI.aimGlow = function (...a) {
+    const r = baseGlow.apply(this, a);
+    try {
+      const c = this.ctx; const cb = c && c.combat; const st = document.getElementById('stage');
+      if (st && cb) {
+        const sel = c.sel && !cb.result ? (G.skillEff ? G.skillEff(skillById(c.sel)) : skillById(c.sel)) : null;
+        const aim = sel ? (SKILL_AIM[sel.type] || 'none') : null;
+        const on = !!(sel && cb.waiting && !c.playing && !cb.auto);
+        st.classList.toggle('aim-ally', on && aim === 'ally');
+        st.classList.toggle('aim-self', on && aim === 'none' && !['aoe', 'debuff', 'multi'].includes(sel.type));
       }
     } catch (e) { /* 무시 */ }
     return r;
