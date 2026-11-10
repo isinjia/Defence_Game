@@ -273,7 +273,7 @@ S({ id: 'rel_friend_gift', npc: 'friend', weight: 0.7, text: '{npc}에게서 택
   choices: [{ text: '고맙게 받는다', do: (g, c) => '상자 안에는 편지와 선물이 들어 있었다.' + g.gain(RNG.chance(0.3) ? { relic: true, rel: 5 } : { core: [0, 3], rel: 5 }, c) }] });
 
 // ---------- 언론, 정치, 사회 ----------
-S({ id: 'media_viral', minRank: 1, text: '게이트에서 싸우는 당신의 영상이 SNS에서 퍼지고 있다. 누군가 몰래 찍은 것이다. 댓글이 수만 개.',
+S({ id: 'media_viral', minRank: 2, text: '게이트에서 싸우는 당신의 영상이 SNS에서 퍼지고 있다. 누군가 몰래 찍은 것이다. 댓글이 수만 개.',
   choices: [
     { text: '공식 채널을 개설한다', do: (g) => g.roll(0.6) ? '구독자가 폭발적으로 늘었다.' + g.gain({ fame: 15, money: 300 }) : '악플이 쏟아졌다. 멘탈이 흔들렸다.' + g.gain({ fame: 5, hp: -0.2 }) },
     { text: '삭제 요청을 한다', do: (g) => '영상은 내려갔지만 짤은 영원했다.' + g.gain({ fame: 4 }) },

@@ -260,7 +260,7 @@ Object.assign(UI, {
     if (!n || !n.alive || p.crew) return this.processQueue();
     const mem = L.members.map((id) => G.npcById(id)).filter(Boolean);
     this.modal(`<div class="story-portrait">${UI.npcPortrait(n, 130)}<div><div class="eyebrow">메시지 · ${G.fullDate()}</div><b>${n.name}</b><div class="small">${this.rankTag(n.rankIdx, n.stage)} · ${L.name} 리더</div></div></div>
-      <p class="event-text">"${p.name} 씨 맞죠? 요즘 활약 들었어요. 우리 ${L.name}에 정식 파티원으로 들어올래요? 지금 ${mem.map((m) => m.name).join(', ')}이(가) 같이 뛰고 있어요. 일정은 내가 잡고, 보상은 공정하게 나눠요."</p>
+      <p class="event-text">"${p.name} 씨 맞죠? ${(p.record && p.record.gates) >= 3 ? '요즘 활약 들었어요.' : '협회 신규 명단에서 이름 봤어요.'} 우리 ${L.name}에 정식 파티원으로 들어올래요? 지금 ${mem.map((m) => m.name).join(', ')}이(가) 같이 뛰고 있어요. 일정은 내가 잡고, 보상은 공정하게 나눠요."</p>
       <div class="cards"><button class="choice-btn" data-act="crew-invite" data-v="1">들어간다${G.party().length ? ' (지금 동료와는 헤어진다)' : ''}</button><button class="choice-btn" data-act="crew-invite" data-v="0">정중히 거절한다</button></div>`, 'event-box');
   },
   answerCrewPlan(v) {
