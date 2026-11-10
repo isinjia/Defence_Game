@@ -184,15 +184,3 @@ if (typeof Game !== 'undefined') {
 }
 
 
-// 12) 5인 파티에서 내 차례가 5번에 1번꼴이라 자동 전투처럼 느껴졌다(3차 독립 평가 전투 재미).
-//     직접 조작할 때(자동 아님), 아군이 셋 이상이면 내 행동 게이지가 25% 빨리 찬다. 자동 전투·모의 전투(runAll)는 그대로.
-if (typeof Combat !== 'undefined') {
-  const baseFillRate = Combat.prototype.fillRate;
-  Combat.prototype.fillRate = function (u) {
-    const f = baseFillRate.call(this, u);
-    if (u && u.isPlayer && !this.auto && !this._sim && this.units.filter((x) => x.side === 'ally' && !x.summon).length >= 3) return f * 1.25;
-    return f;
-  };
-  const baseRunAll = Combat.prototype.runAll;
-  if (baseRunAll) Combat.prototype.runAll = function (...a) { this._sim = true; try { return baseRunAll.apply(this, a); } finally { this._sim = false; } };
-}
