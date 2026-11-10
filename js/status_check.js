@@ -29,13 +29,13 @@ if (typeof UI !== 'undefined') {
     statusSkillHtml(id) {
       const sk = skillById(id); if (!sk) return '';
       const p = G.player; const e = sk.elem === 'self' ? p.element : sk.elem;
-      return `<button class="st-sk" data-act="st-sk" data-v="${id}">${e && ELEMENTS[e] ? FX.elemIcon(e, 14) : '<i class="st-dot"></i>'}<b>${sk.name}</b><span class="tag">${TYPE_NAME[sk.type] || '특수'}</span><span class="small dim">MP ${sk.mp}</span><span class="st-more">›</span></button>`;
+      return `<button class="st-sk" data-act="st-sk" data-v="${id}">${e && ELEMENTS[e] ? FX.elemIcon(e, 14) : `<svg class="st-phys" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c9d3e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19 17 7l2-4 2 2-4 2L5 19zM4 16l4 4M3 21l2-2"/></svg>`}<b>${sk.name}</b><span class="tag">${TYPE_NAME[sk.type] || '특수'}</span><span class="small dim">MP ${sk.mp}</span><span class="st-more">›</span></button>`;
     },
     statusInvHtml() {
       const p = G.player;
       const gear = ['weapon', 'armor', 'acc'].map((sl) => p.equip[sl]).filter(Boolean).map((it) => `<div class="small"><span class="dim">${this.slotName ? this.slotName(it.slot) : ''}</span> ${it.name}</div>`).join('');
       const cons = (typeof CONSUMABLES !== 'undefined' ? CONSUMABLES : []).filter((c) => p.items[c.id]).map((c) => `<div class="small"><span class="dim">소모품</span> ${c.name} ×${p.items[c.id]}</div>`).join('');
-      return gear + cons || '<div class="small dim">없음</div>';
+      return `<div class="small"><span class="dim">돈</span> <b class="num">${fmt(p.money)}</b> 크레딧</div>` + gear + cons;
     },
     statusPop(html) {
       if (this.hideSkillHold) this.hideSkillHold();
@@ -45,7 +45,7 @@ if (typeof UI !== 'undefined') {
       const p = G.player; const bg = BACKGROUNDS.find((b) => b.id === p.bg);
       const friend = G.npcs.find((n) => n.friendhood && n.alive !== false);
       const log = p.proLog || []; const last = log.length ? log[log.length - 1] : null;
-      return `<div class="small">${G.ageYears()}세 · ${G.region().name} · <b class="num">${fmt(p.money)}</b> 크레딧</div>
+      return `<div class="small">${G.ageYears()}세 · ${G.region().name}</div>
         <div class="small dim">${bg ? `${bg.name}(으)로 살다 얼마 전 각성했다. ` : ''}${last ? `${last} ` : ''}게이트에 들어가려면 협회 자격 시험부터 통과해야 한다.${friend ? ` 소꿉친구 ${friend.name}도 이 도시에 있다.` : ''}</div>`;
     },
     statusHtml(forExam) {

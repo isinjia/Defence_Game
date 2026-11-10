@@ -937,3 +937,4 @@ button.st-tr { font-size: 12px; padding: 3px 8px; min-height: 0; background: tra
 .st-traits { display: grid; gap: 3px; }
 .st-tr { font-size: 13px; }
 .st-inv { display: grid; gap: 2px; }
+.st-phys { flex: none; }
