@@ -942,3 +942,7 @@ body.st-open #hud-money { display: none !important; }
 
 /* 정보 카드(스킬·유닛)는 움직임 없이 제자리에 바로 뜬다 (전에는 말풍선용 애니메이션 때문에 왼쪽에서 밀려 들어왔다) */
 html body .skill-hold-wrap, html body .skill-hold-wrap .skill-hold { animation: none !important; transform: none; }
+/* 여러 사람이 한 화면에서 말할 때 초상화 크기를 똑같이 (긴 대사 옆에서 눌려 좁아지던 문제) */
+html body .dlg-group .dlg-gl > .avatar, html body .dlg-group .dlg-gl > svg, html body .dlg-group .dlg-gl > .avatar-img { flex: 0 0 40px; width: 40px !important; height: 40px !important; min-width: 40px; border-radius: 50%; overflow: hidden; }
+html body .dlg-group .dlg-gl > .avatar-img img { width: 100%; height: 100%; object-fit: cover; }
+html body .dlg-group .dlg-gl > :not(.avatar):not(svg):not(.avatar-img) { flex: 1 1 auto; min-width: 0; }
