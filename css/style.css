@@ -1034,3 +1034,8 @@ html body #cb-ctrl .row.end > button, html body .order-banner .row > button, htm
 .hud-date b { font-family: var(--font-num); font-size: 14px; color: #eef3f8; letter-spacing: .02em; }
 .hud-date span { font-size: 11px; color: #9fb0c4; }
 .hud-date span.bad { color: var(--bad); }
+
+/* 팀 상의 대화의 찬성·반대 표시 (js/council_dlg.js) */
+#dlg .cn-vt { display: inline-block; padding: 0 6px; margin-right: 4px; border-radius: 3px; font-size: 11px; font-weight: 700; vertical-align: 1px; }
+#dlg .cn-vt.o { background: #1f4a2c; color: #9ef0b6; }
+#dlg .cn-vt.x { background: #4a1f26; color: #ffb0ba; }
