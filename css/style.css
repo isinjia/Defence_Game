@@ -961,3 +961,37 @@ html body #cb-ctrl .row.end > button, html body .order-banner .row > button, htm
 /* 글자가 긴 버튼이 셋 이상이면 줄을 바꿔 한 줄에 하나씩 */
 @media (max-width: 420px) { html body #modal-box .row.end > button:not(.sm):not(.icon-btn):nth-last-child(n+3), html body #modal-box .row.end > button:not(.sm):not(.icon-btn):nth-last-child(n+3) ~ button { flex-basis: 100%; } }
 #tut-skip.armed { background: rgba(120, 40, 40, .9); color: #fff; border-color: rgba(255, 140, 140, .6); }
+
+/* ===== 정산서 (js/settle_sheet.js) ===== */
+.settle-sheet { display: grid; gap: 10px; margin: 6px 0 4px; }
+.settle-sheet .ss-top { display: flex; align-items: stretch; gap: 10px; padding: 12px 14px; background: linear-gradient(135deg, #1b2a1f, #10161f); border: 1px solid #6bdc8b55; border-radius: 6px; }
+.settle-sheet .ss-main { flex: 1; display: grid; gap: 2px; }
+.settle-sheet .ss-lab { font-size: 11.5px; color: #9fb0c4; letter-spacing: .04em; }
+.settle-sheet .ss-money { font-family: var(--font-num); font-size: 30px; line-height: 1.1; color: var(--good); font-variant-numeric: tabular-nums; }
+.settle-sheet .ss-money small { font-size: 14px; color: #cfe9d6; font-family: inherit; }
+.settle-sheet .ss-side { display: grid; gap: 6px; align-content: center; text-align: right; min-width: 74px; }
+.settle-sheet .ss-side b { display: block; font-family: var(--font-num); font-size: 18px; }
+.settle-sheet .ss-side .ether { color: var(--ether); } .settle-sheet .ss-side .amber { color: var(--amber); }
+.settle-sheet .ss-sec { padding: 10px 12px; background: #0e141d; border: 1px solid #263448; border-radius: 6px; display: grid; gap: 8px; }
+.settle-sheet .ss-h { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 700; color: #e6edf5; }
+.settle-sheet .ss-h .dim { font-weight: 400; font-size: 12px; text-align: right; }
+.settle-sheet .ss-bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; gap: 2px; background: #0a0f16; }
+.settle-sheet .ss-bar i { display: block; min-width: 3px; }
+.settle-sheet .ss-rows { display: grid; gap: 4px; }
+.settle-sheet .ss-row { display: grid; grid-template-columns: 1fr auto 72px; gap: 8px; align-items: center; font-size: 13px; color: #c9d4e2; }
+.settle-sheet .ss-row b { text-align: right; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.settle-sheet .ss-row span i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; vertical-align: 0; }
+.settle-sheet .ss-row.me { color: #fff; font-weight: 700; } .settle-sheet .ss-row.me b { color: var(--good); font-size: 15px; }
+.settle-sheet .ss-bar .me, .settle-sheet .ss-row.me span i { background: var(--good); }
+.settle-sheet .ss-bar .lead, .settle-sheet .ss-row.lead span i { background: var(--amber); }
+.settle-sheet .ss-bar .rest, .settle-sheet .ss-row.rest span i { background: #5a6c86; }
+.settle-sheet .ss-bar .mate, .settle-sheet .ss-row.mate span i { background: #7a8fd6; }
+.settle-sheet .ss-bar .mate:nth-child(odd) { background: #9a7ad6; }
+.settle-sheet .ss-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.settle-sheet .ss-item { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 999px; background: #152030; border: 1px solid #2c3d57; font-size: 12.5px; color: #e2e9f2; }
+.settle-sheet .ss-item em { font-style: normal; color: var(--ether); font-size: 11px; }
+.settle-sheet .ss-item b { color: var(--amber); font-family: var(--font-num); }
+.settle-sheet .ss-item.k-괴수코어 { border-color: #ffb54766; background: #2a1f0c; } .settle-sheet .ss-item.k-괴수코어 em { color: var(--amber); }
+.settle-sheet .ss-item.k-유물발견, .settle-sheet .ss-item.k-보스드롭 { border-color: #c58cff88; background: #241634; } .settle-sheet .ss-item.k-유물발견 em, .settle-sheet .ss-item.k-보스드롭 em { color: #d9b0ff; }
+.settle-sheet .ss-warn { padding: 8px 12px; border-left: 3px solid var(--bad); background: #2a1016; color: #ffc4cc; font-size: 13px; display: grid; gap: 4px; border-radius: 0 6px 6px 0; }
+.settle-sheet .ss-notes { margin: 0; padding: 0 0 0 16px; display: grid; gap: 3px; font-size: 12.5px; color: #a9b6c7; }
