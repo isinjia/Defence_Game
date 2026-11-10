@@ -92,6 +92,7 @@ Object.assign(UI, {
       aimNone: { just: '그건 겨눌 필요 없는 기술이다. 바로 써.', kind: '그건 겨누지 않아도 되는 기술이에요. 바로 써요.', cold: '바로 써.' },
       done: { just: '좋아. 다치면 바로 약 먹고, 버거우면 막으면서 버텨. 무리하지 마.', kind: '잘했어요! 아프면 바로 약 먹고, 힘들면 막으면서 버텨요.', cold: '됐다. 아프면 약. 버거우면 막아.' },
       boss: { just: '보스다. 속성 상성을 봐라. 상성이면 피해가 크게 들어간다.', kind: '보스예요! 속성 상성을 노려 보세요. 잘 맞으면 훨씬 아프게 들어가요.', cold: '상성 노려.' },
+      tools: { just: '전투가 답답하면 위에서 속도를 올려. 손에 익으면 자동으로 맡겨도 된다.', kind: '전투가 답답하면 위에서 속도를 바꿔도 돼요. 익숙해지면 자동으로 맡겨도 괜찮고요.', cold: '느리면 올려. 익으면 자동.' },
       win: { just: '"수고했다. 처음치곤 나쁘지 않았어. 밖에선 내가 없다. 오늘 한 순서, 잊지 마라."', kind: '"다들 정말 잘했어요. 오늘 순서대로만 하면 쉽게 안 죽어요. 무슨 일 있으면 연락해요."', cold: '"합격. …살아서 또 보자."' },
       lose: { just: '"내가 끼어든 건 이번이 마지막이다. 밖에서는 아무도 대신 안 싸워 준다."', kind: '"괜찮아요, 다들 처음이니까. 그래도 밖에서는 제가 없어요. 꼭 기억해요."', cold: '"구해 주는 건 오늘뿐이다."' },
     };
@@ -106,7 +107,7 @@ Object.assign(UI, {
       aimAlly: '도울 동료를 누르면 발동합니다.',
       aimNone: '사용을 누르면 발동합니다.',
       done: '아이템: 회복약으로 체력 회복 · 방어: 받는 피해 감소',
-      tools: '오른쪽 위 버튼: 전투 속도(배속)와 자동 전투. 익숙해지면 써 보세요.',
+      tools: '오른쪽 위 버튼: 전투 속도(배속)·자동 전투',
     }[key] || '';
   },
   examGateCtx(stage) {
@@ -183,7 +184,7 @@ Object.assign(UI, {
     }
     t.key = key;
     const sys = key === 'turn' && c.cmd === 'skill' ? '쓸 스킬을 누르세요. 그다음 공격할 적을 누르면 발동합니다.' : key === 'turn' && c.cmd === 'item' ? '쓸 물건을 누르세요.' : this.coachSys(key);
-    text = `${key === 'tools' ? '' : `"${this.leadSay(key)}"`}<div class="small dim coach-sys">${sys}</div>`;
+    text = `"${this.leadSay(key)}"<div class="small dim coach-sys">조작 · ${sys}</div>`;
     return `<div class="coach"><span class="eyebrow">${who} · ${step}</span><div>${text}</div></div>`;
   },
 
