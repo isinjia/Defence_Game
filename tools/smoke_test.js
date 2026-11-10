@@ -327,33 +327,43 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
-  await step('팀 일정과 개인 시간: 팀원일 때 혼자 움직임 · 같은 게이트 재제안 불가 · 집결일까지 보내기', async () => {
+  await step('팀 거점: 합류 연락 → 거점에서 말 걸기 → 팀 전원 모임·리더가 바로 출발 → 기한 넘기면 불이익 · 게이트 제안 한 번', async () => {
     const r = await ev(() => {
-      const save = JSON.stringify(G.player.crew || null); const p = G.player; const keep = { party: p.party.slice(), day: G.day, month: G.month, year: G.year, queue: G.queue.slice(), x: p.x, y: p.y, region: p.region, ether: p.ether };
-      if (p.crew || !G.firstTeamBuild) return ''; // 이미 소속이 있으면 건너뛴다
+      const p = G.player; if (p.crew || !G.firstTeamBuild) return '';
+      const keep = { party: p.party.slice(), queue: G.queue.slice(), x: p.x, y: p.y, region: p.region, fame: p.fame };
       try {
+        G.queue = [];
         G.firstTeamJoin(G.firstTeamBuild('free:mid')); const c = G.crew(); const L = G.crewLeader();
         if (!c || !L) return '팀 만들기 실패';
-        if (G.party().length) return '개인 시간인데 팀원이 따라온다 (' + G.party().length + '명)';
-        if (G.crewMembers().length < 2) return '팀원 명단이 비었다';
-        const g = G.mapGates.find((x) => !x.final && !x.mission); if (!g) return '';
-        const a = G.crewProposeGate(g); const b = G.crewProposeGate(g);
-        if (!b.again) return '같은 게이트를 다시 제안할 수 있다';
-        if (a.ok === false && !/"/.test(a.text)) return '거절 이유가 없다';
-        c.asked = {}; c.plan = { kind: 'gate', gateId: g.id, day: Math.min(29, G.day + 4) }; c.rally = null; G.queue = [];
-        UI.answerCrewPlan('1'); for (let i = 0; i < 6 && UI.modalOpen(); i++) UI.closeModal();
-        if (!c.rally) return '수락한 일정이 집결 약속이 되지 않았다';
-        if (G.party().length) return '집결 전인데 팀원이 따라온다';
-        if (!UI.hudQuests().includes('rally-skip')) return '퀘스트 목록에 [집결일까지 보내기]가 없다';
-        const at = c.rally.at; const res = G.crewSkipToRally();
-        if (!res.done && !G.queue.length) return '집결일까지 넘어가지 않았다';
-        if (res.done && G.monthKey() * 30 + G.day !== at) return '집결일이 아닌 날에 멈췄다';
+        if (!c.base || !c.due) return '거점·합류 기한이 없다';
+        if (!G.queue.some((q) => q.type === 'crewCall')) return '들어가자마자 리더 연락이 오지 않았다';
+        G.queue = [];
+        if (G.party().length) return '개인 시간인데 팀원이 따라온다';
+        if (!UI.hudQuests().includes('crew-talk')) return '퀘스트 목록에 합류 줄이 없다';
+        // 게이트 제안은 한 번
+        const g = G.mapGates.find((x) => !x.final && !x.mission);
+        if (g) { G.crewProposeGate(g); if (!G.crewProposeGate(g).again) return '같은 게이트를 다시 제안할 수 있다'; c.asked = {}; }
+        // 거점에서 말 걸기 → 일하러 간다
+        const pos = WORLD.cityPos[c.base]; p.x = pos[0]; p.y = pos[1]; p.region = c.base;
+        if (!G.crewAtBase()) return '거점에 있는데 거점으로 인식하지 않는다';
+        UI.crewTalk(); if (!document.querySelector('[data-act="crew-work"]')) return '리더와의 대화에 [일하러 간다]가 없다';
+        UI.handle('crew-work');
+        if (!c.on) return '일하러 가는데 팀이 모이지 않았다';
+        if (G.party().length < G.crewMembers().length) return '팀원 일부가 모이지 않았다';
+        for (let i = 0; i < 6 && UI.dlg; i++) UI.dlgEnd();
+        // 출발 뒤: 게이트·토벌이면 리더가 이끄는 화면, 호위·훈련이면 끝나고 거점으로
+        if (UI.ctx) { if (!UI.ctx.crewRaid) return '팀 일인데 팀 진입이 아니다'; UI.ctx = null; UI.closeModal(); UI.crewJobDone(); }
+        if (c.on) return '일이 끝났는데 개인 시간으로 돌아가지 않았다';
+        // 기한 넘기기
+        G.queue = []; c.dueMixed = false; const trust = c.trust; c.due = G.monthKey() * 30 + G.day - 1; G.crewDayTick();
+        if (!G.queue.some((q) => q.type === 'crewLate')) return '기한을 넘겼는데 알림이 없다';
+        G.crewMissDue(); if (!(c.trust < trust) && G.crew()) return '기한을 넘겼는데 불이익이 없다';
         return '';
       } finally {
-        if (UI.ctx) { try { UI.ctx = null; UI.closeModal(); } catch (e) { /* 무시 */ } }
-        G.withCrew(() => { for (const n of G.npcs) if (n.crewOf && p.crew && n.crewOf === p.crew.id) { n.crewOf = null; n.isCompanion = false; } });
-        p.crew = JSON.parse(save); p.party = keep.party; G.queue = keep.queue; p.x = keep.x; p.y = keep.y; p.region = keep.region;
-        if (G.flags.story) { delete G.flags.story.firstTeam; }
+        if (UI.ctx) { UI.ctx = null; } UI.closeModal(); if (UI.dlg) UI.dlgEnd();
+        if (p.crew) G.withCrew(() => { for (const n of G.npcs) if (n.crewOf === p.crew.id) { n.crewOf = null; n.isCompanion = false; } });
+        p.crew = null; p.party = keep.party; G.queue = keep.queue; p.x = keep.x; p.y = keep.y; p.region = keep.region; p.fame = keep.fame;
+        if (G.flags.story) delete G.flags.story.firstTeam;
         UI.renderGame();
       }
     });
