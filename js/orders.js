@@ -321,22 +321,47 @@ Object.assign(UI, {
         this.coachPop(n, t || lf || null, 'order-tip');
       }
     }
-    // ⑤ 내가 동료에게 내린 오더: 동료에서 대상까지 선
-    const lines = [];
+    // ⑤ 오더 선: 지시받은 사람에서 대상까지 점선. 점선의 대상 쪽 끝에 "오더" 배지가 달린다.
+    //    끝점은 대상 그림 테두리 중 다른 표시(행동 예고·상성·상태 이상·이름·체력 막대 등)와 겹치지 않는 빈 쪽으로 잡는다.
+    stage.querySelectorAll('.order-end').forEach((e) => e.remove());
+    const lines = []; const ends = {};
     const sr = stage.getBoundingClientRect();
+    const BW = 30, BH = 15; // 배지 크기
+    const endFor = (b, ra) => {
+      const id = b.id; if (ends[id]) return ends[id];
+      const host = b.querySelector('.fx-host') || b; const rb = host.getBoundingClientRect();
+      const busy = [...b.querySelectorAll('.intent, .edge-mark, .stfx, .mtype, .foe-name, .fig-name, .bar, .foe-hp, .status, .lead-tag, .order-tag, .brk, .dmg-preview, .hit-preview')]
+        .map((e) => e.getBoundingClientRect()).filter((q) => q.width && q.height);
+      // 다른 유닛의 그림·이름과도 겹치지 않게
+      for (const o of stage.querySelectorAll('.foe, .ally')) if (o !== b) { const q = o.getBoundingClientRect(); if (q.width && q.height) busy.push(q); }
+      const fromLeft = ra.left + ra.width / 2 < rb.left + rb.width / 2;
+      const yLow = rb.top + rb.height * 0.72, yMid = rb.top + rb.height * 0.5, xL = rb.left - 2, xR = rb.right + 2;
+      // 후보: 테두리의 오른쪽·왼쪽 아래와 가운데, 아래 가운데 (오는 쪽을 먼저)
+      const side = fromLeft ? [[xL, yLow], [xL, yMid], [xR, yLow], [xR, yMid]] : [[xR, yLow], [xR, yMid], [xL, yLow], [xL, yMid]];
+      const cands = [...side, [rb.left + rb.width / 2, rb.bottom + 2], [xR, rb.top + rb.height * 0.3], [xL, rb.top + rb.height * 0.3]];
+      const clash = ([x, y]) => {
+        const l = x - BW / 2, r = x + BW / 2, t = y - BH / 2, bt = y + BH / 2;
+        if (l < sr.left + 1 || r > sr.right - 1 || t < sr.top + 1 || bt > sr.bottom - 1) return true;
+        return busy.some((q) => !(q.right <= l || q.left >= r || q.bottom <= t || q.top >= bt));
+      };
+      const pick = cands.find((c) => !clash(c)) || side[0];
+      return (ends[id] = { x: pick[0] - sr.left, y: pick[1] - sr.top });
+    };
     for (const u of cb.units) {
       if (u.side !== 'ally' || !u.order || !u.order.target) continue;
       if (u.isPlayer && !myTurn) continue;
       const a = document.getElementById('u-' + u.id); const b = document.getElementById('u-' + u.order.target);
       if (!a || !b) continue;
-      const ra = (a.querySelector('.fx-host') || a).getBoundingClientRect(); const rb = (b.querySelector('.fx-host') || b).getBoundingClientRect();
-      lines.push(`<line x1="${ra.left + ra.width / 2 - sr.left}" y1="${ra.top + ra.height / 2 - sr.top}" x2="${rb.left + rb.width / 2 - sr.left}" y2="${rb.top + rb.height / 2 - sr.top}"/>`);
+      const ra = (a.querySelector('.fx-host') || a).getBoundingClientRect();
+      const e = endFor(b, ra);
+      lines.push(`<line x1="${ra.left + ra.width / 2 - sr.left}" y1="${ra.top + ra.height / 2 - sr.top}" x2="${e.x}" y2="${e.y}"/>`);
       b.classList.add('marked');
     }
     if (!lines.length) { if (svg) svg.remove(); return; }
     if (!svg) { stage.insertAdjacentHTML('beforeend', '<svg class="order-lines"></svg>'); svg = stage.querySelector('svg.order-lines'); }
     svg.setAttribute('viewBox', `0 0 ${sr.width} ${sr.height}`);
     svg.innerHTML = lines.join('');
+    for (const e of Object.values(ends)) stage.insertAdjacentHTML('beforeend', `<span class="order-end" style="left:${e.x}px;top:${e.y}px">오더</span>`);
   },
   // 이번 전투의 리더: 시험 교관, 소속 파티 리더, 아니면 플레이어
   pickLeader(c) {
