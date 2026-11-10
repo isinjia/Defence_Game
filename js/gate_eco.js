@@ -49,7 +49,7 @@ const ECO = {
     } else if (t >= 2 && roll < 0.85) {
       const gs = Object.keys(GUILDS);
       const home = reg.guild;
-      const weights = gs.map((id) => (this.guildPower ? this.guildPower(id) : 50) * (id === home ? 2 : 1));
+      const weights = gs.map((id) => this.ecoGuildWeight ? this.ecoGuildWeight(id, t, home) : (this.guildPower ? this.guildPower(id) : 50) * (id === home ? 2 : 1)); // 등급별 할당(antitrust.js)
       const gid = RNG.weighted(gs, weights);
       actor = { kind: 'guild', guild: gid, name: GUILDS[gid].name };
       team = this.adults().filter((n) => n.guild === gid && !n.isCompanion && !n.hired && !n.retired && !(n.hurt > 0) && fit(n) && (n.region === g.region || regionDist(n.region, g.region) <= 1))

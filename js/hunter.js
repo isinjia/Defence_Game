@@ -246,10 +246,11 @@ Object.assign(Game.prototype, {
     const w = this.world; const p = this.player; const mk = this.monthKey();
     if (w.bid && mk >= w.bid.until) {
       const b = w.bid; w.bid = null;
-      const scores = Object.keys(GUILDS).map((id) => ({ id, s: this.guildPower(id) * RNG.range(0.75, 1.25) + (id === b.guild ? (b.mine || 0) * 18 : 0) }));
+      const scores = Object.keys(GUILDS).map((id) => ({ id, s: (this.guildPower(id) * RNG.range(0.75, 1.25) + (id === b.guild ? (b.mine || 0) * 18 : 0)) * (this.bidScoreMul ? this.bidScoreMul(id) : 1) })); // 연속 낙찰 제한(antitrust.js)
       scores.sort((a, x) => x.s - a.s);
       const win = scores[0].id;
-      for (const id of Object.keys(GUILDS)) w.guildPrestige[id] = Math.max(10, (w.guildPrestige[id] || 0) + (id === win ? 6 : -1));
+      for (const id of Object.keys(GUILDS)) w.guildPrestige[id] = Math.max(10, (w.guildPrestige[id] || 0) + (id === win ? 6 : -(this.bidLoseCut ? this.bidLoseCut() : 1)));
+      if (this.bidWon) this.bidWon(win);
       const reg = regionById(b.region);
       this.rumor(`${GUILDS[win].name}이(가) ${scores[1] ? GUILDS[scores[1].id].name + '을(를) 제치고 ' : ''}${reg.name} ${RANKS[b.tier].key}급 게이트 공략권을 따냈다.`);
       if (p.guild && win === p.guild) {
