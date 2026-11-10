@@ -6,18 +6,19 @@
 // 3. 아군 소환 스킬에는 소환 최대 수가 있다(skill.summonMax). 넘게 부르면 가장 오래된 소환체가 사라지고 새로 나온다.
 // 4. 스킬 버튼의 "오더" 표시는 스킬 이름 오른쪽에 붙는다.
 
-const FOE_COLS = 4, FOE_ROWS = 2;
-const FOE_ORDER = [1, 2, 0, 3]; // 가운데 칸부터 채운다
+// 칸은 "반 칸" 단위로 센다: 적 줄은 반 칸 8개(= 4칸), 아군 줄은 반 칸 10개(= 5칸).
+// 한 마리는 반 칸 둘(큰 괴수는 넷)을 쓴다. 반 칸 단위라서 홀수든 짝수든 줄 가운데에 좌우 대칭으로 설 수 있다.
+const FOE_COLS = 8, FOE_ROWS = 2;
 const FOE_ROW_ORDER = [1, 0];   // 아군과 가까운 아랫줄부터, 넘치면 윗줄
-const ALLY_COLS = 5;
+const ALLY_COLS = 10;
 
 // ---------- 3. 소환 최대 수 ----------
 for (const s of SKILLS) if (s.type === 'summon' && s.summonMax == null) s.summonMax = s.rankReq >= 5 ? 3 : s.rankReq >= 2 ? 2 : 1;
 
 Object.assign(Combat.prototype, {
-  // 적 한 마리가 쓰는 칸 수
-  foeWidth(u) { let b = 1; try { b = UI.monBody ? UI.monBody(u) : 1; } catch (e) { b = 1; } return u.boss || b >= 1.25 ? 2 : 1; },
-  // 지금 쓰이고 있는 칸 (살아 있는 적)
+  // 적 한 마리가 쓰는 너비 (반 칸 단위: 보통 2, 큰 괴수 4)
+  foeWidth(u) { let b = 1; try { b = UI.monBody ? UI.monBody(u) : 1; } catch (e) { b = 1; } return u.boss || b >= 1.25 ? 4 : 2; },
+  // 지금 쓰이고 있는 반 칸 (살아 있는 적)
   foeGrid() {
     const g = Array.from({ length: FOE_ROWS }, () => Array(FOE_COLS).fill(null));
     for (const u of this.units) {
@@ -26,28 +27,51 @@ Object.assign(Combat.prototype, {
     }
     return g;
   },
-  // w칸짜리가 들어갈 빈 자리 (near: 이 칸 가까이부터)
+  // 너비 w가 들어갈 빈 자리. near(본체 자리) 가까이, 없으면 줄 가운데 가까이부터.
   foeFreeSlot(w, near) {
     const g = this.foeGrid(); const out = [];
-    for (const r of FOE_ROW_ORDER) for (const c of FOE_ORDER) {
-      if (c + w > FOE_COLS) continue;
+    for (const r of FOE_ROW_ORDER) for (let c = 0; c + w <= FOE_COLS; c++) {
       let ok = true; for (let k = 0; k < w; k++) if (g[r][c + k]) ok = false;
-      if (ok) out.push({ r, c, w });
+      if (!ok) continue;
+      // 이미 선 적들과 반 칸 어긋나지 않게: 옆에 붙거나, 줄이 비었으면 가운데
+      const rowUnits = this.units.filter((u) => u.side === 'enemy' && u.alive && !u.fled && u.slot && u.slot.r === r);
+      const parityOk = !rowUnits.length ? c === (FOE_COLS - w) / 2 : rowUnits.some((u) => ((c - u.slot.c) % 2 + 2) % 2 === 0);
+      const mid = c + w / 2 - FOE_COLS / 2;
+      const d = near ? Math.abs(r - near.r) * 6 + Math.abs(c + w / 2 - (near.c + near.w / 2)) : (r === FOE_ROW_ORDER[0] ? 0 : 6) + Math.abs(mid);
+      out.push({ r, c, w, d: d + (parityOk ? 0 : 20) });
     }
-    if (w === 2 && !out.length) return null;
     if (!out.length) return null;
-    if (near) out.sort((a, b) => (Math.abs(a.r - near.r) * 3 + Math.abs(a.c - near.c)) - (Math.abs(b.r - near.r) * 3 + Math.abs(b.c - near.c)));
-    return out[0];
+    out.sort((x, y) => x.d - y.d);
+    const s0 = out[0]; return { r: s0.r, c: s0.c, w: s0.w };
   },
   foeAssign(u, near) {
     if (u.slot) return true;
     let w = this.foeWidth(u);
-    let s = this.foeFreeSlot(w, near); if (!s && w === 2) { w = 1; s = this.foeFreeSlot(1, near); }
+    let s = this.foeFreeSlot(w, near); if (!s && w === 4) { w = 2; s = this.foeFreeSlot(2, near); }
     if (!s) return false;
     u.slot = s;
     return true;
   },
-  foeAssignAll() { for (const u of this.units) if (u.side === 'enemy' && u.alive && !u.slot) this.foeAssign(u); },
+  // 처음 배치: 줄마다 가운데에 좌우 대칭으로. 한 줄(4칸)에 다 못 서면 아랫줄과 윗줄로 나눈다(예: 5마리 → 아래 3 + 위 2).
+  foeAssignAll() {
+    const list = this.units.filter((u) => u.side === 'enemy' && u.alive && !u.fled && !u.slot);
+    if (!list.length) return;
+    const placed = this.units.some((u) => u.side === 'enemy' && u.slot);
+    if (placed) { for (const u of list) this.foeAssign(u); return; }
+    const ws = list.map((u) => this.foeWidth(u)); const total = ws.reduce((a, b) => a + b, 0);
+    const rows = [[], []]; // [아랫줄, 윗줄]
+    if (total <= FOE_COLS) rows[0] = list.map((u, i) => [u, ws[i]]);
+    else {
+      let acc = 0; const half = Math.ceil(total / 4) * 2; // 아랫줄이 같거나 한 마리 더 많게
+      list.forEach((u, i) => { if (acc + ws[i] <= Math.min(FOE_COLS, Math.max(half, ws[i]))) { rows[0].push([u, ws[i]]); acc += ws[i]; } else rows[1].push([u, ws[i]]); });
+    }
+    rows.forEach((row, ri) => {
+      let width = row.reduce((a, x) => a + x[1], 0);
+      while (width > FOE_COLS && row.length) { const x = row.find((y) => y[1] === 4); if (!x) break; x[1] = 2; width -= 2; }
+      let c = Math.max(0, Math.floor((FOE_COLS - width) / 2));
+      for (const [u, w] of row) { if (c + w > FOE_COLS) { this.foeAssign(u); continue; } u.slot = { r: FOE_ROW_ORDER[ri], c, w }; c += w; }
+    });
+  },
 });
 
 {
@@ -104,7 +128,7 @@ Object.assign(Combat.prototype, {
         if (u.side !== 'enemy') continue;
         const el = document.getElementById('u-' + u.id); if (!el) continue;
         const s = u.slot;
-        if (s) { const col = `${s.c + 1} / span ${s.w}`; if (el.style.gridColumn !== col) el.style.gridColumn = col; const row = String(s.r + 1); if (el.style.gridRow !== row) el.style.gridRow = row; el.dataset.w = s.w; }
+        if (s) { const col = `${s.c + 1} / span ${s.w}`; if (el.style.gridColumn !== col) el.style.gridColumn = col; const row = String(s.r + 1); if (el.style.gridRow !== row) el.style.gridRow = row; el.dataset.w = s.w / 2; }
         // 쓰러진 적의 그림은 그 칸에 새 적이 "화면에 등장한 뒤"에 치운다 (등장 전에는 쓰러지는 연출이 보여야 한다)
         const taken = s && (!u.alive || u.fled) && cb.units.some((x) => x !== u && x.side === 'enemy' && x.alive && !x._pendingSpawn && x.slot && x.slot.r === s.r && x.slot.c < s.c + s.w && s.c < x.slot.c + x.slot.w);
         el.classList.toggle('slot-freed', !!taken || (!s && !u.alive));
@@ -117,9 +141,9 @@ Object.assign(Combat.prototype, {
         const unitOf = (e) => cb.units.find((x) => 'u-' + x.id === e.id);
         const members = els.filter((e) => { const u = unitOf(e); return u && !u.summon; });
         const used = new Set();
-        // 사람은 가운데부터 차례로 (한 번 정한 자리는 바꾸지 않는다)
-        const startCol = Math.max(0, Math.floor((ALLY_COLS - members.length) / 2));
-        members.forEach((e, i) => { const u = unitOf(e); if (u.acol == null || u._arow !== row.id) { u.acol = Math.min(ALLY_COLS - 1, startCol + i); u._arow = row.id; } used.add(u.acol); });
+        // 사람은 줄 가운데에 좌우 대칭으로 (반 칸 단위, 한 번 정한 자리는 바꾸지 않는다)
+        const startCol = Math.max(0, Math.floor((ALLY_COLS - members.length * 2) / 2));
+        members.forEach((e, i) => { const u = unitOf(e); if (u.acol == null || u._arow !== row.id) { u.acol = Math.min(ALLY_COLS - 2, startCol + i * 2); u._arow = row.id; } used.add(u.acol); used.add(u.acol + 1); });
         for (const e of els) {
           const u = unitOf(e); if (!u) continue;
           if (u.summon) {
@@ -127,13 +151,16 @@ Object.assign(Combat.prototype, {
             e.classList.toggle('slot-freed', gone && !e.classList.contains('vanishing'));
             if (gone) { u.acol = null; continue; }
             if (u.acol == null || u._arow !== row.id) {
-              // 빈 칸 가운데 사람들과 가장 가까운 곳
-              const free = [...Array(ALLY_COLS).keys()].filter((k) => !used.has(k) && !els.some((o) => { const x = unitOf(o); return x && x !== u && x.summon && x.alive && x._arow === row.id && x.acol === k; }));
-              const mid = (ALLY_COLS - 1) / 2; free.sort((a, b) => Math.abs(a - mid) - Math.abs(b - mid));
-              u.acol = free.length ? free[0] : ALLY_COLS - 1; u._arow = row.id;
+              const taken = new Set(used);
+              for (const o of els) { const x = unitOf(o); if (x && x !== u && x.summon && x.alive && x._arow === row.id && x.acol != null) { taken.add(x.acol); taken.add(x.acol + 1); } }
+              // 사람들 옆에 붙는 빈 자리 가운데 줄 가운데와 가까운 곳 (반 칸 어긋나지 않게 같은 홀짝)
+              const par = members.length ? startCol % 2 : 0; const free = [];
+              for (let k = par; k + 2 <= ALLY_COLS; k += 2) if (!taken.has(k) && !taken.has(k + 1)) free.push(k);
+              const mid = ALLY_COLS / 2 - 1; free.sort((a, b) => Math.abs(a - mid) - Math.abs(b - mid));
+              u.acol = free.length ? free[0] : ALLY_COLS - 2; u._arow = row.id;
             }
           }
-          const col = String(u.acol + 1); if (e.style.gridColumn !== col) e.style.gridColumn = col;
+          const col = `${u.acol + 1} / span 2`; if (e.style.gridColumn !== col) e.style.gridColumn = col;
           if (e.style.gridRow !== '1') e.style.gridRow = '1';
         }
       }

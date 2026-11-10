@@ -868,7 +868,7 @@ html body .combat-box .ally.fig:not(.summon) .bar.atb { display: none; }
 html body .combat-box.fit .ally .status, html body .combat-box.fit .ally .status:empty { display: flex; flex-wrap: nowrap; justify-content: center; gap: 2px; min-height: 14px; height: 14px; overflow: hidden; }
 html body .combat-box.fit .foe .status, html body .combat-box.fit .foe .status:empty { display: flex; flex-wrap: nowrap; justify-content: center; gap: 2px; min-height: 14px; height: 14px; overflow: hidden; }
 /* 적: 보이지 않는 칸 4 × 2 */
-html body .combat-box.fit #foes.foe-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 2px 0; align-content: stretch; justify-items: center; align-items: center; }
+html body .combat-box.fit #foes.foe-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 2px 0; align-content: stretch; justify-items: center; align-items: center; }
 html body .combat-box.fit #foes.foe-grid .foe { margin: 0; max-width: none; }
 html body #foes.foe-grid .foe.slot-freed { display: none !important; }
 /* 스킬 버튼: 오더 표시는 이름 오른쪽 */
@@ -877,7 +877,7 @@ html body .skill-btn.ordered::after, html body .cmd-main .cmd.ordered::after { c
 html body .cmd-list .skill-btn.ordered { margin-top: 0; }
 .ally.vanishing { animation: vanishOut .38s ease-out forwards; }
 /* 아군 줄: 보이지 않는 5칸 */
-html body .combat-box.fit .allies.ally-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); justify-items: center; align-items: start; gap: 0; }
+html body .combat-box.fit .allies.ally-grid { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); justify-items: center; align-items: start; gap: 0; }
 html body .allies.ally-grid .ally.slot-freed { display: none !important; }
 html body .combat-box.fit .allies.ally-grid .ally { margin: 0; }
 
@@ -898,3 +898,6 @@ html body .combat-box.fit .foe.foe-card > .status { order: 5; }
 .choice-btn.lead-pick { outline: 2px solid var(--amber, #f5b84a); opacity: 1 !important; }
 .choice-btn:disabled:not(.lead-pick) { opacity: .45; }
 .lead-dec { margin-top: 8px; }
+
+/* 반 칸 배치에서는 줄을 따로 밀지 않는다 (js/foe_rows.js 의 row-shift 무효) */
+html body #foes.foe-grid .foe.row-shift { transform: none !important; left: auto !important; margin-left: 0 !important; }
