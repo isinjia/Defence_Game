@@ -23,7 +23,8 @@ if (typeof UI !== 'undefined' && UI.renderExamMap) {
     persuade: { just: '걱정은 안다. 첫 칸은 훈련용이고, 내가 맨 앞에 선다. 같이 가자.', kind: '무서운 거 알아요. 제가 앞에 설게요. 위험하면 바로 빠질게요. 같이 가요.', cold: '…맨 앞은 내가 선다. 따라와.' },
     say: { just: '그래, 뒤는 맡긴다.', kind: '고마워요, 든든하네요.', cold: '…좋아. 뒤 맡긴다.' },
   };
-  const persOf = (L) => (L && LEAD_PROPOSE[L.personality] ? L.personality : 'just');
+  const persOf = (L) => { const k = L ? voiceKey(L) : 'just'; return k === 'hao' || LEAD_PROPOSE[k] ? k : 'just'; };
+  LEAD_PROPOSE.hao = VOICE_HAO.propose; for (const k in LEAD_REPLY) LEAD_REPLY[k].hao = VOICE_HAO.reply[k];
 
   Object.assign(UI, {
     councilLeadStart() {

@@ -15,7 +15,7 @@ const EXAM_MAP = [
 Object.assign(UI, {
   examMapLeadName() { const L = this.examLeader(); return L ? `선임 ${L.name} · 리더` : '리더'; },
   examMapSay(key) {
-    const L = this.examLeader(); const pers = L ? L.personality : 'just';
+    const L = this.examLeader(); const pers = L ? voiceKey(L) : 'just';
     const T = {
       intro: { just: '이 게이트는 층층이 이어져 있다. 위로 갈수록 깊고, 맨 끝에 주인이 있다. 길마다 괴수가 있거나, 뭔가 놓여 있거나, 숨 돌릴 곳이 있다. 첫 길은 내가 제안한다. 의견은 다 같이 낸다.', kind: '이 게이트는 층층이 이어져 있어요. 위로 갈수록 깊고, 맨 끝에 주인이 있어요. 길마다 괴수도 있고, 뭔가 놓여 있기도 하고, 쉴 곳도 있어요. 첫 길은 제가 제안할게요. 다 같이 의견 내 봐요.', cold: '층으로 이어진 게이트다. 끝에 주인이 있다. 첫 길은 내가 정한다. 의견은 들어 주지.' },
       pick1: { just: '저쪽에서 뭔가 반짝이지만, 왼쪽으로 가야 다음 갈림길 둘 다 열린다. 길을 넓게 남겨 두는 거다.', kind: '저쪽에 뭔가 반짝이지만, 왼쪽으로 가면 다음에 고를 수 있는 길이 둘이 돼요. 길을 넓게 남겨 두는 거예요.', cold: '왼쪽. 다음 길이 둘 다 열린다.' },
@@ -24,7 +24,7 @@ Object.assign(UI, {
       your2: { just: '왼쪽은 녹슨 보급 상자, 오른쪽은 에테르 샘이다. 상자는 보상이 있지만 함정일 수도 있고, 샘은 확실히 회복된다. 체력을 보고 네가 정해라. 어느 쪽이든 괜찮다.', kind: '왼쪽은 상자, 오른쪽은 회복 샘이에요. 상자는 보상이 있지만 함정일 수도 있어요. 지금 체력을 보고 직접 정해요. 어느 쪽이든 괜찮아요.', cold: '상자냐 샘이냐. 네가 정해.' },
       boss: { just: '저 너머가 이 게이트의 주인이다. 들어가면 돌아 나올 수 없다. 준비됐으면 가자.', kind: '저 안이 이 게이트의 주인이에요. 들어가면 돌아올 수 없어요. 준비되면 가요.', cold: '주인이다. 들어가면 못 나온다.' },
     };
-    return (T[key] || {})[pers] || (T[key] || {}).just || '';
+    return (pers === 'hao' && VOICE_HAO.examMap[key]) || (T[key] || {})[pers] || (T[key] || {}).just || '';
   },
 
   // 시험 지도 시작

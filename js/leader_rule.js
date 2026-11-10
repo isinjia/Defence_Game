@@ -73,7 +73,7 @@ if (typeof UI !== 'undefined') {
     const picked = list.find((x) => x.i === pick);
     for (const b of btns) { b.disabled = true; b.classList.toggle('lead-pick', +b.dataset.v === pick); }
     UI.leadDecision = { act, pick, L: L.id };
-    const say = { cold: '이걸로 간다.', just: '이렇게 하자. 이유는 나중에 설명하지.', kind: '이렇게 해 보는 게 어때요?', warlike: '고민할 거 없어. 이거다.', greedy: '남는 쪽으로 가자.' }[L.personality] || '이렇게 하자.';
+    const say = { cold: '이걸로 간다.', just: '이렇게 하자. 이유는 나중에 설명하지.', kind: '이렇게 해 보는 게 어때요?', warlike: '고민할 거 없어. 이거다.', greedy: '남는 쪽으로 가자.', hao: '이 길로 가겠소. 이유는 나중에 설명하리다.' }[voiceKey(L)] || '이렇게 하자.';
     btns[btns.length - 1].closest('.cards').insertAdjacentHTML('afterend', `<div class="cn-card lead-dec"><b>${L.name}(리더)의 결정</b> <span class="small">· ${picked.text}</span>
       <p class="small">"${say}"</p><div class="cn-btns"><button class="primary" data-act="lead-ok">O 따른다</button><button class="danger" data-act="lead-no">X 반대한다</button></div></div>`);
   };
@@ -211,7 +211,7 @@ if (typeof UI !== 'undefined') {
     warlike: '얼마나 기다렸는지 알아? 몸은 다 풀렸다고.', greedy: '시간이 돈이야. 이번 몫에서 깎을까 하다 참는다.',
   };
   const MIX_SAY = { cold: '…내가 날짜를 잘못 말했군. 내 실수다.', just: '미안하다. 공지가 틀렸다. 네 잘못이 아니다.', kind: '아, 제가 날짜를 헷갈렸어요! 미안해요.', warlike: '누가 날짜를 그렇게 적어 놨어? …아, 나구나.', greedy: '공지 정리하는 애가 틀렸네. 나 말고.' };
-  const sayOf = (T, L) => T[L && L.personality] || T.just;
+  const sayOf = (T, L) => T[L && voiceKey(L)] || T.just;
 
   // 수락할 때: 같이 이동 / 집결지에서 만나기
   const baseAns = UI.answerCrewPlan;

@@ -56,7 +56,7 @@ const AFF_LEAD = {
     no: '…그래. 후회는 하지 마.',
   },
 };
-const affLead = (L) => AFF_LEAD[L.personality] || AFF_LEAD.just;
+const affLead = (L) => AFF_LEAD[voiceKey(L)] || AFF_LEAD.just;
 const affNames = (list) => list.map((n) => n.name).join(', ');
 
 // 첫 해 수첩: 리더 밑으로 갔으면 리더가 직접 과제를 준다
@@ -136,11 +136,11 @@ if (typeof UI !== 'undefined') {
       const T = affLead(L); const mates = this.affMates();
       const g = kind === 'party' ? null : GUILDS[L.guild];
       const where = kind === 'kama' ? '관리국 보호국 청사 앞' : g ? `${g.name} 사무실` : '시험장 앞 국밥집';
-      const more = kind === 'kama' ? { just: '보호국은 월급제다. 국가 소집엔 응해야 하지만, 신입은 내가 직접 데리고 다닌다.', kind: '보호국은 월급이 꼬박꼬박 나와요. 신입은 제가 옆에서 챙길게요.', cold: '보호국. 월급제. 내 밑에서 1년.' }[L.personality] || '보호국은 월급제다. 신입은 내가 데리고 다닌다.' : T.more(g);
+      const more = kind === 'kama' ? { just: '보호국은 월급제다. 국가 소집엔 응해야 하지만, 신입은 내가 직접 데리고 다닌다.', kind: '보호국은 월급이 꼬박꼬박 나와요. 신입은 제가 옆에서 챙길게요.', cold: '보호국. 월급제. 내 밑에서 1년.' }[voiceKey(L)] || '보호국은 월급제다. 신입은 내가 데리고 다닌다.' : T.more(g);
       const target = kind === 'party' ? L.crewName : kind === 'kama' ? '관리국 보호국' : g.name;
       this.talk([
         { narr: `${kind === 'guild' ? '합격 도장을 받고 사흘 뒤' : '며칠 뒤'}, 시험 리더였던 ${L.name}에게서 문자가 왔다. ${where}에서 보자고 한다.` },
-        { who: L, text: kind === 'kama' ? `보호국으로 와. ${L.personality === 'kind' ? '같이 일하면 좋겠어요.' : '자리 하나 내 줄 수 있다.'}` : T.ask(L, g, L.crewName) },
+        { who: L, text: kind === 'kama' ? `보호국으로 와. ${voiceKey(L) === 'kind' ? '같이 일하면 좋겠어요.' : voiceKey(L) === 'hao' ? '자리 하나 내어 줄 수 있소.' : '자리 하나 내 줄 수 있다.'}` : T.ask(L, g, L.crewName) },
         { who: L, text: more },
         mates.length ? { who: L, text: T.mates(affNames(mates)) } : null,
         mates.length ? { who: mates[0], text: '…나는 들어가기로 했어. 너도 오면 좋겠다.' } : null,
