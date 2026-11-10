@@ -13,7 +13,7 @@ const { chromium, devices } = require('playwright');
   const pageErrors = [];
   page.on('pageerror', (e) => pageErrors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error') pageErrors.push('console: ' + m.text()); });
-  const url = 'file://' + path.resolve(__dirname, '..', 'index.html');
+  const url = process.env.SMOKE_TEST_URL || 'file://' + path.resolve(__dirname, '..', 'index.html');
   await page.goto(url); await page.evaluate(() => localStorage.clear()); await page.reload(); await page.waitForTimeout(600);
 
   const results = [];
@@ -34,6 +34,9 @@ const { chromium, devices } = require('playwright');
   const closeAll = () => ev(() => { for (let i = 0; i < 10 && UI.modalOpen(); i++) UI.closeModal(); G.queue = []; });
 
   await step('타이틀 화면', async () => { const n = await ev(() => document.querySelectorAll('#app [data-act]').length); if (!n) throw new Error('버튼 없음'); });
+  await step('타이틀 배경 이미지 로드', async () => {
+    await page.waitForFunction(() => { const img = document.querySelector('.title-art'); return img && img.complete && img.naturalWidth > 0; });
+  });
   await step('이야기로 시작 → 프롤로그 끝까지', async () => {
     await act('new'); await act('mode-story');
     await ev(() => { UI.pro.name = '점검'; }); await act('ps-start');

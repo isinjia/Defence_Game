@@ -76,7 +76,7 @@ const UI = {
     if (this.stopTitle) { this.stopTitle(); this.stopTitle = null; }
     $app.innerHTML = `
       <div class="title-screen">
-        <canvas id="title-cv" aria-hidden="true"></canvas>
+        <img class="title-art" src="assets/backgrounds/title-gate.webp" alt="" aria-hidden="true" fetchpriority="high">
         <div class="title-inner">
           <div class="logo-en">GATE CHRONICLE</div>
           <h1 class="logo">게이트 크로니클</h1>
@@ -90,7 +90,6 @@ const UI = {
           </div>
         </div>
       </div>`;
-    this.stopTitle = FX.title(document.getElementById('title-cv'));
   },
 
   helpHtml() {
