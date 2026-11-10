@@ -303,7 +303,7 @@ const UI = {
       <div class="act-btns">
         ${obj ? (obj.kind === 'gate' ? `<button class="danger" data-act="gate-info" data-v="${obj.id}">${FX.icon('gate')} 게이트 진입</button>` : `<button class="danger" data-act="mob" data-v="${obj.id}">토벌</button>`) : ''}
         ${city ? `<button class="primary" data-act="city">${FX.icon('pin')} ${city.name} 들어가기</button>` : ''}
-        ${!maxed && G.canBreakthrough() ? `<button class="${G.hasCatalyst() ? 'primary' : ''} bt-btn" data-act="breakthrough">${RANKS[p.rankIdx + 1].key}급 돌파 ${G.hasCatalyst() ? `<span class="num">${G.btChance()}%</span>` : '<span class="dim-in">촉매 필요</span>'}</button>` : ''}
+        ${!maxed && G.canBreakthrough() ? `<button class="${G.hasCatalyst() ? 'primary' : ''} bt-btn" data-act="breakthrough">${RANKS[p.rankIdx + 1].key}급 돌파 ${G.hasCatalyst() ? `<span class="num">${G.btChance()}%</span>` : `<span class="dim-in">${RANKS[p.rankIdx].key}급 촉매 필요</span>`}</button>` : ''}
         <button data-act="train">${FX.icon('train')} 수련 <span class="dim-in">1개월 +${fmt(est)}</span></button>
         <button data-act="rest">${FX.icon('rest')} 휴식 <span class="dim-in">1개월</span></button>
 
