@@ -1027,3 +1027,10 @@ html body #cb-ctrl .row.end > button, html body .order-banner .row > button, htm
 .loot-split .ls-lead { color: #c9d4e2; }
 .loot-split .ok { color: var(--good); }
 .loot-split .ls-foot { font-size: 11.5px; }
+
+/* 상단 날짜 (js/hud_date.js) — 인물 카드의 날짜 줄은 숨긴다 */
+#hud-card .card-date { display: none !important; }
+.hud-date { display: flex; flex-direction: column; justify-content: center; min-height: 44px; padding: 4px 12px; background: var(--panel-solid, #0b111b); border: 1px solid var(--line-hi, #2a3b55); clip-path: var(--cut); line-height: 1.15; pointer-events: none; }
+.hud-date b { font-family: var(--font-num); font-size: 14px; color: #eef3f8; letter-spacing: .02em; }
+.hud-date span { font-size: 11px; color: #9fb0c4; }
+.hud-date span.bad { color: var(--bad); }
