@@ -247,3 +247,23 @@ if (typeof Game !== 'undefined') {
     return r;
   };
 }
+
+// 16) 시작 도시 바로 옆에 레드 게이트(철수 불가·패배 시 큰 손실)가 떠 신입의 첫 게이트가 되기 쉬웠다(5차 평가 첫 30분).
+//     헌터가 되고 6개월 동안은 내 주변 8칸 안에 레드 게이트가 생기지 않는다(이미 있던 것도 일반으로).
+if (typeof Game !== 'undefined' && Game.prototype.rollGateVariant) {
+  const GP = Game.prototype;
+  const near = (g, p) => p && Math.max(Math.abs(g.x - p.x), Math.abs(g.y - p.y)) <= 8;
+  const early = (gm) => { const p = gm.player; return p && gm.monthKey() - (p.startMk ?? gm.monthKey()) < 6; };
+  const baseRoll = GP.rollGateVariant;
+  GP.rollGateVariant = function (g) {
+    const r = baseRoll.call(this, g);
+    try { if (g && g.variant === 'red' && !g.north && early(this) && near(g, this.player)) g.variant = 'normal'; } catch (e) { /* 무시 */ }
+    return r;
+  };
+  const baseInit2 = GP.initSandbox;
+  GP.initSandbox = function (...a) {
+    const r = baseInit2.apply(this, a);
+    try { if (early(this)) for (const g of this.mapGates || []) if (g.variant === 'red' && !g.north && near(g, this.player)) g.variant = 'normal'; } catch (e) { /* 무시 */ }
+    return r;
+  };
+}
