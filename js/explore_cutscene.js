@@ -35,6 +35,7 @@ const ExploreCinema = (() => {
   let serial = 0;
   const art = (id, step = 0) => {
     const s = scenes[id]; if (!s) return '';
+    if (s.render) return s.render(step);
     const n = `ec${++serial}`;
     return `<svg class="ec-art ec-shot-${step}" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${s.title}"><defs><radialGradient id="${n}light"><stop stop-color="${s.color}" stop-opacity=".24"/><stop offset="1" stop-color="#07101c"/></radialGradient><linearGradient id="${n}floor" x2="0" y2="1"><stop stop-color="#253142"/><stop offset="1" stop-color="#080e19"/></linearGradient></defs><rect width="640" height="360" fill="#07101c"/><rect width="640" height="360" fill="url(#${n}light)"/><g class="ec-far"><path d="M0 0h640v72L544 53l-57 69-31-72-88 5-40-35-89 49-47-25-65 68L58 66 0 121Z" fill="#0b1422"/><path d="M0 251 135 214 247 234 361 220 502 211 640 258v102H0Z" fill="url(#${n}floor)"/><path d="m32 320 201-57m183 0 194 64M95 286l445 5M173 252l312 1" stroke="#344352" stroke-opacity=".35"/></g><g class="ec-subject">${s.art}</g><g class="ec-mist"><ellipse cx="240" cy="282" rx="280" ry="18" fill="${s.color}" opacity=".045"/><ellipse cx="520" cy="266" rx="190" ry="14" fill="${s.color}" opacity=".06"/></g><g class="ec-dust" fill="${s.color}">${Array.from({ length: 18 }, (_, i) => `<circle cx="${63 + (i * 107) % 520}" cy="${45 + (i * 43) % 240}" r="${i % 3 ? 1 : 1.6}" opacity="${.15 + (i % 4) * .1}"/>`).join('')}</g><g class="ec-near"><path d="M0 0h43l34 61-23 65 36 91-25 143H0ZM640 0h-41l-34 80 19 75-28 95 34 110h50Z" fill="#050c16"/><path d="m0 331 86-32 57 32 44-12 41 41H0Zm640-20-68-24-45 41-49-7-29 39h191Z" fill="#060c16"/>${person(130, 326, .64)}<path d="m133 267 103-61-83 83Z" fill="#d1ebd8" opacity=".035"/></g></svg>`;
   };
@@ -51,7 +52,7 @@ const ExploreCinema = (() => {
     });
     document.body.classList.remove('ec-playing');
     if (restore) {
-      const target = a.focus && a.focus.isConnected && a.focus !== document.body ? a.focus : document.querySelector('#dlg button, #modal-box [data-act]');
+      const target = a.focus && a.focus.isConnected && a.focus !== document.body ? a.focus : document.querySelector('#pro-scene [data-act="pro-choice"], #dlg button, #modal-box [data-act]');
       if (target) target.focus();
     }
   };
@@ -62,7 +63,7 @@ const ExploreCinema = (() => {
     if (!replay && seen.has(id)) return;
     finish(false); seen.add(id);
     const el = document.createElement('section');
-    el.className = 'ec-screen'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', `${s.title} · 탐색 컷씬`);
+    el.className = 'ec-screen' + (s.prologue ? ' pc-screen' : ''); el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', `${s.title} · ${s.prologue ? '프롤로그' : '탐색'} 컷씬`);
     el.style.setProperty('--ec-color', s.color);
     const focus = document.activeElement;
     const hidden = ['app', 'modal', 'dlg', 'coach-pop', 'party-chatter'].map((key) => document.getElementById(key)).filter(Boolean).map((node) => {
@@ -70,9 +71,10 @@ const ExploreCinema = (() => {
     });
     const paint = () => {
       const a = active; if (!a) return;
-      el.innerHTML = `<header class="ec-header"><span>게이트 크로니클 <i>／</i> 탐색 기록</span><button type="button" class="ec-skip">건너뛰기</button></header><div class="ec-stage">${art(id, a.step)}<div class="ec-shade"></div><div class="ec-caption"><span class="ec-kicker">${['발견', '단서', '결정의 순간'][a.step]}</span><h2>${s.title}</h2><p aria-live="polite">${s.lines[a.step]}</p></div></div><footer class="ec-footer"><div class="ec-progress" aria-label="${a.step + 1} / 3 장면">${s.lines.map((_, i) => `<i class="${i <= a.step ? 'on' : ''}"></i>`).join('')}<span>${a.step + 1} / 3</span></div><button type="button" class="ec-next">${a.step === 2 ? '행동 선택하기' : '다음 장면'} <span aria-hidden="true">→</span></button></footer>`;
+      const last = s.lines.length - 1;
+      el.innerHTML = `<header class="ec-header"><span>게이트 크로니클 <i>／</i> ${s.prologue ? '각성 전야' : '탐색 기록'}</span><button type="button" class="ec-skip">건너뛰기</button></header><div class="ec-stage">${art(id, a.step)}<div class="ec-shade"></div><div class="ec-caption"><span class="ec-kicker">${(s.beatLabels || ['발견', '단서', '결정의 순간'])[a.step]}</span><h2>${s.title}</h2><p aria-live="polite">${s.lines[a.step]}</p></div></div><footer class="ec-footer"><div class="ec-progress" aria-label="${a.step + 1} / ${s.lines.length} 장면">${s.lines.map((_, i) => `<i class="${i <= a.step ? 'on' : ''}"></i>`).join('')}<span>${a.step + 1} / ${s.lines.length}</span></div><button type="button" class="ec-next">${a.step === last ? '행동 선택하기' : '다음 장면'} <span aria-hidden="true">→</span></button></footer>`;
       el.querySelector('.ec-skip').onclick = () => finish();
-      el.querySelector('.ec-next').onclick = () => { if (active.step === 2) finish(); else { active.step++; paint(); } };
+      el.querySelector('.ec-next').onclick = () => { if (active.step === last) finish(); else { active.step++; paint(); } };
       el.querySelector('.ec-next').focus();
     };
     const key = (ev) => {

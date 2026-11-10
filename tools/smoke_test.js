@@ -289,7 +289,7 @@ const { chromium, devices } = require('playwright');
         const missing = [...GATE_EVENTS, ...EXPLORE_NODES, EXPLORE_BOSS].filter((n) => !ExploreCinema.scenes[n.id]);
         if (missing.length) return '연결되지 않은 탐색 장면 있음';
         const before = JSON.stringify({ p: G.player, queue: G.queue });
-        for (const id of Object.keys(ExploreCinema.scenes)) {
+        for (const id of Object.keys(ExploreCinema.scenes).filter((id) => !ExploreCinema.scenes[id].prologue)) {
           ExploreCinema.show(id, true);
           if (!document.querySelector('.ec-screen svg') || ExploreCinema.active.step !== 0) return '첫 장면 없음';
           document.querySelector('.ec-next').click(); document.querySelector('.ec-next').click();
@@ -318,6 +318,23 @@ const { chromium, devices } = require('playwright');
         if (ExploreCinema.active || document.body.classList.contains('ec-playing')) return '외부 종료 뒤 컷씬 잔류';
         return '';
       } finally { ExploreCinema.finish(); UI.ctx = oldCtx; window.TUT_AUTO_TAP = auto; UI.closeModal(); }
+    });
+    if (r) throw new Error(r);
+  });
+  await step('프롤로그 컷씬: 모든 장면 연결과 감상 뒤 상태 보존', async () => {
+    const r = await ev(() => {
+      const missing = Object.keys(PROLOGUE).filter((id) => !PrologueCinema.config(id, UI.pro));
+      if (missing.length) return '컷씬 없는 프롤로그 장면 있음';
+      const before = JSON.stringify({ player: G.player, flags: UI.pro.flags, score: UI.pro.sc, log: UI.pro.log });
+      const key = PrologueCinema.prepare(UI.pro);
+      if (!key) return '컷씬 준비 실패';
+      ExploreCinema.show(key, true);
+      if (!document.querySelector('.pc-screen svg')) return '컷씬 화면 없음';
+      let limit = 4;
+      while (ExploreCinema.active && limit-- > 0) document.querySelector('.ec-next').click();
+      if (ExploreCinema.active) return '컷씬 종료 실패';
+      if (before !== JSON.stringify({ player: G.player, flags: UI.pro.flags, score: UI.pro.sc, log: UI.pro.log })) return '감상으로 게임 상태 변경';
+      return '';
     });
     if (r) throw new Error(r);
   });
