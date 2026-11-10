@@ -31,8 +31,18 @@ if (typeof UI !== 'undefined') {
       // '측정 결과 하위' 장면은 판정 직후 이야기라 소속 권유보다 먼저 (나중에 나오면 이미 파티를 꾸린 뒤라 어긋난다)
       const i = G.queue.findIndex((q) => q && q.id === 'debut_bottom_0');
       if (i > 0) G.queue.unshift(G.queue.splice(i, 1)[0]);
-      G.player.onboard = 'aff'; G.save();
+      G.player.onboard = 'aff'; G.player.examEnd = null; G.save();
     }
+    return r;
+  };
+
+  // 시험 결과 화면에 닿으면 단계를 'examEnd'로 (고른 동기도 함께 저장)
+  const baseRend = UI.renderExamEnd;
+  if (baseRend) UI.renderExamEnd = function () {
+    // 튜토리얼을 건너뛰면 동기가 '각자'로, 끝까지 하면 '함께'로 기본 선택이 달랐다(4차 평가) → 건너뛰어도 처음엔 모두 '함께'
+    try { const ex = this.exam; if (ex && ex.skipped && !ex._defPick) { ex._defPick = true; ex.pick = new Set(ex.ids); } } catch (e) { /* 무시 */ }
+    const r = baseRend.apply(this, arguments);
+    try { const p = G.player; const ex = this.exam; if (p && ex && p.onboard && p.onboard !== 'aff') { p.onboard = 'examEnd'; p.examEnd = { ids: ex.ids.slice(), pick: [...(ex.pick || [])] }; G.save(); } } catch (e) { /* 무시 */ }
     return r;
   };
 
@@ -49,6 +59,11 @@ if (typeof UI !== 'undefined') {
   // 이어하기: 끊긴 단계부터 다시
   UI.resumeOnboard = function () {
     const p = G.player; if (!p || !p.onboard || G.over) return false;
+    if (p.onboard === 'examEnd' && p.examEnd && this.renderExamEnd) {
+      // 시험은 끝났고 '연락처 교환'만 남았을 때: 시험을 다시 돌리지 않고 그 화면으로 (보상은 이미 받음)
+      const e = p.examEnd; this.exam = { ids: e.ids.filter((id) => G.npcById(id)), pick: new Set(e.pick), talked: true, text: '', reveal: null };
+      this.closeModal(); this.renderExamEnd(); return true;
+    }
     if (p.onboard === 'exam') {
       // 끊긴 시험의 동기·리더를 그대로 다시 데려온다 (새로 뽑으면 앞서 본 대사와 이름이 어긋난다)
       const mates = G.npcs.filter((n) => n.examMate && n.alive !== false && !n.isCompanion).map((n) => n.id);
