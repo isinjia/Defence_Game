@@ -834,3 +834,14 @@ html body .cmd-list .skill-btn.ordered { margin-top: 10px; }
 html body .cmd-list.cmd-pop { animation: cmdpopin .15s ease-out; }
 @keyframes cmdpopin { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 html body .cmd-main .cmd.ordered::after { top: -5px; }
+
+/* 차례 잠금 (js/unit_hold.js): 내 차례가 아니면 커맨드가 잠겨 보인다 */
+.cmd-wrap.cmd-wait { position: relative; }
+.cmd-wrap.cmd-wait .cmd-main .cmd { opacity: .38; filter: grayscale(.5); }
+.turn-wait { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3; pointer-events: none; white-space: nowrap; font-size: 12px; font-weight: 700; color: #cfd8e6; background: #0b111be6; border: 1px solid #ffffff2a; border-radius: 12px; padding: 4px 12px; }
+/* 아군·적 길게 누르기 정보 카드 */
+.unit-hold .uh-head { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; font-size: 16px; }
+.unit-hold .uh-art { flex: 0 0 auto; width: 64px; height: 64px; display: grid; place-items: center; }
+.unit-hold .uh-art svg, .unit-hold .uh-art img, .unit-hold .uh-art .avatar { width: 64px !important; height: 64px !important; }
+.unit-hold { max-height: 86vh; overflow-y: auto; }
+#stage .foe, #stage .ally { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }

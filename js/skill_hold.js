@@ -43,21 +43,26 @@ Object.assign(UI, {
 
 {
   const HOLD_MS = 450;
-  let timer = 0, start = null, fired = false;
+  let timer = 0, start = null, fired = false, closeArmed = false;
   const clear = () => { clearTimeout(timer); timer = 0; start = null; };
   document.addEventListener('pointerdown', (e) => {
-    // 정보 카드가 떠 있으면 이번 누름은 닫기만
-    if (document.getElementById('skill-hold')) { UI.hideSkillHold(); fired = true; return; }
+    fired = false; // 길게 누른 뒤 클릭이 오지 않는 기기(터치)에서 다음 탭을 삼키지 않게
+    // 정보 카드가 떠 있으면 이번 탭은 닫기만 한다. 누르는 순간 카드를 지우면 클릭이 사라져 다음 탭이 먹히므로, 닫기는 클릭에서 한다.
+    if (document.getElementById('skill-hold')) { closeArmed = true; return; }
+    closeArmed = false;
     const btn = e.target.closest && e.target.closest('.skill-btn[data-act=c-skill], .skill-btn[data-act=o-skill]');
     if (!btn) return;
-    fired = false; start = [e.clientX, e.clientY];
+    start = [e.clientX, e.clientY];
     timer = setTimeout(() => { timer = 0; if (UI.showSkillHold(btn)) fired = true; }, HOLD_MS);
   }, true);
   document.addEventListener('pointermove', (e) => { if (start && Math.hypot(e.clientX - start[0], e.clientY - start[1]) > 12) clear(); }, true);
   document.addEventListener('pointerup', clear, true);
   document.addEventListener('pointercancel', clear, true);
-  // 길게 눌렀거나 카드를 닫은 누름은 클릭으로 치지 않는다
-  document.addEventListener('click', (e) => { if (fired) { fired = false; e.stopPropagation(); e.preventDefault(); } }, true);
+  // 카드를 닫는 탭, 길게 누른 뒤 손을 뗄 때 생기는 클릭은 게임 입력으로 치지 않는다
+  document.addEventListener('click', (e) => {
+    if (closeArmed) { closeArmed = false; UI.hideSkillHold(); e.stopPropagation(); e.preventDefault(); return; }
+    if (fired) { fired = false; e.stopPropagation(); e.preventDefault(); }
+  }, true);
   // 길게 누를 때 뜨는 브라우저 메뉴(문맥 메뉴·텍스트 선택) 막기
   document.addEventListener('contextmenu', (e) => { if (e.target.closest && e.target.closest('.skill-btn')) e.preventDefault(); }, true);
   // 전투 화면이 바뀌면 닫는다
