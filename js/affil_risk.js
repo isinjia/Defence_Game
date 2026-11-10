@@ -1,0 +1,284 @@
+// ===== 소속의 진짜 차이: 돈이 아니라 보호와 성장 (영역 E, docs/구현_대기목록.md 4-16 사용자 확정) =====
+// "무소속이 제일 잘 버는 건 맞다. 대신 길드는 선임을 붙여 키우고, 선임과 높은 등급 게이트에 가고, 실패해도 구출하러 온다.
+//  무소속은 알짤없는 능력제, 실패하면 관리국이 올 수도 안 올 수도, 병원비도 본인 부담. 위험이 매우 크다."
+//
+// 게이트 패배 처리(game.js 기본: 누구든 관리국 구조 + 가진 돈 30%)를 소속별로 바꾼다.
+//  - 길드: 구조팀 확정(레드 게이트 제외 → 무소속 규칙). 의료 지원으로 본인 부담 0~20%, 부상 1개월 단축.
+//          선임 NPC(내 등급 +2)가 붙어 수련 +15%, 내 등급 +1 이상 게이트에 동행. 내 등급 +2 이상 게이트는 선임이 있어야 들어간다.
+//          내 등급이 선임을 따라잡으면 독립.
+//  - 관리국: 구조 확정, 공상 처리(본인 부담 0), 부상 1개월 단축.
+//  - 무소속: 구조는 확률(등급·도시/오지·공적·명성·브레이크 상황·보험·남의 파티). 안 오면 자력 탈출 판정.
+//          실패하면 수명 −3년·부상 8개월·장비 하나 상실, 두 번째부터는 낮은 확률로 사망(첫 번째는 경고).
+//          병원비는 청구서(등급·부상 정도). 모자라면 빚(월 2% 이자, 수입에서 자동 상환). 헌터 보험(월 보험료)으로 구조 +25%·청구서 30%만(레드 게이트 면책).
+//          내 등급 +2 이상 게이트는 관리국 입장 허가가 안 나온다.
+//  - C의 solo_relief.js 연패 치료비 환급은 이 규칙으로 대체된다(벼랑 끝 집중 버프는 그대로).
+
+const RISK = {
+  bill: 260,            // 청구서 기준(등급 배율^1.3)
+  guildSelf: { big: 0.1, minor: 0.2, prospect: 0 },
+  insure: { premium: 70, rescue: 0.25, self: 0.3 },
+  failLife: 3, failInjury: 8, deathChance: 0.12,
+  debtRate: 0.02, repay: 0.3,
+};
+const SENIOR_TRAIN = 0.15;
+
+Object.assign(Game.prototype, {
+  riskInit() {
+    const p = this.player; if (!p) return;
+    p.risk ??= { debt: 0, insured: false, nearDeath: 0, lastBill: 0 };
+    p.risk.debtBase ??= p.risk.debt; p.risk.debtSince ??= null;
+    p.senior ??= null;
+  },
+  // ---------- 무소속 구조 확률 ----------
+  rescueChance(gate) {
+    const p = this.player; const reg = regionById(gate.region) || this.region();
+    let c = 0.62 - 0.05 * Math.max(0, (gate.realTier ?? gate.tier) - p.rankIdx) - 0.04 * (reg.danger || 1);
+    if (WORLD.cityAt && WORLD.cityAt(gate.x, gate.y)) c += 0.1;
+    if (reg.id === 'jeju' || reg.north || /north/.test(reg.id)) c -= 0.2;
+    c += Math.min(0.12, (p.merit || 0) / 500) + Math.min(0.08, (p.fame || 0) / 2500) + Math.max(-0.1, Math.min(0.1, (p.law || 0) / 500));
+    if (this.world.breaks && this.world.breaks.length) c -= 0.15 * this.world.breaks.length;
+    if (p.risk.insured && gate.variant !== 'red') c += RISK.insure.rescue;
+    if (this.crewRescue) c += 0.3;
+    return Math.max(0.05, Math.min(0.95, c));
+  },
+  escapeChance() {
+    const p = this.player;
+    return Math.max(0.1, Math.min(0.85, 0.4 + 0.08 * this.party().length + (p.luck - 10) / 200));
+  },
+  medicalBill(gate, severe) {
+    const t = Math.max(0, Math.min(7, gate.realTier ?? gate.tier));
+    return Math.round(RISK.bill * RANKS[t].mult ** 1.3 * (severe ? 2.2 : 1) * RNG.range(0.85, 1.15));
+  },
+  payBill(v, why) {
+    const p = this.player; if (v <= 0) return '';
+    if (p.money >= v) { p.money -= v; return `${why} ${fmt(v)} 크레딧을 냈다.`; }
+    const short = v - p.money; p.money = 0; p.risk.debt += short; p.risk.debtBase = (p.risk.debtBase || 0) + short; if (p.risk.debtSince == null) p.risk.debtSince = this.monthKey();
+    this.log(`${why}을(를) 다 못 내 ${fmt(short)} 크레딧 빚이 생겼다. (월 ${Math.round(RISK.debtRate * 100)}% 이자)`, 'bad');
+    return `${why} ${fmt(v)} 크레딧 중 ${fmt(short)}은(는) 빚으로 남았다.`;
+  },
+  insurePremium() { return Math.round(RISK.insure.premium * RANKS[this.player.rankIdx].mult ** 1.2); },
+  // ---------- 패배 처리 ----------
+  loseOutcome(gate) {
+    const p = this.player; const k = this.payKind ? this.payKind(p.guild) : null;
+    const red = gate.variant === 'red';
+    const out = [];
+    if (k === 'kama') {
+      p.injured = Math.max(1, p.injured - 1); this.recalc();
+      out.push('관리국 구조대가 곧바로 들어왔다. 공상 처리로 치료비는 국가가 낸다. (부상 1개월 단축)');
+      return out;
+    }
+    if ((k === 'big' || k === 'minor') && !red) {
+      const c = p.contract;
+      const rate = c && c.prospect ? RISK.guildSelf.prospect : RISK.guildSelf[k];
+      const bill = this.medicalBill(gate, false);
+      const self = Math.round(bill * rate);
+      p.injured = Math.max(1, p.injured - 1); this.recalc();
+      out.push(`${GUILDS[p.guild].name} 구조팀이 들어와 당신을 업고 나왔다. 길드 의료 지원: 치료비 ${fmt(bill)} 중 본인 부담 ${Math.round(rate * 100)}%. (부상 1개월 단축)`);
+      if (self) out.push(this.payBill(self, '본인 부담 치료비'));
+      const s = this.seniorNpc(); if (s) { this.changeRel(s, 3, '구조하러 와 줬다'); out.push(`선임 ${s.name}: "살아 있으면 된 거야. 다음엔 내 말 들어."`); }
+      return out;
+    }
+    // 무소속(또는 길드원의 레드 게이트)
+    const rc = this.rescueChance(gate);
+    const ins = p.risk.insured && !red;
+    if (RNG.chance(rc)) {
+      const bill = this.medicalBill(gate, false);
+      out.push(`관리국 구조대가 왔다. (구조 확률 ${Math.round(rc * 100)}%${ins ? ', 보험' : ''}) 병원비 청구서 ${fmt(bill)} 크레딧.`);
+      out.push(this.payBill(ins ? Math.round(bill * RISK.insure.self) : bill, ins ? '보험 처리 뒤 본인 부담' : '병원비'));
+      p.risk.lastBill = bill;
+      return out;
+    }
+    out.push(`<span class="bad">구조대는 오지 않았다.</span> (구조 확률 ${Math.round(rc * 100)}%${red ? ' · 레드 게이트는 보험 면책' : ''}) 혼자 기어 나가야 한다.`);
+    if ((p.items.recall || 0) > 0) { p.items.recall--; out.push('귀환석을 깨뜨렸다. 빛이 몸을 감싸고, 정신을 차리니 게이트 밖이었다.'); return out; }
+    const ec = this.escapeChance();
+    if (RNG.chance(ec)) {
+      p.injured = Math.max(p.injured, 6); this.recalc();
+      out.push(`이를 악물고 출구까지 기어갔다. (탈출 ${Math.round(ec * 100)}%) 부상 6개월. 동네 의원에서 대충 꿰맸다.`);
+      out.push(this.payBill(Math.round(this.medicalBill(gate, false) * 0.4), '응급 처치비'));
+      return out;
+    }
+    // 탈출 실패
+    p.risk.nearDeath++;
+    if (p.risk.nearDeath >= 2 && RNG.chance(RISK.deathChance)) {
+      this.gameOver(`${this.gateName ? this.gateName(gate) : '게이트'} 안에서 구조를 기다리다 끝내 돌아오지 못했다. 무소속 헌터의 최후였다.`);
+      out.push('<span class="bad">아무도 오지 않았다.</span>');
+      return out;
+    }
+    p.lifePenalty += RISK.failLife; if (this.noteLifeLoss) this.noteLifeLoss(RISK.failLife, '무소속 게이트 고립');
+    p.injured = Math.max(p.injured, RISK.failInjury);
+    const gear = ['weapon', 'armor', 'acc'].map((s) => p.equip[s]).filter((e) => e && !e.soul && !e.uniq && !e.cursed);
+    let lost = '';
+    if (gear.length) { const e = RNG.pick(gear); for (const s of Object.keys(p.equip)) if (p.equip[s] === e) p.equip[s] = null; lost = ` ${e.name}은(는) 게이트 안에 두고 왔다.`; }
+    this.recalc();
+    out.push(`<span class="bad">탈출에 실패했다.</span> 사흘 만에 지나가던 파티가 발견했다. 수명 −${RISK.failLife}년, 부상 ${RISK.failInjury}개월.${lost}`);
+    if (p.risk.nearDeath === 1) out.push('<span class="bad">경고: 다음에 또 고립되면 정말로 죽을 수 있다. 길드나 관리국, 보험을 생각해 볼 때다.</span>');
+    out.push(this.payBill(this.medicalBill(gate, true), '중환자실 병원비'));
+    this.lifeEvent('게이트 안에 홀로 고립됐다가 간신히 살아 나왔다.');
+    return out;
+  },
+  // ---------- 선임 ----------
+  seniorNpc() { const s = this.player.senior; const n = s && this.npcById(s.id); return n && n.alive ? n : null; },
+  seniorMonthly() {
+    const p = this.player; const k = this.payKind ? this.payKind(p.guild) : null;
+    if (k !== 'big' && k !== 'minor') { if (p.senior) p.senior = null; return; }
+    let s = this.seniorNpc();
+    if (p.senior && (!s || s.guild !== p.guild)) { p.senior = null; s = null; }
+    if (!s && !p.seniorDone) {
+      const pool = this.adults().filter((n) => n.guild === p.guild && n.rankIdx >= p.rankIdx + 2 && !n.isCompanion && !n.retired);
+      s = pool.length ? RNG.pick(pool) : null;
+      if (!s) { s = this.makeNpc(false, 'human'); Object.assign(s, { rankIdx: Math.min(7, p.rankIdx + 2), stage: 1, region: p.region, guild: p.guild }); this.npcs.push(s); }
+      s.met = true; s.relation = Math.max(s.relation || 0, 25);
+      p.senior = { id: s.id, since: this.monthKey() };
+      this.lifeEvent(`${GUILDS[p.guild].name}에서 선임 ${s.name}(${RANKS[s.rankIdx].key}급)이 붙었다.`);
+      this.log(`선임 ${s.name}: "네가 이번 신입이야? 내 뒤만 잘 따라와. 너보다 한두 등급 위 게이트도 같이 들어가 줄게."`, 'major');
+    }
+    if (s && p.rankIdx >= s.rankIdx) {
+      p.senior = null; p.seniorDone = true; this.changeRel(s, 6, '독립을 축하해 줬다');
+      this.lifeEvent(`선임 ${s.name}을(를) 따라잡아 독립했다. 이제 내가 누군가의 선임이 될 차례다.`);
+    }
+  },
+  gateNeedsSenior(g) { return !g.final && !g.mission && !g.bid && !g.breakCity && !g.raid && (g.realTier ?? g.tier) >= this.player.rankIdx + 2 && g.tier >= this.player.rankIdx + 2; },
+  gateBlockReason(g) {
+    if (!this.gateNeedsSenior(g)) return '';
+    const k = this.payKind ? this.payKind(this.player.guild) : null;
+    if ((k === 'big' || k === 'minor') && this.seniorNpc()) return '';
+    return k === 'kama' ? '관리국 규정상 두 등급 위 게이트는 상부 명령 없이 들어갈 수 없다.' : k ? '두 등급 위 게이트는 선임이 있어야 들어갈 수 있다.' : '무소속에게는 두 등급 위 게이트의 관리국 입장 허가가 나오지 않는다.';
+  },
+  riskMonthly() {
+    const p = this.player; const r = p.risk;
+    if (r.insured) {
+      if (this.payKind && this.payKind(p.guild)) { r.insured = false; this.log('소속이 생겨 무소속 헌터 보험을 해지했다.'); }
+      else { const v = this.insurePremium(); if (p.money >= v) p.money -= v; else { r.insured = false; this.log('보험료를 못 내 헌터 보험이 해지됐다.', 'bad'); } }
+    }
+    if (r.debt > 0) {
+      // 이자는 원금의 2배까지만 붙는다
+      r.debt = Math.min(Math.round((r.debtBase || r.debt) * 2), Math.round(r.debt * (1 + RISK.debtRate)));
+      const pay = Math.min(r.debt, Math.round(p.money * RISK.repay));
+      if (pay > 0) { p.money -= pay; r.debt -= pay; r.debtBase = Math.max(0, (r.debtBase || 0) - pay); }
+      if (r.debt > 0 && RNG.chance(0.08)) this.log(`사채업자의 독촉 문자가 왔다. 남은 빚 ${fmt(r.debt)} 크레딧.`, 'bad');
+      if (r.debt > 0 && r.debtSince != null && this.monthKey() - r.debtSince >= 36) {
+        // 3년 넘게 못 갚으면 개인 파산: 빚은 사라지지만 이름에 흠이 남는다
+        this.lifeEvent(`빚 ${fmt(r.debt)} 크레딧을 끝내 갚지 못해 개인 파산 신청을 했다.`);
+        p.fame = Math.max(0, p.fame - 20); if (this.addLaw) this.addLaw(-5, '개인 파산');
+        r.debt = 0; r.debtBase = 0; r.debtSince = null;
+      }
+      if (r.debt <= 0 && r.debtSince != null) { r.debt = 0; r.debtBase = 0; r.debtSince = null; this.log('빚을 다 갚았다.', 'good'); }
+    }
+    this.seniorMonthly();
+  },
+});
+
+// ---------- 기존 기능과의 연결 ----------
+{
+  const GP = Game.prototype;
+  const wrap = (name, fn) => { const base = GP[name]; if (!base) return; GP[name] = function (...a) { return fn.call(this, base, ...a); }; };
+  wrap('initSandbox', function (base) { base.call(this); this.riskInit(); });
+  // 길드 보호: 부상으로 쉰 달이 분기에 두 달 이상이면 의무 게이트를 면제한다 (contract.js 분기 판정 전에)
+  wrap('contractMonthly', function (base) {
+    const p = this.player; const c = p.contract;
+    if (c && p.guild === c.guild && c.duty) {
+      if (p.injured > 0) c.injMonths = (c.injMonths || 0) + 1;
+      if (this.monthKey() - c.qStart >= 3 && (c.injMonths || 0) >= 2 && c.qDone < c.duty) { c.qDone = c.duty; this.log(`${GUILDS[c.guild].name}: 부상 치료 기간이라 이번 분기 의무 게이트를 면제받았다.`); }
+    }
+    const q = c && c.qStart;
+    base.call(this);
+    if (c && p.contract === c && c.qStart !== q) c.injMonths = 0;
+  });
+  wrap('worldMonthly', function (base) { base.call(this); this.riskMonthly(); });
+  wrap('trainGain', function (base, mult = 1) { return base.call(this, mult * (this.seniorNpc && this.seniorNpc() ? 1 + SENIOR_TRAIN : 1)); });
+  // 패배: 기본 처리(관리국 구조 + 돈 30%)와 솔로 연패 환급을 소속별 규칙으로 바꾼다
+  wrap('finishGate', function (base, gate, result, loot, ...rest) {
+    if (result !== 'lose') return base.call(this, gate, result, loot, ...rest);
+    const p = this.player; const money0 = p.money;
+    const lines = base.call(this, gate, result, loot, ...rest);
+    if (this.over) return lines;
+    p.money = money0; // 일괄 30% 대신 아래 청구서
+    const keep = (Array.isArray(lines) ? lines : []).filter((l) => typeof l !== 'string' || !/구조대가 끌어냈다|재활 지원 대상/.test(l));
+    const out = this.loseOutcome(gate);
+    return [...out, ...keep];
+  });
+  // 권유 장면·조건 표시에 보호·성장 조건
+  if (GP.payTermsText) wrap('payTermsText', function (base, gid) {
+    const r = base.call(this, gid); const k = this.payKind(gid);
+    if (!k) return `${r} <span class="bad">구조 미보장 · 병원비 본인 부담(보험 선택) · 두 등급 위 게이트 입장 불가</span>`;
+    if (k === 'kama') return `${r} · 구조 확정 · 치료비 국가 부담`;
+    return `${r} · 선임 배정(두 등급 위 게이트 동행) · 구출 보장(레드 제외) · 의료 지원(본인 ${Math.round(RISK.guildSelf[k] * 100)}%)`;
+  });
+  if (GP.contractTerms) wrap('contractTerms', function (base, gid) {
+    const r = base.call(this, gid); const k = this.payKind(gid); if (!r || !k) return r;
+    return k === 'kama' ? `${r} · 구조 확정` : `${r} · 선임 배정 · 구출 보장 · 의료 지원`;
+  });
+}
+
+// ---------- 화면 ----------
+{
+  // 남의 파티(crew) 게이트: 그 리더 소속 보호를 일부 받는다
+  const baseFinishGate = UI.finishGate;
+  UI.finishGate = function (result) {
+    const c = this.ctx; G.crewRescue = !!(c && c.crewRaid);
+    try { return baseFinishGate.call(this, result); } finally { G.crewRescue = false; }
+  };
+  // 선임 동행: 내 등급 +1 이상 게이트
+  const baseAllies = UI.allyUnits;
+  UI.allyUnits = function () {
+    const list = baseAllies.call(this);
+    const c = this.ctx; const s = G.seniorNpc();
+    if (s && c && c.gate && (c.gate.realTier ?? c.gate.tier) >= G.player.rankIdx + 1 && list.length < 5 && !list.some((u) => u.npcId === s.id) && !s.isCompanion) {
+      list.push(G.npcUnit(s, 'ally'));
+      if (!c.seniorToast) { c.seniorToast = true; setTimeout(() => this.toast(`선임 ${s.name}이(가) 동행한다. "내 뒤에서 떨어지지 마."`), 60); }
+    }
+    return list;
+  };
+  // 입장 제한·위험 안내
+  const baseEnc = UI.encounter;
+  UI.encounter = function (obj) {
+    const r = baseEnc.call(this, obj);
+    if (obj.kind !== 'gate') return r;
+    const p = G.player; const why = G.gateBlockReason(obj); const k = G.payKind(p.guild);
+    const row = $box.querySelector('.row.end');
+    if (why && row) {
+      for (const b of row.querySelectorAll('[data-act="gate"]')) b.disabled = true;
+      row.insertAdjacentHTML('beforebegin', `<p class="small bad">${why}</p>`);
+    } else if (row && !k) {
+      row.insertAdjacentHTML('beforebegin', `<p class="small dim">무소속: 지면 구조는 확률(지금 약 ${Math.round(G.rescueChance(obj) * 100)}%)이고 병원비는 본인 부담이다.${p.risk.insured ? ' 보험 가입 중.' : ''}</p>`);
+    } else if (row && G.seniorNpc() && (obj.realTier ?? obj.tier) >= p.rankIdx + 1) {
+      row.insertAdjacentHTML('beforebegin', `<p class="small amber">선임 ${G.seniorNpc().name}이(가) 함께 들어간다.</p>`);
+    }
+    return r;
+  };
+  const baseStart = UI.startGate;
+  UI.startGate = function (id) {
+    const g = G.mapGates.find((x) => x.id === +String(id).split('|')[0]);
+    const why = g && G.gateBlockReason(g);
+    if (why) return this.toast(why);
+    return baseStart.call(this, id);
+  };
+  // 보험: 협회 의뢰소
+  const baseFac = UI.facilityHtml;
+  UI.facilityHtml = function (id, reg) {
+    let html = baseFac.call(this, id, reg);
+    if (id !== 'board') return html;
+    const p = G.player; const r = p.risk; const k = G.payKind(p.guild);
+    html += `<div class="sec-title sec">무소속 헌터 보험</div><div class="item-row"><div class="grow"><b>${r.insured ? '가입 중' : '미가입'}</b> <span class="small">월 ${fmt(G.insurePremium())} 크레딧</span>
+      <div class="small dim">${k ? '소속이 있으면 가입할 수 없다(소속이 보호한다).' : `패배 때 구조 확률 +${Math.round(RISK.insure.rescue * 100)}%, 병원비 ${Math.round(RISK.insure.self * 100)}%만 본인 부담. 레드 게이트는 면책.`}</div></div>
+      ${k ? '' : `<button class="sm ${r.insured ? 'ghost' : 'primary'}" data-act="insure">${r.insured ? '해지' : '가입'}</button>`}</div>
+      ${r.debt ? `<div class="small bad">빚 ${fmt(r.debt)} 크레딧 · 월 ${Math.round(RISK.debtRate * 100)}% 이자, 수입의 ${Math.round(RISK.repay * 100)}%씩 자동 상환 <button class="sm" data-act="debt-pay">지금 갚기</button></div>` : ''}`;
+    return html;
+  };
+  const baseChar = UI.charHtml;
+  UI.charHtml = function () {
+    const html = baseChar.call(this); const p = G.player; const s = G.seniorNpc(); const k = G.payKind(p.guild);
+    const bits = [];
+    if (s) bits.push(`선임 ${s.name}(${RANKS[s.rankIdx].key}급) · 수련 +${Math.round(SENIOR_TRAIN * 100)}%`);
+    if (!k) bits.push(`보호: 무소속(구조 미보장${p.risk.insured ? ', 보험 가입' : ''})`);
+    else bits.push(k === 'kama' ? '보호: 관리국(구조 확정·공상)' : '보호: 길드(구출 보장·의료 지원)');
+    if (p.risk.debt) bits.push(`<span class="bad">빚 ${fmt(p.risk.debt)}</span>`);
+    return html.replace('<div class="sec"><div class="sec-title">선천 특성</div>', `<div class="small dim">${bits.join(' · ')}</div><div class="sec"><div class="sec-title">선천 특성</div>`);
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function (act, v) {
+    if (act === 'insure') { const r = G.player.risk; if (!G.payKind(G.player.guild)) r.insured = !r.insured; G.save(); return this.afterCity(r.insured ? '무소속 헌터 보험에 가입했다.' : '보험을 해지했다.'); }
+    if (act === 'debt-pay') { const p = G.player; const v = Math.min(p.money, p.risk.debt); p.money -= v; p.risk.debt -= v; p.risk.debtBase = Math.max(0, (p.risk.debtBase || 0) - v); if (!p.risk.debt) p.risk.debtSince = null; G.save(); return this.afterCity(`빚 ${fmt(v)} 크레딧을 갚았다.`); }
+    return baseHandle.call(this, act, v);
+  };
+}

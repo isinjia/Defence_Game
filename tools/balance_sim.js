@@ -25,6 +25,7 @@ const POLICIES = (process.argv[4] || 'train,gate,party').split(',');
       G.save = () => {};
       const p = G.player; p.examDone = true;
       const R = { pol, bg: p.bg, rankAge: { F: G.ageYears() }, wins: 0, loses: 0, retreats: 0, btOk: 0, btTry: 0, npcDist: {} };
+      if (pol === 'guild') { p.fame = Math.max(p.fame, 30); G.signOffer({ ...G.makeContract('baekho', 3, 1), renew: false }, false); }
       if (pol === 'party') for (let i = 0; i < 3; i++) { const n = G.makeNpc(true); n.rankIdx = 0; n.isCompanion = true; n.relation = 60; G.npcs.push(n); p.party.push(n.id); }
 
       const autoEquip = () => {
@@ -80,7 +81,7 @@ const POLICIES = (process.argv[4] || 'train,gate,party').split(',');
       }
       Object.assign(R, {
         end: G.over ? G.over.reason.slice(0, 30) : '생존', final: rankLabel(p.rankIdx, p.stage), age: G.ageYears(), maxLife: Math.round(G.maxLife()),
-        lifePenalty: p.lifePenalty, money: Math.round(p.money), rankPos: G.ranking ? `${G.ranking().pos}/${G.ranking().list.length}` : '-',
+        lifePenalty: p.lifePenalty, money: Math.round(p.money), debt: Math.round((p.risk && p.risk.debt) || 0), guild: p.guild || '-', rankPos: G.ranking ? `${G.ranking().pos}/${G.ranking().list.length}` : '-',
       });
       out.push(R);
     }
@@ -91,7 +92,7 @@ const POLICIES = (process.argv[4] || 'train,gate,party').split(',');
   function RANKS_KEYS() { return ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS']; }
   console.log('\n== 판별 결과 ==');
   for (const r of results) {
-    console.log(`${r.pol.padEnd(6)} ${r.bg.padEnd(8)} 최종 ${r.final.padEnd(8)} ${r.age}세/${r.maxLife} 수명손상 ${String(r.lifePenalty).padStart(3)}년 승/패/철수 ${r.wins}/${r.loses}/${r.retreats} 돌파 ${r.btOk}/${r.btTry} 크레딧 ${r.money} 랭킹 ${r.rankPos} | ${r.end}`);
+    console.log(`${r.pol.padEnd(6)} ${r.bg.padEnd(8)} 최종 ${r.final.padEnd(8)} ${r.age}세/${r.maxLife} 수명손상 ${String(r.lifePenalty).padStart(3)}년 승/패/철수 ${r.wins}/${r.loses}/${r.retreats} 돌파 ${r.btOk}/${r.btTry} 크레딧 ${r.money}${r.debt ? ` 빚 ${r.debt}` : ''}${r.guild !== '-' ? ` 소속 ${r.guild}` : ''} 랭킹 ${r.rankPos} | ${r.end}`);
   }
   console.log('\n== 등급 도달 나이 (정책별 최소~최대) ==');
   for (const pol of POLICIES) {
