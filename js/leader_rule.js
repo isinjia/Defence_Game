@@ -106,11 +106,54 @@ if (typeof UI !== 'undefined') {
   const baseEx = UI.showExplore;
   if (baseEx) UI.showExplore = function (node, opts = {}) { const r = baseEx.call(this, node, opts); if (!opts.lead) leaderGate(['ex-choice', 'ck-ex', 'ck-ev']); return r; };
 
+  const V_RET = {
+    yes: { just: '…그래, 여기까지다. 철수한다.', kind: '맞아요, 무리하지 말아요. 돌아가요.', cold: '철수.', warlike: '쳇. 알았다, 물러난다.', greedy: '손해 보기 전에 빠지자.' },
+    no: { just: '아직이다. 더 간다.', kind: '조금만 더 가 봐요. 위험하면 바로 뺄게요.', cold: '아직.', warlike: '벌써? 이제 시작인데.', greedy: '여기서 나가면 남는 게 없어.' },
+    call: { just: '여기까지다. 더 가면 누가 죽는다. 철수한다.', kind: '더는 안 되겠어요. 다들 돌아가요.', cold: '철수한다.', warlike: '…분하지만 물러난다.', greedy: '본전은 건졌어. 빠지자.' },
+  };
+  // 층 지도: 철수 버튼은 "철수 제안". 내가 많이 다쳤으면 리더가 먼저 철수를 정하기도 한다
+  const baseMapR = UI.renderGateMap;
+  if (baseMapR) UI.renderGateMap = function (note) {
+    const r = baseMapR.call(this, note);
+    const c = this.ctx; const L = npcLeader(); if (!c || !c.run || !L || G.over) return r;
+    const btn = document.querySelector('#modal-box [data-act="g-leave"]'); if (btn) btn.textContent = '철수 제안';
+    const hp = G.player.maxHp ? G.player.hp / G.player.maxHp : 1;
+    const tag = 'r' + c.run.floor + ':' + (c.run.map && c.run.map.pos ? c.run.map.pos.join(':') : '');
+    if (btn && hp < 0.25 && c.run.retreatCall !== tag) {
+      c.run.retreatCall = tag;
+      if (RNG.chance(L.personality === 'warlike' ? 0.15 : L.personality === 'kind' ? 0.7 : 0.45)) {
+        c.run.leadAsked = `${c.run.floor}|${(this.reachable ? this.reachable() : []).map((x) => x.join(':')).join(',')}`; // 이번엔 길 제안 대신 철수
+        this.councilPanel(`<div class="cn-card"><b>${L.name}(리더)의 결정 · 철수</b><div class="cn-lead-line"><b>${L.name}</b> ${V_RET.call[voiceCol(L)] || V_RET.call.just}</div>
+          <div class="cn-btns"><button class="primary" data-act="lead-retreat">따른다</button></div></div>`);
+        this.autoFollow(document.querySelector('#council-ov [data-act="lead-retreat"]'), 4);
+      }
+    }
+    return r;
+  };
+
   // ---------- 1) 월드맵: 게이트는 리더 일정으로 ----------
   const crewNpcLead = () => { const p = G.player; return p && p.crew && G.crewLeader ? G.crewLeader() : null; };
 
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
+    // 철수·도주는 리더가 정한다. 파티원인 나는 제안만 한다 (층마다·전투마다 한 번)
+    if ((act === 'g-leave' || act === 'c-flee') && !this._leadRetreat) {
+      const L = npcLeader(); const c = this.ctx;
+      if (L && c && c.kind === 'gate') {
+        const key = act === 'g-leave' ? `m${c.run ? c.run.floor : 0}` : `c${c.roomIdx ?? 0}:${c.run ? c.run.floor : 0}`;
+        if (c.retreatAsked === key) return this.toast(`${L.name}에게 이미 물어봤다. 철수는 리더가 정한다.`);
+        c.retreatAsked = key;
+        const hp = G.player.maxHp ? G.player.hp / G.player.maxHp : 1;
+        const ok = RNG.chance(Math.max(0.05, Math.min(0.95, (hp < 0.4 ? 0.8 : hp < 0.7 ? 0.45 : 0.2) + (L.personality === 'kind' ? 0.15 : L.personality === 'warlike' ? -0.25 : L.personality === 'cold' ? -0.1 : 0) + (L.relation || 0) / 300)));
+        if (!ok) { G.changeRel(L, -1, '철수하자고 했다'); return this.toast(`${L.name}: "${V_RET.no[voiceCol(L)] || V_RET.no.just}"`); }
+        this.toast(`${L.name}: "${V_RET.yes[voiceCol(L)] || V_RET.yes.just}"`);
+        this._leadRetreat = true; try { return baseHandle.call(this, act, v); } finally { this._leadRetreat = false; }
+      }
+    }
+    if (act === 'lead-retreat') {
+      const ov = document.getElementById('council-ov'); if (ov) ov.remove();
+      this._leadRetreat = true; try { return this.handle('g-leave'); } finally { this._leadRetreat = false; }
+    }
     if (act === 'lead-move' || act === 'lead-hold') {
       const ov = document.getElementById('council-ov'); if (ov) ov.remove();
       if (act === 'lead-hold') return this.toast('준비가 되면 빛나는 칸을 누르면 리더가 움직인다.');
