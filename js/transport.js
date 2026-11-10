@@ -2,14 +2,11 @@
 // docs/이동_교통_점검.md, 구현_대기목록 4-24.
 // 광역 12곳과 중도시(WORLD.towns tier 2)의 역·터미널에서 KTX·고속버스·여객선을 탄다.
 // 빠르지만 길 위의 게이트·탐사 지점·괴수는 만나지 못한다(걸어야 생긴다).
-// 요금표는 TRANSPORT_FARE, 계산은 G.transportFare(mode, dist) — 가격 균형은 영역 E가 이 둘을 고친다.
+// 요금·할인·월 정산 교통비는 영역 E의 fareOf/payFare 를 쓴다.
 // 저장: 없음(이동 즉시 반영).
 
-const TRANSPORT_FARE = {
-  ktx: { name: 'KTX', base: 120, perTile: 6 },
-  bus: { name: '고속버스', base: 40, perTile: 2.5 },
-  ferry: { name: '여객선', base: 300, perTile: 0 },
-};
+// 노선 이름. 요금은 영역 E의 G.fareOf(kind, from, to, duty) (js/transport_econ.js)
+const TRANSPORT_FARE = { ktx: { name: 'KTX', econ: 'ktx' }, bus: { name: '고속버스', econ: 'bus' }, ferry: { name: '여객선', econ: 'ship' } };
 const FERRY_PORTS = ['busan', 'gwangju']; // 제주 배편이 닿는 항구
 const BUS_ONE_DAY = 32; // 이 칸 수까지는 하루, 넘으면 이틀
 
@@ -23,17 +20,10 @@ Object.assign(Game.prototype, {
     return (this._stations = out);
   },
   stationHere() { const p = this.player; return this.stations().find((s) => s.x === p.x && s.y === p.y) || null; },
-  // 소속 할인: 관리국 공무원은 공무 이동 무료, 관리국 소속 절반, 길드 소속 15% 할인
-  transportDiscount() {
-    const p = this.player;
-    if (this.isCivil && this.isCivil()) return { mul: 0, note: '관리국 공무 이동 · 무료' };
-    if (p.guild === 'kama') return { mul: 0.5, note: '관리국 소속 50% 할인' };
-    if (p.guild && typeof GUILDS !== 'undefined' && GUILDS[p.guild]) return { mul: 0.85, note: `${GUILDS[p.guild].name} 소속 15% 할인` };
-    return { mul: 1, note: '' };
-  },
-  transportFare(mode, dist) {
-    const f = TRANSPORT_FARE[mode];
-    return Math.round((f.base + f.perTile * dist) * this.transportDiscount().mul / 10) * 10;
+  transportDuty() { return !!(this.isCivil && this.isCivil()); },
+  transportFareInfo(mode, from, to) {
+    const f = this.fareOf ? this.fareOf(TRANSPORT_FARE[mode].econ, from.region, to.region, this.transportDuty()) : null;
+    return f || { cost: 0, note: '' };
   },
   // 운행 중단 사유 (게이트 브레이크·재앙 지역은 열차와 버스가 서지 않는다)
   transportBlock(st) {
@@ -61,7 +51,7 @@ Object.assign(Game.prototype, {
         modes.push({ mode: 'bus', days: dist <= BUS_ONE_DAY ? 1 : 2 });
       }
       if (!modes.length) continue;
-      for (const m of modes) m.fare = this.transportFare(m.mode, dist);
+      for (const m of modes) m.fare = this.transportFareInfo(m.mode, from, st).cost;
       out.push({ st, dist, modes, block: here || this.transportBlock(st) });
     }
     return out.sort((a, b) => a.dist - b.dist);
@@ -95,7 +85,8 @@ Object.assign(Game.prototype, {
       this.advanceDays(1, { eventChance: 0 });
       return `검문에 걸렸다. ${fmt(fine)} 크레딧을 쓰고 하루를 날렸다.`;
     }
-    p.money -= m.fare;
+    const from = this.stationHere();
+    if (this.payFare) { if (!this.payFare(TRANSPORT_FARE[mode].econ, from.region, opt.st.region, this.transportDuty())) return '크레딧이 모자란다.'; } else p.money -= m.fare;
     const before = p.region; let days = m.days; const extra = [];
     // 드문 사건
     if (RNG.chance(0.06)) {
@@ -121,7 +112,8 @@ Object.assign(Game.prototype, {
 Object.assign(UI, {
   transportHtml() {
     const opts = G.transportOptions(); const p = G.player;
-    const disc = G.transportDiscount();
+    const here = G.stationHere(); const o0 = opts[0];
+    const disc = here && o0 ? G.transportFareInfo(o0.modes[0].mode, here, o0.st) : { note: '' };
     if (!G.stationHere()) return '<p class="dim">이곳에는 역이나 터미널이 없다.</p>';
     const rows = opts.map((o) => {
       const btns = o.modes.map((m) => `<button class="sm tp-btn" data-act="tp-ride" data-v="${o.st.key}|${m.mode}" ${o.block || p.money < m.fare ? 'disabled' : ''}><b>${TRANSPORT_FARE[m.mode].name}</b><span class="small">${m.days}일 · ${m.fare ? fmt(m.fare) : '무료'}</span></button>`).join('');
