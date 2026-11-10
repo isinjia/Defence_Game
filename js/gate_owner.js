@@ -14,7 +14,6 @@ const BIG_GUILDS = ['baekho', 'cheongryong', 'hyeonmu', 'jujak'];
 Object.assign(Game.prototype, {
   ownerName(id) {
     if (!id) return '없음';
-    if (id === 'none') return '관리 주체 없음';
     if (id === OWNER_KAMA) return '관리국 직할';
     if (GUILDS[id]) return GUILDS[id].name;
     if (typeof MINOR_GUILDS !== 'undefined' && MINOR_GUILDS[id]) return MINOR_GUILDS[id].name;
@@ -26,35 +25,24 @@ Object.assign(Game.prototype, {
     if (typeof MINOR_GUILDS !== 'undefined' && MINOR_GUILDS[id]) return MINOR_GUILDS[id].color;
     return '#9aa6b8';
   },
-  // 게이트가 처음 등록될 때 관리 주체를 정한다 (이미 있으면 그대로: C의 입찰이 먼저 정할 수 있다)
+  // 관리 주체는 영역 C(gate_tender.js: 등록·입찰)가 정한다. 여기선 비어 있을 때만 C의 등록을 부르고, 정책(입장료/독점)만 덧붙인다.
   ensureOwner(g) {
-    if (!g || g.kind !== 'gate' || g.owner) return g && g.owner;
-    const p = this.player;
-    if (g.north) g.owner = 'none';
-    else if (g.final || g.calamity || g.breakCity) g.owner = OWNER_KAMA;
-    else if ((g.mission || g.bid) && p && p.guild) g.owner = p.guild;
-    else {
-      const t = g.tier; const pGuild = t <= 2 ? 0.15 : t <= 4 ? 0.6 : 0.85;
-      if (!RNG.chance(pGuild)) g.owner = OWNER_KAMA;
-      else {
-        const reg = regionById(g.region);
-        const pool = [...BIG_GUILDS];
-        if (t <= 3 && typeof MINOR_GUILDS !== 'undefined') for (const [id, m] of Object.entries(MINOR_GUILDS)) if (m.home === g.region) pool.push(id);
-        const w = pool.map((id) => (GUILDS[id] ? (this.guildPower ? this.guildPower(id) : 50) : 30) * (reg && reg.guild === id ? 2.5 : 1));
-        g.owner = RNG.weighted(pool, w);
-      }
-    }
-    if (g.owner !== OWNER_KAMA && g.owner !== 'none') {
-      const closedP = g.tier >= 5 ? (['baekho', 'hyeonmu'].includes(g.owner) ? 0.5 : 0.3) : g.tier >= 3 ? 0.15 : 0;
+    if (!g || g.kind !== 'gate') return null;
+    if (!g.owner) { if (g.north) g.owner = OWNER_KAMA; else if (this.tenderRegister) this.tenderRegister(g); else g.owner = OWNER_KAMA; }
+    if (!g.owner) g.owner = OWNER_KAMA;
+    if (g.owner !== OWNER_KAMA && GUILDS[g.owner] && !g.policy) {
+      const big = !GUILDS[g.owner].minor;
+      const closedP = g.tier >= 5 ? (['baekho', 'hyeonmu'].includes(g.owner) ? 0.5 : big ? 0.3 : 0.15) : g.tier >= 3 ? 0.15 : 0;
       g.policy = RNG.chance(closedP) ? 'closed' : 'fee';
     }
     return g.owner;
   },
   gateFeeBase(t) { return Math.round(30 * (t + 1) ** 1.6 / 10) * 10; },
+  // 동맹(세력 관계 50 이상): C의 외부인 판정과 같은 기준
   ownerAllied(owner) {
     const p = this.player; const w = this.world;
     if (!p.guild || !w || !w.factions || !w.factions[p.guild]) return false;
-    return ((w.factions[p.guild].rel || {})[owner] || 0) >= 45;
+    return ((w.factions[p.guild].rel || {})[owner] || 0) >= 50;
   },
   // 입장 판정 → { mode: 'free'|'fee'|'deny', fee, tribute, why, tags }
   gateAccess(g) {
@@ -101,7 +89,7 @@ Object.assign(Game.prototype, {
     p.money -= fine; p.outlaw = (p.outlaw || 0) + (stage === 'after' ? 6 : 10);
     if (this.addLaw) this.addLaw(-3, '게이트 무단 진입');
     p.guildHostile ??= {};
-    if (g.owner && g.owner !== OWNER_KAMA && g.owner !== 'none') p.guildHostile[g.owner] = (p.guildHostile[g.owner] || 0) + 1;
+    if (g.owner && g.owner !== OWNER_KAMA) p.guildHostile[g.owner] = (p.guildHostile[g.owner] || 0) + 1;
     if (this.updateWanted) this.updateWanted('게이트 무단 진입');
     const who = this.ownerName(g.owner);
     this.rumor(`${p.name}이(가) ${who} 관리 게이트에 몰래 들어갔다 걸렸다는 소문이 돈다.`);
@@ -137,14 +125,16 @@ Object.assign(UI, {
   gateOwnerTag(g) {
     G.ensureOwner(g);
     const col = G.ownerColor(g.owner);
-    return `<span class="tag owner-tag" style="--c:${col}">${g.owner === OWNER_KAMA ? '관리국' : g.owner === 'none' ? '무주지' : G.ownerName(g.owner)}${g.policy === 'closed' ? ' · 독점' : ''}</span>`;
+    return `<span class="tag owner-tag" style="--c:${col}">${g.north ? '봉쇄선 너머' : g.owner === OWNER_KAMA ? '관리국' : G.ownerName(g.owner)}${g.policy === 'closed' ? ' · 독점' : ''}${g.tender ? ' · 입찰 공고 중' : ''}</span>`;
   },
   gateAccessHtml(g) {
     const a = G.gateAccess(g);
     const cls = a.mode === 'deny' ? 'bad' : a.mode === 'fee' ? 'amber' : 'good';
     const what = a.mode === 'deny' ? '입장 불가' : a.mode === 'fee' ? `입장료 ${fmt(a.fee)} 크레딧${a.tribute ? ` · 전리품 ${Math.round(a.tribute * 100)}% 상납` : ''}` : '무료';
-    return `<div class="gate-access"><div><span class="dim small">관리</span> <b style="color:${G.ownerColor(g.owner)}">${G.ownerName(g.owner)}</b>${g.policy === 'closed' ? ' <span class="small bad">독점</span>' : ''}</div>
-      <div><span class="dim small">입장</span> <b class="${cls}">${what}</b> <span class="small dim">· ${a.why}</span></div></div>`;
+    const out = G.isGuildGateOutsider ? G.isGuildGateOutsider(g) : null;
+    return `<div class="gate-access"><div><span class="dim small">관리</span> <b style="color:${G.ownerColor(g.owner)}">${g.north ? '없음 (봉쇄선 너머)' : G.ownerName(g.owner)}</b>${g.policy === 'closed' ? ' <span class="small bad">독점</span>' : ''}${g.tender ? ' <span class="small amber">다음 달 관리권 입찰</span>' : ''}</div>
+      <div><span class="dim small">입장</span> <b class="${cls}">${what}</b> <span class="small dim">· ${a.why}</span></div>
+      ${out && a.mode !== 'deny' ? `<div class="small amber">보스 공략권은 ${G.ownerName(out)}에 있다. 외부인은 최종층(보스층)에 가지 않는 게 규칙이다. 들어가면 추격대가 올 수 있다.</div>` : ''}</div>`;
   },
   gateSneak(id) {
     const g = G.mapGates.find((x) => x.id === +id); if (!g) return;
@@ -153,7 +143,7 @@ Object.assign(UI, {
       run: (ok) => {
         if (ok) { g.sneak = true; G._ckOut.losses.push('들키면 벌금·무법 성향·길드 적대 (나올 때도 걸릴 수 있다)'); return '경비 교대 틈을 타 차단선 아래로 미끄러져 들어갔다. 아무도 못 봤다. 아직은.'; }
         const r = G.sneakCaught(g, 'enter');
-        G._ckOut.losses.push(`벌금 ${fmt(r.fine)} 크레딧`, '무법 성향 상승', ...(g.owner !== OWNER_KAMA && g.owner !== 'none' ? [`${r.who}의 적대`] : []));
+        G._ckOut.losses.push(`벌금 ${fmt(r.fine)} 크레딧`, '무법 성향 상승', ...(g.owner !== OWNER_KAMA ? [`${r.who}의 적대`] : []));
         return `차단선을 넘자마자 경보가 울렸다. ${r.who} 경비원들이 당신을 끌어냈다.`;
       },
       post: (res) => { if (g.sneak) res.nextLabel = '게이트로 들어간다'; },
@@ -175,9 +165,10 @@ Object.assign(UI, {
     if (row) row.insertAdjacentHTML('beforebegin', fixJosa(this.gateAccessHtml(obj)));
     const tags = box.querySelector('.enc .row'); if (tags) tags.insertAdjacentHTML('afterbegin', this.gateOwnerTag(obj) + ' ');
     const enters = box.querySelectorAll('[data-act="gate"]');
+    const eBlock = G.gateBlockReason ? G.gateBlockReason(obj) : null;
     if (a.mode === 'deny') {
       enters.forEach((b) => b.remove());
-      if (row) row.insertAdjacentHTML('beforeend', `<button class="danger" data-act="gate-sneak" data-v="${obj.id}">몰래 들어간다 <span class="dim-in">민첩 판정</span></button>`);
+      if (row && !eBlock) row.insertAdjacentHTML('beforeend', `<button class="danger" data-act="gate-sneak" data-v="${obj.id}">몰래 들어간다 <span class="dim-in">민첩 판정</span></button>`);
     } else if (a.mode === 'fee') {
       enters.forEach((b) => b.insertAdjacentHTML('beforeend', ` <span class="dim-in">${fmt(a.fee)}</span>`));
       if (G.player.money < a.fee) enters.forEach((b) => { b.disabled = true; });
@@ -224,7 +215,7 @@ Object.assign(UI, {
     if (!G.mapGates) return;
     const c = this.ctx, s = this.tile;
     for (const g of G.mapGates) {
-      if (!G.revealed(g.x, g.y) || !g.owner || g.owner === 'none' || g.final) continue;
+      if (!G.revealed(g.x, g.y) || !g.owner || g.north || g.final) continue;
       const [px, py] = this.toScreen(g.x + 0.5, g.y + 0.5);
       if (px < -s || py < -s || px > this.w + s || py > this.hgt + s) continue;
       const col = G.ownerColor(g.owner); const fx = px + s * 0.32, fy = py - s * 0.46;
@@ -236,5 +227,55 @@ Object.assign(UI, {
       c.closePath(); c.fill(); c.strokeStyle = '#05080d'; c.lineWidth = 1; c.stroke();
       if (g.policy === 'closed') { c.strokeStyle = '#ff4f6a'; c.lineWidth = 1.6; c.beginPath(); c.arc(fx + s * 0.11, fy + s * 0.08, s * 0.13, 0, Math.PI * 2); c.stroke(); }
     }
+  };
+}
+
+// ---------- 길드 게이트 외부인: 최종층(보스층) 규칙 (4-17 추가) ----------
+// 보스를 잡으면 게이트가 닫히므로 외부인은 최종층에 가지 않는 게 규칙. 갈 수는 있다.
+// 최종층에 들어서면 경고 → 물러나면 길드 평판 +(C: guildGateMannerly) / 계속 가면 C 판정(guildChaseCheck) → A 추격대(gatePursuitStart).
+Object.assign(UI, {
+  gateFinalFloor(c) { return c && c.run && c.run.floor === c.run.floors - 1; },
+  gateFinalWarn(note) {
+    const c = this.ctx; const g = c.gate; const gid = G.isGuildGateOutsider(g);
+    const name = G.ownerName(gid);
+    const leave = this.canLeaveGate ? this.canLeaveGate() : true;
+    return this.modal(`<div class="eyebrow">${c.run.floor + 1}층 · 최종층</div><h3>길드 전용 · 보스 공략권 없음</h3>
+      <p class="event-text">이 층 끝에 게이트 보스가 있다. 이 게이트의 보스 공략권은 <b style="color:${G.ownerColor(gid)}">${name}</b>에 있다. 보스를 잡으면 게이트가 닫히고, 그 길드의 몫을 가로채는 셈이 된다.</p>
+      <ul class="ck-items loss"><li><span class="ck-sign">!</span>계속 가면 ${name} 추격대가 따라올 수 있다 (협상 또는 대인 전투)</li><li><span class="ck-sign">!</span>보스를 잡으면 ${name}와(과) 관계가 크게 나빠지고 소문이 난다</li></ul>
+      ${leave ? `<ul class="ck-items gain"><li><span class="ck-sign">+</span>여기서 물러나면 지금까지의 전리품을 챙기고 ${name}의 평판이 오른다</li></ul>` : '<p class="small bad">이 게이트는 빠져나갈 수 없다.</p>'}
+      <div class="row end">${leave ? '<button class="primary" data-act="gfin-leave">물러난다</button>' : ''}<button class="danger" data-act="gfin-go">그래도 내려간다</button></div>`, 'event-box ck-box');
+  },
+});
+{
+  const baseMap = UI.renderGateMap;
+  UI.renderGateMap = function (note) {
+    const c = this.ctx; const g = c && c.gate;
+    const out = g && G.isGuildGateOutsider ? G.isGuildGateOutsider(g) : null;
+    if (out && this.gateFinalFloor(c) && !c.run.finalWarned) { c.run.finalWarned = true; c.run.finalNote = note; return this.gateFinalWarn(note); }
+    const r = baseMap.call(this, note);
+    // 최종층 보스 칸에 "길드 전용" 표식 (정찰 표시와 겹치지 않게 칸 위쪽에)
+    if (out && this.gateFinalFloor(c)) {
+      const boss = document.querySelector('#modal-box .gnode.boss');
+      if (boss && !boss.querySelector('.guild-only')) boss.insertAdjacentHTML('beforeend', `<span class="guild-only" style="--c:${G.ownerColor(out)}">길드 전용 · 보스 공략권 없음</span>`);
+    }
+    return r;
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function (act, v) {
+    const c = this.ctx;
+    if (act === 'gfin-leave' && c && c.gate) {
+      const t = G.guildGateMannerly ? G.guildGateMannerly(c.gate) : '';
+      if (t) this.toast(t);
+      return baseHandle.call(this, 'g-leave');
+    }
+    if (act === 'gfin-go' && c && c.gate) {
+      this.closeModal();
+      const chase = G.guildChaseCheck ? G.guildChaseCheck(c.gate) : null;
+      c.run.trespass = true;
+      this.renderGateMap(c.run.finalNote);
+      if (chase && chase.chase && this.gatePursuitStart) this.gatePursuitStart(chase, { steps: RNG.int(1, 2) });
+      return;
+    }
+    return baseHandle.call(this, act, v);
   };
 }
