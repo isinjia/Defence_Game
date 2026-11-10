@@ -29,3 +29,5 @@
 #coach-pop.compact.speech { padding: 6px 10px 6px 6px; }
 /* 5차 평가: '튜토리얼 건너뛰기'가 오른쪽 위 설정 톱니를 덮었다 → 톱니 아래로 */
 #tut-skip { top: calc(env(safe-area-inset-top, 0px) + 64px) !important; }
+/* 5차 평가: 뒷줄 아군의 대사 말풍선이 앞줄 아군 이름을 덮었다 → 아군 대사는 말하는 사람 얼굴 위에 */
+.ally .float-num.say { top: 10px; }
