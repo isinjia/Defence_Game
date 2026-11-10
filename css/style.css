@@ -812,3 +812,25 @@ html body .skill-btn > .sk-tags > .sk-tag { display: inline-block !important; wi
 .dc-result.rob { border-color: #ffb36b66; } .dc-result.rob b { color: #ffb36b; }
 html body .duel-choice .choice-btn { display: flex; flex-direction: column; align-items: stretch; gap: 4px; text-align: left; }
 html body .duel-choice .choice-btn::before { display: none; }
+
+/* 오더 표식 통일: 스킬 쪽과 대상 쪽 모두 같은 "오더" 배지 (같은 이름·색·모양). 다른 표시(행동 예고·상성 ▲▼·상태 이상·종류 배지·체력 막대)를 가리지 않는 모서리에 둔다. */
+:root { --order: #8cc4ff; }
+/* 대상(적·아군): 그림 오른쪽 아래 모서리 배지 + 파란 조준 고리. 위쪽(예고·상성)과 왼쪽 아래(상태 이상), 왼쪽 위(종류)는 비워 둔다 */
+html body .foe.marked .fx-host::after, html body .ally.fig.marked .fx-host::after {
+  content: "오더"; position: absolute; top: auto; left: auto; right: -6px; bottom: 12px; transform: none;
+  font-size: 10px; font-weight: 800; line-height: 14px; color: #08131f; background: var(--order); padding: 0 5px; border-radius: 7px;
+  box-shadow: 0 0 0 1.5px #05080d; z-index: 2; pointer-events: none; }
+/* 스킬 버튼: 왼쪽 위 모서리에 걸친 배지 (MP·속성·상성·범위 태그를 가리지 않는다) */
+html body .skill-btn.ordered, html body .cmd-main .cmd.ordered { box-shadow: inset 0 0 0 2px var(--order); position: relative; overflow: visible !important; }
+html body .skill-btn.ordered::after, html body .cmd-main .cmd.ordered::after {
+  content: "오더"; position: absolute; top: -9px; left: 8px; right: auto;
+  font-size: 10px; font-weight: 800; line-height: 14px; color: #08131f; background: var(--order); padding: 0 5px; border-radius: 7px;
+  box-shadow: 0 0 0 1.5px #05080d; z-index: 2; pointer-events: none; }
+/* 오더를 받은 아군 머리 위 표식도 같은 색·모양 */
+html body .ally.fig .order-tag { color: #08131f; background: var(--order); border: 0; border-radius: 7px; font-weight: 800; padding: 0 5px; box-shadow: 0 0 0 1.5px #05080d; z-index: 2; }
+html body .ally.fig .order-tag svg { filter: brightness(.35); }
+/* 목록 안에서는 배지가 잘리지 않게 위에 자리를 준다 */
+html body .cmd-list .skill-btn.ordered { margin-top: 10px; }
+/* 스킬·아이템 목록이 뜰 때 0.15초 동안 왼쪽으로 반쯤 밀려 보이던 문제 (말풍선용 애니메이션을 같이 써서 생김) */
+html body .cmd-list.cmd-pop { animation: cmdpopin .15s ease-out; }
+@keyframes cmdpopin { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

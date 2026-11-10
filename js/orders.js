@@ -317,7 +317,7 @@ Object.assign(UI, {
       if (!seen && !tutoring && this.coachPop) {
         try { localStorage.setItem('gc_order_tip', '1'); } catch (e) { /* 무시 */ }
         const n = document.createElement('div'); n.className = 'coach';
-        n.innerHTML = fixJosa(`<span class="eyebrow">전투 안내 · 오더</span><div>${p.order.vague ? '리더가 말을 던졌지만 무엇을 하라는 건지는 없다.' : `<b>지목</b> 표시된 적과 <b>리더</b> 표시된 스킬이 오더다.`} 따르지 않아도 되지만, 리더는 기억한다. 오더를 따르면 리더와 사이가 좋아진다.</div>`);
+        n.innerHTML = fixJosa(`<span class="eyebrow">전투 안내 · 오더</span><div>${p.order.vague ? '리더가 말을 던졌지만 무엇을 하라는 건지는 없다.' : `<b>오더</b> 표시가 붙은 스킬과 대상이 리더의 오더다.`} 따르지 않아도 되지만, 리더는 기억한다. 오더를 따르면 리더와 사이가 좋아진다.</div>`);
         this.coachPop(n, t || lf || null, 'order-tip');
       }
     }
