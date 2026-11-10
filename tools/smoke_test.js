@@ -8,6 +8,7 @@ const { chromium, devices } = require('playwright');
 (async () => {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ ...devices['Pixel 7'] });
+  await ctx.addInitScript(() => { window.TUT_AUTO_TAP = true; }); // 튜토리얼 대사 멈춤(tut_pause.js)은 자동 시험에서 건너뛴다
   const page = await ctx.newPage();
   const pageErrors = [];
   page.on('pageerror', (e) => pageErrors.push(e.message));
@@ -285,7 +286,7 @@ const { chromium, devices } = require('playwright');
   let fitFails = 0;
   console.log('\n전투 한 화면 검사 (내용 높이 / 보이는 높이)');
   for (const D of ['iPhone SE', 'Galaxy S9+', 'Galaxy Z Fold 7 Cover', 'Pixel 7']) {
-    const c2 = await browser.newContext({ ...devices[D] }); const pg = await c2.newPage();
+    const c2 = await browser.newContext({ ...devices[D] }); await c2.addInitScript(() => { window.TUT_AUTO_TAP = true; }); const pg = await c2.newPage();
     try {
       await pg.goto(url); await pg.evaluate(() => localStorage.clear()); await pg.reload(); await pg.waitForTimeout(400);
       await pg.evaluate(() => {

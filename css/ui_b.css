@@ -500,3 +500,12 @@
 .settle-title { font-family: var(--font-display); font-weight: 400; font-size: 24px; letter-spacing: .12em; color: var(--amber); text-align: center; }
 .sr-line { padding: 6px 2px; border-bottom: 1px dashed var(--line); font-size: 13.5px; color: #ffe2a8; }
 .sr-line.dim { color: var(--dim); }
+
+/* 튜토리얼 대사 멈춤 (tut_pause.js): 터치마다 한 문장, 아래 ▼ 터치하여 계속 */
+#coach-pop .tp-wait { visibility: hidden; }
+#coach-pop .tp-next { margin-top: 6px; text-align: right; font-size: 11.5px; color: var(--amber); animation: tpblink 1s steps(2, jump-none) infinite; }
+#coach-pop.speech .tp-next { color: #a2400f; }
+body.tut-hold #coach-pop .coach-close { display: none; }
+body.tut-hold #coach-pop { z-index: 60; }
+@keyframes tpblink { from { opacity: 1; } to { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { #coach-pop .tp-next { animation: none; } }

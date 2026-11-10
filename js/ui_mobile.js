@@ -45,7 +45,7 @@
     if (!coach || !c || !c.combat || c.combat.result) return this.coachPop(null);
     const label = (coach.querySelector('.eyebrow') || coach).textContent;
     const cb = c.combat;
-    const myTurn = cb.waiting && !c.playing && !cb.auto;
+    const myTurn = cb.waiting && !c.playing && (!cb.auto || !!c.tutorial); // 시험 안내는 자동 전투 중에도 띄운다 (tut_pause.js 가 멈춘다)
     // 1/3(게이지 설명)은 시간이 흐를 때도, 나머지는 내 차례(시간 정지)에만
     if (!myTurn && !/1\/3/.test(label)) return this.coachPop(null);
     this._coachLabel = label;
