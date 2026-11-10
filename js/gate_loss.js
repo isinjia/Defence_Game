@@ -3,7 +3,8 @@
 //  - 이번 게이트에서 얻은 아이템(코어·부산물·장비·소모품·유물)은 하나하나 20% 확률로만 건진다.
 //  - 크레딧·에테르 누적분은 전부 잃는다(기존 규칙 그대로).
 //  - 차고 있던 장비는 칸마다 50% 확률로 잃는다.
-const GATE_LOSS = { keep: 0.2, equipLoss: 0.5 };
+//  - 가지고 들어온 소비 아이템은 하나하나 80% 확률로 잃는다.
+const GATE_LOSS = { keep: 0.2, equipLoss: 0.5, itemLoss: 0.8 };
 {
   const snap = (p) => ({
     mats: { ...(p.mats || {}) }, parts: { ...(p.parts || {}) }, items: { ...(p.items || {}) },
@@ -40,6 +41,16 @@ const GATE_LOSS = { keep: 0.2, equipLoss: 0.5 };
       const newRel = (p.relics || []).filter((r) => !s.relics.includes(r.uid));
       for (const r of newRel) { if (keep()) kept++; else { p.relics.splice(p.relics.indexOf(r), 1); lost++; } }
       if (lost || kept) lines.push(`<span class="bad">이번 게이트에서 얻은 것 ${lost + kept}개 중 ${lost}개를 잃었다.</span>${kept ? ` 겨우 ${kept}개만 건졌다.` : ''}`);
+      // 가지고 들어온 소비 아이템: 하나하나 80% 확률로 잃는다 (각성 촉매는 소비 아이템이 아니라 제외)
+      const cons = new Set([...(typeof CONSUMABLES !== 'undefined' ? CONSUMABLES : []), ...(typeof BAG_ITEMS !== 'undefined' ? BAG_ITEMS : [])].map((x) => x.id));
+      let cLost = 0, cHad = 0;
+      for (const k of Object.keys(s.items || {})) {
+        if (!cons.has(k) || /^cat/.test(k)) continue;
+        const had = Math.min(s.items[k] || 0, (p.items || {})[k] || 0); if (had <= 0) continue; // 들어올 때 있었고 지금도 남아 있는 것
+        let gone = 0; for (let i = 0; i < had; i++) if (RNG.chance(GATE_LOSS.itemLoss)) gone++;
+        p.items[k] -= gone; cLost += gone; cHad += had;
+      }
+      if (cLost) lines.push(`<span class="bad">가지고 들어온 소비 아이템 ${cHad}개 중 ${cLost}개를 잃었다.</span>`);
       // 차고 있던 장비: 칸마다 50%
       const gone = [];
       for (const slot of Object.keys(p.equip || {})) {
