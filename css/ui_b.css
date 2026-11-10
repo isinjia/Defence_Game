@@ -509,3 +509,22 @@ body.tut-hold #coach-pop .coach-close { display: none; }
 body.tut-hold #coach-pop { z-index: 60; }
 @keyframes tpblink { from { opacity: 1; } to { opacity: .25; } }
 @media (prefers-reduced-motion: reduce) { #coach-pop .tp-next { animation: none; } }
+
+/* 보유 크레딧 상시 표시 (hud_money.js): 설정 버튼 왼쪽 */
+#hud-money { position: fixed; z-index: 12; top: max(8px, env(safe-area-inset-top, 0px)); right: calc(max(12px, env(safe-area-inset-right, 0px)) + 50px); height: 44px; min-width: 0; max-width: calc(100vw - 170px); padding: 0 12px 0 10px; display: inline-flex; align-items: center; gap: 6px; background: #0b111bd9; border: 1px solid #ffb54766; color: var(--amber); font-size: 14px; clip-path: var(--cut); white-space: nowrap; }
+#hud-money.hidden { display: none; }
+#hud-money .hm-n { font-weight: 800; color: #fff; }
+#hud-money.over-modal { z-index: 40; pointer-events: none; background: #0b111bf2; }
+#hud-money.up { animation: hmup .5s ease-out; } #hud-money.down { animation: hmdown .5s ease-out; }
+.hm-d { position: fixed; z-index: 41; right: calc(max(12px, env(safe-area-inset-right, 0px)) + 58px); top: calc(max(8px, env(safe-area-inset-top, 0px)) + 46px); font-size: 13px; font-weight: 800; pointer-events: none; text-shadow: 0 1px 3px #000; animation: hmfloat 1.6s ease-out forwards; }
+.hm-d.up { color: #5fe08a; } .hm-d.down { color: #ff6b6b; }
+@keyframes hmup { 30% { border-color: #5fe08a; box-shadow: 0 0 14px #5fe08a88; } }
+@keyframes hmdown { 30% { border-color: #ff6b6b; box-shadow: 0 0 14px #ff6b6b88; } }
+@keyframes hmfloat { 0% { opacity: 0; transform: translateY(-6px); } 15% { opacity: 1; transform: none; } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(8px); } }
+.money-pop .ml-have { margin: 6px 0 10px; font-size: 16px; }
+.money-pop .ml-sum { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.money-pop .ml-sum > div { display: grid; gap: 2px; padding: 8px 10px; background: #0b111b; border: 1px solid #ffffff14; }
+.money-pop .ml-row { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px solid #ffffff10; }
+.money-pop .ml-why { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.money-pop .ml-gap { margin-top: 12px; }
+.money-pop .good { color: #5fe08a; } .money-pop .bad { color: #ff6b6b; }
