@@ -931,3 +931,4 @@ html body .combat-box.fit #foes.foe-grid { grid-template-rows: repeat(2, calc(va
 .st-sk .st-more { margin-left: auto; }
 .st-sks { gap: 4px; }
 button.st-tr { font-size: 12px; padding: 3px 8px; min-height: 0; background: transparent; }
+.st-sit { margin-top: 6px; }

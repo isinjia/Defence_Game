@@ -45,18 +45,17 @@ if (typeof UI !== 'undefined') {
     },
     statusHtml(forExam) {
       const p = G.player; const k = classById(p.cls); const g = CLASS_GROUPS[k.g]; const E = ELEMENTS[p.element];
-      const skills = p.skills.filter((id) => id !== 'strike').concat('strike');
+      const skills = p.skills.filter((id) => id !== 'strike');
       return `<div class="st-check">
         <div class="st-scroll">
-        <div class="st-head">${this.playerPortrait(56)}<div><div class="eyebrow">${forExam ? '시험 전에 · 내 상태 확인' : '내 상태 한눈에'}</div><b class="st-name">${p.name}</b> ${this.clsTag(p.cls, p.clsAdv)} ${this.elemTag(p.element)}</div></div>
+        <div class="st-head">${this.playerPortrait(56)}<div><div class="eyebrow">${forExam ? '내 상태 확인' : '내 상태 한눈에'}</div><b class="st-name">${p.name}</b> ${this.clsTag(p.cls, p.clsAdv)} ${this.elemTag(p.element)}</div></div>
         <div class="st-box" style="border-left-color:${g.color}"><b>${className(p.cls, p.clsAdv)}</b> <span class="small" style="color:${g.color}">${g.name} · ${CLASS_RARITY[k.r]} · ${ROLE_TXT[k.role] || k.role}</span>
           <div class="small dim">${k.desc} 전직: ${[k.name, ...k.adv].map((n, i) => (i === p.clsAdv ? `<b class="amber">${n}</b>` : n)).join('→')} (C·S급)</div></div>
+        <div class="st-sit">${this.statusSituation()}</div>
         <div class="st-t">기술 · 누르면 자세히</div><div class="st-sks">${skills.map((id) => this.statusSkillHtml(id)).join('')}</div>
-        <div class="st-t">속성 · 능력치</div>
-        <div class="small">${FX.elemIcon(p.element, 13)} <b>${E.name}</b> ${elemVsText(p.element)} <span class="dim">(같은 속성 기술 위력 +20%)</span></div>
+        <div class="st-t">능력치</div>
         <div class="st-stats">${STAT.map(([key, nm]) => `<span><i>${nm}</i><b class="num">${Math.round(p[key] || 0)}</b></span>`).join('')}<span><i>재능</i><b class="num">${p.talent}/10</b></span></div>
         <div class="st-t">선천 특성</div><div class="st-traits">${p.traits.map((id) => { const t = traitById(id); return t ? `<button class="tag st-tr" data-act="st-tr" data-v="${id}"><b>${t.name}</b> ›</button>` : ''; }).join('')}</div>
-        <div class="st-t">지금 상황</div>${this.statusSituation()}
         </div>
         <div class="st-foot">${forExam ? '<button class="primary full" data-act="st-go">시험 보러 가기</button>' : '<button class="primary full" data-act="st-back">닫기</button>'}</div></div>`;
     },
