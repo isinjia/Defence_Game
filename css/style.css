@@ -949,3 +949,5 @@ html body .dlg-group .dlg-gl > :not(.avatar):not(svg):not(.avatar-img) { flex: 1
 /* 전투 결과 팝업: 버튼은 그 줄 전체 너비로 크게 (여럿이면 똑같이 나눠) */
 html body .settle-box .row.end { display: flex; gap: 8px; }
 html body .settle-box .row.end > button { flex: 1 1 0; min-height: 48px; font-size: 15px; justify-content: center; }
+.cn-lead-line { margin: 6px 0; padding: 6px 8px; border-left: 3px solid var(--amber, #f5b84a); background: rgba(255,255,255,.04); border-radius: 4px; font-size: 13px; }
+.cn-lead-line b { margin-right: 4px; color: var(--amber, #f5b84a); }

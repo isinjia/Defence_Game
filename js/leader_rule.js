@@ -1,7 +1,8 @@
 // ===== "리더가 이끈다" (영역 D, 사용자 요청) =====
 // 플레이어가 리더가 아닐 때(crew.js 파티의 NPC 리더가 있을 때):
 // 1) 월드맵: 게이트는 리더가 잡는 일정(crew.js crewPlan)으로 들어간다. 지도에서 게이트를 누르면 "리더에게 제안"만 할 수 있다.
-// 2) 게이트 층 지도: 리더가 먼저 길을 제안하고(council.js), 나는 O·X·다른 길 의견. 엉망인 리더는 길을 대충 고른다.
+// 2) 게이트 층 지도: 리더가 길을 정하고 이동도 한다(council.js). 나는 [따른다]/[반대한다]만. 가만히 있으면 따른다. 엉망인 리더는 길을 대충 고른다.
+//    리더의 말은 지도 위에 고정하지 않고 팀 상의 창에서 한 번 나온다. 화면 배치는 내가 리더일 때와 같다.
 // 3) 게이트 안 사건·탐색 사건: 리더가 고르고 나는 따르거나 반대(설득 성공은 리더 성격·관계·리더십).
 // 4) 첫 팀에는 탐색계 동료가 꼭 있고(first_team.js), 첫 게이트에서 정찰을 알려 준다.
 // 5) 리더 품질(orders.js npcLead 0~100): 정확·무난·어설픔·엉망 — 말과 판단이 달라진다.
@@ -36,17 +37,39 @@ if (typeof UI !== 'undefined') {
     const r = baseMap.call(this, note);
     const c = this.ctx; const L = npcLeader();
     if (!c || !c.run || !L || c.council || G.over) return r;
-    const box = document.getElementById('modal-box');
-    if (box && !box.querySelector('.lead-rule')) {
-      const tip = RNG.pick(LEAD_TIP.map[LEAD_TIER(leadQ(L))]);
-      box.insertAdjacentHTML('afterbegin', `<div class="coach lead-say lead-rule"><span class="eyebrow">${L.name} · 리더</span><div>"${tip}" <span class="small dim">· 길은 리더가 정한다. 칸을 누르면 그쪽을 제안한다.</span></div></div>`);
-    }
+    // 리더의 말은 지도 위에 고정하지 않는다. 팀 상의 창에서 한 번 나오고 끝난다. 길은 리더가 정하고 이동도 리더가 한다.
     const reach = this.reachable ? this.reachable() : [];
     const tag = `${c.run.floor}|${reach.map((x) => x.join(':')).join(',')}`;
-    if (reach.length > 1 && c.run.leadAsked !== tag) {
+    if (reach.length && c.run.leadAsked !== tag) {
       c.run.leadAsked = tag; const ctx = c;
-      setTimeout(() => { if (this.ctx === ctx && !ctx.council && !this.dlg && !ctx.run.scoutPending && document.getElementById('modal-box')) { const k = this.councilLeaderPick(L); if (k) this.councilStart(k, null); } }, FX.reduced ? 200 : 700);
+      setTimeout(() => {
+        if (this.ctx !== ctx || ctx.council || this.dlg || ctx.run.scoutPending || !document.getElementById('modal-box') || document.getElementById('council-ov')) return;
+        if (reach.length > 1) { const k = this.councilLeaderPick(L); if (k) this.councilStart(k, null); return; }
+        // 길이 하나뿐: 리더가 앞장선다. [잠깐]을 누르면 멈춘다(가방·귀환을 쓰고 싶을 때)
+        const k = reach[0].join(':'); const N = GNODE[this.nodeOf(k).t];
+        this.councilPanel(`<div class="cn-card"><b>${L.name}(리더) · <span style="color:${N.color}">${N.name}</span>(으)로 간다</b>
+          <div class="cn-btns"><button class="primary" data-act="lead-move" data-v="${k}">따른다</button><button class="sm ghost" data-act="lead-hold">잠깐</button></div></div>`);
+        this.autoFollow(document.querySelector('#council-ov [data-act="lead-move"]'), 3);
+      }, FX.reduced ? 200 : 700);
     }
+    return r;
+  };
+
+  // 팀 상의 창(NPC 리더): 리더 한마디는 이 창에서 한 번, [따른다]는 몇 초 뒤 저절로
+  const baseRC = UI.renderCouncil;
+  if (baseRC) UI.renderCouncil = function () {
+    const r = baseRC.apply(this, arguments);
+    const c = this.ctx; const cn = c && c.council; const L = cn && cn.leader != null ? G.npcById(cn.leader) : null;
+    const ov = document.getElementById('council-ov');
+    if (!L || !ov || cn.stage !== 'vote') return r;
+    if (c.run && !c.run.leadTip) {
+      c.run.leadTip = true;
+      const card = ov.querySelector('.cn-mems');
+      if (card) card.insertAdjacentHTML('beforebegin', `<div class="cn-lead-line"><b>${L.name}</b> ${RNG.pick(LEAD_TIP.map[LEAD_TIER(leadQ(L))])}</div>`);
+    }
+    const ok = ov.querySelector('[data-act="cn-vote"][data-v="O"]');
+    if (ok) { ok.textContent = '따른다'; this.autoFollow(ok, 5); }
+    const no = ov.querySelector('[data-act="cn-vote"][data-v="X"]'); if (no) no.textContent = '반대한다';
     return r;
   };
 
@@ -75,7 +98,8 @@ if (typeof UI !== 'undefined') {
     UI.leadDecision = { act, pick, L: L.id };
     const say = { cold: '이걸로 간다.', just: '이렇게 하자. 이유는 나중에 설명하지.', kind: '이렇게 해 보는 게 어때요?', warlike: '고민할 거 없어. 이거다.', greedy: '남는 쪽으로 가자.', ...VOICE_EXTRA.decide }[voiceKey(L)] || '이렇게 하자.';
     btns[btns.length - 1].closest('.cards').insertAdjacentHTML('afterend', `<div class="cn-card lead-dec"><b>${L.name}(리더)의 결정</b> <span class="small">· ${picked.text}</span>
-      <p class="small">"${say}"</p><div class="cn-btns"><button class="primary" data-act="lead-ok">O 따른다</button><button class="danger" data-act="lead-no">X 반대한다</button></div></div>`);
+      <p class="small">"${say}"</p><div class="cn-btns"><button class="primary" data-act="lead-ok">따른다</button><button class="danger" data-act="lead-no">반대한다</button></div></div>`);
+    UI.autoFollow(box.querySelector('[data-act="lead-ok"]'), 5);
   };
   const baseEv = UI.gateEvent;
   if (baseEv) UI.gateEvent = function () { const r = baseEv.apply(this, arguments); leaderGate(['g-ev', 'ck-ev']); return r; };
@@ -87,6 +111,11 @@ if (typeof UI !== 'undefined') {
 
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
+    if (act === 'lead-move' || act === 'lead-hold') {
+      const ov = document.getElementById('council-ov'); if (ov) ov.remove();
+      if (act === 'lead-hold') return this.toast('준비가 되면 빛나는 칸을 누르면 리더가 움직인다.');
+      return this.enterNode(v);
+    }
     if (act === 'lead-ok' || act === 'lead-no') {
       const d = this.leadDecision; if (!d) return; this.leadDecision = null;
       const L = G.npcById(d.L);

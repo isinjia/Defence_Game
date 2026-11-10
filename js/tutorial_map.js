@@ -44,8 +44,8 @@ Object.assign(UI, {
   renderExamMap(opts = {}) {
     const ex = this.exam; const m = ex.map; const p = G.player;
     const step = m.step;
-    const playerTurn = step === 'your1' || step === 'your2' || step === 'boss';
-    const reach = playerTurn ? this.examReach().map(([r, i]) => r + ':' + i) : [];
+    // 길은 리더가 정하고 이동도 리더가 한다. 나는 의견만 낸다(council_exam.js). 지도 칸은 누르지 않는다.
+    const reach = step === 'intro' || step === 'pick1' ? [] : this.examReach().map(([r, i]) => r + ':' + i);
     const H = 100; const PADB = 7, PADT = 8; // 세로 % (맨 아래 입구 ~ 위 보스)
     const y = (r) => H - PADB - ((r + 1) / m.rows.length) * (H - PADB - PADT);
     const pt = (pos) => (pos ? { x: m.rows[pos[0]][pos[1]].x * 100, y: y(pos[0]) } : { x: 50, y: H - PADB });
@@ -61,7 +61,7 @@ Object.assign(UI, {
       const k = r + ':' + i; const N = GNODE[nd.t];
       const lp = opts.leaderPick === k;
       const st = m.done.includes(k) ? 'done' : reach.includes(k) ? 'can' : lp ? 'lead' : (m.pos && r <= m.pos[0]) ? 'past' : '';
-      nodes.push(`<button class="gnode ${nd.t} ${st}" style="left:${nd.x * 100}%;top:${y(r)}%;--c:${N.color}" ${st === 'can' && !opts.move ? `data-act="exm-node" data-v="${k}"` : 'disabled'}>
+      nodes.push(`<button class="gnode ${nd.t} ${st}" style="left:${nd.x * 100}%;top:${y(r)}%;--c:${N.color}" disabled>
         <svg viewBox="0 0 24 24" width="${nd.t === 'boss' ? 30 : 22}" height="${nd.t === 'boss' ? 30 : 22}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${N.svg}</svg>
         ${st === 'can' || lp ? `<span class="gnode-name">${lp ? '리더 선택' : N.name}</span>` : ''}</button>`);
     }));
@@ -69,21 +69,18 @@ Object.assign(UI, {
     const L = this.examLeader && this.examLeader();
     const token = `<div class="gtoken lead" id="gtoken" style="left:${from.x}%;top:${from.y}%">${L ? this.npcAvatar(L, 26) : this.playerAvatar(26)}</div>`; // 탐색을 이끄는 리더의 얼굴
     const legend = ['fight', 'event', 'rest', 'treasure', 'boss'].map((t) => `<span class="gl" style="--c:${GNODE[t].color}"><i></i>${GNODE[t].name}</span>`).join('');
-    const say = opts.say || this.examMapSay(step === 'pick1' ? 'pick1' : step);
     const stepNo = { intro: 1, pick1: 1, your1: 2, your2: 3, boss: 4 }[step] || 1;
     this.modal(`<div class="cb-head"><h3>헌터 자격 시험 · 훈련용 게이트</h3><span class="tag">탐색 안내 ${stepNo}/4</span></div>
-      ${opts.move ? '' : `<div class="coach lead-say"><span class="eyebrow">${this.examMapLeadName()}</span><div>${say}</div></div>`}
       <div class="gmap-stat row between small"><span>체력 <b class="num">${Math.round(p.hp)}/${p.maxHp}</b> · 정신력 <b class="num">${Math.round(p.mp)}/${p.maxMp}</b></span></div>
       <div class="gmap-legend">${legend}</div>
       <div class="gmap gmap-fit exam-gmap" style="--rows:${m.rows.length + 1}"><svg class="gmap-lines" viewBox="0 0 100 ${H}" preserveAspectRatio="none">${lines.join('')}</svg>${nodes.join('')}${token}</div>
-      ${step === 'intro' && !opts.leaderPick && !opts.move ? '<div class="row end"><button class="primary" data-act="exm-watch">리더를 따라간다</button></div>' : ''}
-      ${playerTurn && !opts.move ? '<div class="small amber">빛나는 칸을 눌러 이동하세요.</div>' : ''}`, 'gmap-box exam-map-box');
+      <div class="small dim">길은 리더가 정한다. 의견은 팀 상의에서 낸다.</div>`, 'gmap-box exam-map-box');
     if (opts.move) {
       const to = pt(opts.move[1]);
       const tk = document.getElementById('gtoken');
       requestAnimationFrame(() => requestAnimationFrame(() => { if (tk) { tk.style.left = to.x + '%'; tk.style.top = to.y + '%'; } }));
     }
-    // 리더의 말(.lead-say)은 화면 공용 말풍선(UI.coachPop)이 창 밖으로 띄운다
+    // 리더의 말은 지도 위에 고정하지 않는다. 대화로 한 번 나오고 끝난다(council_exam.js examLeadTalk)
   },
 
   // 리더가 첫 칸을 고르는 장면 → 이동 → 사건
@@ -115,11 +112,8 @@ Object.assign(UI, {
     this.ctx = this.examGateCtx(stage);
     const node = EXPLORE_NODES.find((n) => n.id === nd.node) || EXPLORE_NODES[0];
     const afterKey = r === 0 ? 'your1' : 'boss';
-    this.showExplore(node, {
-      lead: this.examMapSay('arrive'), leadName: lead,
-      after: r === 0 ? this.leadSay('ex1after') : this.leadSay('ex2after'), goLabel: '지도로 돌아간다',
-      then: () => { this.exam.map.step = afterKey; this.ctx = this.examGateCtx(stage); this.renderExamMap(); },
-    });
+    const then = () => { this.exam.map.step = afterKey; this.ctx = this.examGateCtx(stage); this.renderExamMap(); };
+    return this.examLeadEvent(node, { arrive: this.examMapSay('arrive'), after: r === 0 ? this.leadSay('ex1after') : this.leadSay('ex2after'), then });
   },
 });
 
