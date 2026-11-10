@@ -160,13 +160,8 @@ Object.assign(UI, {
     const L = ui.examLeader && ui.examLeader();
     if (leaderTalk && L && !pop.querySelector('.sb-face')) pop.insertAdjacentHTML('afterbegin', `<span class="sb-face">${ui.npcAvatar(L, 36)}</span>`);
   };
-  const basePop = UI.coachPop;
-  if (basePop) UI.coachPop = function (node, target, key) {
-    const r = basePop.call(this, node, target, key);
-    decorate(this);
-    clearTimeout(this._speechT); this._speechT = setTimeout(() => decorate(this), 200);
-    return r;
-  };
+  // 말풍선 관리자(js/speech.js)가 말풍선을 그린 직후에 부른다 (coachPop 을 따로 감싸지 않는다)
+  UI.speechDecorate = function () { decorate(this); };
   // 리더 안내 말풍선이 떠 있는 동안 리더의 짧은 외침(흰 작은 말풍선)은 겹치니 띄우지 않는다
   const baseApply = UI.applyEvent;
   UI.applyEvent = function (l) {

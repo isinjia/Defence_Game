@@ -162,19 +162,4 @@ Object.assign(Game.prototype, {
     return baseTarget ? baseTarget.call(this, label) : null;
   };
 }
-// 전투 화면은 처음 그려진 뒤 배치가 한 번 더 바뀐다(전투 한 화면 맞춤). 말풍선 위치를 그 뒤에 다시 잡는다.
-{
-  const basePop = UI.coachPop;
-  UI.coachPop = function (node, target, key) {
-    const r = basePop.call(this, node, target, key);
-    if (node && target && !this._coachRe) {
-      clearTimeout(this._coachReT);
-      this._coachReT = setTimeout(() => {
-        const pop = document.getElementById('coach-pop'); const n = pop && pop.querySelector('.coach-card');
-        if (!n || pop._key !== (key || '') || !document.body.contains(target)) return;
-        this._coachRe = true; try { basePop.call(this, n, target, key); } finally { this._coachRe = false; }
-      }, 120);
-    }
-    return r;
-  };
-}
+// (말풍선 위치 다시 잡기는 말풍선 관리자 js/speech.js 가 한 곳에서 한다)

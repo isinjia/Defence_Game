@@ -41,8 +41,8 @@
     node.insertAdjacentHTML('beforeend', '<div class="tp-next" aria-hidden="true">▼ 터치하여 계속</div>');
   };
 
-  const basePop = UI.coachPop;
-  UI.coachPop = function (node, target, key) {
+  // 말풍선을 띄우기 직전에 말풍선 관리자(js/speech.js)가 부른다 (coachPop 을 따로 감싸지 않는다)
+  UI.tutHoldBefore = function (node, target, key) {
     let id = null, lines = null;
     if (node && node._tp && this.tutHoldWanted(key)) { id = node._tp.id; lines = node._tp.lines; if (store(this).has(id)) id = null; } // 이미 꾸민 말풍선을 다시 띄우는 경우
     else if (node && this.tutHoldWanted(key)) {
@@ -63,9 +63,6 @@
       }
       paint(this, node);
     } else if (this._hold && (!node || !this.tutHoldWanted(key))) this.tutRelease(false);
-    const r = basePop.call(this, node, target, key);
-    document.body.classList.toggle('tut-hold', !!this._hold);
-    return r;
   };
 
   // 멈춤 풀기 (read: 끝까지 읽었는가)
