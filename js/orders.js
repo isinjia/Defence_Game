@@ -349,7 +349,9 @@ Object.assign(UI, {
       if (!tu || tu === u || aim === 'none' || (aim === 'enemy' && tu.side === u.side) || (aim === 'ally' && tu.side !== u.side)) continue;
       const a = document.getElementById('u-' + u.id); const b = document.getElementById('u-' + u.order.target);
       if (!a || !b) continue;
-      const ra = (a.querySelector('.monster-art, .sprite, .fx-host') || a).getBoundingClientRect();
+      const tg = a.querySelector('.order-tag'); const tgr = tg && tg.style.display !== 'none' ? tg.getBoundingClientRect() : null;
+      // [사용자 요청] 선은 초상화 위 오더 내용 표시에서 시작한다 (없으면 그림 가운데)
+      const ra = tgr && tgr.width ? tgr : (a.querySelector('.monster-art, .sprite, .fx-host') || a).getBoundingClientRect();
       const e = endFor(b, ra); (ends.list ||= []).push(e);
       lines.push(`<line x1="${ra.left + ra.width / 2 - sr.left}" y1="${ra.top + ra.height / 2 - sr.top}" x2="${e.x}" y2="${e.y}"/>`);
       b.classList.add('marked');
