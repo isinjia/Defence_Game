@@ -39,7 +39,6 @@ Object.assign(UI, {
           <div class="sec"><div class="sec-title">성별</div><div class="row">
             <button class="choice ${s.gender === 'M' ? 'sel' : ''}" data-act="ps-gender" data-v="M">남성</button>
             <button class="choice ${s.gender === 'F' ? 'sel' : ''}" data-act="ps-gender" data-v="F">여성</button></div></div>
-          <p class="dim sec">출신은 정할 수 없습니다. 어떤 삶에서 시작할지는 이야기가 정합니다.</p>
           <div class="row end"><button class="ghost" data-act="new">뒤로</button><button class="primary" data-act="ps-start">이야기 시작</button></div>
         </div>
       </div></div>`;
