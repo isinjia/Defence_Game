@@ -20,12 +20,17 @@ const MonsterArt = (() => {
       || names.find((n) => !data[n].special && data[n].shape === mon.shape)
       || '산성 슬라임';
   };
-  const url = (name, kind = 'web') => `assets/monsters/${kind}/${encodeURIComponent(name)}.${kind === 'original' ? 'png' : 'webp'}${kind === 'original' ? '' : '?v=' + data[name].rev}`;
+  // file: 실제 이미지 파일 이름(다른 종의 원화를 빌려 쓸 때). 없으면 name 그대로.
+  const fileOf = (name) => (data[name] && data[name].file) || name;
+  const url = (name, kind = 'web') => {
+    const file = fileOf(name); const rev = (data[name] && data[name].rev) || (data[file] && data[file].rev) || '0';
+    return `assets/monsters/${kind}/${encodeURIComponent(file)}.${kind === 'original' ? 'png' : 'webp'}${kind === 'original' ? '' : '?v=' + rev}`;
+  };
   const image = (mon, size = 110) => {
     const name = resolve(mon), s = Math.max(16, Math.min(1600, Number(size) || 110));
     return `<img class="monster-art" data-monster-art="${esc(name)}" src="${url(name, 'thumb')}" srcset="${url(name, 'thumb')} 256w, ${url(name)} 1024w" sizes="${s}px" width="${s}" height="${s}" alt="${esc(mon && mon.name || name)}" loading="${s <= 60 ? 'lazy' : 'eager'}" decoding="async" draggable="false">`;
   };
-  return { data, resolve, url, image };
+  return { data, resolve, url, image, fileOf };
 })();
 
 FX.monster = function (mon, size = 110) { return MonsterArt.image(mon, size); };
