@@ -12,9 +12,9 @@ permissions:
   pages: write
   id-token: write
 
-# 여러 세션이 연달아 올려도 마지막 푸시만 배포한다
+# 브랜치별로 마지막 푸시만 배포한다
 concurrency:
-  group: pages
+  group: pages-release-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
