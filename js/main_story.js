@@ -61,6 +61,21 @@ const MAIN = {
     const M = this.mainState(); for (const [k, v0] of Object.entries(rel || {})) { const v = typeof v0 === 'function' ? v0(this, M) : v0; const n = this.mainWho(k); if (n && n.id != null && v) this.changeRel(n, v, why || '메인 이야기'); }
   };
   GP.mainToday = function () { return this.monthKey() * 30 + this.day; };
+  // 장면 끊기: pause = '문구' | 숫자(일) | { days, label, text }. pauseDays·pauseLabel 로도 줄 수 있다. 문구만 있으면 1일
+  GP.mainPauseOf = function (sc) {
+    const p = sc.pause; const o = typeof p === 'object' && p ? p : {};
+    const days = Math.max(1, typeof p === 'number' ? p : o.days || sc.pauseDays || 1);
+    const label = o.label || sc.pauseLabel || (days === 1 ? '내일' : `${days}일 뒤`);
+    const text = typeof p === 'string' ? p : o.text || (days === 1 ? '오늘은 여기까지. 다음 날 이어진다.' : `${label} 이야기가 이어진다.`);
+    return { days, label, text };
+  };
+  // 남은 대기를 짧게: '내일' · 'N일 뒤' · 라벨(목요일·보름 밤)
+  GP.mainWaitText = function () {
+    const M = this.mainState(); if (!M.pendingDay) return '';
+    const left = M.pendingDay - this.mainToday(); if (left <= 0) return '';
+    if (M.pendingLabel && !/일 뒤$|^내일$/.test(M.pendingLabel)) return left === 1 ? `내일 · ${M.pendingLabel}` : `${left}일 뒤 · ${M.pendingLabel}`;
+    return left === 1 ? '내일' : `${left}일 뒤`;
+  };
   GP.mainFill = function (t) {
     const p = this.player; const M = this.mainState();
     if (typeof t === 'function') t = t(this, M);
@@ -127,7 +142,7 @@ if (typeof UI !== 'undefined') {
       const skipNext = (s0) => { let s = s0; while (s && s.skip && s.skip(G, M)) { const j = def.scenes.indexOf(s); const nx = s.next && s.next !== 'end' ? def.scenes.find((x) => x.id === s.next) : s.next === 'end' ? null : def.scenes[j + 1]; if (!nx) return null; s = nx; } return s; };
       const sc2 = skipNext(sc); if (!sc2) { G.mainFinish(def.n); G.save(); this.renderGame(); this.toast(`메인 ${def.n}장 「${def.title}」 완료`); return this.processQueue(); }
       if (sc2 !== sc) return this.mainPlay(sc2.id);
-      M.started[def.n] = true; M.scene = sc.id; M.pending = null; M.pendingDay = null;
+      M.started[def.n] = true; M.scene = sc.id; M.pending = null; M.pendingDay = null; M.pendingLabel = null; M.pendingText = null;
       const lines = [];
       for (const l of sc.lines || []) {
         if (l.when && !l.when(G, M)) continue;
@@ -139,7 +154,7 @@ if (typeof UI !== 'undefined') {
         else if (l.alt) { const aw = typeof l.alt === 'object' && !Array.isArray(l.alt) && l.alt.who ? G.mainWho(l.alt.who) : null; if (aw) lines.push({ who: aw, text: G.mainFill(G.mainReg(l.alt.text, aw)) }); else if (typeof l.alt === 'string' || typeof l.alt === 'function') lines.push({ narr: G.mainFill(l.alt) }); }
       }
       const nextOf = (x) => { if (x === 'end') return 'end'; if (x) return x; if (sc.next) return sc.next; const s = def.scenes[def.scenes.indexOf(sc) + 1]; return s ? s.id : 'end'; };
-      const go = (next) => { if (next !== 'end' && sc.pause) { M.pending = next; M.pendingDay = G.mainToday() + 1; G.save(); this.renderGame(); this.toast(typeof sc.pause === 'string' ? sc.pause : '오늘은 여기까지. 다음 날 이어진다.'); return this.processQueue(); } if (next === 'end') { G.mainFinish(def.n); G.save(); this.renderGame(); this.toast(`메인 ${def.n}장 「${def.title}」 완료`); return this.processQueue(); } return this.mainPlay(next); };
+      const go = (next) => { if (next !== 'end' && sc.pause) { const pw = G.mainPauseOf(sc); M.pending = next; M.pendingDay = G.mainToday() + pw.days; M.pendingLabel = pw.label; M.pendingText = pw.text; G.save(); this.renderGame(); this.toast(pw.text); return this.processQueue(); } if (next === 'end') { G.mainFinish(def.n); G.save(); this.renderGame(); this.toast(`메인 ${def.n}장 「${def.title}」 완료`); return this.processQueue(); } return this.mainPlay(next); };
       const choices = (sc.choices || []).filter((c) => !c.when || c.when(G, M));
       if (choices.length) {
         lines.push({ choices: choices.map((c) => ({ text: G.mainFill(c.text), go: () => {
@@ -180,7 +195,7 @@ if (typeof UI !== 'undefined') {
     mainStart() {
       const g = this.mainGoal(); if (!g || this.ctx || this.dlg) return;
       const M = G.mainState();
-      if (g.wait) return this.toast('오늘은 여기까지. 다음 날 이어진다.');
+      if (g.wait) return this.toast(`${G.mainWaitText()} 이어진다.`);
       if (!g.here) {
         const w = G.mainWhere(g.def);
         if (w === 'city') return this.toast('도시에 들어가면 이야기가 이어진다.');
@@ -195,7 +210,7 @@ if (typeof UI !== 'undefined') {
   const baseHQ = UI.hudQuests;
   if (baseHQ) UI.hudQuests = function () {
     const html = baseHQ.call(this); const g = this.mainGoal(); if (!g) return html;
-    const row = `<button class="obj-link hq main-q" data-act="main-go"><span class="hq-mark">◆</span><span class="hq-t">메인 · ${g.def.n}장 「${g.def.title}」 — ${G.mainFill(g.def.goal || '')}</span><span class="hq-r ${g.here && !g.wait ? 'amber' : ''}">${g.wait ? '내일 이어짐' : g.here ? (G.mainState().started[g.def.n] ? '이어서' : '지금 시작') : g.where}</span></button>`;
+    const row = `<button class="obj-link hq main-q" data-act="main-go"><span class="hq-mark">◆</span><span class="hq-t">메인 · ${g.def.n}장 「${g.def.title}」 — ${G.mainFill(g.def.goal || '')}</span><span class="hq-r ${g.here && !g.wait ? 'amber' : ''}">${g.wait ? `${G.mainWaitText()} 이어짐` : g.here ? (G.mainState().started[g.def.n] ? '이어서' : '지금 시작') : g.where}</span></button>`;
     return html.replace('<div class="obj-title">현재 퀘스트</div>', `<div class="obj-title">현재 퀘스트</div>${row}`).replace('<div class="obj-sub">진행 중인 의뢰가 없다. 도시 의뢰소에서 받을 수 있다.</div>', '');
   };
 

@@ -526,6 +526,10 @@ const { chromium, devices } = require('playwright');
         if (UI.dlg) return '장면이 끝나지 않는다';
         if (!M.done[1]) return '1장이 완료되지 않았다';
         if (M.ch !== 2) return '다음 장으로 넘어가지 않았다';
+        // pause 일수: 2장 연희 대화 뒤는 7일(목요일), 4장 보름 전은 10일
+        const c2t = MAIN.chapters[2].scenes.find((x) => x.id === 'c2_talk'), c4w = MAIN.chapters[4].scenes.find((x) => x.id === 'c4_wait');
+        if (G.mainPauseOf(c2t).days !== 7 || G.mainPauseOf(c4w).days !== 10) return 'pause 일수가 문구와 다르다';
+        M.pendingDay = G.mainToday() + 7; M.pendingLabel = '목요일'; if (!/7일 뒤 · 목요일/.test(G.mainWaitText())) return '퀘스트 대기 표시가 남은 일수와 다르다: ' + G.mainWaitText(); M.pendingDay = null; M.pendingLabel = null;
         // 4장 갈래마다 5장 첫 줄이 다르다
         const firsts = new Set();
         for (const b of ['stop', 'raid', 'join', 'save', 'missed']) {
