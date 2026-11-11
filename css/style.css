@@ -240,7 +240,7 @@ p { margin: 6px 0; }
 .npc-btns { gap: 5px; }
 
 /* 사건·조우 */
-.event-art { display: block; width: 100%; height: 150px; margin-bottom: 10px; border: 1px solid var(--line); }
+.event-art { display: block; width: 100%; height: 150px; margin-bottom: 10px; border: 1px solid var(--line); object-fit: cover; object-position: center; background: #0a0d14; }
 .event-text { font-size: 15px; line-height: 1.75; }
 .choice-btn { width: 100%; text-align: left; padding: 10px 12px; justify-content: flex-start; }
 .choice-btn::before { content: "▸"; color: var(--amber); }
