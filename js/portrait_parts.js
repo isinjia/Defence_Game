@@ -2625,7 +2625,8 @@ const PortraitParts = (() => {
     const underwear = selection.outfit === 'underwear';
     const integrated = selection.stage !== 'child';
     const style = underwear ? -1 : Number(cloth.file.match(/cloth-[mf]-(\d+)/)[1]) % 6;
-    const pose = underwear ? 0 : female ? 0 : style === 0 ? 28 : 8;
+    // 여자 코트는 안쪽이 목폴라라 목이 그만큼 짧아져야 한다: 남자 코트처럼 몸·머리를 내려 목폴라가 턱 바로 밑에 오게 (사용자 지적)
+    const pose = underwear ? 0 : female ? (style === 0 && selection.stage !== 'child' ? { thin:24, normal:24, strong:26, heavy:28 }[selection.bodyType] : 0) : style === 0 ? 28 : 8;
     const chin = female ? 261 : 251;
     const featureOffset = chin - (face.chinY || chin);
     const headY = integrated ? pose + featureOffset : pose;
@@ -2650,7 +2651,7 @@ const PortraitParts = (() => {
     const shiftX = female && !underwear ? [-2, -2.5, -4.5, -4, -3, -8][style] || 0 : 0;
     // 통통 원화는 목이 짧고 어깨선이 턱 높이에서 시작해, 옷을 그대로 두면 턱 아래 양옆에 어깨 피부가 혹처럼 남는다. 옷을 위로 올려 덮는다.
     // 여자 코트는 안쪽 목폴라가 턱에서 멀어 목이 길게 드러났다 → 옷을 올려 목폴라가 목을 감싸게 (사용자 지적)
-    const coatLift = integrated && !underwear && female && style === 0 ? { thin:10, normal:10, strong:14, heavy:22 }[selection.bodyType] : 0;
+    const coatLift = integrated && !underwear && female && style === 0 ? 0 : 0; // (목 길이는 위 pose 로 맞춘다)
     const lift = coatLift || (integrated && !underwear && selection.bodyType === 'heavy' ? (female ? 6 : 14) : 0);
     const garmentTf = `translate(${shiftX} ${-lift}) translate(200 0) scale(${fit} 1) translate(-200 0)`;
     const garmentAttrs = fit === 1 && !shiftX && !lift ? '' : ` transform="${garmentTf}"`;
