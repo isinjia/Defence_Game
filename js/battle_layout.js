@@ -303,3 +303,43 @@ Object.assign(Combat.prototype, {
     return r;
   };
 }
+
+// ---------- 자격 시험 둘째 차례: 리더의 말(회복약)과 오더를 맞춘다 (사용자 제보) ----------
+// 안내 3/3에서 리더는 "다치면 바로 약 먹고"라고 하는데 오더는 아무 스킬을 가리켰다. 이 차례에는 오더를 '아이템 · 회복약(나에게)'으로 고정한다.
+{
+  const baseTurn = Combat.prototype.takeTurn;
+  Combat.prototype.takeTurn = function (u) {
+    const from = this.log.length;
+    const r = baseTurn.call(this, u);
+    try {
+      const c = typeof UI !== 'undefined' ? UI.ctx : null; const t = c && c.combat === this && c.kind === 'exam' && c.tutorial;
+      const L = this.leader && this.leader();
+      if (r === 'wait' && u.isPlayer && t && !t.boss && t.acted === 1 && L && !L.isPlayer) {
+        const p = G.player; if (!(p.items.potion > 0)) p.items.potion = 1;
+        // 이번 차례에 리더가 한 다른 오더 말은 지운다
+        for (let i = this.log.length - 1; i >= from; i--) { const l = this.log[i]; if (l && l.ev && l.ev.k === 'say' && l.ev.src === L.id) this.log.splice(i, 1); }
+        const say = '회복약!';
+        u.order = { act: 'item', item: 'potion', target: u.id, by: L.id, rate: 1, say };
+        this.push(`${L.name}: "${u.name}, ${say}"`, '', { k: 'say', src: L.id, text: `${u.name}, ${say}` });
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+}
+// 아이템 오더를 그대로 따르면 '따름'으로 친다 (전에는 아이템을 쓰면 오더를 무시한 것으로 쳤다)
+{
+  const baseItem = Combat.prototype.playerItem;
+  Combat.prototype.playerItem = function (id, ...a) {
+    const p = this.player; const o = p && p.order;
+    if (o && !o.vague && o.act === 'item' && o.item === id && this.waiting) { if (this.noteOrder) this.noteOrder('obey', p, o); p.order = null; }
+    return baseItem.call(this, id, ...a);
+  };
+  if (Combat.prototype.playerItemOn) {
+    const baseOn = Combat.prototype.playerItemOn;
+    Combat.prototype.playerItemOn = function (id, tid, ...a) {
+      const p = this.player; const o = p && p.order;
+      if (o && !o.vague && o.act === 'item' && o.item === id && this.waiting) { if (this.noteOrder) this.noteOrder('obey', p, o); p.order = null; }
+      return baseOn.call(this, id, tid, ...a);
+    };
+  }
+}
