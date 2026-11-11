@@ -1093,3 +1093,32 @@ html body .ally.fig .order-tag { left: 50% !important; right: auto !important; t
 .sg-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px; }
 .sg-path { color: #8fe3cf; }
 .sg-btn { padding: 4px 10px; min-height: 30px; }
+
+/* ===== 직업 스킬 확장: 깨달음·패시브 (js/skill_ext.js) ===== */
+.epiphany h3 { font-size: 22px; margin: 4px 0 8px; }
+.epiphany.light h3 { color: #ffe9a8; text-shadow: 0 0 18px #ffd16655; }
+.epiphany.dark h3 { color: #ff9db0; text-shadow: 0 0 18px #ff3b6a55; }
+.epiphany.light .eyebrow { color: #ffd166; } .epiphany.dark .eyebrow { color: #ff6b8a; }
+.epiphany .ep-card { display: grid; gap: 4px; margin: 10px 0; padding: 10px 12px; border-radius: 6px; background: #0e141d; border: 1px solid #2a3b55; }
+.epiphany.light .ep-card { border-color: #ffd16666; background: linear-gradient(135deg, #1f1a0c, #0e141d); }
+.epiphany.dark .ep-card { border-color: #ff4f6a66; background: linear-gradient(135deg, #22070f, #0e141d); }
+.ep-list { margin-top: 12px; display: grid; gap: 6px; }
+.ep-row { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 5px; background: #0e141d; border: 1px solid #223044; }
+.ep-row.light { border-left: 3px solid #ffd166; } .ep-row.dark { border-left: 3px solid #ff4f6a; }
+.ep-row.own b { color: #fff; } .ep-row:not(.own) b { color: #6c7a90; letter-spacing: .1em; }
+.ep-row.locked { opacity: .45; }
+.ep-row .small { min-width: 0; }
+.item-row.is-passive { border-style: dashed; }
+.item-row.is-passive .tag:first-of-type { background: #1d2a3d; color: #9fd0ff; }
+/* 돈오 · 신 (js/skill_ext.js · js/skill_gods.js) */
+.dono-scene { font-size: 16px; line-height: 1.7; padding: 10px 12px; border-left: 3px solid #8fe3cf; background: #0c1a18; border-radius: 0 6px 6px 0; }
+.dono-opt { display: grid; gap: 4px; text-align: left; }
+.dono-opt .dono-say { font-size: 15px; color: #e8f2ff; font-style: italic; }
+.dono-opt .dono-res b { color: #8fe3cf; }
+.ep-row.dono { border-left: 3px solid #8fe3cf; }
+.ep-row.god { border-left: 3px solid var(--gc, #c58cff); }
+.god-card { display: grid; gap: 5px; text-align: left; border-left: 4px solid var(--gc, #c58cff) !important; }
+.god-card .god-name { font-size: 17px; font-weight: 800; }
+.god-card.mis { opacity: .85; }
+.god-mark { margin-top: 4px; font-weight: 700; }
+.align-line { margin: 4px 0 8px; color: #c9d4e2; font-style: italic; }
