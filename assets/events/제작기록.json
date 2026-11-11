@@ -1,0 +1,91 @@
+{
+  "제작방식": "내장 image_gen 이미지 생성 도구",
+  "참조": "assets/monsters/web/서리 늑대.webp · assets/prologue/* — 기존 몬스터·프롤로그 원화의 화풍과 완성도",
+  "원칙": "사건 장면은 장소·핵심 사물·에테르 흔적으로 이야기 표현. 사람·실루엣·손·초상화 제외. SVG 자리표시 대신 상용 게임 원화 수준.",
+  "images": [
+    {
+      "id": "black_market",
+      "file": "black_market.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "city",
+      "file": "city.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "duel_challenge",
+      "file": "duel_challenge.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "field",
+      "file": "field.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "gate",
+      "file": "gate.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "gate_surge",
+      "file": "gate_surge.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "injured_hunter",
+      "file": "injured_hunter.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "kid_lost",
+      "file": "kid_lost.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "mentor",
+      "file": "mentor.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "news",
+      "file": "news.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "night",
+      "file": "night.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "people",
+      "file": "people.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "reporter",
+      "file": "reporter.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "ruins",
+      "file": "ruins.webp",
+      "width": 1280,
+      "height": 720
+    }
+  ]
+}
