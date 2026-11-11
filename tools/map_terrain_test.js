@@ -24,16 +24,21 @@ const http = require('http');
   const browser = await chromium.launch();
   const shots = path.resolve(__dirname, '../docs/지도_타일'); fs.mkdirSync(shots, { recursive: true });
   try {
-    for (const [width, height, label] of [[412, 915, '휴대전화'], [1280, 900, '큰_화면']]) {
+    for (const [width, height, label] of [[320, 740, '좁은_화면'], [412, 915, '휴대전화'], [1280, 900, '큰_화면']]) {
       const page = await browser.newPage({ viewport: { width, height }, reducedMotion: 'reduce' });
       const errors = []; page.on('pageerror', (e) => errors.push(e.message));
+      // 지형 검사는 외부 폰트 서버 응답에 의존하지 않는다.
+      await page.route('https://fonts.googleapis.com/**', route => route.abort());
+      await page.route('https://fonts.gstatic.com/**', route => route.abort());
       await page.goto(url);
+      await page.click('[data-opening="skip"]');
+      await page.waitForSelector('.world-opening', { state: 'hidden' });
       const result = await page.evaluate(async () => {
         window.TUT_AUTO_TAP = true;
         UI.handle('new'); UI.handle('mode-manual'); UI.create.name = '지도검사'; UI.handle('c-start');
         UI.closeModal(); UI.ctx = null; G.queue = [];
         if (UI.stopTitle) UI.stopTitle(); if (UI.map) UI.map.destroy();
-        if (typeof MapTerrain !== 'undefined' && MapTerrain.whenReady) await MapTerrain.whenReady;
+        if (typeof MapTerrain !== 'undefined' && MapTerrain.whenReady && !await MapTerrain.whenReady) throw new Error('지형 이미지 로드 실패');
         const holder = document.createElement('div'); holder.style.cssText = 'position:fixed;inset:0;z-index:2000;background:#07121b';
         const canvas = document.createElement('canvas'); holder.appendChild(canvas); document.body.appendChild(holder);
         const view = new MapView(canvas, null, { onTap() {}, onHover() {} }); window.__terrainView = view;

@@ -1,4 +1,4 @@
-// 승인된 심리스 타일 + v7 전환 오버레이(4방향·코너 구멍·숲↔푸른 가중).
+// 승인된 웹툰풍 타일 11종 + 가장자리·코너 연결 이미지 50종.
 // 이동 비용·칸 좌표·안개·탐사 표식은 기존 지도에서 그린다.
 const MapTerrain = (() => {
   const SIZE = 80, VARIANTS = 16, TYPE_COUNT = 11;
@@ -21,7 +21,7 @@ const MapTerrain = (() => {
     const im = new Image();
     im.onload = () => resolve(im);
     im.onerror = () => resolve(null);
-    im.src = src;
+    im.src = src + '?v=webtoon-1';
   });
 
   (async () => {
