@@ -62,6 +62,8 @@ manifest['traits'][5]={'file':'traits-5.webp','rect':[150,148,100,20]}
 for g in ['m', 'f']:
  if (root/('body-'+g+'.webp')).exists():
   manifest['body-'+g]=[{'file':'body-'+g+'.webp','rect':[0,0,400,900]}]
+from calibrate_portrait_skin import calibrate
+calibrate(manifest, root)
 (root/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2))
 # Assembly preview using exactly the exported registered parts.
 preview=Image.new('RGB',(1200,600),'#182230')

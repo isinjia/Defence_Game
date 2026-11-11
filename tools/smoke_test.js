@@ -182,6 +182,36 @@ const { chromium, devices } = require('playwright');
     });
     if (!ok) throw new Error('검사 실패');
   });
+  await step('기본 몸체: 얼굴 30종 피부색 일치·목 중복 제거·짧은 연결', async () => {
+    await page.evaluate(async () => {
+      const median = patches => [0, 1, 2].map(channel => {
+        const values = [];
+        for (const data of patches) for (let i = channel; i < data.length; i += 4) values.push(data[i]);
+        values.sort((a, b) => a - b);
+        return (values[(values.length - 1) >> 1] + values[values.length >> 1]) / 2;
+      });
+      for (const gender of ['M', 'F']) for (let face = 0; face < 15; face++) {
+        let seed;
+        for (let n = 0; n < 2000; n++) if (PortraitParts.select('skin-' + n, gender, { outfit: 'underwear' }).layers[0].file === 'face-' + gender.toLowerCase() + '-' + face + '.webp') { seed = 'skin-' + n; break; }
+        if (!seed) throw new Error('피부색 검사 인물 없음');
+        const doc = new DOMParser().parseFromString(PORTRAIT.card(seed, gender, null, 0, 400, { outfit: 'underwear' }), 'image/svg+xml');
+        const root = doc.documentElement, offset = Number(root.dataset.headOffset);
+        if (root.querySelector('[data-depth="neck"]')) throw new Error('얼굴 목과 몸 목이 겹침');
+        if (offset + PortraitParts.select(seed, gender, { outfit: 'underwear' }).layers[0].chinY !== (gender === 'M' ? 295 : 303)) throw new Error('기본 몸체의 긴 목 위치가 복귀함');
+        // 머리카락·안경이 표본을 가리지 않도록 검사 그림에서만 제외한다.
+        for (const node of root.querySelectorAll('image')) if (/(?:hair|traits)-/.test(node.getAttribute('href'))) node.remove();
+        const src = await PortraitParts.rasterize(new XMLSerializer().serializeToString(doc));
+        const image = new Image(); image.src = src; await image.decode();
+        const canvas = document.createElement('canvas'); canvas.width = 400; canvas.height = 800;
+        const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
+        const faceRgb = median([ctx.getImageData(170, 185 + offset, 12, 12).data, ctx.getImageData(218, 185 + offset, 12, 12).data]);
+        const bodyRgb = median([ctx.getImageData(150, 380, 8, 8).data]);
+        if (faceRgb.some((v, i) => Math.abs(v - bodyRgb[i]) > 5)) throw new Error('얼굴·몸 피부색 불일치: ' + gender + face);
+        const neck = ctx.getImageData(200, gender === 'M' ? 312 : 318, 1, 1).data;
+        if (neck[0] < 90 || neck[1] < 65) throw new Error('턱과 목 사이 빈 공간');
+      }
+    });
+  });
   await step('생성 외형: 남녀 속옷 → 출신 생활복 · 직접 설정도 속옷', async () => {
     await page.evaluate(async () => {
       UI.handle('new'); UI.handle('mode-story');
