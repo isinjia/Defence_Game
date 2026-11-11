@@ -154,11 +154,11 @@ MAIN.ch(23, {
     { id: 'c23_reply', lines: [
       { narr: '진서해가 청중석을 둘러보다 당신에게서 멈춘다. "오늘은 영점 세대 한 분이 오셨습니다. 한 말씀 하시겠어요?"' },
     ], choices: [
-      { text: '반박한다 — "저편이 어떻게 됐는지 말하세요."', when: (g, M) => !!M.flags.arinName, set: { c23: 'refute' }, gain: { fame: 6 }, next: 'c23_after',
+      { text: '반박한다 — "저편이 어떻게 됐는지 말하세요."', when: (g, M) => !!M.flags.arinName, set: { c23: 'refute' }, gain: { fame: 6 }, next: 'c23_dock',
         say: [{ narr: '"강이 말랐습니다. 저편은 에테르를 다 잃었어요. 문을 다 열면 우리 쪽 강도 마릅니다. 이분은 그걸 압니다."' }, { narr: '창고가 조용해진다. 진서해가 처음으로 말을 고른다. "…아린이 그렇게 말하던가요."' }] },
-      { text: '침묵한다', set: { c23: 'silent' }, next: 'c23_after',
+      { text: '침묵한다', set: { c23: 'silent' }, next: 'c23_dock',
         say: [{ narr: '당신은 아무 말도 하지 않는다. 진서해가 고개를 끄덕인다. "침묵도 대답입니다." 박수가 나온다. 당신을 향한 것인지 모른다.' }] },
-      { text: '동의한다 — "숨는 사람이 없는 세상은 필요해요."', set: { c23: 'agree' }, gain: { fame: 4, merit: -10 }, next: 'c23_after',
+      { text: '동의한다 — "숨는 사람이 없는 세상은 필요해요."', set: { c23: 'agree' }, gain: { fame: 4, merit: -10 }, next: 'c23_dock',
         say: [{ narr: '창고가 일어선다. 박수가 오래 이어진다. 진서해가 당신 손을 잡는다. 손이 차갑다. 바닷물처럼.' }] },
     ] },
     { id: 'c23_dock', lines: [

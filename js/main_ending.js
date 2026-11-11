@@ -34,6 +34,8 @@ MAIN.ch(39, {
     ] },
     { id: 'c39_out', lines: [
       { narr: (g, M) => (M.ending === 'sacrifice' ? '문 바깥. 능선. 아무도 없다. 바람이 분다. 누군가 남겨 둔 컵라면 하나가 식어 간다.' : M.ending === 'bridge' ? '문 바깥에서 동료들이 당신을 부른다. 당신은 문턱에 앉아 손을 흔든다. 내려가지 않는다. 대신 그들이 올라올 것이다. 자주.' : '문 바깥. 능선. 해가 뜬다. 동해 쪽에서. 이십 년 만에 제주에서 보는 해다.') },
+      { narr: '문지기의 갑옷이 문틀 빛에 녹아든다. 처음부터 이 자리에 맞춰 만든 것처럼. 첫 문의 잔해가 마지막 조각을 찾았다.', when: (g, M) => M.ending === 'bridge' && g.player.cls === 'gatekeeper' },
+      { narr: '문 안쪽에서 닫는 손이 하나 더 있다. 문지기의 손이 문틀을 기억한다. 문이 평소보다 조용히 닫힌다.', when: (g, M) => (M.ending === 'seal' || M.ending === 'sacrifice') && g.player.cls === 'gatekeeper' },
       { who: 'friend', when: (g, M) => FRIEND_ALIVE(g, M) && M.ending !== 'sacrifice', text: (g, M) => (HAS_ALLY(M, 'friend') ? '…왔다. 왔어. 손 줘. 미끄럼틀처럼.' : '(전화) 뉴스 봤어. 봤어. …내려와. 놀이터에서 기다려.') },
       { who: 'friend', when: (g, M) => FRIEND_ALIVE(g, M) && M.ending === 'sacrifice', text: '(아무도 받지 않는 전화에 남긴 음성.) …놀이터에서 기다릴게. 계속.' },
     ], next: 'end' },

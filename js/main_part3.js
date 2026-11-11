@@ -110,10 +110,10 @@ MAIN.ch(16, {
       { sys: '「실험체 0번 — 열쇠 계획 1차 시도. 공명 적합도 측정 불가. 폐기 보류.」' },
       { narr: '"열쇠 계획." 그 단어가 화면에 몇 번이고 반복된다.' },
     ], choices: [
-      { text: '아이들을 구한다', set: { c16: 'rescue' }, next: 'c16_after',
+      { text: '아이들을 구한다', set: { c16: 'rescue' }, next: 'c16_out',
         fight: (g) => ({ title: '실험체 0번', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, boss: true, shape: 'golem', elem: 'wood', name: '[실험체] 0번' },
           win: { text: '0번이 무너지며 아이 목소리로 운다. 유리관이 일제히 열린다.', gain: { fame: 18, rep: 10 } }, lose: { text: '정신이 들었을 땐 경보가 멎어 있다. 관 절반이 비었다. 옮겨진 것이다.', gain: { injure: 1 } } }) },
-      { text: '증거만 챙긴다', set: { c16: 'evidence', subjectFile: true }, gain: { merit: 6 }, next: 'c16_after',
+      { text: '증거만 챙긴다', set: { c16: 'evidence', subjectFile: true }, gain: { merit: 6 }, next: 'c16_out',
         say: [{ narr: '하드 드라이브를 뽑는다. 유리관 하나하나를 지나칠 때마다 발소리가 크다.' }, { narr: '마지막 관의 아이가 눈을 뜬다. 당신을 본다. 다시 감는다.' }] },
     ] },
     { id: 'c16_out', lines: [
@@ -166,9 +166,9 @@ MAIN.ch(17, {
       { narr: (g, M) => (M.flags.tone3 === 'heard' ? '진서해가 전화로 한 말과 같다. 그 사람은 거짓말을 하지 않았다. 적어도 이 부분은.' : '가면 벗은 영상 속 진서해의 말. "관리국이 열었다." 그게 사실이었다.') },
       { narr: '문서 끝. 「후속: 열쇠 계획. 공명 적합자를 만들어 문을 닫는다.」 적합자 명단 맨 위에 당신 이름.' },
     ], choices: [
-      { text: '헌터넷에 통째로 올린다', set: { c17: 'expose' }, gain: { fame: 20, merit: -20 }, next: 'c17_after' },
-      { text: '복사본을 쥐고 국장에게 면담을 요청한다', set: { c17: 'deal' }, next: 'c17_after' },
-      { text: '아무에게도 말하지 않고 간직한다', set: { c17: 'keep' }, next: 'c17_after' },
+      { text: '헌터넷에 통째로 올린다', set: { c17: 'expose' }, gain: { fame: 20, merit: -20 }, next: 'c17_exit' },
+      { text: '복사본을 쥐고 국장에게 면담을 요청한다', set: { c17: 'deal' }, next: 'c17_exit' },
+      { text: '아무에게도 말하지 않고 간직한다', set: { c17: 'keep' }, next: 'c17_exit' },
     ] },
     { id: 'c17_exit', lines: [
       { narr: '위층에서 발소리. 계단 대신 화물 승강기. 문이 닫히기 직전 복도 끝에 경비가 보인다. 눈이 마주친다. 경비가 고개를 돌린다. 모른 척이다.' },
@@ -227,14 +227,16 @@ MAIN.ch(18, {
       { who: 'madohyun', text: '나는 닫겠네. 무슨 수를 써서라도. 그 수가 자네라면, 자네를 쓰겠네.' },
       { narr: (g, M) => (M.flags.c16 === 'rescue' && M.flags.fight_c16_core !== 'lose' ? '"울산 아이들, 자네가 데려갔지. 잘했네. 진심이야. 거긴 실패작만 남아 있었으니까." 찻잔이 떨린다. 당신 손이다.' : M.flags.basinData ? '"분지 설비 기록도 갖고 있겠지. 그 에테르가 어디로 가는지도 알겠고." 그가 처음으로 웃는다.' : '그는 끝까지 목소리를 높이지 않는다.') },
     ], choices: [
-      { text: '"당신을 체포합니다."', when: (g, M) => M.flags.c17 === 'expose' || EVIDENCE(M) >= 3, set: { c18: 'arrest' }, next: 'c18_after',
+      { text: '"당신을 체포합니다."', when: (g, M) => M.flags.c17 === 'expose' || EVIDENCE(M) >= 3, set: { c18: 'arrest' }, next: 'c18_hall',
         say: [
           { who: 'seoyun', when: (g, M) => !!M.flags.seoyunShake, text: '국장님. 관리국 특수조사관 한서윤입니다. 공명 실험 은폐 및 미성년자 강제 각성 혐의로… 체포합니다.' },
           { who: 'madohyun', text: '그래. 그래야지. 하지만 문은 닫히지 않아. 나 없이는.' },
         ] },
       { text: '손을 잡는다 — 문을 닫는 데까지만', set: { c18: 'ally' }, gain: { merit: 15 },
-        say: [{ who: 'madohyun', text: '현명하군. 조건은 하나다. 진서해를 막아. 그다음은 그다음에.' }], next: 'c18_after' },
-      { text: '찻잔을 내려놓고 일어선다', set: { c18: 'leave' }, next: 'c18_after',
+        run: (g, M) => { if (BG(g) === 'subject' && g.player.cls !== 'heir') { g.setClass('heir', '히든 직업 각성'); M.flags.heirAwake = true; g.lifeEvent('국장의 손을 잡은 날, 몸속에 눌러 두었던 실험의 힘이 깨어났다. 히든 직업 [대붕괴의 아이].'); } },
+        say: [{ who: 'madohyun', text: '현명하군. 조건은 하나다. 진서해를 막아. 그다음은 그다음에.' },
+          { who: 'madohyun', when: (g) => BG(g) === 'subject', text: '12번. 자네 몸에 잠가 둔 게 하나 있네. 연구소가 끝내 열지 못한 것. 내 손으로 풀어 주지. 이제 숨길 이유가 없으니까.' }], next: 'c18_hall' },
+      { text: '찻잔을 내려놓고 일어선다', set: { c18: 'leave' }, next: 'c18_hall',
         say: [{ who: 'madohyun', text: '언젠가 다시 앉게 될 거네. 그땐 차가 더 식어 있겠지.' }] },
     ] },
     { id: 'c18_hall', lines: [
@@ -242,6 +244,8 @@ MAIN.ch(18, {
       { who: 'seoyun', when: (g, M) => M.flags.seoyun === 'watch', text: '…복도 끝 CCTV, 제가 보고 있었어요. 국장님 방에서 나오는 사람 얼굴은 다 기록돼요. 당신 건 제가 지웠어요. 이번 한 번이에요.' },
       { who: 'seoyun', when: (g, M) => M.flags.seoyun && M.flags.seoyun !== 'watch', text: '나오셨네요. 얼굴이 하얘요. 무슨 말 들었는지 다 말 안 해도 돼요.' },
       { narr: '승강기 거울에 당신 얼굴. 국장이 한 말이 거울에 겹친다. "자네를 쓰겠네."' },
+      { narr: '승강기 안에서 몸이 뜨거워진다. 목덜미 흉터가 빛난다. 유리관 안에서 꿨던 꿈이 한꺼번에 돌아온다. 억눌렀던 것이 풀린다.', when: (g, M) => !!M.flags.heirAwake },
+      { sys: '히든 직업 [대붕괴의 아이]에 각성했다.', when: (g, M) => !!M.flags.heirAwake },
     ] },
     { id: 'c18_after', lines: [
       { narr: (g, M) => ({
