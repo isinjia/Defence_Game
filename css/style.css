@@ -1062,3 +1062,5 @@ html body #cb-ctrl .row.end > button, html body .order-banner .row > button, htm
 .obj-link.main-q .hq-t { font-weight: 700; }
 /* 오더 선의 끝: 대상 그림 정중앙의 작은 표적 점 (js/orders.js) */
 .order-dot { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--order, #8cc4ff); box-shadow: 0 0 0 2px #08131fcc, 0 0 8px var(--order, #8cc4ff); pointer-events: none; z-index: 5; }
+/* 아군 초상화의 오더 내용은 초상화 위 가운데 (사용자 요청) */
+html body .ally.fig .order-tag { left: 50% !important; right: auto !important; transform: translateX(-50%); }
