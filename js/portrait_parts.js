@@ -443,24 +443,43 @@ const PortraitParts = (() => {
     const glassesIndex = drawLayers.findIndex(part => part.file === 'traits-5.webp');
     const hairIndex = drawLayers.findIndex(part => part.file.startsWith('hair-'));
     if (glassesIndex > hairIndex && hairIndex >= 0) drawLayers.splice(hairIndex, 0, drawLayers.splice(glassesIndex, 1)[0]);
-    const images = drawLayers.map((part, i) => {
+    // 목은 옷깃 안쪽(뒤), 턱·얼굴은 옷 앞. 하이칼라가 턱 끝을 덮지 않게 순서를 나눈다.
+    const facePart = selection.layers[0];
+    const clothPart = selection.layers[1];
+    const female = facePart.file.startsWith('face-f');
+    const neck = clothPart.file.includes('-4.webp') ? [155, 245] : [166, 234];
+    // jawY: 목 클립이 시작되는 턱선. 코가 아니라 실제 턱 근처에 둔다.
+    const jawY = female ? 248 : 242;
+    // chinY: 이 높이까지는 옷 위에 다시 그려 턱이 옷깃 앞에 오게 한다.
+    const chinY = female ? 254 : 250;
+    // 닫힌 하이칼라(여성 한복·코트 등)는 살짝 내려 턱과 옷깃 사이에 목 깊이를 만든다.
+    const clothClosed = !clothPart.file.includes('-4.webp') && (female || clothPart.file.includes('-0.webp'));
+    const clothDy = clothClosed ? 10 : 0;
+    const partSrc = (file) => root + file + (['traits-5.webp', 'hair-f-0.webp', 'hair-f-2.webp'].includes(file) ? '?v=3' : '?v=2');
+    const orcFilter = selection.race === 'orc' ? ` filter="url(#${id}orc)"` : '';
+    const drawPart = (part, extra = '') => {
       const [x, y, w, h] = part.rect;
-      const filter = i === 0 && selection.race === 'orc' ? ` filter="url(#${id}orc)"` : '';
-      const clip = i === 0 ? ` clip-path="url(#${id}neck)"` : '';
-      const src = root + part.file + (['traits-5.webp', 'hair-f-0.webp', 'hair-f-2.webp'].includes(part.file) ? '?v=3' : '?v=2');
-      return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${filter}${clip}/>`;
-    }).join('');
-    const neck = selection.layers[1].file.includes("-4.webp") ? [155, 245] : [166, 234];
-    const jawY = selection.layers[0].file.startsWith("face-f") ? 210 : 200;
-    const background = `<defs><clipPath id="${id}neck"><path d="M0 0H400V${jawY}H252L247 ${jawY + 15}L234 ${jawY + 30}V255L${neck[1]} 286V325H${neck[0]}V286L166 255V${jawY + 30}L153 ${jawY + 15}L148 ${jawY}H0Z"/></clipPath><radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><filter id="${id}orc"><feColorMatrix type="matrix" values=".45 .2 0 0 .02 .2 .6 .1 0 .04 .1 .2 .25 0 .01 0 0 0 1 0"/></filter><clipPath id="${id}clip"><circle cx="200" cy="128" r="126"/></clipPath></defs>`;
+      const dy = part.file.startsWith('cloth-') ? clothDy : 0;
+      return `<image href="${partSrc(part.file)}" xlink:href="${partSrc(part.file)}" x="${x}" y="${y + dy}" width="${w}" height="${h}"${extra}/>`;
+    };
+    const rest = drawLayers.filter(part => part !== facePart && part !== clothPart);
+    const images = [
+      drawPart(facePart, `${orcFilter} clip-path="url(#${id}neck)"`),
+      drawPart(clothPart),
+      // 턱 아래 목에 얇게 앉는 접촉 그림자(뎁스).
+      `<ellipse cx="200" cy="${chinY + 1}" rx="20" ry="4" fill="#05070d" opacity=".2"/>`,
+      drawPart(facePart, `${orcFilter} clip-path="url(#${id}chin)"`),
+      ...rest.map(part => drawPart(part)),
+    ].join('');
+    const background = `<defs><clipPath id="${id}neck"><path d="M0 0H400V${jawY}H252L247 ${jawY + 10}L238 ${jawY + 18}V${jawY + 22}L${neck[1]} 286V325H${neck[0]}V286L166 ${jawY + 22}V${jawY + 18}L161 ${jawY + 10}L148 ${jawY}H0Z"/></clipPath><clipPath id="${id}chin"><path d="M0 0H400V${chinY - 18}H260L248 ${chinY - 8}L230 ${chinY}H170L152 ${chinY - 8}L140 ${chinY - 18}H0Z"/></clipPath><radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><filter id="${id}orc"><feColorMatrix type="matrix" values=".45 .2 0 0 .02 .2 .6 .1 0 .04 .1 .2 .25 0 .01 0 0 0 1 0"/></filter><clipPath id="${id}clip"><circle cx="200" cy="128" r="126"/></clipPath></defs>`;
     // 열린 도포의 V 목선 아래까지 같은 얼굴 파츠의 목 피부를 이어 넣는다.
     // 머리·턱은 원래 크기로 두고, 의상 뒤의 작은 피부 구간만 채운다.
-    const faceSrc = root + selection.layers[0].file + '?v=2';
-    const robeNeck = !avatar && selection.layers[1].file.includes('-1.webp')
-      ? `<svg x="164" y="275" width="72" height="60" viewBox="36 220 72 20" preserveAspectRatio="none" aria-hidden="true"><image href="${faceSrc}" xlink:href="${faceSrc}" width="144" height="250"${selection.race === 'orc' ? ` filter="url(#${id}orc)"` : ''}/></svg>` : '';
+    const faceSrc = partSrc(facePart.file);
+    const robeNeck = !avatar && clothPart.file.includes('-1.webp')
+      ? `<svg x="164" y="${275 + clothDy}" width="72" height="60" viewBox="36 220 72 20" preserveAspectRatio="none" aria-hidden="true"><image href="${faceSrc}" xlink:href="${faceSrc}" width="144" height="250"${orcFilter}/></svg>` : '';
     const drawing = `<rect x="0" y="0" width="400" height="600" fill="#0a1220"/><ellipse cx="200" cy="190" rx="240" ry="300" fill="url(#${id}bg)"/>${robeNeck}${images}`;
     const art = avatar ? `<g clip-path="url(#${id}clip)">${drawing}</g><circle cx="200" cy="128" r="125" fill="none" stroke="${ring}" stroke-width="4"/>` : drawing + `<rect x="1" y="1" width="398" height="478" fill="none" stroke="${ring}" stroke-width="2" opacity=".7"/>`;
-    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v3" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size * 1.2)}" viewBox="${view}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${escape(avatar ? '초상화' : '캐릭터 일러스트')}">${background}${art}</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v4" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size * 1.2)}" viewBox="${view}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${escape(avatar ? '초상화' : '캐릭터 일러스트')}">${background}${art}</svg>`;
   }
   PORTRAIT.card = function (seed, gender, element, rank, size = 200, opts = {}) {
     if ((!opts.race || opts.race === 'human') && PORTRAIT.imageFor(seed, gender)) return legacy.card.apply(this, arguments);

@@ -102,8 +102,20 @@ const { chromium, devices } = require('playwright');
       const neckImg = new Image(); neckImg.src = neckSrc; await neckImg.decode();
       const neckCanvas = document.createElement('canvas'); neckCanvas.width = 400; neckCanvas.height = 480;
       const neckCtx = neckCanvas.getContext('2d'); neckCtx.drawImage(neckImg, 0, 0);
-      const outsideCollar = [...neckCtx.getImageData(153, 264, 10, 20).data, ...neckCtx.getImageData(155, 230, 8, 30).data];
+      // 옷깃 높이(y≥258) 옆구리만 검사. 턱선 위 볼·턱은 옷 앞에 그려지므로 제외한다.
+      const outsideCollar = neckCtx.getImageData(153, 264, 10, 20).data;
       for (let i = 0; i < outsideCollar.length; i += 4) if (outsideCollar[i] > 140 && outsideCollar[i + 1] > 100 && outsideCollar[i] > outsideCollar[i + 1] + 15) throw new Error('목 피부가 옷깃 밖으로 나옴');
+      // 턱이 하이칼라 앞에 오고, 턱·옷깃 사이에 목 깊이가 있어야 한다.
+      const chinSrc = await PortraitParts.rasterize(PORTRAIT.card('턱뎁스', 'F', null, 0, 400, { outfit: 'hanbok' }));
+      const chinImg = new Image(); chinImg.src = chinSrc; await chinImg.decode();
+      const chinCanvas = document.createElement('canvas'); chinCanvas.width = 400; chinCanvas.height = 480;
+      const chinCtx = chinCanvas.getContext('2d'); chinCtx.drawImage(chinImg, 0, 0);
+      const chinTip = chinCtx.getImageData(200, 248, 1, 1).data;
+      if (chinTip[0] < 140 || chinTip[1] < 90) throw new Error('턱이 옷깃에 묻힘');
+      const neckGap = chinCtx.getImageData(200, 258, 1, 8).data;
+      let skinRows = 0;
+      for (let i = 0; i < neckGap.length; i += 4) if (neckGap[i] > 130 && neckGap[i + 1] > 85 && neckGap[i] > neckGap[i + 2]) skinRows++;
+      if (skinRows < 2) throw new Error('턱과 옷깃 사이 목 뎁스 없음');
       for (const gender of ['M', 'F']) {
         let glassesSeed;
         for (let n = 0; n < 100; n++) if (PortraitParts.select('안경' + n, gender).layers.some(part => part.file === 'traits-5.webp')) { glassesSeed = '안경' + n; break; }
