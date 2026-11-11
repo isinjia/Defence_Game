@@ -49,6 +49,18 @@ const MAIN = {
       default: return typeof who === 'number' ? alive(this.npcById(who)) : null;
     }
   };
+  // 말투별 줄: { haera, haeyo, short, hapsyo, hao, banmal } 중 말하는 사람 말투(C의 성격별 말투표)에 맞는 것
+  GP.mainReg = function (t, who) {
+    if (!t || typeof t !== 'object' || Array.isArray(t)) return t;
+    const r = who && who.id != null && this.personaRegister ? this.personaRegister(who) : 'haera';
+    const alias = { banmal: 'haera', hao: 'haera', hage: 'haera', hapsyo: 'haeyo', haera: 'banmal', haeyo: 'hapsyo' };
+    return t[r] ?? t[alias[r]] ?? t.haera ?? t.banmal ?? Object.values(t)[0];
+  };
+  // 관계 변화: { leader: +2, rival: -1, friend: +1 }
+  GP.mainRel = function (rel, why) {
+    const M = this.mainState(); for (const [k, v0] of Object.entries(rel || {})) { const v = typeof v0 === 'function' ? v0(this, M) : v0; const n = this.mainWho(k); if (n && n.id != null && v) this.changeRel(n, v, why || '메인 이야기'); }
+  };
+  GP.mainToday = function () { return this.monthKey() * 30 + this.day; };
   GP.mainFill = function (t) {
     const p = this.player; const M = this.mainState();
     if (typeof t === 'function') t = t(this, M);
@@ -87,8 +99,9 @@ const MAIN = {
     if (how !== 'missed') this.lifeEvent(`메인 이야기 ${n}장 「${def ? def.title : ''}」을(를) 마쳤다.`);
     M.ch = n + 1;
   };
+  GP.mainWhere = function (def) { const w = typeof def.where === 'function' ? def.where(this, this.mainState()) : def.where; return w || 'any'; };
   GP.mainAtPlace = function (def) {
-    const p = this.player; const w = def.where || 'any';
+    const p = this.player; const w = this.mainWhere(def);
     if (w === 'any') return true;
     if (w === 'city') return !!this.onCity();
     return p.region === w && (def.field || !!this.onCity());
@@ -107,9 +120,14 @@ if (typeof UI !== 'undefined') {
     // 장면 재생
     mainPlay(sceneId) {
       const M = G.mainState(); const def = G.mainChapter(); if (!def) return;
+      if (!sceneId && def.start) sceneId = def.start(G, M);
       const idx = sceneId ? def.scenes.findIndex((s) => s.id === sceneId) : 0;
       const sc = def.scenes[Math.max(0, idx)]; if (!sc) return G.mainFinish(def.n);
-      M.started[def.n] = true; M.scene = sc.id; M.pending = null;
+      // 조건에 맞지 않는 장면은 건너뛴다 (예: 리더가 없으면 리더 장면 없음)
+      const skipNext = (s0) => { let s = s0; while (s && s.skip && s.skip(G, M)) { const j = def.scenes.indexOf(s); const nx = s.next && s.next !== 'end' ? def.scenes.find((x) => x.id === s.next) : s.next === 'end' ? null : def.scenes[j + 1]; if (!nx) return null; s = nx; } return s; };
+      const sc2 = skipNext(sc); if (!sc2) { G.mainFinish(def.n); G.save(); this.renderGame(); this.toast(`메인 ${def.n}장 「${def.title}」 완료`); return this.processQueue(); }
+      if (sc2 !== sc) return this.mainPlay(sc2.id);
+      M.started[def.n] = true; M.scene = sc.id; M.pending = null; M.pendingDay = null;
       const lines = [];
       for (const l of sc.lines || []) {
         if (l.when && !l.when(G, M)) continue;
@@ -117,18 +135,19 @@ if (typeof UI !== 'undefined') {
         if (l.sys) { lines.push({ sys: G.mainFill(l.sys) }); continue; }
         if (l.group) { lines.push({ narr: l.narr0 ? G.mainFill(l.narr0) : undefined, group: l.group.map((g) => ({ who: G.mainWho(g.who), text: G.mainFill(g.text) })).filter((g) => g.who) }); continue; }
         const who = G.mainWho(l.who);
-        if (who) lines.push({ who, text: G.mainFill(l.text) });
-        else if (l.alt) lines.push(typeof l.alt === 'object' && !Array.isArray(l.alt) && l.alt.who ? { who: G.mainWho(l.alt.who), text: G.mainFill(l.alt.text) } : { narr: G.mainFill(l.alt) });
+        if (who) lines.push({ who, text: G.mainFill(G.mainReg(l.text, who)) });
+        else if (l.alt) { const aw = typeof l.alt === 'object' && !Array.isArray(l.alt) && l.alt.who ? G.mainWho(l.alt.who) : null; if (aw) lines.push({ who: aw, text: G.mainFill(G.mainReg(l.alt.text, aw)) }); else if (typeof l.alt === 'string' || typeof l.alt === 'function') lines.push({ narr: G.mainFill(l.alt) }); }
       }
-      const nextOf = (x) => { if (x === 'end') return 'end'; if (x) return x; const s = def.scenes[def.scenes.indexOf(sc) + 1]; return s ? s.id : 'end'; };
-      const go = (next) => { if (next === 'end') { G.mainFinish(def.n); G.save(); this.renderGame(); this.toast(`메인 ${def.n}장 「${def.title}」 완료`); return this.processQueue(); } return this.mainPlay(next); };
+      const nextOf = (x) => { if (x === 'end') return 'end'; if (x) return x; if (sc.next) return sc.next; const s = def.scenes[def.scenes.indexOf(sc) + 1]; return s ? s.id : 'end'; };
+      const go = (next) => { if (next !== 'end' && sc.pause) { M.pending = next; M.pendingDay = G.mainToday() + 1; G.save(); this.renderGame(); this.toast(typeof sc.pause === 'string' ? sc.pause : '오늘은 여기까지. 다음 날 이어진다.'); return this.processQueue(); } if (next === 'end') { G.mainFinish(def.n); G.save(); this.renderGame(); this.toast(`메인 ${def.n}장 「${def.title}」 완료`); return this.processQueue(); } return this.mainPlay(next); };
       const choices = (sc.choices || []).filter((c) => !c.when || c.when(G, M));
       if (choices.length) {
         lines.push({ choices: choices.map((c) => ({ text: G.mainFill(c.text), go: () => {
           if (c.set) Object.assign(M.flags, c.set);
           if (c.run) c.run(G, M);
+          if (c.rel) G.mainRel(c.rel, c.relWhy);
           const g = c.gain ? G.gain(c.gain) : '';
-          const after = (c.say || []).map((l) => (l.narr ? { narr: G.mainFill(l.narr) } : { who: G.mainWho(l.who), text: G.mainFill(l.text) })).filter((l) => l.narr || l.who);
+          const after = (c.say || []).filter((l) => !l.when || l.when(G, M)).map((l) => { if (l.narr) return { narr: G.mainFill(l.narr) }; const w = G.mainWho(l.who); return w ? { who: w, text: G.mainFill(G.mainReg(l.text, w)) } : (l.alt ? { narr: G.mainFill(l.alt) } : {}); }).filter((l) => l.narr || l.who);
           if (g) after.push({ sys: g.replace(/^ \(|\)$/g, '') });
           const next = nextOf(c.next);
           if (c.fight) {
@@ -149,20 +168,23 @@ if (typeof UI !== 'undefined') {
     mainResume() {
       const M = G.mainState(); const def = G.mainChapter(); if (!def) return false;
       if (M.pending === '__end') { M.pending = null; G.mainFinish(def.n); G.save(); this.renderGame(); this.toast(`메인 ${def.n}장 「${def.title}」 완료`); return true; }
-      if (M.pending) { const s = M.pending; this.mainPlay(s); return true; }
+      if (M.pending) { if (M.pendingDay && G.mainToday() < M.pendingDay) return false; if (M.pendingDay && !G.mainAtPlace(def)) return false; const s = M.pending; this.mainPlay(s); return true; }
       return false;
     },
     mainGoal() {
       const def = G.mainChapter(); const M = G.mainState(); if (!def || !M.open[def.n] || M.done[def.n]) return null;
-      const where = def.where === 'any' ? '' : def.where === 'city' ? '아무 도시' : regionById(def.where).name;
-      return { def, where, here: G.mainAtPlace(def) };
+      const w = G.mainWhere(def); const where = w === 'any' ? '' : w === 'city' ? '아무 도시' : regionById(w).name;
+      const wait = M.pendingDay && G.mainToday() < M.pendingDay;
+      return { def, where, here: G.mainAtPlace(def), wait };
     },
     mainStart() {
       const g = this.mainGoal(); if (!g || this.ctx || this.dlg) return;
       const M = G.mainState();
+      if (g.wait) return this.toast('오늘은 여기까지. 다음 날 이어진다.');
       if (!g.here) {
-        if (g.def.where === 'city') return this.toast('도시에 들어가면 이야기가 이어진다.');
-        return this.travelRegion ? this.travelRegion(g.def.where) : null;
+        const w = G.mainWhere(g.def);
+        if (w === 'city') return this.toast('도시에 들어가면 이야기가 이어진다.');
+        return this.travelRegion ? this.travelRegion(w) : null;
       }
       this.closeModal();
       return this.mainPlay(M.pending || M.scene || null);
@@ -173,7 +195,7 @@ if (typeof UI !== 'undefined') {
   const baseHQ = UI.hudQuests;
   if (baseHQ) UI.hudQuests = function () {
     const html = baseHQ.call(this); const g = this.mainGoal(); if (!g) return html;
-    const row = `<button class="obj-link hq main-q" data-act="main-go"><span class="hq-mark">◆</span><span class="hq-t">메인 · ${g.def.n}장 「${g.def.title}」 — ${G.mainFill(g.def.goal || '')}</span><span class="hq-r ${g.here ? 'amber' : ''}">${g.here ? '지금 시작' : g.where}</span></button>`;
+    const row = `<button class="obj-link hq main-q" data-act="main-go"><span class="hq-mark">◆</span><span class="hq-t">메인 · ${g.def.n}장 「${g.def.title}」 — ${G.mainFill(g.def.goal || '')}</span><span class="hq-r ${g.here && !g.wait ? 'amber' : ''}">${g.wait ? '내일 이어짐' : g.here ? (G.mainState().started[g.def.n] ? '이어서' : '지금 시작') : g.where}</span></button>`;
     return html.replace('<div class="obj-title">현재 퀘스트</div>', `<div class="obj-title">현재 퀘스트</div>${row}`).replace('<div class="obj-sub">진행 중인 의뢰가 없다. 도시 의뢰소에서 받을 수 있다.</div>', '');
   };
 

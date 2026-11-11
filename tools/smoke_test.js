@@ -512,7 +512,7 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
-  await step('메인 시나리오: 1장이 조건에 맞춰 열리고 → 퀘스트 맨 위에 뜨고 → 장면이 끝까지 재생되고 → 2장으로 넘어간다', async () => {
+  await step('메인 시나리오: 1장 열림 → 퀘스트 맨 위 → 장면 끝까지 → 2장 · 4장 갈래별 5장 첫 줄 · 세계 시계 만료', async () => {
     const r = await ev(() => {
       if (typeof MAIN === 'undefined' || !MAIN.chapters[1]) return '메인 시나리오 틀이 없다';
       const M = G.mainState(); const keep = JSON.stringify(M); const q = G.queue.slice(); const p = G.player; const pos0 = [p.x, p.y, p.region];
@@ -522,10 +522,21 @@ const { chromium, devices } = require('playwright');
         const city = WORLD.cityPos[p.region]; p.x = city[0]; p.y = city[1];
         if (!UI.hudQuests().includes('main-go')) return '퀘스트 목록에 메인 줄이 없다';
         UI.mainPlay(null);
-        for (let i = 0; i < 400 && UI.dlg; i++) { const d = UI.dlg; const line = d.lines[d.i]; if (line && line.choices) UI.handle('dlg-choice', '0'); else UI.dlgNext(); }
+        for (let i = 0; i < 600 && (UI.dlg || (M.pending && !M.done[1])); i++) { if (!UI.dlg) { M.pendingDay = null; UI.mainPlay(M.pending); continue; } const d = UI.dlg; const line = d.lines[d.i]; if (line && line.choices) UI.handle('dlg-choice', '0'); else UI.dlgNext(); }
         if (UI.dlg) return '장면이 끝나지 않는다';
         if (!M.done[1]) return '1장이 완료되지 않았다';
         if (M.ch !== 2) return '다음 장으로 넘어가지 않았다';
+        // 4장 갈래마다 5장 첫 줄이 다르다
+        const firsts = new Set();
+        for (const b of ['stop', 'raid', 'join', 'save', 'missed']) {
+          if (UI.dlg) UI.dlgEnd(() => {});
+          M.ch = 5; M.flags = { c4: b, c1_kid: 'bread' }; M.done[4] = { mk: G.monthKey() - 1 }; M.open[5] = G.monthKey(); M.started[5] = false; M.scene = null; M.pending = null;
+          UI.mainPlay(null); const l = UI.dlg && UI.dlg.lines[0]; firsts.add(l ? (l.narr || l.text || '') : ''); UI.dlgEnd(() => {});
+        }
+        if (firsts.size !== 5) return '4장 갈래별 5장 첫 줄이 다르지 않다 (' + firsts.size + '/5)';
+        // 세계 시계: 2장을 미루면 급식소·연희 상태가 남는다
+        M.ch = 2; M.flags = {}; M.done = { 1: { mk: G.monthKey() - 20 } }; M.started = {}; M.open = { 2: G.monthKey() - 9 };
+        G.mainCheck(); if (!M.done[2] || M.done[2].how !== 'missed' || M.flags.yeonhee !== 'missing' || M.flags.foodHall !== 'burned') return '세계 시계 만료가 상태를 남기지 않았다';
         return '';
       } finally { G.flags.main = JSON.parse(keep); G.queue = q; [p.x, p.y, p.region] = pos0; if (UI.dlg) UI.dlgEnd(); }
     });
