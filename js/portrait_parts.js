@@ -174,9 +174,9 @@ const PortraitParts = (() => {
     {
       "file": "hair-f-0.webp",
       "rect": [
-        80,
-        24,
-        240,
+        0,
+        0,
+        400,
         600
       ]
     },
@@ -192,9 +192,9 @@ const PortraitParts = (() => {
     {
       "file": "hair-f-2.webp",
       "rect": [
-        80,
-        24,
-        240,
+        0,
+        0,
+        400,
         600
       ]
     },
@@ -387,10 +387,10 @@ const PortraitParts = (() => {
     {
       "file": "traits-5.webp",
       "rect": [
-        145,
+        150,
         148,
-        110,
-        30
+        100,
+        20
       ]
     }
   ]
@@ -419,7 +419,13 @@ const PortraitParts = (() => {
       if (index === 0) { rect[1] = g === 'm' ? 144 : 154; rect[3] = 56; }
       if (index === 3) { rect[1] = g === 'm' ? 207 : 215; rect[3] = 23; }
       if (index === 4) rect[1] = 203;
-      if (index === 5) { rect[1] = g === 'm' ? 138 : 148; rect[3] = 29; }
+      if (index === 5) {
+        const fit = {
+          m: [[200,154,100],[200,153,100],[200,153,98],[200,155,100],[200,158,98],[200,158,96]],
+          f: [[200,164,104],[200,163,104],[200,163,104],[200,164,102],[200,164,100],[200,166,100]],
+        }[g][face];
+        rect.splice(0, 4, fit[0] - fit[2] / 2, fit[1] - 6, fit[2], fit[2] / 5);
+      }
       return { ...part, rect };
     });
     return { layers: registered, race, stage, key: [g, face, hair, cloth, race].join('-') };
@@ -432,19 +438,29 @@ const PortraitParts = (() => {
     const id = 'pp' + FX.hash(selection.key + element + rank + avatar);
     const view = avatar ? '72 0 256 256' : '0 0 400 480';
     // 아이콘도 이마·턱·뿔을 함께 담으며 파츠 자체의 비율은 유지한다.
-    const images = selection.layers.map((part, i) => {
+    // 안경 다리는 앞머리 밑으로 들어간다. 귀·뿔 등 다른 종족 파츠의 순서는 유지한다.
+    const drawLayers = selection.layers.slice();
+    const glassesIndex = drawLayers.findIndex(part => part.file === 'traits-5.webp');
+    const hairIndex = drawLayers.findIndex(part => part.file.startsWith('hair-'));
+    if (glassesIndex > hairIndex && hairIndex >= 0) drawLayers.splice(hairIndex, 0, drawLayers.splice(glassesIndex, 1)[0]);
+    const images = drawLayers.map((part, i) => {
       const [x, y, w, h] = part.rect;
       const filter = i === 0 && selection.race === 'orc' ? ` filter="url(#${id}orc)"` : '';
       const clip = i === 0 ? ` clip-path="url(#${id}neck)"` : '';
-      const src = root + part.file + '?v=2';
+      const src = root + part.file + (['traits-5.webp', 'hair-f-0.webp', 'hair-f-2.webp'].includes(part.file) ? '?v=3' : '?v=2');
       return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${filter}${clip}/>`;
     }).join('');
     const neck = selection.layers[1].file.includes("-4.webp") ? [155, 245] : [166, 234];
     const jawY = selection.layers[0].file.startsWith("face-f") ? 210 : 200;
     const background = `<defs><clipPath id="${id}neck"><path d="M0 0H400V${jawY}H252L247 ${jawY + 15}L234 ${jawY + 30}V255L${neck[1]} 286V325H${neck[0]}V286L166 255V${jawY + 30}L153 ${jawY + 15}L148 ${jawY}H0Z"/></clipPath><radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><filter id="${id}orc"><feColorMatrix type="matrix" values=".45 .2 0 0 .02 .2 .6 .1 0 .04 .1 .2 .25 0 .01 0 0 0 1 0"/></filter><clipPath id="${id}clip"><circle cx="200" cy="128" r="126"/></clipPath></defs>`;
-    const drawing = `<rect x="0" y="0" width="400" height="600" fill="#0a1220"/><ellipse cx="200" cy="190" rx="240" ry="300" fill="url(#${id}bg)"/>${images}`;
+    // 열린 도포의 V 목선 아래까지 같은 얼굴 파츠의 목 피부를 이어 넣는다.
+    // 머리·턱은 원래 크기로 두고, 의상 뒤의 작은 피부 구간만 채운다.
+    const faceSrc = root + selection.layers[0].file + '?v=2';
+    const robeNeck = !avatar && selection.layers[1].file.includes('-1.webp')
+      ? `<svg x="164" y="275" width="72" height="60" viewBox="36 220 72 20" preserveAspectRatio="none" aria-hidden="true"><image href="${faceSrc}" xlink:href="${faceSrc}" width="144" height="250"${selection.race === 'orc' ? ` filter="url(#${id}orc)"` : ''}/></svg>` : '';
+    const drawing = `<rect x="0" y="0" width="400" height="600" fill="#0a1220"/><ellipse cx="200" cy="190" rx="240" ry="300" fill="url(#${id}bg)"/>${robeNeck}${images}`;
     const art = avatar ? `<g clip-path="url(#${id}clip)">${drawing}</g><circle cx="200" cy="128" r="125" fill="none" stroke="${ring}" stroke-width="4"/>` : drawing + `<rect x="1" y="1" width="398" height="478" fill="none" stroke="${ring}" stroke-width="2" opacity=".7"/>`;
-    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v2" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size * 1.2)}" viewBox="${view}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${escape(avatar ? '초상화' : '캐릭터 일러스트')}">${background}${art}</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v3" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size * 1.2)}" viewBox="${view}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${escape(avatar ? '초상화' : '캐릭터 일러스트')}">${background}${art}</svg>`;
   }
   PORTRAIT.card = function (seed, gender, element, rank, size = 200, opts = {}) {
     if ((!opts.race || opts.race === 'human') && PORTRAIT.imageFor(seed, gender)) return legacy.card.apply(this, arguments);

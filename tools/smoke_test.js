@@ -75,11 +75,15 @@ const { chromium, devices } = require('playwright');
       for (const race of ['elf', 'orc', 'dwarf', 'beastkin', 'dragonkin']) if (!PortraitParts.select('확인', 'M', { race }).layers.some(p => p.file.startsWith('traits'))) throw new Error('종족 특징 없음: ' + race);
       if (PortraitParts.select('고정인물', 'M', { outfit: 'coat' }).key === PortraitParts.select('고정인물', 'M', { outfit: 'tactical' }).key) throw new Error('의상 변경 안 됨');
       // 정면 묶음머리는 두 눈을 가리지 않고, 목 피부는 깃 바깥으로 나오지 않아야 한다.
-      for (const index of [3, 5]) {
-        const part = new Image(); part.src = 'assets/portraits/parts/hair-f-' + index + '.webp?v=2'; await part.decode();
+      for (const index of [0, 2, 3, 5]) {
+        const part = new Image(); part.src = 'assets/portraits/parts/hair-f-' + index + '.webp?v=' + ([0, 2].includes(index) ? '3' : '2'); await part.decode();
         const cv = document.createElement('canvas'); cv.width = 400; cv.height = 600;
         cv.getContext('2d').drawImage(part, 0, 0, 400, 600);
         for (const x of [168, 232]) if (cv.getContext('2d').getImageData(x, 163, 1, 1).data[3] > 8) throw new Error('묶음머리가 눈을 가림');
+        if ([0, 2].includes(index)) {
+          const bottom = cv.getContext('2d').getImageData(0, 470, 400, 130).data;
+          if ([...bottom].some((v, i) => i % 4 === 3 && v > 50)) throw new Error('긴 머리 하단이 늘어남');
+        }
       }
       const neckSrc = await PortraitParts.rasterize(PORTRAIT.card('목선확인', 'M', null, 0, 400, { outfit: 'mandarin' }));
       const neckImg = new Image(); neckImg.src = neckSrc; await neckImg.decode();
@@ -87,6 +91,22 @@ const { chromium, devices } = require('playwright');
       const neckCtx = neckCanvas.getContext('2d'); neckCtx.drawImage(neckImg, 0, 0);
       const outsideCollar = [...neckCtx.getImageData(153, 264, 10, 20).data, ...neckCtx.getImageData(155, 230, 8, 30).data];
       for (let i = 0; i < outsideCollar.length; i += 4) if (outsideCollar[i] > 140 && outsideCollar[i + 1] > 100 && outsideCollar[i] > outsideCollar[i + 1] + 15) throw new Error('목 피부가 옷깃 밖으로 나옴');
+      for (const gender of ['M', 'F']) {
+        let glassesSeed;
+        for (let n = 0; n < 100; n++) if (PortraitParts.select('안경' + n, gender).layers.some(part => part.file === 'traits-5.webp')) { glassesSeed = '안경' + n; break; }
+        if (!glassesSeed) throw new Error('안경 착용 인물 없음');
+        const frame = PortraitParts.select(glassesSeed, gender).layers.find(part => part.file === 'traits-5.webp').rect;
+        if (frame[2] > 104 || frame[3] > 21 || Math.abs(frame[2] / frame[3] - 5) > .01) throw new Error('안경 비율 불일치');
+        const doc = new DOMParser().parseFromString(PORTRAIT.card(glassesSeed, gender, null, 0), 'image/svg+xml');
+        const order = [...doc.querySelectorAll('image')].map(image => image.getAttribute('href'));
+        if (order.findIndex(url => url.includes('traits-5.webp')) > order.findIndex(url => url.includes('hair-'))) throw new Error('안경이 앞머리 위에 표시됨');
+      }
+      const robeSrc = await PortraitParts.rasterize(PORTRAIT.card('도포목선', 'M', null, 0, 400, { outfit: 'hanbok' }));
+      const robeImg = new Image(); robeImg.src = robeSrc; await robeImg.decode();
+      const robeCanvas = document.createElement('canvas'); robeCanvas.width = 400; robeCanvas.height = 480;
+      robeCanvas.getContext('2d').drawImage(robeImg, 0, 0);
+      const robeSkin = robeCanvas.getContext('2d').getImageData(200, 312, 1, 1).data;
+      if (robeSkin[0] < 130 || robeSkin[1] < 85) throw new Error('도포 V 목선에 빈 공간');
       const svg = PORTRAIT.avatar('고정인물', 'M', 'fire', 3, 96, { age: 25, race: 'elf' });
       const data = await PortraitParts.rasterize(svg);
       const img = new Image(); img.src = data; await img.decode();

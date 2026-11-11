@@ -38,13 +38,11 @@ for kind,uid in sources.items():
   else:
    rect=[[91,162,218,66],[103,0,194,98],[100,0,200,106],[179,224,42,24],[139,222,122,98],[145,148,110,30]][i]
   sprite=sprite.resize((rect[2],rect[3]),Image.Resampling.LANCZOS)
-  if kind=='hair-f' and i in (0,2,3) and sprite.height>235:
-   long=Image.new('RGBA',(sprite.width,600));long.paste(sprite.crop((0,0,sprite.width,235)),(0,0));long.paste(sprite.crop((0,235,sprite.width,sprite.height)).resize((sprite.width,365),Image.Resampling.LANCZOS),(0,235));sprite=long;rect[3]=600
   file=kind+'-'+str(i)+'.webp';sprite.save(root/file,'WEBP',quality=90,method=0)
   entries.append({'file':file,'rect':rect})
  manifest[kind]=entries
-# 정면 기준 얼굴에 맞춰 다시 제작한 묶음머리. 빈 캔버스 여백도 등록 좌표의 일부다.
-for index, uid in [(3,'98867182-3a2b-4cd8-bfc6-14c82aa0c65d'),(5,'ac9ea95c-a9dc-4261-bf70-2f9f2dbb6735')]:
+# 정면 기준 얼굴에 맞춰 제작한 헤어. 부분 늘이기 없이 전체 등록 캔버스를 유지한다.
+for index, uid in [(0,'2c721269-ebc4-4a78-af16-adacdb50d805'),(2,'8f956432-4439-41f4-89aa-db57ce6c8107'),(3,'98867182-3a2b-4cd8-bfc6-14c82aa0c65d'),(5,'ac9ea95c-a9dc-4261-bf70-2f9f2dbb6735')]:
  im=Image.open(args.source_dir/('exec-'+uid+'.png')).convert('RGBA')
  a=np.array(im); labels,n=ndimage.label(a[:,:,3]>200); sizes=np.bincount(labels.ravel());sizes[0]=0
  solid=ndimage.binary_dilation(labels==sizes.argmax(),iterations=1)
@@ -52,6 +50,14 @@ for index, uid in [(3,'98867182-3a2b-4cd8-bfc6-14c82aa0c65d'),(5,'ac9ea95c-a9dc-
  im=Image.fromarray(a).resize((400,600),Image.Resampling.LANCZOS)
  file='hair-f-'+str(index)+'.webp';im.save(root/file,'WEBP',quality=90,method=0)
  manifest['hair-f'][index]={'file':file,'rect':[0,0,400,600]}
+# 안경은 높은 해상도의 얇은 테를 별도 제작하며 렌즈 안쪽의 투명도를 유지한다.
+im=Image.open(args.source_dir/'exec-3808270e-002c-4921-bc96-89482563638d.png').convert('RGBA')
+a=np.array(im);labels,n=ndimage.label(a[:,:,3]>180);sizes=np.bincount(labels.ravel());sizes[0]=0
+solid=ndimage.binary_dilation(labels==sizes.argmax(),iterations=1)
+a[:,:,3]=np.where(solid,a[:,:,3],0)
+im=Image.fromarray(a);im=im.crop(im.getbbox()).resize((400,80),Image.Resampling.LANCZOS)
+im.save(root/'traits-5.webp','WEBP',lossless=True,method=0)
+manifest['traits'][5]={'file':'traits-5.webp','rect':[150,148,100,20]}
 (root/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2))
 # Assembly preview using exactly the exported registered parts.
 preview=Image.new('RGB',(1200,600),'#182230')
