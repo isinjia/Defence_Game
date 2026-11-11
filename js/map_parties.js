@@ -84,15 +84,23 @@ Object.assign(Game.prototype, {
 });
 
 // ---------- 초상 이미지 (캔버스용 캐시) ----------
+// 파츠 SVG는 <image href="assets/...">를 쓰는데, 캔버스용 data URL SVG에서는 외부 이미지가
+// 로드되지 않는다. 플레이어 마커(setPlayerImage)와 같이 PortraitParts.rasterize로 내장한다.
 const PARTY_IMG = {};
 function partyFaceImage(n) {
   const k = 'n' + n.id; if (PARTY_IMG[k]) return PARTY_IMG[k];
   const html = UI.npcAvatar(n, 64);
   const im = new Image();
+  PARTY_IMG[k] = im;
   const m = html.match(/<img src="([^"]+)"/);
-  if (m) im.src = m[1];
-  else { const s = html.match(/<svg[\s\S]*<\/svg>/); if (s) im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s[0].includes('xmlns') ? s[0] : s[0].replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"')); }
-  PARTY_IMG[k] = im; return im;
+  if (m) { im.src = m[1]; return im; }
+  const s = html.match(/<svg[\s\S]*<\/svg>/); if (!s) return im;
+  const svg = s[0].includes('xmlns') ? s[0] : s[0].replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+  const apply = (url) => { im.src = url; };
+  if (svg.includes('data-portrait-parts=') && PortraitParts && PortraitParts.rasterize) {
+    PortraitParts.rasterize(svg).then(apply).catch(() => apply('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)));
+  } else apply('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
+  return im;
 }
 
 // ---------- 화면 ----------

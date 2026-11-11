@@ -166,6 +166,12 @@ const { chromium, devices } = require('playwright');
       const data = await PortraitParts.rasterize(svg);
       const img = new Image(); img.src = data; await img.decode();
       if (!img.naturalWidth || !data.startsWith('data:image/svg+xml')) throw new Error('지도 초상화 변환 실패');
+      // 캔버스 파티 마커용: 변환 뒤에도 외부 assets 경로가 남으면 얼굴이 비어 보인다.
+      const embedded = decodeURIComponent(data.replace(/^data:image\/svg\+xml;charset=utf-8,/, ''));
+      if (/href="assets\//.test(embedded) || /xlink:href="assets\//.test(embedded)) throw new Error('지도 초상화에 외부 파츠 경로 잔존');
+      if (![...embedded.matchAll(/\b(?:href|xlink:href)="([^"]+)"/g)].filter((m) => !m[1].startsWith('#')).every((m) => m[1].startsWith('data:'))) {
+        throw new Error('지도 초상화 파츠가 data URL이 아님');
+      }
       return true;
     });
     if (!result) throw new Error('초상화 검사 실패');
