@@ -302,7 +302,7 @@ Object.assign(UI, {
       const osk = shown && shown.skill && skillById(shown.skill);
       const lab = shown ? (shown.act === 'defend' ? '방어' : shown.act === 'item' ? ((CONSUMABLES.find((x) => x.id === shown.item) || {}).name || '아이템') : osk ? (osk.id === 'strike' ? '공격' : osk.name) : '') : '';
       if (lab && !tag) { el.insertAdjacentHTML('afterbegin', '<span class="order-tag"></span>'); tag = el.querySelector('.order-tag'); }
-      if (tag) { tag.innerHTML = lab ? `${osk ? FX.elemIcon(osk.elem, 11) : ''}${lab}` : ''; tag.style.display = lab ? '' : 'none'; tag.title = lab ? `오더: ${lab}` : ''; }
+      if (tag) { tag.innerHTML = lab ? `${osk && osk.elem ? FX.elemIcon(osk.elem, 11) : ''}${lab}` : ''; /* 속성 없는 기본 공격은 회색 점 없이 */ tag.style.display = lab ? '' : 'none'; tag.title = lab ? `오더: ${lab}` : ''; }
     }
     // ① ② NPC 리더가 나에게 내린 오더
     if (p && p.order && myTurn && L && !L.isPlayer) {
