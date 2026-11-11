@@ -42,12 +42,21 @@ const MAIN = {
         const mates = this.npcs.filter((n) => n.examMate && n.alive !== false);
         const n = mates.sort((a, b) => b.rankIdx - a.rankIdx)[0]; if (n) M.rival = n.id; return n || null;
       }
-      case 'mumyeong': return { name: '무명', sub: '균열교' };
+      case 'mumyeong': return M.flags.jinFace ? { name: '진서해', sub: '균열교 교주 · 전 관리국 수석 연구원' } : { name: '무명', sub: '균열교' };
       case 'arin': return { name: '목소리', sub: '꿈' };
-      case 'seoyun': return { name: '한서윤', sub: '관리국 특수조사관' };
+      case 'seoyun': { const n = M.npc && M.npc.seoyun != null ? alive(this.npcById(M.npc.seoyun)) : null; return n || { name: '한서윤', sub: '관리국 특수조사관' }; }
       case 'madohyun': return { name: '마도현', sub: '관리국 국장' };
       default: return typeof who === 'number' ? alive(this.npcById(who)) : null;
     }
+  };
+  // 메인 고정 인물을 실제 인물로 만든다(관계·초상화가 생긴다). 한 번만 만들고 id를 기억한다
+  GP.mainNpc = function (key, spec) {
+    const M = this.mainState(); M.npc ??= {};
+    const old = M.npc[key] != null ? this.npcById(M.npc[key]) : null; if (old) return old;
+    const n = this.makeNpc(false, 'human');
+    Object.assign(n, { met: true, relation: 0, links: n.links || {}, disciples: n.disciples || [], parents: n.parents || [] }, spec || {});
+    if (spec && spec.gender && spec.persona == null && this.pickPersona) n.persona = this.pickPersona(n);
+    this.npcs.push(n); M.npc[key] = n.id; return n;
   };
   // 말투별 줄: { haera, haeyo, short, hapsyo, hao, banmal } 중 말하는 사람 말투(C의 성격별 말투표)에 맞는 것
   GP.mainReg = function (t, who) {
