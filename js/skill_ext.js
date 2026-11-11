@@ -8,6 +8,7 @@
 //  - 패시브(돈오·신의 가호)는 장착해야 효과가 있고, 액티브와 같은 칸을 쓴다.
 const EXT_RANK = [1, 3, 4, 6, 7];      // E C B S SS
 const EXT_LEARN_RANK = [1, 3];          // 깨달음 첫째 E급, 둘째 C급
+const EXT_RANK_POW = 0.88;              // 새 등급 기술 위력 보정: 밸런스 시뮬에서 플레이어 성장이 빨라져 12% 낮춘다(공격 기술만)
 const DONO_NEED = [40, 120, 260, 480];  // 돈오 단계별 필요한 심득
 const DONO = {};                         // DONO[cls][tier] = { scene, a: { text, id }, b: { text, id } }
 
@@ -41,7 +42,8 @@ const EXT_TRIG = DEED; // 옛 이름 호환
   };
   for (const x of SKILL_EXT) {
     const c = x.cls; if (!CLASSES.some((k) => k.id === c)) continue;
-    (x.rank || []).forEach((e, i) => add(act(e, `cls_${c}_r${i}`, c, { rankReq: EXT_RANK[i] })));
+    const ATK = ['dmg', 'crit', 'pierce', 'multi', 'dot', 'stun', 'drain', 'aoe'];
+    (x.rank || []).forEach((e, i) => { const o = act(e, `cls_${c}_r${i}`, c, { rankReq: EXT_RANK[i] }); if (ATK.includes(o.type)) o.power = Math.round(o.power * EXT_RANK_POW * 100) / 100; add(o); });
     (x.light || []).forEach((e, i) => add(act(e, `cls_${c}_L${i}`, c, { rankReq: 99, learn: 'light', learnIdx: i, minRank: EXT_LEARN_RANK[i] })));
     (x.dark || []).forEach((e, i) => add(act(e, `cls_${c}_D${i}`, c, { rankReq: 99, learn: 'dark', learnIdx: i, minRank: EXT_LEARN_RANK[i], hpCost: (e[6] && e[6].hpCost) || 0.08 })));
     (x.dono || []).forEach((d, t) => {
