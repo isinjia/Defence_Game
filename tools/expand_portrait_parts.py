@@ -150,19 +150,40 @@ def rect_for(kind: str, g: str, index: int, base_manifest: dict) -> list[int]:
 
 
 def import_generated_face(g: str, src: Path, size=(144, 250)) -> np.ndarray:
+    """생성 얼굴을 기존 파츠와 같은 눈·턱 높이에 맞춰 144×250으로 넣는다."""
     im = Image.open(src).convert('RGBA')
     arr = np.array(im)
-    # 거의 검정/단색 배경을 투명 처리
     rgb = arr[..., :3].astype(np.int16)
-    dark = (rgb.max(axis=-1) < 28) | ((rgb.max(axis=-1) < 45) & (np.abs(rgb[..., 0] - rgb[..., 1]) < 8) & (np.abs(rgb[..., 1] - rgb[..., 2]) < 8))
+    dark = (rgb.max(axis=-1) < 45) | ((rgb.max(axis=-1) < 70) & (np.ptp(rgb, axis=-1) < 12))
     arr[..., 3] = np.where(dark, 0, np.maximum(arr[..., 3], 255))
-    # 바운딩 박스 후 등록 크기로
-    alpha = arr[..., 3]
-    ys, xs = np.where(alpha > 10)
+    ys, xs = np.where(arr[..., 3] > 10)
     if len(xs) == 0:
         raise SystemExit(f'empty generated face: {src}')
-    crop = Image.fromarray(arr).crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1))
-    return np.array(crop.resize(size, Image.Resampling.LANCZOS).convert('RGBA'), dtype=np.float32)
+    crop = Image.fromarray(arr).crop((int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1))
+    c = np.array(crop)
+    a = c[..., 3]; rgb = c[..., :3].astype(float)
+    h, w = a.shape
+    cx0, cx1 = w * 30 // 100, w * 70 // 100
+    chin = next((y for y in range(h - 1, -1, -1) if a[y, cx0:cx1].max() > 40), h - 1)
+    eye, best = int(h * 0.35), -1.0
+    for y in range(int(h * 0.2), int(h * 0.55)):
+        if a[y, cx0:cx1].max() < 40:
+            continue
+        score = float(rgb[y, cx0:cx1].std())
+        if score > best:
+            best, eye = score, y
+    ref_eye, ref_chin = 96, 248
+    scale = (ref_chin - ref_eye) / max(1, chin - eye)
+    nw, nh = max(1, int(round(crop.width * scale))), max(1, int(round(crop.height * scale)))
+    resized = crop.resize((nw, nh), Image.Resampling.LANCZOS)
+    ox, oy = (size[0] - nw) // 2, int(round(ref_eye - eye * scale))
+    canvas = Image.new('RGBA', size, (0, 0, 0, 0))
+    left, top = max(0, -ox), max(0, -oy)
+    right = nw - max(0, (ox + nw) - size[0])
+    bot = nh - max(0, (oy + nh) - size[1])
+    if right > left and bot > top:
+        canvas.alpha_composite(resized.crop((left, top, right, bot)), (max(0, ox), max(0, oy)))
+    return np.array(canvas.convert('RGBA'), dtype=np.float32)
 
 
 def build() -> dict:
