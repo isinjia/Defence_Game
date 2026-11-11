@@ -1,21 +1,39 @@
 // 지도 타일의 실제 그리기·좌표 변환·안개·재사용·북부 해금을 확인한다.
+// file:// 에서는 타일 이미지로 그린 캔버스 픽셀을 읽을 수 없어(tainted) http 로컬 서버를 쓴다.
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
 
 (async () => {
+  const root = path.resolve(__dirname, '..');
+  const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml' };
+  const server = http.createServer((req, res) => {
+    const rel = decodeURIComponent(req.url.split('?')[0]);
+    const file = path.join(root, rel === '/' ? 'index.html' : rel);
+    if (!file.startsWith(root)) { res.writeHead(403); return res.end(); }
+    fs.readFile(file, (err, buf) => {
+      if (err) { res.writeHead(404); return res.end(); }
+      res.writeHead(200, { 'Content-Type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream', 'Cache-Control': 'no-store' });
+      res.end(buf);
+    });
+  });
+  await new Promise((ok) => server.listen(0, '127.0.0.1', ok));
+  const url = 'http://127.0.0.1:' + server.address().port + '/index.html';
+
   const browser = await chromium.launch();
   const shots = path.resolve(__dirname, '../docs/지도_타일'); fs.mkdirSync(shots, { recursive: true });
   try {
     for (const [width, height, label] of [[412, 915, '휴대전화'], [1280, 900, '큰_화면']]) {
       const page = await browser.newPage({ viewport: { width, height }, reducedMotion: 'reduce' });
       const errors = []; page.on('pageerror', (e) => errors.push(e.message));
-      await page.goto('file://' + path.resolve(__dirname, '../index.html'));
-      const result = await page.evaluate(() => {
+      await page.goto(url);
+      const result = await page.evaluate(async () => {
         window.TUT_AUTO_TAP = true;
         UI.handle('new'); UI.handle('mode-manual'); UI.create.name = '지도검사'; UI.handle('c-start');
         UI.closeModal(); UI.ctx = null; G.queue = [];
         if (UI.stopTitle) UI.stopTitle(); if (UI.map) UI.map.destroy();
+        if (typeof MapTerrain !== 'undefined' && MapTerrain.whenReady) await MapTerrain.whenReady;
         const holder = document.createElement('div'); holder.style.cssText = 'position:fixed;inset:0;z-index:2000;background:#07121b';
         const canvas = document.createElement('canvas'); holder.appendChild(canvas); document.body.appendChild(holder);
         const view = new MapView(canvas, null, { onTap() {}, onHover() {} }); window.__terrainView = view;
@@ -78,9 +96,9 @@ const path = require('path');
           const c = el.getContext('2d'); c.fillStyle = '#0c1922'; c.fillRect(0, 0, el.width, el.height);
           c.fillStyle = '#e3ece5'; c.font = '700 22px sans-serif'; c.fillText('웹툰 풍 지도 지형', 22, 36);
           for (let type = 0; type < types; type++) {
-            const index = WORLD.tiles.indexOf(type); const [x, y] = index >= 0 ? WORLD.xy(index) : [type, type];
+            // 지도 밖 좌표 → 이웃 전환 오버레이 없이 타일 본체만
             const px = type * 118 + 22;
-            MapTerrain.draw(c, type, px, 70, 100, x, y, 0);
+            MapTerrain.draw(c, type, px, 70, 100, -10 - type, -10, 0);
             c.fillStyle = '#bdcfc9'; c.font = '12px sans-serif'; c.fillText(WORLD.T_NAME[type] || String(type), px, 236);
           }
         });
@@ -88,5 +106,5 @@ const path = require('path');
       }
       await page.close();
     }
-  } finally { await browser.close(); }
+  } finally { await browser.close(); server.close(); }
 })().catch((e) => { console.error(e.message); process.exitCode = 1; });
