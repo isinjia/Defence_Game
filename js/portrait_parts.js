@@ -1815,6 +1815,30 @@ const PortraitParts = (() => {
     const chin = female ? 261 : 251;
     const featureOffset = chin - (face.chinY || chin);
     const headY = integrated ? pose + featureOffset : pose;
+    // 턱 아래를 고정해 얼굴·헤어·장신구를 같은 비율로 줄이고 목은 어깨로 이어 준다.
+    const headScale = integrated ? { thin:.86, normal:.92, strong:.96, heavy:1 }[selection.bodyType] : 1;
+    const neckPivot = chin + 24 + pose;
+    const headTransform = `translate(200 ${neckPivot}) scale(${headScale}) translate(-200 ${-neckPivot})`;
+    const fitHead = markup => headScale === 1 ? markup : `<g data-proportion="head" transform="${headTransform}">${markup}</g>`;
+    const anatomyDefs = [];
+    const fitAnatomy = (markup, name) => {
+      if (headScale === 1) return markup;
+      const sourceId = id + name + 'Anatomy';
+      anatomyDefs.push(`<g id="${sourceId}">${markup}</g>`);
+      const piece = (y, height, scale, vertical, index) => {
+        const clipId = sourceId + index;
+        anatomyDefs.push(`<clipPath id="${clipId}" clipPathUnits="userSpaceOnUse"><rect width="400" y="${y}" height="${height}"/></clipPath>`);
+        return `<g transform="translate(200 ${neckPivot}) scale(${scale} ${vertical}) translate(-200 ${-neckPivot})"><g clip-path="url(#${clipId})"><use href="#${sourceId}" xlink:href="#${sourceId}"/></g></g>`;
+      };
+      let result = piece(0, neckPivot, headScale, headScale, 'head');
+      if (avatar || name === 'front') return result; // 얼굴 표식과 턱 앞면에는 아래쪽 목이 보이지 않는다.
+      // 1px 겹침으로 축소된 목의 가장자리에도 투명한 가로 이음선이 남지 않게 한다.
+      for (let y = neckPivot; y < neckPivot + 40; y += 2) {
+        const scale = headScale + (1-headScale) * (y+1-neckPivot) / 40;
+        result += piece(y, 3, scale, 1, y);
+      }
+      return result + piece(neckPivot+40, 600-neckPivot-40, 1, 1, 'body');
+    };
     const cardHeight = underwear ? 440 : 480;
     const view = avatar ? `72 ${pose} 256 256` : `0 0 400 ${cardHeight}`;
     const source = part => root + part.file + '?v=7';
@@ -1844,11 +1868,11 @@ const PortraitParts = (() => {
     const ear = selection.layers.find(p => p.file === 'traits-0.webp');
     const defs = `<defs>${ear ? toneDefs(ear,'ear') : ''}${toneDefs(face,'face')}${integrated ? toneDefs(base,'base') : ''}${baseClips}${features}${collarDefs}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><clipPath id="${id}circle"><circle cx="200" cy="${128+pose}" r="126"/></clipPath></defs>`;
     const back = collar ? image(cloth, ` data-depth="collar-back" clip-path="url(#${id}back)"${garmentAttrs}`) : '';
-    const body = integrated
+    const rawBody = integrated
       ? skinImage(base,'base', ` data-depth="${underwear ? 'underwear' : 'neck'}" transform="translate(0 ${pose})"${underwear ? '' : ` clip-path="url(#${id}neck)"`}`)
       : skinImage(face,'face',` data-depth="neck" transform="translate(0 ${pose})"`);
     const garment = underwear ? '' : image(cloth, ` data-depth="garment-front"${collar ? ` mask="url(#${id}front)"` : ''}${garmentAttrs}`);
-    const foreground = integrated && !underwear ? skinImage(base,'base',` data-depth="head-front" transform="translate(0 ${pose})" clip-path="url(#${id}jaw)"`) : '';
+    const rawForeground = integrated && !underwear ? skinImage(base,'base',` data-depth="head-front" transform="translate(0 ${pose})" clip-path="url(#${id}jaw)"`) : '';
     const facial = integrated ? `<g data-join="features" transform="translate(0 ${pose})" mask="url(#${id}featureMask)">${skinImage(face,'face',` data-depth="face-features" transform="translate(0 ${featureOffset})"`)}</g>` : '';
     const accessories = selection.layers.slice(2);
     const glass = accessories.findIndex(p => p.file === 'traits-5.webp');
@@ -1859,10 +1883,13 @@ const PortraitParts = (() => {
       const attrs = ` transform="translate(0 ${integrated && !onFace ? pose : headY})"`;
       return part.file === 'traits-0.webp' ? skinImage(part,'ear',attrs) : image(part,attrs);
     }).join('');
-    const layers = avatar ? `${body}${facial}${details}` : `${back}${body}${garment}${foreground}${facial}${details}`;
+    const body = fitAnatomy(rawBody, 'base');
+    const foreground = rawForeground ? fitAnatomy(rawForeground, 'front') : '';
+    const head = fitHead(facial + details);
+    const layers = avatar ? `${body}${head}` : `${back}${body}${garment}${foreground}${head}`;
     const drawing = `<rect width="400" height="600" fill="#0a1220"/><ellipse cx="200" cy="190" rx="240" ry="300" fill="url(#${id}bg)"/>${layers}`;
     const art = avatar ? `<g clip-path="url(#${id}circle)">${drawing}</g><circle cx="200" cy="${128+pose}" r="125" fill="none" stroke="${ring}" stroke-width="4"/>` : drawing+`<rect x="1" y="1" width="398" height="${cardHeight-2}" fill="none" stroke="${ring}" stroke-width="2" opacity=".7"/>`;
-    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v9" data-head-offset="${headY}" data-base-offset="${pose}" data-outfit="${selection.outfit}" data-body-type="${selection.bodyType}" data-skin-tone="${selection.skinTone}" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size*cardHeight/400)}" viewBox="${view}" role="img" aria-label="${avatar ? '초상화' : '캐릭터 일러스트'}">${defs}${art}</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v10" data-head-scale="${headScale}" data-neck-pivot="${neckPivot}" data-head-offset="${headY}" data-base-offset="${pose}" data-outfit="${selection.outfit}" data-body-type="${selection.bodyType}" data-skin-tone="${selection.skinTone}" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size*cardHeight/400)}" viewBox="${view}" role="img" aria-label="${avatar ? '초상화' : '캐릭터 일러스트'}">${defs}<defs>${anatomyDefs.join('')}</defs>${art}</svg>`;
   }
   PORTRAIT.card = function (seed, gender, element, rank, size = 200, opts = {}) {
     if (!opts.outfit && (!opts.race || opts.race === 'human') && PORTRAIT.imageFor(seed, gender)) return legacy.card.apply(this, arguments);

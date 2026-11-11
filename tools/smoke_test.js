@@ -42,6 +42,7 @@ const { chromium, devices } = require('playwright');
     try { await fn(); } catch (e) { err = String(e && e.message || e).split('\n')[0]; }
     const newErr = pageErrors.slice(before);
     results.push({ name, ok: !err && !newErr.length, err: err || newErr[0] || '' });
+    if (process.env.SMOKE_PROGRESS) console.log((err || newErr.length ? '실패 ' : '통과 ') + name + (err ? ': ' + err : ''));
   };
   const ev = (fn, arg) => page.evaluate(fn, arg);
   const act = (a, v) => ev(([a, v]) => UI.handle(a, v), [a, v]);
@@ -206,6 +207,8 @@ const { chromium, devices } = require('playwright');
         if (!seed) throw new Error('피부색 검사 인물 없음');
         const doc = new DOMParser().parseFromString(PORTRAIT.card(seed, gender, null, 0, 400, { outfit: 'underwear' }), 'image/svg+xml');
         const root = doc.documentElement, offset = Number(root.dataset.headOffset);
+        const scale = Number(root.dataset.headScale), pivot = Number(root.dataset.neckPivot);
+        const point = (x,y) => [Math.round(200+(x-200)*scale), Math.round(pivot+(y-pivot)*scale)];
         if (root.querySelector('[data-depth="neck"]')) throw new Error('얼굴 목과 몸 목이 겹침');
         if (offset + PortraitParts.select(seed, gender, { outfit: 'underwear' }).layers[0].chinY !== (gender === 'M' ? 251 : 261)) throw new Error('기본 몸체의 긴 목 위치가 복귀함');
         // 머리카락·안경이 표본을 가리지 않도록 검사 그림에서만 제외한다.
@@ -214,7 +217,7 @@ const { chromium, devices } = require('playwright');
         const image = new Image(); image.src = src; await image.decode();
         const canvas = document.createElement('canvas'); canvas.width = 400; canvas.height = 440;
         const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
-        const faceRgb = median([ctx.getImageData(170, 185 + offset, 12, 12).data, ctx.getImageData(218, 185 + offset, 12, 12).data]);
+        const faceRgb = median([ctx.getImageData(...point(170, 185 + offset), 10, 10).data, ctx.getImageData(...point(218, 185 + offset), 10, 10).data]);
         const selected = PortraitParts.select(seed, gender, { outfit: 'underwear' });
         const [sx, sy, sw, sh] = selected.baseBody.skinSample;
         const bodyRgb = median([ctx.getImageData(sx, sy, sw, sh).data]);
@@ -223,7 +226,7 @@ const { chromium, devices } = require('playwright');
         if (neck[0] < 90 || neck[1] < 65) throw new Error('턱과 목 사이 빈 공간');
         if (!root.querySelector('[data-join="features"] [data-depth="face-features"]')) throw new Error('얼굴 특징 교체 영역 없음');
         // 얼굴 특징을 바꿔도 턱과 목은 한 장의 기본 원화 그대로여야 한다.
-        const jawPoints = [[185, (gender === 'M' ? 251 : 261) - 10], [200, gender === 'M' ? 251 : 261], [215, (gender === 'M' ? 251 : 261) - 10]];
+        const jawPoints = [[185, (gender === 'M' ? 251 : 261) - 10], [200, gender === 'M' ? 251 : 261], [215, (gender === 'M' ? 251 : 261) - 10]].map(([x,y]) => point(x,y));
         const drawnJaw = jawPoints.map(([x, y]) => [...ctx.getImageData(x, y, 1, 1).data]);
         const features = root.querySelector('[data-join="features"]'); if (features) features.remove();
         const baseSrc = await PortraitParts.rasterize(new XMLSerializer().serializeToString(doc));
@@ -296,9 +299,23 @@ const { chromium, devices } = require('playwright');
           const selected=PortraitParts.select(seed,gender,{bodyType});files.add(selected.baseBody.file);
           const normal=await read(seed,gender,{bodyType,skinTone:'natural'});
           const [sx,sy,sw,sh]=selected.baseBody.skinSample;
-          const [ex,ey]=eyePoint;
+          const scale={thin:.86,normal:.92,strong:.96,heavy:1}[bodyType],pivot=(gender==='M'?251:261)+24;
+          const [ex,ey]=[Math.round(200+(eyePoint[0]-200)*scale),Math.round(pivot+(eyePoint[1]-pivot)*scale)];
           const originalEye=[...normal.getImageData(ex,ey,1,1).data];
           const originalTop=[...normal.getImageData(200,400,1,1).data];
+          // 원화의 머리 폭과 실제 렌더링 폭을 비교한다. 얼굴 파츠만 작아지는 재발을 잡는다.
+          const baseImage=new Image();baseImage.src='assets/portraits/parts/'+selected.baseBody.file;await baseImage.decode();
+          const baseCanvas=document.createElement('canvas');baseCanvas.width=400;baseCanvas.height=600;
+          const bc=baseCanvas.getContext('2d');bc.drawImage(baseImage,...selected.baseBody.rect);
+          const extent=(row,raw)=>{const xs=[];for(let x=0;x<400;x++)if(raw?row[x*4+3]>220:row[x*4]>row[x*4+1]+10&&row[x*4+1]>row[x*4+2]+5)xs.push(x);return xs[xs.length-1]-xs[0];};
+          const rawWidth=extent(bc.getImageData(0,170,400,1).data,true);
+          const scaledY=Math.round(pivot+(170-pivot)*scale);
+          const drawnWidth=extent(normal.getImageData(0,scaledY,400,1).data,false);
+          if(Math.abs(drawnWidth-rawWidth*scale)>4)throw new Error('체형별 머리 폭 보정 불일치: '+gender+bodyType+' raw='+rawWidth+' drawn='+drawnWidth+' scale='+scale+' edge='+[...normal.getImageData(0,scaledY,1,1).data]);
+          for(let y=Math.ceil(pivot-24*scale+5);y<pivot+35;y++){
+            const pixel=normal.getImageData(200,y,1,1).data;
+            if(pixel[0]<90||pixel[1]<60)throw new Error('축소한 턱과 목 사이 틈: '+gender+bodyType+' y='+y);
+          }
           const row=normal.getImageData(0,350,400,1).data;const xs=[];for(let x=0;x<400;x++)if(row[x*4]>100&&row[x*4+1]>70)xs.push(x);widths.push(xs[xs.length-1]-xs[0]);
           for(const skinTone of ['fair','medium','tan','deep']) {
             const ctx=await read(seed,gender,{bodyType,skinTone});const body=med(ctx.getImageData(sx,sy,sw,sh).data),target=palettes[skinTone];
