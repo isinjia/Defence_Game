@@ -87,6 +87,9 @@ p { margin: 6px 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .mob-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--c); background: #1d0e12; vertical-align: -1px; }
 .mob-dot.big { width: 30px; height: 30px; flex: none; }
+.mob-face { display: inline-flex; flex: none; width: 34px; height: 34px; border-radius: 50%; overflow: hidden; vertical-align: -6px; background: #1d0e12; }
+.mob-face .monster-art, .mob-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.look-row .mob-face { width: 22px; height: 22px; vertical-align: -4px; }
 
 /* 캐릭터 일러스트 */
 .portrait, .portrait-img { display: block; flex: none; max-width: 100%; height: auto; }

@@ -166,6 +166,12 @@ const { chromium, devices } = require('playwright');
       const data = await PortraitParts.rasterize(svg);
       const img = new Image(); img.src = data; await img.decode();
       if (!img.naturalWidth || !data.startsWith('data:image/svg+xml')) throw new Error('지도 초상화 변환 실패');
+      // 캔버스 파티 마커용: 변환 뒤에도 외부 assets 경로가 남으면 얼굴이 비어 보인다.
+      const embedded = decodeURIComponent(data.replace(/^data:image\/svg\+xml;charset=utf-8,/, ''));
+      if (/href="assets\//.test(embedded) || /xlink:href="assets\//.test(embedded)) throw new Error('지도 초상화에 외부 파츠 경로 잔존');
+      if (![...embedded.matchAll(/\b(?:href|xlink:href)="([^"]+)"/g)].filter((m) => !m[1].startsWith('#')).every((m) => m[1].startsWith('data:'))) {
+        throw new Error('지도 초상화 파츠가 data URL이 아님');
+      }
       return true;
     });
     if (!result) throw new Error('초상화 검사 실패');
@@ -365,6 +371,34 @@ const { chromium, devices } = require('playwright');
         G.queue = [];
       }
     });
+  });
+  await step('지도 표식: NPC 얼굴·괴수 아이콘', async () => {
+    const ok = await ev(async () => {
+      if (typeof mapMobImage !== 'function' || typeof partyFaceImage !== 'function') throw new Error('지도 얼굴 마커 없음');
+      const p = G.player; const [cx, cy] = WORLD.cityPos[p.region];
+      p.x = cx; p.y = cy; G.reveal(cx, cy, 4);
+      const mx = cx + 1, my = cy; G.reveal(mx, my, 1);
+      G.mobs = [{ id: 990001, kind: 'mob', name: '산성 슬라임', shape: 'slime', elem: 'wood', tier: 1, count: 3, x: mx, y: my, region: p.region, born: G.monthKey() }];
+      const mobIm = mapMobImage(G.mobs[0]);
+      if (!(mobIm.complete && mobIm.naturalWidth)) await new Promise((r) => { mobIm.onload = () => r(); mobIm.onerror = () => r(); setTimeout(r, 4000); });
+      if (!(mobIm.complete && mobIm.naturalWidth)) throw new Error('괴수 썸네일 로드 실패');
+      const n = (G.npcs || []).find((x) => x.alive && !x.isCompanion && x.region === p.region);
+      if (!n) throw new Error('지역 NPC 없음');
+      const face = partyFaceImage(n);
+      if (!(face.complete && face.naturalWidth)) await new Promise((r) => { face.onload = () => r(); face.onerror = () => r(); setTimeout(r, 5000); });
+      if (!(face.complete && face.naturalWidth)) throw new Error('NPC 초상 로드 실패');
+      if (typeof mapNpcRelColor !== 'function' || typeof mapGuildMark !== 'function') throw new Error('관계·소속 표식 없음');
+      n.met = true; n.relation = -40; if (mapNpcRelColor(n) !== '#ff4f6a') throw new Error('적대 테두리색 아님');
+      n.relation = 0; if (mapNpcRelColor(n) !== '#5fcf6a') throw new Error('중립 테두리색 아님');
+      n.relation = 50; if (mapNpcRelColor(n) !== '#ffb547') throw new Error('우호 테두리색 아님');
+      if (mapGuildMark('kama').ch !== '관' || !mapGuildMark(null).ch) throw new Error('소속 배지 문자 없음');
+      UI.map && UI.map.draw();
+      UI.showTip(mx, my);
+      if (!document.querySelector('#hud-tip .mob-face img, #hud-tip .mob-face .monster-art')) throw new Error('팁에 괴수 아이콘 없음');
+      UI.hideTip();
+      return true;
+    });
+    if (!ok) throw new Error('지도 표식 검사 실패');
   });
   await step('게이트 진입 → 자동 전투로 끝까지', async () => {
     await ev(() => { const p = G.player; p.hp = p.maxHp; p.mp = p.maxMp; const g = { id: 999001, kind: 'gate', x: p.x, y: p.y, region: p.region, tier: 0, theme: '점검', elem: 'fire', born: G.monthKey(), variant: 'normal' }; G.mapGates.push(g); UI.startGate(g.id); });
