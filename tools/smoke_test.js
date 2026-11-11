@@ -83,13 +83,22 @@ const { chromium, devices } = require('playwright');
       const b = PortraitParts.select('고정인물', 'M', { age: 25, race: 'human' });
       if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error('같은 인물 파츠 변경');
       if (!PortraitParts.select('고정인물', 'F').layers[0].file.startsWith('face-f')) throw new Error('여성 파츠 아님');
-      if (!PortraitParts.select('고정인물', 'M', { age: 76 }).layers[0].file.includes('-4.')) throw new Error('노년 얼굴 없음');
-      if (!PortraitParts.select('고정인물', 'F', { age: 10 }).layers[0].file.includes('-5.')) throw new Error('아이 얼굴 없음');
+      // 초상 나이는 10~42로 맞춘다. 76세도 성인 풀, 10세는 유스 풀.
+      const aged = Number(PortraitParts.select('고정인물', 'M', { age: 76 }).layers[0].file.match(/face-m-(\d+)/)[1]);
+      if (aged >= 15) throw new Error('고령도 성인 얼굴 풀이어야 함');
+      const kid = Number(PortraitParts.select('고정인물', 'F', { age: 10 }).layers[0].file.match(/face-f-(\d+)/)[1]);
+      if (kid < 15) throw new Error('아이 얼굴 없음');
       for (const race of ['elf', 'orc', 'dwarf', 'beastkin', 'dragonkin']) if (!PortraitParts.select('확인', 'M', { race }).layers.some(p => p.file.startsWith('traits'))) throw new Error('종족 특징 없음: ' + race);
       if (PortraitParts.select('고정인물', 'M', { outfit: 'coat' }).key === PortraitParts.select('고정인물', 'M', { outfit: 'tactical' }).key) throw new Error('의상 변경 안 됨');
+      const faceSet = new Set(), hairSet = new Set(), clothSet = new Set();
+      for (let n = 0; n < 240; n++) {
+        const s = PortraitParts.select('다양' + n, n % 2 ? 'F' : 'M', { age: 16 + (n % 26) });
+        faceSet.add(s.layers[0].file); hairSet.add(s.layers[2].file); clothSet.add(s.layers[1].file);
+      }
+      if (faceSet.size < 12 || hairSet.size < 12 || clothSet.size < 18) throw new Error('파츠 다양성 부족');
       // 정면 묶음머리는 두 눈을 가리지 않고, 목 피부는 깃 바깥으로 나오지 않아야 한다.
       for (const index of [0, 2, 3, 5]) {
-        const part = new Image(); part.src = 'assets/portraits/parts/hair-f-' + index + '.webp?v=' + ([0, 2].includes(index) ? '3' : '2'); await part.decode();
+        const part = new Image(); part.src = 'assets/portraits/parts/hair-f-' + index + '.webp?v=4'; await part.decode();
         const cv = document.createElement('canvas'); cv.width = 400; cv.height = 600;
         cv.getContext('2d').drawImage(part, 0, 0, 400, 600);
         for (const x of [168, 232]) if (cv.getContext('2d').getImageData(x, 163, 1, 1).data[3] > 8) throw new Error('묶음머리가 눈을 가림');
