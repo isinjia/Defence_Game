@@ -10,9 +10,9 @@ const BASE_DAYS_PER_COST = WORLD.DAYS_PER_COST;
 WORLD.daysFor = (cost) => Math.max(1, Math.round(cost * WORLD.DAYS_PER_COST));
 
 const VEHICLES = [
-  { id: 'bike', name: '오토바이', price: 250, desc: '한 달 동안 이동력 +5.', range: 5 },
-  { id: 'truck', name: '장갑차', price: 1200, desc: '한 달 동안 이동에 드는 날이 절반, 괴수 기습을 받지 않는다. 이동력 +3.', range: 3 },
-  { id: 'heli', name: '헬기 대절', price: 4000, desc: '다음 한 번의 이동만. 이동력 +18, 산도 평지처럼 건넌다. 길 위의 일도 피한다.', range: 18, once: true },
+  { id: 'bike', name: '오토바이', price: 250, desc: '한 달 동안 이동력 +11.', range: 11 },
+  { id: 'truck', name: '장갑차', price: 1200, desc: '한 달 동안 이동에 드는 날이 절반, 괴수 기습을 받지 않는다. 이동력 +7.', range: 7 },
+  { id: 'heli', name: '헬기 대절', price: 4000, desc: '다음 한 번의 이동만. 이동력 +40, 산도 평지처럼 건넌다. 길 위의 일도 피한다.', range: 40, once: true },
 ];
 const vehicleById = (id) => VEHICLES.find((v) => v.id === id);
 
@@ -81,8 +81,8 @@ Object.assign(Game.prototype, {
   applyTerrain() {
     const T = WORLD.T; const c = BASE_T_COST.slice();
     const s = this.month ? this.season() : null;
-    if (s === 'rain') { c[T.PLAIN] = 1.5; c[T.RUIN] = 1.5; }
-    if (s === 'winter') c[T.MOUNTAIN] = 3;
+    if (s === 'rain') { c[T.PLAIN] = 1.5; c[T.RUIN] = 1.5; if (T.FIELD != null) c[T.FIELD] = 1.5; if (T.WASTE != null) c[T.WASTE] = 1.6; }
+    if (s === 'winter') { c[T.MOUNTAIN] = 3; if (T.FOREST != null) c[T.FOREST] = 1.8; }
     const v = this.player && this.player.vehicle;
     if (v && v.id === 'heli') for (let i = 0; i < c.length; i++) if (c[i] > 1) c[i] = 1;
     for (let i = 0; i < c.length; i++) WORLD.T_COST[i] = c[i];

@@ -1,27 +1,27 @@
-// ===== 게이트 크로니클: 넓어진 한국 지도 (5배) 연동 (사용자 요청, 영역 F) =====
-// js/world.js 가 80×130칸·도시 40곳(광역 12 + 중도시 14 + 읍 14)·국도를 만든다. 여기서는 그에 맞춰
+// ===== 게이트 크로니클: 넓어진 한국 지도 연동 (사용자 요청, 영역 F) =====
+// js/world.js 가 179×291칸(처음 대비 약 25배 넓이, v2 대비 약 5배)·도시 40곳·국도를 만든다. 여기서는 그에 맞춰
 //  - 시야(안개 걷힘) 반경을 넓히고
 //  - 지역 넓이에 맞게 게이트·괴수 무리를 더 띄우고
 //  - 중도시·읍을 도시처럼 쓰게 하고(이름·시설 등급), 지도에 읍 이름표와 국도를 그리고
-//  - 옛 지도(36×58) 저장의 위치를 새 지도 좌표로 옮긴다.
-// 이동 비용: 평지 1일, 산 2일, 국도 0.5일(world.js), 이동력 ×2.2(travel.js), 걷기는 소수 일수를 모아 넘긴다(game.js walkStep).
+//  - 옛 지도(36×58 / 80×130) 저장의 위치를 새 지도 좌표로 옮긴다.
+// 이동 비용: 평지 1일, 산 2일, 국도 0.5일(world.js), 이동력 ×K(travel.js), 걷기는 소수 일수를 모아 넘긴다(game.js walkStep).
 
 const TOWN_TIER = { 2: { name: '중도시', facs: ['inn', 'market', 'board', 'tavern', 'workshop', 'transit', 'merc', 'garage'] }, 3: { name: '읍', facs: ['inn', 'market', 'board'] } };
 
 Object.assign(Game.prototype, {
   townHere() { const p = this.player; return p ? WORLD.townAt(p.x, p.y) : null; },
-  // 옛 저장(36×58 지도)의 위치를 새 지도로
+  // 옛 저장(36×58 또는 80×130)의 위치를 현재 지도로
   migrateOldMap() {
     const p = this.player; const T = WORLD.T;
     const snap = (x, y) => {
-      for (let d = 0; d < 12; d++) for (let dy = -d; dy <= d; dy++) for (let dx = -d; dx <= d; dx++) {
+      for (let d = 0; d < Math.round(12 * WORLD.K / 2.2); d++) for (let dy = -d; dy <= d; dy++) for (let dx = -d; dx <= d; dx++) {
         if (Math.max(Math.abs(dx), Math.abs(dy)) !== d || !WORLD.inb(x + dx, y + dy)) continue;
         const i = WORLD.idx(x + dx, y + dy); if (WORLD.passable(i, true) && WORLD.tiles[i] !== T.BRIDGE) return [x + dx, y + dy];
       }
       return WORLD.cityPos[p.region] || WORLD.cityPos.gangnam;
     };
-    // 플레이어: 도시에 있었으면 그 도시로, 아니면 같은 자리 근처 땅으로
-    const [nx, ny] = WORLD.fromOld(p.x, p.y);
+    const ver = (this.world && this.world.mapVer) || 1;
+    const [nx, ny] = ver >= 2 ? WORLD.fromPrev(p.x, p.y) : WORLD.fromOld(p.x, p.y);
     const home = WORLD.cityPos[p.region];
     const wasCity = home && Math.max(Math.abs(nx - home[0]), Math.abs(ny - home[1])) <= Math.ceil(WORLD.K * 1.5);
     [p.x, p.y] = wasCity ? home : snap(nx, ny);
@@ -41,22 +41,22 @@ Object.assign(Game.prototype, {
     if (this.world.calamity) { this.world.calamity.scars = []; if (this.calamityInit) this.calamityInit(); }
     if (this.northInit) { this.northInit(); if (this.northOpen && this.northOpen() && this.spawnNorth) this.spawnNorth(true); }
     this.reveal(p.x, p.y, 6);
-    this.log('지도가 넓어졌다. 도시와 읍이 늘고 국도가 놓였다. 위치와 탐사 지점은 새 지도에 맞춰 옮겨졌다.', 'major');
+    this.log('지도가 훨씬 넓어졌다. 숲·들판·오염 지대가 늘고, 위치와 탐사 지점은 새 지도에 맞춰 옮겨졌다.', 'major');
   },
   // 지역 넓이에 맞춘 추가 게이트·괴수 무리 (기본 생성 뒤에 한 번 더)
   spawnScaled() {
     const key = this.monthKey();
     for (const reg of REGIONS) {
-      const size = (WORLD.regionTiles[reg.id] || []).length; if (size < 150) continue;
+      const size = (WORLD.regionTiles[reg.id] || []).length; if (size < 300) continue;
       const [lo, hi] = GATE_RANGES[reg.danger];
-      const gCap = size >= 450 ? 4 : 3;
+      const gCap = size >= 2000 ? 7 : size >= 1000 ? 6 : size >= 450 ? 5 : 4;
       const gCount = this.mapGates.filter((g) => g.region === reg.id && !g.final && !g.mission && !g.calamity && !g.north).length;
       if (gCount >= 2 && gCount < gCap && RNG.chance(0.3 + reg.danger * 0.08)) {
         const pos = this.randomFreeTile(reg.id);
         if (pos) this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: reg.id, tier: RNG.int(lo, hi), theme: RNG.pick(GATE_THEMES), elem: typeof pickElem === 'function' ? pickElem() : RNG.pick(ELEMENT_KEYS), born: key });
       }
       const base = 2 + Math.floor(reg.danger / 2);
-      const cap = Math.round(base * Math.min(2.5, size / 180));
+      const cap = Math.round(base * Math.min(4, size / 180));
       const mCount = this.mobs.filter((m) => m.region === reg.id && !m.north).length;
       for (let k = Math.max(mCount, base); k < cap; k++) {
         if (!RNG.chance(0.5)) continue;
@@ -72,12 +72,12 @@ Object.assign(Game.prototype, {
 {
   const GP = Game.prototype;
   const wrap = (name, fn) => { const base = GP[name]; if (!base) return; GP[name] = function (...a) { return fn.call(this, base, ...a); }; };
-  // 시야: 넓어진 지도에 맞춰 반경 1.8배
-  wrap('reveal', function (base, x, y, r) { return base.call(this, x, y, Math.max(1, Math.round(r * 1.8))); });
+  // 시야: 지도 배율(K)에 맞춰 반경을 키운다
+  wrap('reveal', function (base, x, y, r) { return base.call(this, x, y, Math.max(1, Math.round(r * WORLD.K * 0.8))); });
   wrap('initSandbox', function (base) {
     base.call(this);
     if (this._oldMap) { this._oldMap = false; this.migrateOldMap(); }
-    this.world.mapVer = 2;
+    this.world.mapVer = 3;
   });
   wrap('spawnMonthly', function (base) { base.call(this); if (this.player) this.spawnScaled(); });
 }

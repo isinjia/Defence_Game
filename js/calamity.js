@@ -34,7 +34,10 @@ Object.assign(Game.prototype, {
     // 지도·위험도는 판마다 다시 계산한다 (이전 판의 흔적을 지우고 이번 판 흔적만 얹는다)
     WORLD.tiles.set(BASE_TILES);
     REGIONS.forEach((r, i) => { r.danger = BASE_DANGER[i]; });
-    for (const i of s.scars) if (WORLD.tiles[i] === WORLD.T.PLAIN || WORLD.tiles[i] === WORLD.T.MOUNTAIN) WORLD.tiles[i] = WORLD.T.RUIN;
+    for (const i of s.scars) {
+      const t = WORLD.tiles[i];
+      if (t === WORLD.T.PLAIN || t === WORLD.T.MOUNTAIN || t === WORLD.T.FOREST || t === WORLD.T.FIELD || t === WORLD.T.WASTE) WORLD.tiles[i] = WORLD.T.RUIN;
+    }
     for (const [rid, n] of Object.entries(s.dangerUp)) { const r = regionById(rid); if (r) r.danger = Math.min(5, r.danger + n); }
   },
   calTile(c) {
@@ -107,7 +110,7 @@ Object.assign(Game.prototype, {
       this.log(`${c.name}은(는) ${names}의 손에 닫혔다.`, 'major');
     } else {
       s.done[a.id] = 'fail';
-      const tiles = (WORLD.regionTiles[a.region] || []).filter((i) => WORLD.tiles[i] === WORLD.T.PLAIN || WORLD.tiles[i] === WORLD.T.MOUNTAIN);
+      const tiles = (WORLD.regionTiles[a.region] || []).filter((i) => { const t = WORLD.tiles[i]; return t === WORLD.T.PLAIN || t === WORLD.T.MOUNTAIN || t === WORLD.T.FOREST || t === WORLD.T.FIELD || t === WORLD.T.WASTE; });
       for (const i of tiles) if (RNG.chance(0.3)) { WORLD.tiles[i] = WORLD.T.RUIN; s.scars.push(i); }
       if (reg.danger < 5) { s.dangerUp[a.region] = (s.dangerUp[a.region] || 0) + 1; reg.danger++; }
       if (this.world.damaged) this.world.damaged[a.region] = key + 3;

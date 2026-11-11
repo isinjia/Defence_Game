@@ -1,15 +1,17 @@
 // ===== 게이트 크로니클: 월드맵 (타일 생성, 길찾기, 안개) =====
 
 const WORLD = (() => {
-  // 지도 크기: 처음(36×58)의 약 5배 넓이. K = 한 변 배율 (옛 좌표·거리 기준 값을 새 칸 수로 바꿀 때 쓴다)
+  // 지도 크기: 처음(36×58) → v2(80×130, 약 5배) → v3(179×291, 다시 약 5배 넓이). K = 처음 대비 한 변 배율
   const OLD_COLS = 36, OLD_ROWS = 58;
-  const COLS = 80, ROWS = 130;
+  const PREV_COLS = 80, PREV_ROWS = 130;
+  const COLS = 179, ROWS = 291;
   const K = COLS / OLD_COLS;
   const LON0 = 125.6, LAT0 = 38.8, DLON = 0.12 / K, DLAT = 0.1 * OLD_ROWS / ROWS;
-  const T = { SEA: 0, PLAIN: 1, MOUNTAIN: 2, RUIN: 3, ETHER: 4, CITY: 5, BRIDGE: 6, NORTH: 7 };
-  const T_NAME = ['바다', '황무지', '산악 지대', '폐허', '에테르 농축 지대', '도시', '해상 연결로', '북부 봉쇄 구역'];
-  const T_COST = [0, 1, 2, 1, 1, 1, 1, 0];
-  const DAYS_PER_COST = 1; // 넓어진 만큼 칸당 일수를 절반으로 (평지 1일, 산 2일, 국도 0.5일)
+  // FOREST·FIELD·WASTE 는 지형 다양용. 이동·통과 규칙은 황무지와 같거나 살짝만 다르다.
+  const T = { SEA: 0, PLAIN: 1, MOUNTAIN: 2, RUIN: 3, ETHER: 4, CITY: 5, BRIDGE: 6, NORTH: 7, FOREST: 8, FIELD: 9, WASTE: 10 };
+  const T_NAME = ['바다', '황무지', '산악 지대', '폐허', '에테르 농축 지대', '도시', '해상 연결로', '북부 봉쇄 구역', '잔존 숲', '들판', '오염 지대'];
+  const T_COST = [0, 1, 2, 1, 1, 1, 1, 0, 1.2, 1, 1.1];
+  const DAYS_PER_COST = 1; // 평지 1일, 산 2일, 국도 0.5일 (넓어진 거리는 이동력·시야로 맞춤)
   const ROAD_COST = 0.5;
 
   const REGION_LL = {
@@ -73,14 +75,15 @@ const WORLD = (() => {
       tiles[idx(x, y)] = t;
     }
     // 동쪽 해안선 (태백산맥 배치용)
+    const KY = ROWS / OLD_ROWS;
     const eastX = [];
-    for (let y = 0; y < ROWS; y++) { let m = -1; for (let x = 0; x < COLS; x++) if (tiles[idx(x, y)] === T.PLAIN && y < 48) m = x; eastX[y] = m; }
+    for (let y = 0; y < ROWS; y++) { let m = -1; for (let x = 0; x < COLS; x++) if (tiles[idx(x, y)] === T.PLAIN && y < 48 * KY) m = x; eastX[y] = m; }
     const segDist = (px, py, ax, ay, bx, by) => { const dx = bx - ax, dy = by - ay; const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy))); return Math.hypot(px - ax - t * dx, py - ay - t * dy); };
     const [hx, hy] = toTile(126.53, 33.36);
-    const KY = ROWS / OLD_ROWS;
     for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
       const i = idx(x, y); if (tiles[i] !== T.PLAIN) continue;
       const n1 = noise(x * 0.42 / K * 1.35, y * 0.42 / KY * 1.35, 1), n2 = noise(x * 0.3 / K * 1.35, y * 0.3 / KY * 1.35, 2);
+      const n3 = noise(x * 0.55 / K, y * 0.55 / KY, 5), n4 = noise(x * 0.38 / K, y * 0.38 / KY, 6);
       const e = eastX[y] - x;
       let mount = false;
       if (y < 32 * KY && e >= 1 * K && e <= 6 * K && n1 > 0.36) mount = true;                 // 태백산맥
@@ -91,6 +94,9 @@ const WORLD = (() => {
       if (mount) tiles[i] = T.MOUNTAIN;
       else if (n2 > 0.76) tiles[i] = T.ETHER;
       else if (n1 > 0.8) tiles[i] = T.RUIN;
+      else if (n3 > 0.55 && n1 < 0.62) tiles[i] = T.FOREST;                                   // 잔존 숲
+      else if (n4 > 0.62 && n2 < 0.6) tiles[i] = T.FIELD;                                     // 들판·교외
+      else if (n2 > 0.64 && n3 < 0.48) tiles[i] = T.WASTE;                                    // 오염 지대
     }
     // 도시 배치
     REGIONS.forEach((r, ri) => {
@@ -104,11 +110,11 @@ const WORLD = (() => {
         [cx, cy] = best;
       }
       cityPos[r.id] = [cx, cy];
-      // 광역 거점: 큰 도시는 반지름 2(모서리 뺀 21칸), 나머지는 3×3
+      // 광역 거점: 지도 배율에 맞춰 도시 칸을 키운다 (큰 도시·일반)
       const big = ['gangnam', 'busan', 'daegu'].includes(r.id);
-      const R = big ? 2 : 1;
+      const R = big ? Math.max(2, Math.round(K * 0.9)) : Math.max(1, Math.round(K * 0.45));
       for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
-        if (big && Math.abs(dx) === 2 && Math.abs(dy) === 2) continue;
+        if (Math.hypot(dx, dy) > R + 0.2) continue;
         const x = cx + dx, y = cy + dy, i = idx(x, y);
         if (!inb(x, y) || tiles[i] === T.SEA || tiles[i] === T.NORTH || cityOf[i] >= 0) continue;
         tiles[i] = T.CITY; cityOf[i] = ri;
@@ -117,7 +123,7 @@ const WORLD = (() => {
       const RR = Math.round(4 * K);
       for (let dy = -RR; dy <= RR; dy++) for (let dx = -RR; dx <= RR; dx++) {
         const x = cx + dx, y = cy + dy, i = idx(x, y), d = Math.hypot(dx, dy);
-        if (inb(x, y) && tiles[i] === T.PLAIN && d >= R + 1.5 && d <= RR && noise(x * 0.9, y * 0.9, 3) > 0.62) tiles[i] = T.RUIN;
+        if (inb(x, y) && (tiles[i] === T.PLAIN || tiles[i] === T.FIELD || tiles[i] === T.FOREST) && d >= R + 1.5 && d <= RR && noise(x * 0.9, y * 0.9, 3) > 0.62) tiles[i] = T.RUIN;
       }
     });
     // 지역 (가장 가까운 도시)
@@ -130,7 +136,7 @@ const WORLD = (() => {
       let best = -1, bd = 1e9;
       REGIONS.forEach((r, ri) => { if (ri === jejuIdx) return; const [cx, cy] = cityPos[r.id]; const d = (cx - x) ** 2 + ((cy - y) * 1.1) ** 2; if (d < bd) { bd = d; best = ri; } });
       region[i] = best;
-      if (REGIONS[best].id === 'gangbuk' && t === T.PLAIN && h2(x, y, 9) < 0.6) tiles[i] = T.RUIN;
+      if (REGIONS[best].id === 'gangbuk' && (t === T.PLAIN || t === T.FIELD) && h2(x, y, 9) < 0.6) tiles[i] = T.RUIN;
     }
     // 제주 해상 연결로
     let [ax, ay] = toTile(126.4, 34.62); const [bx, by] = toTile(126.5, 33.52);
@@ -143,19 +149,25 @@ const WORLD = (() => {
       if (s > 0) { const px = Math.round(ax + ((bx - ax) * (s - 1)) / steps); if (px !== x && tiles[idx(px, y)] === T.SEA) { tiles[idx(px, y)] = T.BRIDGE; region[idx(px, y)] = jejuIdx; } }
     }
     // 섬에 닿을 때까지 잇는다
-    for (let y = by + 1, n = 0; n < 8 && inb(bx, y) && tiles[idx(bx, y)] === T.SEA; y++, n++) { tiles[idx(bx, y)] = T.BRIDGE; region[idx(bx, y)] = jejuIdx; }
+    for (let y = by + 1, n = 0; n < Math.round(4 * K) && inb(bx, y) && tiles[idx(bx, y)] === T.SEA; y++, n++) { tiles[idx(bx, y)] = T.BRIDGE; region[idx(bx, y)] = jejuIdx; }
     // 중도시·읍 배치 (지역이 정해진 뒤: 가장 가까운 광역 거점의 지역에 속한다)
     for (const [id, name, tier, lon, lat] of TOWN_LL) {
       let [cx, cy] = toTile(lon, lat);
       const okTile = (x, y) => inb(x, y) && region[idx(x, y)] >= 0 && tiles[idx(x, y)] !== T.SEA && tiles[idx(x, y)] !== T.NORTH && tiles[idx(x, y)] !== T.BRIDGE && cityOf[idx(x, y)] < 0;
       if (!okTile(cx, cy)) {
         let best = null;
-        for (let d = 1; d < 7 && !best; d++) for (let dy = -d; dy <= d && !best; dy++) for (let dx = -d; dx <= d && !best; dx++) if (okTile(cx + dx, cy + dy)) best = [cx + dx, cy + dy];
+        for (let d = 1; d < Math.round(7 * K / 2.2) && !best; d++) for (let dy = -d; dy <= d && !best; dy++) for (let dx = -d; dx <= d && !best; dx++) if (okTile(cx + dx, cy + dy)) best = [cx + dx, cy + dy];
         if (!best) continue;
         [cx, cy] = best;
       }
       const ti = towns.length; const ri = region[idx(cx, cy)];
-      const cells = tier === 2 ? [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]] : [[0, 0], [1, 0]];
+      const tR = tier === 2 ? Math.max(1, Math.round(K * 0.4)) : Math.max(1, Math.round(K * 0.22));
+      const cells = [[0, 0]];
+      for (let dy = -tR; dy <= tR; dy++) for (let dx = -tR; dx <= tR; dx++) {
+        if (!dx && !dy) continue;
+        if (tier === 2 ? Math.abs(dx) + Math.abs(dy) > tR + 1 : Math.abs(dx) + Math.abs(dy) > tR) continue;
+        cells.push([dx, dy]);
+      }
       for (const [dx, dy] of cells) {
         const x = cx + dx, y = cy + dy; if (!okTile(x, y)) continue;
         const i = idx(x, y); tiles[i] = T.CITY; cityOf[i] = ri; townOf[i] = ti; region[i] = ri;
@@ -165,7 +177,7 @@ const WORLD = (() => {
     // 국도: 도시·읍을 가까운 것끼리 잇는다 (산은 돌아가고, 다리·바다는 건너지 않는다)
     (function buildRoads() {
       const nodes = [...REGIONS.map((r) => ({ id: r.id, x: cityPos[r.id][0], y: cityPos[r.id][1], jeju: r.id === 'jeju' })), ...towns.map((t) => ({ id: t.id, x: t.x, y: t.y, jeju: t.region === 'jeju' }))];
-      const stepCost = (i) => { const t = tiles[i]; return t === T.SEA || t === T.NORTH || t === T.BRIDGE ? Infinity : road[i] ? 0.6 : t === T.MOUNTAIN ? 4 : t === T.ETHER ? 1.6 : 1; };
+      const stepCost = (i) => { const t = tiles[i]; return t === T.SEA || t === T.NORTH || t === T.BRIDGE ? Infinity : road[i] ? 0.6 : t === T.MOUNTAIN ? 4 : t === T.ETHER ? 1.6 : t === T.FOREST ? 1.3 : t === T.WASTE ? 1.2 : 1; };
       const link = (a, b) => {
         // A* (맨해튼 대신 체비쇼프 거리)
         const start = idx(a.x, a.y), goal = idx(b.x, b.y);
@@ -256,13 +268,14 @@ const WORLD = (() => {
   }
 
   return {
-    COLS, ROWS, OLD_COLS, OLD_ROWS, K, T, T_NAME, T_COST, DAYS_PER_COST, ROAD_COST, tiles, region, cityOf, townOf, towns, road, cityPos, regionTiles,
+    COLS, ROWS, OLD_COLS, OLD_ROWS, PREV_COLS, PREV_ROWS, K, T, T_NAME, T_COST, DAYS_PER_COST, ROAD_COST, tiles, region, cityOf, townOf, towns, road, cityPos, regionTiles,
     idx, inb, h2, noise, passable, reach, pathTo, stepCost,
     stepCostAt: (x, y) => stepCost(idx(x, y)),
     townAt: (x, y) => { const t = townOf[idx(x, y)]; return t >= 0 ? towns[t] : null; },
     isRoad: (x, y) => road[idx(x, y)] === 1,
-    // 옛 지도(36×58) 좌표 → 새 지도 좌표 (옛 저장 호환)
+    // 옛 지도(36×58) · 직전 지도(80×130) 좌표 → 현재 지도 좌표 (저장 호환)
     fromOld: (x, y) => [Math.min(COLS - 1, Math.round((x + 0.5) * K - 0.5)), Math.min(ROWS - 1, Math.round((y + 0.5) * ROWS / OLD_ROWS - 0.5))],
+    fromPrev: (x, y) => [Math.min(COLS - 1, Math.round((x + 0.5) * COLS / PREV_COLS - 0.5)), Math.min(ROWS - 1, Math.round((y + 0.5) * ROWS / PREV_ROWS - 0.5))],
     type: (x, y) => tiles[idx(x, y)],
     regionAt: (x, y) => { const r = region[idx(x, y)]; return r >= 0 ? REGIONS[r] : null; },
     cityAt: (x, y) => { const c = cityOf[idx(x, y)]; return c >= 0 ? REGIONS[c] : null; },

@@ -19,12 +19,14 @@ const path = require('path');
         const holder = document.createElement('div'); holder.style.cssText = 'position:fixed;inset:0;z-index:2000;background:#07121b';
         const canvas = document.createElement('canvas'); holder.appendChild(canvas); document.body.appendChild(holder);
         const view = new MapView(canvas, null, { onTap() {}, onHover() {} }); window.__terrainView = view;
-        view.tile = innerWidth < 600 ? 44 : 40; view.centerOn(16, 15); G.fog.fill(1); view.reachData = null;
+        const [cx, cy] = WORLD.cityPos.gangnam || [Math.floor(WORLD.COLS / 2), Math.floor(WORLD.ROWS / 3)];
+        view.tile = innerWidth < 600 ? 44 : 40; view.centerOn(cx, cy); G.fog.fill(1); view.reachData = null;
         const worldBefore = Array.from(WORLD.tiles).join(','), fogBefore = Array.from(G.fog).join(','), playerBefore = JSON.stringify(G.player);
         const hasNew = typeof MapTerrain !== 'undefined';
         const c = canvas.getContext('2d');
         const start = performance.now();
-        for (let type = 0; type < 8; type++) for (let i = 0; i < 16; i++) view.drawTile(type, 0, 0, 80, i, type);
+        const types = typeof MapTerrain !== 'undefined' && MapTerrain.TYPE_COUNT ? MapTerrain.TYPE_COUNT : 8;
+        for (let type = 0; type < types; type++) for (let i = 0; i < 16; i++) view.drawTile(type, 0, 0, 80, i, type);
         const warm = performance.now() - start;
         if (hasNew && MapTerrain.bytes > 6 * 1024 * 1024) throw new Error('지형 그림 메모리 한도 초과');
         const count = hasNew ? MapTerrain.ready.size : 0;
@@ -38,7 +40,7 @@ const path = require('path');
         }
         for (const size of [22, 38, 80]) {
           view.tile = size;
-          for (const [x, y] of [[2, 4], [16, 15], [24, 29]]) {
+          for (const [x, y] of [[cx, cy], [cx + 3, cy + 2], [Math.max(2, cx - 4), Math.max(2, cy - 3)]]) {
             const [sx, sy] = view.toScreen(x + .5, y + .5), [tx, ty] = view.toTile(sx, sy);
             if (tx !== x || ty !== y) throw new Error('확대 후 지도 선택 좌표 변경');
           }
@@ -50,34 +52,36 @@ const path = require('path');
           WORLD.tiles[sample] = WORLD.T.PLAIN; view.drawTile(WORLD.T.PLAIN, 0, 0, 80, x, y); WORLD.tiles[sample] = old;
         }
         if (worldBefore !== Array.from(WORLD.tiles).join(',') || fogBefore !== Array.from(G.fog).join(',') || playerBefore !== JSON.stringify(G.player)) throw new Error('그림 변경으로 게임 상태 변경');
-        view.tile = innerWidth < 600 ? 44 : 40; view.centerOn(16, 15); view.draw();
-        return { warm: Math.round(warm), average: +average.toFixed(2), count, bytes: hasNew ? MapTerrain.bytes : 0, hasNew };
+        view.tile = innerWidth < 600 ? 44 : 40; view.centerOn(cx, cy); view.draw();
+        return { warm: Math.round(warm), average: +average.toFixed(2), count, bytes: hasNew ? MapTerrain.bytes : 0, hasNew, cx, cy };
       });
       await page.waitForTimeout(350);
       await page.screenshot({ path: path.join(shots, label + (result.hasNew ? '_변경후' : '_변경전') + '.png') });
-      await page.evaluate(() => {
-        const v = window.__terrainView;
-        const i = WORLD.idx(16, 15); G.fog[i] = 0; v.centerOn(16, 15); v.draw();
-        const [x, y] = v.toScreen(16.5, 15.5);
+      await page.evaluate((pos) => {
+        const v = window.__terrainView; const [cx, cy] = pos;
+        const i = WORLD.idx(cx, cy); G.fog[i] = 0; v.centerOn(cx, cy); v.draw();
+        const [x, y] = v.toScreen(cx + .5, cy + .5);
         const c = v.ctx, s = v.tile;
         const hidden = c.getImageData(Math.max(0, x * v.dpr | 0), Math.max(0, y * v.dpr | 0), 1, 1).data;
         G.fog[i] = 1; v.draw();
         const visible = c.getImageData(Math.max(0, x * v.dpr | 0), Math.max(0, y * v.dpr | 0), 1, 1).data;
         if (hidden[0] === visible[0] && hidden[1] === visible[1] && hidden[2] === visible[2]) throw new Error('안개 표시가 사라짐');
         v.destroy();
-      });
+      }, [result.cx, result.cy]);
       if (errors.length) throw new Error(errors[0]);
       console.log(`통과 ${label} · 좌표·안개·북부 변경·상태 보존 · 첫 준비 ${result.warm}밀리초 · 평균 그리기 ${result.average}밀리초 · 그림 저장 ${Math.round(result.bytes / 1024)}킬로바이트`);
       if (width > 600 && result.hasNew) {
         await page.evaluate(() => {
-          const el = document.createElement('canvas'); el.id = '지형모음'; el.width = 1280; el.height = 260;
+          const types = MapTerrain.TYPE_COUNT || WORLD.T_NAME.length;
+          const el = document.createElement('canvas'); el.id = '지형모음'; el.width = Math.max(1280, types * 118 + 40); el.height = 280;
           el.style.cssText = 'position:fixed;top:0;left:0;z-index:3000'; document.body.appendChild(el);
           const c = el.getContext('2d'); c.fillStyle = '#0c1922'; c.fillRect(0, 0, el.width, el.height);
-          c.fillStyle = '#e3ece5'; c.font = '700 22px sans-serif'; c.fillText('새로운 지도 지형', 22, 36);
-          for (let type = 0; type < 8; type++) {
-            const index = WORLD.tiles.indexOf(type), [x, y] = WORLD.xy(index), px = type * 157 + 22;
-            MapTerrain.draw(c, type, px, 65, 132, x, y, 0);
-            c.fillStyle = '#bdcfc9'; c.font = '13px sans-serif'; c.fillText(WORLD.T_NAME[type], px, 226);
+          c.fillStyle = '#e3ece5'; c.font = '700 22px sans-serif'; c.fillText('웹툰 풍 지도 지형', 22, 36);
+          for (let type = 0; type < types; type++) {
+            const index = WORLD.tiles.indexOf(type); const [x, y] = index >= 0 ? WORLD.xy(index) : [type, type];
+            const px = type * 118 + 22;
+            MapTerrain.draw(c, type, px, 70, 100, x, y, 0);
+            c.fillStyle = '#bdcfc9'; c.font = '12px sans-serif'; c.fillText(WORLD.T_NAME[type] || String(type), px, 236);
           }
         });
         await page.locator('#지형모음').screenshot({ path: path.join(shots, '지형별_미리보기.png') });
