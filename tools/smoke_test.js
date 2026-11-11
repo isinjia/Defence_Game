@@ -151,7 +151,7 @@ const { chromium, devices } = require('playwright');
         }
       }
       for (const gender of ['M', 'F']) {
-        const doc = new DOMParser().parseFromString(PORTRAIT.card('머리정렬', gender, null, 0), 'image/svg+xml');
+        const doc = new DOMParser().parseFromString(PORTRAIT.card('머리정렬', gender, null, 0, 400, { outfit: 'mandarin' }), 'image/svg+xml');
         const offset = gender === 'M' ? 8 : 0;
         const attached = [...doc.querySelectorAll('image')].filter(im => /(?:face|hair|traits)-/.test(im.getAttribute('href')));
         if (attached.some(im => im.getAttribute('transform') !== 'translate(0 ' + offset + ')')) throw new Error('얼굴과 머리·장신구 위치가 다름');
@@ -181,6 +181,29 @@ const { chromium, devices } = require('playwright');
       return true;
     });
     if (!ok) throw new Error('검사 실패');
+  });
+  await step('생성 외형: 남녀 속옷 → 출신 생활복 · 직접 설정도 속옷', async () => {
+    await page.evaluate(async () => {
+      UI.handle('new'); UI.handle('mode-story');
+      for (const gender of ['M', 'F']) {
+        UI.handle('ps-gender', gender);
+        const svg = document.querySelector('.id-preview svg[data-portrait-parts]');
+        if (!svg || svg.dataset.outfit !== 'underwear' || svg.getAttribute('viewBox') !== '0 0 400 800') throw new Error('생성 화면이 기본 몸체가 아님: ' + gender);
+        if (svg.querySelector('[data-depth="garment-front"]')) throw new Error('생성 중 겉옷 표시');
+        const src = await PortraitParts.rasterize(svg.outerHTML);
+        const image = new Image(); image.src = src; await image.decode();
+        if (!image.naturalHeight) throw new Error('기본 몸체 로드 실패');
+        const look = UI.pro.look; UI.handle('ps-look');
+        if (UI.pro.look === look || document.querySelector('.id-preview svg').dataset.outfit !== 'underwear') throw new Error('외형 변경으로 겉옷을 입음');
+      }
+      UI.pro.name = '복장검사'; UI.handle('ps-start');
+      const svg = document.querySelector('#pro-side svg');
+      if (!svg || svg.dataset.outfit !== Wardrobe.background(UI.pro.bg)) throw new Error('출신 생활복 전환 실패');
+      UI.handle('new'); UI.handle('mode-manual');
+      if (document.querySelector('.id-preview svg').dataset.outfit !== 'underwear') throw new Error('직접 설정 초기 복장 오류');
+      UI.handle('c-bg', 'soldier');
+      if (document.querySelector('.id-preview svg').dataset.outfit !== 'underwear') throw new Error('설정 완료 전에 직업복을 입음');
+    });
   });
   await step('이야기로 시작 → 프롤로그 끝까지', async () => {
     await act('new'); await act('mode-story');
@@ -215,6 +238,38 @@ const { chromium, devices } = require('playwright');
     }
     await closeAll(); await ev(() => UI.renderGame());
     const map = await ev(() => !!document.getElementById('map-cv')); if (!map) throw new Error('지도 없음');
+  });
+  await step('복장 진행: 직업복·장비 교체·해제·저장 호환·코트 안쪽 목선', async () => {
+    await page.evaluate(async () => {
+      const p = G.player, original = { cls: p.cls, equip: p.equip, inventory: p.inventory, hp: p.hp, mp: p.mp };
+      const outfitOf = html => new DOMParser().parseFromString(html, 'image/svg+xml').documentElement.dataset.outfit;
+      try {
+        p.equip = { ...p.equip, armor: { ...p.equip.armor, appearanceByClass: true } };
+        for (const [group, outfit] of [['fighter', 'tactical'], ['mage', 'mandarin'], ['east', 'hanbok']]) {
+          p.cls = CLASSES.find(c => c.g === group).id;
+          if (outfitOf(UI.playerPortrait(200)) !== outfit || outfitOf(UI.playerAvatar(64)) !== outfit) throw new Error('직업복 불일치: ' + group);
+        }
+        const armor = G.makeEquipment('armor', 0, 0); armor.name = '검사용 코트';
+        p.inventory = [armor]; G.equipItem(armor.uid);
+        if (outfitOf(UI.playerPortrait(200)) !== 'coat') throw new Error('방어구 교체 외형 미반영');
+        const data = JSON.parse(JSON.stringify(p.equip.armor));
+        if (data.appearanceByClass !== false || Wardrobe.equipment(data) !== 'coat') throw new Error('장비 외형 저장값 소실');
+        G.unequip('armor');
+        if (outfitOf(UI.playerPortrait(200)) !== 'hanbok') throw new Error('방어구 해제 후 기본 직업복 미복귀');
+        p.equip.armor = { ...original.equip.armor }; delete p.equip.armor.appearanceByClass;
+        G.initSandbox();
+        if (p.equip.armor.appearanceByClass !== true) throw new Error('옛 저장 복장 호환 실패');
+        for (const gender of ['M', 'F']) {
+          let seed;
+          for (let n = 0; n < 100; n++) if (PortraitParts.select('코트깃' + n, gender, { outfit: 'coat' }).layers[0].file === 'face-' + gender.toLowerCase() + '-0.webp') { seed = '코트깃' + n; break; }
+          const src = await PortraitParts.rasterize(PORTRAIT.card(seed, gender, null, 0, 400, { outfit: 'coat' }));
+          const image = new Image(); image.src = src; await image.decode();
+          const cv = document.createElement('canvas'); cv.width = 400; cv.height = 480; const ctx = cv.getContext('2d'); ctx.drawImage(image, 0, 0);
+          const neck = ctx.getImageData(200, 280, 1, 1).data, front = ctx.getImageData(200, 310, 1, 1).data;
+          if (neck[0] < 100 || neck[1] < 65 || front[0] > 100) throw new Error('코트 안쪽 목선 깊이 오류: ' + gender);
+        }
+      } finally { p.cls = original.cls; p.equip = original.equip; p.inventory = original.inventory; G.recalc(); p.hp = original.hp; p.mp = original.mp; UI.renderGame(); }
+    });
   });
   for (const s of ['char', 'gear', 'skills', 'party', 'people', 'quest', 'guild', 'hunter', 'log']) {
     await step(`시트 탭: ${s}`, async () => { await act('sheet', s); const len = await ev(() => document.getElementById('modal-box').innerHTML.length); if (len < 200) throw new Error('내용이 거의 없음'); await closeAll(); });

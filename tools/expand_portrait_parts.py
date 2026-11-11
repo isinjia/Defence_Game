@@ -295,6 +295,9 @@ def build() -> dict:
                 save_webp(arr, path)
             manifest[f'cloth-{g}'].append({'file': f'cloth-{g}-{i}.webp', 'rect': rect})
 
+    for g in ['m', 'f']:
+        if (PARTS / f'body-{g}.webp').exists():
+            manifest[f'body-{g}'] = [{'file': f'body-{g}.webp', 'rect': [0, 0, 400, 900]}]
     (PARTS / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
     return manifest
 

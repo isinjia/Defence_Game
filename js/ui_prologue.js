@@ -32,7 +32,7 @@ Object.assign(UI, {
     $app.innerHTML = `<div class="create">
       <div class="create-head"><div class="eyebrow">각성 전야</div><h2>당신은 누구입니까</h2></div>
       <div class="create-grid">
-        <div class="panel id-preview">${FX.portrait(s.look, s.gender, null, 0, 240)}<button class="ghost full" data-act="ps-look">외형 바꾸기</button></div>
+        <div class="panel id-preview">${FX.portrait(s.look, s.gender, null, 0, 240, { age: 19, outfit: 'underwear' })}<button class="ghost full" data-act="ps-look">외형 바꾸기</button></div>
         <div class="panel">
           <label class="sec-title" for="in-name">이름</label>
           <div class="name-row"><input id="in-name" type="text" maxlength="8" placeholder="이름을 입력" value="${s.name}"><button class="icon-btn dice" data-act="name-dice" aria-label="무작위 이름">${this.diceIcon()}</button></div>
@@ -67,7 +67,7 @@ Object.assign(UI, {
     }
     const lead = this.proLeadElem();
     const bg = BACKGROUNDS.find((b) => b.id === s.bg);
-    document.getElementById('pro-side').innerHTML = fixJosa(`${FX.portrait(s.look, s.gender, lead, 0, 200)}
+    document.getElementById('pro-side').innerHTML = fixJosa(`${FX.portrait(s.look, s.gender, lead, 0, 200, Wardrobe.prologueLook(s))}
       <div class="pro-name">${s.name}</div>
       <div class="small dim">${bg.name} · ${regionById(bg.region).name}</div>
       ${lead ? `<div class="small">${this.elemTag(lead)} 기운이 감돈다</div>` : '<div class="small dim">아직 아무것도 깨어나지 않았다</div>'}
@@ -122,7 +122,7 @@ Object.assign(UI, {
     const k = classById(r.cls); const g = CLASS_GROUPS[k.g]; const bg = BACKGROUNDS.find((b) => b.id === s.bg);
     const negIds = ['cursed', 'frail', 'slow_learner', 'reckless'];
     const talent = Math.max(1, r.talent + (bg.talent || 0) + r.traits.reduce((a, t) => a + (traitById(t).mods.talent || 0), 0));
-    document.getElementById('pro-side').innerHTML = fixJosa(`${FX.portrait(s.look, s.gender, r.element, 0, 200)}<div class="pro-name">${s.name}</div>`);
+    document.getElementById('pro-side').innerHTML = fixJosa(`${FX.portrait(s.look, s.gender, r.element, 0, 200, Wardrobe.prologueLook(s))}<div class="pro-name">${s.name}</div>`);
     const el = document.getElementById('pro-scene');
     el.innerHTML = fixJosa(`<div class="eyebrow">국가 각성자 관리국 · 판정 결과</div><h2>각성</h2>
       <div class="result-grid">

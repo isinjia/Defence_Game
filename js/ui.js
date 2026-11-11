@@ -142,18 +142,7 @@ const UI = {
       </div>
       <div class="create-grid">
         <div class="panel id-preview">
-          <div class="id-card">
-            <div class="id-top"><span>KAMA</span><span>각성자 등록증</span></div>
-            <div class="id-body">
-              <div class="id-photo">${FX.portrait(c.look, c.gender, c.element, 0, 110)}</div>
-              <div class="id-info">
-                <div class="id-name">${c.name || '이름 미기재'}</div>
-                <div class="dim">${BACKGROUNDS.find((b) => b.id === c.bg).name}</div>
-                <div>${this.elemTag(c.element)} ${this.clsTag(c.cls)}</div>
-                <div class="id-rank" style="--c:${RANKS[0].color}">F</div>
-              </div>
-            </div>
-          </div>
+          ${FX.portrait(c.look, c.gender, c.element, 0, 240, { age: 19, outfit: 'underwear' })}
           <button class="ghost full" data-act="c-look">외형 바꾸기</button>
         </div>
         <div class="panel">
@@ -224,7 +213,7 @@ const UI = {
     document.getElementById('hud-tr').innerHTML = fixJosa(this.hudObjective());
     document.getElementById('hud-card').innerHTML = fixJosa(this.hudCard());
     document.getElementById('hud-actions').innerHTML = fixJosa(this.hudActions());
-    this.map.setPlayerImage(PORTRAIT.imageFor(p.look, p.gender) || this.playerAvatar(128));
+    this.map.setPlayerImage(this.playerAvatar(128));
     this.map.refresh();
   },
 

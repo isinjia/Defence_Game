@@ -58,6 +58,10 @@ a[:,:,3]=np.where(solid,a[:,:,3],0)
 im=Image.fromarray(a);im=im.crop(im.getbbox()).resize((400,80),Image.Resampling.LANCZOS)
 im.save(root/'traits-5.webp','WEBP',lossless=True,method=0)
 manifest['traits'][5]={'file':'traits-5.webp','rect':[150,148,100,20]}
+# 기본 몸체는 별도 아틀라스에서 준비한다. 기존 등록을 함께 유지한다.
+for g in ['m', 'f']:
+ if (root/('body-'+g+'.webp')).exists():
+  manifest['body-'+g]=[{'file':'body-'+g+'.webp','rect':[0,0,400,900]}]
 (root/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2))
 # Assembly preview using exactly the exported registered parts.
 preview=Image.new('RGB',(1200,600),'#182230')
