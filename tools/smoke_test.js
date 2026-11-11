@@ -33,14 +33,14 @@ const { chromium, devices } = require('playwright');
   const act = (a, v) => ev(([a, v]) => UI.handle(a, v), [a, v]);
   const closeAll = () => ev(() => { for (let i = 0; i < 10 && UI.modalOpen(); i++) UI.closeModal(); G.queue = []; });
 
-  await step('세계관 오프닝: 이미지·다음·이전·스킵·다시 보기', async () => {
+  await step('시네마틱 오프닝: 전체 화면·순차 자막·터치 넘김·스킵·다시 보기', async () => {
     await page.waitForSelector('.world-opening');
-    await page.waitForFunction(() => document.querySelector('.opening-art').naturalWidth > 0);
-    await page.click('[data-opening="pause"]');
-    await page.click('[data-opening="next"]');
-    if (!await page.locator('.opening-era').textContent().then(t => t.includes('대붕괴'))) throw new Error('두 번째 장면 아님');
-    await page.click('[data-opening="prev"]');
-    if (!await page.locator('.opening-era').textContent().then(t => t.includes('2067'))) throw new Error('첫 장면 복귀 실패');
+    await page.waitForFunction(() => document.querySelector('.opening-art.is-active').naturalWidth > 0);
+    if (await page.locator('.opening-controls, .opening-count, .opening-story').count()) throw new Error('설명 패널이 남아 있음');
+    await page.waitForFunction(() => document.querySelector('.opening-caption').textContent.includes('2067'));
+    await page.click('.world-opening', { position: { x: 50, y: 200 } });
+    await page.click('.world-opening', { position: { x: 50, y: 200 } });
+    if (!await page.locator('.opening-caption-space').textContent().then(t => t.includes('하늘') || t.includes('아무도'))) throw new Error('자막 넘김 실패');
     await page.click('[data-opening="skip"]');
     if (await page.locator('.world-opening').count()) throw new Error('스킵 실패');
     await page.click('[data-act="world-opening"]');
