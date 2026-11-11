@@ -73,7 +73,8 @@ Object.assign(Game.prototype, {
   const GP = Game.prototype;
   const wrap = (name, fn) => { const base = GP[name]; if (!base) return; GP[name] = function (...a) { return fn.call(this, base, ...a); }; };
   // 시야: 지도 배율(K)에 맞춰 반경을 키운다
-  wrap('reveal', function (base, x, y, r) { return base.call(this, x, y, Math.max(1, Math.round(r * WORLD.K * 0.8))); });
+  // [A, 사용자 요청] 시야가 너무 넓다 → 1/5 (0.8 → 0.16)
+  wrap('reveal', function (base, x, y, r) { return base.call(this, x, y, Math.max(1, Math.round(r * WORLD.K * 0.16))); });
   wrap('initSandbox', function (base) {
     base.call(this);
     if (this._oldMap) { this._oldMap = false; this.migrateOldMap(); }
