@@ -1,27 +1,147 @@
 // 타이틀 전 시네마틱. 설명 패널 없이 장면·카메라·자막의 시간축으로 재생한다.
 const WorldOpening = (() => {
   const shots = [
-    { image: 'assets/backgrounds/opening-jeju.webp', duration: 12000, lines: [
-      [600, '2067년, 제주.', 'date'],
-      [3500, '그날, 하늘에 문이 열렸다.'],
-      [7500, '아무도 몰랐다.\n그 너머에서 무엇이 기다리고 있는지.'],
-    ] },
-    { image: 'assets/prologue/gate-break.webp', duration: 13500, lines: [
-      [500, '문은 하나가 아니었다.'],
-      [4100, '한반도 곳곳이 찢어지고,\n괴수들이 쏟아져 나왔다.'],
-      [9000, '훗날, 우리는 그날을\n대붕괴라 불렀다.'],
-    ] },
-    { image: 'assets/prologue/awakening.webp', duration: 14000, lines: [
-      [600, '세계를 바꾼 힘. 에테르.'],
-      [4200, '누군가의 삶을 앗아간 그 힘은,\n다른 누군가를 깨웠다.'],
-      [9200, '재앙에 맞서 문을 넘는 자들.\n헌터의 시대가 시작되었다.'],
-    ] },
-    { image: 'assets/backgrounds/title-gate.webp', duration: 13000, lines: [
-      [600, '2087년.\n대붕괴로부터 20년.', 'date'],
-      [4400, '최초의 문은 아직 닫히지 않았다.'],
-      [8600, '그리고 지금,\n당신이 눈을 뜬다.', 'last'],
-    ] },
+    {
+      "image": "assets/backgrounds/opening-omen.svg",
+      "focus": "55% center",
+      "duration": 4200,
+      "lines": [
+        [
+          600,
+          "2067년, 제주.",
+          "date"
+        ]
+      ]
+    },
+    {
+      "image": "assets/backgrounds/opening-jeju.webp",
+      "focus": "58% center",
+      "duration": 4800,
+      "lines": [
+        [
+          350,
+          "그날, 하늘에 문이 열렸다."
+        ]
+      ]
+    },
+    {
+      "image": "assets/prologue/dream.webp",
+      "focus": "65% center",
+      "duration": 5000,
+      "lines": [
+        [
+          350,
+          "아무도 몰랐다.\n그 너머에서 무엇이 기다리고 있는지."
+        ]
+      ]
+    },
+    {
+      "image": "assets/prologue/gate-subway.webp",
+      "focus": "65% center",
+      "duration": 4200,
+      "lines": [
+        [
+          350,
+          "문은 하나가 아니었다."
+        ]
+      ]
+    },
+    {
+      "image": "assets/prologue/gate-break.webp",
+      "focus": "50% center",
+      "duration": 5200,
+      "lines": [
+        [
+          350,
+          "한반도 곳곳이 찢어지고,\n괴수들이 쏟아져 나왔다."
+        ]
+      ]
+    },
+    {
+      "image": "assets/prologue/memorial.webp",
+      "focus": "50% center",
+      "duration": 4600,
+      "lines": [
+        [
+          350,
+          "훗날, 우리는 그날을\n대붕괴라 불렀다."
+        ]
+      ]
+    },
+    {
+      "image": "assets/backgrounds/opening-ether.svg",
+      "focus": "55% center",
+      "duration": 4200,
+      "lines": [
+        [
+          350,
+          "세계를 바꾼 힘. 에테르."
+        ]
+      ]
+    },
+    {
+      "image": "assets/prologue/hospital.webp",
+      "focus": "48% center",
+      "duration": 4400,
+      "lines": [
+        [
+          350,
+          "누군가의 삶을 앗아간 그 힘은,"
+        ]
+      ]
+    },
+    {
+      "image": "assets/prologue/awakening.webp",
+      "focus": "50% center",
+      "duration": 4200,
+      "lines": [
+        [
+          350,
+          "다른 누군가를 깨웠다."
+        ]
+      ]
+    },
+    {
+      "image": "assets/backgrounds/opening-hunters.svg",
+      "focus": "50% center",
+      "duration": 5800,
+      "lines": [
+        [
+          350,
+          "재앙에 맞서 문을 넘는 자들.\n헌터의 시대가 시작되었다."
+        ]
+      ]
+    },
+    {
+      "image": "assets/backgrounds/opening-quarantine.svg",
+      "focus": "55% center",
+      "duration": 8000,
+      "lines": [
+        [
+          350,
+          "2087년.\n대붕괴로부터 20년.",
+          "date"
+        ],
+        [
+          3900,
+          "최초의 문은 아직 닫히지 않았다."
+        ]
+      ]
+    },
+    {
+      "image": "assets/backgrounds/title-gate.webp",
+      "focus": "77% center",
+      "duration": 5000,
+      "lines": [
+        [
+          350,
+          "그리고 지금,\n당신이 눈을 뜬다.",
+          "last"
+        ]
+      ]
+    }
   ];
+
   const total = shots.reduce((sum, shot) => sum + shot.duration, 0);
   let root = null, raf = null, endTimer = null, returnFocus = null;
   let elapsed = 0, lastTime = 0, shotIndex = -1, lineIndex = -1, layerIndex = 0;
@@ -59,6 +179,7 @@ const WorldOpening = (() => {
       const incoming = layers[layerIndex];
       incoming.classList.remove('is-active', 'has-shot');
       incoming.src = shot.image;
+      incoming.style.setProperty('--shot-focus', shot.focus || '61% center');
       // 비활성 레이어의 그림을 교체한 뒤 두 레이어를 교차 전환한다.
       layers[1 - layerIndex].classList.remove('is-active');
       void incoming.offsetWidth;
