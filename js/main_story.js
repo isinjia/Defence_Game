@@ -43,7 +43,7 @@ const MAIN = {
         const n = mates.sort((a, b) => b.rankIdx - a.rankIdx)[0]; if (n) M.rival = n.id; return n || null;
       }
       case 'mumyeong': return M.flags.jinFace ? { name: '진서해', sub: '균열교 교주 · 전 관리국 수석 연구원' } : { name: '무명', sub: '균열교' };
-      case 'arin': return { name: '목소리', sub: '꿈' };
+      case 'arin': return M.flags.arinName ? { name: '아린', sub: '저편의 파수인' } : { name: '목소리', sub: '꿈' };
       case 'seoyun': { const n = M.npc && M.npc.seoyun != null ? alive(this.npcById(M.npc.seoyun)) : null; return n || { name: '한서윤', sub: '관리국 특수조사관' }; }
       case 'madohyun': return { name: '마도현', sub: '관리국 국장' };
       default: return typeof who === 'number' ? alive(this.npcById(who)) : null;
