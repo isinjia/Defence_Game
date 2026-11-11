@@ -68,7 +68,7 @@
     const t = this.councilLead; if (!t || !cap.panel) return;
     const L = this.examLeader(); const nm = GNODE[t.nd.t].name; const ctx = this.ctx;
     this.talk([{ who: L || '리더', text: say(L, { just: `"${nm}(으)로 간다. 반대 있으면 지금 말해."`, kind: `"${nm} 쪽으로 가 볼까요? 의견 있으면 말해 줘요."`, cold: `"${nm}. 간다."` }) }],
-      () => { if (this.ctx !== ctx || this.councilLead !== t) return; this.councilPanel(cap.panel); stripLead(); if (window.TUT_AUTO_TAP) this.autoFollow(document.querySelector('#council-ov [data-act="cn-lead"][data-v="O"]'), 1); });
+      () => { if (this.ctx !== ctx || this.councilLead !== t) return; this.councilPanel(cap.panel.replace(/<p class="small dim">정하는 건 리더다[^<]*<\/p>/, '')); stripLead(); /* [사용자 요청] '정하는 건 리더다' 문구 삭제 */ if (window.TUT_AUTO_TAP) this.autoFollow(document.querySelector('#council-ov [data-act="cn-lead"][data-v="O"]'), 1); });
   };
   const baseRes = UI.councilLeadResolve;
   if (baseRes) UI.councilLeadResolve = function (...a) {
