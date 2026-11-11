@@ -598,6 +598,42 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
+  await step('메인 3·4부: C급 15장 열림 · 17장 갈래→18장 첫 줄 · 20장 뒤 아린 · 25장 리더 생사 · 27장 뒤 28장', async () => {
+    const r = await ev(() => {
+      if (!MAIN.chapters[15] || !MAIN.chapters[27]) return '3·4부 장이 없다';
+      const M = G.mainState(); const keep = JSON.stringify(M); const q = G.queue.slice(); const p = G.player; const rk = p.rankIdx; const chains = JSON.stringify(G.flags.chains || {});
+      const L0 = G.mainWho('leader'); const L0s = L0 ? { alive: L0.alive, death: L0.death, comp: L0.isCompanion, hurt: L0.hurt, party: (p.party || []).slice() } : null;
+      const said = [];
+      const setCh = (n, flags) => { if (UI.dlg) UI.dlgEnd(() => {}); M.ch = n; M.done = {}; for (let i = 1; i < n; i++) M.done[i] = { mk: G.monthKey() - 2 }; M.open = { [n]: G.monthKey() }; M.started = {}; M.scene = null; M.pending = null; M.pendingDay = null; M.flags = { ...flags }; };
+      const play = (n, pick, lose) => {
+        for (let i = 0; i < 900 && !M.done[n]; i++) {
+          if (UI.ctx && UI.ctx.kind === 'story') { UI.ctx.combat.result = lose ? 'lose' : 'win'; UI.finishStoryFight(); continue; }
+          if (UI.modalOpen()) { UI.closeModal(); continue; }
+          if (UI.dlg) { const l = UI.dlg.lines[UI.dlg.i]; if (l) said.push(l.narr || l.text || l.sys || ''); if (l && l.choices) UI.handle('dlg-choice', String(Math.min(pick, l.choices.length - 1))); else UI.dlgNext(); continue; }
+          if (M.pending) { M.pendingDay = null; if (!UI.mainResume()) UI.mainPlay(M.pending); continue; }
+          if (!M.started[n]) { UI.mainPlay(null); continue; }
+          break;
+        }
+        G.queue = []; return !!M.done[n];
+      };
+      try {
+        G.flags.chains ??= {};
+        p.rankIdx = 2; setCh(15, {}); M.open = {}; G.mainCheck(); if (M.open[15]) return 'D급에서 15장이 열렸다';
+        p.rankIdx = 3; G.mainCheck(); if (!M.open[15] || !/15장/.test(UI.hudQuests())) return 'C급에서 15장이 열리지 않았다';
+        const c18 = new Set();
+        for (const k of [0, 1, 2]) { setCh(17, { seoyunShake: true }); if (!play(17, k)) return '17장이 끝나지 않는다'; const v = M.flags.c17; setCh(18, { c17: v }); UI.mainPlay(null); c18.add(UI.dlg ? UI.dlg.lines[0].narr : ''); UI.dlgEnd(() => {}); }
+        if (c18.size !== 3) return '17장 갈래가 18장 첫 줄을 바꾸지 않는다';
+        setCh(20, { goJae: 'alive', halfRing: true }); if (!play(20, 1) || G.mainWho('arin').name !== '아린' || !M.part3) return '20장 뒤 아린 이름이 남지 않았다';
+        p.rankIdx = 4;
+        setCh(25, {}); M.flags.c24_lead_with = true; if (!play(25, 0, true) || !['dead', 'gone'].includes(M.flags.leaderFate)) return '25장 패배가 리더 생사에 닿지 않았다: ' + M.flags.leaderFate;
+        setCh(24, {}); M.open = { 24: G.monthKey() - 5 }; G.mainCheck(); if (M.flags.c24 !== 'missed' || !M.flags.domeBlood) return '24장 만료가 상태를 남기지 않았다';
+        setCh(27, { jinBond: 'foe', halfRing: true }); if (!play(27, 0) || M.ch !== 28 || !M.part4 || !M.flags.straitRitual) return '27장 뒤 4부 요약이 없다';
+        const han = said.find((t) => /[一-鿿]/.test(t)); if (han) return '3·4부 대사에 한자: ' + han.slice(0, 30);
+        return '';
+      } finally { G.flags.main = JSON.parse(keep); G.flags.chains = JSON.parse(chains); G.queue = q; p.rankIdx = rk; if (L0) { L0.alive = L0s.alive; L0.death = L0s.death; L0.isCompanion = L0s.comp; L0.hurt = L0s.hurt; p.party = L0s.party; } if (UI.dlg) UI.dlgEnd(); }
+    });
+    if (r) throw new Error(r);
+  });
   await step('프롤로그 그림: 모든 장면에 정지 그림, 컷씬식 연출(화면 가림·다시 보기)은 없음', async () => {
     const r = await ev(() => {
       const missing = Object.keys(PROLOGUE).filter((id) => !PrologueCinema.config(id, UI.pro));
