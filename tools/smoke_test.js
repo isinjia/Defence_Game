@@ -102,7 +102,7 @@ const { chromium, devices } = require('playwright');
       const neckImg = new Image(); neckImg.src = neckSrc; await neckImg.decode();
       const neckCanvas = document.createElement('canvas'); neckCanvas.width = 400; neckCanvas.height = 480;
       const neckCtx = neckCanvas.getContext('2d'); neckCtx.drawImage(neckImg, 0, 0);
-      const outsideCollar = [...neckCtx.getImageData(153, 264, 10, 20).data, ...neckCtx.getImageData(155, 230, 8, 30).data];
+      const outsideCollar = [...neckCtx.getImageData(153, 264, 10, 20).data, ...neckCtx.getImageData(155, 238, 8, 30).data];
       for (let i = 0; i < outsideCollar.length; i += 4) if (outsideCollar[i] > 140 && outsideCollar[i + 1] > 100 && outsideCollar[i] > outsideCollar[i + 1] + 15) throw new Error('목 피부가 옷깃 밖으로 나옴');
       for (const gender of ['M', 'F']) {
         let glassesSeed;
@@ -113,6 +113,28 @@ const { chromium, devices } = require('playwright');
         const doc = new DOMParser().parseFromString(PORTRAIT.card(glassesSeed, gender, null, 0), 'image/svg+xml');
         const order = [...doc.querySelectorAll('image')].map(image => image.getAttribute('href'));
         if (order.findIndex(url => url.includes('traits-5.webp')) > order.findIndex(url => url.includes('hair-'))) throw new Error('안경이 앞머리 위에 표시됨');
+      }
+      // 뒤깃 → 목 → 앞깃 → 턱: 실제 픽셀로 검증해 목구멍과 턱 잘림의 재발을 막는다.
+      for (const outfit of ['tactical', 'coat', 'mandarin']) {
+        let seed;
+        for (let n = 0; n < 100; n++) if (PortraitParts.select('깃깊이' + n, 'F', { outfit }).layers[0].file === 'face-f-0.webp') { seed = '깃깊이' + n; break; }
+        if (!seed) throw new Error('옷깃 검사 인물 없음');
+        const src = await PortraitParts.rasterize(PORTRAIT.card(seed, 'F', null, 0, 400, { outfit }));
+        const im = new Image(); im.src = src; await im.decode();
+        const cv = document.createElement('canvas'); cv.width = 400; cv.height = 480;
+        const ctx = cv.getContext('2d'); ctx.drawImage(im, 0, 0);
+        const pixel = y => ctx.getImageData(200, y, 1, 1).data;
+        if (pixel(258)[0] < 130 || pixel(258)[1] < 85) throw new Error('옷이 턱을 가림: ' + outfit);
+        if (outfit === 'tactical') {
+          if (pixel(266)[0] < 100 || pixel(266)[1] < 65) throw new Error('뒤깃이 목을 가림');
+          if (pixel(282)[0] > 100) throw new Error('목이 앞깃 위로 나옴');
+        }
+      }
+      for (const gender of ['M', 'F']) {
+        const doc = new DOMParser().parseFromString(PORTRAIT.card('머리정렬', gender, null, 0), 'image/svg+xml');
+        const offset = gender === 'M' ? 8 : 0;
+        const attached = [...doc.querySelectorAll('image')].filter(im => /(?:face|hair|traits)-/.test(im.getAttribute('href')));
+        if (attached.some(im => im.getAttribute('transform') !== 'translate(0 ' + offset + ')')) throw new Error('얼굴과 머리·장신구 위치가 다름');
       }
       const robeSrc = await PortraitParts.rasterize(PORTRAIT.card('도포목선', 'M', null, 0, 400, { outfit: 'hanbok' }));
       const robeImg = new Image(); robeImg.src = robeSrc; await robeImg.decode();
