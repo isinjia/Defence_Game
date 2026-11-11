@@ -250,7 +250,16 @@ Object.assign(Combat.prototype, {
         if (b.querySelector('.order-chip')) continue;
         const nm = b.querySelector('b'); if (nm) nm.insertAdjacentHTML('beforeend', ' <i class="order-chip">오더</i>');
       }
-      for (const b of document.querySelectorAll('#cb-ctrl .cmd-main .cmd.ordered')) if (!b.querySelector('.order-chip')) b.insertAdjacentHTML('beforeend', ' <i class="order-chip">오더</i>');
+      // [사용자 요청] 기본 공격·아이템·방어에 내려진 오더도 커맨드에 오더 태그
+      const c = this.ctx; const cb = c && c.combat; const o = cb && cb.player && cb.player.order;
+      if (o && !o.vague && cb.waiting && !c.playing && !c.orderFor) {
+        const mark = (sel) => { const b = document.querySelector('#cb-ctrl ' + sel); if (b) b.classList.add('ordered'); };
+        if (o.act === 'defend') mark('.cmd-main [data-act=c-defend]');
+        else if (o.act === 'item') { mark('.cmd-main [data-v=item]'); if (o.item) mark(`[data-act=c-item][data-v="${o.item}"], [data-act=c-use][data-v="${o.item}"]`); }
+        else if (o.skill === 'strike') mark('.cmd-main [data-v=strike]');
+        else if (o.skill) mark('.cmd-main [data-v=skill]');
+      }
+      for (const b of document.querySelectorAll('#cb-ctrl .cmd-main .cmd.ordered, #cb-ctrl .cmd-item.ordered')) if (!b.querySelector('.order-chip')) b.insertAdjacentHTML('beforeend', ' <i class="order-chip">오더</i>');
     } catch (e) { /* 무시 */ }
     return r;
   };
