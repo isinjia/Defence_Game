@@ -50,7 +50,7 @@ const { chromium, devices } = require('playwright');
   await step('오프닝 12컷: 모든 이미지 파일과 브라우저 디코딩', async () => {
     const fs = require('fs');
     const src = fs.readFileSync(path.resolve(__dirname, '..', 'js', 'world_opening.js'), 'utf8');
-    const images = [...src.matchAll(/["']?image["']?\\s*:\\s*["']([^"']+)/g)].map(m => m[1]);
+    const images = [...src.matchAll(/["']?image["']?\s*:\s*["']([^"']+)/g)].map(m => m[1]);
     if (images.length < 12 || new Set(images).size < 12) throw new Error('서로 다른 이미지가 12장 미만');
     for (const file of images) if (!fs.existsSync(path.resolve(__dirname, '..', file))) throw new Error('이미지 파일 없음: ' + file);
     await page.evaluate(async (sources) => {
