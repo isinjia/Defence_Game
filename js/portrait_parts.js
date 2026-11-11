@@ -1802,6 +1802,10 @@ const PortraitParts = (() => {
     });
     return { layers: registered, race, stage, bodyType, skinTone, baseBody, outfit: underwear ? 'underwear' : Object.keys(outfits)[cloth % 6], key: [g, face, hair, underwear ? 'underwear' : cloth, race, bodyType, skinTone].join('-') };
   }
+  // 체형별 머리(얼굴·헤어·장신구) 비율. 턱 아래를 축으로 줄인다. 연기 시험도 이 표를 읽는다.
+  //  남자 '매우 마름'·'보통'은 어깨가 좁아 머리가 커 보여서 한 단계 더 줄였다 (사용자 요청).
+  //  여자 '통통'은 1이면 머리·헤어가 몸보다 커지고 턱이 옷깃에 붙어서 근육질과 비슷하게 줄였다 (사용자 요청).
+  const HEAD_SCALE = { F: { thin:.86, normal:.92, strong:.96, heavy:.95 }, M: { thin:.80, normal:.85, strong:.96, heavy:1 } };
   function svg(seed, gender, element, rankIdx, size, opts, avatar) {
     const selection = select(seed, gender, opts);
     const rank = Math.max(0, Math.min(RANKS.length - 1, rankIdx || 0));
@@ -1818,7 +1822,7 @@ const PortraitParts = (() => {
     const featureOffset = chin - (face.chinY || chin);
     const headY = integrated ? pose + featureOffset : pose;
     // 턱 아래를 고정해 얼굴·헤어·장신구를 같은 비율로 줄이고 목은 어깨로 이어 준다.
-    const headScale = integrated ? (female ? { thin:.86, normal:.92, strong:.96, heavy:1 } : { thin:.86, normal:.85, strong:.96, heavy:1 })[selection.bodyType] /* 남자 보통 체형 머리 0.92→0.85 (사용자 요청, 미리보기 확인) */ : 1;
+    const headScale = integrated ? HEAD_SCALE[female ? 'F' : 'M'][selection.bodyType] : 1;
     const neckPivot = chin + 24 + pose;
     const headTransform = `translate(200 ${neckPivot}) scale(${headScale}) translate(-200 ${-neckPivot})`;
     const fitHead = markup => headScale === 1 ? markup : `<g data-proportion="head" transform="${headTransform}">${markup}</g>`;
@@ -1834,23 +1838,49 @@ const PortraitParts = (() => {
     // 피부 마스크 안의 색만 바꿔 흰자·입술·검은 선·속옷 색은 보존한다.
     const skinImage = (part, name, attrs = '', feature = false) => `<g${attrs}>${image(part, ` data-skin-source="${source(part)}" data-skin-mask="${root+part.skinMask}?v=8" data-skin-rgb="${part.skinRgb.join(',')}" data-skin-target="${target.join(',')}" data-skin-race="${selection.race}"${feature ? ` data-face-feature="${female ? 'f' : 'm'}" data-feature-offset="${featureOffset}"` : ''}${name === 'base' ? ` data-body-scale="${headScale}" data-body-pivot="${chin+24}"` : ''}`)}</g>`;
     const fit = integrated ? { thin:.9, normal:1, strong:1.04, heavy:1.12 }[selection.bodyType] : 1;
-    const garmentAttrs = fit === 1 ? '' : ` transform="translate(200 0) scale(${fit} 1) translate(-200 0)"`;
-    const round = {3:[200,266,37,7],5:[200,264,36,7]};
-    const collar = style === 0 ? (female ? [200,290,34,6] : [201,289,42,15]) : female ? round[style] : null;
-    const opening = collar ? `M${collar[0]-collar[2]} 0H${collar[0]+collar[2]}V${collar[1]}A${collar[2]} ${collar[3]} 0 0 1 ${collar[0]-collar[2]} ${collar[1]}Z` : '';
+    // 여자 옷 원화는 몸통 중심(x≈199)보다 1.5~8px 오른쪽에 그려져 있어 목이 왼쪽으로 치우쳐 보였다 (사용자 지적). 깃 중심을 몸에 맞춘다.
+    const shiftX = female && !underwear ? [-2, -2.5, -4.5, -4, -3, -8][style] || 0 : 0;
+    const garmentTf = `translate(${shiftX} 0) translate(200 0) scale(${fit} 1) translate(-200 0)`;
+    const garmentAttrs = fit === 1 && !shiftX ? '' : ` transform="${garmentTf}"`;
+    const round = {2:[200,264,38,0],3:[200,266,37,7],4:[201,262,44,28],5:[200,264,36,7]}; // 4: 여자 평상복 둥근 깃 — 깃 안쪽(뒷판)이 목 뒤로 가게 (사용자 지적: 목 밑이 잘리고 옷 뒤가 보임) // 2: 여자 차이나 깃(구멍 모양은 아래 vCollar)
+    const collar = style === 0 ? (female ? [200,290,{thin:34,normal:37,strong:44,heavy:48}[selection.bodyType]||34,6] : [201,289,42,15]) : female ? round[style] : null;
+    // 여자 차이나 깃(2)은 깃 안쪽이 V자: 뒷깃(검은 안쪽)은 목 뒤에, 앞깃 테두리는 목 앞에 온다. 목은 구멍 전체가 아니라 목 폭만 보인다.
+    const vCollar = female && style === 2 && !underwear;
+    const opening = vCollar ? 'M166 0H242V264C242 280 214 284 207 300H199C192 284 168 280 166 266Z'
+      : collar ? `M${collar[0]-collar[2]} 0H${collar[0]+collar[2]}V${collar[1]}A${collar[2]} ${collar[3]} 0 0 1 ${collar[0]-collar[2]} ${collar[1]}Z` : '';
     const collarDefs = collar ? `<clipPath id="${id}back"><path d="${opening}"/></clipPath><mask id="${id}front" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><rect width="400" height="600" fill="white"/><path d="${opening}" fill="black"/></mask>` : '';
     // 닫힌 칼라는 기존 폭을 유지하고, 코트는 아래에서 실제 칼라 구멍으로 목을 연결한다.
-    const neckWidth = {thin:52,normal:68,strong:76,heavy:92}[selection.bodyType];
-    const neckPath = `M0 0H400V${chin+4}H${200+neckWidth/2}V330H${200-neckWidth/2}V${chin+4}H0Z`;
-    const neckClip = collar ? `<rect width="400" height="${chin+24-22*headScale}"/><path d="${opening}" transform="translate(0 ${-pose}) translate(200 0) scale(${fit} 1) translate(-200 0)"/>` : `<path d="${neckPath}"/>`;
-    const baseClips = `<clipPath id="${id}neck">${neckClip}</clipPath><clipPath id="${id}jaw"><rect width="400" height="${chin+24-22*headScale}"/></clipPath>`;
+    // 목 폭은 턱 높이 원화 목 폭. 그 아래는 원화 목이 넓어지지만(승모근) 옷깃이 좁아 잘라야 하므로, 잘린 경계에 원화와 같은 윤곽선을 그려 넣는다(neckLines) (사용자 지적: 곧은 단면·피부 사각형).
+    const neckWidth = (female ? {thin:66,normal:74,strong:86,heavy:98} : {thin:80,normal:90,strong:92,heavy:114})[selection.bodyType];
+    // 통통 체형 원화는 목이 짧고 어깨선 피부가 턱 높이까지 올라온다(사용자 지적: 옷깃 옆으로 피부가 삐져나오고 목이 옷깃 위에 얹혀 보임).
+    //  그래서 통통은 턱 24px 위부터 원화의 목 폭(남 56·여 46)만 남겨 옷 뒤에 그리고, 옷 위에 그리는 턱 레이어는 턱 끝에서 멈춘다 → 옷깃이 목 앞에 온다.
+    const heavy = selection.bodyType === 'heavy' && integrated;
+    const colTop = chin - 24, colHalf = female ? 47 : 57;
+    // 목 옆선은 턱 끝 12px 위부터 안쪽으로 둥글게 좁아진다 (턱선과 직각으로 꺾이지 않게)
+    const R = 200 + colHalf, L = 200 - colHalf, bend = female ? chin - 6 : chin - 12, inset = female ? 5 : 9;
+    const side = (end) => `M0 0H400V${colTop}H${R}V${bend}Q${R} ${chin} ${R-inset} ${chin+4}${end}`;
+    const column = side(`V330H${L+inset}V${chin+4}Q${L} ${chin} ${L} ${bend}V${colTop}H0Z`);
+    const jawShape = side(`H${L+inset}Q${L} ${chin} ${L} ${bend}V${colTop}H0Z`);
+    const neckTop = female ? chin - 8 : chin + 4; // 여자는 턱 8px 위부터 목 폭: 턱과 옷 사이에 어깨 피부가 사각으로 보이던 문제
+    const neckPath = heavy ? column : `M0 0H400V${neckTop}H${200+neckWidth/2}V330H${200-neckWidth/2}V${neckTop}H0Z`;
+    const neckClip = vCollar ? `<path d="${neckPath}"/>` : collar ? `${heavy ? `<path d="${column}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}<path d="${opening}" transform="translate(0 ${-pose}) ${garmentTf}"/>` : `<path d="${neckPath}"/>`;
+    const baseClips = `<clipPath id="${id}col"><path d="${neckPath}"/></clipPath>${collar ? `<clipPath id="${id}open"><rect width="400" height="${chin}"/><path d="${opening}" transform="translate(0 ${-pose}) ${garmentTf}"/></clipPath>` : ''}<clipPath id="${id}neck">${neckClip}</clipPath><clipPath id="${id}jaw">${heavy ? `<path d="${jawShape}"/>` : female ? `<rect width="400" height="${neckTop}"/><rect x="${200-neckWidth/2}" width="${neckWidth}" height="${chin+24-22*headScale}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}</clipPath>`;
     const featureY = female ? 175 : 165;
     const features = `<radialGradient id="${id}features"><stop stop-color="white"/><stop offset=".9" stop-color="white"/><stop offset="1" stop-color="black"/></radialGradient><mask id="${id}featureMask" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><ellipse cx="200" cy="${featureY}" rx="62" ry="70" fill="url(#${id}features)"/></mask>`;
     const defs = `<defs>${baseClips}${features}${collarDefs}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><clipPath id="${id}circle"><circle cx="200" cy="${128+pose}" r="126"/></clipPath></defs>`;
     const back = collar ? image(cloth, ` data-depth="collar-back" clip-path="url(#${id}back)"${garmentAttrs}`) : '';
-    const rawBody = integrated
+    // 여자 코트·둥근·세운 깃(0·3·4·5): 목은 "깃 구멍 ∩ 목 폭"만 보인다 → 목 양옆 빈 곳으로 옷 안쪽 뒷판이 보이고, 목은 깃 앞판 뒤로 들어간다.
+    const roundNeck = integrated && !underwear && female && collar && !vCollar;
+    const rawBody = roundNeck
+      ? `<g clip-path="url(#${id}open)" transform="translate(0 ${pose})">${skinImage(base,'base', ` data-depth="neck" clip-path="url(#${id}col)"`)}</g>`
+      : integrated
       ? skinImage(base,'base', ` data-depth="${underwear ? 'underwear' : 'neck'}" transform="translate(0 ${pose})"${underwear ? '' : ` clip-path="url(#${id}neck)"`}`)
       : skinImage(face,'face',` data-depth="neck" transform="translate(0 ${pose})"`);
+    const lineOn = integrated && !underwear && (female ? style !== 3 && style !== 5 : (!collar || heavy)); // 여자는 모든 옷: 옷 위로 드러난 목 옆선을 그린다(옷 뒤에 그려 옷이 덮는 곳은 안 보임)
+    const edge = heavy && !female ? `M${200+colHalf} ${bend}Q${200+colHalf} ${chin} ${200+colHalf-inset} ${chin+4}V330M${200-colHalf} ${bend}Q${200-colHalf} ${chin} ${200-colHalf+inset} ${chin+4}V330`
+      : heavy ? `M${200+colHalf-inset} ${chin+6}V330M${200-colHalf+inset} ${chin+6}V330`
+      : `M${200+neckWidth/2} ${chin+4}V330M${200-neckWidth/2} ${chin+4}V330`;
+    const neckLines = lineOn ? `<path data-depth="neck-line" d="${edge}" fill="none" stroke="#3b2622" stroke-opacity=".75" stroke-width="1.8" stroke-linecap="round" transform="translate(0 ${pose})"/>` : '';
     const garment = underwear ? '' : image(cloth, ` data-depth="garment-front"${collar ? ` mask="url(#${id}front)"` : ''}${garmentAttrs}`);
     const rawForeground = integrated && !underwear ? skinImage(base,'base',` data-depth="head-front" transform="translate(0 ${pose})" clip-path="url(#${id}jaw)"`) : '';
     const facial = integrated ? `<g data-join="features" transform="translate(0 ${pose})" mask="url(#${id}featureMask)">${skinImage(face,'face',` data-depth="face-features" transform="translate(0 ${featureOffset})"`, true)}</g>` : '';
@@ -1873,7 +1903,7 @@ const PortraitParts = (() => {
     const body = rawBody;
     const foreground = rawForeground;
     const head = fitHead(facial + details);
-    const layers = avatar ? `${rearHair}${body}${head}` : `${back}${rearHair}${body}${garment}${foreground}${head}`;
+    const layers = avatar ? `${rearHair}${body}${head}` : `${back}${rearHair}${body}${neckLines}${garment}${foreground}${head}`;
     const drawing = `<rect width="400" height="600" fill="#0a1220"/><ellipse cx="200" cy="190" rx="240" ry="300" fill="url(#${id}bg)"/>${layers}`;
     const art = avatar ? `<g clip-path="url(#${id}circle)">${drawing}</g><circle cx="200" cy="${128+pose}" r="125" fill="none" stroke="${ring}" stroke-width="4"/>` : drawing+`<rect x="1" y="1" width="398" height="${cardHeight-2}" fill="none" stroke="${ring}" stroke-width="2" opacity=".7"/>`;
     return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v12" data-head-scale="${headScale}" data-neck-pivot="${neckPivot}" data-head-offset="${headY}" data-base-offset="${pose}" data-outfit="${selection.outfit}" data-body-type="${selection.bodyType}" data-skin-tone="${selection.skinTone}" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size*cardHeight/400)}" viewBox="${view}" role="img" aria-label="${avatar ? '초상화' : '캐릭터 일러스트'}">${defs}${art}</svg>`;
@@ -2042,5 +2072,5 @@ const PortraitParts = (() => {
     this._partsSource = source;
     rasterize(source).then(url => { if (this._partsSource === source) baseMapImage.call(this, url); }).catch(() => { if (this._partsSource === source) this._partsSource = null; });
   };
-  return { select, rasterize };
+  return { select, rasterize, HEAD_SCALE };
 })();

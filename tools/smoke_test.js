@@ -206,7 +206,7 @@ const { chromium, devices } = require('playwright');
         let seed;for(let i=0;i<20000;i++){const s='jaw-'+i,q=PortraitParts.select(s,'F');if(q.layers[0].file==='face-f-0.webp'&&q.layers[2].file==='hair-f-'+hair+'.webp'){seed=s;break;}}
         if(!seed)throw Error('헤어 조합 없음');
         const{ctx,rc}=await read(PORTRAIT.card(seed,'F',null,0,400,{bodyType,outfit:'underwear'}));
-        const scale={thin:.86,normal:.92,strong:.96,heavy:1}[bodyType];
+        const scale=PortraitParts.HEAD_SCALE.F[bodyType];
         // 통합 원화의 턱·목 바깥 윤곽을 찾아 합성 뒤에도 그대로 남는지 비교한다.
         for(let rawY=230;rawY<=256;rawY+=3){const y=Math.round(285+(rawY-285)*scale);
           for(const[from,to]of[[80,198],[202,320]]){
@@ -340,7 +340,7 @@ const { chromium, devices } = require('playwright');
           const selected=PortraitParts.select(seed,gender,{bodyType});files.add(selected.baseBody.file);
           const normal=await read(seed,gender,{bodyType,skinTone:'natural'});
           const [sx,sy,sw,sh]=selected.baseBody.skinSample;
-          const scale=(gender==='M'?{thin:.86,normal:.85,strong:.96,heavy:1}:{thin:.86,normal:.92,strong:.96,heavy:1})[bodyType],pivot=(gender==='M'?251:261)+24;
+          const scale=PortraitParts.HEAD_SCALE[gender][bodyType],pivot=(gender==='M'?251:261)+24;
           const [ex,ey]=[Math.round(200+(eyePoint[0]-200)*scale),Math.round(pivot+(eyePoint[1]-pivot)*scale)];
           const originalEye=[...normal.getImageData(ex,ey,1,1).data];
           const originalTop=[...normal.getImageData(200,400,1,1).data];
@@ -404,7 +404,7 @@ const { chromium, devices } = require('playwright');
           if(doc.querySelector('use, image[filter]'))throw Error('얼굴·몸에 분할 SVG 필터 잔존');
           const im=new Image();im.src=await PortraitParts.rasterize(new XMLSerializer().serializeToString(doc));await im.decode();
           const canvas=document.createElement('canvas');canvas.width=400;canvas.height=440;const ctx=canvas.getContext('2d');ctx.drawImage(im,0,0);
-          const pivot=(gender==='M'?251:261)+24,scale=1,shift=(gender==='M'?251:261)-part.chinY;
+          const pivot=(gender==='M'?251:261)+24,scale=PortraitParts.HEAD_SCALE[gender].heavy,shift=(gender==='M'?251:261)-part.chinY;
           const x=Math.round(200+(128+white[0]-200)*scale),y=Math.round(pivot+(55+white[1]+shift-pivot)*scale);
           colors.push(ctx.getImageData(x,y,1,1).data);
         }
