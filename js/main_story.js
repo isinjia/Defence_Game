@@ -151,7 +151,32 @@ const MAIN = {
     if (s.active && s.active.id === id) this.calTimeout();
     M.flags[id] = s.done[id] || M.flags[id] || 'watch';
   };
+  const baseMC = GP.mainCheck;
+  GP.mainCheck = function () { baseMC.call(this); const p = this.player; if (!p || !p.examDone || this.over) return; this.mainPartLapse(); };
   GP.mainCalBoss = function (id, fallback) { const c = typeof calamityById === 'function' && calamityById(id); return c ? c.boss : fallback; };
+  // 부 단위 세계 시계: 부의 첫 장이 열린 지 N개월이 지나도 그 부를 못 끝내면, 남은 장이 한꺼번에 만료된다
+  MAIN.partClock = { 2: 18, 3: 24, 4: 24, 5: 18, 6: 12 };
+  GP.mainPartFirst = function (part) { return Math.min(...Object.values(MAIN.chapters).filter((d) => d.part === part).map((d) => d.n)); };
+  GP.mainPartLeft = function () {
+    const M = this.mainState(); const def = MAIN.chapters[M.ch]; if (!def || !def.part || !MAIN.partClock[def.part]) return null;
+    const st = M.open[this.mainPartFirst(def.part)]; if (st == null) return null;
+    return Math.max(0, MAIN.partClock[def.part] - (this.monthKey() - st));
+  };
+  GP.mainPartLapse = function () {
+    const M = this.mainState(); const def = MAIN.chapters[M.ch]; if (!def || !def.part || !MAIN.partClock[def.part]) return false;
+    const left = this.mainPartLeft(); if (left == null || left > 0) return false;
+    const part = def.part; const out = [];
+    for (let n = M.ch; MAIN.chapters[n] && MAIN.chapters[n].part === part; n++) {
+      const d = MAIN.chapters[n]; if (M.done[n]) continue;
+      M.open[n] ??= this.monthKey();
+      if (d.cal) this.mainCalLapse(d.cal);
+      const t = d.expire && d.expire.run ? d.expire.run(this, M) : ''; if (t) out.push(t);
+      this.mainFinish(n, 'missed');
+    }
+    if (MAIN.partEnd && MAIN.partEnd[part]) MAIN.partEnd[part](this, M);
+    this.queue.push({ type: 'toast', text: `메인 ${part}부 — 너무 오래 미뤘다. 세상이 그 이야기를 먼저 끝냈다. ${out.slice(-1)[0] || ''}` });
+    return true;
+  };
   GP.mainFinish = function (n, how) {
     const M = this.mainState(); const def = MAIN.chapters[n];
     M.done[n] = { mk: this.monthKey(), how: how || 'done' };
@@ -257,7 +282,7 @@ if (typeof UI !== 'undefined') {
   const baseHQ = UI.hudQuests;
   if (baseHQ) UI.hudQuests = function () {
     const html = baseHQ.call(this); const g = this.mainGoal(); if (!g) return html;
-    const row = `<button class="obj-link hq main-q" data-act="main-go"><span class="hq-mark">◆</span><span class="hq-t">메인 · ${g.def.n}장 「${g.def.title}」 — ${G.mainFill(g.def.goal || '')}${G.mainLeft(g.def) != null ? ` <span class="hq-exp">· 만료까지 ${G.mainLeft(g.def)}개월</span>` : ''}</span><span class="hq-r ${g.here && !g.wait ? 'amber' : ''}">${g.wait ? `${G.mainWaitText()} 이어짐` : g.here ? (G.mainState().started[g.def.n] ? '이어서' : '지금 시작') : g.where}</span></button>`;
+    const row = `<button class="obj-link hq main-q" data-act="main-go"><span class="hq-mark">◆</span><span class="hq-t">메인 · ${g.def.n}장 「${g.def.title}」 — ${G.mainFill(g.def.goal || '')}${G.mainLeft(g.def) != null ? ` <span class="hq-exp">· 만료까지 ${G.mainLeft(g.def)}개월</span>` : ''}${G.mainPartLeft && G.mainPartLeft() != null && G.mainPartLeft() <= 6 ? ` <span class="hq-exp">· ${g.def.part}부 마감 ${G.mainPartLeft()}개월</span>` : ''}</span><span class="hq-r ${g.here && !g.wait ? 'amber' : ''}">${g.wait ? `${G.mainWaitText()} 이어짐` : g.here ? (G.mainState().started[g.def.n] ? '이어서' : '지금 시작') : g.where}</span></button>`;
     return html.replace('<div class="obj-title">현재 퀘스트</div>', `<div class="obj-title">현재 퀘스트</div>${row}`).replace('<div class="obj-sub">진행 중인 의뢰가 없다. 도시 의뢰소에서 받을 수 있다.</div>', '');
   };
 

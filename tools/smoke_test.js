@@ -757,6 +757,62 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
+  await step('메인 5·6부·종장: 28장 봉쇄선 · 30장 회로 두 갈래 · 33장 운명 · 37장 세 선택 · 엔딩 조건 · voice 단계 · 부 시계', async () => {
+    const r = await ev(() => {
+      if (!MAIN.chapters[28] || !MAIN.chapters[40]) return '5·6부 장이 없다';
+      const M = G.mainState(); const keep = JSON.stringify(M); const q = G.queue.slice(); const p = G.player; const rk = p.rankIdx; const chains = JSON.stringify(G.flags.chains || {});
+      const north0 = JSON.stringify((G.world && G.world.north) || null); const gates0 = G.mapGates.slice(); const mobs0 = G.mobs.slice(); const ex = G.exploreState && G.exploreState(); const sites0 = ex ? ex.sites.slice() : null; const won0 = G.flags.won;
+      const cal0 = JSON.stringify((G.world && G.world.calamity) || null); const dang0 = REGIONS.map((x) => x.danger);
+      let f = G.npcs.find((n) => n.friendhood && n.alive !== false); const madeF = !f; if (!f) { f = G.makeNpc(false); f.friendhood = true; f.rankIdx = 0; G.npcs.push(f); }
+      const setCh = (n, flags) => { if (UI.dlg) UI.dlgEnd(() => {}); M.ch = n; M.done = {}; for (let i = 1; i < n; i++) M.done[i] = { mk: G.monthKey() - 2 }; M.open = { [n]: G.monthKey() }; M.started = {}; M.scene = null; M.pending = null; M.pendingDay = null; M.flags = { ...flags }; delete M.ending; };
+      const play = (n, pick) => {
+        for (let i = 0; i < 900 && !M.done[n]; i++) {
+          if (UI.ctx && UI.ctx.kind === 'story') { UI.ctx.combat.result = 'win'; UI.finishStoryFight(); continue; }
+          if (UI.modalOpen()) { UI.closeModal(); continue; }
+          if (UI.dlg) { const l = UI.dlg.lines[UI.dlg.i]; if (l && l.choices) UI.handle('dlg-choice', String(Math.min(pick, l.choices.length - 1))); else UI.dlgNext(); continue; }
+          if (M.pending) { M.pendingDay = null; if (!UI.mainResume()) UI.mainPlay(M.pending); continue; }
+          if (!M.started[n]) { UI.mainPlay(null); continue; }
+          break;
+        }
+        G.queue = []; return !!M.done[n];
+      };
+      try {
+        G.flags.chains = {}; p.rankIdx = 5;
+        // 28장: 봉쇄선을 넘으면 north가 열린다
+        if (G.world && G.world.north) { G.world.north.open = false; G.northClose(); }
+        setCh(28, { seoyun: 'ally', seoyunShake: true }); if (!play(28, 0) || !M.flags.northWay || (G.northOpen && !G.northOpen())) return '28장 봉쇄선이 north를 열지 않았다';
+        // 30장: 회로 두 갈래
+        setCh(30, {}); if (!play(30, 0) || M.flags.circuitCut !== true || (G.world.north && G.world.north.truth !== true)) return '30장 회로 끊기가 남지 않았다';
+        setCh(30, {}); if (!play(30, 1) || M.flags.circuitCut !== false || (G.world.north && G.world.north.truth !== false)) return '30장 회로 유지가 남지 않았다';
+        // 33장: 진서해 운명 네 갈래
+        const fates = new Set();
+        for (const k of [0, 1, 2, 3]) { setCh(33, { c32: 'talk', jinBond: 'near', seoyun: 'ally', seoyunShake: true }); if (!play(33, k)) return '33장이 끝나지 않는다'; fates.add(M.flags.jinFate); }
+        if (fates.size !== 4) return '33장 진서해 운명이 네 갈래가 아니다: ' + [...fates].join(',');
+        // 37장: 세 선택 + voice 4
+        p.rankIdx = 6; const gc = new Set();
+        for (const k of [0, 1, 2]) { setCh(37, { apostle: true }); G.flags.chains = { voice: 3 }; if (!play(37, k)) return '37장이 끝나지 않는다'; gc.add(M.flags.gateChoice); if (G.flags.chains.voice !== 4) return '37장 뒤 voice가 4가 아니다'; }
+        if (gc.size !== 3) return '37장 세 선택이 갈리지 않는다';
+        // 엔딩 조건: 다리 조합 하나, 조건이 하나 빠지면 다리가 아니다
+        setCh(39, { gateChoice: 'bridge', circuitCut: false, jinFate: 'with', friend3: 'saved', allies: ['friend'] });
+        if (MAIN_ENDING(G, M) !== 'bridge') return '다리 조건 조합이 다리가 아니다';
+        M.flags.circuitCut = true; if (MAIN_ENDING(G, M) !== 'seal') return '회로를 끊었는데 다리가 됐다';
+        M.flags.allies = []; if (MAIN_ENDING(G, M) !== 'sacrifice') return '동료 없이 닫았는데 희생이 아니다';
+        M.flags.gateChoice = 'open'; M.flags.apostle = true; if (MAIN_ENDING(G, M) !== 'open') return '사도의 열기가 개방이 아니다';
+        // voice/cult 단계: 14장은 cult 4만, 20장은 voice를 올리지 않는다
+        p.rankIdx = 3; setCh(14, { friend3: 'saved' }); G.flags.chains = { voice: 2 }; if (!play(14, 0) || G.flags.chains.voice !== 2 || G.flags.chains.cult !== 4) return '14장 voice/cult 단계가 틀렸다';
+        setCh(20, {}); G.flags.chains = { voice: 3 }; if (!play(20, 0) || G.flags.chains.voice !== 3) return '20장이 voice를 올렸다';
+        // 부 시계: 2부를 18개월 넘게 끌면 남은 장이 만료(13장 → 친구 늦음)
+        p.rankIdx = 2; setCh(13, {}); M.open[9] = G.monthKey() - 19; G.mainCheck();
+        if (M.ch !== 15 || !M.done[14] || M.flags.friend3 !== 'late') return '2부 부 시계가 남은 장을 만료시키지 않았다';
+        return '';
+      } finally {
+        if (G.world) { G.world.north = JSON.parse(north0); G.world.calamity = JSON.parse(cal0); REGIONS.forEach((x, i) => { x.danger = dang0[i]; }); if (G.world.calamity && G.calamityInit) G.calamityInit(); if (G.world.north) { G.northClose(); G.northApply(); } }
+        G.mapGates = gates0; G.mobs = mobs0; if (ex && sites0) ex.sites = sites0; G.flags.won = won0;
+        G.flags.main = JSON.parse(keep); G.flags.chains = JSON.parse(chains); G.queue = q; p.rankIdx = rk; if (madeF) G.npcs.splice(G.npcs.indexOf(f), 1); if (UI.dlg) UI.dlgEnd();
+      }
+    });
+    if (r) throw new Error(r);
+  });
   await step('프롤로그 그림: 모든 장면에 정지 그림, 컷씬식 연출(화면 가림·다시 보기)은 없음', async () => {
     const r = await ev(() => {
       const missing = Object.keys(PROLOGUE).filter((id) => !PrologueCinema.config(id, UI.pro));
