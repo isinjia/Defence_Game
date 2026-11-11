@@ -240,7 +240,7 @@ p { margin: 6px 0; }
 .npc-btns { gap: 5px; }
 
 /* 사건·조우 */
-.event-art { display: block; width: 100%; height: 150px; margin-bottom: 10px; border: 1px solid var(--line); object-fit: cover; object-position: center; background: #0a0d14; }
+.event-art { display: block; width: 100%; height: 150px; margin-bottom: 10px; border: 1px solid var(--line); }
 .event-text { font-size: 15px; line-height: 1.75; }
 .choice-btn { width: 100%; text-align: left; padding: 10px 12px; justify-content: flex-start; }
 .choice-btn::before { content: "▸"; color: var(--amber); }
@@ -1025,8 +1025,10 @@ button.item-tap-name:active, button.item-inline:active { filter: brightness(1.15
 
 /* 값을 치르는 창의 보유 크레딧 (js/wallet_chip.js) */
 #modal-box.has-wallet { position: relative; }
-#modal-box .wallet-chip { position: absolute; top: 10px; right: 10px; z-index: 6; display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 13px; border-radius: 999px; background: #1d1608ee; border: 1px solid #ffb54788; font-size: 12px; line-height: 1.2; color: #d9c49a; box-shadow: 0 2px 10px #000a; }
-#modal-box.wallet-shop .wallet-chip { right: 64px; top: 14px; }
+#modal-box .wallet-chip { position: absolute; top: 10px; right: 10px; z-index: 6; display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 13px; border-radius: 999px; background: #1d1608ee; border: 1px solid #ffb54788; font-size: 12px; line-height: 1.2; color: #d9c49a; box-shadow: 0 2px 10px #000a; pointer-events: none; }
+#modal-box.wallet-shop .wallet-chip, #modal-box.sheet.has-wallet .wallet-chip { right: 72px; top: 14px; }
+/* 시트 머리의 ×가 크레딧 칩보다 위에 남아 눌리게 */
+#modal-box.sheet .sheet-head .icon-btn[data-act="modal-close"] { position: relative; z-index: 7; }
 #modal-box .wallet-chip b { font-family: var(--font-num); font-size: 17px; color: var(--amber); font-variant-numeric: tabular-nums; }
 #modal-box .cant-afford { opacity: .55; }
 #modal-box .afford-tag { margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: #3a1218; color: #ff9aa6; font-size: 11px; font-weight: 700; vertical-align: 1px; }
