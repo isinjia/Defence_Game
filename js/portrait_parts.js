@@ -1841,7 +1841,9 @@ const PortraitParts = (() => {
     // 여자 옷 원화는 몸통 중심(x≈199)보다 1.5~8px 오른쪽에 그려져 있어 목이 왼쪽으로 치우쳐 보였다 (사용자 지적). 깃 중심을 몸에 맞춘다.
     const shiftX = female && !underwear ? [-2, -2.5, -4.5, -4, -3, -8][style] || 0 : 0;
     // 통통 원화는 목이 짧고 어깨선이 턱 높이에서 시작해, 옷을 그대로 두면 턱 아래 양옆에 어깨 피부가 혹처럼 남는다. 옷을 위로 올려 덮는다.
-    const lift = integrated && !underwear && selection.bodyType === 'heavy' ? (female ? 6 : 14) : 0;
+    // 여자 코트는 안쪽 목폴라가 턱에서 멀어 목이 길게 드러났다 → 옷을 올려 목폴라가 목을 감싸게 (사용자 지적)
+    const coatLift = integrated && !underwear && female && style === 0 ? { thin:10, normal:10, strong:14, heavy:22 }[selection.bodyType] : 0;
+    const lift = coatLift || (integrated && !underwear && selection.bodyType === 'heavy' ? (female ? 6 : 14) : 0);
     const garmentTf = `translate(${shiftX} ${-lift}) translate(200 0) scale(${fit} 1) translate(-200 0)`;
     const garmentAttrs = fit === 1 && !shiftX && !lift ? '' : ` transform="${garmentTf}"`;
     const round = {2:[200,264,38,0],3:[200,266,37,7],4:[201,262,44,28],5:[200,264,36,7]}; // 4: 여자 평상복 둥근 깃 — 깃 안쪽(뒷판)이 목 뒤로 가게 (사용자 지적: 목 밑이 잘리고 옷 뒤가 보임) // 2: 여자 차이나 깃(구멍 모양은 아래 vCollar)
@@ -1868,9 +1870,13 @@ const PortraitParts = (() => {
     const jw = female ? 44 : 52;
     const jawShape = `M0 0H400V${colTop}H${200+jw}C${200+jw} ${chin-4} ${214} ${chin+3} 200 ${chin+3}C${186} ${chin+3} ${200-jw} ${chin-4} ${200-jw} ${colTop}H0Z`;
     const neckTop = female ? chin - 8 : chin + 4; // 여자는 턱 8px 위부터 목 폭: 턱과 옷 사이에 어깨 피부가 사각으로 보이던 문제
-    const neckPath = heavy ? column : `M0 0H400V${neckTop}H${200+neckWidth/2}V330H${200-neckWidth/2}V${neckTop}H0Z`;
-    const neckClip = vCollar ? `<path d="${neckPath}"/>` : collar ? `${heavy ? `<path d="${column}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}<path d="${opening}" transform="translate(0 ${-pose}) ${garmentTf}"/>` : `<path d="${neckPath}"/>`;
-    const baseClips = `<clipPath id="${id}col"><path d="${neckPath}"/></clipPath>${collar ? `<clipPath id="${id}fill"><path d="${neckPath}"/><path d="${opening}" transform="translate(0 ${-pose}) ${garmentTf}"/></clipPath>` : ''}${collar ? `<clipPath id="${id}open"><rect width="400" height="${chin}"/><path d="${opening}" transform="translate(0 ${-pose}) ${garmentTf}"/></clipPath>` : ''}<clipPath id="${id}neck">${neckClip}</clipPath><clipPath id="${id}jaw">${heavy ? `<path d="${jawShape}"/>` : female ? `<rect width="400" height="${neckTop}"/><rect x="${200-neckWidth/2}" width="${neckWidth}" height="${chin+24-22*headScale}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}</clipPath>`;
+    // 여자 코트: 목이 안쪽 목폴라로 살짝 넓어지며 들어간다(곧은 사각 기둥처럼 보이던 문제, 사용자 지적)
+    const coatF = female && style === 0 && integrated && !underwear;
+    const flare = coatF ? (heavy ? 0 : 3) : 0;
+    const nw = neckWidth / 2;
+    const neckPath = heavy ? column : coatF ? `M0 0H400V${neckTop}H${200+nw}Q${200+nw} 278 ${200+nw+flare} 296V330H${200-nw-flare}V296Q${200-nw} 278 ${200-nw} ${neckTop}H0Z` : `M0 0H400V${neckTop}H${200+nw}V330H${200-nw}V${neckTop}H0Z`;
+    const neckClip = vCollar ? `<path d="${neckPath}"/>` : collar ? `${heavy ? `<path d="${column}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}<path d="${opening}" transform="translate(0 ${-pose}) ${coatF ? garmentTf.replace(/translate\([-\d.]+ (-?[\d.]+)\) translate\(200/, 'translate(0 $1) translate(200') : garmentTf}"/>` : `<path d="${neckPath}"/>`;
+    const baseClips = `<clipPath id="${id}col"><path d="${neckPath}"/></clipPath>${collar ? `<clipPath id="${id}fill"><path d="${neckPath}"/><path d="${opening}" transform="translate(0 ${-pose}) ${coatF ? garmentTf.replace(/translate\([-\d.]+ (-?[\d.]+)\) translate\(200/, 'translate(0 $1) translate(200') : garmentTf}"/></clipPath>` : ''}${collar ? `<clipPath id="${id}open"><rect width="400" height="${chin}"/><path d="${opening}" transform="translate(0 ${-pose}) ${coatF ? garmentTf.replace(/translate\([-\d.]+ (-?[\d.]+)\) translate\(200/, 'translate(0 $1) translate(200') : garmentTf}"/></clipPath>` : ''}<clipPath id="${id}neck">${neckClip}</clipPath><clipPath id="${id}jaw">${heavy ? `<path d="${jawShape}"/>` : female ? `<rect width="400" height="${neckTop}"/><rect x="${200-neckWidth/2}" width="${neckWidth}" height="${chin+24-22*headScale}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}</clipPath>`;
     const featureY = female ? 175 : 165;
     const features = `<radialGradient id="${id}features"><stop stop-color="white"/><stop offset=".9" stop-color="white"/><stop offset="1" stop-color="black"/></radialGradient><mask id="${id}featureMask" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><ellipse cx="200" cy="${featureY}" rx="62" ry="70" fill="url(#${id}features)"/></mask>`;
     const defs = `<defs>${baseClips}${features}${collarDefs}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><clipPath id="${id}circle"><circle cx="200" cy="${128+pose}" r="126"/></clipPath></defs>`;
@@ -1887,6 +1893,7 @@ const PortraitParts = (() => {
     const lineOn = integrated && !underwear && !(roundNeck && style === 4) && (female ? style !== 3 && style !== 5 : (!collar || heavy)); // 여자는 모든 옷: 옷 위로 드러난 목 옆선을 그린다(옷 뒤에 그려 옷이 덮는 곳은 안 보임)
     const edge = heavy && !female ? `M${200+colHalf} ${bend}Q${200+colHalf} ${chin} ${200+colHalf-inset} ${chin+4}V330M${200-colHalf} ${bend}Q${200-colHalf} ${chin} ${200-colHalf+inset} ${chin+4}V330`
       : heavy ? `M${200+colHalf-inset} ${chin+6}V330M${200-colHalf+inset} ${chin+6}V330`
+      : coatF ? `M${200+nw} ${chin+2}Q${200+nw} 278 ${200+nw+flare} 296M${200-nw} ${chin+2}Q${200-nw} 278 ${200-nw-flare} 296`
       : `M${200+neckWidth/2} ${chin+4}V330M${200-neckWidth/2} ${chin+4}V330`;
     const neckLines = lineOn ? `<path data-depth="neck-line" d="${edge}" fill="none" stroke="#3b2622" stroke-opacity=".75" stroke-width="1.8" stroke-linecap="round" transform="translate(0 ${pose})"/>` : '';
     const garment = underwear ? '' : image(cloth, ` data-depth="garment-front"${collar ? ` mask="url(#${id}front)"` : ''}${garmentAttrs}`);
