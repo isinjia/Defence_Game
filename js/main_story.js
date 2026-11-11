@@ -104,16 +104,54 @@ const MAIN = {
       if (mk - prevMk < (def.after || 0)) return;
       if (def.when && !def.when(this, M)) return;
       M.open[def.n] = mk;
+      if (def.cal) this.mainCalOpen(def.cal);
       this.queue.push({ type: 'toast', text: `메인 이야기 · ${def.n}장 「${def.title}」이(가) 열렸다. 현재 퀘스트 맨 위를 보라.` });
       return;
     }
     // 세계가 먼저 움직인다
-    if (def.expire && !M.started[def.n] && mk - M.open[def.n] >= def.expire.months) {
+    // 시작만 해 두고 방치해도 만료된다(완료 전이면)
+    if (def.expire && !M.done[def.n] && mk - M.open[def.n] >= def.expire.months) {
+      if (def.cal) this.mainCalLapse(def.cal);
       const t = def.expire.run ? def.expire.run(this, M) : '';
       this.mainFinish(def.n, 'missed');
       this.queue.push({ type: 'toast', text: `메인 ${def.n}장 「${def.title}」 — 미루는 사이 세상이 먼저 움직였다. ${t || ''}` });
     }
   };
+  // 만료까지 남은 달 (만료 없는 장이면 null)
+  GP.mainLeft = function (def) {
+    const M = this.mainState(); if (!def || !def.expire || !M.open[def.n] || M.done[def.n]) return null;
+    return Math.max(0, def.expire.months - (this.monthKey() - M.open[def.n]));
+  };
+  // 재앙 연동: 메인 장(12·15·21·27·32)은 샌드박스 재앙과 상태를 공유한다. 플래그 키 = 재앙 id
+  const calOK = (g) => typeof calamityById === 'function' && g.calState && g.calState();
+  GP.mainCalOpen = function (id) {
+    if (!calOK(this)) return; const s = this.calState(); const M = this.mainState(); const c = calamityById(id); if (!c) return;
+    if (s.active && s.active.id === id) { M.flags[id] = 'active'; return; }
+    if (s.done[id]) { M.flags[id] = s.done[id]; return; }
+    // 다른 재앙이 없고 등급이 크게 모자라지 않으면 지금 열린다. 아니면 관측만
+    if (!s.active && this.player.rankIdx >= c.tier - 2) { this.calStart(c); if (s.active && s.active.id === id) { s.active.main = true; M.flags[id] = 'active'; return; } }
+    M.flags[id] = 'watch';
+  };
+  GP.mainCalClear = function (id) {
+    if (!calOK(this)) return; const s = this.calState(); const M = this.mainState(); const c = calamityById(id); if (!c) return;
+    if (s.active && s.active.id === id) {
+      this.mapGates = this.mapGates.filter((g) => g.id !== s.active.gateId);
+      s.done[id] = 'player'; s.active = null; s.last = this.monthKey();
+      this.player.record.calamity = (this.player.record.calamity || 0) + 1;
+      this.lifeEvent(`${c.name}을(를) 막아 냈다.`); this.rumor(`${this.player.name}이(가) ${c.name}의 ${c.boss}을(를) 쓰러뜨렸다.`);
+    } else if (s.done[id] === 'fail' && c.region && s.dangerUp[c.region] > 0) {
+      // 이미 무너진 땅: 상처를 한 칸 줄인다
+      s.dangerUp[c.region]--; const r = regionById(c.region); if (r) r.danger = Math.max(1, r.danger - 1);
+      this.rumor(`${regionById(c.region).name}의 ${c.name} 잔해가 걷혔다. 위험도가 내려갔다.`);
+    } else if (!s.done[id]) s.done[id] = 'player';
+    M.flags[id] = 'player';
+  };
+  GP.mainCalLapse = function (id) {
+    if (!calOK(this)) return; const s = this.calState(); const M = this.mainState();
+    if (s.active && s.active.id === id) this.calTimeout();
+    M.flags[id] = s.done[id] || M.flags[id] || 'watch';
+  };
+  GP.mainCalBoss = function (id, fallback) { const c = typeof calamityById === 'function' && calamityById(id); return c ? c.boss : fallback; };
   GP.mainFinish = function (n, how) {
     const M = this.mainState(); const def = MAIN.chapters[n];
     M.done[n] = { mk: this.monthKey(), how: how || 'done' };
@@ -219,7 +257,7 @@ if (typeof UI !== 'undefined') {
   const baseHQ = UI.hudQuests;
   if (baseHQ) UI.hudQuests = function () {
     const html = baseHQ.call(this); const g = this.mainGoal(); if (!g) return html;
-    const row = `<button class="obj-link hq main-q" data-act="main-go"><span class="hq-mark">◆</span><span class="hq-t">메인 · ${g.def.n}장 「${g.def.title}」 — ${G.mainFill(g.def.goal || '')}</span><span class="hq-r ${g.here && !g.wait ? 'amber' : ''}">${g.wait ? `${G.mainWaitText()} 이어짐` : g.here ? (G.mainState().started[g.def.n] ? '이어서' : '지금 시작') : g.where}</span></button>`;
+    const row = `<button class="obj-link hq main-q" data-act="main-go"><span class="hq-mark">◆</span><span class="hq-t">메인 · ${g.def.n}장 「${g.def.title}」 — ${G.mainFill(g.def.goal || '')}${G.mainLeft(g.def) != null ? ` <span class="hq-exp">· 만료까지 ${G.mainLeft(g.def)}개월</span>` : ''}</span><span class="hq-r ${g.here && !g.wait ? 'amber' : ''}">${g.wait ? `${G.mainWaitText()} 이어짐` : g.here ? (G.mainState().started[g.def.n] ? '이어서' : '지금 시작') : g.where}</span></button>`;
     return html.replace('<div class="obj-title">현재 퀘스트</div>', `<div class="obj-title">현재 퀘스트</div>${row}`).replace('<div class="obj-sub">진행 중인 의뢰가 없다. 도시 의뢰소에서 받을 수 있다.</div>', '');
   };
 

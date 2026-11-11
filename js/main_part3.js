@@ -11,11 +11,13 @@ const EVIDENCE = (M) => ['basinData', 'subjectFile', 'seoyunHasFile'].filter((k)
 
 // ---------- 15장 분지의 열 ----------
 MAIN.ch(15, {
-  part: 3, title: '분지의 열', rank: 3, after: 1, where: 'daegu',
+  part: 3, title: '분지의 열', rank: 3, after: 1, where: 'daegu', cal: 'basin',
   goal: '대구 분지 가장자리',
   scenes: [
-    leadScene('c15_lead', '대구 분지'),
+    leadScene('c15_lead', 'c15'),
     { id: 'c15_arrive', lines: [
+      { narr: '대구행 이동망. 통화 기록 맨 위에 저장 안 된 번호가 아직 있다. 진서해. 지우지 못했다. 그 목소리가 마지막에 한 말이 귀에 남아 있다. "그때 누구 편에 설지, 그때 정하세요."', when: (g, M) => M.flags.tone3 === 'heard' },
+      { narr: '가끔 그 번호에서 문자가 온다. 날씨 얘기뿐이다. 오늘 아침엔 한 줄. "대구는 덥겠군요."', when: (g, M) => M.flags.tone3 === 'heard' },
       { narr: '대구 분지 요새. 성벽 위 계측판 숫자가 빨갛다. 공기가 데운 쇳물 같다. 숨을 쉬면 목 안쪽이 따끔하다.' },
       { narr: (g) => ({
         active: '분지엔 지금 재앙 경보가 걸려 있다. 에테르 폭주. 가장자리 마을들이 하나씩 비어 간다.',
@@ -25,6 +27,7 @@ MAIN.ch(15, {
         none: '분지 가장자리 마을에 원인 모를 열병이 돈다. 관리국은 "자연 현상"이라고 했다.',
       })[CAL_OF(g, 'basin')] },
       DEAF_EYES,
+      leadEcho('c15'),
       { who: 'seoyun', when: (g, M) => M.flags.seoyun && M.flags.seoyun !== 'watch', text: '관리국 대구 지부가 저한테 협조를 안 해요. 같은 관리국인데. 분지 남쪽 구역은 "출입 금지"래요. 이유도 없이.' },
     ] },
     { id: 'c15_edge', lines: [
@@ -35,7 +38,7 @@ MAIN.ch(15, {
       { narr: '서윤의 손이 철조망을 붙잡는다. 처음 보는 얼굴이다. 감시자 얼굴이 아니다.', when: (g, M) => M.flags.seoyun && M.flags.seoyun !== 'watch' },
     ], choices: [
       { text: '설비를 부순다', set: { c15: 'break' }, next: 'c15_after',
-        fight: (g) => ({ title: '수집 설비 경비', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 3, elem: 'fire', boss: true, name: '설비 수호 골렘' },
+        fight: (g) => ({ title: '수집 설비 경비', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 3, elem: 'fire', boss: true, name: g.mainCalBoss('basin', '설비 수호 골렘') },
           win: { text: '기둥 하나가 쓰러지자 나머지가 연달아 꺼진다. 계측판 숫자가 처음으로 내려간다.', gain: { fame: 10, rep: 8 } }, lose: { text: '열기에 무릎이 꺾인다. 기둥은 그대로 숨을 쉰다.', gain: { injure: 1 } } }) },
       { text: '설비 기록만 뽑아 나온다', set: { c15: 'data', basinData: true }, gain: { merit: -3 }, next: 'c15_after',
         say: [{ narr: '제어반 덮개를 뜯는다. 기록 장치에 수집량이 날짜별로 쌓여 있다. 그 에테르가 실려 간 곳: 인천 본청 지하.' }] },
@@ -60,6 +63,7 @@ MAIN.ch(15, {
   ],
   done: (g, M) => {
     if (M.flags.seoyun && M.flags.seoyun !== 'watch') M.flags.seoyunShake = true;
+    if (M.flags.c15 === 'break' && M.flags.fight_c15_edge === 'win') g.mainCalClear('basin');
     g.lifeEvent(({ break: '대구 분지의 관리국 에테르 수집 설비를 부쉈다.', data: '대구 분지 에테르 수집 설비의 기록을 빼냈다.', seoyun: '대구 분지 설비 문제를 한서윤에게 맡겼다.' })[M.flags.c15] || '대구 분지에 다녀왔다.');
     g.rumor('대구 분지의 열이 관리국 설비 탓이라는 말이 헌터들 사이에 돈다.');
   },
@@ -123,11 +127,12 @@ MAIN.ch(17, {
   part: 3, title: '기밀 서버', rank: 3, after: 1, where: 'incheon',
   goal: '인천 관리국 본청',
   scenes: [
-    leadScene('c17_lead', '관리국 본청'),
+    leadScene('c17_lead', 'c17'),
     { id: 'c17_way', lines: [
       { narr: '인천 항만 특구. 관리국 본청은 바다를 등지고 서 있다. 유리벽에 하늘이 비친다. 안이 안 보인다.' },
       { narr: (g, M) => (M.flags.seoyunShake ? '서윤이 출입증 두 장을 내민다. "하나는 제 거, 하나는 죽은 동료 거예요. 아직 말소가 안 됐어요."' : M.flags.c11_pass ? '라이벌이 빌려줬던 그 출입증. 아직 살아 있다. 마지막으로 한 번만.' : '지하 주차장 환기구. 민재가 보낸 도면대로라면 여기서 서버실까지 십사 분.') },
       { narr: (g, M) => `주머니 속 증거: ${EVIDENCE(M)}가지. ${EVIDENCE(M) >= 2 ? '퍼즐 조각이 거의 다 모였다.' : '아직 듬성듬성하다.'}` },
+      leadEcho('c17'),
     ] },
     { id: 'c17_server', lines: [
       { narr: '지하 6층. 서버실은 춥다. 숨이 하얗다.' },
@@ -153,6 +158,8 @@ MAIN.ch(17, {
   ],
   done: (g, M) => {
     M.flags.truthKnown = true;
+    // 기밀 문서 = voice 2단계(11장에서 이미 2면 그대로)
+    if (g.flags.chains) g.flags.chains.voice = Math.max(g.flags.chains.voice || 0, 2);
     if (M.flags.c17 === 'expose') { M.flags.kamaWatch = 'hostile'; g.rumor('"게이트는 우리가 열었다." 관리국 기밀 문서가 헌터넷에 퍼졌다. 관리국은 조작이라고 발표했다.'); g.lifeEvent('관리국 기밀 문서를 세상에 공개했다.'); }
     else if (M.flags.c17 === 'deal') g.lifeEvent('관리국 기밀 문서를 쥐고 마도현 국장과의 면담을 잡았다.');
     else g.lifeEvent('관리국 기밀 문서를 아무에게도 말하지 않고 간직했다.');
@@ -311,8 +318,7 @@ MAIN.ch(20, {
     ], next: 'end' },
   ],
   done: (g, M) => {
-    M.flags.arinName = true;
-    if (g.flags.chains) g.flags.chains.voice = Math.max(g.flags.chains.voice || 0, 4);
+    M.flags.arinName = true; // voice 4는 37장(문 앞)
     M.part3 = { basin: M.flags.c15 || 'missed', kids: M.flags.c16 || 'missed', truth: M.flags.c17 || 'missed', mado: M.flags.madoState || 'free', goJae: M.flags.goJae || 'dead', ask: M.flags.c20 };
     g.lifeEvent('꿈속 목소리가 처음으로 이름을 말했다. 아린. 저편의 파수인.');
   },
