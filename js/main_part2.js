@@ -11,16 +11,64 @@ const SEOYUN_ON = (g, M) => M.flags.seoyun === 'ally' || M.flags.seoyun === 'sha
 const RIVAL_LINE = (g, M, T) => T[M.flags.rivalPath || 'none'] || T.none || '';
 // 2부 위험 장 진입 전 리더 반응(1부와 같은 규칙)
 const F2_STANCE = (g, M) => { const L = g.mainWho('leader'); const r = L ? L.relation || 0 : 0; return r >= 40 || (L && L.personality === 'kind') ? 'with' : r < 10 || (L && L.personality === 'cold') ? 'stop' : 'let'; };
-const leadScene = (id, what) => ({
+// 리더 말투(C의 말투표): { haera, haeyo, short } 중 리더 말투로
+const LR = (T) => (g, M) => g.mainReg(typeof T === 'function' ? T(g, M) : T, g.mainWho('leader'));
+// 위험 장 진입 전 리더 반응. T = { narr, with, stop, let, call, alt } — 장마다 다른 말
+const LEAD_T = {
+  c10: { narr: '친구가 균열교 모임에 나간다는 얘기를 꺼내자 {leader}이(가) 잠깐 말이 없다.',
+    with: { haera: '친구 일이면 간다. 사람 끌어내는 건 둘이 낫다.', haeyo: '친구분 일이면 같이 가요. 사람 데려오는 건 둘이 나아요.', short: '간다. 둘이 낫다.' },
+    stop: { haera: '남의 신앙에 손대는 거다. 팀 이름 걸고는 안 된다.', haeyo: '남의 신앙에 손대는 거예요. 팀 이름 걸고는 안 돼요.', short: '안 돼. 팀 이름 걸려.' },
+    let: { haera: '네 친구다. 네가 정해. 대신 모임 안에선 아무것도 먹지 마.', haeyo: '친구분 일은 직접 정하세요. 대신 거기서 아무것도 드시지 마요.', short: '네가 정해. 거기 음식은 먹지 마.' },
+    call: { haera: '(전화) 균열교 모임에 간다고? 혼자 가지 마라. 정 가면 위치 켜 둬.', haeyo: '(전화) 균열교 모임에 가신다고요? 혼자 가지 마요. 위치는 켜 두세요.', short: '(전화) 혼자 가지 마. 위치 켜.' },
+    alt: '첫 팀 리더 번호를 눌렀다가 지운다. 물어볼 선배가 없다는 게 이럴 때 실감 난다.' },
+  c12: { narr: '강북 보름 밤에 간다고 하자 {leader}이(가) 지도를 접는다.',
+    with: { haera: '보름 밤엔 길드도 강북 안 들어간다. 그러니까 내가 간다.', haeyo: '보름 밤엔 길드도 강북 안 들어가요. 그러니까 제가 같이 가요.', short: '내가 간다.' },
+    stop: { haera: '재앙 경보 걸린 구역에 의식까지다. 두 번 말 안 한다. 가지 마.', haeyo: '재앙 경보 구역에 의식까지예요. 가지 마세요. 진심이에요.', short: '가지 마. 경보 구역이다.' },
+    let: { haera: '선로 아래로는 내려가지 마라. 내려갈 거면 나한테 먼저 전화하고.', haeyo: '선로 아래로는 내려가지 마세요. 내려가실 거면 먼저 연락 주시고요.', short: '선로 밑은 안 된다. 전화하고 가.' },
+    call: { haera: '(전화) 보름 밤 강북? 뉴스 봤다. 살아서 문자 하나만 보내라.', haeyo: '(전화) 보름 밤 강북이라고요? 살아서 문자 하나만 주세요.', short: '(전화) 살아서 문자 해.' },
+    alt: '보름 전날 밤, 연락처를 끝까지 내려 본다. 이런 밤에 전화할 선배가 없다.' },
+  c13: { narr: '새벽 세 시. 신발을 신는데 {leader}이(가) 숙소 문간에 서 있다. 통화 소리를 들었다.',
+    with: { haera: '차 키 내가 들고 있다. 타.', haeyo: '차 키 제가 들고 있어요. 타세요.', short: '타.' },
+    stop: { haera: '함정이다. 새벽 세 시에 오는 전화는 다 함정이야. …그래도 갈 거지.', haeyo: '함정이에요. 새벽 세 시 전화는 다 함정이에요. …그래도 가시겠죠.', short: '함정이다. 그래도 가겠지.' },
+    let: { haera: '주소 보내 놔. 해 뜰 때까지 소식 없으면 내가 간다.', haeyo: '주소 보내 두세요. 해 뜰 때까지 소식 없으면 제가 갈게요.', short: '주소 보내. 해 뜨면 간다.' },
+    call: { haera: '(전화) 깨어 있었다. 무슨 일이냐. …주소 불러.', haeyo: '(전화) 깨어 있었어요. 무슨 일이에요? 주소 불러 주세요.', short: '(전화) 주소 불러.' },
+    alt: '택시 뒷자리. 누구에게라도 주소를 남겨 두고 싶은데, 보낼 곳이 마땅치 않다.' },
+  c15: { narr: '대구 분지 남쪽에 간다고 하자 {leader}이(가) 계측표를 내민다.',
+    with: { haera: '저 수치면 사람 하나로 안 된다. 열 견디는 장비 두 벌 챙겼다.', haeyo: '저 수치면 혼자선 안 돼요. 열 견디는 장비 두 벌 챙겼어요.', short: '장비 두 벌 챙겼다.' },
+    stop: { haera: '관리국 출입 금지 구역이다. 거기 들어가면 팀 면허가 날아간다.', haeyo: '관리국 출입 금지 구역이에요. 들어가면 팀 면허가 날아가요.', short: '금지 구역이다. 면허 날아간다.' },
+    let: { haera: '숨이 따끔하면 바로 나와. 영웅 놀이 하다 폐 태운 놈 여럿 봤다.', haeyo: '숨이 따끔하면 바로 나오세요. 그러다 폐 다친 사람 여럿 봤어요.', short: '따끔하면 나와.' },
+    call: { haera: '(전화) 대구 간다며. 분지 남쪽은 관리국 땅이다. 들키지 마라.', haeyo: '(전화) 대구 가신다면서요. 분지 남쪽은 관리국 땅이에요. 들키지 마세요.', short: '(전화) 남쪽은 관리국 땅이다.' },
+    alt: '대구행 이동망. 예전 같으면 리더에게 계측표부터 물었을 것이다. 이제는 혼자 숫자를 읽는다.' },
+  c17: { narr: '관리국 본청에 들어간다는 말에 {leader}이(가) 웃지도 않는다.',
+    with: { haera: '밖에서 차 대고 기다린다. 십사 분 넘으면 들어간다.', haeyo: '밖에서 차 대고 기다릴게요. 십사 분 넘으면 들어가요.', short: '밖에서 기다린다. 십사 분.' },
+    stop: { haera: '그건 게이트가 아니라 나라다. 나라는 칼로 안 베인다. 가지 마.', haeyo: '그건 게이트가 아니라 나라예요. 칼로 안 베여요. 가지 마세요.', short: '나라는 못 벤다. 가지 마.' },
+    let: { haera: '나는 모르는 일이다. 모르는 게 너한테도 낫다. 돌아오면 밥 사.', haeyo: '저는 모르는 일로 할게요. 그게 서로 나아요. 돌아오면 밥 사세요.', short: '모르는 일로 한다. 밥 사.' },
+    call: { haera: '(전화) 인천? 본청 근처면 전화 꺼 둬라. 기지국에 다 잡힌다.', haeyo: '(전화) 인천이세요? 본청 근처면 전화 꺼 두세요. 다 잡혀요.', short: '(전화) 본청 근처면 전화 꺼.' },
+    alt: '본청 앞 횡단보도. 신호를 기다리며 생각한다. 실패하면 누가 나를 찾아올까.' },
+  c21: { narr: '강릉 속보를 보던 {leader}이(가) 화면을 끈다.',
+    with: { haera: '물속은 내가 너보다 오래 해 봤다. 같이 내려간다.', haeyo: '물속은 제가 더 오래 해 봤어요. 같이 내려가요.', short: '같이 내려간다.' },
+    stop: { haera: 'B급 둘이 내려가서 살아 올라온 기록이 없다. 이번엔 진짜 말린다.', haeyo: 'B급 둘이 내려가서 살아 온 기록이 없어요. 이번엔 진짜 말려요.', short: '기록이 없다. 말린다.' },
+    let: { haera: '방벽 위에 있을게. 줄 잡고 있는 사람 하나는 있어야지.', haeyo: '방벽 위에 있을게요. 줄 잡을 사람 하나는 있어야죠.', short: '방벽에서 줄 잡는다.' },
+    call: { haera: '(전화) 강릉 갔냐. 바다 밑은 위아래가 없다. 줄 꼭 매.', haeyo: '(전화) 강릉 가셨어요? 바다 밑은 위아래가 없어요. 줄 꼭 매세요.', short: '(전화) 줄 꼭 매.' },
+    alt: '방벽 위 사람들 사이에 낯익은 뒷모습이 있나 찾는다. 없다. 줄은 혼자 맨다.' },
+  c24: { narr: '돔 앞 생중계를 보던 {leader}이(가) 리모컨을 내려놓는다.',
+    with: { haera: '방패 쪽이든 촛불 쪽이든 네 옆에 선다. 어느 쪽인지는 가서 정해.', haeyo: '방패 쪽이든 촛불 쪽이든 옆에 설게요. 어느 쪽인지는 가서 정하세요.', short: '네 옆에 선다.' },
+    stop: { haera: '사람 대 사람이다. 게이트보다 나쁘다. 어느 쪽에 서든 원망 듣는다.', haeyo: '사람 대 사람이에요. 게이트보다 나빠요. 어느 쪽에 서든 원망 들어요.', short: '사람끼리다. 가지 마.' },
+    let: { haera: '칼은 집에 두고 가. 오늘은 그게 필요한 날 아니다.', haeyo: '칼은 두고 가세요. 오늘은 그게 필요한 날이 아니에요.', short: '칼은 두고 가.' },
+    call: { haera: '(전화) 돔 앞 영상에 너 찍혔다. 어디 서 있든 다치지만 마.', haeyo: '(전화) 돔 앞 영상에 찍히셨어요. 어디 계시든 다치지만 마세요.', short: '(전화) 다치지만 마.' },
+    alt: '돔으로 가는 지하철. 옆자리 사람이 피켓을 무릎에 놓고 졸고 있다.' },
+};
+const leadScene = (id, key) => { const T = LEAD_T[key]; return {
   id, skip: (g) => !F2_IN_CREW(g), lines: [
-    { narr: `${what} 얘기를 꺼내자 {leader}이(가) 잠깐 말이 없다.` },
-    { who: 'leader', text: (g, M) => ({ with: '…같이 간다. 네가 혼자 들어가면 내가 잠을 못 잔다.', stop: '팀 일정에 없는 일이다. 가지 마라. 이번엔 진짜다.', let: '말린다고 안 들을 거 안다. 연락만 끊지 마.' })[F2_STANCE(g, M)] },
+    { narr: T.narr },
+    { who: 'leader', text: LR((g, M) => T[F2_STANCE(g, M)]) },
   ], choices: [
     { text: '같이 가 달라고 한다', when: (g, M) => F2_STANCE(g, M) === 'with', set: { [`${id}_with`]: true }, rel: { leader: 2 }, relWhy: '위험한 일에 함께 갔다' },
     { text: '"그래도 갈게요."', when: (g, M) => F2_STANCE(g, M) === 'stop', set: { [`${id}_defied`]: true }, rel: { leader: -2 }, relWhy: '말렸는데 갔다' },
     { text: '"연락은 할게요."', when: (g, M) => F2_STANCE(g, M) === 'let' },
-  ],
-});
+  ] }; };
+// 팀원이 아닐 때: 옛 리더의 전화 한 줄, 리더도 없으면 서술
+const leadEcho = (key) => ({ who: 'leader', when: (g) => !F2_IN_CREW(g), text: LR(LEAD_T[key].call), alt: LEAD_T[key].alt });
 
 // ---------- 9장 감시자 ----------
 MAIN.ch(9, {
@@ -93,11 +141,12 @@ MAIN.ch(10, {
   part: 2, title: '친구의 선택', rank: 2, after: 1, where: (g) => { const f = g.mainWho('friend'); return f && f.region ? f.region : 'city'; },
   goal: (g) => `${F2_TARGET(g)}을(를) 만나러 간다`,
   scenes: [
-    leadScene('c10_lead', '친구 일'),
+    leadScene('c10_lead', 'c10'),
     { id: 'c10_call', lines: [
       { narr: (g, M) => (M.flags.seoyun === 'ally' ? '서윤에게서 문자가 온다. "균열교 신규 신도 명단에 아는 이름이 있어서요. 지우셔도 돼요, 이 문자." 첨부된 이름. ' + (F2_AWAKE(g) ? '{friend}의 동생, 지우.' : '{friend}.') : M.flags.seoyun === 'shaken' ? '서윤에게서 짧은 문자. "명단 확인하세요. 당신 쪽 사람." 그뿐이다.' : '{friend}에게 일주일째 연락이 안 된다. 메시지 옆의 숫자 1이 사라지지 않는다.') },
       { who: 'friend', when: (g) => F2_AWAKE(g), text: '…지우가 이상해. 요즘 밤마다 나가. 흰 옷 입고. 나보고는 "언니(형)는 이미 빛을 받았으니 모른다"고 하더라.' },
       { who: 'friend', when: (g, M) => !F2_AWAKE(g), text: (g, M) => (M.flags.friendNear ? '…응. 나 요즘 회사 언니 따라서 모임 나가. 폐역 그날 이후로. 무서운데, 거기 사람들은 다 내 편이야.' : '아 미안, 요즘 바빴어. 모임 같은 거 나가거든. …균열교. 응. 그 균열교. 화내지 마.') },
+      leadEcho('c10'),
     ] },
     { id: 'c10_home', lines: [
       { narr: '{friend}의 원룸. 현관에 흰 로브가 개켜져 있다. 책상 위에 갈라진 원이 찍힌 소책자 몇 권.' },
@@ -209,10 +258,10 @@ MAIN.ch(11, {
 const NEST = (g) => { const s = g.world && g.world.calamity; if (!s) return 'none'; if (s.active && s.active.id === 'nest') return 'active'; return (s.done && s.done.nest) || 'none'; };
 const PRIEST = { name: '흰 가면 사제', sub: '균열교' };
 MAIN.ch(12, {
-  part: 2, title: '다섯 개의 보름', rank: 2, after: 1, where: 'gangbuk',
+  part: 2, title: '다섯 개의 보름', rank: 2, after: 1, where: 'gangbuk', cal: 'nest',
   goal: '보름 밤, 강북 폐구',
   scenes: [
-    leadScene('c12_lead', '강북 보름 밤'),
+    leadScene('c12_lead', 'c12'),
     { id: 'c12_list', lines: [
       { narr: (g, M) => (M.flags.friend2 === 'with' ? '모임에서 들은 다섯 군데. 강북 폐역, 대전 외곽 정수장, 부산 폐부두, 대구 분지 가장자리, 그리고 {friend}의 동네 재개발 구역. 날짜는 같다. 다음 보름.' : M.flags.seoyun === 'ally' ? '서윤이 지도 한 장을 보낸다. 빨간 점 다섯 개. "다음 보름. 동시에. 관리국은 강북만 막을 거예요. 인력이 그것밖에 없대요."' : '헌터넷에 글이 올라왔다가 지워진다. "보름에 다섯 곳." 캡처본만 돈다. 그중 하나가 강북이다.') },
       { narr: (g) => ({
@@ -223,6 +272,7 @@ MAIN.ch(12, {
         none: '강북 폐구 선로 아래에서 무언가가 자라는 소리가 들린다는 신고가 늘었다. 아직 경보는 없다.',
       })[NEST(g)] },
       { who: 'seoyun', when: (g, M) => M.flags.wave0, text: '그 명단, 대붕괴 사흘 전에 만들었다고 했죠. 이번 작전 지시서도 그래요. 막으라는 말이 없어요. "관측하라"예요.' },
+      leadEcho('c12'),
     ], pause: { days: 3, label: '보름 밤', text: '사흘 뒤 보름 밤, 강북 폐구로 간다.' } },
     { id: 'c12_night', lines: [
       { narr: '보름. 강북 폐구. 달이 지나치게 크다. 무너진 역사 입구마다 촛불이 줄지어 땅속으로 내려간다.' },
@@ -232,7 +282,7 @@ MAIN.ch(12, {
       { narr: '발밑에서 선로가 울린다. 소리가 노래와 박자를 맞춘다.' },
     ], choices: [
       { text: '선로로 내려가 의식을 끊는다', set: { c12: 'cut' }, next: 'c12_after',
-        fight: (g) => ({ title: '선로 아래의 것', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 3, elem: 'wood', boss: true, name: '둥지에서 깬 것' },
+        fight: (g) => ({ title: '선로 아래의 것', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 3, elem: 'wood', boss: true, name: g.mainCalBoss('nest', '둥지에서 깬 것') },
           win: { text: '노래가 끊긴다. 선로 위 촛불이 한꺼번에 꺼진다.', gain: { fame: 8, rep: 6 } }, lose: { text: '무릎이 꺾인다. 노래는 끝까지 이어진다.', gain: { injure: 1 } } }) },
       { text: '관리국 작전에 합류한다', when: (g, M) => SEOYUN_ON(g, M) || M.flags.kamaWatch === 'signed', set: { c12: 'kama' }, gain: { merit: 6 }, next: 'c12_after',
         say: [{ who: 'seoyun', text: '들어가지 마세요. 우리는 입구만 봉쇄해요. …명령이에요. 제 명령 아니고.' }, { narr: '장갑차 조명 아래, 촛불 줄이 땅속으로 계속 내려간다. 아무도 막지 않는다. 카메라만 돌아간다.' }] },
@@ -258,6 +308,7 @@ MAIN.ch(12, {
   done: (g, M) => {
     const cut = M.flags.c12 === 'cut' && M.flags.fight_c12_night === 'win';
     M.flags.rituals = cut ? 4 : 5;
+    if (cut) g.mainCalClear('nest');
     if (M.flags.doyun === 'leaflet' && M.flags.c12 !== 'cut') { M.flags.doyun = 'front'; g.lifeEvent('도윤이 보름 의식 앞줄에 섰다. 도윤의 엄마가 깨어나지 않았다.'); }
     g.rumor(cut ? '강북 보름 의식이 중간에 끊겼다. 다섯 곳 중 한 곳만 문이 덜 열렸다는 말이 돈다.' : '보름 밤 다섯 곳에서 동시에 의식이 치러졌다. 관리국은 "사상자 없음"이라고 발표했다.');
     g.lifeEvent(({ cut: '보름 밤, 강북 선로에서 균열교 의식을 끊었다.', kama: '보름 밤, 관리국 봉쇄선 뒤에서 의식을 지켜봤다.', friend: '보름 밤, 강북 대신 친구를 찾아갔다.' })[M.flags.c12] || '보름 밤을 보냈다.');
@@ -277,7 +328,7 @@ MAIN.ch(13, {
   part: 2, title: '늦은 전화', rank: 2, after: 0, where: (g) => { const f = g.mainWho('friend'); return f && f.region ? f.region : 'city'; },
   goal: (g) => `${F2_TARGET(g)}에게 간다`,
   scenes: [
-    leadScene('c13_lead', '친구 일'),
+    leadScene('c13_lead', 'c13'),
     { id: 'c13_call', lines: [
       { narr: '새벽 세 시. 전화가 운다.' },
       { who: 'friend', text: (g, M) => ({
@@ -288,6 +339,7 @@ MAIN.ch(13, {
         deep: '…(숨소리만 들린다. 멀리서 파도 소리.)',
       })[M.flags.friend2] || '…와 줘.' },
       { narr: (g, M) => (M.flags.c12 === 'friend' ? '보름 밤 그 재개발 구역이다. 길을 안다. 분필 원이 어디 있는지도.' : M.flags.c12 === 'missed' ? '주소를 받아 적는 손이 떨린다. 보름은 이미 지났다. 너무 늦었는지도 모른다.' : '주소를 받아 적는다. 차로 사십 분.') },
+      leadEcho('c13'),
     ] },
     { id: 'c13_run', lines: [
       { narr: '계단을 세 칸씩 뛰어 내려간다. 신발 끈이 풀린 줄도 모른다.' },
@@ -381,7 +433,8 @@ MAIN.ch(14, {
   done: (g, M) => {
     M.flags.jinFace = true;
     M.flags.tone3 = M.flags.c14 === 'listen' ? 'heard' : 'deaf';
-    if (g.flags.chains) g.flags.chains.voice = Math.max(g.flags.chains.voice || 0, 3);
+    // 가면 벗기 = 균열교 연작 마무리(cult 4). voice는 여기서 올리지 않는다
+    if (g.flags.chains) g.flags.chains.cult = Math.max(g.flags.chains.cult || 0, 4);
     M.part2 = { seoyun: M.flags.seoyun || 'none', friend: M.flags.friend3 || 'late', jin: M.flags.jinSeohaeKnown || 'none', ritual: M.flags.c12 || 'missed', tone: M.flags.tone3 };
     g.lifeEvent(M.flags.c14 === 'listen' ? '균열교 교주 진서해의 이야기를 끝까지 들었다.' : '균열교 교주 진서해의 전화를 끊었다. 사흘 뒤 그가 가면을 벗었다.');
     g.rumor('균열교 교주가 가면을 벗었다. 전 청룡 연구소 수석 연구원 진서해. 관리국을 대붕괴의 원인으로 지목했다.');

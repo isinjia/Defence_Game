@@ -6,15 +6,16 @@ const MADO_LINE = (M, T) => T[M.flags.madoState || 'free'];
 
 // ---------- 21장 심해 신호 ----------
 MAIN.ch(21, {
-  part: 4, title: '심해 신호', rank: 4, after: 1, where: 'gangneung',
+  part: 4, title: '심해 신호', rank: 4, after: 1, where: 'gangneung', cal: 'abyss',
   goal: '강릉 해안 방벽',
   scenes: [
-    leadScene('c21_lead', '동해 심해'),
+    leadScene('c21_lead', 'c21'),
     { id: 'c21_dream', lines: [
       { narr: '꿈. 바다 밑. 아린이 문 안쪽이 아니라 바닷속에 서 있다. 발밑으로 금이 간다.' },
       { who: 'arin', text: (g, M) => ARIN_WARN(M) },
       { who: 'arin', text: '동쪽 바다 밑에 새 틈이 났어. 거기로 우리 쪽 짐승들이 너희 쪽으로 밀려 나가. 걔들도 숨 쉴 곳을 찾는 거야.' },
       { narr: '깨어나니 휴대폰에 속보. 강릉 해안 전선.' },
+      leadEcho('c21'),
     ] },
     { id: 'c21_wall', lines: [
       { narr: (g) => ({
@@ -28,7 +29,7 @@ MAIN.ch(21, {
       { who: 'seoyun', when: (g, M) => !!M.flags.seoyunShake, text: '관리국 측정팀이 저 아래로 잠수정을 내린대요. 목적은… "에테르 시료 채취". 분지 설비랑 같은 문구예요.' },
     ], choices: [
       { text: '잠수정을 타고 틈까지 내려간다', set: { c21: 'dive' }, next: 'c21_after',
-        fight: (g) => ({ title: '심해의 틈', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 3, elem: 'water', boss: true, name: '틈을 지키는 것' },
+        fight: (g) => ({ title: '심해의 틈', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 3, elem: 'water', boss: true, name: g.mainCalBoss('abyss', '틈을 지키는 것') },
           win: { text: '틈 가장자리가 얼어붙듯 굳는다. 빛이 가라앉는다.', gain: { fame: 15, rep: 10 } }, lose: { text: '잠수정 경보음 속에서 의식이 끊긴다. 눈을 뜨니 방벽 위 들것이다.', gain: { injure: 1 } } }) },
       { text: '방벽에 남아 밀려오는 것들을 막는다', set: { c21: 'wall' }, next: 'c21_after',
         fight: (g) => ({ title: '방벽 방어', mobs: { tier: Math.min(7, g.player.rankIdx), n: 4, elem: 'water' },
@@ -46,6 +47,7 @@ MAIN.ch(21, {
     ], next: 'end' },
   ],
   done: (g, M) => {
+    if (M.flags.c21 === 'dive' && M.flags.fight_c21_wall === 'win') g.mainCalClear('abyss');
     g.lifeEvent(({ dive: '동해 심해의 틈까지 내려갔다.', wall: '강릉 방벽에서 밤새 밀려오는 것들을 막았다.', stop: '관리국 심해 시료 채취를 멈춰 세웠다.' })[M.flags.c21] || '강릉 해안에 다녀왔다.');
     if (M.flags.c21 === 'stop') M.flags.kamaWatch = 'hostile';
   },
@@ -157,13 +159,14 @@ MAIN.ch(24, {
   part: 4, title: '비각성자 봉기', rank: 4, after: 0, where: 'gangnam',
   goal: '서울 강남 돔 성벽',
   scenes: [
-    leadScene('c24_lead', '강남 돔'),
+    leadScene('c24_lead', 'c24'),
     { id: 'c24_wall', lines: [
       { narr: '강남 돔. 투명한 성벽 바깥에 사람들이 모였다. 수만. 흰 로브도 있고 작업복도 있다. 손에 든 건 무기가 아니라 촛불과 피켓.' },
       { sys: '「우리도 숨지 않을 권리가 있다」' },
       { narr: (g, M) => (M.flags.kwon === 'alive' ? '맨 앞줄. 지팡이 짚은 권만석. 옆에서 하은이 피켓을 든다. "아빠는 이번엔 안에 안 들어가요. 밖에서 외치기만 해요."' : M.flags.kwon === 'dead' ? '맨 앞줄에 권만석의 영정이 올라가 있다. 하은이 그 액자를 들고 서 있다. 키가 많이 컸다.' : '맨 앞줄에 낯선 얼굴들. 다들 무언가를 들고 있다. 사진, 촛불, 아이 손.') },
       { narr: (g, M) => (M.flags.doyun === 'rescued' ? '도윤이 군중 사이에서 당신을 찾아 손을 흔든다. 각성자가 됐다. 울산 이후로. 그런데 로브를 입고 있다. "엄마 대신이야."' : M.flags.doyun === 'lab' ? '피켓 하나에 도윤의 사진. "울산에서 사라진 아이들을 돌려 달라."' : '') , when: (g, M) => M.flags.doyun === 'rescued' || M.flags.doyun === 'lab' },
       { narr: '성벽 안쪽. 길드 연합 진압조와 관리국 기동대. 방패가 한 줄로 늘어서 있다.' },
+      leadEcho('c24'),
       { who: 'madohyun', when: (g, M) => M.flags.madoState === 'ally', text: '자네가 앞에 서 주게. 영점 세대가 막으면 저들도 멈춘다. 피는 안 보고 끝내고 싶네.' },
       { who: 'seoyun', when: (g, M) => !!M.flags.seoyunShake && M.flags.madoState !== 'ally', text: '진압 명령 떨어졌어요. 열 시. 저는… 방패 뒤에 서라고 들었어요.' },
     ] },
@@ -210,9 +213,9 @@ MAIN.ch(25, {
   goal: (g) => (g.mainWho('leader') ? `${g.mainWho('leader').name}의 마지막 게이트` : '첫 팀의 빈자리'),
   scenes: [
     { id: 'c25_ask', lines: [
-      { who: 'leader', text: (g, M) => (LEAD_TRUST(g, M) >= 40 ? '이번 게이트 끝나면 그만둔다. 무릎이 말을 안 듣는다. 마지막은 너랑 가고 싶다.' : '이번 게이트, 사람이 모자라다. 너밖에 생각이 안 났다. …오랜만이지.'), alt: '첫 팀 단톡방에 옛 리더의 이름이 회색이다. 대신 팀원 하나가 연락해 온다. "리더 형(누나) 몫까지 마지막으로 한 번만 같이 가 줘."' },
+      { who: 'leader', text: LR((g, M) => (LEAD_TRUST(g, M) >= 40 ? { haera: '이번 게이트 끝나면 그만둔다. 무릎이 말을 안 듣는다. 마지막은 너랑 가고 싶다.', haeyo: '이번 게이트 끝나면 그만두려고요. 무릎이 말을 안 들어요. 마지막은 같이 가고 싶어요.', short: '이번이 마지막이다. 같이 가자.' } : { haera: '이번 게이트, 사람이 모자라다. 너밖에 생각이 안 났다. …오랜만이지.', haeyo: '이번 게이트에 사람이 모자라요. 생각나는 사람이 그쪽뿐이었어요. …오랜만이죠.', short: '사람이 모자라다. 오랜만이다.' })), alt: '첫 팀 단톡방에 옛 리더의 이름이 회색이다. 대신 팀원 하나가 연락해 온다. "리더 형(누나) 몫까지 마지막으로 한 번만 같이 가 줘."' },
       { narr: '거점 앞. 첫 팀 사람들이 모였다. 반은 처음 보는 얼굴이다. 몇 해가 지났다.' },
-      { who: 'leader', when: F2_HAS_LEADER, text: (g, M) => (M.flags.c24 === 'join' ? '길드 연합이 너 이름 빨갛게 칠한 거 안다. 상관없다. 오늘은 내 팀이다.' : M.flags.c18 === 'ally' ? '관리국 신분증 들고 다닌다며. 오늘은 그거 집에 두고 와.' : '첫날 기억나냐. 전단지. 네가 안 버렸던 거.') },
+      { who: 'leader', when: F2_HAS_LEADER, text: LR((g, M) => (M.flags.c24 === 'join' ? { haera: '길드 연합이 너 이름 빨갛게 칠한 거 안다. 상관없다. 오늘은 내 팀이다.', haeyo: '길드 연합이 이름 빨갛게 칠한 거 알아요. 상관없어요. 오늘은 제 팀이에요.', short: '빨간 이름 상관없다. 오늘은 내 팀.' } : M.flags.c18 === 'ally' ? { haera: '관리국 신분증 들고 다닌다며. 오늘은 그거 집에 두고 와.', haeyo: '관리국 신분증 들고 다니신다면서요. 오늘은 두고 오세요.', short: '관리국 신분증은 두고 와.' } : { haera: '첫날 기억나냐. 전단지. 네가 안 버렸던 거.', haeyo: '첫날 기억나요? 전단지. 안 버리셨던 거.', short: '전단지. 기억나지.' })) },
     ] },
     { id: 'c25_gate', lines: [
       { narr: '게이트 안. 공기가 짜다. 바다 냄새. 요즘 게이트는 다 이렇다.' },
@@ -229,8 +232,8 @@ MAIN.ch(25, {
         if (!M.flags.leaderFate) M.flags.leaderFate = !L ? 'gone' : M.flags.fight_c25_gate === 'lose' ? 'dead' : LEAD_TRUST(g, M) >= 40 ? 'retire' : 'hurt';
         return ({ retire: '게이트 밖. 리더가 장비를 하나씩 풀어 바닥에 내려놓는다. 마지막으로 칼을 내려놓고, 당신에게 내민다. "이건 네 거다."', hurt: '들것. 리더의 한쪽 다리가 이상한 각도로 꺾여 있다. 살았다. 다시 게이트에 들어갈 수는 없다.', dead: '게이트 밖. 리더는 걸어 나오지 못했다. 팀원들이 그 이름을 부른다. 대답이 없다.', gone: '게이트 밖. 빈자리에 옛 리더의 사진을 세운다. 누가 국화를 놓는다.' })[M.flags.leaderFate];
       } },
-      { who: 'leader', when: (g, M) => M.flags.leaderFate === 'retire', text: '팀 이름 네가 가져라. 사람도. …잘 해라. 전단지 안 버리던 놈답게.' },
-      { who: 'leader', when: (g, M) => M.flags.leaderFate === 'hurt', text: '다리 하나로 끝났으면 싸게 막은 거다. 울지 마. 너 우는 거 처음 본다.' },
+      { who: 'leader', when: (g, M) => M.flags.leaderFate === 'retire', text: LR({ haera: '팀 이름 네가 가져라. 사람도. …잘 해라. 전단지 안 버리던 놈답게.', haeyo: '팀 이름 가져가세요. 사람들도요. …잘해요. 전단지 안 버리던 사람답게.', short: '팀 네가 가져. 잘 해라.' }) },
+      { who: 'leader', when: (g, M) => M.flags.leaderFate === 'hurt', text: LR({ haera: '다리 하나로 끝났으면 싸게 막은 거다. 울지 마. 너 우는 거 처음 본다.', haeyo: '다리 하나로 끝났으면 싸게 막은 거예요. 울지 마요. 우는 거 처음 봐요.', short: '싸게 막았다. 울지 마.' }) },
       { narr: '장례식장. 첫 팀 사람들이 줄지어 선다. 당신 차례. 할 말을 고르다 아무것도 못 한다.', when: (g, M) => M.flags.leaderFate === 'dead' },
     ], next: 'end' },
   ],
@@ -284,7 +287,7 @@ MAIN.ch(26, {
 
 // ---------- 27장 해협 ----------
 MAIN.ch(27, {
-  part: 4, title: '해협', rank: 4, after: 1, where: 'busan',
+  part: 4, title: '해협', rank: 4, after: 1, where: 'busan', cal: 'strait',
   goal: '부산 앞바다',
   scenes: [
     { id: 'c27_rift', lines: [
@@ -323,7 +326,6 @@ MAIN.ch(27, {
   ],
   done: (g, M) => {
     M.flags.straitRitual = true;
-    if (g.flags.chains) g.flags.chains.voice = Math.max(g.flags.chains.voice || 0, 4);
     M.part4 = { abyss: M.flags.c21 || 'missed', rival: M.flags.rivalEnd || 'gone', jin: M.flags.jinBond || 'open', dome: M.flags.c24 || 'missed', leader: M.flags.leaderFate || 'gone', seed: M.flags.endSeed || 'none', plan: M.flags.c27 };
     g.lifeEvent('진서해가 해협 위 마지막 의식을 예고했다.');
     g.rumor('진서해가 다음 보름 대한해협 위에서 "마지막 의식"을 연다고 선언했다.');
