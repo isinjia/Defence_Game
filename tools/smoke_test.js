@@ -372,6 +372,29 @@ const { chromium, devices } = require('playwright');
       }
     });
   });
+  await step('지도 표식: NPC 얼굴·괴수 아이콘', async () => {
+    const ok = await ev(async () => {
+      if (typeof mapMobImage !== 'function' || typeof partyFaceImage !== 'function') throw new Error('지도 얼굴 마커 없음');
+      const p = G.player; const [cx, cy] = WORLD.cityPos[p.region];
+      p.x = cx; p.y = cy; G.reveal(cx, cy, 4);
+      const mx = cx + 1, my = cy; G.reveal(mx, my, 1);
+      G.mobs = [{ id: 990001, kind: 'mob', name: '산성 슬라임', shape: 'slime', elem: 'wood', tier: 1, count: 3, x: mx, y: my, region: p.region, born: G.monthKey() }];
+      const mobIm = mapMobImage(G.mobs[0]);
+      if (!(mobIm.complete && mobIm.naturalWidth)) await new Promise((r) => { mobIm.onload = () => r(); mobIm.onerror = () => r(); setTimeout(r, 4000); });
+      if (!(mobIm.complete && mobIm.naturalWidth)) throw new Error('괴수 썸네일 로드 실패');
+      const n = (G.npcs || []).find((x) => x.alive && !x.isCompanion && x.region === p.region);
+      if (!n) throw new Error('지역 NPC 없음');
+      const face = partyFaceImage(n);
+      if (!(face.complete && face.naturalWidth)) await new Promise((r) => { face.onload = () => r(); face.onerror = () => r(); setTimeout(r, 5000); });
+      if (!(face.complete && face.naturalWidth)) throw new Error('NPC 초상 로드 실패');
+      UI.map && UI.map.draw();
+      UI.showTip(mx, my);
+      if (!document.querySelector('#hud-tip .mob-face img, #hud-tip .mob-face .monster-art')) throw new Error('팁에 괴수 아이콘 없음');
+      UI.hideTip();
+      return true;
+    });
+    if (!ok) throw new Error('지도 표식 검사 실패');
+  });
   await step('게이트 진입 → 자동 전투로 끝까지', async () => {
     await ev(() => { const p = G.player; p.hp = p.maxHp; p.mp = p.maxMp; const g = { id: 999001, kind: 'gate', x: p.x, y: p.y, region: p.region, tier: 0, theme: '점검', elem: 'fire', born: G.monthKey(), variant: 'normal' }; G.mapGates.push(g); UI.startGate(g.id); });
     const seen = [];
