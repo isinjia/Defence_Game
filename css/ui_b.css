@@ -518,6 +518,19 @@ body.tut-hold #coach-pop { z-index: 60; }
 #hud-money.up { animation: hmup .5s ease-out; } #hud-money.down { animation: hmdown .5s ease-out; }
 .hm-d { position: fixed; z-index: 41; right: calc(max(12px, env(safe-area-inset-right, 0px)) + 58px); top: calc(max(8px, env(safe-area-inset-top, 0px)) + 46px); font-size: 13px; font-weight: 800; pointer-events: none; text-shadow: 0 1px 3px #000; animation: hmfloat 1.6s ease-out forwards; }
 
+/* 이야기·사건 획득 정산 (js/loot_gain_ui.js) */
+.loot-gain-box .loot-gain-h { margin: 4px 0 2px; color: var(--amber); letter-spacing: .08em; }
+.loot-gain .lg-items { gap: 8px; }
+.loot-gain .lg-items .ss-item, .loot-gain .lg-items button.ss-item {
+  padding: 8px 12px; min-height: 40px; font-size: 13.5px; border-radius: 8px;
+  box-shadow: 0 2px 0 #0006, inset 0 0 0 1px #ffffff08;
+  transition: transform .12s ease, filter .12s ease;
+}
+.loot-gain .lg-items .ss-item:hover, .loot-gain .lg-items button.ss-item:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.loot-gain .lg-top { margin-bottom: 2px; }
+.hud-tip .tp-go { margin-top: 6px; }
+.hud-tip .tp-go .primary { min-width: 88px; }
+
 /* PC: 커서 칸 정보 — 지도 중앙 상단 (js/map_hover_info.js, 사용자 요청) */
 .hud-look {
   display: none; left: 50%; top: max(10px, env(safe-area-inset-top, 0px)); transform: translateX(-50%);
