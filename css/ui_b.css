@@ -517,6 +517,33 @@ body.tut-hold #coach-pop { z-index: 60; }
 #hud-money.over-modal { z-index: 40; pointer-events: none; background: #0b111bf2; }
 #hud-money.up { animation: hmup .5s ease-out; } #hud-money.down { animation: hmdown .5s ease-out; }
 .hm-d { position: fixed; z-index: 41; right: calc(max(12px, env(safe-area-inset-right, 0px)) + 58px); top: calc(max(8px, env(safe-area-inset-top, 0px)) + 46px); font-size: 13px; font-weight: 800; pointer-events: none; text-shadow: 0 1px 3px #000; animation: hmfloat 1.6s ease-out forwards; }
+
+/* PC: 날짜·나이는 크레딧 왼쪽, 퀘스트는 그 아래 (js/hud_pc_layout.js, 사용자 요청) */
+#hud-top-res { display: none; }
+@media (min-width: 641px) {
+  #hud-top-res {
+    position: fixed; z-index: 12; top: max(8px, env(safe-area-inset-top, 0px));
+    right: calc(max(12px, env(safe-area-inset-right, 0px)) + 50px);
+    display: inline-flex; align-items: stretch; gap: 6px; height: 44px;
+    max-width: calc(100vw - 170px); pointer-events: none;
+  }
+  #hud-top-res > * { pointer-events: auto; }
+  #hud-top-res .hud-date { pointer-events: none; }
+  #hud-top-res #hud-money {
+    position: static; top: auto; right: auto; z-index: auto;
+    height: 100%; max-width: none; flex: none;
+  }
+  .hud-date.pc-tr {
+    flex-direction: row; align-items: center; gap: 8px;
+    min-height: 0; height: 100%; padding: 0 12px;
+    background: #0b111bd9; border-color: var(--line-hi, #2a3b55);
+  }
+  .hud-date.pc-tr b { font-size: 13px; }
+  .hud-date.pc-tr span { font-size: 12px; white-space: nowrap; }
+  /* 날짜·크레딧 한 줄(44px + 여백) 아래로 퀘스트 */
+  .hud-tr { top: calc(60px + env(safe-area-inset-top, 0px)) !important; }
+  body.st-open #hud-top-res #hud-money { display: none !important; }
+}
 .hm-d.up { color: #5fe08a; } .hm-d.down { color: #ff6b6b; }
 @keyframes hmup { 30% { border-color: #5fe08a; box-shadow: 0 0 14px #5fe08a88; } }
 @keyframes hmdown { 30% { border-color: #ff6b6b; box-shadow: 0 0 14px #ff6b6b88; } }
