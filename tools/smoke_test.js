@@ -202,13 +202,25 @@ const { chromium, devices } = require('playwright');
         for (const node of root.querySelectorAll('image')) if (/(?:hair|traits)-/.test(node.getAttribute('href'))) node.remove();
         const src = await PortraitParts.rasterize(new XMLSerializer().serializeToString(doc));
         const image = new Image(); image.src = src; await image.decode();
-        const canvas = document.createElement('canvas'); canvas.width = 400; canvas.height = 800;
+        const canvas = document.createElement('canvas'); canvas.width = 400; canvas.height = 480;
         const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
-        const faceRgb = median([ctx.getImageData(170, 185 + offset, 12, 12).data, ctx.getImageData(218, 185 + offset, 12, 12).data]);
-        const bodyRgb = median([ctx.getImageData(150, 380, 8, 8).data]);
+        const faceRgb = median([ctx.getImageData(170, 145 + offset, 12, 12).data, ctx.getImageData(218, 145 + offset, 12, 12).data]);
+        const bodyRgb = median([ctx.getImageData(150, 340, 8, 8).data]);
         if (faceRgb.some((v, i) => Math.abs(v - bodyRgb[i]) > 5)) throw new Error('얼굴·몸 피부색 불일치: ' + gender + face);
-        const neck = ctx.getImageData(200, gender === 'M' ? 312 : 318, 1, 1).data;
+        const neck = ctx.getImageData(200, gender === 'M' ? 272 : 278, 1, 1).data;
         if (neck[0] < 90 || neck[1] < 65) throw new Error('턱과 목 사이 빈 공간');
+        if (gender === 'M' && face === 0) {
+          // 몸만 따로 그려 턱 바깥 잔여 윤곽과 어깨 잘림·과한 폭을 검사한다.
+          for (const node of root.querySelectorAll('image')) if (node.dataset.depth !== 'underwear') node.remove();
+          const bodySrc = await PortraitParts.rasterize(new XMLSerializer().serializeToString(doc));
+          const body = new Image(); body.src = bodySrc; await body.decode(); ctx.clearRect(0, 0, 400, 480); ctx.drawImage(body, 0, 0);
+          for (const x of [170, 230]) if (ctx.getImageData(x, 240, 1, 1).data[0] > 100) throw new Error('몸 쪽 윤곽이 턱 바깥으로 나옴');
+          if (ctx.getImageData(155, 285, 1, 1).data[0] < 100) throw new Error('목 클립이 어깨를 자름');
+          const chest = ctx.getImageData(0, 360, 400, 1).data;
+          const skinX = [];
+          for (let x = 0; x < 400; x++) if (chest[x * 4] > 100 && chest[x * 4 + 1] > 70) skinX.push(x);
+          if (!skinX.length || skinX[skinX.length - 1] - skinX[0] > 325) throw new Error('머리 대비 몸 폭이 과함');
+        }
       }
     });
   });
@@ -218,7 +230,7 @@ const { chromium, devices } = require('playwright');
       for (const gender of ['M', 'F']) {
         UI.handle('ps-gender', gender);
         const svg = document.querySelector('.id-preview svg[data-portrait-parts]');
-        if (!svg || svg.dataset.outfit !== 'underwear' || svg.getAttribute('viewBox') !== '0 0 400 800') throw new Error('생성 화면이 기본 몸체가 아님: ' + gender);
+        if (!svg || svg.dataset.outfit !== 'underwear' || svg.getAttribute('viewBox') !== '0 40 400 480') throw new Error('생성 화면이 기본 몸체가 아님: ' + gender);
         if (svg.querySelector('[data-depth="garment-front"]')) throw new Error('생성 중 겉옷 표시');
         const src = await PortraitParts.rasterize(svg.outerHTML);
         const image = new Image(); image.src = src; await image.decode();

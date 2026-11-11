@@ -7,6 +7,7 @@ from scipy import ndimage
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--source', type=Path, required=True)
+parser.add_argument('--male-source', type=Path, required=True)
 args = parser.parse_args()
 source = Image.open(args.source).convert('RGBA')
 if source.size != (1448, 1086):
@@ -14,7 +15,6 @@ if source.size != (1448, 1086):
 root = Path(__file__).resolve().parent.parent / 'assets/portraits/parts'
 # 자르기·균일 배율·목 중심 등록만 한다. 몸의 비율을 변형하지 않는다.
 for gender, box, cx, top, scale in [
-    ('m', (50, 350, 700, 1086), 366, 386, .76),
     ('f', (770, 350, 1400, 1086), 1087, 402, .86),
 ]:
     image = source.crop(box)
@@ -27,3 +27,18 @@ for gender, box, cx, top, scale in [
     canvas = Image.new('RGBA', (400, 900))
     canvas.alpha_composite(image, (round(200 + (box[0] - cx) * scale), round(270 + (box[1] - top) * scale)))
     canvas.save(root / ('body-' + gender + '.webp'), 'WEBP', quality=92, method=4)
+
+# 남성은 부피를 줄여 새로 그린 몸체를 쓴다. 균일 배율로 쇄골을 335에 등록한다.
+image = Image.open(args.male_source).convert('RGBA')
+if image.size != (1086, 1448):
+    raise ValueError('남성 몸체 등록 기준 이미지는 1086×1448입니다.')
+rgba = np.array(image)
+labels, _ = ndimage.label(rgba[:, :, 3] > 180)
+sizes = np.bincount(labels.ravel()); sizes[0] = 0
+keep = ndimage.binary_dilation(labels == sizes.argmax(), iterations=1)
+rgba[:, :, 3] = np.where(keep, rgba[:, :, 3], 0)
+scale = .622
+image = Image.fromarray(rgba).resize((round(image.width * scale), round(image.height * scale)), Image.Resampling.LANCZOS)
+canvas = Image.new('RGBA', (400, 900))
+canvas.alpha_composite(image, (round(200 - 542 * scale), round(335 - 551 * scale)))
+canvas.save(root / 'body-m.webp', 'WEBP', quality=92, method=4)

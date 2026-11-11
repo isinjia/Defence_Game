@@ -1520,9 +1520,9 @@ const PortraitParts = (() => {
         900
       ],
       "skinRgb": [
-        223.0,
-        190.0,
-        172.0
+        220.0,
+        188.0,
+        162.0
       ]
     }
   ],
@@ -1620,10 +1620,11 @@ const PortraitParts = (() => {
     const chinAnchor = selection.layers[0].chinY || (female ? 261 : 251);
     const headY = underwear ? (female ? 303 : 295) - chinAnchor : female ? 0 : clothStyle === 0 ? 16 : 8;
     const headTransform = ` transform="translate(0 ${headY})"`;
-    const cardHeight = underwear ? 800 : 480;
-    const view = avatar ? `72 ${headY} 256 256` : `0 0 400 ${cardHeight}`;
+    const cardHeight = 480;
+    const cropY = underwear ? 40 : 0;
+    const view = avatar ? `72 ${headY} 256 256` : `0 ${cropY} 400 ${cardHeight}`;
     const face = selection.layers[0], cloth = selection.layers[1];
-    const source = part => root + part.file + '?v=4';
+    const source = part => root + part.file + (part.file === 'body-m.webp' ? '?v=5' : '?v=4');
     const faceFilter = selection.race === 'orc' ? ` filter="url(#${id}orc)"` : '';
     const image = (part, attributes = '') => {
       const [x, y, w, h] = part.rect, src = source(part);
@@ -1650,13 +1651,14 @@ const PortraitParts = (() => {
     const skinGain = underwear ? (face.skinRgb || [230, 195, 180]).map((value, i) => value / (cloth.skinRgb || [230, 195, 180])[i]) : [];
     const orcMatrix = '.45 .2 0 0 .02 .2 .6 .1 0 .04 .1 .2 .25 0 .01 0 0 0 1 0';
     const bodyTone = underwear ? `<filter id="${id}bodyTone" color-interpolation-filters="sRGB"><feComponentTransfer>${['R','G','B'].map((channel, i) => `<feFunc${channel} type="linear" slope="${skinGain[i]}"/>`).join('')}</feComponentTransfer>${selection.race === 'orc' ? `<feColorMatrix color-interpolation-filters="linearRGB" type="matrix" values="${orcMatrix}"/>` : ''}</filter>` : '';
-    const background = `<defs>${collarDefs}${bodyTone}<clipPath id="${id}head" clipPathUnits="userSpaceOnUse"><path d="${headOutline}"/></clipPath><clipPath id="${id}neck"><path d="M0 0H400V${jawY}H252L247 ${jawY + 15}L234 ${jawY + 30}V255L${neck[1]} 286V325H${neck[0]}V286L166 255V${jawY + 30}L153 ${jawY + 15}L148 ${jawY}H0Z"/></clipPath><radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><filter id="${id}orc"><feColorMatrix type="matrix" values=".45 .2 0 0 .02 .2 .6 .1 0 .04 .1 .2 .25 0 .01 0 0 0 1 0"/></filter><clipPath id="${id}clip"><circle cx="200" cy="${128 + headY}" r="126"/></clipPath></defs>`;
+    const bodyNeckClip = underwear ? `<clipPath id="${id}bodyNeck" clipPathUnits="userSpaceOnUse"><path d="M0 900V310H140L172 295L182 270H218L228 295L260 310H400V900Z"/></clipPath>` : '';
+    const background = `<defs>${collarDefs}${bodyTone}${bodyNeckClip}<clipPath id="${id}head" clipPathUnits="userSpaceOnUse"><path d="${headOutline}"/></clipPath><clipPath id="${id}neck"><path d="M0 0H400V${jawY}H252L247 ${jawY + 15}L234 ${jawY + 30}V255L${neck[1]} 286V325H${neck[0]}V286L166 255V${jawY + 30}L153 ${jawY + 15}L148 ${jawY}H0Z"/></clipPath><radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><filter id="${id}orc"><feColorMatrix type="matrix" values=".45 .2 0 0 .02 .2 .6 .1 0 .04 .1 .2 .25 0 .01 0 0 0 1 0"/></filter><clipPath id="${id}clip"><circle cx="200" cy="${128 + headY}" r="126"/></clipPath></defs>`;
     const robeNeck = !avatar && clothStyle === 1
       ? `<svg x="164" y="275" width="72" height="60" viewBox="36 220 72 20" preserveAspectRatio="none" aria-hidden="true"><image href="${source(face)}" xlink:href="${source(face)}" width="144" height="250"${faceFilter}/></svg>` : '';
     const backCollar = collar ? image(cloth, ` data-depth="collar-back" clip-path="url(#${id}collarBack)"`) : '';
     // 원본 얼굴·목을 먼저 놓고, 의상 앞깃 다음에 얼굴 윤곽을 다시 얹어 턱이 잘리지 않게 한다.
     const neckPlane = underwear ? '' : image(face, ` data-depth="neck"${headTransform}${faceFilter} clip-path="url(#${id}neck)"`);
-    const bodyPlane = underwear ? image(cloth, ` data-depth="underwear" filter="url(#${id}bodyTone)"`) : '';
+    const bodyPlane = underwear ? image(cloth, ` data-depth="underwear" filter="url(#${id}bodyTone)" clip-path="url(#${id}bodyNeck)"`) : '';
     const clothPlane = underwear ? '' : image(cloth, ` data-depth="garment-front"${collar ? ` mask="url(#${id}collarFront)"` : ''}`);
     const headPlane = image(face, ` data-depth="head-front"${headTransform}${faceFilter} clip-path="url(#${id}head)"`);
     const accessories = selection.layers.slice(2);
@@ -1665,8 +1667,8 @@ const PortraitParts = (() => {
     if (glassesIndex > hairIndex && hairIndex >= 0) accessories.splice(hairIndex, 0, accessories.splice(glassesIndex, 1)[0]);
     const details = accessories.map(part => image(part, headTransform)).join('');
     const drawing = `<rect width="400" height="${Math.max(600, cardHeight)}" fill="#0a1220"/><ellipse cx="200" cy="190" rx="240" ry="300" fill="url(#${id}bg)"/>${bodyPlane}${robeNeck}${backCollar}${neckPlane}${clothPlane}${headPlane}${details}`;
-    const art = avatar ? `<g clip-path="url(#${id}clip)">${drawing}</g><circle cx="200" cy="${128 + headY}" r="125" fill="none" stroke="${ring}" stroke-width="4"/>` : drawing + `<rect x="1" y="1" width="398" height="${cardHeight - 2}" fill="none" stroke="${ring}" stroke-width="2" opacity=".7"/>`;
-    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v5" data-head-offset="${headY}" data-outfit="${selection.outfit}" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size * cardHeight / 400)}" viewBox="${view}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${escape(avatar ? '초상화' : '캐릭터 일러스트')}">${background}${art}</svg>`;
+    const art = avatar ? `<g clip-path="url(#${id}clip)">${drawing}</g><circle cx="200" cy="${128 + headY}" r="125" fill="none" stroke="${ring}" stroke-width="4"/>` : drawing + `<rect x="1" y="${cropY + 1}" width="398" height="${cardHeight - 2}" fill="none" stroke="${ring}" stroke-width="2" opacity=".7"/>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v6" data-head-offset="${headY}" data-outfit="${selection.outfit}" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size * cardHeight / 400)}" viewBox="${view}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${escape(avatar ? '초상화' : '캐릭터 일러스트')}">${background}${art}</svg>`;
   }
   PORTRAIT.card = function (seed, gender, element, rank, size = 200, opts = {}) {
     if (!opts.outfit && (!opts.race || opts.race === 'human') && PORTRAIT.imageFor(seed, gender)) return legacy.card.apply(this, arguments);

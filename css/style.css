@@ -133,7 +133,6 @@ p { margin: 6px 0; }
 .create-grid > * { min-width: 0; }
 .id-preview { display: grid; gap: 10px; position: sticky; top: 0; justify-items: center; }
 .id-preview > .portrait, .id-preview > .portrait-img { max-width: 100%; height: auto; }
-.id-preview > svg[data-outfit="underwear"] { width: auto; height: min(480px, 55vh); }
 .id-preview > button { justify-self: stretch; }
 .choice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px; }
 .choice-grid.elems { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); }
