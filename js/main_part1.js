@@ -14,6 +14,7 @@ MAIN.ch(1, {
     { id: 'c1_street', lines: [
       { narr: '아침 일곱 시. 게이트 경보가 없는 날의 거리는 생각보다 조용하다.' },
       { narr: '편의점 앞 전봇대에 종이가 한 장 붙어 있다. 그 옆 전봇대에도. 그 옆에도. 같은 종이가 골목 끝까지 줄지어 있다.' },
+      { narr: '우편함 고지서 사이에 끼어 있던 그 검은 종이다. 하룻밤 사이 동네 전체에 붙었다.', when: (g) => !!(g.flags.story && g.flags.story.mainLeaflet) },
       { narr: '검은 바탕에 흰 글씨. 한가운데 갈라진 원이 그려져 있다.' },
       { sys: '「균열은 저주가 아니다. 구원이다.\n신의 문이 열리는 날, 각성하지 못한 자들도 빛을 받으리라.\n— 균열교. 매주 목요일 무료 급식, 강북 폐구 옛 성혼예식장 지하」' },
       { narr: '출근하던 사람 몇이 전단 앞에서 걸음을 늦춘다. 아무도 떼어 내지 않는다.' },
@@ -579,3 +580,21 @@ MAIN.ch(8, {
   ],
   done: (g, M) => { M.part1 = { c4: M.flags.c4, rivalPath: M.flags.rivalPath || null, dream: M.flags.dream || null }; g.lifeEvent('헌터로서 첫 해를 보냈다.'); },
 });
+
+// 데뷔 첫 사건(자격증 받은 날)을 넘기면 메인 1장 「전단지」가 바로 열린다. 석 달 기다리지 않는다
+if (typeof Game !== 'undefined') {
+  const GP = Game.prototype; const baseDN = GP.debutNext;
+  GP.debutNext = function (...a) {
+    const d = this.player && this.player.debut; const first = d && d.step === 0;
+    const r = baseDN.apply(this, a);
+    if (first && this.mainState) {
+      const M = this.mainState();
+      if (M.ch === 1 && !M.open[1] && !M.done[1]) {
+        this.flags.story ??= {}; if (d.tier === 'normal') this.flags.story.mainLeaflet = true;
+        M.open[1] = this.monthKey();
+        this.queue.push({ type: 'toast', text: '메인 이야기 · 1장 「전단지」가 열렸다. 현재 퀘스트 맨 위를 보라.' });
+      }
+    }
+    return r;
+  };
+}
