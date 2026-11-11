@@ -603,7 +603,7 @@ const { chromium, devices } = require('playwright');
   await step('메인 2부: D급 9장 열림 · 9장 갈래→10장 첫 줄 · 10장 갈래→13장 친구 · 12장 만료 · 14장 뒤 진서해 · 대기일 존중', async () => {
     const r = await ev(() => {
       if (!MAIN.chapters[9] || !MAIN.chapters[14]) return '2부 장이 없다';
-      const M = G.mainState(); const keep = JSON.stringify(M); const q = G.queue.slice(); const p = G.player; const rk = p.rankIdx; const chains = JSON.stringify(G.flags.chains || {});
+      const M = G.mainState(); const keep = JSON.stringify(M); const q = G.queue.slice(); const p = G.player; const rk = p.rankIdx; const chains = JSON.stringify(G.flags.chains || {}); const cal0 = JSON.stringify((G.world && G.world.calamity) || null); const gates0 = G.mapGates.slice(); const dang0 = REGIONS.map((x) => x.danger);
       let f = G.npcs.find((n) => n.friendhood && n.alive !== false); const madeF = !f;
       if (!f) { f = G.makeNpc(false); f.friendhood = true; f.rankIdx = 0; f.relation = 20; G.npcs.push(f); }
       const said = [];
@@ -648,7 +648,7 @@ const { chromium, devices } = require('playwright');
         if (M.ch !== 15 || !M.flags.jinFace || G.mainWho('mumyeong').name !== '진서해' || !M.part2) return '14장 뒤 진서해 공개가 남지 않았다';
         const han = said.find((t) => /[一-鿿]/.test(t)); if (han) return '2부 대사에 한자: ' + han.slice(0, 30);
         return '';
-      } finally { G.flags.main = JSON.parse(keep); G.flags.chains = JSON.parse(chains); G.queue = q; p.rankIdx = rk; if (madeF) G.npcs.splice(G.npcs.indexOf(f), 1); if (UI.dlg) UI.dlgEnd(); }
+      } finally { if (G.world) { G.world.calamity = JSON.parse(cal0); G.mapGates = gates0; REGIONS.forEach((x, i) => { x.danger = dang0[i]; }); if (G.world.calamity && G.calamityInit) G.calamityInit(); } G.flags.main = JSON.parse(keep); G.flags.chains = JSON.parse(chains); G.queue = q; p.rankIdx = rk; if (madeF) G.npcs.splice(G.npcs.indexOf(f), 1); if (UI.dlg) UI.dlgEnd(); }
     });
     if (r) throw new Error(r);
   });
@@ -656,7 +656,7 @@ const { chromium, devices } = require('playwright');
     const r = await ev(() => {
       if (!MAIN.chapters[15] || !MAIN.chapters[27]) return '3·4부 장이 없다';
       const M = G.mainState(); const keep = JSON.stringify(M); const q = G.queue.slice(); const p = G.player; const rk = p.rankIdx; const chains = JSON.stringify(G.flags.chains || {});
-      const L0 = G.mainWho('leader'); const L0s = L0 ? { alive: L0.alive, death: L0.death, comp: L0.isCompanion, hurt: L0.hurt, party: (p.party || []).slice() } : null;
+      const cal0 = JSON.stringify((G.world && G.world.calamity) || null); const gates0 = G.mapGates.slice(); const dang0 = REGIONS.map((x) => x.danger); const L0 = G.mainWho('leader'); const L0s = L0 ? { alive: L0.alive, death: L0.death, comp: L0.isCompanion, hurt: L0.hurt, party: (p.party || []).slice() } : null;
       const said = [];
       const setCh = (n, flags) => { if (UI.dlg) UI.dlgEnd(() => {}); M.ch = n; M.done = {}; for (let i = 1; i < n; i++) M.done[i] = { mk: G.monthKey() - 2 }; M.open = { [n]: G.monthKey() }; M.started = {}; M.scene = null; M.pending = null; M.pendingDay = null; M.flags = { ...flags }; };
       const play = (n, pick, lose) => {
@@ -682,9 +682,17 @@ const { chromium, devices } = require('playwright');
         setCh(25, {}); M.flags.c24_lead_with = true; if (!play(25, 0, true) || !['dead', 'gone'].includes(M.flags.leaderFate)) return '25장 패배가 리더 생사에 닿지 않았다: ' + M.flags.leaderFate;
         setCh(24, {}); M.open = { 24: G.monthKey() - 5 }; G.mainCheck(); if (M.flags.c24 !== 'missed' || !M.flags.domeBlood) return '24장 만료가 상태를 남기지 않았다';
         setCh(27, { jinBond: 'foe', halfRing: true }); if (!play(27, 0) || M.ch !== 28 || !M.part4 || !M.flags.straitRitual) return '27장 뒤 4부 요약이 없다';
+        // 15장 듣기 잔향, 대기일 존중, 아린 부탁, 리더 말투 객체, 재앙 키 공유
+        p.rankIdx = 3; setCh(15, { tone3: 'heard' }); UI.mainPlay('c15_arrive'); if (!UI.dlg || !/진서해/.test(UI.dlg.lines[0].narr || '')) return '15장 듣기 잔향이 첫 줄에 없다'; UI.dlgEnd(() => {});
+        setCh(17, {}); M.started[17] = true; M.pending = 'c17_night'; M.pendingDay = G.mainToday() + 3; if (UI.mainResume() || UI.dlg) return '17장 대기일 전에 이어졌다';
+        p.rankIdx = 4; setCh(21, { c20: 'world', arinName: true }); if (!play(21, 0) || M.flags.arinAsk !== 'bridge' || M.flags.arinPromise !== true) return '21장 아린 부탁이 남지 않았다';
+        if (!LEAD_T.c12 || !LEAD_T.c12.with.haeyo || !LEAD_T.c24.stop.short) return '리더 반응 말투 대사가 없다';
+        if (G.world && G.world.calamity) { const cs = G.world.calamity; cs.active = null; delete cs.done.basin; p.rankIdx = 3; setCh(15, {}); M.open = {}; G.mainCheck(); if (!['active', 'watch'].includes(M.flags.basin)) return '15장이 재앙 상태를 세우지 않았다'; G.mainCalClear('basin'); if (cs.done.basin !== 'player' || M.flags.basin !== 'player' || (cs.active && cs.active.id === 'basin')) return '메인 해소가 재앙에 닿지 않았다'; }
+        // 시작 뒤 방치해도 만료, 만료까지 표시
+        setCh(16, {}); M.open = { 16: G.monthKey() - 2 }; M.started[16] = true; M.pending = 'c16_yard'; if (!/만료까지 4개월/.test(UI.hudQuests())) return '만료까지 N개월 표시가 없다'; M.open[16] = G.monthKey() - 7; G.mainCheck(); if (!M.done[16] || M.done[16].how !== 'missed') return '시작 뒤 방치한 장이 만료되지 않았다';
         const han = said.find((t) => /[一-鿿]/.test(t)); if (han) return '3·4부 대사에 한자: ' + han.slice(0, 30);
         return '';
-      } finally { G.flags.main = JSON.parse(keep); G.flags.chains = JSON.parse(chains); G.queue = q; p.rankIdx = rk; if (L0) { L0.alive = L0s.alive; L0.death = L0s.death; L0.isCompanion = L0s.comp; L0.hurt = L0s.hurt; p.party = L0s.party; } if (UI.dlg) UI.dlgEnd(); }
+      } finally { if (G.world) { G.world.calamity = JSON.parse(cal0); G.mapGates = gates0; REGIONS.forEach((x, i) => { x.danger = dang0[i]; }); if (G.world.calamity && G.calamityInit) G.calamityInit(); } G.flags.main = JSON.parse(keep); G.flags.chains = JSON.parse(chains); G.queue = q; p.rankIdx = rk; if (L0) { L0.alive = L0s.alive; L0.death = L0s.death; L0.isCompanion = L0s.comp; L0.hurt = L0s.hurt; p.party = L0s.party; } if (UI.dlg) UI.dlgEnd(); }
     });
     if (r) throw new Error(r);
   });
