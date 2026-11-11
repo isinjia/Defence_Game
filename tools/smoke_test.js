@@ -222,7 +222,8 @@ const { chromium, devices } = require('playwright');
         let seed;for(let i=0;i<2000;i++){const s='coat-join-'+i,q=PortraitParts.select(s,'M',{outfit:'coat'});if(q.layers[2].file==='hair-m-1.webp'&&!q.layers.some(p=>p.file==='traits-5.webp')){seed=s;break;}}
         const{ctx,rc,doc}=await read(PORTRAIT.card(seed,'M',null,0,400,{bodyType,outfit:'coat'}));const pose=Number(doc.documentElement.dataset.baseOffset);
         let count=0;
-        for(let y=284;y<=288;y++)for(let x=169;x<=231;x++){
+        const liftY=bodyType==='heavy'?14:0; // 통통은 옷을 14px 올려 깃이 목을 감싸게 했으므로 검사 줄도 그만큼 위로
+        for(let y=284-liftY;y<=288-liftY;y++)for(let x=169;x<=231;x++){
           const a=rc.getImageData(x,y-pose,1,1).data,b=ctx.getImageData(x,y,1,1).data;
           if(a[3]<248)continue;
           if([0,1,2].some(c=>Math.abs(a[c]-b[c])>5))throw Error('코트 안쪽 목 피부가 직각으로 잘림: '+bodyType+' '+[x,y]+' '+[...a]+'/'+[...b]);count++;

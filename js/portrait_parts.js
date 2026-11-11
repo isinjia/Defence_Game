@@ -1837,13 +1837,17 @@ const PortraitParts = (() => {
     const target = palette[selection.skinTone] || face.skinRgb || [230,195,180];
     // 피부 마스크 안의 색만 바꿔 흰자·입술·검은 선·속옷 색은 보존한다.
     const skinImage = (part, name, attrs = '', feature = false) => `<g${attrs}>${image(part, ` data-skin-source="${source(part)}" data-skin-mask="${root+part.skinMask}?v=8" data-skin-rgb="${part.skinRgb.join(',')}" data-skin-target="${target.join(',')}" data-skin-race="${selection.race}"${feature ? ` data-face-feature="${female ? 'f' : 'm'}" data-feature-offset="${featureOffset}"` : ''}${name === 'base' ? ` data-body-scale="${headScale}" data-body-pivot="${chin+24}"` : ''}`)}</g>`;
-    const fit = integrated ? { thin:.9, normal:1, strong:1.04, heavy:1.12 }[selection.bodyType] : 1;
+    const fit = integrated ? { thin:.9, normal:1, strong:1.04, heavy:1.24 }[selection.bodyType] : 1; // 통통 1.12 는 깃이 목보다 작아 옷을 키움 (사용자 지적)
     // 여자 옷 원화는 몸통 중심(x≈199)보다 1.5~8px 오른쪽에 그려져 있어 목이 왼쪽으로 치우쳐 보였다 (사용자 지적). 깃 중심을 몸에 맞춘다.
     const shiftX = female && !underwear ? [-2, -2.5, -4.5, -4, -3, -8][style] || 0 : 0;
-    const garmentTf = `translate(${shiftX} 0) translate(200 0) scale(${fit} 1) translate(-200 0)`;
-    const garmentAttrs = fit === 1 && !shiftX ? '' : ` transform="${garmentTf}"`;
+    // 통통 원화는 목이 짧고 어깨선이 턱 높이에서 시작해, 옷을 그대로 두면 턱 아래 양옆에 어깨 피부가 혹처럼 남는다. 옷을 위로 올려 덮는다.
+    const lift = integrated && !underwear && selection.bodyType === 'heavy' ? (female ? 6 : 14) : 0;
+    const garmentTf = `translate(${shiftX} ${-lift}) translate(200 0) scale(${fit} 1) translate(-200 0)`;
+    const garmentAttrs = fit === 1 && !shiftX && !lift ? '' : ` transform="${garmentTf}"`;
     const round = {2:[200,264,38,0],3:[200,266,37,7],4:[201,262,44,28],5:[200,264,36,7]}; // 4: 여자 평상복 둥근 깃 — 깃 안쪽(뒷판)이 목 뒤로 가게 (사용자 지적: 목 밑이 잘리고 옷 뒤가 보임) // 2: 여자 차이나 깃(구멍 모양은 아래 vCollar)
-    const collar = style === 0 ? (female ? [200,290,{thin:34,normal:37,strong:44,heavy:48}[selection.bodyType]||34,6] : [201,289,42,15]) : female ? round[style] : null;
+    // 남자 둥근 깃(4)·세운 깃(3·5)도 같은 방식: 깃 안쪽 어두운 뒷판 앞으로 목이 내려와 앞깃 뒤로 들어간다 (사용자 지적: 남자는 턱 바로 밑이 뒷판이라 목이 비어 보임)
+    const roundM = {3:[200,265,37,16],4:[200,262,45,28],5:[200,265,36,14]};
+    const collar = style === 0 ? (female ? [200,290,{thin:34,normal:37,strong:44,heavy:48}[selection.bodyType]||34,6] : [201,289,42,15]) : female ? round[style] : roundM[style] || null;
     // 여자 차이나 깃(2)은 깃 안쪽이 V자: 뒷깃(검은 안쪽)은 목 뒤에, 앞깃 테두리는 목 앞에 온다. 목은 구멍 전체가 아니라 목 폭만 보인다.
     const vCollar = female && style === 2 && !underwear;
     const opening = vCollar ? 'M166 0H242V264C242 280 214 284 207 300H199C192 284 168 280 166 266Z'
@@ -1860,7 +1864,9 @@ const PortraitParts = (() => {
     const R = 200 + colHalf, L = 200 - colHalf, bend = female ? chin - 6 : chin - 12, inset = female ? 5 : 9;
     const side = (end) => `M0 0H400V${colTop}H${R}V${bend}Q${R} ${chin} ${R-inset} ${chin+4}${end}`;
     const column = side(`V330H${L+inset}V${chin+4}Q${L} ${chin} ${L} ${bend}V${colTop}H0Z`);
-    const jawShape = side(`H${L+inset}Q${L} ${chin} ${L} ${bend}V${colTop}H0Z`);
+    // 옷 위에 그리는 턱 레이어는 턱선(U자)까지만: 옷을 올려도 턱 양옆 어깨 피부가 옷 위에 남지 않게
+    const jw = female ? 44 : 52;
+    const jawShape = `M0 0H400V${colTop}H${200+jw}C${200+jw} ${chin-4} ${214} ${chin+3} 200 ${chin+3}C${186} ${chin+3} ${200-jw} ${chin-4} ${200-jw} ${colTop}H0Z`;
     const neckTop = female ? chin - 8 : chin + 4; // 여자는 턱 8px 위부터 목 폭: 턱과 옷 사이에 어깨 피부가 사각으로 보이던 문제
     const neckPath = heavy ? column : `M0 0H400V${neckTop}H${200+neckWidth/2}V330H${200-neckWidth/2}V${neckTop}H0Z`;
     const neckClip = vCollar ? `<path d="${neckPath}"/>` : collar ? `${heavy ? `<path d="${column}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}<path d="${opening}" transform="translate(0 ${-pose}) ${garmentTf}"/>` : `<path d="${neckPath}"/>`;
@@ -1868,9 +1874,10 @@ const PortraitParts = (() => {
     const featureY = female ? 175 : 165;
     const features = `<radialGradient id="${id}features"><stop stop-color="white"/><stop offset=".9" stop-color="white"/><stop offset="1" stop-color="black"/></radialGradient><mask id="${id}featureMask" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><ellipse cx="200" cy="${featureY}" rx="62" ry="70" fill="url(#${id}features)"/></mask>`;
     const defs = `<defs>${baseClips}${features}${collarDefs}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><clipPath id="${id}circle"><circle cx="200" cy="${128+pose}" r="126"/></clipPath></defs>`;
-    const back = collar ? image(cloth, ` data-depth="collar-back" clip-path="url(#${id}back)"${garmentAttrs}`) : '';
+    // 세운 깃(3·5)은 뒷깃이 목 뒤로 완전히 숨으므로 그리지 않는다: 통통에서 목 옆 위로 뒷깃 모서리가 보이던 문제 (사용자 지적)
+    const back = collar && style !== 3 && style !== 5 ? image(cloth, ` data-depth="collar-back" clip-path="url(#${id}back)"${garmentAttrs}`) : '';
     // 여자 코트·둥근·세운 깃(0·3·4·5): 목은 "깃 구멍 ∩ 목 폭"만 보인다 → 목 양옆 빈 곳으로 옷 안쪽 뒷판이 보이고, 목은 깃 앞판 뒤로 들어간다.
-    const roundNeck = integrated && !underwear && female && collar && !vCollar;
+    const roundNeck = integrated && !underwear && collar && !vCollar && (female || style >= 3);
     const rawBody = roundNeck
       ? `<g clip-path="url(#${id}open)" transform="translate(0 ${pose})">${skinImage(base,'base', ` data-depth="neck" clip-path="url(#${id}col)"`)}</g>`
       : integrated
