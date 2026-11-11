@@ -83,13 +83,22 @@ const { chromium, devices } = require('playwright');
       const b = PortraitParts.select('고정인물', 'M', { age: 25, race: 'human' });
       if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error('같은 인물 파츠 변경');
       if (!PortraitParts.select('고정인물', 'F').layers[0].file.startsWith('face-f')) throw new Error('여성 파츠 아님');
-      if (!PortraitParts.select('고정인물', 'M', { age: 76 }).layers[0].file.includes('-4.')) throw new Error('노년 얼굴 없음');
-      if (!PortraitParts.select('고정인물', 'F', { age: 10 }).layers[0].file.includes('-5.')) throw new Error('아이 얼굴 없음');
+      // 초상 나이는 10~42로 맞춘다. 76세도 성인 풀, 10세는 유스 풀.
+      const aged = Number(PortraitParts.select('고정인물', 'M', { age: 76 }).layers[0].file.match(/face-m-(\d+)/)[1]);
+      if (aged >= 15) throw new Error('고령도 성인 얼굴 풀이어야 함');
+      const kid = Number(PortraitParts.select('고정인물', 'F', { age: 10 }).layers[0].file.match(/face-f-(\d+)/)[1]);
+      if (kid < 15) throw new Error('아이 얼굴 없음');
       for (const race of ['elf', 'orc', 'dwarf', 'beastkin', 'dragonkin']) if (!PortraitParts.select('확인', 'M', { race }).layers.some(p => p.file.startsWith('traits'))) throw new Error('종족 특징 없음: ' + race);
       if (PortraitParts.select('고정인물', 'M', { outfit: 'coat' }).key === PortraitParts.select('고정인물', 'M', { outfit: 'tactical' }).key) throw new Error('의상 변경 안 됨');
+      const faceSet = new Set(), hairSet = new Set(), clothSet = new Set();
+      for (let n = 0; n < 240; n++) {
+        const s = PortraitParts.select('다양' + n, n % 2 ? 'F' : 'M', { age: 16 + (n % 26) });
+        faceSet.add(s.layers[0].file); hairSet.add(s.layers[2].file); clothSet.add(s.layers[1].file);
+      }
+      if (faceSet.size < 12 || hairSet.size < 12 || clothSet.size < 18) throw new Error('파츠 다양성 부족');
       // 정면 묶음머리는 두 눈을 가리지 않고, 목 피부는 깃 바깥으로 나오지 않아야 한다.
       for (const index of [0, 2, 3, 5]) {
-        const part = new Image(); part.src = 'assets/portraits/parts/hair-f-' + index + '.webp?v=' + ([0, 2].includes(index) ? '3' : '2'); await part.decode();
+        const part = new Image(); part.src = 'assets/portraits/parts/hair-f-' + index + '.webp?v=4'; await part.decode();
         const cv = document.createElement('canvas'); cv.width = 400; cv.height = 600;
         cv.getContext('2d').drawImage(part, 0, 0, 400, 600);
         for (const x of [168, 232]) if (cv.getContext('2d').getImageData(x, 163, 1, 1).data[3] > 8) throw new Error('묶음머리가 눈을 가림');
@@ -104,6 +113,17 @@ const { chromium, devices } = require('playwright');
       const neckCtx = neckCanvas.getContext('2d'); neckCtx.drawImage(neckImg, 0, 0);
       const outsideCollar = [...neckCtx.getImageData(153, 264, 10, 20).data, ...neckCtx.getImageData(155, 238, 8, 30).data];
       for (let i = 0; i < outsideCollar.length; i += 4) if (outsideCollar[i] > 140 && outsideCollar[i + 1] > 100 && outsideCollar[i] > outsideCollar[i + 1] + 15) throw new Error('목 피부가 옷깃 밖으로 나옴');
+      // 턱이 하이칼라 앞에 오고, 턱·옷깃 사이에 목 깊이가 있어야 한다.
+      const chinSrc = await PortraitParts.rasterize(PORTRAIT.card('턱뎁스', 'F', null, 0, 400, { outfit: 'hanbok' }));
+      const chinImg = new Image(); chinImg.src = chinSrc; await chinImg.decode();
+      const chinCanvas = document.createElement('canvas'); chinCanvas.width = 400; chinCanvas.height = 480;
+      const chinCtx = chinCanvas.getContext('2d'); chinCtx.drawImage(chinImg, 0, 0);
+      const chinTip = chinCtx.getImageData(200, 248, 1, 1).data;
+      if (chinTip[0] < 140 || chinTip[1] < 90) throw new Error('턱이 옷깃에 묻힘');
+      const neckGap = chinCtx.getImageData(200, 258, 1, 8).data;
+      let skinRows = 0;
+      for (let i = 0; i < neckGap.length; i += 4) if (neckGap[i] > 130 && neckGap[i + 1] > 85 && neckGap[i] > neckGap[i + 2]) skinRows++;
+      if (skinRows < 2) throw new Error('턱과 옷깃 사이 목 뎁스 없음');
       for (const gender of ['M', 'F']) {
         let glassesSeed;
         for (let n = 0; n < 100; n++) if (PortraitParts.select('안경' + n, gender).layers.some(part => part.file === 'traits-5.webp')) { glassesSeed = '안경' + n; break; }

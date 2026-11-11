@@ -56,6 +56,114 @@ const PortraitParts = (() => {
         144,
         250
       ]
+    },
+    {
+      "file": "face-m-6.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-7.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-8.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-9.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-10.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-11.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-12.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-13.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-14.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-15.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-16.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-17.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
     }
   ],
   "face-f": [
@@ -112,6 +220,114 @@ const PortraitParts = (() => {
         144,
         250
       ]
+    },
+    {
+      "file": "face-f-6.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-7.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-8.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-9.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-10.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-11.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-12.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-13.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-14.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-15.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-16.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-17.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
     }
   ],
   "hair-m": [
@@ -157,7 +373,7 @@ const PortraitParts = (() => {
         105,
         28,
         190,
-        170
+        193
       ]
     },
     {
@@ -166,7 +382,133 @@ const PortraitParts = (() => {
         105,
         28,
         190,
-        160
+        200
+      ]
+    },
+    {
+      "file": "hair-m-6.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        193
+      ]
+    },
+    {
+      "file": "hair-m-7.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        200
+      ]
+    },
+    {
+      "file": "hair-m-8.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        184
+      ]
+    },
+    {
+      "file": "hair-m-9.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        233
+      ]
+    },
+    {
+      "file": "hair-m-10.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        193
+      ]
+    },
+    {
+      "file": "hair-m-11.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        193
+      ]
+    },
+    {
+      "file": "hair-m-12.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        200
+      ]
+    },
+    {
+      "file": "hair-m-13.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        184
+      ]
+    },
+    {
+      "file": "hair-m-14.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        233
+      ]
+    },
+    {
+      "file": "hair-m-15.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        193
+      ]
+    },
+    {
+      "file": "hair-m-16.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        193
+      ]
+    },
+    {
+      "file": "hair-m-17.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        200
+      ]
+    },
+    {
+      "file": "hair-m-18.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        184
+      ]
+    },
+    {
+      "file": "hair-m-19.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        233
       ]
     }
   ],
@@ -210,14 +552,140 @@ const PortraitParts = (() => {
     {
       "file": "hair-f-4.webp",
       "rect": [
-        80,
-        24,
-        240,
-        262
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
       "file": "hair-f-5.webp",
+      "rect": [
+        80,
+        24,
+        240,
+        246
+      ]
+    },
+    {
+      "file": "hair-f-6.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-7.webp",
+      "rect": [
+        80,
+        24,
+        240,
+        246
+      ]
+    },
+    {
+      "file": "hair-f-8.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-9.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-10.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-11.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-12.webp",
+      "rect": [
+        80,
+        24,
+        240,
+        246
+      ]
+    },
+    {
+      "file": "hair-f-13.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-14.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-15.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-16.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-17.webp",
+      "rect": [
+        80,
+        24,
+        240,
+        246
+      ]
+    },
+    {
+      "file": "hair-f-18.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-19.webp",
       "rect": [
         0,
         0,
@@ -280,6 +748,222 @@ const PortraitParts = (() => {
         400,
         342
       ]
+    },
+    {
+      "file": "cloth-m-6.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-7.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-8.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-9.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-10.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-11.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-12.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-13.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-14.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-15.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-16.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-17.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-18.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-19.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-20.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-21.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-22.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-23.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-24.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-25.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-26.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-27.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-28.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-29.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
     }
   ],
   "cloth-f": [
@@ -330,6 +1014,222 @@ const PortraitParts = (() => {
     },
     {
       "file": "cloth-f-5.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-6.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-7.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-8.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-9.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-10.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-11.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-12.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-13.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-14.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-15.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-16.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-17.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-18.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-19.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-20.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-21.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-22.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-23.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-24.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-25.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-26.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-27.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-28.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-29.webp",
       "rect": [
         10,
         258,
@@ -397,17 +1297,41 @@ const PortraitParts = (() => {
 };
   const escape = value => String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
   const legacy = { card: PORTRAIT.card, avatar: PORTRAIT.avatar };
+  // 초상 파츠 나이대: 10~40대 초반. 그 밖 나이는 이 구간에 맞춰 보인다.
+  const FACE_ADULT = 15;
+  const FACE_YOUTH = 3;
+  function portraitYears(age) {
+    const y = age == null ? 25 : age;
+    return Math.max(10, Math.min(42, y));
+  }
   function select(seed, gender, opts = {}) {
     const g = gender === 'F' ? 'f' : 'm';
-    const hash = FX.hash(seed + '|webtoon-parts-v1');
-    const stage = ageStage(opts.age == null ? 25 : opts.age);
-    const young = stage === 'baby' || stage === 'child';
-    const face = young ? 5 : stage === 'elder' ? 4 : stage === 'middle' ? 3 : stage === 'teen' ? 0 : hash % 3;
-    const hair = stage === 'elder' ? 5 : stage === 'middle' ? 4 : (hash >>> 4) % 4;
+    const hash = FX.hash(seed + '|webtoon-parts-v2');
+    const years = portraitYears(opts.age);
+    const stage = years < 13 ? 'child' : years < 18 ? 'teen' : 'adult';
+    const young = stage === 'child';
+    const faces = parts['face-' + g];
+    const hairs = parts['hair-' + g];
+    const cloths = parts['cloth-' + g];
+    // 유스 얼굴은 풀 뒤쪽 FACE_ADULT.. , 성인·청소년은 앞 FACE_ADULT종.
+    const face = young
+      ? FACE_ADULT + ((hash >>> 2) % Math.min(FACE_YOUTH, Math.max(1, faces.length - FACE_ADULT)))
+      : hash % Math.min(FACE_ADULT, faces.length);
+    const hair = (hash >>> 4) % hairs.length;
+    // 의상 계열: 같은 스타일(6종)을 색 변형으로 묶는다. 아이는 casual 계열.
     const outfits = { coat: 0, hanbok: 1, mandarin: 2, tactical: 3, casual: 4, overcoat: 5 };
-    const cloth = young ? 4 : Object.prototype.hasOwnProperty.call(outfits, opts.outfit) ? outfits[opts.outfit] : [0, 1, 2, 3, 5][(hash >>> 8) % 5];
+    let cloth;
+    if (young) cloth = 4 + 6 * ((hash >>> 8) % Math.max(1, Math.floor(cloths.length / 6)));
+    else if (Object.prototype.hasOwnProperty.call(outfits, opts.outfit)) {
+      const base = outfits[opts.outfit];
+      cloth = base + 6 * ((hash >>> 10) % Math.max(1, Math.floor(cloths.length / 6)));
+    } else {
+      const base = [0, 1, 2, 3, 5][(hash >>> 8) % 5];
+      cloth = base + 6 * ((hash >>> 10) % Math.max(1, Math.floor(cloths.length / 6)));
+    }
+    cloth = Math.min(cloth, cloths.length - 1);
     const race = ['human', 'elf', 'orc', 'dwarf', 'beastkin', 'dragonkin'].includes(opts.race) ? opts.race : 'human';
-    const layers = [parts['face-' + g][face], parts['cloth-' + g][cloth], parts['hair-' + g][hair]];
+    const layers = [faces[face], cloths[cloth], hairs[hair]];
     const trait = { elf: 0, beastkin: 1, dragonkin: 2, orc: 3, dwarf: 4 }[race];
     if (trait != null && !(race === 'dwarf' && (young || g === 'f'))) layers.push(parts.traits[trait]);
     if (!young && race === 'human' && (hash >>> 12) % 7 === 0) layers.push(parts.traits[5]);
@@ -420,10 +1344,13 @@ const PortraitParts = (() => {
       if (index === 3) { rect[1] = g === 'm' ? 207 : 215; rect[3] = 23; }
       if (index === 4) rect[1] = 203;
       if (index === 5) {
-        const fit = {
-          m: [[200,154,100],[200,153,100],[200,153,98],[200,155,100],[200,158,98],[200,158,96]],
-          f: [[200,164,104],[200,163,104],[200,163,104],[200,164,102],[200,164,100],[200,166,100]],
-        }[g][face];
+        // 확장 얼굴은 원본 0..2 계열 눈높이를 순환해 맞춘다.
+        const fitBase = {
+          m: [[200,154,100],[200,153,100],[200,153,98]],
+          f: [[200,164,104],[200,163,104],[200,163,104]],
+        }[g];
+        const youthFit = { m: [200,158,96], f: [200,166,100] }[g];
+        const fit = young ? youthFit : fitBase[face % 3];
         rect.splice(0, 4, fit[0] - fit[2] / 2, fit[1] - 6, fit[2], fit[2] / 5);
       }
       return { ...part, rect };
@@ -442,7 +1369,7 @@ const PortraitParts = (() => {
     const headTransform = ` transform="translate(0 ${headY})"`;
     const view = avatar ? `72 ${headY} 256 256` : '0 0 400 480';
     const face = selection.layers[0], cloth = selection.layers[1];
-    const source = part => root + part.file + (['traits-5.webp', 'hair-f-0.webp', 'hair-f-2.webp'].includes(part.file) ? '?v=3' : '?v=2');
+    const source = part => root + part.file + '?v=4';
     const faceFilter = selection.race === 'orc' ? ` filter="url(#${id}orc)"` : '';
     const image = (part, attributes = '') => {
       const [x, y, w, h] = part.rect, src = source(part);
@@ -450,24 +1377,28 @@ const PortraitParts = (() => {
     };
     // 검게 채워져 있는 원통형 목구멍은 의상 그림을 앞·뒤로 나눠 목을 사이에 끼운다.
     // 남성 전술복은 이미 열린 U 목선이므로 기존 앞깃 투명 영역을 그대로 사용한다.
-    const roundCollars = {
-      'cloth-f-3.webp': [200, 266, 37, 7],
-      'cloth-f-5.webp': [200, 264, 36, 7],
+    // 확장 의상은 스타일(인덱스 % 6)로 같은 목선을 쓴다.
+    const clothStyle = Number((cloth.file.match(/cloth-[mf]-(\d+)/) || [])[1] || 0) % 6;
+    const roundCollarStyles = {
+      3: [200, 266, 37, 7],
+      5: [200, 264, 36, 7],
     };
-    const collar = roundCollars[cloth.file];
+    const collar = female ? roundCollarStyles[clothStyle] : null;
     const opening = collar ? `M${collar[0]-collar[2]} 0H${collar[0]+collar[2]}V${collar[1]}A${collar[2]} ${collar[3]} 0 0 1 ${collar[0]-collar[2]} ${collar[1]}Z` : '';
     const collarDefs = collar ? `<clipPath id="${id}collarBack" clipPathUnits="userSpaceOnUse"><path d="${opening}"/></clipPath><mask id="${id}collarFront" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><rect width="400" height="600" fill="white"/><path d="${opening}" fill="black"/></mask>` : '';
-    const neck = cloth.file.includes('-4.webp') ? [155, 245] : [166, 234];
+    const neck = clothStyle === 4 ? [155, 245] : [166, 234];
     const jawY = female ? 210 : 200;
     const faceIndex = Number(face.file.match(/-(\d+)\.webp/)[1]);
-    const chinY = (female ? [261,261,261,261,260,258] : [251,252,252,254,254,247])[faceIndex];
+    // 성인 변형은 0~2 계열, 유스(15+)는 예전 아동 턱선을 쓴다.
+    const chinKey = faceIndex >= FACE_ADULT ? 5 : faceIndex % 3;
+    const chinY = (female ? [261,261,261,261,260,258] : [251,252,252,254,254,247])[chinKey];
     const chinOffset = chinY - (female ? 261 : 251);
     const headRows = (female
       ? [[200,147,253],[210,150,250],[220,154,246],[230,160,240],[240,168,232],[250,177,224],[258,189,211],[261,196,204],[263,199,201]]
       : [[190,147,253],[200,149,251],[210,152,248],[220,158,242],[230,167,234],[240,177,224],[248,187,214],[251,195,207],[253,199,201]]).map(([y,l,r]) => [y + chinOffset, l, r]);
     const headOutline = `M0 0H400V${headRows[0][0]}L` + headRows.map(([y,l,r]) => `${r} ${y}`).join('L') + 'L' + headRows.slice().reverse().map(([y,l,r]) => `${l} ${y}`).join('L') + `H0Z`;
     const background = `<defs>${collarDefs}<clipPath id="${id}head" clipPathUnits="userSpaceOnUse"><path d="${headOutline}"/></clipPath><clipPath id="${id}neck"><path d="M0 0H400V${jawY}H252L247 ${jawY + 15}L234 ${jawY + 30}V255L${neck[1]} 286V325H${neck[0]}V286L166 255V${jawY + 30}L153 ${jawY + 15}L148 ${jawY}H0Z"/></clipPath><radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><filter id="${id}orc"><feColorMatrix type="matrix" values=".45 .2 0 0 .02 .2 .6 .1 0 .04 .1 .2 .25 0 .01 0 0 0 1 0"/></filter><clipPath id="${id}clip"><circle cx="200" cy="${128 + headY}" r="126"/></clipPath></defs>`;
-    const robeNeck = !avatar && cloth.file.includes('-1.webp')
+    const robeNeck = !avatar && clothStyle === 1
       ? `<svg x="164" y="275" width="72" height="60" viewBox="36 220 72 20" preserveAspectRatio="none" aria-hidden="true"><image href="${source(face)}" xlink:href="${source(face)}" width="144" height="250"${faceFilter}/></svg>` : '';
     const backCollar = collar ? image(cloth, ` data-depth="collar-back" clip-path="url(#${id}collarBack)"`) : '';
     // 원본 얼굴·목을 먼저 놓고, 의상 앞깃 다음에 얼굴 윤곽을 다시 얹어 턱이 잘리지 않게 한다.
