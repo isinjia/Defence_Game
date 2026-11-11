@@ -228,6 +228,25 @@ const { chromium, devices } = require('playwright');
       if(!PortraitParts.newLook().startsWith('look3:'))throw Error('새 외형 시드 형식');
     });
   });
+  await step('현대 헌터 직업복: 실행 직업 전체·남녀 의상·NPC 연결', async () => {
+    const files=await page.evaluate(() => {
+      const files=new Set();
+      for(const c of CLASSES)for(const gender of ['M','F']){
+        const outfit=HunterOutfits.outfitFor(c.id),part=HunterOutfits.get(outfit,gender);
+        if(!outfit||!part)throw Error('직업 의상 누락: '+c.id);
+        const npc=UI.npcLook({id:1,name:c.name,gender,ageMonths:300,cls:c.id});
+        if(npc.outfit!==outfit)throw Error('NPC 직업복 미반영');
+        const helper=UI.unitSprite({cls:c.id,portrait:{seed:'지원 헌터',gender,elem:'fire'},tier:0},64);
+        if(new DOMParser().parseFromString(helper,'image/svg+xml').documentElement.dataset.jobClass!==c.id)throw Error('지원 헌터 직업복 미반영');
+        const selection=PortraitParts.select('의상',gender,{outfit});
+        if(selection.layers[1].rect.length!==4||selection.outfit!==outfit)throw Error('의상 등록 오류');
+        files.add(part.file);
+      }
+      if(files.size!==74)throw Error('남녀 의상 74벌 누락');return [...files];
+    });
+    const fs=require('fs');
+    for(const file of files)if(!fs.existsSync(path.resolve(__dirname,'..','assets','portraits','outfits',file)))throw Error('의상 파일 없음: '+file);
+  });
   await step('턱·목 합성: 여성 헤어 20종·체형 4종과 남성 코트 목선', async () => {
     await page.evaluate(async () => {
       const read=async svg=>{
@@ -518,8 +537,9 @@ const { chromium, devices } = require('playwright');
         G.save(); const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
         if (saved.player.bodyType !== 'heavy' || saved.player.skinTone !== 'deep') throw new Error('체형·피부색 저장 실패');
 
-        for (const [group, outfit] of [['fighter', 'tactical'], ['mage', 'mandarin'], ['east', 'hanbok']]) {
+        for (const group of ['fighter','mage','east']) {
           p.cls = CLASSES.find(c => c.g === group).id;
+          const outfit = HunterOutfits.outfitFor(p.cls);
           if (outfitOf(UI.playerPortrait(200)) !== outfit || outfitOf(UI.playerAvatar(64)) !== outfit) throw new Error('직업복 불일치: ' + group);
         }
         const armor = G.makeEquipment('armor', 0, 0); armor.name = '검사용 코트';
@@ -528,7 +548,7 @@ const { chromium, devices } = require('playwright');
         const data = JSON.parse(JSON.stringify(p.equip.armor));
         if (data.appearanceByClass !== false || Wardrobe.equipment(data) !== 'coat') throw new Error('장비 외형 저장값 소실');
         G.unequip('armor');
-        if (outfitOf(UI.playerPortrait(200)) !== 'hanbok') throw new Error('방어구 해제 후 기본 직업복 미복귀');
+        if (outfitOf(UI.playerPortrait(200)) !== HunterOutfits.outfitFor(p.cls)) throw new Error('방어구 해제 후 기본 직업복 미복귀');
         p.equip.armor = { ...original.equip.armor }; delete p.equip.armor.appearanceByClass;
         G.initSandbox();
         if (p.equip.armor.appearanceByClass !== true) throw new Error('옛 저장 복장 호환 실패');

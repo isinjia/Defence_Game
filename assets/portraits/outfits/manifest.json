@@ -1,0 +1,1372 @@
+{
+  "version": 1,
+  "classes": [
+    {
+      "id": "swordsman",
+      "name": "검사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-swordsman.webp",
+          "neck": [
+            198,
+            16
+          ]
+        },
+        "f": {
+          "file": "outfit-f-swordsman.webp",
+          "neck": [
+            203,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "berserker",
+      "name": "광전사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-berserker.webp",
+          "neck": [
+            200,
+            21
+          ]
+        },
+        "f": {
+          "file": "outfit-f-berserker.webp",
+          "neck": [
+            200,
+            17
+          ]
+        }
+      }
+    },
+    {
+      "id": "lancer",
+      "name": "창술사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-lancer.webp",
+          "neck": [
+            199,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-lancer.webp",
+          "neck": [
+            202,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "monk",
+      "name": "무도가",
+      "variants": {
+        "m": {
+          "file": "outfit-m-monk.webp",
+          "neck": [
+            200,
+            18
+          ]
+        },
+        "f": {
+          "file": "outfit-f-monk.webp",
+          "neck": [
+            203,
+            18
+          ]
+        }
+      }
+    },
+    {
+      "id": "dualblade",
+      "name": "쌍검사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-dualblade.webp",
+          "neck": [
+            202,
+            16
+          ]
+        },
+        "f": {
+          "file": "outfit-f-dualblade.webp",
+          "neck": [
+            204,
+            17
+          ]
+        }
+      }
+    },
+    {
+      "id": "guardian",
+      "name": "방패 기사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-guardian.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-guardian.webp",
+          "neck": [
+            200,
+            17
+          ]
+        }
+      }
+    },
+    {
+      "id": "paladin",
+      "name": "성기사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-paladin.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-paladin.webp",
+          "neck": [
+            203,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "giant",
+      "name": "거인화 능력자",
+      "variants": {
+        "m": {
+          "file": "outfit-m-giant.webp",
+          "neck": [
+            202,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-giant.webp",
+          "neck": [
+            200,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "assassin",
+      "name": "암살자",
+      "variants": {
+        "m": {
+          "file": "outfit-m-assassin.webp",
+          "neck": [
+            201,
+            16
+          ]
+        },
+        "f": {
+          "file": "outfit-f-assassin.webp",
+          "neck": [
+            201,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "thief",
+      "name": "도적",
+      "variants": {
+        "m": {
+          "file": "outfit-m-thief.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-thief.webp",
+          "neck": [
+            202,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "id": "poisoner",
+      "name": "독술사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-poisoner.webp",
+          "neck": [
+            199,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-poisoner.webp",
+          "neck": [
+            201,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "archer",
+      "name": "궁수",
+      "variants": {
+        "m": {
+          "file": "outfit-m-archer.webp",
+          "neck": [
+            202,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-archer.webp",
+          "neck": [
+            200,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "sniper",
+      "name": "저격수",
+      "variants": {
+        "m": {
+          "file": "outfit-m-sniper.webp",
+          "neck": [
+            202,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-sniper.webp",
+          "neck": [
+            202,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "gunslinger",
+      "name": "총잡이",
+      "variants": {
+        "m": {
+          "file": "outfit-m-gunslinger.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-gunslinger.webp",
+          "neck": [
+            202,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "elementalist",
+      "name": "원소술사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-elementalist.webp",
+          "neck": [
+            202,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-elementalist.webp",
+          "neck": [
+            200,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "warlock",
+      "name": "흑마법사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-warlock.webp",
+          "neck": [
+            203,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-warlock.webp",
+          "neck": [
+            200,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "id": "warder",
+      "name": "결계사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-warder.webp",
+          "neck": [
+            202,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-warder.webp",
+          "neck": [
+            201,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "chronomancer",
+      "name": "시공술사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-chronomancer.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-chronomancer.webp",
+          "neck": [
+            199,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "summoner",
+      "name": "소환사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-summoner.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-summoner.webp",
+          "neck": [
+            202,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "necromancer",
+      "name": "사령술사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-necromancer.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-necromancer.webp",
+          "neck": [
+            200,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "tamer",
+      "name": "조련사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-tamer.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-tamer.webp",
+          "neck": [
+            200,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "healer",
+      "name": "치유사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-healer.webp",
+          "neck": [
+            198,
+            16
+          ]
+        },
+        "f": {
+          "file": "outfit-f-healer.webp",
+          "neck": [
+            202,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "id": "priest",
+      "name": "사제",
+      "variants": {
+        "m": {
+          "file": "outfit-m-priest.webp",
+          "neck": [
+            202,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-priest.webp",
+          "neck": [
+            201,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "bard",
+      "name": "음유시인",
+      "variants": {
+        "m": {
+          "file": "outfit-m-bard.webp",
+          "neck": [
+            202,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-bard.webp",
+          "neck": [
+            200,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "alchemist",
+      "name": "연금술사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-alchemist.webp",
+          "neck": [
+            201,
+            16
+          ]
+        },
+        "f": {
+          "file": "outfit-f-alchemist.webp",
+          "neck": [
+            204,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "id": "telekinetic",
+      "name": "염동력자",
+      "variants": {
+        "m": {
+          "file": "outfit-m-telekinetic.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-telekinetic.webp",
+          "neck": [
+            202,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "telepath",
+      "name": "정신 감응자",
+      "variants": {
+        "m": {
+          "file": "outfit-m-telepath.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-telepath.webp",
+          "neck": [
+            202,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "id": "teleporter",
+      "name": "순간이동자",
+      "variants": {
+        "m": {
+          "file": "outfit-m-teleporter.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-teleporter.webp",
+          "neck": [
+            201,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "seer",
+      "name": "예지자",
+      "variants": {
+        "m": {
+          "file": "outfit-m-seer.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-seer.webp",
+          "neck": [
+            200,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "shaman",
+      "name": "무당",
+      "variants": {
+        "m": {
+          "file": "outfit-m-shaman.webp",
+          "neck": [
+            201,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-shaman.webp",
+          "neck": [
+            200,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "taoist",
+      "name": "도사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-taoist.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-taoist.webp",
+          "neck": [
+            203,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "swordmonk",
+      "name": "검무사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-swordmonk.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-swordmonk.webp",
+          "neck": [
+            202,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "blackflame",
+      "name": "흑염검사",
+      "variants": {
+        "m": {
+          "file": "outfit-m-blackflame.webp",
+          "neck": [
+            199,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-blackflame.webp",
+          "neck": [
+            201,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "apostle",
+      "name": "심연의 사도",
+      "variants": {
+        "m": {
+          "file": "outfit-m-apostle.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-apostle.webp",
+          "neck": [
+            202,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "machinist",
+      "name": "기계 교감자",
+      "variants": {
+        "m": {
+          "file": "outfit-m-machinist.webp",
+          "neck": [
+            200,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-machinist.webp",
+          "neck": [
+            200,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "id": "gatekeeper",
+      "name": "문지기",
+      "variants": {
+        "m": {
+          "file": "outfit-m-gatekeeper.webp",
+          "neck": [
+            202,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-gatekeeper.webp",
+          "neck": [
+            204,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "id": "heir",
+      "name": "대붕괴의 아이",
+      "variants": {
+        "m": {
+          "file": "outfit-m-heir.webp",
+          "neck": [
+            202,
+            15
+          ]
+        },
+        "f": {
+          "file": "outfit-f-heir.webp",
+          "neck": [
+            200,
+            15
+          ]
+        }
+      }
+    }
+  ],
+  "aliases": {
+    "monk_holy": "monk",
+    "friar": "paladin",
+    "exorcist": "shaman",
+    "saint": "priest",
+    "dark_priest": "apostle",
+    "dark_knight": "guardian",
+    "hexer": "warlock",
+    "shade": "assassin",
+    "pyromancer": "blackflame",
+    "druid": "tamer",
+    "witch_doctor": "alchemist",
+    "spiritist": "summoner",
+    "treant_warden": "giant",
+    "pyrokinetic": "blackflame",
+    "phoenix_caller": "summoner",
+    "fire_dancer": "bard",
+    "bomber": "guardian",
+    "lava_guard": "gatekeeper",
+    "pathfinder": "archer",
+    "tracker": "thief",
+    "echo_scout": "telepath",
+    "farsight": "seer",
+    "wayfinder": "machinist"
+  },
+  "jobs": [
+    {
+      "id": "swordsman",
+      "name": "검사",
+      "g": "fighter",
+      "adv": [
+        "검귀",
+        "검성"
+      ],
+      "outfitFamily": "swordsman"
+    },
+    {
+      "id": "berserker",
+      "name": "광전사",
+      "g": "fighter",
+      "adv": [
+        "혈투사",
+        "혈귀"
+      ],
+      "outfitFamily": "berserker"
+    },
+    {
+      "id": "lancer",
+      "name": "창술사",
+      "g": "fighter",
+      "adv": [
+        "창귀",
+        "창신"
+      ],
+      "outfitFamily": "lancer"
+    },
+    {
+      "id": "monk",
+      "name": "무도가",
+      "g": "fighter",
+      "adv": [
+        "권왕",
+        "무신"
+      ],
+      "outfitFamily": "monk"
+    },
+    {
+      "id": "dualblade",
+      "name": "쌍검사",
+      "g": "fighter",
+      "adv": [
+        "쌍룡검",
+        "검무제"
+      ],
+      "outfitFamily": "dualblade"
+    },
+    {
+      "id": "guardian",
+      "name": "방패 기사",
+      "g": "guard",
+      "adv": [
+        "철벽기사",
+        "불괴의 군주"
+      ],
+      "outfitFamily": "guardian"
+    },
+    {
+      "id": "paladin",
+      "name": "성기사",
+      "g": "guard",
+      "adv": [
+        "성전사",
+        "성기사장"
+      ],
+      "outfitFamily": "paladin"
+    },
+    {
+      "id": "giant",
+      "name": "거인화 능력자",
+      "g": "guard",
+      "adv": [
+        "거신",
+        "타이탄"
+      ],
+      "outfitFamily": "giant"
+    },
+    {
+      "id": "assassin",
+      "name": "암살자",
+      "g": "shadow",
+      "adv": [
+        "그림자 칼날",
+        "죽음의 사신"
+      ],
+      "outfitFamily": "assassin"
+    },
+    {
+      "id": "thief",
+      "name": "도적",
+      "g": "shadow",
+      "adv": [
+        "괴도",
+        "그림자 왕"
+      ],
+      "outfitFamily": "thief"
+    },
+    {
+      "id": "poisoner",
+      "name": "독술사",
+      "g": "shadow",
+      "adv": [
+        "독왕",
+        "만독불침"
+      ],
+      "outfitFamily": "poisoner"
+    },
+    {
+      "id": "archer",
+      "name": "궁수",
+      "g": "shooter",
+      "adv": [
+        "신궁",
+        "천궁"
+      ],
+      "outfitFamily": "archer"
+    },
+    {
+      "id": "sniper",
+      "name": "저격수",
+      "g": "shooter",
+      "adv": [
+        "데드아이",
+        "일격필살"
+      ],
+      "outfitFamily": "sniper"
+    },
+    {
+      "id": "gunslinger",
+      "name": "총잡이",
+      "g": "shooter",
+      "adv": [
+        "건마스터",
+        "총신"
+      ],
+      "outfitFamily": "gunslinger"
+    },
+    {
+      "id": "elementalist",
+      "name": "원소술사",
+      "g": "mage",
+      "adv": [
+        "대마법사",
+        "원소의 군주"
+      ],
+      "outfitFamily": "elementalist"
+    },
+    {
+      "id": "warlock",
+      "name": "흑마법사",
+      "g": "mage",
+      "adv": [
+        "흑마도사",
+        "심연의 마도사"
+      ],
+      "outfitFamily": "warlock"
+    },
+    {
+      "id": "warder",
+      "name": "결계사",
+      "g": "mage",
+      "adv": [
+        "결계왕",
+        "절대영역"
+      ],
+      "outfitFamily": "warder"
+    },
+    {
+      "id": "chronomancer",
+      "name": "시공술사",
+      "g": "mage",
+      "adv": [
+        "시간 조율자",
+        "시공의 지배자"
+      ],
+      "outfitFamily": "chronomancer"
+    },
+    {
+      "id": "summoner",
+      "name": "소환사",
+      "g": "summon",
+      "adv": [
+        "대소환사",
+        "정령왕"
+      ],
+      "outfitFamily": "summoner"
+    },
+    {
+      "id": "necromancer",
+      "name": "사령술사",
+      "g": "summon",
+      "adv": [
+        "망자의 지휘자",
+        "사령왕"
+      ],
+      "outfitFamily": "necromancer"
+    },
+    {
+      "id": "tamer",
+      "name": "테이머",
+      "g": "summon",
+      "adv": [
+        "비스트 마스터",
+        "괴수왕"
+      ],
+      "outfitFamily": "tamer"
+    },
+    {
+      "id": "healer",
+      "name": "치유사",
+      "g": "support",
+      "adv": [
+        "대치유사",
+        "생명의 성자"
+      ],
+      "outfitFamily": "healer"
+    },
+    {
+      "id": "priest",
+      "name": "사제",
+      "g": "support",
+      "adv": [
+        "대사제",
+        "신의 대리인"
+      ],
+      "outfitFamily": "priest"
+    },
+    {
+      "id": "bard",
+      "name": "음유시인",
+      "g": "support",
+      "adv": [
+        "전장의 가수",
+        "전설의 음유시인"
+      ],
+      "outfitFamily": "bard"
+    },
+    {
+      "id": "alchemist",
+      "name": "연금술사",
+      "g": "support",
+      "adv": [
+        "연금술 대가",
+        "현자"
+      ],
+      "outfitFamily": "alchemist"
+    },
+    {
+      "id": "telekinetic",
+      "name": "염동력자",
+      "g": "esper",
+      "adv": [
+        "염동 파괴자",
+        "중력의 지배자"
+      ],
+      "outfitFamily": "telekinetic"
+    },
+    {
+      "id": "telepath",
+      "name": "정신 감응자",
+      "g": "esper",
+      "adv": [
+        "정신 지배자",
+        "마인드 로드"
+      ],
+      "outfitFamily": "telepath"
+    },
+    {
+      "id": "teleporter",
+      "name": "순간이동자",
+      "g": "esper",
+      "adv": [
+        "공간 도약자",
+        "차원 보행자"
+      ],
+      "outfitFamily": "teleporter"
+    },
+    {
+      "id": "seer",
+      "name": "예지자",
+      "g": "esper",
+      "adv": [
+        "운명 관측자",
+        "예언자"
+      ],
+      "outfitFamily": "seer"
+    },
+    {
+      "id": "shaman",
+      "name": "무당",
+      "g": "east",
+      "adv": [
+        "대무당",
+        "만신"
+      ],
+      "outfitFamily": "shaman"
+    },
+    {
+      "id": "taoist",
+      "name": "도사",
+      "g": "east",
+      "adv": [
+        "도인",
+        "신선"
+      ],
+      "outfitFamily": "taoist"
+    },
+    {
+      "id": "swordmonk",
+      "name": "검무사",
+      "g": "east",
+      "adv": [
+        "검선",
+        "검신"
+      ],
+      "outfitFamily": "swordmonk"
+    },
+    {
+      "id": "monk_holy",
+      "name": "승려",
+      "g": "support",
+      "adv": [
+        "선사",
+        "대선사"
+      ],
+      "outfitFamily": "monk"
+    },
+    {
+      "id": "friar",
+      "name": "수도사",
+      "g": "fighter",
+      "adv": [
+        "고행자",
+        "순교자"
+      ],
+      "outfitFamily": "paladin"
+    },
+    {
+      "id": "exorcist",
+      "name": "퇴마사",
+      "g": "mage",
+      "adv": [
+        "구마 사제",
+        "대퇴마사"
+      ],
+      "outfitFamily": "shaman"
+    },
+    {
+      "id": "saint",
+      "name": "성녀",
+      "g": "support",
+      "adv": [
+        "대성녀",
+        "빛의 화신"
+      ],
+      "outfitFamily": "priest"
+    },
+    {
+      "id": "dark_priest",
+      "name": "암흑사제",
+      "g": "support",
+      "adv": [
+        "흑교 사제",
+        "심연의 대사제"
+      ],
+      "outfitFamily": "apostle"
+    },
+    {
+      "id": "dark_knight",
+      "name": "암흑기사",
+      "g": "guard",
+      "adv": [
+        "데스나이트",
+        "심연기사"
+      ],
+      "outfitFamily": "guardian"
+    },
+    {
+      "id": "hexer",
+      "name": "저주술사",
+      "g": "mage",
+      "adv": [
+        "저주의 대가",
+        "재앙술사"
+      ],
+      "outfitFamily": "warlock"
+    },
+    {
+      "id": "shade",
+      "name": "그림자술사",
+      "g": "shadow",
+      "adv": [
+        "그림자 군주",
+        "어둠의 화신"
+      ],
+      "outfitFamily": "assassin"
+    },
+    {
+      "id": "pyromancer",
+      "name": "화염술사",
+      "g": "mage",
+      "adv": [
+        "염화의 마도사",
+        "염제"
+      ],
+      "outfitFamily": "blackflame"
+    },
+    {
+      "id": "druid",
+      "name": "드루이드",
+      "g": "support",
+      "adv": [
+        "대드루이드",
+        "숲의 군주"
+      ],
+      "outfitFamily": "tamer"
+    },
+    {
+      "id": "witch_doctor",
+      "name": "주술사",
+      "g": "east",
+      "adv": [
+        "대주술사",
+        "주술왕"
+      ],
+      "outfitFamily": "alchemist"
+    },
+    {
+      "id": "spiritist",
+      "name": "정령사",
+      "g": "summon",
+      "adv": [
+        "대정령사",
+        "세계수의 계약자"
+      ],
+      "outfitFamily": "summoner"
+    },
+    {
+      "id": "treant_warden",
+      "name": "수목 수호자",
+      "g": "guard",
+      "adv": [
+        "숲의 기사",
+        "세계수 수호자"
+      ],
+      "outfitFamily": "giant"
+    },
+    {
+      "id": "pyrokinetic",
+      "name": "발화능력자",
+      "g": "esper",
+      "adv": [
+        "인간 화염병",
+        "태양의 아이"
+      ],
+      "outfitFamily": "blackflame"
+    },
+    {
+      "id": "phoenix_caller",
+      "name": "불새 소환사",
+      "g": "summon",
+      "adv": [
+        "주작의 계약자",
+        "불사조의 주인"
+      ],
+      "outfitFamily": "summoner"
+    },
+    {
+      "id": "fire_dancer",
+      "name": "불꽃 무희",
+      "g": "support",
+      "adv": [
+        "화무",
+        "염무의 여왕"
+      ],
+      "outfitFamily": "bard"
+    },
+    {
+      "id": "bomber",
+      "name": "폭파술사",
+      "g": "shooter",
+      "adv": [
+        "폭발 전문가",
+        "파괴왕"
+      ],
+      "outfitFamily": "guardian"
+    },
+    {
+      "id": "lava_guard",
+      "name": "용암 방패",
+      "g": "guard",
+      "adv": [
+        "화산 수문장",
+        "용암 거신"
+      ],
+      "outfitFamily": "gatekeeper"
+    },
+    {
+      "id": "pathfinder",
+      "name": "레인저",
+      "g": "recon",
+      "adv": [
+        "엘리트 레인저",
+        "하이 레인저"
+      ],
+      "outfitFamily": "archer"
+    },
+    {
+      "id": "tracker",
+      "name": "로그",
+      "g": "recon",
+      "adv": [
+        "나이트 로그",
+        "마스터 로그"
+      ],
+      "outfitFamily": "thief"
+    },
+    {
+      "id": "echo_scout",
+      "name": "감지 능력자",
+      "g": "recon",
+      "adv": [
+        "광역 감지자",
+        "전역 감지자"
+      ],
+      "outfitFamily": "telepath"
+    },
+    {
+      "id": "farsight",
+      "name": "투시 능력자",
+      "g": "recon",
+      "adv": [
+        "천리안",
+        "전지안"
+      ],
+      "outfitFamily": "seer"
+    },
+    {
+      "id": "wayfinder",
+      "name": "패스파인더",
+      "g": "recon",
+      "adv": [
+        "게이트 내비게이터",
+        "던전 마스터"
+      ],
+      "outfitFamily": "machinist"
+    },
+    {
+      "id": "blackflame",
+      "name": "흑염검사",
+      "g": "hidden",
+      "adv": [
+        "흑염귀",
+        "흑염제"
+      ],
+      "outfitFamily": "blackflame"
+    },
+    {
+      "id": "apostle",
+      "name": "심연의 사도",
+      "g": "hidden",
+      "adv": [
+        "균열의 사제",
+        "심연의 대행자"
+      ],
+      "outfitFamily": "apostle"
+    },
+    {
+      "id": "machinist",
+      "name": "기계 교감자",
+      "g": "hidden",
+      "adv": [
+        "기계 지휘관",
+        "기계신의 벗"
+      ],
+      "outfitFamily": "machinist"
+    },
+    {
+      "id": "gatekeeper",
+      "name": "문지기",
+      "g": "hidden",
+      "adv": [
+        "문의 수호자",
+        "세계의 문지기"
+      ],
+      "outfitFamily": "gatekeeper"
+    },
+    {
+      "id": "heir",
+      "name": "대붕괴의 아이",
+      "g": "hidden",
+      "adv": [
+        "각성의 정점",
+        "초월자"
+      ],
+      "outfitFamily": "heir"
+    }
+  ]
+}
