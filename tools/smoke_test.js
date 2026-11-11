@@ -40,12 +40,25 @@ const { chromium, devices } = require('playwright');
     await page.waitForFunction(() => document.querySelector('.opening-caption').textContent.includes('2067'));
     await page.click('.world-opening', { position: { x: 50, y: 200 } });
     await page.click('.world-opening', { position: { x: 50, y: 200 } });
-    if (!await page.locator('.opening-caption-space').textContent().then(t => t.includes('하늘') || t.includes('아무도'))) throw new Error('자막 넘김 실패');
+    await page.waitForFunction(() => /하늘|아무도/.test(document.querySelector('.opening-caption-space').textContent));
     await page.click('[data-opening="skip"]');
     if (await page.locator('.world-opening').count()) throw new Error('스킵 실패');
     await page.click('[data-act="world-opening"]');
     await page.keyboard.press('Escape');
     if (await page.locator('.world-opening').count()) throw new Error('다시 보기 종료 실패');
+  });
+  await step('오프닝 12컷: 모든 이미지 파일과 브라우저 디코딩', async () => {
+    const fs = require('fs');
+    const src = fs.readFileSync(path.resolve(__dirname, '..', 'js', 'world_opening.js'), 'utf8');
+    const images = [...src.matchAll(/["']?image["']?\\s*:\\s*["']([^"']+)/g)].map(m => m[1]);
+    if (images.length < 12 || new Set(images).size < 12) throw new Error('서로 다른 이미지가 12장 미만');
+    for (const file of images) if (!fs.existsSync(path.resolve(__dirname, '..', file))) throw new Error('이미지 파일 없음: ' + file);
+    await page.evaluate(async (sources) => {
+      await Promise.all(sources.map(async (src) => {
+        const img = new Image(); img.src = src; await img.decode();
+        if (!img.naturalWidth) throw new Error('이미지 디코딩 실패: ' + src);
+      }));
+    }, images);
   });
   await step('타이틀 화면', async () => { const n = await ev(() => document.querySelectorAll('#app [data-act]').length); if (!n) throw new Error('버튼 없음'); });
   await step('타이틀 배경 이미지 로드', async () => {
