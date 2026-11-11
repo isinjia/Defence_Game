@@ -340,7 +340,7 @@ const { chromium, devices } = require('playwright');
           const selected=PortraitParts.select(seed,gender,{bodyType});files.add(selected.baseBody.file);
           const normal=await read(seed,gender,{bodyType,skinTone:'natural'});
           const [sx,sy,sw,sh]=selected.baseBody.skinSample;
-          const scale={thin:.86,normal:.92,strong:.96,heavy:1}[bodyType],pivot=(gender==='M'?251:261)+24;
+          const scale=(gender==='M'?{thin:.86,normal:.85,strong:.96,heavy:1}:{thin:.86,normal:.92,strong:.96,heavy:1})[bodyType],pivot=(gender==='M'?251:261)+24;
           const [ex,ey]=[Math.round(200+(eyePoint[0]-200)*scale),Math.round(pivot+(eyePoint[1]-pivot)*scale)];
           const originalEye=[...normal.getImageData(ex,ey,1,1).data];
           const originalTop=[...normal.getImageData(200,400,1,1).data];

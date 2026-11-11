@@ -1818,7 +1818,7 @@ const PortraitParts = (() => {
     const featureOffset = chin - (face.chinY || chin);
     const headY = integrated ? pose + featureOffset : pose;
     // 턱 아래를 고정해 얼굴·헤어·장신구를 같은 비율로 줄이고 목은 어깨로 이어 준다.
-    const headScale = integrated ? { thin:.86, normal:.92, strong:.96, heavy:1 }[selection.bodyType] : 1;
+    const headScale = integrated ? (female ? { thin:.86, normal:.92, strong:.96, heavy:1 } : { thin:.86, normal:.85, strong:.96, heavy:1 })[selection.bodyType] /* 남자 보통 체형 머리 0.92→0.85 (사용자 요청, 미리보기 확인) */ : 1;
     const neckPivot = chin + 24 + pose;
     const headTransform = `translate(200 ${neckPivot}) scale(${headScale}) translate(-200 ${-neckPivot})`;
     const fitHead = markup => headScale === 1 ? markup : `<g data-proportion="head" transform="${headTransform}">${markup}</g>`;
