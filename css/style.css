@@ -1007,11 +1007,19 @@ html body #cb-ctrl .row.end > button, html body .order-banner .row > button, htm
 .settle-sheet .ss-bar .mate, .settle-sheet .ss-row.mate span i { background: #7a8fd6; }
 .settle-sheet .ss-bar .mate:nth-child(odd) { background: #9a7ad6; }
 .settle-sheet .ss-items { display: flex; flex-wrap: wrap; gap: 6px; }
-.settle-sheet .ss-item { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 999px; background: #152030; border: 1px solid #2c3d57; font-size: 12.5px; color: #e2e9f2; }
-.settle-sheet .ss-item em { font-style: normal; color: var(--ether); font-size: 11px; }
-.settle-sheet .ss-item b { color: var(--amber); font-family: var(--font-num); }
-.settle-sheet .ss-item.k-괴수코어 { border-color: #ffb54766; background: #2a1f0c; } .settle-sheet .ss-item.k-괴수코어 em { color: var(--amber); }
-.settle-sheet .ss-item.k-유물발견, .settle-sheet .ss-item.k-보스드롭 { border-color: #c58cff88; background: #241634; } .settle-sheet .ss-item.k-유물발견 em, .settle-sheet .ss-item.k-보스드롭 em { color: #d9b0ff; }
+.settle-sheet .ss-item, button.ss-item { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 999px; background: #152030; border: 1px solid #2c3d57; font-size: 12.5px; color: #e2e9f2; font: inherit; font-size: 12.5px; line-height: 1.2; cursor: pointer; -webkit-tap-highlight-color: transparent; min-height: 32px; }
+.settle-sheet .ss-item:active, button.ss-item:active { filter: brightness(1.18); }
+.settle-sheet .ss-item em, button.ss-item em { font-style: normal; color: var(--ether); font-size: 11px; }
+.settle-sheet .ss-item b, button.ss-item b { color: var(--amber); font-family: var(--font-num); }
+.settle-sheet .ss-item.k-괴수코어, button.ss-item.k-괴수코어 { border-color: #ffb54766; background: #2a1f0c; } .settle-sheet .ss-item.k-괴수코어 em, button.ss-item.k-괴수코어 em { color: var(--amber); }
+.settle-sheet .ss-item.k-유물발견, .settle-sheet .ss-item.k-보스드롭, button.ss-item.k-유물발견, button.ss-item.k-보스드롭 { border-color: #c58cff88; background: #241634; } .settle-sheet .ss-item.k-유물발견 em, .settle-sheet .ss-item.k-보스드롭 em, button.ss-item.k-유물발견 em, button.ss-item.k-보스드롭 em { color: #d9b0ff; }
+/* 아이템 상세 팝업 (js/item_pop.js) */
+.item-hold .ih-ico { display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center; font-size: 14px; color: var(--c); }
+.item-tap { cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: 6px; }
+.item-tap:active { background: #ffffff0a; }
+button.item-tap-name, button.item-inline { all: unset; cursor: pointer; color: inherit; text-decoration: underline; text-decoration-color: #ffffff33; text-underline-offset: 2px; -webkit-tap-highlight-color: transparent; }
+button.item-tap-name:active, button.item-inline:active { filter: brightness(1.15); }
+.loot-split .ls-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 2px; }
 .settle-sheet .ss-warn { padding: 8px 12px; border-left: 3px solid var(--bad); background: #2a1016; color: #ffc4cc; font-size: 13px; display: grid; gap: 4px; border-radius: 0 6px 6px 0; }
 .settle-sheet .ss-notes { margin: 0; padding: 0 0 0 16px; display: grid; gap: 3px; font-size: 12.5px; color: #a9b6c7; }
 

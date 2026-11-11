@@ -165,6 +165,26 @@ const { chromium, devices } = require('playwright');
   for (const s of ['char', 'gear', 'skills', 'party', 'people', 'quest', 'guild', 'hunter', 'log']) {
     await step(`시트 탭: ${s}`, async () => { await act('sheet', s); const len = await ev(() => document.getElementById('modal-box').innerHTML.length); if (len < 200) throw new Error('내용이 거의 없음'); await closeAll(); });
   }
+  await step('아이템 칩·상세 팝업 (얻은 물건 탭)', async () => {
+    const ok = await ev(() => {
+      if (typeof UI.itemInfoHtml !== 'function' || typeof UI.showItemInfo !== 'function') throw new Error('item_pop 없음');
+      const core = UI.itemInfoHtml('core:0'); if (!/F급 코어|괴수 코어/.test(core)) throw new Error('코어 상세 실패');
+      const cons = UI.itemInfoHtml('cons:potion'); if (!/응급 회복제|체력/.test(cons)) throw new Error('소모품 상세 실패');
+      G.player.mats.c0 = (G.player.mats.c0 || 0) + 2;
+      const lines = ['토벌 보상: 60 크레딧, 에테르 4', '괴수 코어: E급 코어 1개', '부산물: E급 산성 점액 1개'];
+      UI.modal(`<h3>전투 승리</h3>${lines.map((l) => `<p>${l}</p>`).join('')}<div class="row end"><button class="primary" data-act="modal-close">확인</button></div>`);
+      UI.settleSheet();
+      const chip = document.querySelector('#modal-box .ss-item[data-act="item-info"]');
+      if (!chip) throw new Error('얻은 물건 칩에 data-act 없음');
+      UI.handle('item-info', chip.dataset.v);
+      const pop = document.getElementById('skill-hold');
+      if (!pop || !/코어|부산물|시세|용도/.test(pop.textContent)) throw new Error('상세 팝업 내용 없음');
+      UI.hideSkillHold();
+      return true;
+    });
+    if (!ok) throw new Error('팝업 검사 실패');
+    await closeAll();
+  });
   await step('헌터 ID 카드 보기·뒤집기 (화면)', async () => {
     await act('id-view'); const ok = await ev(() => !!document.getElementById('idc')); if (!ok) throw new Error('ID 카드 없음');
     await act('id-flip'); await closeAll();
