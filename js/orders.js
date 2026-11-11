@@ -328,7 +328,7 @@ Object.assign(UI, {
     const BW = 30, BH = 15; // 배지 크기
     // 점선은 지시받은 사람의 가운데에서 대상 그림의 "가운데"를 향한다. 그림을 가리지 않게 가운데 바로 앞(그림 테두리쯤)에서 멈추고,
     // 그 끝에 "오더" 배지가 달린다. (전에는 테두리의 빈 쪽을 찾아 끝점을 옮겨서 선이 엉뚱한 곳을 가리키는 것처럼 보였다)
-    // [A 수정, 사용자 제보] 선 끝은 대상 그림(괴수 이미지)의 정중앙. "오더" 배지는 선 위, 그림 테두리쯤에 단다(그림을 가리지 않게)
+    // [A 수정, 사용자 제보] 선 끝은 대상 그림(괴수 이미지)의 정중앙이고, "오더" 배지는 그 선 끝에 단다
     const endFor = (b, ra) => {
       const host = b.querySelector('.monster-art, .sprite, .fx-host') || b; const rb = host.getBoundingClientRect();
       const cx = rb.left + rb.width / 2, cy = rb.top + rb.height / 2;
@@ -358,7 +358,7 @@ Object.assign(UI, {
     if (!svg) { stage.insertAdjacentHTML('beforeend', '<svg class="order-lines"></svg>'); svg = stage.querySelector('svg.order-lines'); }
     svg.setAttribute('viewBox', `0 0 ${sr.width} ${sr.height}`);
     svg.innerHTML = lines.join('');
-    for (const e of ends.list || []) stage.insertAdjacentHTML('beforeend', `<span class="order-dot" style="left:${e.x}px;top:${e.y}px"></span><span class="order-end" style="left:${e.bx}px;top:${e.by}px">오더</span>`);
+    for (const e of ends.list || []) stage.insertAdjacentHTML('beforeend', `<span class="order-end" style="left:${e.x}px;top:${e.y}px">오더</span>`);
   },
   // 이번 전투의 리더: 시험 교관, 소속 파티 리더, 아니면 플레이어
   pickLeader(c) {
