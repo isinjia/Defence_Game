@@ -546,6 +546,58 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
+  await step('메인 2부: D급 9장 열림 · 9장 갈래→10장 첫 줄 · 10장 갈래→13장 친구 · 12장 만료 · 14장 뒤 진서해 · 대기일 존중', async () => {
+    const r = await ev(() => {
+      if (!MAIN.chapters[9] || !MAIN.chapters[14]) return '2부 장이 없다';
+      const M = G.mainState(); const keep = JSON.stringify(M); const q = G.queue.slice(); const p = G.player; const rk = p.rankIdx; const chains = JSON.stringify(G.flags.chains || {});
+      let f = G.npcs.find((n) => n.friendhood && n.alive !== false); const madeF = !f;
+      if (!f) { f = G.makeNpc(false); f.friendhood = true; f.rankIdx = 0; f.relation = 20; G.npcs.push(f); }
+      const said = [];
+      const setCh = (n, flags) => { if (UI.dlg) UI.dlgEnd(() => {}); M.ch = n; M.done = {}; for (let i = 1; i < n; i++) M.done[i] = { mk: G.monthKey() - 2 }; M.open = { [n]: G.monthKey() }; M.started = {}; M.scene = null; M.pending = null; M.pendingDay = null; M.flags = { ...flags }; };
+      const play = (n, pick) => {
+        for (let i = 0; i < 900 && !M.done[n]; i++) {
+          if (UI.ctx && UI.ctx.kind === 'story') { UI.ctx.combat.result = 'win'; UI.finishStoryFight(); continue; }
+          if (UI.modalOpen()) { UI.closeModal(); continue; }
+          if (UI.dlg) { const l = UI.dlg.lines[UI.dlg.i]; if (l) said.push(l.narr || l.text || l.sys || ''); if (l && l.choices) UI.handle('dlg-choice', String(Math.min(pick, l.choices.length - 1))); else UI.dlgNext(); continue; }
+          if (M.pending) { M.pendingDay = null; if (!UI.mainResume()) UI.mainPlay(M.pending); continue; }
+          if (!M.started[n]) { UI.mainPlay(null); continue; }
+          break;
+        }
+        G.queue = []; return !!M.done[n];
+      };
+      const firstOf = (n, flags, k) => { setCh(n, flags); UI.mainPlay(null); const ls = UI.dlg ? UI.dlg.lines : []; const t = ls[k] ? (ls[k].narr || ls[k].text || '') : ''; UI.dlgEnd(() => {}); return t; };
+      try {
+        p.rankIdx = 2; G.flags.chains ??= {};
+        // 9장: D급이면 열리고 퀘스트 맨 위
+        setCh(9, { c4: 'join', dream: 'record' }); M.open = {}; M.done[8].mk = G.monthKey() - 2; G.mainCheck();
+        if (!M.open[9]) return 'D급에서 9장이 열리지 않았다';
+        if (!/9장/.test(UI.hudQuests())) return '9장 메인 줄이 퀘스트에 없다';
+        // 9장 갈래 → 서윤 상태와 10장 첫 줄
+        const sy = new Set(), c10 = new Set();
+        for (const k of [0, 1, 2]) { setCh(9, { c4: 'join', dream: 'record' }); if (!play(9, k)) return '9장이 끝나지 않는다 (' + k + ')'; sy.add(M.flags.seoyun); c10.add(firstOf(10, { seoyun: M.flags.seoyun }, 0)); }
+        if (sy.size !== 3 || c10.size < 2) return '9장 갈래가 10장에 닿지 않는다 ' + [...sy].join(',');
+        // 10장 갈래 → 13장 친구 첫 대사
+        const f2 = new Set(), c13 = new Set();
+        for (const k of [0, 1, 2]) { setCh(10, { seoyun: 'ally' }); if (!play(10, k)) return '10장이 끝나지 않는다 (' + k + ')'; f2.add(M.flags.friend2); c13.add(firstOf(13, { friend2: M.flags.friend2, c12: 'cut' }, 1)); }
+        if (f2.size < 2 || c13.size < 2) return '10장 갈래가 13장 친구 상태를 바꾸지 않는다';
+        // 대기일: 날이 안 됐으면 이어지지 않고, 되면 이어진다
+        setCh(10, {}); M.started[10] = true; M.pending = 'c10_meet'; M.pendingDay = G.mainToday() + 3;
+        if (UI.mainResume() || UI.dlg) return '대기일 전에 장면이 이어졌다';
+        M.pendingDay = G.mainToday(); const fr = f.region; f.region = p.region; const city = WORLD.cityPos[p.region]; const xy = [p.x, p.y]; p.x = city[0]; p.y = city[1];
+        const ok = UI.mainResume(); [p.x, p.y] = xy; f.region = fr; if (!ok || !UI.dlg) return '대기일이 지나도 이어지지 않는다'; UI.dlgEnd(() => {});
+        // 12장 만료 → 얼굴 있는 상태
+        setCh(12, { doyun: 'leaflet' }); M.open = { 12: G.monthKey() - 5 }; G.mainCheck();
+        if (!M.done[12] || M.done[12].how !== 'missed' || M.flags.c12 !== 'missed' || M.flags.doyun !== 'front') return '12장 만료가 상태를 남기지 않았다';
+        // 13장 늦음은 결과 고정, 14장 뒤 15장 · 진서해
+        setCh(13, { friend2: 'deep', c12: 'missed' }); if (!play(13, 0) || M.flags.friend3 !== 'late') return '13장 늦음 결과가 고정되지 않았다';
+        setCh(14, { jinSeohaeKnown: 'copy', friend3: 'saved' }); if (!play(14, 1)) return '14장이 끝나지 않는다';
+        if (M.ch !== 15 || !M.flags.jinFace || G.mainWho('mumyeong').name !== '진서해' || !M.part2) return '14장 뒤 진서해 공개가 남지 않았다';
+        const han = said.find((t) => /[一-鿿]/.test(t)); if (han) return '2부 대사에 한자: ' + han.slice(0, 30);
+        return '';
+      } finally { G.flags.main = JSON.parse(keep); G.flags.chains = JSON.parse(chains); G.queue = q; p.rankIdx = rk; if (madeF) G.npcs.splice(G.npcs.indexOf(f), 1); if (UI.dlg) UI.dlgEnd(); }
+    });
+    if (r) throw new Error(r);
+  });
   await step('프롤로그 그림: 모든 장면에 정지 그림, 컷씬식 연출(화면 가림·다시 보기)은 없음', async () => {
     const r = await ev(() => {
       const missing = Object.keys(PROLOGUE).filter((id) => !PrologueCinema.config(id, UI.pro));

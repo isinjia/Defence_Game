@@ -205,3 +205,192 @@ MAIN.ch(11, {
   } },
 });
 
+// ---------- 12장 다섯 개의 보름 (재앙 '강북 지하철 둥지'를 읽기만 한다. 재앙 규칙은 건드리지 않음) ----------
+const NEST = (g) => { const s = g.world && g.world.calamity; if (!s) return 'none'; if (s.active && s.active.id === 'nest') return 'active'; return (s.done && s.done.nest) || 'none'; };
+const PRIEST = { name: '흰 가면 사제', sub: '균열교' };
+MAIN.ch(12, {
+  part: 2, title: '다섯 개의 보름', rank: 2, after: 1, where: 'gangbuk',
+  goal: '보름 밤, 강북 폐구',
+  scenes: [
+    leadScene('c12_lead', '강북 보름 밤'),
+    { id: 'c12_list', lines: [
+      { narr: (g, M) => (M.flags.friend2 === 'with' ? '모임에서 들은 다섯 군데. 강북 폐역, 대전 외곽 정수장, 부산 폐부두, 대구 분지 가장자리, 그리고 {friend}의 동네 재개발 구역. 날짜는 같다. 다음 보름.' : M.flags.seoyun === 'ally' ? '서윤이 지도 한 장을 보낸다. 빨간 점 다섯 개. "다음 보름. 동시에. 관리국은 강북만 막을 거예요. 인력이 그것밖에 없대요."' : '헌터넷에 글이 올라왔다가 지워진다. "보름에 다섯 곳." 캡처본만 돈다. 그중 하나가 강북이다.') },
+      { narr: (g) => ({
+        active: '강북엔 지금 재앙 경보가 걸려 있다. 지하철 둥지. 선로 아래 울음이 밤새 그치지 않는다. 균열교는 하필 그 위에서 보름을 맞겠다고 한다.',
+        player: '강북 지하철 둥지는 당신 손으로 닫았다. 무너진 선로 위에 균열교가 다시 촛불을 켰다. 빈자리를 노리는 것이다.',
+        npc: '강북 둥지는 다른 헌터들이 닫았다. 잔해 속 알 껍데기를 균열교가 주워 갔다는 말이 있다.',
+        fail: '강북 지하는 둥지가 터지며 통째로 무너졌다. 균열교는 그 구덩이를 "열린 땅"이라 부른다.',
+        none: '강북 폐구 선로 아래에서 무언가가 자라는 소리가 들린다는 신고가 늘었다. 아직 경보는 없다.',
+      })[NEST(g)] },
+      { who: 'seoyun', when: (g, M) => M.flags.wave0, text: '그 명단, 대붕괴 사흘 전에 만들었다고 했죠. 이번 작전 지시서도 그래요. 막으라는 말이 없어요. "관측하라"예요.' },
+    ], pause: { days: 3, label: '보름 밤', text: '사흘 뒤 보름 밤, 강북 폐구로 간다.' } },
+    { id: 'c12_night', lines: [
+      { narr: '보름. 강북 폐구. 달이 지나치게 크다. 무너진 역사 입구마다 촛불이 줄지어 땅속으로 내려간다.' },
+      { narr: (g, M) => (M.flags.kwon === 'dead' ? '입구 벽에 권만석의 사진이 붙어 있다. 국화 몇 송이. 그 아래 누군가 적었다. "먼저 넘어간 형제."' : M.flags.kwon === 'alive' ? '입구에 권만석이 서 있다. 지팡이를 짚었다. 당신을 보더니 고개를 숙인다. "이번엔 나는 안 들어가요. 하은이가 울어서."' : '입구에 낯선 사제가 서서 들어오는 사람마다 이마에 재를 바른다.') },
+      { narr: (g, M) => (M.flags.yeonhee === 'hurt' || M.flags.yeonhee === 'safe' ? '천막 그늘에 연희가 컵라면을 쌓아 두고 있다. 신도용이 아니다. 다친 사람 먹이려고. 당신과 눈이 마주치자 턱으로 선로 쪽을 가리킨다.' : '식당 자리엔 아무도 없다. 탄 간판만 남았다.') },
+      { who: PRIEST, text: '반쪽 문이 다섯 개 열리면 하나가 된다. 오늘 밤, 바다가 우리 이름을 부른다.' },
+      { narr: '발밑에서 선로가 울린다. 소리가 노래와 박자를 맞춘다.' },
+    ], choices: [
+      { text: '선로로 내려가 의식을 끊는다', set: { c12: 'cut' }, next: 'c12_after',
+        fight: (g) => ({ title: '선로 아래의 것', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 3, elem: 'wood', boss: true, name: '둥지에서 깬 것' },
+          win: { text: '노래가 끊긴다. 선로 위 촛불이 한꺼번에 꺼진다.', gain: { fame: 8, rep: 6 } }, lose: { text: '무릎이 꺾인다. 노래는 끝까지 이어진다.', gain: { injure: 1 } } }) },
+      { text: '관리국 작전에 합류한다', when: (g, M) => SEOYUN_ON(g, M) || M.flags.kamaWatch === 'signed', set: { c12: 'kama' }, gain: { merit: 6 }, next: 'c12_after',
+        say: [{ who: 'seoyun', text: '들어가지 마세요. 우리는 입구만 봉쇄해요. …명령이에요. 제 명령 아니고.' }, { narr: '장갑차 조명 아래, 촛불 줄이 땅속으로 계속 내려간다. 아무도 막지 않는다. 카메라만 돌아간다.' }] },
+      { text: (g) => `${F2_TARGET(g)}이(가) 있는 의식장으로 간다`, set: { c12: 'friend' }, next: 'c12_after', run: (g) => { const f = g.mainWho('friend'); if (f) g.changeRel(f, 3, '보름 밤에 찾아와 주었다'); },
+        say: [{ narr: '강북을 등진다. 등 뒤에서 노래가 커진다. 택시 기사가 백미러로 당신을 본다. "거기도 오늘 뭐 한다던데요."' }] },
+    ] },
+    { id: 'c12_after', lines: [
+      { narr: (g, M) => ({
+        cut: M.flags.fight_c12_night === 'lose' ? '눈을 뜨니 새벽이다. 선로 위에 흰 로브들이 쓰러져 잔다. 다들 살아 있다. 다들 같은 꿈을 꿨다고 한다.' : '선로 바닥에 둥근 자국. 반쪽 원이 하나 덜 그려진 채 끝나 있다. 다섯 개 중 하나는 열리지 않았다.',
+        kama: '새벽. 관리국 차량이 철수한다. 서류 상으론 "강북 집회 해산, 사상자 없음". 선로 아래에서 사람이 몇 올라오지 않았다.',
+        friend: `재개발 구역. 의식은 이미 끝나 있다. ${F2_TARGET(g)}은(는) 없다. 바닥에 분필 원과 흰 끈 한 가닥.`,
+      })[M.flags.c12] || '' },
+      { who: 'rival', when: F2_HAS_RIVAL, text: (g, M) => RIVAL_LINE(g, M, {
+        kama: '관리국 작전 보고서 봤어. 다섯 곳 다 "관측 성공". 성공이래. 뭐가 성공인데.',
+        cult: '…나 강북 안에 있었어. 노래 부르다 네가 내려오는 거 봤어. 아니, 못 본 척했어.',
+        solo: '대구 쪽 갔다. 혼자서 하나는 끊었어. 너는 몇 개 끊었냐.',
+        alone: '뉴스 봤어. 다섯 곳. 나는 집에 있었어. 무서워서.',
+        none: '보름 지났다. 다들 살아 있냐.',
+      }) },
+      { who: KID2, when: (g, M) => M.flags.doyun === 'leaflet' && M.flags.c12 !== 'cut', text: '{hyung}… 나 앞줄 섰어. 바다 봤어. 엄청 넓어. 근데 엄마가 안 일어나.' },
+    ], next: 'end' },
+  ],
+  done: (g, M) => {
+    const cut = M.flags.c12 === 'cut' && M.flags.fight_c12_night === 'win';
+    M.flags.rituals = cut ? 4 : 5;
+    if (M.flags.doyun === 'leaflet' && M.flags.c12 !== 'cut') { M.flags.doyun = 'front'; g.lifeEvent('도윤이 보름 의식 앞줄에 섰다. 도윤의 엄마가 깨어나지 않았다.'); }
+    g.rumor(cut ? '강북 보름 의식이 중간에 끊겼다. 다섯 곳 중 한 곳만 문이 덜 열렸다는 말이 돈다.' : '보름 밤 다섯 곳에서 동시에 의식이 치러졌다. 관리국은 "사상자 없음"이라고 발표했다.');
+    g.lifeEvent(({ cut: '보름 밤, 강북 선로에서 균열교 의식을 끊었다.', kama: '보름 밤, 관리국 봉쇄선 뒤에서 의식을 지켜봤다.', friend: '보름 밤, 강북 대신 친구를 찾아갔다.' })[M.flags.c12] || '보름 밤을 보냈다.');
+  },
+  expire: { months: 4, run: (g, M) => {
+    Object.assign(M.flags, { c12: 'missed', rituals: 5 });
+    if (M.flags.doyun === 'leaflet') M.flags.doyun = 'front';
+    g.rumor('보름 밤 다섯 곳에서 동시에 균열교 의식. 강북 선로 아래에서 돌아오지 않은 신도가 있다.');
+    return '보름 밤이 지났다. 아침 뉴스에 다섯 곳의 지명이 차례로 나온다.';
+  } },
+});
+
+// ---------- 13장 늦은 전화 ----------
+// 늦음(late)이면 결과는 하나로 고정: 친구(또는 지우)는 의식으로 억지 각성한 채 흰 가면들에게 데려가진다.
+const LATE13 = (g, M) => M.flags.c12 === 'missed' || M.flags.friend2 === 'deep';
+MAIN.ch(13, {
+  part: 2, title: '늦은 전화', rank: 2, after: 0, where: (g) => { const f = g.mainWho('friend'); return f && f.region ? f.region : 'city'; },
+  goal: (g) => `${F2_TARGET(g)}에게 간다`,
+  scenes: [
+    leadScene('c13_lead', '친구 일'),
+    { id: 'c13_call', lines: [
+      { narr: '새벽 세 시. 전화가 운다.' },
+      { who: 'friend', text: (g, M) => ({
+        safe: '…미안. 자는데. 지우(나)한테 자꾸 문자가 와. "그릇이 비었다"고. 집 앞에 흰 옷 입은 사람이 서 있어. 세 시간째.',
+        drift: '나 지금 거기 있어. 지하. 다들 누워 있어. 나도 누워야 하는데… 무서워. 너 목소리 듣고 싶어서.',
+        with: '너 그날 같이 들어와 줬잖아. 그래서 다들 날 앞줄에 세워. 오늘 밤이래. 나 "그릇"이래.',
+        forced: '…너 때문에 나왔다가 다시 들어갔어. 화나서. 근데 지금 진짜 이상해. 다들 눈이 까매.',
+        deep: '…(숨소리만 들린다. 멀리서 파도 소리.)',
+      })[M.flags.friend2] || '…와 줘.' },
+      { narr: (g, M) => (M.flags.c12 === 'friend' ? '보름 밤 그 재개발 구역이다. 길을 안다. 분필 원이 어디 있는지도.' : M.flags.c12 === 'missed' ? '주소를 받아 적는 손이 떨린다. 보름은 이미 지났다. 너무 늦었는지도 모른다.' : '주소를 받아 적는다. 차로 사십 분.') },
+    ] },
+    { id: 'c13_run', lines: [
+      { narr: '계단을 세 칸씩 뛰어 내려간다. 신발 끈이 풀린 줄도 모른다.' },
+      { narr: (g, M) => (LATE13(g, M) ? '도착하기 전에 안다. 공기가 짜다. 바다 냄새다. 여기는 바다가 없는데.' : '건물 지하에서 노래가 들린다. 아직 끝나지 않았다.') },
+    ], choices: [
+      { text: '문을 부수고 들어간다', when: (g, M) => !LATE13(g, M), set: { c13: 'run' }, next: 'c13_room',
+        fight: (g) => ({ title: '흰 가면 호위', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 3, human: true, name: '흰 가면 호위' },
+          win: { text: '마지막 호위가 쓰러진다. 안쪽 문이 열려 있다.', gain: { fame: 5 } }, lose: { text: '바닥에 쓰러진 채 안쪽에서 노래가 끝나는 걸 듣는다.', gain: { injure: 1 } } }) },
+      { text: '서윤에게 전화하고 같이 들어간다', when: (g, M) => !LATE13(g, M) && M.flags.seoyun === 'ally', set: { c13: 'seoyun', friend3: 'saved', friendKama: true }, next: 'c13_room',
+        say: [{ who: 'seoyun', text: '십 분. 아니, 칠 분. 혼자 들어가지 마요.' }, { narr: '칠 분 뒤 회색 승용차 두 대. 서윤이 먼저 내린다. 총을 뽑지 않는다. 대신 사이렌을 켠다. 노래가 멈춘다.' }] },
+      { text: '들어간다', when: LATE13, set: { c13: 'late' }, next: 'c13_room' },
+    ] },
+    { id: 'c13_room', lines: [
+      { narr: (g, M) => {
+        if (!M.flags.friend3) M.flags.friend3 = LATE13(g, M) || M.flags.fight_c13_run === 'lose' ? 'late' : 'saved';
+        return M.flags.friend3 === 'saved'
+          ? `지하. 분필 원 한가운데 ${F2_TARGET(g)}이(가) 누워 있다. 숨을 쉰다. 눈을 뜨자 검은자위가 천천히 원래 색으로 돌아온다.`
+          : `지하. 분필 원은 비어 있다. 원 바깥에 흰 끈과 신발 한 짝. ${F2_TARGET(g)}의 것이다.`;
+      } },
+      { who: 'friend', when: (g, M) => M.flags.friend3 === 'saved', text: (g) => (F2_AWAKE(g) ? '지우 괜찮아? …괜찮아? 고마워. 고마워. 진짜.' : '…목소리가 네 이름 불렀어. 바다에서. "그 애를 데려와"라고.') },
+      { narr: '벽에 분필 글씨. "그릇은 차올랐다. 문 너머에서 기다린다."', when: (g, M) => M.flags.friend3 === 'late' },
+      { narr: '휴대폰에 영상 하나가 도착한다. 흰 가면들 사이를 걸어가는 뒷모습. 맨발. 걸음이 이상하게 가볍다. 발밑에 물이 고인다.', when: (g, M) => M.flags.friend3 === 'late' },
+    ] },
+    { id: 'c13_after', lines: [
+      { who: 'leader', when: (g, M) => F2_HAS_LEADER(g) && F2_IN_CREW(g), text: (g, M) => (M.flags.friend3 === 'saved' ? '살렸으면 됐다. 다음 일은 다음에 생각해.' : '…네 잘못 아니다. 그 말 백 번 해 줄 테니까 한 번만 들어.') },
+      { who: 'seoyun', when: (g, M) => !!M.flags.friendKama, text: '보호 조치로 관리국 병원에 모실게요. …감시라고 생각하셔도 돼요. 둘 다니까.' },
+      { narr: (g, M) => (M.flags.friend3 === 'late' && M.flags.c1_call === 'promise' ? '처음 각성하던 날 걸려 온 전화가 생각난다. "따져 줄게." 그렇게 말했었다.' : '해가 뜬다. 아무것도 끝나지 않았다.') },
+    ], next: 'end' },
+  ],
+  done: (g, M) => {
+    const f = g.mainWho('friend'); const who = g.mainFill(F2_TARGET(g));
+    if (M.flags.friend3 === 'saved') { if (f) g.changeRel(f, 10, '의식에서 살려 주었다'); g.lifeEvent(`${who}을(를) 보름 의식에서 살려 냈다.`); }
+    else { if (f) g.changeRel(f, F2_AWAKE(g) ? -4 : 0, '늦게 왔다'); g.lifeEvent(`${who}이(가) 흰 가면들에게 데려가졌다. 늦었다.`); g.rumor('억지로 각성한 신도들이 균열교 본진으로 옮겨졌다는 말이 돈다.'); }
+  },
+  expire: { months: 3, run: (g, M) => {
+    Object.assign(M.flags, { friend3: 'late', c13: 'missed' });
+    const f = g.mainWho('friend'); if (f) g.changeRel(f, -8, '전화를 받지 않았다');
+    return `새벽 세 시에 온 부재중 전화 한 통. 그 뒤로 ${g.mainFill(F2_TARGET(g))}에게서 연락이 없다.`;
+  } },
+});
+
+// ---------- 14장 가면 벗다 ----------
+MAIN.ch(14, {
+  part: 2, title: '가면 벗다', rank: 2, after: 1, where: 'any',
+  goal: '모르는 번호의 전화',
+  scenes: [
+    { id: 'c14_ring', lines: [
+      { narr: '밤. 숙소. 발신 번호 표시 없음. 세 번째 울림에서 안다. 누군지.' },
+      { who: 'mumyeong', text: (g, M) => (M.flags.friend3 === 'late' ? `${g.mainFill(F2_TARGET(g))}은(는) 제 곁에 있습니다. 다치지 않았어요. 오히려 처음으로 편안해합니다.` : '친구분은 무사하더군요. 축하합니다. 진심이에요. 저도 한때 누군가를 그렇게 꺼내고 싶었거든요.') },
+      { who: 'mumyeong', text: '이제 얼굴을 보여 드릴 때가 된 것 같아서요. 들으시겠어요?' },
+    ], choices: [
+      { text: '듣는다', set: { c14: 'listen' }, next: 'c14_listen' },
+      { text: '끊는다', set: { c14: 'hangup' }, next: 'c14_news' },
+    ] },
+    { id: 'c14_listen', lines: [
+      { who: 'mumyeong', text: (g, M) => ({
+        copy: '청룡 지하에서 열세 장째에 멈추셨죠. 경보가 울려서. 열네 장째에 제 얼굴이 있었습니다.',
+        official: '열람 대장에 이름을 남기셨더군요. 정직한 분이에요. 그 대장은 마도현 국장 책상으로 갔습니다.',
+        seoyun: '그 기록을 한서윤 조사관에게 넘기셨죠. 좋은 사람이에요. 그래서 오래 못 버틸 겁니다.',
+        none: '기록은 불탔습니다. 제가 태운 건 아니에요. 불을 낸 쪽이 누구인지 생각해 보세요.',
+      })[M.flags.jinSeohaeKnown || 'none'] },
+      { who: 'mumyeong', text: '진서해입니다. 청룡 연구소 수석 연구원이었죠. 대붕괴 사흘 전, 바다 밑 목소리와 처음 말을 나눈 사람이에요.' },
+      { who: 'mumyeong', text: '1차 교신은 대화였습니다. 2차 교신을 증폭하라고 지시한 건 공동 책임자였어요. 관측선이 사라졌고, 그날 문이 열렸습니다.' },
+      { narr: (g, M) => (M.flags.badge7 ? '주머니 속 쇠 배지를 쥔다. 7. 일곱 번째 형제. 이 사람이 붙인 번호다.' : M.flags.dreamDebt ? '방바닥에 또 에테르가 고인다. 목소리가 전화기 너머와 꿈속에서 동시에 들린다.' : '창밖 달이 반쯤 기울어 있다.') },
+      { who: 'mumyeong', text: '문은 닫을 수 없습니다. 이미 반쪽씩 열렸어요. 남은 길은 하나예요. 모두 함께 넘어가는 것.' },
+      { who: 'mumyeong', text: '당신은 영점 세대예요. 목소리가 이름을 부르는 사람. 언젠가 당신이 문 앞에 서게 됩니다. 그때 누구 편에 설지, 그때 정하세요.' },
+      { narr: '전화가 끊긴다. 마지막 몇 초 동안 수화기 너머로 파도 소리가 들렸다.' },
+    ], next: 'c14_end' },
+    { id: 'c14_news', lines: [
+      { narr: '통화 종료. 손바닥에 땀이 찬다.' },
+      { narr: '사흘 뒤. 헌터넷 첫 화면에 영상 하나가 걸린다. 흰 가면을 벗는 남자. 마흔 후반. 마른 얼굴. 대전 지하 사진 속 바로 그 얼굴.' },
+      { sys: '「균열교 교주, 전 청룡 연구소 수석 연구원 진서해로 확인」' },
+      { who: 'mumyeong', text: '관리국은 대붕괴를 막지 못한 게 아닙니다. 열었습니다. 증거는 영점 세대가 갖고 있어요. 그중 한 명은 내 전화를 끊었고요.' },
+      { narr: '영상 댓글 맨 위. 당신 이름이 적혀 있다. 누군가 찾아냈다.' },
+      { who: 'seoyun', when: (g, M) => !!M.flags.seoyun, text: (g, M) => (M.flags.seoyunHasFile ? '…그 기록, 제가 갖고 있는 거 아무도 몰라요. 계속 그래야 해요. 당분간 연락 못 해요.' : '당신 이름이 돌기 시작했어요. 관리국이 먼저 움직일 거예요. 조심해요.') },
+    ], next: 'c14_end' },
+    { id: 'c14_end', lines: [
+      { narr: '다음 날 아침 뉴스. 마도현 국장이 단상에 선다. 깔끔한 정장. 흔들림 없는 목소리.' },
+      { sys: '「관리국은 테러 집단 지도자의 근거 없는 주장에 유감을 표합니다. 영점 세대 여러분의 안전을 최우선으로 보호하겠습니다.」' },
+      { narr: (g, M) => (M.flags.seoyunHasFile || M.flags.jinSeohaeKnown === 'copy' ? '"공동 책임: 관리국 기획실장 마도현." 당신 휴대폰 사진첩에 그 줄이 있다. 화면 속 남자는 그걸 모른다. 아직은.' : '"보호." 그 단어가 유난히 또렷하게 들린다.') },
+      { who: 'rival', when: F2_HAS_RIVAL, text: (g, M) => RIVAL_LINE(g, M, {
+        kama: '국장님이 오늘 아침 회의에서 웃으셨어. 그게 제일 무서웠다.',
+        cult: '진서해 선생님이 진짜로 가면을 벗었네. …나 이제 어느 쪽인지 모르겠다.',
+        solo: '둘 중 하나는 거짓말이야. 아니면 둘 다.',
+        alone: '…나 이 영상 열 번 봤다.',
+        none: '봤냐. 세상이 시끄러워지겠다.',
+      }) },
+      { narr: '창밖에서 비가 온다. 빗소리가 조금 짜다.' },
+    ], next: 'end' },
+  ],
+  done: (g, M) => {
+    M.flags.jinFace = true;
+    M.flags.tone3 = M.flags.c14 === 'listen' ? 'heard' : 'deaf';
+    if (g.flags.chains) g.flags.chains.voice = Math.max(g.flags.chains.voice || 0, 3);
+    M.part2 = { seoyun: M.flags.seoyun || 'none', friend: M.flags.friend3 || 'late', jin: M.flags.jinSeohaeKnown || 'none', ritual: M.flags.c12 || 'missed', tone: M.flags.tone3 };
+    g.lifeEvent(M.flags.c14 === 'listen' ? '균열교 교주 진서해의 이야기를 끝까지 들었다.' : '균열교 교주 진서해의 전화를 끊었다. 사흘 뒤 그가 가면을 벗었다.');
+    g.rumor('균열교 교주가 가면을 벗었다. 전 청룡 연구소 수석 연구원 진서해. 관리국을 대붕괴의 원인으로 지목했다.');
+    if (M.flags.tone3 === 'deaf') g.rumor(`진서해 영상 댓글에 ${g.player.name}의 이름이 올랐다. 영점 세대라는 말과 함께.`);
+  },
+  expire: { months: 6, run: (g, M) => {
+    Object.assign(M.flags, { c14: 'missed', jinFace: true, tone3: 'deaf' });
+    M.part2 = { seoyun: M.flags.seoyun || 'none', friend: M.flags.friend3 || 'late', jin: M.flags.jinSeohaeKnown || 'none', ritual: M.flags.c12 || 'missed', tone: 'deaf' };
+    g.rumor('균열교 교주가 가면을 벗었다. 전 청룡 연구소 수석 연구원 진서해.');
+    return '균열교 교주가 가면을 벗었다는 뉴스. 진서해. 대전 지하 사진 속 그 얼굴이다.';
+  } },
+});
