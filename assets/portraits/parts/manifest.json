@@ -287,6 +287,236 @@
       ],
       "chinY": 247,
       "skinMask": "face-m-17-skin.webp"
+    },
+    {
+      "file": "face-m-18.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        227.0,
+        191.0,
+        177.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-18-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-m-19.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        226.0,
+        191.0,
+        176.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-19-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-m-20.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        224.0,
+        189.0,
+        172.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-20-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-m-21.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        228.0,
+        193.0,
+        180.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-21-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-m-22.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        224.0,
+        189.0,
+        173.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-22-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-m-23.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        225.0,
+        191.0,
+        176.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-23-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-m-24.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        226.0,
+        191.0,
+        176.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-24-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-m-25.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        224.0,
+        189.0,
+        172.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-25-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-m-26.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        224.0,
+        189.0,
+        172.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-26-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-m-27.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        225.0,
+        191.0,
+        176.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-27-skin.webp",
+      "registrationVersion": 3
     }
   ],
   "face-f": [
@@ -577,6 +807,236 @@
       ],
       "chinY": 258,
       "skinMask": "face-f-17-skin.webp"
+    },
+    {
+      "file": "face-f-18.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        223.0,
+        191.0,
+        181.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-18-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-f-19.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        222.0,
+        190.0,
+        178.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-19-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-f-20.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        223.0,
+        190.0,
+        179.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-20-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-f-21.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        219.0,
+        187.0,
+        175.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-21-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-f-22.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        221.0,
+        189.0,
+        178.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-22-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-f-23.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        226.0,
+        192.0,
+        182.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-23-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-f-24.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        223.0,
+        191.0,
+        180.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-24-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-f-25.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        216.0,
+        184.0,
+        172.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-25-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-f-26.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        224.0,
+        191.0,
+        181.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-26-skin.webp",
+      "registrationVersion": 3
+    },
+    {
+      "file": "face-f-27.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        221.0,
+        189.0,
+        178.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-27-skin.webp",
+      "registrationVersion": 3
     }
   ],
   "hair-m": [
@@ -759,6 +1219,176 @@
         190,
         233
       ]
+    },
+    {
+      "file": "hair-m-20.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-m-20-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 230
+    },
+    {
+      "file": "hair-m-21.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-m-21-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 230
+    },
+    {
+      "file": "hair-m-22.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-m-22-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 230
+    },
+    {
+      "file": "hair-m-23.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-m-23-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 230
+    },
+    {
+      "file": "hair-m-24.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-m-24-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 235
+    },
+    {
+      "file": "hair-m-25.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-m-25-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 278
+    },
+    {
+      "file": "hair-m-26.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-m-26-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 235
+    },
+    {
+      "file": "hair-m-27.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-m-27-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 255
+    },
+    {
+      "file": "hair-m-28.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-m-28-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 302
+    },
+    {
+      "file": "hair-m-29.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-m-29-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 342
     }
   ],
   "hair-f": [
@@ -941,6 +1571,176 @@
         400,
         600
       ]
+    },
+    {
+      "file": "hair-f-20.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-20-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 306
+    },
+    {
+      "file": "hair-f-21.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-21-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 275
+    },
+    {
+      "file": "hair-f-22.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-22-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 280
+    },
+    {
+      "file": "hair-f-23.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-23-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 275
+    },
+    {
+      "file": "hair-f-24.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-24-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 346
+    },
+    {
+      "file": "hair-f-25.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-25-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 365
+    },
+    {
+      "file": "hair-f-26.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-26-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 396
+    },
+    {
+      "file": "hair-f-27.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-27-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 280
+    },
+    {
+      "file": "hair-f-28.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-28-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 280
+    },
+    {
+      "file": "hair-f-29.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-29-rear.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 344
     }
   ],
   "cloth-m": [

@@ -176,7 +176,7 @@ Object.assign(UI, {
     switch (act) {
       case 'mode-story': {
         const gender = 'M';
-        this.pro = { name: this.lastName(), gender, look: Math.random().toString(36).slice(2), bg: null, friend: null, id: null, sc: null, step: 0, friendBonus: 0, log: [] };
+        this.pro = { name: this.lastName(), gender, look: PortraitParts.newLook(), bg: null, friend: null, id: null, sc: null, step: 0, friendBonus: 0, log: [] };
         this.screen = 'story-setup'; return this.render();
       }
       case 'mode-manual': return this.startCreate();
@@ -189,7 +189,7 @@ Object.assign(UI, {
         return;
       }
       case 'ps-gender': this.pro.gender = v; return this.render();
-      case 'ps-look': this.pro.look = Math.random().toString(36).slice(2); return this.render();
+      case 'ps-look': this.pro.look = PortraitParts.newLook(); return this.render();
       case 'ps-start': {
         const s = this.pro; s.name = (s.name || '').trim();
         if (!s.name) return this.toast('이름을 입력하세요.');

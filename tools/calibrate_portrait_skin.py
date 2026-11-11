@@ -25,8 +25,10 @@ def skin_mask(part, rgba, root, gender, kind):
         skin = (rgba[:,:,3] > 8) & (val > .12)
         eye_y = (108 if gender == 'f' else 98) + (part.get('chinY', 261 if gender == 'f' else 251) - (261 if gender == 'f' else 251)) * .5
         eye_centers = [43, 101]
+        eye_y = part.get('eyeY', eye_y)
+        eye_centers = part.get('eyeCenters', eye_centers)
         eye_rx, eye_ry = 20, 8
-        mouth = ((xx-72)/20)**2 + ((yy-(174 if gender == 'f' else 162))/(9.5 if gender == 'f' else 7))**2 < 1
+        mouth = ((xx-72)/20)**2 + ((yy-part.get('mouthY',174 if gender == 'f' else 162))/(9.5 if gender == 'f' else 7))**2 < 1
     else:
         eye_y = 163 if gender == 'f' else 153
         eye_centers = [171, 229]
@@ -68,12 +70,19 @@ def skin_mask(part, rgba, root, gender, kind):
         skin[opening] = False
     # 입술의 붉은 색과 흰자·검은 선·속옷은 그대로 남긴다.
     lip = mouth & ((hue < .04) | (hue > .98)) & (sat > .25)
-    skin[lip] = False
+    if part.get('registrationVersion') != 3:
+        skin[lip] = False
     # 원본 알파는 최종 이미지 합성에서 이미 사용한다. 여기서 다시 곱하면
     # 반투명한 피부 픽셀만 덜 칠해져 얼룩처럼 남는다.
     mask = ndimage.gaussian_filter(skin.astype(float), .35) * 255
     # 입술의 붉은 색은 남기되 피부가 어두워져도 원래 밝기의 반점처럼 뜨지 않게 한다.
     mask[lip] = 153
+    if part.get('registrationVersion') == 3:
+        # 확장 원화는 입술 일부만 색상 임계값으로 제외하면 밝은 점이 생긴다.
+        mask = ndimage.gaussian_filter(skin.astype(float), .35) * 255
+        mouth_y = part['mouthY']
+        radius = np.sqrt(((xx-72)/19)**2+((yy-(mouth_y+2.5))/6.5)**2)
+        mask *= 1-.15*np.clip((1-radius)/.35,0,1)
     file = part['file'].replace('.webp', '-skin.webp')
     Image.fromarray(mask.clip(0,255).astype('uint8'), 'L').save(root / file, 'WEBP', lossless=True, method=4)
     part['skinMask'] = file
@@ -89,7 +98,8 @@ def calibrate(manifest, root):
             part['skinRgb'] = np.median(skin, axis=0).round(2).tolist()
             # 턱 아래 검은 윤곽을 찾아, 얼굴마다 다른 목 길이도 보정한다.
             jaw = np.median(rgba[180:225, 69:76, :3], axis=(1, 2))
-            part['chinY'] = int(jaw.argmin()) + 235
+            if part.get('registrationVersion') != 3:
+                part['chinY'] = int(jaw.argmin()) + 235
             skin_mask(part, rgba, root, gender, 'face')
         for part in manifest.get('body-' + gender, []):
             rgba = np.array(Image.open(root / part['file']).convert('RGBA'))

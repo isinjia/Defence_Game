@@ -126,7 +126,7 @@ const UI = {
     c.cls = c.classes[0];
   },
   startCreate() {
-    this.create = { name: this.lastName(), gender: 'M', bg: 'student', element: 'fire', rolls: 6, look: Math.random().toString(36).slice(2) };
+    this.create = { name: this.lastName(), gender: 'M', bg: 'student', element: 'fire', rolls: 6, look: PortraitParts.newLook() };
     this.rollCreate();
     this.screen = 'create';
     this.render();
@@ -1068,7 +1068,7 @@ const UI = {
       case 'c-bg': c.bg = v; return this.render();
       case 'c-elem': c.element = v; return this.render();
       case 'c-cls': c.cls = v; return this.render();
-      case 'c-look': c.look = Math.random().toString(36).slice(2); return this.render();
+      case 'c-look': c.look = PortraitParts.newLook(); return this.render();
       case 'c-roll': if (c.rolls > 0) this.rollCreate(); return this.render();
       case 'c-start': {
         const name = (c.name || '').trim();

@@ -193,6 +193,41 @@ const { chromium, devices } = require('playwright');
     });
     if (!ok) throw new Error('검사 실패');
   });
+  await step('신규 얼굴·헤어: 저장 외형 호환·성인/유스 풀·뒷머리 합성', async () => {
+    await page.evaluate(async () => {
+      for (const gender of ['M','F']) {
+        const g = gender.toLowerCase();
+        for (const [seed, face, hair] of [['고정인물',1,2],['저장호환-0',8,5],['저장호환-29',2,14]]) {
+          const s = PortraitParts.select(seed,gender,{age:25,outfit:'underwear'});
+          if(s.layers[0].file !== `face-${g}-${face}.webp` || s.layers[2].file !== `hair-${g}-${hair}.webp`) throw Error('저장 외형 변경');
+        }
+        const faces=new Set(), hairs=new Set(), pairs=new Set(), samples=new Map();
+        for(let i=0;i<20000;i++) {
+          const seed='look3:검증'+i, s=PortraitParts.select(seed,gender,{age:25,outfit:'underwear'});
+          const face=s.layers[0],hair=s.layers[2];faces.add(face.file);hairs.add(hair.file);
+          pairs.add(face.file+'|'+hair.file);
+          const f=Number(face.file.match(/-(\d+)\.webp/)[1]),h=Number(hair.file.match(/-(\d+)\.webp/)[1]);
+          if(f>=15 && f<18)throw Error('성인에 유스 얼굴');
+          if(f>=18)samples.set(face.file,seed);
+          if(h>=20){if(!hair.rearFile)throw Error('뒷머리 없음');samples.set(hair.file,seed);}
+        }
+        if(faces.size!==20 || hairs.size!==30 || pairs.size!==600)throw Error('확장 파츠 조합 누락');
+        const kid=PortraitParts.select('look3:검증',gender,{age:10}).layers[0].file;
+        if(!new RegExp(`face-${g}-(15|16|17)\\.webp`).test(kid))throw Error('유스 풀 변경');
+        for(const [file,seed] of samples) {
+          const source=PORTRAIT.card(seed,gender,null,0,160,{outfit:'underwear',skinTone:'deep'});
+          if(file.startsWith('hair-')) {
+            const rear=source.indexOf('data-depth="hair-rear-complete"'),body=source.indexOf('data-depth="underwear"');
+            if(rear<0 || rear>body)throw Error('뒷머리 순서 불일치');
+          }
+          const url=await PortraitParts.rasterize(source), im=new Image();im.src=url;await im.decode();
+          const svg=decodeURIComponent(url.split(',')[1]);
+          if(/href="assets\//.test(svg))throw Error('외부 파츠 경로 남음');
+        }
+      }
+      if(!PortraitParts.newLook().startsWith('look3:'))throw Error('새 외형 시드 형식');
+    });
+  });
   await step('턱·목 합성: 여성 헤어 20종·체형 4종과 남성 코트 목선', async () => {
     await page.evaluate(async () => {
       const read=async svg=>{
