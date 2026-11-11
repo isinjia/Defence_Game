@@ -26,7 +26,9 @@
       const price = +priceOf(b).replace(/,/g, '');
       if (price > money) { b.classList.add('cant-afford'); b.insertAdjacentHTML('beforeend', '<span class="afford-tag">부족</span>'); }
     }
-    box.classList.add('has-wallet'); box.classList.toggle('wallet-shop', !!box.querySelector('.city-close, :scope > .sheet-close, :scope > .icon-btn')); box.insertAdjacentHTML('afterbegin', `<div class="wallet-chip"><span>보유</span><b>${fmt(money)}</b><span>크레딧</span></div>`);
+    // 닫기(×)가 sheet-head·row 안에 있어도 가리지 않게 옆으로 민다(의뢰·길드 시트 등)
+    const hasClose = !!box.querySelector('.city-close, .sheet-close, .icon-btn[data-act="modal-close"], .sheet-head > .icon-btn');
+    box.classList.add('has-wallet'); box.classList.toggle('wallet-shop', hasClose); box.insertAdjacentHTML('afterbegin', `<div class="wallet-chip"><span>보유</span><b>${fmt(money)}</b><span>크레딧</span></div>`);
   };
   const baseModal = UI.modal;
   UI.modal = function (...a) { const r = baseModal.apply(this, a); try { this.walletChip(); } catch (e) { /* 무시 */ } return r; };
