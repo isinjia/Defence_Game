@@ -5,29 +5,75 @@ import re
 import numpy as np
 from PIL import Image
 from scipy import ndimage
+from scipy.spatial import ConvexHull
+from PIL import ImageDraw
 
 
 def skin_mask(part, rgba, root, gender, kind):
     rgb = rgba[:, :, :3].astype(float)
     hsv = np.array(Image.fromarray(rgba[:, :, :3]).convert('HSV')).astype(float) / 255
     hue, sat, val = hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2]
-    skin = (((hue > .015) & (hue < .18)) | (hue > .88)) & (sat > .065) & (sat < .65) & (val > .27) & (rgba[:, :, 3] > 8)
+    # 밝은 하이라이트와 어두운 피부 그림자도 같은 피부 재질에 포함한다.
+    skin = ((((hue < .21) | (hue > .85)) & (sat > .015) & (sat < .8) & (val > .14)) | ((sat < .15) & (val > .70))) & (rgba[:,:,3] > 8)
+    holes = ndimage.binary_fill_holes(skin) & ~skin
+    labels, _ = ndimage.label(holes)
+    sizes = np.bincount(labels.ravel())
+    skin |= holes & (sizes[labels] < 500) & (rgba[:,:,3] > 8) & (val > .14)
     yy, xx = np.indices(skin.shape)
     if kind == 'face':
+        # 얼굴은 피부 한 재질이다. HSV 임계값으로 코·눈 밑·하이라이트를 도려내지 않는다.
+        skin = (rgba[:,:,3] > 8) & (val > .12)
         eye_y = (108 if gender == 'f' else 98) + (part.get('chinY', 261 if gender == 'f' else 251) - (261 if gender == 'f' else 251)) * .5
-        for eye_x in [43, 101]:
-            skin[((xx-eye_x)/20)**2 + ((yy-eye_y)/10)**2 < 1] = False
-        mouth = (xx > 44) & (xx < 102) & (yy > 148) & (yy < 185)
+        eye_centers = [43, 101]
+        eye_rx, eye_ry = 20, 8
+        mouth = ((xx-72)/20)**2 + ((yy-(174 if gender == 'f' else 162))/(9.5 if gender == 'f' else 7))**2 < 1
     else:
         eye_y = 163 if gender == 'f' else 153
-        for eye_x in [171, 229]:
-            skin[((xx-eye_x)/21)**2 + ((yy-eye_y)/12)**2 < 1] = False
-        mouth = (xx > 172) & (xx < 228) & (yy > 202) & (yy < 244)
+        eye_centers = [171, 229]
+        eye_rx, eye_ry = 21, 10
+        mouth = ((xx-200)/21)**2 + ((yy-(233 if gender == 'f' else 222))/9)**2 < 1
         if gender == 'f':
             skin[(yy > 315) & (val < .57)] = False
+    # 눈 주변 전체를 빼지 않고 흰자에서 실제 눈의 안쪽 윤곽을 찾는다.
+    # 좌우 흰자 사이의 홍채도 같은 윤곽 안에서 보호한다.
+    eye_rgba = rgba
+    if kind == 'face':
+        index = int(part['file'].split('-')[-1].split('.')[0])
+        if index in [0,1,2,5,7,8,10,11,13,14]:
+            source_index = 0 if index == 5 else index % 3
+            eye_rgba = np.array(Image.open(root / f'face-{gender}-{source_index}.webp').convert('RGBA'))
+    eye_hsv = np.array(Image.fromarray(eye_rgba[:,:,:3]).convert('HSV')).astype(float)/255
+    eye_sat, eye_val = eye_hsv[:,:,1], eye_hsv[:,:,2]
+    ref = np.array(part.get('skinRgb', [230,195,180]), dtype=float)
+    if kind == 'face':
+        ref = np.median(eye_rgba[130:142,42:54,:3].reshape(-1,3),axis=0)
+    ref_sat = (ref.max()-ref.min())/ref.max()
+    # 따뜻한 흰자도 포함하되 붉은 피부 하이라이트는 눈 윤곽으로 오인하지 않는다.
+    er, eg, eb = [eye_rgba[:,:,i].astype(float) for i in range(3)]
+    neutral = (eye_sat < max(.035, min(.11, ref_sat*.45))) & (eye_val > .58)
+    neutral |= (er-eg < 18) & (eg-eb < 25) & (np.minimum.reduce([er,eg,eb]) > 135) & (np.maximum.reduce([er,eg,eb])-np.minimum.reduce([er,eg,eb]) < 45)
+    for eye_x in eye_centers:
+        roi = (((xx-eye_x)/eye_rx)**2 + ((yy-eye_y)/eye_ry)**2 < 1)
+        ys, xs = np.where(roi & neutral & (eye_rgba[:,:,3] > 220))
+        if len(xs) < 4:
+            continue
+        points = np.column_stack([xs,ys])
+        try:
+            hull = ConvexHull(points)
+        except Exception:
+            continue
+        protected = Image.new('L', (skin.shape[1],skin.shape[0]))
+        ImageDraw.Draw(protected).polygon([tuple(p) for p in points[hull.vertices]],fill=255)
+        opening = ndimage.binary_dilation(np.array(protected)>0,structure=np.ones((3,3)),iterations=1)
+        skin[opening] = False
     # 입술의 붉은 색과 흰자·검은 선·속옷은 그대로 남긴다.
-    skin[mouth & ((hue < .04) | (hue > .98)) & (sat > .25)] = False
-    mask = ndimage.gaussian_filter(skin.astype(float), .45) * rgba[:, :, 3]
+    lip = mouth & ((hue < .04) | (hue > .98)) & (sat > .25)
+    skin[lip] = False
+    # 원본 알파는 최종 이미지 합성에서 이미 사용한다. 여기서 다시 곱하면
+    # 반투명한 피부 픽셀만 덜 칠해져 얼룩처럼 남는다.
+    mask = ndimage.gaussian_filter(skin.astype(float), .35) * 255
+    # 입술의 붉은 색은 남기되 피부가 어두워져도 원래 밝기의 반점처럼 뜨지 않게 한다.
+    mask[lip] = 153
     file = part['file'].replace('.webp', '-skin.webp')
     Image.fromarray(mask.clip(0,255).astype('uint8'), 'L').save(root / file, 'WEBP', lossless=True, method=4)
     part['skinMask'] = file

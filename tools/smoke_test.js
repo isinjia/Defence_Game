@@ -193,7 +193,7 @@ const { chromium, devices } = require('playwright');
     });
     if (!ok) throw new Error('검사 실패');
   });
-  await step('기본 몸체: 얼굴 30종 피부색·한 장의 턱·목·어깨·얼굴 특징 교체', async () => {
+  await step('기본 몸체: 얼굴 20종 피부색·한 장의 턱·목·어깨·얼굴 특징 교체', async () => {
     await page.evaluate(async () => {
       const median = patches => [0, 1, 2].map(channel => {
         const values = [];
@@ -201,7 +201,7 @@ const { chromium, devices } = require('playwright');
         values.sort((a, b) => a - b);
         return (values[(values.length - 1) >> 1] + values[values.length >> 1]) / 2;
       });
-      for (const gender of ['M', 'F']) for (let face = 0; face < 15; face++) {
+      for (const gender of ['M', 'F']) for (const face of [0,1,2,5,7,8,10,11,13,14]) {
         let seed;
         for (let n = 0; n < 2000; n++) if (PortraitParts.select('skin-' + n, gender, { outfit: 'underwear' }).layers[0].file === 'face-' + gender.toLowerCase() + '-' + face + '.webp') { seed = 'skin-' + n; break; }
         if (!seed) throw new Error('피부색 검사 인물 없음');
@@ -292,7 +292,7 @@ const { chromium, devices } = require('playwright');
         const mask = new Image();mask.src='assets/portraits/parts/'+parts.layers[0].skinMask;await mask.decode();
         const cv=document.createElement('canvas');cv.width=144;cv.height=250;const ec=cv.getContext('2d');ec.drawImage(eye,0,0);const ed=ec.getImageData(0,0,144,250).data;ec.clearRect(0,0,144,250);ec.drawImage(mask,0,0);const md=ec.getImageData(0,0,144,250).data;
         let eyePoint, best=-Infinity; const eyeY=gender==='M'?98:108;
-        for(let y=eyeY-3;y<eyeY+7;y++)for(let x=20;x<64;x++){const k=(y*144+x)*4,score=ed[k]+ed[k+1]+ed[k+2];if(ed[k]>215&&ed[k+1]>200&&ed[k+2]>190&&md[k]<10&&score>best){best=score;eyePoint=[128+x,55+y];}}
+        for(let y=eyeY-3;y<eyeY+7;y++)for(let x=20;x<64;x++){const k=(y*144+x)*4,score=ed[k]+ed[k+1]+ed[k+2];if(ed[k]>215&&ed[k+1]>200&&ed[k+2]>190&&md[k]<10&&[-1,0,1].every(dy=>[-1,0,1].every(dx=>md[((y+dy)*144+x+dx)*4]<10))&&score>best){best=score;eyePoint=[128+x,55+y];}}
         if(!eyePoint)throw new Error('흰자 표본 없음');
         const files=new Set();const widths=[];
         for(const bodyType of ['thin','normal','strong','heavy']) {
@@ -321,13 +321,56 @@ const { chromium, devices } = require('playwright');
             const ctx=await read(seed,gender,{bodyType,skinTone});const body=med(ctx.getImageData(sx,sy,sw,sh).data),target=palettes[skinTone];
             if(body.some((v,i)=>Math.abs(v-target[i])>12))throw new Error('피부색 오차 '+gender+bodyType+skinTone+':'+body+'/'+target);
             const white=ctx.getImageData(ex,ey,1,1).data;
-            if([0,1,2].some(i=>Math.abs(white[i]-originalEye[i])>12))throw new Error('피부색이 흰자에 적용됨');
+            if([0,1,2].some(i=>Math.abs(white[i]-originalEye[i])>12))throw new Error('피부색이 흰자에 적용됨 '+gender+bodyType+skinTone+' xy='+[ex,ey]+' old='+originalEye+' new='+[...white]);
             if(gender==='F'){const top=ctx.getImageData(200,400,1,1).data;if([0,1,2].some(i=>Math.abs(top[i]-originalTop[i])>4))throw new Error('피부색이 속옷에 적용됨');}
             for(const outfit of ['tactical','hanbok']){const svg=new DOMParser().parseFromString(PORTRAIT.card(seed,gender,null,0,200,{bodyType,skinTone,outfit}), 'image/svg+xml').documentElement;if(svg.dataset.bodyType!==bodyType||svg.dataset.skinTone!==skinTone)throw new Error('의상 변경 시 외형 소실');}
           }
         }
         if(files.size!==4||widths[0]>=widths[3])throw new Error('체형 원화가 구분되지 않음');
       }
+    });
+  });
+  await step('외형 결함 재발: 눈 주변 피부·흰자·여성 헤어 등록·분할 필터 제거', async () => {
+    await page.evaluate(async () => {
+      for(const gender of ['M','F'])for(const face of [0,1,2,5,7,8,10,11,13,14]){
+        let seed;for(let i=0;i<3000;i++)if(PortraitParts.select('eye-fix-'+i,gender).layers[0].file===`face-${gender.toLowerCase()}-${face}.webp`){seed='eye-fix-'+i;break;}
+        const part=PortraitParts.select(seed,gender).layers[0];
+        const original=new Image();original.src='assets/portraits/parts/'+part.file;await original.decode();
+        const mask=new Image();mask.src='assets/portraits/parts/'+part.skinMask;await mask.decode();
+        const cv=document.createElement('canvas');cv.width=144;cv.height=250;const cx=cv.getContext('2d');cx.drawImage(original,0,0);const rgb=cx.getImageData(0,0,144,250).data;
+        cx.clearRect(0,0,144,250);cx.drawImage(mask,0,0);const skin=cx.getImageData(0,0,144,250).data;
+        const eyeY=(gender==='M'?98:108)+(part.chinY-(gender==='M'?251:261))*.5;
+        let area=0,painted=0,white,best=-1;
+        for(let y=Math.floor(eyeY-18);y<eyeY+19;y++)for(let x=24;x<62;x++){
+          const k=(y*144+x)*4,r=rgb[k],g=rgb[k+1],b=rgb[k+2];
+          if(rgb[k+3]<220)continue;
+          if(((x-43)/20)**2+((y-eyeY)/10)**2<1&&r>150&&r>g+12&&g>b+5){area++;if(skin[k]>160)painted++;}
+          if(skin[k]<16&&Math.abs(r-g)<25&&Math.abs(g-b)<30&&Math.min(r,g,b)>120&&r+g+b>best){white=[x,y];best=r+g+b;}
+        }
+        if(area>10&&painted/area<.6)throw Error('눈 주변 피부색 누락: '+gender+face);
+        let faceSkin=0,filledSkin=0;
+        for(let y=125;y<160;y++)for(let x=34;x<110;x++){
+          const k=(y*144+x)*4;
+          if(rgb[k+3]>160&&Math.max(rgb[k],rgb[k+1],rgb[k+2])>180&&Math.min(rgb[k],rgb[k+1],rgb[k+2])>130){faceSkin++;if(skin[k]>220)filledSkin++;}
+        }
+        if(faceSkin&&filledSkin/faceSkin<.97)throw Error('볼·코 피부 하이라이트에 덜 칠한 부분: '+gender+face);
+
+        if(!white)throw Error('흰자 표본 없음: '+gender+face);
+        const colors=[];
+        for(const skinTone of ['natural','deep']){
+          const doc=new DOMParser().parseFromString(PORTRAIT.card(seed,gender,null,0,400,{outfit:'underwear',skinTone,bodyType:'heavy'}),'image/svg+xml');
+          for(const n of doc.querySelectorAll('image'))if(/(?:hair|traits)-/.test(n.getAttribute('href')))n.remove();
+          if(doc.querySelector('use, image[filter]'))throw Error('얼굴·몸에 분할 SVG 필터 잔존');
+          const im=new Image();im.src=await PortraitParts.rasterize(new XMLSerializer().serializeToString(doc));await im.decode();
+          const canvas=document.createElement('canvas');canvas.width=400;canvas.height=440;const ctx=canvas.getContext('2d');ctx.drawImage(im,0,0);
+          const pivot=(gender==='M'?251:261)+24,scale=1,shift=(gender==='M'?251:261)-part.chinY;
+          const x=Math.round(200+(128+white[0]-200)*scale),y=Math.round(pivot+(55+white[1]+shift-pivot)*scale);
+          colors.push(ctx.getImageData(x,y,1,1).data);
+        }
+        if([0,1,2].some(c=>Math.abs(colors[0][c]-colors[1][c])>25))throw Error('흰자까지 피부색 적용: '+gender+face+' xy='+white+' colors='+colors.map(a=>[...a].join(',')));
+      }
+      for(const gender of ['M','F'])for(let i=0;i<600;i++){const face=PortraitParts.select('style-'+i,gender).layers[0].file;if(/face-[mf]-(3|4|6|9|12)\.webp/.test(face))throw Error('다른 화풍의 성인 얼굴이 선택됨');}
+      for(const n of [4,10,15]){let p;for(let i=0;i<3000;i++){const q=PortraitParts.select('hair-fix-'+i,'F');if(q.layers[2].file==='hair-f-'+n+'.webp'){p=q.layers[2];break;}}if(!p||p.rect.join(',')!=='80,24,240,262')throw Error('여성 헤어 원본 크기 등록 오류');}
     });
   });
   await step('체형·피부색 직접 선택: 성별·외형 변경에도 유지', async () => {
