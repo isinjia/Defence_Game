@@ -13,7 +13,20 @@ const { chromium, devices } = require('playwright');
   const pageErrors = [];
   page.on('pageerror', (e) => pageErrors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error') pageErrors.push('console: ' + m.text()); });
-  const url = process.env.SMOKE_TEST_URL || 'file://' + path.resolve(__dirname, '..', 'index.html');
+  // 화면은 file:// 이 아니라 여기서 띄운 작은 로컬 서버(http)로 연다: file:// 에서는 이미지를 그린 캔버스의 픽셀을 읽을 수 없어
+  // (브라우저 보안, tainted canvas) 초상화 파츠 검사·지도 초상화 변환이 실패한다. 배포 환경(http)과도 같아진다.
+  let server = null; let url = process.env.SMOKE_TEST_URL;
+  if (!url) {
+    const http = require('http'); const fs = require('fs'); const root = path.resolve(__dirname, '..');
+    const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.woff2': 'font/woff2' };
+    server = http.createServer((req, res) => {
+      const rel = decodeURIComponent(req.url.split('?')[0]); const file = path.join(root, rel === '/' ? 'index.html' : rel);
+      if (!file.startsWith(root)) { res.writeHead(403); return res.end(); }
+      fs.readFile(file, (err, buf) => { if (err) { res.writeHead(404); return res.end(); } res.writeHead(200, { 'Content-Type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream', 'Cache-Control': 'no-store' }); res.end(buf); });
+    });
+    await new Promise((ok) => server.listen(0, '127.0.0.1', ok));
+    url = 'http://127.0.0.1:' + server.address().port + '/index.html';
+  }
   await page.goto(url); await page.evaluate(() => localStorage.clear()); await page.reload(); await page.waitForTimeout(600);
 
   const results = [];
@@ -624,5 +637,6 @@ const { chromium, devices } = require('playwright');
   }
   const strict = process.env.STRICT_COMBAT_FIT === '1';
   await browser.close();
+  if (server) server.close();
   process.exit(fails || (strict && fitFails) ? 1 : 0);
 })();
