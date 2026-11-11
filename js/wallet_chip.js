@@ -4,9 +4,11 @@
 {
   const PRICE = /([0-9][0-9,]*)\s*크레딧/;
   const NOT_PAY = /판다|팔기|매각|매도|받는다|받기|보상|수당|번다|벌기|배당|월급|성과급/;
+  const CHIP = (money) => `<div class="wallet-chip" aria-hidden="true"><span>보유</span><b>${fmt(money)}</b><span>크레딧</span></div>`;
   UI.walletChip = function () {
     const box = document.getElementById('modal-box'); if (!box || !G.player) return;
-    box.querySelectorAll('.wallet-chip').forEach((x) => x.remove()); box.classList.remove('has-wallet');
+    box.querySelectorAll('.wallet-chip').forEach((x) => x.remove());
+    box.classList.remove('has-wallet', 'wallet-shop', 'wallet-in-head');
     if (box.querySelector('.settle-sheet, #stage') || box.classList.contains('combat-box')) return; // 전투 화면에는 넣지 않는다
     const shop = !!box.querySelector('.city-hero, .fac-grid, .shop-list');
     // 도시 머리말의 작은 크레딧 글자는 빼고 이 표시 하나만 남긴다
@@ -26,9 +28,19 @@
       const price = +priceOf(b).replace(/,/g, '');
       if (price > money) { b.classList.add('cant-afford'); b.insertAdjacentHTML('beforeend', '<span class="afford-tag">부족</span>'); }
     }
-    // 닫기(×)가 sheet-head·row 안에 있어도 가리지 않게 옆으로 민다(의뢰·길드 시트 등)
-    const hasClose = !!box.querySelector('.city-close, .sheet-close, .icon-btn[data-act="modal-close"], .sheet-head > .icon-btn');
-    box.classList.add('has-wallet'); box.classList.toggle('wallet-shop', hasClose); box.insertAdjacentHTML('afterbegin', `<div class="wallet-chip"><span>보유</span><b>${fmt(money)}</b><span>크레딧</span></div>`);
+    box.classList.add('has-wallet');
+    // 시트 머리(의뢰·길드 등): 절대 위치가 ×·탭을 덮지 않게, 닫기 버튼 왼쪽 flex 칸에 넣는다
+    const head = box.querySelector('.sheet-head');
+    const close = head && head.querySelector('.icon-btn[data-act="modal-close"], .city-close, .sheet-close');
+    if (close) {
+      box.classList.add('wallet-in-head');
+      close.insertAdjacentHTML('beforebegin', CHIP(money));
+      return;
+    }
+    // 도시 창·일반 창: 닫기가 있으면 옆으로, 없으면 우상단
+    const hasClose = !!box.querySelector('.city-close, .sheet-close, .icon-btn[data-act="modal-close"]');
+    box.classList.toggle('wallet-shop', hasClose);
+    box.insertAdjacentHTML('afterbegin', CHIP(money));
   };
   const baseModal = UI.modal;
   UI.modal = function (...a) { const r = baseModal.apply(this, a); try { this.walletChip(); } catch (e) { /* 무시 */ } return r; };

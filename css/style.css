@@ -1026,9 +1026,11 @@ button.item-tap-name:active, button.item-inline:active { filter: brightness(1.15
 /* 값을 치르는 창의 보유 크레딧 (js/wallet_chip.js) */
 #modal-box.has-wallet { position: relative; }
 #modal-box .wallet-chip { position: absolute; top: 10px; right: 10px; z-index: 6; display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 13px; border-radius: 999px; background: #1d1608ee; border: 1px solid #ffb54788; font-size: 12px; line-height: 1.2; color: #d9c49a; box-shadow: 0 2px 10px #000a; pointer-events: none; }
-#modal-box.wallet-shop .wallet-chip, #modal-box.sheet.has-wallet .wallet-chip { right: 72px; top: 14px; }
-/* 시트 머리의 ×가 크레딧 칩보다 위에 남아 눌리게 */
-#modal-box.sheet .sheet-head .icon-btn[data-act="modal-close"] { position: relative; z-index: 7; }
+#modal-box.wallet-shop .wallet-chip { right: 72px; top: 14px; }
+/* 의뢰·길드 시트: 칩을 sheet-head flex 칸에 넣어 ×와 겹치지 않게 */
+#modal-box.wallet-in-head .sheet-head { z-index: 8; }
+#modal-box.wallet-in-head .sheet-head .wallet-chip { position: static; z-index: auto; flex: none; margin-left: 4px; align-self: center; box-shadow: none; }
+#modal-box.wallet-in-head .sheet-head .icon-btn[data-act="modal-close"] { flex: none; position: relative; z-index: 1; }
 #modal-box .wallet-chip b { font-family: var(--font-num); font-size: 17px; color: var(--amber); font-variant-numeric: tabular-nums; }
 #modal-box .cant-afford { opacity: .55; }
 #modal-box .afford-tag { margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: #3a1218; color: #ff9aa6; font-size: 11px; font-weight: 700; vertical-align: 1px; }
