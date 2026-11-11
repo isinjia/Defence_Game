@@ -1898,7 +1898,9 @@ const PortraitParts = (() => {
     if (glass > hair && hair >= 0) accessories.splice(hair,0,accessories.splice(glass,1)[0]);
     const hairPart = accessories.find(part => part.file.startsWith('hair-'));
     const splitHair = integrated && female && hairPart;
-    const hairData = splitHair ? ` data-hair-source="${source(hairPart)}" data-hair-rect="${hairPart.rect.join(',')}" data-head-source="${source(base)}" data-head-chin="${chin}"` : '';
+    // 둥근 깃은 목 피부가 깃 구멍 전체로 넓어지므로, 목 앞에 남던 머리카락 부스러기도 그 폭까지 뒤로 보낸다 (사용자 지적)
+    const hairNeck = roundNeck && style === 4 ? ` data-neck-half="${Math.round(collar[2] * fit)}"` : '';
+    const hairData = splitHair ? ` data-hair-source="${source(hairPart)}" data-hair-rect="${hairPart.rect.join(',')}" data-head-source="${source(base)}" data-head-chin="${chin}"${hairNeck}` : '';
     const rearHair = splitHair ? fitHead(image(hairPart, ` data-depth="hair-back" data-hair-layer="back" transform="translate(0 ${pose})"${hairData}`)) : '';
     const details = accessories.map(part => {
       const onFace = /traits-(3|5)\.webp/.test(part.file);
@@ -1995,7 +1997,7 @@ const PortraitParts = (() => {
   };
   const hairBitmaps = new Map();
   const hairBitmap = node => {
-    const d=node.dataset, key=[d.hairSource,d.hairRect,d.headSource,d.headChin].join('|');
+    const d=node.dataset, key=[d.hairSource,d.hairRect,d.headSource,d.headChin,d.neckHalf||''].join('|');
     if(hairBitmaps.has(key))return hairBitmaps.get(key);
     const promise=(async()=>{
       const [hair,head]=await Promise.all([loadImage(d.hairSource),loadImage(d.headSource)]);
@@ -2005,7 +2007,7 @@ const PortraitParts = (() => {
       const chin=Number(d.headChin),back=ctx.createImageData(400,600);
       let left=200,right=200;
       for(let x=0;x<400;x++)if(silhouette[((chin+4)*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
-      const neckHalf=Math.max(20,(right-left)/2);
+      const neckHalf=d.neckHalf?Number(d.neckHalf):Math.max(20,(right-left)/2);
       left=200;right=200;
       for(let x=0;x<400;x++)if(silhouette[(220*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
       const cheekHalf=Math.max(20,(right-left)/2)+2;
