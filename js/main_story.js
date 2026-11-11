@@ -29,6 +29,7 @@ const MAIN = {
   GP.mainWho = function (who) {
     const p = this.player; const M = this.mainState();
     const alive = (n) => (n && n.alive !== false ? n : null);
+    if (typeof who === 'function') return this.mainWho(who(this, M));
     if (who && typeof who === 'object') return who;
     switch (who) {
       case 'leader': {

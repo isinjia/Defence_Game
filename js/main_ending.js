@@ -16,7 +16,9 @@ MAIN.ch(39, {
     { id: 'c39_in', lines: [
       { narr: '문 안쪽. 소리가 없다. 한쪽은 검은 바다, 한쪽은 회색 강바닥. 그 사이에 당신이 서 있다.' },
       { who: 'arin', text: '여기가 문 한가운데야. 여기서 정하면 그대로 돼.' },
+      { narr: (g, M) => { const e = MAIN_ENDING(g, M); if (M.flags.gateChoice !== 'bridge' || e === 'bridge') return ''; const why = [M.flags.circuitCut ? '북쪽 줄은 관측소에서 끊었다' : '', !(M.flags.jinFate === 'with' || M.flags.jinFate === 'jailed') ? '다리를 함께 버텨 줄 진서해가 없다' : '', !FRIEND_ALIVE(g, M) ? '돌아갈 놀이터에서 기다리는 친구가 없다' : ''].filter(Boolean); return `${why.join('. ')}. ${ALLY_N(M) ? '등 뒤의 동료들이 문틀을 붙잡는다. 그래도 모자라다.' : '혼자 붙잡은 문틀이 손안에서 미끄러진다.'}`; }, when: (g, M) => M.flags.gateChoice === 'bridge' && MAIN_ENDING(g, M) !== 'bridge' },
       { narr: (g, M) => { const e = MAIN_ENDING(g, M); return M.flags.gateChoice === 'bridge' && e !== 'bridge' ? '원을 맞대 본다. 다리가 놓이려다 흔들린다. 북쪽 줄이 없거나, 버텨 줄 사람이 모자라다. 다리는 버티지 못한다. 남은 길은 하나.' : ''; }, when: (g, M) => M.flags.gateChoice === 'bridge' && MAIN_ENDING(g, M) !== 'bridge' },
+      { sys: (g, M) => `문 한가운데. 손을 대면 「${ENDINGS[MAIN_ENDING(g, M)].title}」(으)로 정해진다. 되돌릴 수 없다.` },
     ], choices: [
       { text: '문에 손을 댄다', next: 'c39_end' },
     ] },
@@ -31,6 +33,10 @@ MAIN.ch(39, {
     { id: 'c39_arin', lines: [
       { who: 'arin', text: (g, M) => ({ seal: '고마워. 진짜로. 우리 강이 마르기 전에 누가 우리를 봐 줬다는 거. 그거면 됐어. …잘 가.', bridge: '여기 남는다고? 바보. …고마워. 이제 나 혼자 문 안 붙잡아도 되네. 같이 지키자.', open: '숨이 가. 우리 마지막 숨이 너희한테. 잘 써 줘. 나는… 이제 좀 잘게. 이십 년 만에.', sacrifice: '왜 혼자 왔어. 왜 여기까지 들어왔어. …바보. 그래도, 이제 나 혼자 아니네.' })[M.ending] },
       { narr: (g, M) => (M.ending === 'seal' ? '아린의 손이 문틈 사이로 마지막으로 닿는다. 차갑지도 따뜻하지도 않다. 그냥 손이다. 처음 저편에서 잡았던 그 손.' : M.ending === 'bridge' ? '맞물린 원이 문틀에서 천천히 돈다. 한 바퀴. 두 바퀴. 아린이 당신 옆에 나란히 선다. 문지기 둘.' : M.ending === 'open' ? '아린의 모습이 바람에 흩어진다. 초록빛 가루가 되어 반도 쪽으로 날아간다.' : '문 안쪽은 어둡지 않다. 회색 강바닥에 아주 가는 물줄기가 흐르기 시작한다. 당신이 넘어온 자리에서부터.') },
+    ] },
+    { id: 'c39_promise', lines: [
+      { narr: (g, M) => (({ close: ['seal', 'sacrifice'], bridge: ['bridge'], open: ['open'] })[M.flags.arinAsk] || []).includes(M.ending) ? '아린과 한 약속을 지켰다. 저편에서 처음 손을 잡던 날 한 약속.' : M.flags.promiseKept ? '아린이 부탁한 길을 골랐다. 하지만 문은 그 길로 가 주지 않았다. 아린은 "고르려고 한 걸로 됐어"라고 했다.' : '아린과 한 약속과 다른 문이 됐다. 아린은 끝까지 그걸 탓하지 않았다. 그래서 더 오래 남는다.', when: (g, M) => !!M.flags.arinPromise && !!M.flags.arinAsk },
+      { narr: (g, M) => (({ close: 'seal', bridge: 'bridge', open: 'open' })[M.flags.endSeed] === M.ending || (M.flags.endSeed === 'close' && M.ending === 'sacrifice') ? `친구 옥상에서 "${({ close: '닫겠다', open: '열 수도 있다', bridge: '잇는 길을 찾겠다' })[M.flags.endSeed]}"고 했다. 그 말대로 됐다.` : `친구 옥상에서 "${({ close: '닫겠다', open: '열 수도 있다', bridge: '잇는 길을 찾겠다' })[M.flags.endSeed]}"고 했다. 그 말대로 되지 않았다. 내려가면 친구에게 뭐라고 할지 아직 모르겠다.`), when: (g, M) => !!M.flags.endSeed && M.flags.endSeed !== 'none' },
     ] },
     { id: 'c39_out', lines: [
       { narr: (g, M) => (M.ending === 'sacrifice' ? '문 바깥. 능선. 아무도 없다. 바람이 분다. 누군가 남겨 둔 컵라면 하나가 식어 간다.' : M.ending === 'bridge' ? '문 바깥에서 동료들이 당신을 부른다. 당신은 문턱에 앉아 손을 흔든다. 내려가지 않는다. 대신 그들이 올라올 것이다. 자주.' : '문 바깥. 능선. 해가 뜬다. 동해 쪽에서. 이십 년 만에 제주에서 보는 해다.') },
@@ -75,6 +81,10 @@ MAIN.ch(40, {
       { narr: (g, M) => (M.flags.yoonGone ? '북방 관측소는 무너졌다. 누군가 그 자리에 돌 하나를 세웠다. "관측 종료."' : '북방 관측소 무전은 아직 켜져 있다. 매일 같은 시각, 짧은 신호 하나. "이상 없음."') },
       { narr: (g, M) => (M.flags.doyun === 'rescued' ? '도윤은 헌터 학교에 들어갔다. 바다를 아직도 초록색으로 그린다.' : M.flags.goJae === 'alive' ? '고재석 노인은 한라산 중턱 옛집을 다시 지었다. 문패는 조개껍데기.' : '강릉 방벽 틈의 조개껍데기 문패는 아직 거기 있다.') },
       { narr: (g, M) => (M.flags.kwon === 'alive' ? '권만석은 지팡이를 짚고 하은의 졸업식에 갔다. 하은은 협회 대피 요원이 됐다.' : M.flags.kwon === 'dead' ? '하은은 아버지 영정을 집에 걸었다. 그 옆에 강북 폐역 사진. 반쪽 문이 닫힌 날.' : '') , when: (g, M) => !!M.flags.kwon },
+    ] },
+    { id: 'c40_cut', lines: [
+      { narr: (g, M) => ({ seal: '서울 강남 돔. 성벽이 철거되는 날. 마지막 패널이 내려가자 성벽 밖 동네 아이들이 처음으로 돔 안 공원으로 뛰어 들어온다.', bridge: '한라산 정상 문 앞. 저편에서 온 아이가 문지기 옆에 앉아 처음 보는 귤을 까먹는다. 껍질을 문틀에 올려 둔다. 선물이라고.', open: '부산 폐부두 7번 창고. 의자 수백 개는 그대로다. 매달 보름, 사람들이 와서 앉는다. 누구를 기다리는지 아무도 말하지 않는다.', sacrifice: '강릉 방벽 틈. 조개껍데기 문패 옆에 새 문패 하나. 당신 이름. 누가 걸었는지 모른다. 비 오는 날이면 둘 다 초록빛으로 빛난다.' })[M.ending] || '' },
+      { narr: (g, M) => (({ close: 'seal', bridge: 'bridge', open: 'open' })[M.flags.endSeed] !== M.ending && M.flags.endSeed && M.flags.endSeed !== 'none' ? '가끔 옥상 생각을 한다. 그날 밤 한 말과 다른 결말. 친구는 한 번도 그걸 묻지 않았다.' : '가끔 옥상 생각을 한다. 그날 밤 한 말. 지켰다.'), when: (g, M) => !!M.flags.endSeed && M.flags.endSeed !== 'none' },
     ] },
     { id: 'c40_walk', lines: [
       { narr: (g, M) => (M.ending === 'sacrifice' ? '어느 봄날. 강북 폐역 앞에 누가 전단지를 붙인다. 균열교 전단지가 아니다. 추모식 안내다. 맨 아래 당신 이름.' : '어느 봄날. 강북 폐구를 걷는다. 폐역 자리는 공원이 됐다. 벤치에 앉아 있으면 아이가 전단지를 내민다. 이번엔 동네 축제 전단지다. 받는다. 버리지 않는다.') },
@@ -124,7 +134,7 @@ if (typeof UI !== 'undefined') {
     const M = G.flags.main; if (!M || !M.ending) return '';
     const e = ENDINGS[M.ending]; if (!e) return '';
     const who = M.ending === 'other' ? `<p>원초의 문을 닫은 사람: <b>${M.otherHero || '이름 모를 헌터'}</b></p>` : '';
-    return `<div class="main-ending"><div class="eyebrow">원초의 문 · 엔딩</div><h2>${e.title}</h2><p>${e.text}</p>${(e.more || []).map((t) => `<p>${t}</p>`).join('')}${who}</div>`;
+    return `<div class="main-ending"><div class="eyebrow">${e.eyebrow || '원초의 문 · 엔딩'}</div><h2>${e.title}</h2>${e.sub ? `<p class="dim">${e.sub}</p>` : ''}<p>${e.text}</p>${(e.more || []).map((t) => `<p>${t}</p>`).join('')}${who}</div>`;
   };
   const baseV = UI.showVictory;
   UI.showVictory = function () {

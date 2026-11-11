@@ -1078,7 +1078,7 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
-  await step('메인 5·6부·종장: 28장 봉쇄선 · 30장 회로 두 갈래 · 33장 운명 · 37장 세 선택 · 엔딩 조건 · voice 단계 · 부 시계', async () => {
+  await step('메인 5·6부·종장: 28장 봉쇄선 · 30장 회로 두 갈래 · 33장 운명 · 37장 세 선택 · 엔딩 조건 · voice 단계 · 부 시계 · 폴리시(endSeed·37 만료·다리 실패·사도)', async () => {
     const r = await ev(() => {
       if (!MAIN.chapters[28] || !MAIN.chapters[40]) return '5·6부 장이 없다';
       const M = G.mainState(); const keep = JSON.stringify(M); const q = G.queue.slice(); const p = G.player; const rk = p.rankIdx; const chains = JSON.stringify(G.flags.chains || {});
@@ -1122,6 +1122,14 @@ const { chromium, devices } = require('playwright');
         // voice/cult 단계: 14장은 cult 4만, 20장은 voice를 올리지 않는다
         p.rankIdx = 3; setCh(14, { friend3: 'saved' }); G.flags.chains = { voice: 2 }; if (!play(14, 0) || G.flags.chains.voice !== 2 || G.flags.chains.cult !== 4) return '14장 voice/cult 단계가 틀렸다';
         setCh(20, {}); G.flags.chains = { voice: 3 }; if (!play(20, 0) || G.flags.chains.voice !== 3) return '20장이 voice를 올렸다';
+        // 폴리시: endSeed 소비(35장 무전), 37장 만료, 38장 장면 수, 다리 실패 서사, 사도 향미
+        const linesOf = (n, flags, sc) => { setCh(n, flags); UI.mainPlay(sc); const t = UI.dlg ? UI.dlg.lines.map((l) => l.narr || l.text || l.sys || '').join(' ') : ''; if (UI.dlg) UI.dlgEnd(() => {}); return t; };
+        if (!/닫겠다/.test(linesOf(35, { endSeed: 'close', c35: 'front' }, 'c35_radio'))) return '35장 무전에 endSeed가 없다';
+        if (!MAIN.chapters[37].expire) return '37장 만료가 없다';
+        p.rankIdx = 6; setCh(37, {}); M.open[37] = G.monthKey() - 7; G.mainCheck(); if (!M.done[37] || M.done[37].how !== 'missed' || M.flags.gateChoice !== 'close') return '37장 만료가 닫기로 고정되지 않았다';
+        if (MAIN.chapters[38].scenes.length < 4) return '38장 장면이 4개 미만이다';
+        if (!/관측소에서 끊었다/.test(linesOf(39, { gateChoice: 'bridge', circuitCut: true, jinFate: 'with', friend3: 'saved', allies: ['friend'] }, 'c39_in'))) return '다리 실패 서사 줄이 없다';
+        if (!/심연의 사도/.test(linesOf(33, { apostle: true }, 'c33_breath'))) return '33장 사도 향미 대사가 없다';
         // 부 시계: 2부를 18개월 넘게 끌면 남은 장이 만료(13장 → 친구 늦음)
         p.rankIdx = 2; setCh(13, {}); M.open[9] = G.monthKey() - 19; G.mainCheck();
         if (M.ch !== 15 || !M.done[14] || M.flags.friend3 !== 'late') return '2부 부 시계가 남은 장을 만료시키지 않았다';
