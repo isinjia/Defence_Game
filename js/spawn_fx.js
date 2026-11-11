@@ -90,7 +90,7 @@ Object.assign(UI, {
   hideOrderMarks() {
     const stage = document.getElementById('stage'); if (!stage) return;
     const svg = stage.querySelector('svg.order-lines'); if (svg) svg.remove();
-    stage.querySelectorAll('.order-end').forEach((e) => e.remove());
+    stage.querySelectorAll('.order-end, .order-dot').forEach((e) => e.remove());
   },
   // 배치가 끝난 다음 프레임에 오더 표식을 다시 계산한다
   orderMarksLater() {

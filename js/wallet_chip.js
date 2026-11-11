@@ -7,7 +7,7 @@
   UI.walletChip = function () {
     const box = document.getElementById('modal-box'); if (!box || !G.player) return;
     box.querySelectorAll('.wallet-chip').forEach((x) => x.remove()); box.classList.remove('has-wallet');
-    if (box.querySelector('.settle-sheet')) return;
+    if (box.querySelector('.settle-sheet, #stage') || box.classList.contains('combat-box')) return; // 전투 화면에는 넣지 않는다
     const shop = !!box.querySelector('.city-hero, .fac-grid, .shop-list');
     // 도시 머리말의 작은 크레딧 글자는 빼고 이 표시 하나만 남긴다
     const sm = box.querySelector('.city-title .small');

@@ -1060,3 +1060,5 @@ html body #cb-ctrl .row.end > button, html body .order-banner .row > button, htm
 #dlg .cn-vt.x { background: #4a1f26; color: #ffb0ba; }
 .obj-link.main-q .hq-mark { color: var(--amber, #f5b84a); }
 .obj-link.main-q .hq-t { font-weight: 700; }
+/* 오더 선의 끝: 대상 그림 정중앙의 작은 표적 점 (js/orders.js) */
+.order-dot { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--order, #8cc4ff); box-shadow: 0 0 0 2px #08131fcc, 0 0 8px var(--order, #8cc4ff); pointer-events: none; z-index: 5; }

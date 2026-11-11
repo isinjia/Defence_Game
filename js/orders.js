@@ -322,20 +322,21 @@ Object.assign(UI, {
     }
     // ⑤ 오더 선: 지시받은 사람에서 대상까지 점선. 점선의 대상 쪽 끝에 "오더" 배지가 달린다.
     //    끝점은 대상 그림 테두리 중 다른 표시(행동 예고·상성·상태 이상·이름·체력 막대 등)와 겹치지 않는 빈 쪽으로 잡는다.
-    stage.querySelectorAll('.order-end').forEach((e) => e.remove());
+    stage.querySelectorAll('.order-end, .order-dot').forEach((e) => e.remove());
     const lines = []; const ends = {};
     const sr = stage.getBoundingClientRect();
     const BW = 30, BH = 15; // 배지 크기
     // 점선은 지시받은 사람의 가운데에서 대상 그림의 "가운데"를 향한다. 그림을 가리지 않게 가운데 바로 앞(그림 테두리쯤)에서 멈추고,
     // 그 끝에 "오더" 배지가 달린다. (전에는 테두리의 빈 쪽을 찾아 끝점을 옮겨서 선이 엉뚱한 곳을 가리키는 것처럼 보였다)
+    // [A 수정, 사용자 제보] 선 끝은 대상 그림(괴수 이미지)의 정중앙. "오더" 배지는 선 위, 그림 테두리쯤에 단다(그림을 가리지 않게)
     const endFor = (b, ra) => {
-      const host = b.querySelector('.fx-host') || b; const rb = host.getBoundingClientRect();
+      const host = b.querySelector('.monster-art, .sprite, .fx-host') || b; const rb = host.getBoundingClientRect();
       const cx = rb.left + rb.width / 2, cy = rb.top + rb.height / 2;
       const sx = ra.left + ra.width / 2, sy = ra.top + ra.height / 2;
       const dx = cx - sx, dy = cy - sy; const len = Math.hypot(dx, dy) || 1;
-      const rad = Math.min(rb.width, rb.height) / 2 * 0.8;
+      const rad = Math.min(rb.width, rb.height) / 2 * 0.95;
       const k = Math.max(0, (len - rad) / len);
-      return { x: sx + dx * k - sr.left, y: sy + dy * k - sr.top, key: b.id + '|' + Math.round(sx) + ',' + Math.round(sy) };
+      return { x: cx - sr.left, y: cy - sr.top, bx: sx + dx * k - sr.left, by: sy + dy * k - sr.top, key: b.id + '|' + Math.round(sx) + ',' + Math.round(sy) };
     };
     for (const u of cb.units) {
       if (u.side !== 'ally' || !u.order || !u.order.target) continue;
@@ -348,7 +349,7 @@ Object.assign(UI, {
       if (!tu || tu === u || aim === 'none' || (aim === 'enemy' && tu.side === u.side) || (aim === 'ally' && tu.side !== u.side)) continue;
       const a = document.getElementById('u-' + u.id); const b = document.getElementById('u-' + u.order.target);
       if (!a || !b) continue;
-      const ra = (a.querySelector('.fx-host') || a).getBoundingClientRect();
+      const ra = (a.querySelector('.monster-art, .sprite, .fx-host') || a).getBoundingClientRect();
       const e = endFor(b, ra); (ends.list ||= []).push(e);
       lines.push(`<line x1="${ra.left + ra.width / 2 - sr.left}" y1="${ra.top + ra.height / 2 - sr.top}" x2="${e.x}" y2="${e.y}"/>`);
       b.classList.add('marked');
@@ -357,7 +358,7 @@ Object.assign(UI, {
     if (!svg) { stage.insertAdjacentHTML('beforeend', '<svg class="order-lines"></svg>'); svg = stage.querySelector('svg.order-lines'); }
     svg.setAttribute('viewBox', `0 0 ${sr.width} ${sr.height}`);
     svg.innerHTML = lines.join('');
-    for (const e of ends.list || []) stage.insertAdjacentHTML('beforeend', `<span class="order-end" style="left:${e.x}px;top:${e.y}px">오더</span>`);
+    for (const e of ends.list || []) stage.insertAdjacentHTML('beforeend', `<span class="order-dot" style="left:${e.x}px;top:${e.y}px"></span><span class="order-end" style="left:${e.bx}px;top:${e.by}px">오더</span>`);
   },
   // 이번 전투의 리더: 시험 교관, 소속 파티 리더, 아니면 플레이어
   pickLeader(c) {
