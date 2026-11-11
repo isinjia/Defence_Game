@@ -1,6 +1,6 @@
 // ===== 게이트 크로니클: 월드맵 NPC·괴수 표식을 초상/원화로 (영역 F) =====
-// 마름모·발톱 아이콘은 무엇을 가리키는지 알기 어렵다. 서 있는 NPC는 얼굴 원형,
-// 괴수 무리는 괴수 썸네일 원형으로 바꾼다. 이동 중 파티 리더 초상(map_parties.js)과 같은 형식.
+// 서 있는 NPC: 얼굴 + 마름모 테두리(서 있음) + 관계색(적대 빨강·중립 초록·우호 노랑) + 좌하단 소속 배지.
+// 이동 중 파티는 map_parties.js의 원형 리더 초상을 유지. 괴수 무리는 썸네일 원형.
 // 기존 drawObjects의 NPC·괴수 그리기만 끄고(일시적으로 목록을 비움), 게이트 등은 그대로 둔다.
 
 const MAP_MOB_IMG = {};
@@ -15,8 +15,39 @@ function mapMobImage(m) {
   return im;
 }
 
+// 관계 → 테두리 색 (relationLabel과 맞춤: 적대≤-20, 우호≥30, 그 사이 중립)
+function mapNpcRelColor(n) {
+  if (!n.met) return '#7a8799'; // 처음 보는 사람
+  const r = n.relation || 0;
+  if (r <= -20) return '#ff4f6a';
+  if (r >= 30) return '#ffb547';
+  return '#5fcf6a';
+}
+
+function mapNpcGuildId(n) {
+  if (!n) return null;
+  if (n.guild && GUILDS[n.guild]) return n.guild;
+  return null;
+}
+
+function mapGuildMark(guild) {
+  if (!guild || !GUILDS[guild]) return { ch: '무', col: '#9aa6b8' };
+  const g = GUILDS[guild];
+  const ch = guild === 'kama' ? '관' : (g.name || '?').charAt(0);
+  return { ch, col: g.color || '#9aa6b8' };
+}
+
 function mapMarkerRing(c, px, py, R, col, wide) {
   c.strokeStyle = col; c.lineWidth = wide || 2.2; c.beginPath(); c.arc(px, py, R, 0, Math.PI * 2); c.stroke();
+}
+
+function mapDiamondPath(c, px, py, R) {
+  c.beginPath();
+  c.moveTo(px, py - R);
+  c.lineTo(px + R, py);
+  c.lineTo(px, py + R);
+  c.lineTo(px - R, py);
+  c.closePath();
 }
 
 function mapDrawCircleArt(c, px, py, R, im, bg) {
@@ -25,6 +56,41 @@ function mapDrawCircleArt(c, px, py, R, im, bg) {
   c.fillStyle = bg || '#0a0f16'; c.fillRect(px - R, py - R, R * 2, R * 2);
   if (im && im.complete && im.naturalWidth) c.drawImage(im, px - R, py - R, R * 2, R * 2);
   c.restore();
+}
+
+// 서 있는 NPC: 마름모로 자른 초상 + 마름모 테두리
+function mapDrawStandingNpc(c, px, py, R, im, col, wide, t, hostile) {
+  c.fillStyle = 'rgba(0,0,0,.45)'; c.beginPath(); c.ellipse(px, py + R * 0.95, R * 0.9, R * 0.28, 0, 0, Math.PI * 2); c.fill();
+  c.save();
+  mapDiamondPath(c, px, py, R);
+  c.clip();
+  c.fillStyle = '#0a0f16'; c.fillRect(px - R, py - R, R * 2, R * 2);
+  if (im && im.complete && im.naturalWidth) {
+    // 마름모 안을 채우도록 약간 크게
+    const s = R * 2.2;
+    c.drawImage(im, px - s / 2, py - s / 2, s, s);
+  }
+  c.restore();
+  c.strokeStyle = col; c.lineWidth = wide || 2.2;
+  mapDiamondPath(c, px, py, R); c.stroke();
+  if (hostile) {
+    const pr = (t % 50) / 50;
+    c.strokeStyle = `rgba(255,79,106,${0.7 * (1 - pr)})`; c.lineWidth = 1.8;
+    mapDiamondPath(c, px, py, R + 2 + pr * 5); c.stroke();
+  }
+}
+
+function mapDrawGuildBadge(c, px, py, R, guild) {
+  const mark = mapGuildMark(guild);
+  const br = Math.max(6, R * 0.42);
+  const bx = px - R * 0.72, by = py + R * 0.72;
+  c.fillStyle = '#05080d'; c.beginPath(); c.arc(bx, by, br, 0, Math.PI * 2); c.fill();
+  c.fillStyle = mark.col; c.beginPath(); c.arc(bx, by, br - 1.2, 0, Math.PI * 2); c.fill();
+  c.strokeStyle = '#05080d'; c.lineWidth = 1; c.stroke();
+  c.fillStyle = guild === 'baekho' || guild === 'kama' ? '#1a1205' : '#0a0f16';
+  c.font = `700 ${Math.max(8, Math.round(br * 1.15))}px "Chakra Petch", "IBM Plex Sans KR", sans-serif`;
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText(mark.ch, bx, by + 0.5);
 }
 
 {
@@ -57,16 +123,12 @@ function mapDrawCircleArt(c, px, py, R, im, bg) {
       const [px, py0] = this.toScreen(x + 0.5, y + 0.5);
       if (px < -s || py0 < -s || px > this.w + s || py0 > this.hgt + s) continue;
       const py = py0 + Math.sin(t / 16 + n.id) * 0.8;
-      const R = Math.max(8, s * 0.24);
-      const hostile = n.relation <= -30;
-      const col = hostile ? '#ff4f6a' : elemColor(n.element);
-      mapDrawCircleArt(c, px, py, R, typeof partyFaceImage === 'function' ? partyFaceImage(n) : null);
-      mapMarkerRing(c, px, py, R, col, hostile ? 2.8 : (n.met ? 2.2 : 1.6));
-      if (hostile) {
-        const pr = (t % 50) / 50;
-        c.strokeStyle = `rgba(255,79,106,${0.65 * (1 - pr)})`; c.lineWidth = 1.8;
-        c.beginPath(); c.arc(px, py, R + 2 + pr * 6, 0, Math.PI * 2); c.stroke();
-      }
+      const R = Math.max(9, s * 0.26);
+      const col = mapNpcRelColor(n);
+      const hostile = n.met && (n.relation || 0) <= -20;
+      const im = typeof partyFaceImage === 'function' ? partyFaceImage(n) : null;
+      mapDrawStandingNpc(c, px, py, R, im, col, hostile ? 2.8 : (n.met ? 2.2 : 1.6), t, hostile);
+      mapDrawGuildBadge(c, px, py, R, mapNpcGuildId(n));
     }
 
     for (const m of mobs || []) {
