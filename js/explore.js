@@ -12,7 +12,7 @@ const SITE_KINDS = {
   merchant: { name: '떠돌이 상인',          icon: '◈', color: '#ffb547', desc: '길목을 떠도는 행상. 물건은 진짜일 수도, 아닐 수도.' },
   tower:    { name: '감시탑',               icon: '▲', color: '#46e0d0', desc: '산꼭대기의 낡은 통신 감시탑. 올라가면 주변이 넓게 보인다.' },
 };
-const SITE_PLAN = { ruin: 20, spring: 10, outpost: 10, village: 10, remains: 10, altar: 6, merchant: 3, tower: 12 }; // 지도 5배에 맞춰 약 80곳
+const SITE_PLAN = { ruin: 100, spring: 50, outpost: 50, village: 50, remains: 50, altar: 30, merchant: 15, tower: 60 }; // v3 지도(약 5배 재확대)에 맞춰 약 400곳
 
 const EXPLORE = (() => {
   const T = WORLD.T;
@@ -39,11 +39,11 @@ const EXPLORE = (() => {
   const cand = {
     ruin: () => land.filter((i) => WORLD.tiles[i] === T.RUIN).map((i) => [i, 1]),
     spring: () => land.filter((i) => WORLD.tiles[i] === T.ETHER).map((i) => [i, 1 + around(i, 1, (t) => t === T.ETHER) * 2]),
-    outpost: () => land.filter((i) => WORLD.tiles[i] === T.MOUNTAIN && around(i, 1, (t) => t === T.PLAIN) >= 2).map((i) => [i, 1]),
-    village: () => land.filter((i) => WORLD.tiles[i] === T.PLAIN && cityDist(i) >= 6).map((i) => [i, cityDist(i)]),
-    remains: () => land.filter((i) => WORLD.tiles[i] === T.PLAIN || WORLD.tiles[i] === T.RUIN).map((i) => [i, 1]),
-    altar: () => land.filter((i) => cityDist(i) >= 8).map((i) => [i, cityDist(i) ** 2]),
-    merchant: () => land.filter((i) => WORLD.tiles[i] === T.PLAIN && cityDist(i) >= 4 && cityDist(i) <= 11).map((i) => [i, 1]),
+    outpost: () => land.filter((i) => WORLD.tiles[i] === T.MOUNTAIN && around(i, 1, (t) => t === T.PLAIN || t === T.FOREST || t === T.FIELD) >= 2).map((i) => [i, 1]),
+    village: () => land.filter((i) => (WORLD.tiles[i] === T.PLAIN || WORLD.tiles[i] === T.FIELD) && cityDist(i) >= Math.round(5 * WORLD.K / 2.2)).map((i) => [i, cityDist(i)]),
+    remains: () => land.filter((i) => WORLD.tiles[i] === T.PLAIN || WORLD.tiles[i] === T.RUIN || WORLD.tiles[i] === T.WASTE || WORLD.tiles[i] === T.FOREST).map((i) => [i, 1]),
+    altar: () => land.filter((i) => cityDist(i) >= Math.round(6 * WORLD.K / 2.2)).map((i) => [i, cityDist(i) ** 2]),
+    merchant: () => land.filter((i) => (WORLD.tiles[i] === T.PLAIN || WORLD.tiles[i] === T.FIELD || WORLD.tiles[i] === T.FOREST) && cityDist(i) >= Math.round(3 * WORLD.K / 2.2) && cityDist(i) <= Math.round(14 * WORLD.K / 2.2)).map((i) => [i, 1]),
     tower: () => land.filter((i) => WORLD.tiles[i] === T.MOUNTAIN).map((i) => [i, 1 + around(i, 2, (t) => t === T.MOUNTAIN) ** 1.5]),
   };
   return { regionLand, cand, land, cityDist };
@@ -58,7 +58,9 @@ Object.assign(Game.prototype, {
   // 판마다 한 번, 지도 위에 탐사 지점을 깐다
   genSites() {
     const sites = []; let id = 1;
-    const taken = (i) => { const [x, y] = WORLD.xy(i); return sites.some((s) => Math.max(Math.abs(s.x - x), Math.abs(s.y - y)) < 5); };
+    // 면적이 커진 만큼 지점은 늘리되, 간격은 지형 뭉침을 고려해 너무 넓히지 않는다
+    const gap = Math.max(3, Math.round(2.6 * WORLD.K / 2.2));
+    const taken = (i) => { const [x, y] = WORLD.xy(i); return sites.some((s) => Math.max(Math.abs(s.x - x), Math.abs(s.y - y)) < gap); };
     for (const [kind, n] of Object.entries(SITE_PLAN)) {
       const pool = EXPLORE.cand[kind]();
       for (let k = 0; k < n; k++) {
@@ -199,7 +201,7 @@ Object.assign(Game.prototype, {
           '"북부 봉쇄선 너머로 정찰조 셋이 들어갔다. 아무도 돌아오지 않았다."',
           '"게이트는 무작위가 아니다. 사람이 많은 곳을 따라 열린다. 상부는 이 보고를 묻었다."',
         ]);
-        const n = ok ? this.revealSitesNear(s.x, s.y, 15) : 0;
+        const n = ok ? this.revealSitesNear(s.x, s.y, Math.round(15 * WORLD.K / 2.2)) : 0;
         if (pot) gain(`응급 회복제 ${pot}개`); if (man) gain(`마나 앰플 ${man}개`); if (n) gain(`주변 지점 ${n}곳 위치`);
         if (!ok) hurt(0.08);
         out = ok ? `잠긴 서랍을 따고 초소 일지를 찾아냈다. ${lore} 벽에 붙은 작전 지도도 고스란히 남아 있었다.` : `녹슨 문을 억지로 열다 손을 다쳤다. 일지는 물에 젖어 한 줄만 읽혔다. ${lore}`;
@@ -278,7 +280,7 @@ Object.assign(Game.prototype, {
       case 'tower': {
         s.used = key; this.advanceDays(1, { noSave: true }); loss('1일 소요');
         this.reveal(s.x, s.y, ok ? 8 : 5);
-        const n = this.revealSitesNear(s.x, s.y, ok ? 22 : 11);
+        const n = this.revealSitesNear(s.x, s.y, ok ? Math.round(22 * WORLD.K / 2.2) : Math.round(11 * WORLD.K / 2.2));
         gain(`주변 지형 공개 (${ok ? '넓게' : '반쯤'})`); if (n) gain(`볼 만한 지점 ${n}곳 표시`);
         if (!ok) hurt(0.1);
         out = ok ? '녹슨 사다리를 단숨에 올라 망원 장비를 켰다. 주변 지형이 넓게 드러났다.' : '중간에 사다리 칸이 부러져 미끄러졌다. 반쯤 올라간 곳에서 보이는 만큼만 지도에 옮겼다.';
@@ -309,6 +311,17 @@ Object.assign(Game.prototype, {
       const q = this.queue[this.queue.length - 1];
       if (res.stop && q && q.type === 'mobAmbush' && RNG.chance(0.5)) { this.queue.pop(); res.stop = !!res.city || !!this.objAt(x, y) || this.queue.some((e) => e.type !== 'toast'); out.push('험한 산길 덕에 배회하던 괴수 무리를 피했다.'); }
       if (RNG.chance(0.05)) { p.mats.herb = (p.mats.herb || 0) + 1; out.push('바위틈에서 에테르를 머금은 약초를 캤다.'); }
+    }
+    // 잔존 숲: 약초가 더 잘 자라고, 기습을 조금 덜 받는다
+    if (t === T.FOREST) {
+      const q = this.queue[this.queue.length - 1];
+      if (res.stop && q && q.type === 'mobAmbush' && RNG.chance(0.25)) { this.queue.pop(); res.stop = !!res.city || !!this.objAt(x, y) || this.queue.some((e) => e.type !== 'toast'); out.push('숲 그늘에 숨어 괴수 무리를 피했다.'); }
+      if (RNG.chance(0.07)) { p.mats.herb = (p.mats.herb || 0) + 1; out.push('숲 속에서 싱싱한 약초를 발견했다.'); }
+    }
+    // 오염 지대: 드물게 오염이 스민다 (오염 시스템이 있을 때)
+    if (t === T.WASTE && RNG.chance(0.04) && typeof p.taint === 'number') {
+      p.taint = Math.min(100, (p.taint || 0) + 1);
+      out.push('오염된 대기가 피부를 스쳤다. 오염이 조금 쌓였다.');
     }
     // 폐허: 지점이 없는 폐허 칸에서도 가끔 뒤질 거리가 보인다
     if (t === T.RUIN && !res.stop && !this.siteAt(x, y) && RNG.chance(0.06)) { this.queue.push({ type: 'ruinScav' }); res.stop = true; }

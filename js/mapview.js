@@ -278,8 +278,19 @@ class MapView {
       c.fillStyle = g; c.fillRect(px, py, s, s);
       const sx = px + s * (0.2 + ((r * 7 + t / 90) % 1) * 0.6), sy = py + s * (0.8 - ((r * 13 + t / 60) % 1) * 0.6);
       c.fillStyle = 'rgba(230,200,255,.8)'; c.fillRect(sx, sy, 2, 2);
-    } else if (ty === T.PLAIN) {
+    } else if (ty === T.PLAIN || ty === T.FIELD) {
       if (r < 0.3) { c.fillStyle = 'rgba(120,160,190,.10)'; c.fillRect(px + s * r * 2, py + s * 0.6, s * 0.25, 1.5); }
+      if (ty === T.FIELD) { c.strokeStyle = 'rgba(200,180,100,.18)'; c.lineWidth = 1; c.beginPath(); c.moveTo(px, py + s * 0.4); c.lineTo(px + s, py + s * 0.45); c.stroke(); }
+    } else if (ty === T.FOREST) {
+      c.fillStyle = 'rgba(40,90,60,.22)'; c.fillRect(px, py, s, s);
+      for (let k = 0; k < 3; k++) {
+        const tx = px + s * (0.2 + k * 0.25), ty2 = py + s * 0.7;
+        c.fillStyle = '#1a3a30'; c.beginPath(); c.moveTo(tx, ty2); c.lineTo(tx + s * 0.08, ty2 - s * 0.35); c.lineTo(tx + s * 0.16, ty2); c.fill();
+      }
+    } else if (ty === T.WASTE) {
+      const a = 0.15 + Math.sin(t / 40 + r * 8) * 0.05;
+      c.fillStyle = `rgba(140,90,200,${a})`; c.fillRect(px, py, s, s);
+      c.strokeStyle = 'rgba(200,160,255,.25)'; c.lineWidth = 1; c.beginPath(); c.moveTo(px + s * 0.2, py + s * 0.6); c.lineTo(px + s * 0.5, py + s * 0.35); c.lineTo(px + s * 0.8, py + s * 0.7); c.stroke();
     } else if (ty === T.CITY) {
       c.fillStyle = 'rgba(70,224,208,.06)'; c.fillRect(px, py, s, s);
       for (let k = 0; k < 4; k++) {
@@ -411,7 +422,7 @@ class MapView {
       const i = WORLD.idx(x, y), ty = WORLD.tiles[i];
       if (ty === T.SEA) continue;
       const known = G.fog[i];
-      m.fillStyle = ty === T.NORTH ? '#121722' : !known ? '#141b26' : ty === T.CITY ? '#46e0d0' : ty === T.MOUNTAIN ? '#2f4258' : ty === T.ETHER ? '#5a3a80' : ty === T.BRIDGE ? '#1f5a5a' : '#22303f';
+      m.fillStyle = ty === T.NORTH ? '#121722' : !known ? '#141b26' : ty === T.CITY ? '#46e0d0' : ty === T.MOUNTAIN ? '#2f4258' : ty === T.ETHER ? '#5a3a80' : ty === T.BRIDGE ? '#1f5a5a' : ty === T.FOREST ? '#1e3a30' : ty === T.FIELD ? '#3a4a32' : ty === T.WASTE ? '#3a2a48' : ty === T.RUIN ? '#2a3038' : '#22303f';
       m.fillRect(x * sx, y * sy, Math.ceil(sx), Math.ceil(sy));
     }
     for (const g of G.mapGates) if (G.revealed(g.x, g.y)) { m.fillStyle = g.final ? '#ff4f6a' : '#d65cff'; m.fillRect(g.x * sx - 1, g.y * sy - 1, sx + 2, sy + 2); }

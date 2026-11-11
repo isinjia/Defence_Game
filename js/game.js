@@ -139,11 +139,14 @@ class Game {
     Object.assign(this, data);
     this.fog = Uint8Array.from(String(data.fog || ''), (c) => (c === '1' ? 1 : 0));
     if (this.fog.length !== WORLD.COLS * WORLD.ROWS) {
-      // 옛 지도(36×58) 저장: 밝혀 둔 곳을 새 지도 크기로 옮긴다 (좌표 변환은 world_scale.js)
+      // 옛 지도 저장: 밝혀 둔 곳을 현재 지도 크기로 옮긴다 (좌표 변환은 world_scale.js)
       const old = this.fog; const nf = new Uint8Array(WORLD.COLS * WORLD.ROWS);
       if (old.length === WORLD.OLD_COLS * WORLD.OLD_ROWS) for (let y = 0; y < WORLD.ROWS; y++) for (let x = 0; x < WORLD.COLS; x++) {
         const ox = Math.min(WORLD.OLD_COLS - 1, Math.floor(x / WORLD.K)), oy = Math.min(WORLD.OLD_ROWS - 1, Math.floor(y * WORLD.OLD_ROWS / WORLD.ROWS));
         nf[y * WORLD.COLS + x] = old[oy * WORLD.OLD_COLS + ox];
+      } else if (old.length === WORLD.PREV_COLS * WORLD.PREV_ROWS) for (let y = 0; y < WORLD.ROWS; y++) for (let x = 0; x < WORLD.COLS; x++) {
+        const ox = Math.min(WORLD.PREV_COLS - 1, Math.floor(x * WORLD.PREV_COLS / WORLD.COLS)), oy = Math.min(WORLD.PREV_ROWS - 1, Math.floor(y * WORLD.PREV_ROWS / WORLD.ROWS));
+        nf[y * WORLD.COLS + x] = old[oy * WORLD.PREV_COLS + ox];
       }
       this.fog = nf; this._oldMap = true;
     }

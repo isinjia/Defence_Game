@@ -11,7 +11,7 @@ const NORTH = (() => {
   // 열렸을 때의 지형 (결정론적)
   const terrain = tiles.map((i) => {
     const [x, y] = WORLD.xy(i); const n = WORLD.noise(x * 0.4, y * 0.4, 21), r = WORLD.h2(x, y, 22);
-    return n > 0.62 ? T.MOUNTAIN : r < 0.12 ? T.ETHER : n < 0.45 ? T.RUIN : T.PLAIN;
+    return n > 0.62 ? T.MOUNTAIN : r < 0.12 ? T.ETHER : n < 0.38 ? T.RUIN : r < 0.28 ? T.WASTE : n > 0.52 ? T.FOREST : T.PLAIN;
   });
   // 가장 가까운 지역 (게임 규칙상 소속)
   const region = tiles.map((i) => {
