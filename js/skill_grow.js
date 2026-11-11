@@ -133,3 +133,38 @@ if (typeof UI !== 'undefined') {
     return baseHandle.call(this, act, v);
   };
 }
+
+// ===== 스킬 장착 칸: F급 2칸, 등급이 오를 때마다 1칸씩 (사용자 요청) =====
+// 기본 타격은 칸을 차지하지 않는다. 칸보다 많이 장착돼 있으면(옛 저장·습득 직후) 앞에서부터 칸 수만큼만 남긴다.
+{
+  const GP = Game.prototype;
+  GP.skillSlots = function () { return 2 + Math.max(0, (this.player && this.player.rankIdx) || 0); };
+  GP.skillTrim = function () { const p = this.player; if (!p || !Array.isArray(p.equipSkills)) return; const n = this.skillSlots(); if (p.equipSkills.length > n) p.equipSkills = p.equipSkills.slice(0, n); };
+  GP.toggleSkill = function (id) {
+    const p = this.player; if (id === 'strike') return '';
+    if (p.equipSkills.includes(id)) { p.equipSkills = p.equipSkills.filter((s) => s !== id); return ''; }
+    if (p.equipSkills.length >= this.skillSlots()) return `장착 칸이 가득 찼다. (${RANKS[p.rankIdx].key}급 ${this.skillSlots()}칸)`;
+    p.equipSkills.push(id); return '';
+  };
+  const basePU = GP.playerUnit;
+  GP.playerUnit = function (...a) { this.skillTrim(); return basePU.apply(this, a); };
+  const baseInit = GP.initSandbox;
+  GP.initSandbox = function (...a) { const r = baseInit.apply(this, a); this.skillTrim(); return r; };
+}
+if (typeof UI !== 'undefined') {
+  const baseSk2 = UI.skillsHtml;
+  UI.skillsHtml = function (...a) {
+    G.skillTrim();
+    let html = baseSk2.apply(this, a);
+    const p = G.player; const n = G.skillSlots(); const full = p.equipSkills.length >= n;
+    html = html.replace('전투에 가져갈 스킬을 최대 5개까지 장착합니다.', `전투에 가져갈 스킬을 장착합니다. 장착 칸 <b>${p.equipSkills.length}/${n}</b> (F급 2칸, 등급이 오를 때마다 1칸씩. 기본 타격은 칸을 차지하지 않는다).`);
+    // 칸이 가득 찼을 때만 새 장착 버튼을 잠근다
+    html = html.replace(/<button class="sm ([^"]*)" data-act="toggle-skill" data-v="([^"]+)"( disabled)?>/g, (m, cls, id) => `<button class="sm ${cls}" data-act="toggle-skill" data-v="${id}"${!p.equipSkills.includes(id) && full ? ' disabled' : ''}>`);
+    return html;
+  };
+  const baseH = UI.handle;
+  UI.handle = function (act, v) {
+    if (act === 'toggle-skill') { const msg = G.toggleSkill(v); this.after(); if (msg) this.toast(msg); return; }
+    return baseH.call(this, act, v);
+  };
+}
