@@ -4,6 +4,7 @@
 // - 신의 선택은 평생 한 번. 거절은 없다(히든 직업 문지기·대붕괴의 아이만 물리칠 수 있다).
 // - 그 신이 좋아하는 일을 거듭하면 2차 신탁(깊은 가호). 싫어하는 일을 하면 한 달간 시선이 식는다(효과 절반).
 // - 궁합: 신마다 맞는 역할이 있다. 맞으면 역할에 맞춘 가호, 맞지 않으면 핵심 효과만(실망). 맞지 않는 신은 2차 신탁에서 역류로 각성한다.
+// - 균열의 속삭임: 균열교 신도들이 문 너머의 목소리라 믿고 기도하는 대상, 제단의 갈라진 원 문양에 깃든 존재. 정말 문 너머에 있는지는 아무도 모른다(D 확인: 메인의 아린·진서해와 엮지 않는다).
 // - 신의 가호는 관심일 뿐 대가가 없다(섬김과 다르다). NPC는 약 10%가 가호를 받는다. 같은 신이면 동문, 반대쪽 신이면 숙적.
 // - 후원자 계약(hunter.js SPONSORS)의 존재와 같은 신이면 가호가 1.2배.
 const GODS = [
@@ -40,7 +41,7 @@ const GODS = [
     intro: '남의 것이 손에 들어오는 순간, 어디선가 주판알 튕기는 소리가 났다. "남는 장사로군."', scorn: '상인이 혀를 찬다. "적자가 뻔한 투자지만… 계약은 계약이니."', omen: '꿈에서 금빛 눈 하나가 장부를 넘기고 있었다.',
     core: [{ luck: 0.12, healTaken: -0.08 }, { luck: 0.18, crit: 0.05, healTaken: -0.08 }], role: { melee: { crit: 0.06 }, ranged: { crit: 0.06 }, tank: { counter: 0.1 }, support: { mpCut: 0.1 }, summon: { summonUp: 0.12 }, recon: { evade: 0.05 }, east: { critDmg: 0.2 } }, rev: { critDmg: 0.3 }, revName: '빚 받는 손' },
   { id: 'whisper', name: '균열의 속삭임', side: 'dark', deed: 'taboo', color: '#c58cff', match: ['ranged', 'east'], hate: ['savior'],
-    intro: '금지된 문양이 눈 안쪽에서 열렸다. 문 너머에서 무언가가 이름을 불렀다.', scorn: '속삭임이 잠시 끊긴다. 이 그릇은 문을 담기엔 작다고, 그것은 말했다.', omen: '귀 안쪽에서 낮은 목소리가 들렸다. 알아들을 수 없는데 무서웠다.',
+    intro: '제단의 갈라진 원이 눈 안쪽에서 열렸다. 신도들이 문 너머의 목소리라 부르며 기도하던 그것이, 이번엔 이쪽을 보았다.', scorn: '속삭임이 잠시 끊긴다. 갈라진 원은 이 그릇을 반쯤만 비춘다.', omen: '눈을 감으면 갈라진 원 문양이 떠올랐다. 누군가 그 틈으로 기도하는 소리가 들렸다.',
     core: [{ hpCostCut: 0.4, elemUp: 0.08, hpDrain: 0.01 }, { hpCostCut: 0.6, elemUp: 0.15, hpDrain: 0.015 }], role: { melee: { lifesteal: 0.05 }, ranged: { elemUp: 0.06 }, tank: { hp: 0.06 }, support: { mpRegen: 0.03 }, summon: { summonUp: 0.18 }, recon: { evade: 0.05 }, east: { elemUp: 0.06 } }, rev: { mp: 0.15, mpRegen: 0.03 }, revName: '닫힌 문의 메아리' },
   { id: 'thirst', name: '붉은 갈증', side: 'dark', deed: 'bloodlust', color: '#ff3b6a', match: ['melee', 'east'], hate: ['mercy'],
     intro: '피가 혀끝에 닿을 때마다 무언가가 함께 마셨다. 붉은 갈증이 깃든다.', scorn: '갈증이 혀를 차고 물러난다. 이 몸은 피를 담기엔 너무 맑다.', omen: '물을 마셔도 목이 탔다. 꿈에서 붉은 잔이 넘쳤다.',

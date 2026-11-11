@@ -28,7 +28,9 @@ const REST_PLACES = {
 Object.assign(Game.prototype, {
   // 특수 수련지를 지도 탐사 지점에 얹는다 (판마다 한 번, 옛 저장에도)
   ensureTrainSpots() {
-    const e = this.exploreState && this.exploreState(); if (!e || e.trainSpots) return;
+    const e = this.exploreState && this.exploreState(); if (!e) return;
+    // 지도 5배 확대 뒤 거리 조건이 너무 커서 하나도 놓이지 않던 판은 다시 놓는다
+    if (e.trainSpots && e.sites.some((s) => s.kind === 'hermit' || s.kind === 'leyline')) return;
     e.trainSpots = true;
     const T = WORLD.T; const sites = e.sites; let id = sites.reduce((a, s) => Math.max(a, s.id), 0) + 1;
     const far = (i, d) => { const [x, y] = WORLD.xy(i); return !sites.some((s) => Math.max(Math.abs(s.x - x), Math.abs(s.y - y)) < d) && !this.objAt(x, y); };
@@ -36,7 +38,7 @@ Object.assign(Game.prototype, {
     const land = EXPLORE.land;
     const pick = (kind, pool, n) => {
       for (let k = 0; k < n; k++) {
-        const free = pool.filter(([i]) => far(i, Math.round(3 * K))); if (!free.length) return;
+        const free = pool.filter(([i]) => far(i, 4)); if (!free.length) return; // 다른 지점과 4칸 이상 (지점이 촘촘해져 K배 거리로는 자리가 없었다)
         const i = RNG.weighted(free.map((f) => f[0]), free.map((f) => f[1]));
         const [x, y] = WORLD.xy(i);
         sites.push({ id: id++, kind, x, y, region: REGIONS[WORLD.region[i]].id, known: false, visited: false, used: 0 });

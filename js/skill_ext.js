@@ -272,16 +272,31 @@ const isPassive = (id) => { const s = typeof id === 'string' ? skillById(id) : i
   };
   quiet('train', 3); quiet('rest', 1); quiet('trainAt', 4); quiet('restAt', 1);
   // 폐관수련: 수련 지점에서 1~3개월 들어앉는다
+  // 경고·차단 판정은 D 영역 함수(메인 장·팀 일정)를 쓴다
+  GP.seclusionBlock = function () {
+    const p = this.player;
+    if (p.crew && p.crew.on === true) return '팀 일이 진행 중이다. 일이 끝난 뒤에 들어앉을 수 있다.';
+    if (p.lead && (p.lead.state === 'called' || p.lead.state === 'on')) return '팀을 이끌고 있는 중이다. 팀에 자유 시간을 준 뒤에 들어앉을 수 있다.';
+    return null;
+  };
   GP.seclusionWarn = function (months) {
     const p = this.player; const out = [];
-    const c = p.crew; const r = c && c.rally;
-    if (r && r.at != null) { const now = this.monthKey() * 30 + this.day; if (r.at <= now + months * 30) out.push('팀 합류 기한을 넘기게 된다. 지각 불이익을 받는다.'); }
+    const now = this.monthKey() * 30 + this.day; const end = now + months * 30;
+    if (p.crew && typeof p.crew.due === 'number' && p.crew.due < end) out.push('팀 합류 기한을 넘기게 된다. 지각 불이익을 받는다.');
+    try {
+      const def = this.mainChapter && this.mainChapter();
+      const left = def && this.mainLeft ? this.mainLeft(def) : null;
+      if (left != null && left <= months) out.push(`메인 ${def.n}장 「${def.title}」이(가) 그사이 지나가 버릴 수 있다.`);
+      const pl = this.mainPartLeft ? this.mainPartLeft() : null;
+      if (pl != null && pl <= months && !(left != null && left <= months)) out.push('메인 이야기의 마감이 그사이 지나갈 수 있다.');
+    } catch (e) { /* 무시 */ }
     if (p.injured > 0) out.push('다친 몸으로는 심득이 덜 쌓인다.');
     return out;
   };
   GP.seclusion = function (months) {
     const p = this.player; if (!this.canAct()) return '';
     const spot = this.trainSpotHere ? this.trainSpotHere() : null; if (!spot) return '폐관수련은 수련 지점에서만 할 수 있다.';
+    const blk = this.seclusionBlock(); if (blk) return blk;
     months = Math.max(1, Math.min(3, months | 0));
     let ether = 0;
     for (let i = 0; i < months && !this.over; i++) {
@@ -453,6 +468,7 @@ if (typeof UI !== 'undefined') {
   };
   UI.seclusionShow = function () {
     const spot = G.trainSpotHere ? G.trainSpotHere() : null; if (!spot) return this.toast('폐관수련은 수련 지점에서만 할 수 있다.');
+    const blk = G.seclusionBlock(); if (blk) return this.toast(blk);
     const row = (m) => { const w = G.seclusionWarn(m); return `<button class="choice-btn" data-act="seclude" data-v="${m}"><b>${m}개월</b><span class="small dim">그동안 다른 일은 할 수 없다. 세상은 혼자 흘러간다.</span>${w.length ? `<span class="small bad">${w.join(' ')}</span>` : ''}</button>`; };
     this.modal(`<div class="eyebrow">폐관수련</div><h3>${spot.name || '수련 지점'}</h3>
       <p class="event-text">바깥과 연을 끊고 들어앉는다. 오래 머물수록 깊이 쌓이고, 끝날 때 깨달음이 찾아올 수 있다.</p>
