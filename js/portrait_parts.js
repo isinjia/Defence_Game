@@ -1870,20 +1870,21 @@ const PortraitParts = (() => {
     const neckTop = female ? chin - 8 : chin + 4; // 여자는 턱 8px 위부터 목 폭: 턱과 옷 사이에 어깨 피부가 사각으로 보이던 문제
     const neckPath = heavy ? column : `M0 0H400V${neckTop}H${200+neckWidth/2}V330H${200-neckWidth/2}V${neckTop}H0Z`;
     const neckClip = vCollar ? `<path d="${neckPath}"/>` : collar ? `${heavy ? `<path d="${column}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}<path d="${opening}" transform="translate(0 ${-pose}) ${garmentTf}"/>` : `<path d="${neckPath}"/>`;
-    const baseClips = `<clipPath id="${id}col"><path d="${neckPath}"/></clipPath>${collar ? `<clipPath id="${id}open"><rect width="400" height="${chin}"/><path d="${opening}" transform="translate(0 ${-pose}) ${garmentTf}"/></clipPath>` : ''}<clipPath id="${id}neck">${neckClip}</clipPath><clipPath id="${id}jaw">${heavy ? `<path d="${jawShape}"/>` : female ? `<rect width="400" height="${neckTop}"/><rect x="${200-neckWidth/2}" width="${neckWidth}" height="${chin+24-22*headScale}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}</clipPath>`;
+    const baseClips = `<clipPath id="${id}col"><path d="${neckPath}"/></clipPath>${collar ? `<clipPath id="${id}fill"><path d="${neckPath}"/><path d="${opening}" transform="translate(0 ${-pose}) ${garmentTf}"/></clipPath>` : ''}${collar ? `<clipPath id="${id}open"><rect width="400" height="${chin}"/><path d="${opening}" transform="translate(0 ${-pose}) ${garmentTf}"/></clipPath>` : ''}<clipPath id="${id}neck">${neckClip}</clipPath><clipPath id="${id}jaw">${heavy ? `<path d="${jawShape}"/>` : female ? `<rect width="400" height="${neckTop}"/><rect x="${200-neckWidth/2}" width="${neckWidth}" height="${chin+24-22*headScale}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}</clipPath>`;
     const featureY = female ? 175 : 165;
     const features = `<radialGradient id="${id}features"><stop stop-color="white"/><stop offset=".9" stop-color="white"/><stop offset="1" stop-color="black"/></radialGradient><mask id="${id}featureMask" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><ellipse cx="200" cy="${featureY}" rx="62" ry="70" fill="url(#${id}features)"/></mask>`;
     const defs = `<defs>${baseClips}${features}${collarDefs}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><clipPath id="${id}circle"><circle cx="200" cy="${128+pose}" r="126"/></clipPath></defs>`;
     // 세운 깃(3·5)은 뒷깃이 목 뒤로 완전히 숨으므로 그리지 않는다: 통통에서 목 옆 위로 뒷깃 모서리가 보이던 문제 (사용자 지적)
     const back = collar && style !== 3 && style !== 5 ? image(cloth, ` data-depth="collar-back" clip-path="url(#${id}back)"${garmentAttrs}`) : '';
-    // 여자 코트·둥근·세운 깃(0·3·4·5): 목은 "깃 구멍 ∩ 목 폭"만 보인다 → 목 양옆 빈 곳으로 옷 안쪽 뒷판이 보이고, 목은 깃 앞판 뒤로 들어간다.
+    // 둥근 깃(4): 깃 구멍 안은 원화 피부(목이 어깨로 넓어지는 모양 그대로)로 채우고, 깃 앞판이 그 위를 덮는다. 구멍 위쪽은 목 폭. (사용자 지적: 목 밑 양옆이 뒷판으로 파먹힌 것처럼 보임)
     const roundNeck = integrated && !underwear && collar && !vCollar && (female || style >= 3);
     const rawBody = roundNeck
-      ? `<g clip-path="url(#${id}open)" transform="translate(0 ${pose})">${skinImage(base,'base', ` data-depth="neck" clip-path="url(#${id}col)"`)}</g>`
+      ? (style === 4 ? skinImage(base,'base', ` data-depth="neck" transform="translate(0 ${pose})" clip-path="url(#${id}fill)"`)
+        : `<g clip-path="url(#${id}open)" transform="translate(0 ${pose})">${skinImage(base,'base', ` data-depth="neck" clip-path="url(#${id}col)"`)}</g>`)
       : integrated
       ? skinImage(base,'base', ` data-depth="${underwear ? 'underwear' : 'neck'}" transform="translate(0 ${pose})"${underwear ? '' : ` clip-path="url(#${id}neck)"`}`)
       : skinImage(face,'face',` data-depth="neck" transform="translate(0 ${pose})"`);
-    const lineOn = integrated && !underwear && (female ? style !== 3 && style !== 5 : (!collar || heavy)); // 여자는 모든 옷: 옷 위로 드러난 목 옆선을 그린다(옷 뒤에 그려 옷이 덮는 곳은 안 보임)
+    const lineOn = integrated && !underwear && !(roundNeck && style === 4) && (female ? style !== 3 && style !== 5 : (!collar || heavy)); // 여자는 모든 옷: 옷 위로 드러난 목 옆선을 그린다(옷 뒤에 그려 옷이 덮는 곳은 안 보임)
     const edge = heavy && !female ? `M${200+colHalf} ${bend}Q${200+colHalf} ${chin} ${200+colHalf-inset} ${chin+4}V330M${200-colHalf} ${bend}Q${200-colHalf} ${chin} ${200-colHalf+inset} ${chin+4}V330`
       : heavy ? `M${200+colHalf-inset} ${chin+6}V330M${200-colHalf+inset} ${chin+6}V330`
       : `M${200+neckWidth/2} ${chin+4}V330M${200-neckWidth/2} ${chin+4}V330`;
