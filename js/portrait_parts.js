@@ -462,16 +462,19 @@ const PortraitParts = (() => {
       const dy = part.file.startsWith('cloth-') ? clothDy : 0;
       return `<image href="${partSrc(part.file)}" xlink:href="${partSrc(part.file)}" x="${x}" y="${y + dy}" width="${w}" height="${h}"${extra}/>`;
     };
-    const rest = drawLayers.filter(part => part !== facePart && part !== clothPart);
+    const rest = drawLayers.filter(part => !part.file.startsWith('face-') && !part.file.startsWith('cloth-'));
+    // 하이칼라만 턱을 옷 앞에 다시 그린다. 열린 V넥은 목·깃이 이미 맞으므로 얼굴 한 장만 쓴다.
+    const chinFront = clothClosed
+      ? `<ellipse cx="200" cy="${chinY + 1}" rx="20" ry="4" fill="#05070d" opacity=".2"/>${drawPart(facePart, `${orcFilter} clip-path="url(#${id}chin)"`)}`
+      : '';
     const images = [
       drawPart(facePart, `${orcFilter} clip-path="url(#${id}neck)"`),
       drawPart(clothPart),
-      // 턱 아래 목에 얇게 앉는 접촉 그림자(뎁스).
-      `<ellipse cx="200" cy="${chinY + 1}" rx="20" ry="4" fill="#05070d" opacity=".2"/>`,
-      drawPart(facePart, `${orcFilter} clip-path="url(#${id}chin)"`),
+      chinFront,
       ...rest.map(part => drawPart(part)),
     ].join('');
-    const background = `<defs><clipPath id="${id}neck"><path d="M0 0H400V${jawY}H252L247 ${jawY + 10}L238 ${jawY + 18}V${jawY + 22}L${neck[1]} 286V325H${neck[0]}V286L166 ${jawY + 22}V${jawY + 18}L161 ${jawY + 10}L148 ${jawY}H0Z"/></clipPath><clipPath id="${id}chin"><path d="M0 0H400V${chinY - 18}H260L248 ${chinY - 8}L230 ${chinY}H170L152 ${chinY - 8}L140 ${chinY - 18}H0Z"/></clipPath><radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><filter id="${id}orc"><feColorMatrix type="matrix" values=".45 .2 0 0 .02 .2 .6 .1 0 .04 .1 .2 .25 0 .01 0 0 0 1 0"/></filter><clipPath id="${id}clip"><circle cx="200" cy="128" r="126"/></clipPath></defs>`;
+    const chinClip = clothClosed ? `<clipPath id="${id}chin"><path d="M0 0H400V${chinY - 18}H260L248 ${chinY - 8}L230 ${chinY}H170L152 ${chinY - 8}L140 ${chinY - 18}H0Z"/></clipPath>` : '';
+    const background = `<defs><clipPath id="${id}neck"><path d="M0 0H400V${jawY}H252L247 ${jawY + 10}L238 ${jawY + 18}V${jawY + 22}L${neck[1]} 286V325H${neck[0]}V286L166 ${jawY + 22}V${jawY + 18}L161 ${jawY + 10}L148 ${jawY}H0Z"/></clipPath>${chinClip}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><filter id="${id}orc"><feColorMatrix type="matrix" values=".45 .2 0 0 .02 .2 .6 .1 0 .04 .1 .2 .25 0 .01 0 0 0 1 0"/></filter><clipPath id="${id}clip"><circle cx="200" cy="128" r="126"/></clipPath></defs>`;
     // 열린 도포의 V 목선 아래까지 같은 얼굴 파츠의 목 피부를 이어 넣는다.
     // 머리·턱은 원래 크기로 두고, 의상 뒤의 작은 피부 구간만 채운다.
     const faceSrc = partSrc(facePart.file);
