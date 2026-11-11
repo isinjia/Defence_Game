@@ -768,7 +768,9 @@ const HunterOutfits = (() => {
     const opening=`M${200-radius} 0H${200+radius}V${frontY-depth}A${radius} ${depth} 0 0 1 ${200-radius} ${frontY-depth}Z`;
     const id='ho'+FX.hash(selected.key+opts.outfit+avatar),clip=node(doc,'clipPath',{id:id+'skin'});
     const jaw=doc.querySelector('clipPath[id$="jaw"]');
-    if(jaw){const g=node(doc,'g',{transform:`translate(0 ${pose})`});for(const c of jaw.children)g.append(c.cloneNode(true));clip.append(g);}
+    // clipPath 안에는 <g>를 둘 수 없어(브라우저가 무시) 턱 영역이 빠지고 얼굴이 좁은 기둥으로 잘렸다 → 도형마다 transform 을 붙인다
+    const shift=c=>{const e=c.cloneNode(true);e.setAttribute('transform',`translate(0 ${pose}) ${e.getAttribute('transform')||''}`.trim());return e;};
+    if(jaw){for(const c of jaw.children)clip.append(shift(c));}
     clip.append(node(doc,'path',{d:opening}));defs.append(clip);
     const mask=node(doc,'mask',{id:id+'front',maskUnits:'userSpaceOnUse',x:0,y:0,width:400,height:720});
     mask.append(node(doc,'rect',{width:400,height:720,fill:'white'}));mask.append(node(doc,'path',{d:opening,fill:'black'}));defs.append(mask);
@@ -782,7 +784,7 @@ const HunterOutfits = (() => {
     parent.insertBefore(garment('job-garment-back'),wrap);
     const front=garment('job-garment-front');front.setAttribute('mask',`url(#${id}front)`);parent.insertBefore(front,wrap.nextSibling);
     if(jaw){const protect=node(doc,'g',{'data-depth':'job-jaw-front','clip-path':`url(#${id}jaw)`});
-      const jawClip=node(doc,'clipPath',{id:id+'jaw'}),translated=node(doc,'g',{transform:`translate(0 ${pose})`});for(const c of jaw.children)translated.append(c.cloneNode(true));jawClip.append(translated);defs.append(jawClip);
+      const jawClip=node(doc,'clipPath',{id:id+'jaw'});for(const c of jaw.children)jawClip.append(shift(c));defs.append(jawClip);
       protect.append(body.cloneNode(true));parent.insertBefore(protect,front.nextSibling);
     }
     svg.dataset.outfit=opts.outfit;svg.dataset.jobClass=part.classId;svg.dataset.jobFrontY=frontY;svg.dataset.jobBackY=backY;
