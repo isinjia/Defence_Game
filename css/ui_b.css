@@ -518,7 +518,23 @@ body.tut-hold #coach-pop { z-index: 60; }
 #hud-money.up { animation: hmup .5s ease-out; } #hud-money.down { animation: hmdown .5s ease-out; }
 .hm-d { position: fixed; z-index: 41; right: calc(max(12px, env(safe-area-inset-right, 0px)) + 58px); top: calc(max(8px, env(safe-area-inset-top, 0px)) + 46px); font-size: 13px; font-weight: 800; pointer-events: none; text-shadow: 0 1px 3px #000; animation: hmfloat 1.6s ease-out forwards; }
 
-/* PC: 날짜·나이는 크레딧 왼쪽, 퀘스트는 그 아래 (js/hud_pc_layout.js, 사용자 요청) */
+/* PC: 커서 칸 정보 — 지도 중앙 상단 (js/map_hover_info.js, 사용자 요청) */
+.hud-look {
+  display: none; left: 50%; top: max(10px, env(safe-area-inset-top, 0px)); transform: translateX(-50%);
+  width: min(360px, calc(100% - 280px)); z-index: 4; pointer-events: none;
+  background: #0b111bdd; border: 1px solid var(--line-hi, #2a3b55); border-left: 3px solid var(--ether, #46e0d0);
+  padding: 8px 12px; clip-path: var(--cut); gap: 4px; line-height: 1.35;
+}
+@media (min-width: 641px) {
+  .hud-look.on { display: grid; }
+}
+.hud-look .look-title { font-size: 14px; }
+.hud-look .look-sub { margin-top: 1px; }
+.hud-look .look-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 12.5px; }
+.hud-look .look-row .avatar, .hud-look .look-row .rift { flex: none; }
+.hud-look .mob-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c, #9fe3f0); flex: none; box-shadow: 0 0 6px var(--c, #9fe3f0); }
+
+/* PC: 날짜·나이는 크레딧 왼쪽, 퀘스트는 메뉴 아래 왼쪽 (js/hud_pc_layout.js, 사용자 요청) */
 #hud-top-res { display: none; }
 @media (min-width: 641px) {
   #hud-top-res {
@@ -540,8 +556,14 @@ body.tut-hold #coach-pop { z-index: 60; }
   }
   .hud-date.pc-tr b { font-size: 13px; }
   .hud-date.pc-tr span { font-size: 12px; white-space: nowrap; }
-  /* 날짜·크레딧 한 줄(44px + 여백) 아래로 퀘스트 */
-  .hud-tr { top: calc(60px + env(safe-area-inset-top, 0px)) !important; }
+  /* 메뉴 아래 왼쪽 (오른쪽 아님) */
+  .hud-tr {
+    top: calc(60px + env(safe-area-inset-top, 0px)) !important;
+    left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    right: auto !important;
+    width: min(320px, 36vw) !important;
+  }
+  #world.fold-obj .hud-tr { left: max(12px, env(safe-area-inset-left, 0px)) !important; width: max-content !important; max-width: min(320px, 36vw); }
   body.st-open #hud-top-res #hud-money { display: none !important; }
 }
 .hm-d.up { color: #5fe08a; } .hm-d.down { color: #ff6b6b; }
