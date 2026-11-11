@@ -64,6 +64,24 @@ const { chromium, devices } = require('playwright');
   await step('타이틀 배경 이미지 로드', async () => {
     await page.waitForFunction(() => { const img = document.querySelector('.title-art'); return img && img.complete && img.naturalWidth > 0; });
   });
+  await step('이미지 파츠 초상화: 인물 고정·나이·종족·의상·지도 마커', async () => {
+    const result = await page.evaluate(async () => {
+      const a = PortraitParts.select('고정인물', 'M', { age: 25, race: 'human' });
+      const b = PortraitParts.select('고정인물', 'M', { age: 25, race: 'human' });
+      if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error('같은 인물 파츠 변경');
+      if (!PortraitParts.select('고정인물', 'F').layers[0].file.startsWith('face-f')) throw new Error('여성 파츠 아님');
+      if (!PortraitParts.select('고정인물', 'M', { age: 76 }).layers[0].file.includes('-4.')) throw new Error('노년 얼굴 없음');
+      if (!PortraitParts.select('고정인물', 'F', { age: 10 }).layers[0].file.includes('-5.')) throw new Error('아이 얼굴 없음');
+      for (const race of ['elf', 'orc', 'dwarf', 'beastkin', 'dragonkin']) if (!PortraitParts.select('확인', 'M', { race }).layers.some(p => p.file.startsWith('traits'))) throw new Error('종족 특징 없음: ' + race);
+      if (PortraitParts.select('고정인물', 'M', { outfit: 'coat' }).key === PortraitParts.select('고정인물', 'M', { outfit: 'tactical' }).key) throw new Error('의상 변경 안 됨');
+      const svg = PORTRAIT.avatar('고정인물', 'M', 'fire', 3, 96, { age: 25, race: 'elf' });
+      const data = await PortraitParts.rasterize(svg);
+      const img = new Image(); img.src = data; await img.decode();
+      if (!img.naturalWidth || !data.startsWith('data:image/svg+xml')) throw new Error('지도 초상화 변환 실패');
+      return true;
+    });
+    if (!result) throw new Error('초상화 검사 실패');
+  });
   await step('이야기로 시작 → 프롤로그 끝까지', async () => {
     await act('new'); await act('mode-story');
     await ev(() => { UI.pro.name = '점검'; }); await act('ps-start');

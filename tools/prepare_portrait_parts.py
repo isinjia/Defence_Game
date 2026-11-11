@@ -1,0 +1,62 @@
+from PIL import Image
+import numpy as np
+from scipy import ndimage
+from pathlib import Path
+import json
+import argparse
+parser=argparse.ArgumentParser(description='생성된 아틀라스에서 초상화 파츠를 추출하고 등록 좌표를 저장한다.')
+parser.add_argument('--source-dir', type=Path, required=True)
+args=parser.parse_args()
+project=Path(__file__).resolve().parent.parent
+root=project/'assets/portraits/parts'
+root.mkdir(parents=True, exist_ok=True)
+sources={'face-m':'510f9cc7-734f-455c-b348-a72181a42df9','face-f':'cdc2110d-b09b-414a-af30-7c7a3f7f9696','hair-m':'5c15bb35-fee4-4e46-89cc-b4a87fa33f8c','hair-f':'2b3d6e77-97ed-47cd-a5e1-9e3048b012a5','cloth-m':'754c1542-e666-49c3-8d44-a6da19c8b530','cloth-f':'9545cd88-da69-4702-963a-fc8fdf235d52','traits':'5b6d8013-d964-4be8-898b-c52ca201bdb3'}
+manifest={}
+for kind,uid in sources.items():
+ im=Image.open(args.source_dir/('exec-'+uid+'.png')).convert('RGBA'); w,h=im.size
+ entries=[]
+ for i in range(6):
+  col,row=i%3,i//3
+  if kind.startswith('cloth'):
+   split=835 if kind=='cloth-m' else 800
+   box=(col*w//3,400 if row==0 and kind=='cloth-m' else 350 if row==0 else split,(col+1)*w//3,split if row==0 else h)
+  else:box=(col*w//3,row*h//2,(col+1)*w//3,(row+1)*h//2)
+  tile=im.crop(box); a=np.array(tile); mask=a[:,:,3]>200
+  labels,n=ndimage.label(mask); sizes=np.bincount(labels.ravel());sizes[0]=0
+  keep=np.argsort(sizes)[-2:] if kind=='traits' and i<4 else [sizes.argmax()]
+  keep=[v for v in keep if sizes[v]>25]
+  solid=np.isin(labels,keep); solid=ndimage.binary_dilation(solid,iterations=1)
+  # Atlas extraction: retain the selected sprite's antialiased edge, discard detached atlas matte/noise.
+  a[:,:,3]=np.where(solid,a[:,:,3],0)
+  tile=Image.fromarray(a); bbox=tile.getbbox()
+  if not bbox:raise Exception(kind+str(i))
+  sprite=tile.crop(bbox)
+  if kind.startswith('face'):rect=[128,55,144,250]
+  elif kind=='hair-m':rect=[105,28,190,round(sprite.height*190/sprite.width)]
+  elif kind=='hair-f':rect=[80,24,240,round(sprite.height*240/sprite.width)]
+  elif kind.startswith('cloth'):rect=[0 if kind=='cloth-m' else 10,258,400 if kind=='cloth-m' else 380,342]
+  else:
+   rect=[[91,162,218,66],[103,0,194,98],[100,0,200,106],[179,224,42,24],[139,222,122,98],[145,148,110,30]][i]
+  sprite=sprite.resize((rect[2],rect[3]),Image.Resampling.LANCZOS)
+  if kind=='hair-f' and i in (0,2,3) and sprite.height>235:
+   long=Image.new('RGBA',(sprite.width,600));long.paste(sprite.crop((0,0,sprite.width,235)),(0,0));long.paste(sprite.crop((0,235,sprite.width,sprite.height)).resize((sprite.width,365),Image.Resampling.LANCZOS),(0,235));sprite=long;rect[3]=600
+  file=kind+'-'+str(i)+'.webp';sprite.save(root/file,'WEBP',quality=90,method=0)
+  entries.append({'file':file,'rect':rect})
+ manifest[kind]=entries
+(root/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2))
+# Assembly preview using exactly the exported registered parts.
+preview=Image.new('RGB',(1200,600),'#182230')
+for j,(g,face,hair,cloth) in enumerate([('m',0,0,0),('f',0,0,0),('m',4,5,3)]):
+ c=Image.new('RGBA',(400,600),'#182230')
+ for k,i in [('face-'+g,face),('cloth-'+g,cloth),('hair-'+g,hair)]:
+  p=manifest[k][i];c.alpha_composite(Image.open(root/p['file']),tuple(p['rect'][:2]))
+ preview.paste(c.convert('RGB'),(j*400,0))
+preview.save(root/'preview.png')
+print('parts',sum(map(len,manifest.values())),'bytes',sum(p.stat().st_size for p in root.glob('*.webp')))
+
+import re
+module=project/'js/portrait_parts.js'
+if module.exists():
+ text=module.read_text()
+ text=re.sub(r'  const parts = [\s\S]*?;\n  const escape',lambda _: '  const parts = '+(root/'manifest.json').read_text()+';\n  const escape',text,count=1)
+ module.write_text(text)

@@ -1,0 +1,394 @@
+{
+  "face-m": [
+    {
+      "file": "face-m-0.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-1.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-2.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-3.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-4.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-m-5.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    }
+  ],
+  "face-f": [
+    {
+      "file": "face-f-0.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-1.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-2.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-3.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-4.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    },
+    {
+      "file": "face-f-5.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ]
+    }
+  ],
+  "hair-m": [
+    {
+      "file": "hair-m-0.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        193
+      ]
+    },
+    {
+      "file": "hair-m-1.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        200
+      ]
+    },
+    {
+      "file": "hair-m-2.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        184
+      ]
+    },
+    {
+      "file": "hair-m-3.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        233
+      ]
+    },
+    {
+      "file": "hair-m-4.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        170
+      ]
+    },
+    {
+      "file": "hair-m-5.webp",
+      "rect": [
+        105,
+        28,
+        190,
+        160
+      ]
+    }
+  ],
+  "hair-f": [
+    {
+      "file": "hair-f-0.webp",
+      "rect": [
+        80,
+        24,
+        240,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-1.webp",
+      "rect": [
+        80,
+        24,
+        240,
+        246
+      ]
+    },
+    {
+      "file": "hair-f-2.webp",
+      "rect": [
+        80,
+        24,
+        240,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-3.webp",
+      "rect": [
+        80,
+        24,
+        240,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-4.webp",
+      "rect": [
+        80,
+        24,
+        240,
+        262
+      ]
+    },
+    {
+      "file": "hair-f-5.webp",
+      "rect": [
+        80,
+        24,
+        240,
+        424
+      ]
+    }
+  ],
+  "cloth-m": [
+    {
+      "file": "cloth-m-0.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-1.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-2.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-3.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-4.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    },
+    {
+      "file": "cloth-m-5.webp",
+      "rect": [
+        0,
+        258,
+        400,
+        342
+      ]
+    }
+  ],
+  "cloth-f": [
+    {
+      "file": "cloth-f-0.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-1.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-2.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-3.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-4.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    },
+    {
+      "file": "cloth-f-5.webp",
+      "rect": [
+        10,
+        258,
+        380,
+        342
+      ]
+    }
+  ],
+  "traits": [
+    {
+      "file": "traits-0.webp",
+      "rect": [
+        91,
+        162,
+        218,
+        66
+      ]
+    },
+    {
+      "file": "traits-1.webp",
+      "rect": [
+        103,
+        0,
+        194,
+        98
+      ]
+    },
+    {
+      "file": "traits-2.webp",
+      "rect": [
+        100,
+        0,
+        200,
+        106
+      ]
+    },
+    {
+      "file": "traits-3.webp",
+      "rect": [
+        179,
+        224,
+        42,
+        24
+      ]
+    },
+    {
+      "file": "traits-4.webp",
+      "rect": [
+        139,
+        222,
+        122,
+        98
+      ]
+    },
+    {
+      "file": "traits-5.webp",
+      "rect": [
+        145,
+        148,
+        110,
+        30
+      ]
+    }
+  ]
+}
