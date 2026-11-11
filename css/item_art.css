@@ -1,0 +1,15 @@
+/* 아이템 웹툰풍 아이콘 */
+.slot-ico.item-art-slot { padding: 2px; overflow: hidden; }
+.slot-ico.item-art-slot img.item-art,
+img.item-art {
+  width: 100%; height: 100%; max-width: 34px; max-height: 34px;
+  object-fit: contain; display: block; pointer-events: none;
+}
+.ih-ico.ih-art { width: 44px; height: 44px; border-radius: 6px; background: #0a1019; border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); overflow: hidden; }
+.ih-ico.ih-art img.item-art { max-width: 40px; max-height: 40px; margin: auto; }
+em.ss-art { display: inline-flex; width: 18px; height: 18px; align-items: center; justify-content: center; }
+em.ss-art img.item-art { max-width: 18px; max-height: 18px; }
+button.sm img.item-art, button.cmd-item img.item-art {
+  width: 18px; height: 18px; max-width: 18px; max-height: 18px;
+  vertical-align: -4px; display: inline-block;
+}
