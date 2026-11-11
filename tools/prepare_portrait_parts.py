@@ -43,6 +43,15 @@ for kind,uid in sources.items():
   file=kind+'-'+str(i)+'.webp';sprite.save(root/file,'WEBP',quality=90,method=0)
   entries.append({'file':file,'rect':rect})
  manifest[kind]=entries
+# 정면 기준 얼굴에 맞춰 다시 제작한 묶음머리. 빈 캔버스 여백도 등록 좌표의 일부다.
+for index, uid in [(3,'98867182-3a2b-4cd8-bfc6-14c82aa0c65d'),(5,'ac9ea95c-a9dc-4261-bf70-2f9f2dbb6735')]:
+ im=Image.open(args.source_dir/('exec-'+uid+'.png')).convert('RGBA')
+ a=np.array(im); labels,n=ndimage.label(a[:,:,3]>200); sizes=np.bincount(labels.ravel());sizes[0]=0
+ solid=ndimage.binary_dilation(labels==sizes.argmax(),iterations=1)
+ a[:,:,3]=np.where(solid,a[:,:,3],0)
+ im=Image.fromarray(a).resize((400,600),Image.Resampling.LANCZOS)
+ file='hair-f-'+str(index)+'.webp';im.save(root/file,'WEBP',quality=90,method=0)
+ manifest['hair-f'][index]={'file':file,'rect':[0,0,400,600]}
 (root/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2))
 # Assembly preview using exactly the exported registered parts.
 preview=Image.new('RGB',(1200,600),'#182230')
@@ -51,7 +60,7 @@ for j,(g,face,hair,cloth) in enumerate([('m',0,0,0),('f',0,0,0),('m',4,5,3)]):
  for k,i in [('face-'+g,face),('cloth-'+g,cloth),('hair-'+g,hair)]:
   p=manifest[k][i];c.alpha_composite(Image.open(root/p['file']),tuple(p['rect'][:2]))
  preview.paste(c.convert('RGB'),(j*400,0))
-preview.save(root/'preview.png')
+preview.save(project.parent/'portrait-parts-preview.png')
 print('parts',sum(map(len,manifest.values())),'bytes',sum(p.stat().st_size for p in root.glob('*.webp')))
 
 import re

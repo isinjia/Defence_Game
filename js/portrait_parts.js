@@ -201,9 +201,9 @@ const PortraitParts = (() => {
     {
       "file": "hair-f-3.webp",
       "rect": [
-        80,
-        24,
-        240,
+        0,
+        0,
+        400,
         600
       ]
     },
@@ -219,10 +219,10 @@ const PortraitParts = (() => {
     {
       "file": "hair-f-5.webp",
       "rect": [
-        80,
-        24,
-        240,
-        424
+        0,
+        0,
+        400,
+        600
       ]
     }
   ],
@@ -411,7 +411,18 @@ const PortraitParts = (() => {
     const trait = { elf: 0, beastkin: 1, dragonkin: 2, orc: 3, dwarf: 4 }[race];
     if (trait != null && !(race === 'dwarf' && (young || g === 'f'))) layers.push(parts.traits[trait]);
     if (!young && race === 'human' && (hash >>> 12) % 7 === 0) layers.push(parts.traits[5]);
-    return { layers, race, stage, key: [g, face, hair, cloth, race].join('-') };
+    // 얼굴 바깥 사각형이 아니라 실제 눈·입·귀 위치에 맞춰 장신구를 등록한다.
+    const registered = layers.map(part => {
+      if (!part.file.startsWith('traits-')) return part;
+      const index = Number(part.file.match(/traits-(\d+)/)[1]);
+      const rect = part.rect.slice();
+      if (index === 0) { rect[1] = g === 'm' ? 144 : 154; rect[3] = 56; }
+      if (index === 3) { rect[1] = g === 'm' ? 207 : 215; rect[3] = 23; }
+      if (index === 4) rect[1] = 203;
+      if (index === 5) { rect[1] = g === 'm' ? 138 : 148; rect[3] = 29; }
+      return { ...part, rect };
+    });
+    return { layers: registered, race, stage, key: [g, face, hair, cloth, race].join('-') };
   }
   function svg(seed, gender, element, rankIdx, size, opts, avatar) {
     const selection = select(seed, gender, opts);
@@ -424,12 +435,16 @@ const PortraitParts = (() => {
     const images = selection.layers.map((part, i) => {
       const [x, y, w, h] = part.rect;
       const filter = i === 0 && selection.race === 'orc' ? ` filter="url(#${id}orc)"` : '';
-      return `<image href="${root + part.file}" xlink:href="${root + part.file}" x="${x}" y="${y}" width="${w}" height="${h}"${filter}/>`;
+      const clip = i === 0 ? ` clip-path="url(#${id}neck)"` : '';
+      const src = root + part.file + '?v=2';
+      return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${filter}${clip}/>`;
     }).join('');
-    const background = `<defs><radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><filter id="${id}orc"><feColorMatrix type="matrix" values=".45 .2 0 0 .02 .2 .6 .1 0 .04 .1 .2 .25 0 .01 0 0 0 1 0"/></filter><clipPath id="${id}clip"><circle cx="200" cy="128" r="126"/></clipPath></defs>`;
+    const neck = selection.layers[1].file.includes("-4.webp") ? [155, 245] : [166, 234];
+    const jawY = selection.layers[0].file.startsWith("face-f") ? 210 : 200;
+    const background = `<defs><clipPath id="${id}neck"><path d="M0 0H400V${jawY}H252L247 ${jawY + 15}L234 ${jawY + 30}V255L${neck[1]} 286V325H${neck[0]}V286L166 255V${jawY + 30}L153 ${jawY + 15}L148 ${jawY}H0Z"/></clipPath><radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><filter id="${id}orc"><feColorMatrix type="matrix" values=".45 .2 0 0 .02 .2 .6 .1 0 .04 .1 .2 .25 0 .01 0 0 0 1 0"/></filter><clipPath id="${id}clip"><circle cx="200" cy="128" r="126"/></clipPath></defs>`;
     const drawing = `<rect x="0" y="0" width="400" height="600" fill="#0a1220"/><ellipse cx="200" cy="190" rx="240" ry="300" fill="url(#${id}bg)"/>${images}`;
     const art = avatar ? `<g clip-path="url(#${id}clip)">${drawing}</g><circle cx="200" cy="128" r="125" fill="none" stroke="${ring}" stroke-width="4"/>` : drawing + `<rect x="1" y="1" width="398" height="478" fill="none" stroke="${ring}" stroke-width="2" opacity=".7"/>`;
-    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v1" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size * 1.2)}" viewBox="${view}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${escape(avatar ? '초상화' : '캐릭터 일러스트')}">${background}${art}</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v2" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size * 1.2)}" viewBox="${view}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${escape(avatar ? '초상화' : '캐릭터 일러스트')}">${background}${art}</svg>`;
   }
   PORTRAIT.card = function (seed, gender, element, rank, size = 200, opts = {}) {
     if ((!opts.race || opts.race === 'human') && PORTRAIT.imageFor(seed, gender)) return legacy.card.apply(this, arguments);

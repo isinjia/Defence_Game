@@ -74,6 +74,19 @@ const { chromium, devices } = require('playwright');
       if (!PortraitParts.select('고정인물', 'F', { age: 10 }).layers[0].file.includes('-5.')) throw new Error('아이 얼굴 없음');
       for (const race of ['elf', 'orc', 'dwarf', 'beastkin', 'dragonkin']) if (!PortraitParts.select('확인', 'M', { race }).layers.some(p => p.file.startsWith('traits'))) throw new Error('종족 특징 없음: ' + race);
       if (PortraitParts.select('고정인물', 'M', { outfit: 'coat' }).key === PortraitParts.select('고정인물', 'M', { outfit: 'tactical' }).key) throw new Error('의상 변경 안 됨');
+      // 정면 묶음머리는 두 눈을 가리지 않고, 목 피부는 깃 바깥으로 나오지 않아야 한다.
+      for (const index of [3, 5]) {
+        const part = new Image(); part.src = 'assets/portraits/parts/hair-f-' + index + '.webp?v=2'; await part.decode();
+        const cv = document.createElement('canvas'); cv.width = 400; cv.height = 600;
+        cv.getContext('2d').drawImage(part, 0, 0, 400, 600);
+        for (const x of [168, 232]) if (cv.getContext('2d').getImageData(x, 163, 1, 1).data[3] > 8) throw new Error('묶음머리가 눈을 가림');
+      }
+      const neckSrc = await PortraitParts.rasterize(PORTRAIT.card('목선확인', 'M', null, 0, 400, { outfit: 'mandarin' }));
+      const neckImg = new Image(); neckImg.src = neckSrc; await neckImg.decode();
+      const neckCanvas = document.createElement('canvas'); neckCanvas.width = 400; neckCanvas.height = 480;
+      const neckCtx = neckCanvas.getContext('2d'); neckCtx.drawImage(neckImg, 0, 0);
+      const outsideCollar = [...neckCtx.getImageData(153, 264, 10, 20).data, ...neckCtx.getImageData(155, 230, 8, 30).data];
+      for (let i = 0; i < outsideCollar.length; i += 4) if (outsideCollar[i] > 140 && outsideCollar[i + 1] > 100 && outsideCollar[i] > outsideCollar[i + 1] + 15) throw new Error('목 피부가 옷깃 밖으로 나옴');
       const svg = PORTRAIT.avatar('고정인물', 'M', 'fire', 3, 96, { age: 25, race: 'elf' });
       const data = await PortraitParts.rasterize(svg);
       const img = new Image(); img.src = data; await img.decode();
