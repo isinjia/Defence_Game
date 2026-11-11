@@ -1087,3 +1087,5 @@ html body .ally.fig .order-tag { left: 50% !important; right: auto !important; t
 #stage svg.order-lines { z-index: 0 !important; }
 #stage #foes, #stage #allies, #stage .foes, #stage .allies { z-index: 1; }
 #stage .order-end { z-index: 6; }
+/* 사진형 원형 초상화도 얼굴을 살짝 위로 (js/portrait_lift.js 와 같은 요청) */
+.avatar-img img { object-position: 50% 24%; }
