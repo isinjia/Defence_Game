@@ -36,6 +36,7 @@ MAIN.ch(28, {
   goal: '강북 북쪽 봉쇄선 초소',
   scenes: [
     { id: 'c28_why', lines: [
+      { who: 'leader', when: (g) => F2_IN_CREW(g), text: LR({ haera: '봉쇄선 넘는다고? 우리 팀 계약서엔 북쪽이 없다. …계약서 다시 쓰자. 이번엔 "어디든"으로.', haeyo: '봉쇄선을 넘는다고요? 팀 계약서에 북쪽은 없어요. …다시 써요. 이번엔 "어디든"으로.', short: '계약서 다시 쓰자. 어디든.' }) },
       { narr: (g, M) => ({
         kama: '서윤이 해협 폭격을 사흘 늦췄다. 그 사흘 동안 할 일이 있다. 해협이 아니라 북쪽이다.',
         solo: '혼자 준비한 장비 목록 맨 아래에 한 줄을 더 적는다. "북쪽." 반쪽 원이 그쪽으로 기운 지 한 달째다.',
@@ -122,6 +123,7 @@ MAIN.ch(29, {
       { who: 'leader', text: (g, M) => g.mainReg({ haera: '…이 도시 사람들, 다 어디 갔을까. 이십 년 동안 생각 안 하고 살았다.', haeyo: '이 도시 사람들 다 어디 갔을까요. 이십 년 동안 생각 안 하고 살았네요.', short: '다 어디 갔을까.' }, g.mainWho('leader')),
         alt: (g, M) => (M.flags.leaderFate === 'dead' ? '모닥불 옆에 붕대 한 롤을 놓는다. 리더가 늘 이 자리에 앉았을 것이다.' : '모닥불이 탁탁 튄다. 혼자 듣는 소리다.') },
       { who: 'seoyun', when: (g, M) => SEO_ON5(M), text: '관리국 문서엔 이 도시가 "소개 완료"로 돼 있어요. 소개된 사람은 없어요. 처음부터.' },
+      { narr: '서점 창밖, 안개 사이로 다른 잔해 지점들이 보인다. 은행, 병원, 방송국. 내일 지도에 적어 둔다.' },
       { narr: (g, M) => ({ paper: '신문을 펴서 불빛에 비춰 본다. 사진 구석에 흰 가운 여자 하나. 이름표: 윤해람.', mourn: '눈을 감자 유모차 바퀴 소리가 들리는 것 같다.', roll: '출석부를 편다. 스물여덟 개 이름. 하나씩 소리 내 읽는다. 안개가 듣는다.' })[M.flags.c29] || '' },
     ], next: 'end' },
   ],
@@ -241,6 +243,11 @@ MAIN.ch(32, {
       { narr: (g, M) => (M.flags.straitStrong ? '해협이 이미 반쯤 열려 있다. 당신 없이 시작된 의식이 석 달째. 균열에서 번개가 아니라 노래가 흘러나온다.' : ({ active: '부산 앞바다. 재앙 경보. 해협의 균열이 수평선을 가른다. 그 위에 흰 배 수백 척이 원을 그린다.', player: '해협 균열은 한 번 눌러 놓았다. 그 상처 위에 흰 배들이 다시 원을 그린다.', npc: '다른 헌터들이 눌러 놓은 균열. 흰 배들이 그 위에 닻을 내렸다.', fail: '할퀴어진 해상 도시 외곽. 그 상처가 그대로 의식장이 됐다.', none: '해협 한가운데 흰 배들이 원을 그린다. 원 안쪽 바다가 천천히 내려앉는다.', watch: '해협 한가운데 흰 배들이 원을 그린다. 원 안쪽 바다가 천천히 내려앉는다.' })[CAL_OF(g, 'strait')] || '') },
       { narr: (g, M) => (M.flags.circuitCut ? '남쪽 하늘의 문이 지난달보다 흐리다. 관측소 회로를 끊은 뒤로.' : '남쪽 하늘의 문이 또렷하다. 북쪽 줄이 아직 살아 있다.') },
     ] },
+    { id: 'c32_eve', lines: [
+      { narr: (g, M) => ({ kama: '서윤에게 넘긴 의식 날짜. 그 날짜가 오늘이다. 관리국 함정들이 해협 바깥에 원을 그린다. 폭격 준비를 늦춰 둔 그 원.', solo: '혼자 준비한 날들. 장비 목록 맨 아래 "북쪽" 다음 줄에 오늘 적었다. "해협."', reply: '"해협에서 봅시다." 보낸 답장 아래, 읽음 표시 옆에 진서해의 마지막 문자. "자리 비워 뒀습니다."', missed: '해협 의식은 당신 없이 석 달을 이어 왔다. 부산 사람들은 이제 밤에도 노래를 듣는다.' })[(M.part4 && M.part4.plan) || M.flags.c27 || 'missed'] },
+      { narr: '부산 해상 도시 방파제. 흰 배들 위로 해협의 균열이 숨 쉬듯 열렸다 닫힌다. 그 박자가 보름 밤 강북 지하의 노래와 같다.', when: (g, M) => !!M.flags.straitRitual },
+      { who: 'leader', when: (g) => F2_IN_CREW(g), text: LR({ haera: '해협 한가운데다. 거기선 후퇴로가 없다. …그래서 내가 배를 몬다. 너는 앞만 봐.', haeyo: '해협 한가운데예요. 후퇴로가 없어요. …그래서 제가 배를 몰게요. 앞만 보세요.', short: '배는 내가 몬다. 앞만 봐.' }) },
+    ] },
     { id: 'c32_boat', lines: [
       { narr: (g, M) => (M.flags.rivalEnd === 'with' && M.flags.rivalPath === 'solo' ? '동기가 구한 낡은 배. 엔진이 세 번 만에 걸린다. "뜬다고 했지. 간다고는 안 했다."' : SEO_ON5(M) ? '서윤이 관리국 고속정을 끌고 왔다. "폭격 개시까지 네 시간. 그 안에 끝내요."' : '어부 하나가 배를 빌려준다. 돈은 받지 않는다. "그 초록 물고기, 우리 애가 무서워해요."') },
       { who: 'rival', when: (g, M) => M.flags.rivalEnd === 'with', text: (g, M) => RIVAL_LINE(g, M, { kama: '폭격 좌표에 우리 배가 들어가 있어. 위에선 알면서 그대로 뒀다. …나도 알면서 탔다.', cult: '사도 자리는 비우고 왔어. 선생님은 알 거야. 내가 어디 섰는지.', solo: '키는 내가 잡는다. 너는 앞만 봐.', alone: '배멀미 난다. 근데 안 내린다.', none: '간다.' }) },
@@ -294,6 +301,11 @@ MAIN.ch(33, {
       { narr: '갑판 아래에서 신도들이 올라온다. 흰 로브가 젖어 몸에 붙었다. 대부분 비각성자. 다들 진서해를 본다. 그다음 당신을 본다.' },
       { narr: (g, M) => (M.flags.kwon === 'alive' ? '그 사이에 지팡이 짚은 권만석. "이번엔 안 들어간다고 했는데… 하은이가 아빠 대신 내가 간다길래. 그래서 왔어요."' : M.flags.yeonhee && M.flags.yeonhee !== 'missing' ? '연희가 배 난간에 기대 있다. 컵라면 상자를 들고. "다들 굶었어. 의식하느라."' : '어린 신도 하나가 당신 소매를 잡는다. 아무 말 없이.') },
       { who: 'rival', when: (g, M) => M.flags.rivalEnd === 'with' && M.flags.rivalPath === 'cult', text: '…선생님. 저 여기 있어요. 사도 자리 비우고 왔어요. 죄송해요.' },
+    ] },
+    { id: 'c33_breath', lines: [
+      { narr: '진서해가 기침을 멈추고 바다를 본다. 한참 말이 없다. 당신도 말이 없다. 둘 사이로 흰 로브 한 장이 바람에 날아간다.' },
+      { narr: (g, M) => (M.flags.endSeed === 'open' ? '친구에게 했던 말이 떠오른다. "열 수도 있어." 이 사람 앞에서 그 말이 무겁다.' : M.flags.endSeed === 'bridge' ? '친구 옥상에서 했던 말. "닫지도 열지도 않는 길." 이 사람은 그 길을 생각해 본 적이 있을까.' : M.flags.endSeed === 'close' ? '친구에게 닫겠다고 했다. 이 사람 앞에서도 그 말을 할 수 있을까.' : '할 말을 고른다. 고르는 사이 해가 조금 기운다.') },
+      { who: JIN_FACE, when: (g, M) => M.flags.jinBond === 'near' || !!M.flags.apostle, text: '당신 옆자리가 아니라 제 옆자리를 비워 뒀다고 했죠. 사실은 반대였어요. 저는 당신 옆에 서고 싶었습니다. 심연의 사도라는 이름, 신도들이 붙였어요. 제가 아니라 당신한테.' },
     ] },
     { id: 'c33_last', lines: [
       { who: JIN_FACE, text: '마지막으로 하나만 말할게요. 문을 다 열면 모두 각성합니다. 그리고 절반이 죽어요. 저는 그걸 알았고, 신도들한텐 말 안 했습니다. 그게 제 죄예요. 문을 연 것보다 큰 죄.' },
@@ -380,6 +392,14 @@ MAIN.ch(34, {
       { text: '가장 믿는 한 사람과 간다', when: (g, M) => P5_ALLIES(g, M).length >= 1, set: { goWith: 'one' } },
       { text: '혼자 간다 — 아무도 문 앞에 세우지 않는다', set: { goWith: 'alone' } },
     ] },
+    { id: 'c34_farewell', lines: [
+      { narr: (g, M) => ({ all: '한 사람씩 손을 잡는다. 말은 짧다. 다 같이 갈 거니까.', one: '함께 가지 않을 사람들에게 하나씩 인사한다. 문간에서.', alone: '아무도 데려가지 않는다고 말하자 방이 조용해진다. 한 사람씩 문간에서 붙잡는다.' })[M.flags.goWith] },
+      { who: 'leader', when: (g, M) => M.flags.goWith !== 'all' && P5_ALLIES(g, M).includes('leader'), text: LR({ haera: '…알았다. 대신 무전기는 켜 둬라. 끝까지.', haeyo: '…알았어요. 대신 무전기는 켜 두세요. 끝까지.', short: '무전은 켜 둬.' }) },
+      { who: 'rival', when: (g, M) => M.flags.goWith !== 'all' && P5_ALLIES(g, M).includes('rival'), text: '치사하다. 끝까지 너 혼자 멋있으려고. …돌아와서 컵라면 사.' },
+      { who: 'seoyun', when: (g, M) => M.flags.goWith !== 'all' && P5_ALLIES(g, M).includes('seoyun'), text: '제주 봉쇄선 보급선 시간표예요. 가져가요. 저는 산 아래에서 기록할게요.' },
+      { who: 'friend', when: (g, M) => M.flags.goWith !== 'all' && P5_ALLIES(g, M).includes('friend'), text: '놀이터에서 기다릴게. 계속. 네가 내려올 때까지.' },
+      { who: GOJ, when: (g, M) => M.flags.goWith === 'alone' && M.flags.goJae === 'alive', text: '그 애한테 전해. 할아버지가 그날 손 못 잡아 줘서 미안하다고.' },
+    ] },
     { id: 'c34_night', lines: [
       { narr: (g, M) => ({ all: '밤이 깊도록 아무도 돌아가지 않는다. 누가 라면을 끓인다. 냄비 하나에 젓가락이 모자란다.', one: '다들 돌아가고 한 사람만 남는다. 둘이서 지도를 한 번 더 본다. 말은 별로 없다.', alone: '다들 돌아간다. 문 닫히는 소리가 하나씩. 마지막 사람이 문간에서 돌아본다. 아무 말도 하지 않는다.' })[M.flags.goWith] },
       { who: 'arin', text: (g, M) => (M.flags.goWith === 'alone' ? '혼자 오지 마. …아니, 와. 어떻게 오든.' : '많이 데려오네. 좋다. 문 앞이 이렇게 북적인 적은 없었어.') },
@@ -389,6 +409,7 @@ MAIN.ch(34, {
   done: (g, M) => {
     const allies = P5_ALLIES(g, M); M.flags.allies = M.flags.goWith === 'alone' ? [] : M.flags.goWith === 'one' ? allies.slice(0, 1) : allies;
     M.part5 = { north: M.flags.northWay || 'late', circuit: !!M.flags.circuitCut, arin: M.flags.arinAsk || 'none', promise: !!M.flags.arinPromise, strait: M.flags.fight_c32_lord === 'win' ? 'player' : (M.flags.straitStrong ? 'strong' : 'other'), jin: M.flags.jinFate || 'gone', go: M.flags.goWith || 'alone', allies: M.flags.allies.length };
+    if (M.flags.endSeed) g.rumor(`출정 전날 밤, ${g.player.name}이(가) "${({ close: '문을 닫겠다', open: '열 수도 있다', bridge: '잇는 길을 찾겠다' })[M.flags.endSeed] || '끝내겠다'}"고 말했다는 말이 돈다.`);
     g.lifeEvent(M.flags.goWith === 'alone' ? '제주로 가기 전날 밤, 모두를 돌려보냈다.' : `제주로 가기 전날 밤, ${M.flags.allies.length}명과 함께 가기로 했다.`);
   },
   expire: { months: 6, run: (g, M) => {
