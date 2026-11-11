@@ -381,16 +381,22 @@ const { chromium, devices } = require('playwright');
   });
   await step('괴수 다양성·도감 (주제별 괴수·유형 행동 → 도감 탭·상세·완성)', async () => {
     const r = await ev(() => {
-      const g = { id: 9, tier: 3, theme: '버려진 병원', elem: 'dark', variant: 'normal' };
+      if (MONSTERS.length < 230) return { err: '괴수 종류 부족 ' + MONSTERS.length };
+      const g = { id: 9, tier: 3, theme: '버려진 병원', elem: 'dark', variant: 'normal', x: G.player.x, y: G.player.y, region: G.player.region };
       const rooms = G.gateRooms(g); const types = new Set(rooms.flat().map((m) => m.mtype));
+      const names = rooms.flat().map((m) => (m._tpl || m.name.replace(/^(\[[^\]]*\]\s*)+/, '').replace(/^변종\s+/, '')));
+      const themed = names.filter((n) => (THEME_MONSTERS['버려진 병원'] || []).includes(n)).length;
+      G._monWorldGate = { theme: '해저 터널', region: 'busan', elem: 'water', x: G.player.x, y: G.player.y };
+      const coast = (typeof monPool === 'function' ? monPool(3, { theme: '해저 터널', elem: 'water' }) : []).slice(0, 8).map((m) => m.name);
+      G._monWorldGate = null;
       for (const room of rooms) { const cb = new Combat(G, { allies: [G.playerUnit()], enemies: room }); cb.runAll(); }
       G.dexKill('가시털 들개');
       UI.handle('sheet', 'dex'); const tab = !!document.querySelector('.sheet-head [data-v="dex"].on');
       UI.handle('dex-mon', '가시털 들개'); const detail = !!document.querySelector('.dex-head');
       UI.handle('dex-tab', 'sets'); UI.handle('dex-tab', 'named'); UI.closeModal();
-      return { types: types.size, tab, detail, dex: Object.keys(G.player.dex || {}).length };
+      return { types: types.size, tab, detail, dex: Object.keys(G.player.dex || {}).length, themed, coast: coast.length, n: MONSTERS.length };
     });
-    if (!r.types || !r.tab || !r.detail || !r.dex) throw new Error(JSON.stringify(r));
+    if (r.err || !r.types || !r.tab || !r.detail || !r.dex || r.n < 230 || !r.coast) throw new Error(JSON.stringify(r));
   });
   await step('전투 A-β: 연합 레이드 (소집 → 편성 → 전투 → 분배)', async () => {
     await closeAll(); await ev(() => { UI.ctx = null; });
