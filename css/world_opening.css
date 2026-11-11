@@ -32,9 +32,7 @@
 @keyframes opening-ether { 10% { opacity: .45; } 90% { opacity: .15; } to { transform: translate(var(--drift), -115vh); opacity: 0; } }
 @keyframes opening-hint { 0%, 15% { opacity: 0; } 30%, 75% { opacity: .8; } 100% { opacity: 0; } }
 @media (max-width: 640px) {
-  .opening-art { object-position: 61% center; }
-  .world-opening[data-shot="0"] .opening-art { object-position: 58% center; }
-  .world-opening[data-shot="3"] .opening-art { object-position: 77% center; }
+  .opening-art { object-position: var(--shot-focus, 61% center); }
   .opening-subtitles { left: 7%; right: 7%; bottom: 16%; }
   .opening-caption, .opening-caption-space { font-size: clamp(16px, 4.4vw, 21px); line-height: 1.95; letter-spacing: .03em; }
   .opening-letterbox { height: 7%; }
