@@ -475,10 +475,11 @@ if (typeof UI !== 'undefined' && UI.startGate) {
     return '산성 슬라임';
   };
   for (const m of MONSTERS) {
-    if (MONSTER_ART_DATA[m.name]) continue;
+    const cur = MONSTER_ART_DATA[m.name];
+    if (cur && !cur.file) continue; // 고유 원화 있음
     const src = pick(m);
     const base = MONSTER_ART_DATA[src] || { rev: '0', shape: m.shape, elem: m.elem, tier: m.tier };
-    MONSTER_ART_DATA[m.name] = { elem: m.elem, shape: m.shape, tier: m.tier, special: false, rev: base.rev, file: src };
+    if (!cur) MONSTER_ART_DATA[m.name] = { elem: m.elem, shape: m.shape, tier: m.tier, special: false, rev: base.rev, file: src };
   }
   if (typeof MON_TREASURE !== 'undefined' && MON_TREASURE && !MONSTER_ART_DATA[MON_TREASURE.name]) {
     MONSTER_ART_DATA[MON_TREASURE.name] = { elem: MON_TREASURE.elem, shape: MON_TREASURE.shape, tier: 0, special: false, rev: (MONSTER_ART_DATA['황금 코어 도마뱀'] || {}).rev || '0', file: '황금 코어 도마뱀' };

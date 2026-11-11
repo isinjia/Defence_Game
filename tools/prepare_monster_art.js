@@ -12,14 +12,16 @@ const cachePath = path.join(root, 'js/monster_art_data.js');
 const cached = fs.existsSync(cachePath) ? new Function(fs.readFileSync(cachePath, 'utf8') + ';return MONSTER_ART_DATA;')() : {};
 const data = new Function(fs.readFileSync(path.join(root, 'js/data.js'), 'utf8') + ';return MONSTERS;')();
 const extra = fs.readFileSync(path.join(root, 'js/monster_pack.js'), 'utf8').match(/const MON_NEW = (\[[\s\S]*?\n\]);/)[1];
-const templates = [...data, ...new Function('return ' + extra)(), { name: '황금 코어 도마뱀', elem: 'holy', shape: 'beast', tier: 0 }];
+const worldMatch = fs.readFileSync(path.join(root, 'js/monster_world.js'), 'utf8').match(/const MON_WORLD = (\[[\s\S]*?\n\]);/);
+const world = worldMatch ? new Function('return ' + worldMatch[1])() : [];
+const templates = [...data, ...new Function('return ' + extra)(), ...world, { name: '황금 코어 도마뱀', elem: 'holy', shape: 'beast', tier: 0 }];
 const special = {
   '심연의 군주': ['dark', 'lord'], '화산 군주': ['fire', 'beast'], '뇌운의 왕': ['bolt', 'drone'],
   '심해 포식자': ['water', 'slime'], '타락한 성기사': ['holy', 'eye'], '그림자 군주': ['dark', 'ghost'],
 };
 (async () => {
   for (const dir of ['thumb', 'web']) fs.mkdirSync(path.join(folder, dir), { recursive: true });
-  const records = {};
+  const records = { ...cached };
   for (const job of jobs) {
     const source = path.join(folder, 'original', job.name + '.png');
     if (!fs.existsSync(source)) { if (partial) continue; throw new Error('원본 없음: ' + job.name); }
