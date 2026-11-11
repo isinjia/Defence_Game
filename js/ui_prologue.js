@@ -50,6 +50,15 @@ Object.assign(UI, {
   proLeadElem() { const e = this.pro.sc.e; let best = null, bv = 0; for (const k of ELEMENT_KEYS) if ((e[k] || 0) > bv) { bv = e[k]; best = k; } return best; },
   // {name} {friend} {friendJob} 치환과 앞 선택 기억 {?플래그:있을 때|없을 때} / {?!플래그:없을 때|있을 때}
   proFill(t) { return fixJosa(proText(String(t), this.pro.flags || {}).replace(/\{name\}/g, this.pro.name).replace(/\{friend\}/g, this.pro.friend.name).replace(/\{friendJob\}/g, this.pro.friend.job || '')); },
+  // 프롤로그 본문: 기존 줄바꿈은 문단으로, 마침표·물음표·느낌표 뒤는 문장마다 줄바꿈 (사용자 요청)
+  proTextHtml(raw) {
+    const t = this.proFill(raw);
+    return String(t).split(/\n+/).map((para) => {
+      const p = para.trim(); if (!p) return '';
+      const lines = p.replace(/([.!?…]+)(["」』'”]*)(?=\s+)/g, '$1$2\n').split(/\n+/).map((s) => s.trim()).filter(Boolean);
+      return `<p>${lines.join('<br>')}</p>`;
+    }).join('');
+  },
   renderPrologue() {
     const s = this.pro; const sc = PROLOGUE[s.id]; s.flags = s.flags || {};
     if (!document.getElementById('pro-cv')) {
@@ -66,7 +75,7 @@ Object.assign(UI, {
     const el = document.getElementById('pro-scene');
     el.innerHTML = `<div class="eyebrow">${s.step === 0 ? `출신 · ${bg.name}` : `장면 ${s.step + 1}`}</div><h2>${this.proFill(sc.title)}</h2>
       ${s.step === 1 && s.introTitle ? `<p class="pro-gap dim small">— 「${s.introTitle}」 그 뒤 —${(() => { const ch = typeof PRO_HOOKS_CH !== 'undefined' && PRO_HOOKS_CH[s.introId + ':' + s.introPick]; const h = ch || (!/^(gb_|gate_break)/.test(s.id) && typeof PRO_HOOKS !== 'undefined' && PRO_HOOKS[s.introId]); return h ? `<br>${this.proFill(h)}` : ''; })()}</p>` : ''}
-      <div class="pro-text">${this.proFill(proSceneText(sc, s.flags)).split('\n').map((l) => (l ? `<p>${l}</p>` : '')).join('')}</div>
+      <div class="pro-text">${this.proTextHtml(proSceneText(sc, s.flags))}</div>
       <div class="cards pro-choices">${this.proShown(s.id).map((i) => `<button class="choice-btn" data-act="pro-choice" data-v="${i}">${this.proFill(sc.choices[i].text)}</button>`).join('')}</div>`;
     el.classList.remove('fade-in'); void el.offsetWidth; el.classList.add('fade-in');
     el.scrollTop = 0;

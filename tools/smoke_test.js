@@ -170,6 +170,18 @@ const { chromium, devices } = require('playwright');
     });
     if (!result) throw new Error('초상화 검사 실패');
   });
+  await step('프롤로그 본문: 마침표마다 문장 줄바꿈', async () => {
+    const ok = await ev(() => {
+      if (typeof UI.proTextHtml !== 'function') throw new Error('proTextHtml 없음');
+      UI.pro = UI.pro || { name: '점검', friend: { name: '친구', job: '학생' }, flags: {} };
+      const html = UI.proTextHtml('옆방 피험자 13번. 벽을 두드렸다. "같이 먹자." 그는 사라졌다.');
+      if ((html.match(/<br>/g) || []).length < 3) throw new Error('줄바꿈 수 부족: ' + html);
+      if (!/13번\.<br>벽을/.test(html)) throw new Error('마침표 뒤 줄바꿈 없음: ' + html);
+      if (/13번\.\s+벽을/.test(html)) throw new Error('같은 줄에 이어짐: ' + html);
+      return true;
+    });
+    if (!ok) throw new Error('검사 실패');
+  });
   await step('이야기로 시작 → 프롤로그 끝까지', async () => {
     await act('new'); await act('mode-story');
     await ev(() => { UI.pro.name = '점검'; }); await act('ps-start');
