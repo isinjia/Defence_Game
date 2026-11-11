@@ -12,7 +12,7 @@
         let el = document.querySelector('.hud-date');
         if (!el) { el = document.createElement('div'); el.className = 'hud-date'; tl.appendChild(el); }
         else if (!el.isConnected) tl.appendChild(el);
-        el.innerHTML = `<b class="num">${G.year}.${String(G.month).padStart(2, '0')}.${String(G.day || 1).padStart(2, '0')}</b><span class="${left <= 5 ? 'bad' : ''}">${G.ageYears()}세</span>`;
+        el.innerHTML = `<b class="num">${G.year}.${String(G.month).padStart(2, '0')}.${String(Math.max(1, Math.floor(G.day || 1))).padStart(2, '0')}</b><span class="${left <= 5 ? 'bad' : ''}">${G.ageYears()}세</span>`;
         el.title = G.fullDate();
       }
     } catch (e) { /* 무시 */ }
