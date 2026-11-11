@@ -1813,7 +1813,7 @@ const PortraitParts = (() => {
     const underwear = selection.outfit === 'underwear';
     const integrated = selection.stage !== 'child';
     const style = underwear ? -1 : Number(cloth.file.match(/cloth-[mf]-(\d+)/)[1]) % 6;
-    const pose = underwear ? 0 : female ? 0 : style === 0 ? 16 : 8;
+    const pose = underwear ? 0 : female ? 0 : style === 0 ? 28 : 8;
     const chin = female ? 261 : 251;
     const featureOffset = chin - (face.chinY || chin);
     const headY = integrated ? pose + featureOffset : pose;
@@ -1832,15 +1832,18 @@ const PortraitParts = (() => {
     const palette = { fair:[246,218,200], medium:[220,180,150], tan:[182,133,95], deep:[133,88,65] };
     const target = palette[selection.skinTone] || face.skinRgb || [230,195,180];
     // 피부 마스크 안의 색만 바꿔 흰자·입술·검은 선·속옷 색은 보존한다.
-    const skinImage = (part, name, attrs = '') => `<g${attrs}>${image(part, ` data-skin-source="${source(part)}" data-skin-mask="${root+part.skinMask}?v=8" data-skin-rgb="${part.skinRgb.join(',')}" data-skin-target="${target.join(',')}" data-skin-race="${selection.race}"${name === 'base' ? ` data-body-scale="${headScale}" data-body-pivot="${chin+24}"` : ''}`)}</g>`;
+    const skinImage = (part, name, attrs = '', feature = false) => `<g${attrs}>${image(part, ` data-skin-source="${source(part)}" data-skin-mask="${root+part.skinMask}?v=8" data-skin-rgb="${part.skinRgb.join(',')}" data-skin-target="${target.join(',')}" data-skin-race="${selection.race}"${feature ? ` data-face-feature="${female ? 'f' : 'm'}" data-feature-offset="${featureOffset}"` : ''}${name === 'base' ? ` data-body-scale="${headScale}" data-body-pivot="${chin+24}"` : ''}`)}</g>`;
     const fit = integrated ? { thin:.9, normal:1, strong:1.04, heavy:1.12 }[selection.bodyType] : 1;
     const garmentAttrs = fit === 1 ? '' : ` transform="translate(200 0) scale(${fit} 1) translate(-200 0)"`;
     const round = {3:[200,266,37,7],5:[200,264,36,7]};
     const collar = style === 0 ? (female ? [200,290,34,6] : [201,289,42,15]) : female ? round[style] : null;
     const opening = collar ? `M${collar[0]-collar[2]} 0H${collar[0]+collar[2]}V${collar[1]}A${collar[2]} ${collar[3]} 0 0 1 ${collar[0]-collar[2]} ${collar[1]}Z` : '';
     const collarDefs = collar ? `<clipPath id="${id}back"><path d="${opening}"/></clipPath><mask id="${id}front" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><rect width="400" height="600" fill="white"/><path d="${opening}" fill="black"/></mask>` : '';
+    // 닫힌 칼라는 기존 폭을 유지하고, 코트는 아래에서 실제 칼라 구멍으로 목을 연결한다.
     const neckWidth = {thin:52,normal:68,strong:76,heavy:92}[selection.bodyType];
-    const baseClips = `<clipPath id="${id}neck"><path d="M0 0H400V${chin+4}H${200+neckWidth/2}V330H${200-neckWidth/2}V${chin+4}H0Z"/></clipPath><clipPath id="${id}jaw"><rect width="400" height="${chin+24-22*headScale}"/></clipPath>`;
+    const neckPath = `M0 0H400V${chin+4}H${200+neckWidth/2}V330H${200-neckWidth/2}V${chin+4}H0Z`;
+    const neckClip = collar ? `<rect width="400" height="${chin+24-22*headScale}"/><path d="${opening}" transform="translate(0 ${-pose}) translate(200 0) scale(${fit} 1) translate(-200 0)"/>` : `<path d="${neckPath}"/>`;
+    const baseClips = `<clipPath id="${id}neck">${neckClip}</clipPath><clipPath id="${id}jaw"><rect width="400" height="${chin+24-22*headScale}"/></clipPath>`;
     const featureY = female ? 175 : 165;
     const features = `<radialGradient id="${id}features"><stop stop-color="white"/><stop offset=".9" stop-color="white"/><stop offset="1" stop-color="black"/></radialGradient><mask id="${id}featureMask" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><ellipse cx="200" cy="${featureY}" rx="62" ry="70" fill="url(#${id}features)"/></mask>`;
     const defs = `<defs>${baseClips}${features}${collarDefs}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><clipPath id="${id}circle"><circle cx="200" cy="${128+pose}" r="126"/></clipPath></defs>`;
@@ -1850,23 +1853,30 @@ const PortraitParts = (() => {
       : skinImage(face,'face',` data-depth="neck" transform="translate(0 ${pose})"`);
     const garment = underwear ? '' : image(cloth, ` data-depth="garment-front"${collar ? ` mask="url(#${id}front)"` : ''}${garmentAttrs}`);
     const rawForeground = integrated && !underwear ? skinImage(base,'base',` data-depth="head-front" transform="translate(0 ${pose})" clip-path="url(#${id}jaw)"`) : '';
-    const facial = integrated ? `<g data-join="features" transform="translate(0 ${pose})" mask="url(#${id}featureMask)">${skinImage(face,'face',` data-depth="face-features" transform="translate(0 ${featureOffset})"`)}</g>` : '';
+    const facial = integrated ? `<g data-join="features" transform="translate(0 ${pose})" mask="url(#${id}featureMask)">${skinImage(face,'face',` data-depth="face-features" transform="translate(0 ${featureOffset})"`, true)}</g>` : '';
     const accessories = selection.layers.slice(2);
     const glass = accessories.findIndex(p => p.file === 'traits-5.webp');
     const hair = accessories.findIndex(p => p.file.startsWith('hair-'));
     if (glass > hair && hair >= 0) accessories.splice(hair,0,accessories.splice(glass,1)[0]);
+    const hairPart = accessories.find(part => part.file.startsWith('hair-'));
+    const splitHair = integrated && female && hairPart;
+    const hairData = splitHair ? ` data-hair-source="${source(hairPart)}" data-hair-rect="${hairPart.rect.join(',')}" data-head-source="${source(base)}" data-head-chin="${chin}"` : '';
+    const rearHair = splitHair ? fitHead(image(hairPart, ` data-depth="hair-back" data-hair-layer="back" transform="translate(0 ${pose})"${hairData}`)) : '';
     const details = accessories.map(part => {
       const onFace = /traits-(3|5)\.webp/.test(part.file);
       const attrs = ` transform="translate(0 ${integrated && !onFace ? pose : headY})"`;
+      if (splitHair && part.file.startsWith('hair-')) {
+        return image(part, attrs + ` data-depth="hair-front" data-hair-layer="front"${hairData}`);
+      }
       return part.file === 'traits-0.webp' ? skinImage(part,'ear',attrs) : image(part,attrs);
     }).join('');
     const body = rawBody;
     const foreground = rawForeground;
     const head = fitHead(facial + details);
-    const layers = avatar ? `${body}${head}` : `${back}${body}${garment}${foreground}${head}`;
+    const layers = avatar ? `${rearHair}${body}${head}` : `${back}${rearHair}${body}${garment}${foreground}${head}`;
     const drawing = `<rect width="400" height="600" fill="#0a1220"/><ellipse cx="200" cy="190" rx="240" ry="300" fill="url(#${id}bg)"/>${layers}`;
     const art = avatar ? `<g clip-path="url(#${id}circle)">${drawing}</g><circle cx="200" cy="${128+pose}" r="125" fill="none" stroke="${ring}" stroke-width="4"/>` : drawing+`<rect x="1" y="1" width="398" height="${cardHeight-2}" fill="none" stroke="${ring}" stroke-width="2" opacity=".7"/>`;
-    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v11" data-head-scale="${headScale}" data-neck-pivot="${neckPivot}" data-head-offset="${headY}" data-base-offset="${pose}" data-outfit="${selection.outfit}" data-body-type="${selection.bodyType}" data-skin-tone="${selection.skinTone}" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size*cardHeight/400)}" viewBox="${view}" role="img" aria-label="${avatar ? '초상화' : '캐릭터 일러스트'}">${defs}${art}</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v12" data-head-scale="${headScale}" data-neck-pivot="${neckPivot}" data-head-offset="${headY}" data-base-offset="${pose}" data-outfit="${selection.outfit}" data-body-type="${selection.bodyType}" data-skin-tone="${selection.skinTone}" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size*cardHeight/400)}" viewBox="${view}" role="img" aria-label="${avatar ? '초상화' : '캐릭터 일러스트'}">${defs}${art}</svg>`;
   }
   PORTRAIT.card = function (seed, gender, element, rank, size = 200, opts = {}) {
     if (!opts.outfit && (!opts.race || opts.race === 'human') && PORTRAIT.imageFor(seed, gender)) return legacy.card.apply(this, arguments);
@@ -1887,7 +1897,7 @@ const PortraitParts = (() => {
   // 피부색과 몸 비율을 한 비트맵으로 계산한다. SVG 필터·분할 use의 타일 깨짐을 피한다.
   const skinBitmaps = new Map();
   const skinBitmap = node => {
-    const attrs = ['skinSource','skinMask','skinRgb','skinTarget','skinRace','bodyScale','bodyPivot'].map(k => node.dataset[k] || '');
+    const attrs = ['skinSource','skinMask','skinRgb','skinTarget','skinRace','bodyScale','bodyPivot','faceFeature','featureOffset'].map(k => node.dataset[k] || '');
     const key = attrs.join('|');
     if (skinBitmaps.has(key)) return skinBitmaps.get(key);
     const promise = (async () => {
@@ -1906,6 +1916,23 @@ const PortraitParts = (() => {
           tone=[.45*r+.2*g+.02,.2*r+.6*g+.1*b+.04,.1*r+.2*g+.25*b+.01].map(srgb);
         }
         for(let c=0;c<3;c++)pixels.data[k+c]=pixels.data[k+c]*(1-alpha)+tone[c]*alpha;
+      }
+      if(attrs[7]){
+        // 표정 파츠의 볼·턱 외곽선을 제외한다. 턱 윤곽은 통합 몸 원화 한 장만 사용한다.
+        const knots=[[105,26],[135,55],[170,55],[190,45],[210,35],[228,28],[240,18],[245,0]];
+        const shift=attrs[7]==='m'?10:0,offset=Number(attrs[8]);
+        for(let y=0;y<cv.height;y++){
+          const fy=55+y+offset+shift;
+          let half=0;
+          for(let i=1;i<knots.length;i++)if(fy>=knots[i-1][0]&&fy<=knots[i][0]){
+            const [y0,w0]=knots[i-1],[y1,w1]=knots[i];half=w0+(w1-w0)*(fy-y0)/(y1-y0);break;
+          }
+          const vertical=Math.max(0,Math.min(1,(fy-105)/8,(245-fy)/8));
+          for(let x=0;x<cv.width;x++){
+            const edge=Math.max(0,Math.min(1,(half-Math.abs(128+x-200))/6));
+            pixels.data[(y*cv.width+x)*4+3]*=edge*vertical;
+          }
+        }
       }
       ctx.putImageData(pixels,0,0);
       const scale=Number(attrs[5]||1),pivot=Number(attrs[6]||0);
@@ -1928,11 +1955,55 @@ const PortraitParts = (() => {
     if(skinBitmaps.size>=192)skinBitmaps.delete(skinBitmaps.keys().next().value);
     skinBitmaps.set(key,promise);promise.catch(()=>skinBitmaps.delete(key));return promise;
   };
+  const hairBitmaps = new Map();
+  const hairBitmap = node => {
+    const d=node.dataset, key=[d.hairSource,d.hairRect,d.headSource,d.headChin].join('|');
+    if(hairBitmaps.has(key))return hairBitmaps.get(key);
+    const promise=(async()=>{
+      const [hair,head]=await Promise.all([loadImage(d.hairSource),loadImage(d.headSource)]);
+      const cv=document.createElement('canvas');cv.width=400;cv.height=600;const ctx=cv.getContext('2d');
+      ctx.drawImage(head,0,0,400,600);const silhouette=ctx.getImageData(0,0,400,600).data;
+      ctx.clearRect(0,0,400,600);ctx.drawImage(hair,...d.hairRect.split(',').map(Number));const pixels=ctx.getImageData(0,0,400,600);
+      const chin=Number(d.headChin),back=ctx.createImageData(400,600);
+      let left=200,right=200;
+      for(let x=0;x<400;x++)if(silhouette[((chin+4)*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
+      const neckHalf=Math.max(20,(right-left)/2);
+      left=200;right=200;
+      for(let x=0;x<400;x++)if(silhouette[(220*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
+      const cheekHalf=Math.max(20,(right-left)/2)+2;
+      // 턱까지는 실제 머리 윤곽을 그대로 사용한다. 그 아래는 목 안쪽으로 좁혀 긴 머리가 가슴 앞으로 이어지게 한다.
+      for(let y=195;y<330;y++){
+        const t=Math.max(0,Math.min(1,(y-195)/5)),weight=t*t*(3-2*t);
+        const half=y<=220?cheekHalf:y<=chin+4?200:neckHalf*Math.max(0,(330-y)/(330-chin-4));
+        for(let x=0;x<400;x++){
+          const k=(y*400+x)*4,edge=Math.max(0,Math.min(1,half-Math.abs(x-200)+.5));
+          const cover=silhouette[k+3]>8?weight*edge:0;
+          if(!cover)continue;
+          for(let c=0;c<3;c++)back.data[k+c]=pixels.data[k+c];
+          back.data[k+3]=pixels.data[k+3]*cover;pixels.data[k+3]*=1-cover;
+        }
+      }
+      ctx.clearRect(0,0,400,600);ctx.putImageData(back,0,0);const rear=cv.toDataURL('image/png');
+      ctx.putImageData(pixels,0,0);return {front:cv.toDataURL('image/png'),back:rear};
+    })();
+    if(hairBitmaps.size>=96)hairBitmaps.delete(hairBitmaps.keys().next().value);
+    hairBitmaps.set(key,promise);promise.catch(()=>hairBitmaps.delete(key));return promise;
+  };
+  const setHairBitmap=(node,bitmaps)=>{
+    const src=bitmaps[node.dataset.hairLayer||'front'];
+    node.setAttribute('href',src);node.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',src);
+    for(const [name,value]of Object.entries({x:0,y:0,width:400,height:600}))node.setAttribute(name,value);
+    node.setAttribute('data-hair-ready','true');
+  };
+  const bakeHairs=async root=>Promise.all([...root.querySelectorAll('image[data-hair-source]')].map(async node=>setHairBitmap(node,await hairBitmap(node))));
   const bakeSkins = async root => Promise.all([...root.querySelectorAll('image[data-skin-source]')].map(async node => {
     const src=await skinBitmap(node);node.setAttribute('href',src);node.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',src);
   }));
   let scanQueued=false;
   new MutationObserver(()=>{if(scanQueued)return;scanQueued=true;queueMicrotask(()=>{scanQueued=false;
+    for(const node of document.querySelectorAll('image[data-hair-source]:not([data-hair-ready])')){
+      node.setAttribute('data-hair-ready','pending');hairBitmap(node).then(src=>setHairBitmap(node,src)).catch(()=>node.removeAttribute('data-hair-ready'));
+    }
     for(const node of document.querySelectorAll('image[data-skin-source]:not([data-skin-ready])')){
       node.setAttribute('data-skin-ready','pending');skinBitmap(node).then(src=>{node.setAttribute('href',src);node.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',src);node.setAttribute('data-skin-ready','true')}).catch(()=>node.removeAttribute('data-skin-ready'));
     }
@@ -1951,7 +2022,7 @@ const PortraitParts = (() => {
     if (cache.has(source)) return cache.get(source);
     const promise = (async () => {
       const doc = new DOMParser().parseFromString(source, 'image/svg+xml');
-      await bakeSkins(doc);
+      await Promise.all([bakeSkins(doc),bakeHairs(doc)]);
       await Promise.all([...doc.querySelectorAll('image')].map(async node => {
         const href = node.getAttribute('href');
         const data = href.startsWith('data:') ? href : await embed(href);

@@ -133,7 +133,7 @@ const { chromium, devices } = require('playwright');
         const frame = PortraitParts.select(glassesSeed, gender).layers.find(part => part.file === 'traits-5.webp').rect;
         if (frame[2] > 104 || frame[3] > 21 || Math.abs(frame[2] / frame[3] - 5) > .01) throw new Error('안경 비율 불일치');
         const doc = new DOMParser().parseFromString(PORTRAIT.card(glassesSeed, gender, null, 0), 'image/svg+xml');
-        const order = [...doc.querySelectorAll('image')].map(image => image.getAttribute('href'));
+        const order = [...doc.querySelectorAll('image')].filter(image => image.dataset.depth !== 'hair-back').map(image => image.getAttribute('href'));
         if (order.findIndex(url => url.includes('traits-5.webp')) > order.findIndex(url => url.includes('hair-'))) throw new Error('안경이 앞머리 위에 표시됨');
       }
       // 뒤깃 → 목 → 앞깃 → 턱: 실제 픽셀로 검증해 목구멍과 턱 잘림의 재발을 막는다.
@@ -192,6 +192,47 @@ const { chromium, devices } = require('playwright');
       return true;
     });
     if (!ok) throw new Error('검사 실패');
+  });
+  await step('턱·목 합성: 여성 헤어 20종·체형 4종과 남성 코트 목선', async () => {
+    await page.evaluate(async () => {
+      const read=async svg=>{
+        const source=await PortraitParts.rasterize(svg),doc=new DOMParser().parseFromString(decodeURIComponent(source.split(',').slice(1).join(',')),'image/svg+xml');
+        const im=new Image();im.src=source;await im.decode();const cv=document.createElement('canvas');cv.width=400;cv.height=480;const ctx=cv.getContext('2d');ctx.drawImage(im,0,0);
+        const body=new Image();body.src=doc.querySelector('image[data-body-scale]').getAttribute('href');await body.decode();const ref=document.createElement('canvas');ref.width=400;ref.height=600;const rc=ref.getContext('2d');rc.drawImage(body,0,0);
+        return{doc,ctx,rc};
+      };
+      let checked=0,points=0;
+      for(const bodyType of ['thin','normal','strong','heavy'])for(let hair=0;hair<20;hair++){
+        let seed;for(let i=0;i<20000;i++){const s='jaw-'+i,q=PortraitParts.select(s,'F');if(q.layers[0].file==='face-f-0.webp'&&q.layers[2].file==='hair-f-'+hair+'.webp'){seed=s;break;}}
+        if(!seed)throw Error('헤어 조합 없음');
+        const{ctx,rc}=await read(PORTRAIT.card(seed,'F',null,0,400,{bodyType,outfit:'underwear'}));
+        const scale={thin:.86,normal:.92,strong:.96,heavy:1}[bodyType];
+        // 통합 원화의 턱·목 바깥 윤곽을 찾아 합성 뒤에도 그대로 남는지 비교한다.
+        for(let rawY=230;rawY<=256;rawY+=3){const y=Math.round(285+(rawY-285)*scale);
+          for(const[from,to]of[[80,198],[202,320]]){
+            let pick;for(let x=from;x<=to;x++){const p=rc.getImageData(x,y,1,1).data;if(p[3]>250&&(pick==null||(to<200?x<pick:x>pick)))pick=x;}
+            if(pick==null)continue;
+            const a=rc.getImageData(pick,y,1,1).data,b=ctx.getImageData(pick,y,1,1).data;
+            if([0,1,2].some(c=>Math.abs(a[c]-b[c])>7))throw Error('머리카락·얼굴이 턱 윤곽을 덮음: '+bodyType+' hair='+hair+' xy='+[pick,y]+' '+[...a]+'/'+[...b]);points++;
+          }
+        }checked++;
+      }
+      if(checked!==80||points<100)throw Error('턱 윤곽 검증 표본 부족');
+      for(const bodyType of ['thin','normal','strong','heavy']){
+        let seed;for(let i=0;i<2000;i++){const s='coat-join-'+i,q=PortraitParts.select(s,'M',{outfit:'coat'});if(q.layers[2].file==='hair-m-1.webp'&&!q.layers.some(p=>p.file==='traits-5.webp')){seed=s;break;}}
+        const{ctx,rc,doc}=await read(PORTRAIT.card(seed,'M',null,0,400,{bodyType,outfit:'coat'}));const pose=Number(doc.documentElement.dataset.baseOffset);
+        let count=0;
+        for(let y=284;y<=288;y++)for(let x=169;x<=231;x++){
+          const a=rc.getImageData(x,y-pose,1,1).data,b=ctx.getImageData(x,y,1,1).data;
+          if(a[3]<248)continue;
+          if([0,1,2].some(c=>Math.abs(a[c]-b[c])>5))throw Error('코트 안쪽 목 피부가 직각으로 잘림: '+bodyType+' '+[x,y]+' '+[...a]+'/'+[...b]);count++;
+        }
+        if(count<20)throw Error('목선 검증 표본 부족');
+        let jawY=0,best=Infinity;for(let y=265;y<=287;y++){const p=ctx.getImageData(200,y,1,1).data,s=p[0]+p[1]+p[2];if(s<best){best=s;jawY=y;}}
+        let collarY=0;for(let y=jawY+2;y<315;y++)if(ctx.getImageData(200,y,1,1).data[0]<80){collarY=y;break;}
+        if(!collarY||collarY-jawY>28)throw Error('남성 코트 목 노출이 과함: '+bodyType+' '+[jawY,collarY]);
+      }
+    });
   });
   await step('기본 몸체: 얼굴 20종 피부색·한 장의 턱·목·어깨·얼굴 특징 교체', async () => {
     await page.evaluate(async () => {
@@ -461,7 +502,7 @@ const { chromium, devices } = require('playwright');
           const src = await PortraitParts.rasterize(PORTRAIT.card(seed, gender, null, 0, 400, { outfit: 'coat' }));
           const image = new Image(); image.src = src; await image.decode();
           const cv = document.createElement('canvas'); cv.width = 400; cv.height = 480; const ctx = cv.getContext('2d'); ctx.drawImage(image, 0, 0);
-          const neck = ctx.getImageData(200, 280, 1, 1).data, front = ctx.getImageData(200, 310, 1, 1).data;
+          const neck = ctx.getImageData(200, gender === 'M' ? 288 : 280, 1, 1).data, front = ctx.getImageData(200, 310, 1, 1).data;
           if (neck[0] < 100 || neck[1] < 65 || front[0] > 100) throw new Error('코트 안쪽 목선 깊이 오류: ' + gender);
         }
       } finally { p.cls = original.cls; p.equip = original.equip; p.inventory = original.inventory; G.recalc(); p.hp = original.hp; p.mp = original.mp; p.bodyType = original.bodyType; p.skinTone = original.skinTone; G.save(); UI.renderGame(); }
