@@ -16,7 +16,8 @@ const PortraitParts = (() => {
         197.0,
         178.0
       ],
-      "chinY": 251
+      "chinY": 251,
+      "skinMask": "face-m-0-skin.webp"
     },
     {
       "file": "face-m-1.webp",
@@ -31,7 +32,8 @@ const PortraitParts = (() => {
         194.0,
         174.0
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-1-skin.webp"
     },
     {
       "file": "face-m-2.webp",
@@ -46,7 +48,8 @@ const PortraitParts = (() => {
         192.0,
         171.0
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-2-skin.webp"
     },
     {
       "file": "face-m-3.webp",
@@ -61,7 +64,8 @@ const PortraitParts = (() => {
         194.5,
         169.0
       ],
-      "chinY": 246
+      "chinY": 246,
+      "skinMask": "face-m-3-skin.webp"
     },
     {
       "file": "face-m-4.webp",
@@ -76,7 +80,8 @@ const PortraitParts = (() => {
         198.0,
         173.0
       ],
-      "chinY": 250
+      "chinY": 250,
+      "skinMask": "face-m-4-skin.webp"
     },
     {
       "file": "face-m-5.webp",
@@ -91,7 +96,8 @@ const PortraitParts = (() => {
         201.0,
         168.5
       ],
-      "chinY": 251
+      "chinY": 251,
+      "skinMask": "face-m-5-skin.webp"
     },
     {
       "file": "face-m-6.webp",
@@ -106,7 +112,8 @@ const PortraitParts = (() => {
         189.0,
         155.0
       ],
-      "chinY": 250
+      "chinY": 250,
+      "skinMask": "face-m-6-skin.webp"
     },
     {
       "file": "face-m-7.webp",
@@ -121,7 +128,8 @@ const PortraitParts = (() => {
         197.5,
         195.0
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-7-skin.webp"
     },
     {
       "file": "face-m-8.webp",
@@ -136,7 +144,8 @@ const PortraitParts = (() => {
         195.5,
         192.0
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-8-skin.webp"
     },
     {
       "file": "face-m-9.webp",
@@ -151,7 +160,8 @@ const PortraitParts = (() => {
         206.5,
         152.0
       ],
-      "chinY": 246
+      "chinY": 246,
+      "skinMask": "face-m-9-skin.webp"
     },
     {
       "file": "face-m-10.webp",
@@ -166,7 +176,8 @@ const PortraitParts = (() => {
         160.0,
         139.5
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-10-skin.webp"
     },
     {
       "file": "face-m-11.webp",
@@ -181,7 +192,8 @@ const PortraitParts = (() => {
         159.0,
         137.0
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-11-skin.webp"
     },
     {
       "file": "face-m-12.webp",
@@ -196,7 +208,8 @@ const PortraitParts = (() => {
         223.5,
         196.0
       ],
-      "chinY": 250
+      "chinY": 250,
+      "skinMask": "face-m-12-skin.webp"
     },
     {
       "file": "face-m-13.webp",
@@ -211,7 +224,8 @@ const PortraitParts = (() => {
         222.0,
         199.0
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-13-skin.webp"
     },
     {
       "file": "face-m-14.webp",
@@ -226,7 +240,8 @@ const PortraitParts = (() => {
         221.0,
         196.0
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-14-skin.webp"
     },
     {
       "file": "face-m-15.webp",
@@ -241,7 +256,8 @@ const PortraitParts = (() => {
         198.0,
         178.5
       ],
-      "chinY": 247
+      "chinY": 247,
+      "skinMask": "face-m-15-skin.webp"
     },
     {
       "file": "face-m-16.webp",
@@ -256,7 +272,8 @@ const PortraitParts = (() => {
         199.0,
         168.0
       ],
-      "chinY": 247
+      "chinY": 247,
+      "skinMask": "face-m-16-skin.webp"
     },
     {
       "file": "face-m-17.webp",
@@ -271,7 +288,8 @@ const PortraitParts = (() => {
         223.5,
         201.5
       ],
-      "chinY": 247
+      "chinY": 247,
+      "skinMask": "face-m-17-skin.webp"
     }
   ],
   "face-f": [
@@ -288,7 +306,8 @@ const PortraitParts = (() => {
         195.0,
         186.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-0-skin.webp"
     },
     {
       "file": "face-f-1.webp",
@@ -303,7 +322,8 @@ const PortraitParts = (() => {
         194.0,
         184.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-1-skin.webp"
     },
     {
       "file": "face-f-2.webp",
@@ -318,7 +338,8 @@ const PortraitParts = (() => {
         194.0,
         184.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-2-skin.webp"
     },
     {
       "file": "face-f-3.webp",
@@ -333,7 +354,8 @@ const PortraitParts = (() => {
         191.0,
         167.0
       ],
-      "chinY": 239
+      "chinY": 239,
+      "skinMask": "face-f-3-skin.webp"
     },
     {
       "file": "face-f-4.webp",
@@ -348,7 +370,8 @@ const PortraitParts = (() => {
         205.0,
         185.0
       ],
-      "chinY": 242
+      "chinY": 242,
+      "skinMask": "face-f-4-skin.webp"
     },
     {
       "file": "face-f-5.webp",
@@ -363,7 +386,8 @@ const PortraitParts = (() => {
         199.0,
         176.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-5-skin.webp"
     },
     {
       "file": "face-f-6.webp",
@@ -378,7 +402,8 @@ const PortraitParts = (() => {
         199.0,
         183.5
       ],
-      "chinY": 264
+      "chinY": 264,
+      "skinMask": "face-f-6-skin.webp"
     },
     {
       "file": "face-f-7.webp",
@@ -393,7 +418,8 @@ const PortraitParts = (() => {
         197.0,
         207.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-7-skin.webp"
     },
     {
       "file": "face-f-8.webp",
@@ -408,7 +434,8 @@ const PortraitParts = (() => {
         197.0,
         207.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-8-skin.webp"
     },
     {
       "file": "face-f-9.webp",
@@ -423,7 +450,8 @@ const PortraitParts = (() => {
         191.5,
         184.0
       ],
-      "chinY": 239
+      "chinY": 239,
+      "skinMask": "face-f-9-skin.webp"
     },
     {
       "file": "face-f-10.webp",
@@ -438,7 +466,8 @@ const PortraitParts = (() => {
         161.0,
         148.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-10-skin.webp"
     },
     {
       "file": "face-f-11.webp",
@@ -453,7 +482,8 @@ const PortraitParts = (() => {
         161.0,
         148.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-11-skin.webp"
     },
     {
       "file": "face-f-12.webp",
@@ -468,7 +498,8 @@ const PortraitParts = (() => {
         169.0,
         148.0
       ],
-      "chinY": 242
+      "chinY": 242,
+      "skinMask": "face-f-12-skin.webp"
     },
     {
       "file": "face-f-13.webp",
@@ -483,7 +514,8 @@ const PortraitParts = (() => {
         222.0,
         210.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-13-skin.webp"
     },
     {
       "file": "face-f-14.webp",
@@ -498,7 +530,8 @@ const PortraitParts = (() => {
         221.5,
         210.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-14-skin.webp"
     },
     {
       "file": "face-f-15.webp",
@@ -513,7 +546,8 @@ const PortraitParts = (() => {
         194.0,
         183.0
       ],
-      "chinY": 258
+      "chinY": 258,
+      "skinMask": "face-f-15-skin.webp"
     },
     {
       "file": "face-f-16.webp",
@@ -528,7 +562,8 @@ const PortraitParts = (() => {
         195.0,
         172.0
       ],
-      "chinY": 259
+      "chinY": 259,
+      "skinMask": "face-f-16-skin.webp"
     },
     {
       "file": "face-f-17.webp",
@@ -543,7 +578,8 @@ const PortraitParts = (() => {
         220.0,
         207.0
       ],
-      "chinY": 258
+      "chinY": 258,
+      "skinMask": "face-f-17-skin.webp"
     }
   ],
   "hair-m": [
@@ -1462,7 +1498,13 @@ const PortraitParts = (() => {
         162,
         218,
         66
-      ]
+      ],
+      "skinRgb": [
+        196.0,
+        166.0,
+        153.0
+      ],
+      "skinMask": "traits-0-skin.webp"
     },
     {
       "file": "traits-1.webp",
@@ -1512,17 +1554,91 @@ const PortraitParts = (() => {
   ],
   "body-m": [
     {
+      "file": "body-m-normal.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "bodyType": "normal",
+      "skinMask": "body-m-normal-skin.webp",
+      "skinSample": [
+        80,
+        310,
+        8,
+        8
+      ],
+      "skinRgb": [
+        221.0,
+        187.0,
+        173.0
+      ]
+    },
+    {
+      "file": "body-m-thin.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "bodyType": "thin",
+      "skinMask": "body-m-thin-skin.webp",
+      "skinSample": [
+        76,
+        310,
+        8,
+        8
+      ],
+      "skinRgb": [
+        223.0,
+        189.0,
+        176.0
+      ]
+    },
+    {
       "file": "body-m.webp",
       "rect": [
         0,
         0,
         400,
-        900
+        600
+      ],
+      "bodyType": "strong",
+      "skinMask": "body-m-skin.webp",
+      "skinSample": [
+        284,
+        310,
+        8,
+        8
       ],
       "skinRgb": [
-        220.0,
-        188.0,
-        162.0
+        226.0,
+        190.0,
+        175.0
+      ]
+    },
+    {
+      "file": "body-m-heavy.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "bodyType": "heavy",
+      "skinMask": "body-m-heavy-skin.webp",
+      "skinSample": [
+        72,
+        310,
+        8,
+        8
+      ],
+      "skinRgb": [
+        221.0,
+        189.0,
+        177.0
       ]
     }
   ],
@@ -1533,12 +1649,86 @@ const PortraitParts = (() => {
         0,
         0,
         400,
-        900
+        600
+      ],
+      "bodyType": "normal",
+      "skinMask": "body-f-skin.webp",
+      "skinSample": [
+        288,
+        310,
+        8,
+        8
       ],
       "skinRgb": [
-        230.0,
-        198.0,
-        184.0
+        219.0,
+        189.0,
+        181.0
+      ]
+    },
+    {
+      "file": "body-f-thin.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "bodyType": "thin",
+      "skinMask": "body-f-thin-skin.webp",
+      "skinSample": [
+        272,
+        314,
+        8,
+        8
+      ],
+      "skinRgb": [
+        220.0,
+        191.0,
+        183.0
+      ]
+    },
+    {
+      "file": "body-f-strong.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "bodyType": "strong",
+      "skinMask": "body-f-strong-skin.webp",
+      "skinSample": [
+        300,
+        338,
+        8,
+        8
+      ],
+      "skinRgb": [
+        220.0,
+        190.0,
+        183.0
+      ]
+    },
+    {
+      "file": "body-f-heavy.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "bodyType": "heavy",
+      "skinMask": "body-f-heavy-skin.webp",
+      "skinSample": [
+        88,
+        310,
+        8,
+        8
+      ],
+      "skinRgb": [
+        218.0,
+        187.0,
+        181.0
       ]
     }
   ]
@@ -1580,7 +1770,11 @@ const PortraitParts = (() => {
     cloth = Math.min(cloth, cloths.length - 1);
     const race = ['human', 'elf', 'orc', 'dwarf', 'beastkin', 'dragonkin'].includes(opts.race) ? opts.race : 'human';
     const underwear = !young && opts.outfit === 'underwear';
-    const layers = [faces[face], underwear ? parts['body-' + g][0] : cloths[cloth], hairs[hair]];
+    const bodyType = ['thin','normal','strong','heavy'].includes(opts.bodyType) ? opts.bodyType : 'normal';
+    const skinTone = ['natural','fair','medium','tan','deep'].includes(opts.skinTone) ? opts.skinTone : 'natural';
+    const bodyIndex = { normal:0, thin:1, strong:2, heavy:3 }[bodyType];
+    const baseBody = parts['body-' + g][bodyIndex] || parts['body-' + g][0];
+    const layers = [faces[face], underwear ? baseBody : cloths[cloth], hairs[hair]];
     const trait = { elf: 0, beastkin: 1, dragonkin: 2, orc: 3, dwarf: 4 }[race];
     if (trait != null && !(race === 'dwarf' && (young || g === 'f'))) layers.push(parts.traits[trait]);
     if (!young && race === 'human' && (hash >>> 12) % 7 === 0) layers.push(parts.traits[5]);
@@ -1604,7 +1798,7 @@ const PortraitParts = (() => {
       }
       return { ...part, rect };
     });
-    return { layers: registered, race, stage, outfit: underwear ? 'underwear' : Object.keys(outfits)[cloth % 6], key: [g, face, hair, underwear ? 'underwear' : cloth, race].join('-') };
+    return { layers: registered, race, stage, bodyType, skinTone, baseBody, outfit: underwear ? 'underwear' : Object.keys(outfits)[cloth % 6], key: [g, face, hair, underwear ? 'underwear' : cloth, race, bodyType, skinTone].join('-') };
   }
   function svg(seed, gender, element, rankIdx, size, opts, avatar) {
     const selection = select(seed, gender, opts);
@@ -1612,63 +1806,63 @@ const PortraitParts = (() => {
     const ring = RANKS[rank].color;
     const aura = ELEMENTS[element] ? elemColor(element) : '#46e0d0';
     const id = 'pp' + FX.hash(selection.key + element + rank + avatar);
-    const female = selection.layers[0].file.startsWith('face-f');
-    const clothStyle = selection.layers[1].file.startsWith('cloth-') ? Number(selection.layers[1].file.match(/cloth-[mf]-(\d+)/)[1]) % 6 : -1;
-    // 남성은 눈·머리·귀를 함께 내려 목 노출만 줄인다. 얼굴 파츠 비율은 바꾸지 않는다.
-    const underwear = selection.layers[1].file.startsWith('body-');
-    // 기본 몸체의 목만 남기고 턱을 그 목 위로 내린다. 얼굴 파츠의 목은 겹치지 않는다.
-    const chinAnchor = selection.layers[0].chinY || (female ? 261 : 251);
-    const headY = underwear ? (female ? 303 : 295) - chinAnchor : female ? 0 : clothStyle === 0 ? 16 : 8;
-    const headTransform = ` transform="translate(0 ${headY})"`;
-    const cardHeight = 480;
-    const cropY = underwear ? 40 : 0;
-    const view = avatar ? `72 ${headY} 256 256` : `0 ${cropY} 400 ${cardHeight}`;
-    const face = selection.layers[0], cloth = selection.layers[1];
-    const source = part => root + part.file + (part.file === 'body-m.webp' ? '?v=5' : '?v=4');
-    const faceFilter = selection.race === 'orc' ? ` filter="url(#${id}orc)"` : '';
-    const image = (part, attributes = '') => {
-      const [x, y, w, h] = part.rect, src = source(part);
-      return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${attributes}/>`;
+    const face = selection.layers[0], cloth = selection.layers[1], base = selection.baseBody;
+    const female = face.file.startsWith('face-f');
+    const underwear = selection.outfit === 'underwear';
+    const integrated = selection.stage !== 'child';
+    const style = underwear ? -1 : Number(cloth.file.match(/cloth-[mf]-(\d+)/)[1]) % 6;
+    const pose = underwear ? 0 : female ? 0 : style === 0 ? 16 : 8;
+    const chin = female ? 261 : 251;
+    const featureOffset = chin - (face.chinY || chin);
+    const headY = integrated ? pose + featureOffset : pose;
+    const cardHeight = underwear ? 440 : 480;
+    const view = avatar ? `72 ${pose} 256 256` : `0 0 400 ${cardHeight}`;
+    const source = part => root + part.file + '?v=7';
+    const image = (part, attrs = '') => {
+      const [x,y,w,h] = part.rect, src = source(part);
+      return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${attrs}/>`;
     };
-    // 검게 채워져 있는 원통형 목구멍은 의상 그림을 앞·뒤로 나눠 목을 사이에 끼운다.
-    // 남성 전술복은 이미 열린 U 목선이므로 기존 앞깃 투명 영역을 그대로 사용한다.
-    // 색 변형도 같은 스타일의 목선과 뒤깃을 쓴다.
-    const roundCollarStyles = { 3: [200, 266, 37, 7], 5: [200, 264, 36, 7] };
-    const collar = clothStyle === 0 ? (female ? [200, 290, 34, 6] : [201, 289, 42, 15]) : female ? roundCollarStyles[clothStyle] : null;
+    const palette = { fair:[246,218,200], medium:[220,180,150], tan:[182,133,95], deep:[133,88,65] };
+    const target = palette[selection.skinTone] || face.skinRgb || [230,195,180];
+    const orc = '.45 .2 0 0 .02 .2 .6 .1 0 .04 .1 .2 .25 0 .01 0 0 0 1 0';
+    const toneDefs = (part, name) => {
+      const gain = target.map((v,i) => v / (part.skinRgb || target)[i]);
+      return `<filter id="${id}${name}Tone" color-interpolation-filters="sRGB"><feComponentTransfer>${['R','G','B'].map((c,i) => `<feFunc${c} type="linear" slope="${gain[i]}"/>`).join('')}</feComponentTransfer>${selection.race === 'orc' ? `<feColorMatrix color-interpolation-filters="linearRGB" type="matrix" values="${orc}"/>` : ''}</filter><mask id="${id}${name}Skin" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600">${image({file:part.skinMask,rect:part.rect})}</mask>`;
+    };
+    // 피부 마스크 안의 색만 바꿔 흰자·입술·검은 선·속옷 색은 보존한다.
+    const skinImage = (part, name, attrs = '') => `<g${attrs}>${image(part)}${image(part, ` filter="url(#${id}${name}Tone)" mask="url(#${id}${name}Skin)"`)}</g>`;
+    const fit = integrated ? { thin:.9, normal:1, strong:1.04, heavy:1.12 }[selection.bodyType] : 1;
+    const garmentAttrs = fit === 1 ? '' : ` transform="translate(200 0) scale(${fit} 1) translate(-200 0)"`;
+    const round = {3:[200,266,37,7],5:[200,264,36,7]};
+    const collar = style === 0 ? (female ? [200,290,34,6] : [201,289,42,15]) : female ? round[style] : null;
     const opening = collar ? `M${collar[0]-collar[2]} 0H${collar[0]+collar[2]}V${collar[1]}A${collar[2]} ${collar[3]} 0 0 1 ${collar[0]-collar[2]} ${collar[1]}Z` : '';
-    const collarDefs = collar ? `<clipPath id="${id}collarBack" clipPathUnits="userSpaceOnUse"><path d="${opening}"/></clipPath><mask id="${id}collarFront" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><rect width="400" height="600" fill="white"/><path d="${opening}" fill="black"/></mask>` : '';
-    const neck = clothStyle === 4 ? [155, 245] : [166, 234];
-    const jawY = female ? 210 : 200;
-    const faceIndex = Number(face.file.match(/-(\d+)\.webp/)[1]);
-    const chinKey = faceIndex >= FACE_ADULT ? 5 : faceIndex % 3;
-    const chinY = underwear ? chinAnchor : (female ? [261,261,261,261,260,258] : [251,252,252,254,254,247])[chinKey];
-    const chinOffset = chinY - (female ? 261 : 251);
-    const headRows = (female
-      ? [[200,147,253],[210,150,250],[220,154,246],[230,160,240],[240,168,232],[250,177,224],[258,189,211],[261,196,204],[263,199,201]]
-      : [[190,147,253],[200,149,251],[210,152,248],[220,158,242],[230,167,234],[240,177,224],[248,187,214],[251,195,207],[253,199,201]]).map(([y,l,r]) => [y + chinOffset, l, r]);
-    const headOutline = `M0 0H400V${headRows[0][0]}L` + headRows.map(([y,l,r]) => `${r} ${y}`).join('L') + 'L' + headRows.slice().reverse().map(([y,l,r]) => `${l} ${y}`).join('L') + `H0Z`;
-    // 각 얼굴의 실제 볼 피부색에 몸의 중간색을 맞춘다. 명암은 그대로 유지한다.
-    const skinGain = underwear ? (face.skinRgb || [230, 195, 180]).map((value, i) => value / (cloth.skinRgb || [230, 195, 180])[i]) : [];
-    const orcMatrix = '.45 .2 0 0 .02 .2 .6 .1 0 .04 .1 .2 .25 0 .01 0 0 0 1 0';
-    const bodyTone = underwear ? `<filter id="${id}bodyTone" color-interpolation-filters="sRGB"><feComponentTransfer>${['R','G','B'].map((channel, i) => `<feFunc${channel} type="linear" slope="${skinGain[i]}"/>`).join('')}</feComponentTransfer>${selection.race === 'orc' ? `<feColorMatrix color-interpolation-filters="linearRGB" type="matrix" values="${orcMatrix}"/>` : ''}</filter>` : '';
-    const bodyNeckClip = underwear ? `<clipPath id="${id}bodyNeck" clipPathUnits="userSpaceOnUse"><path d="M0 900V310H140L172 295L182 270H218L228 295L260 310H400V900Z"/></clipPath>` : '';
-    const background = `<defs>${collarDefs}${bodyTone}${bodyNeckClip}<clipPath id="${id}head" clipPathUnits="userSpaceOnUse"><path d="${headOutline}"/></clipPath><clipPath id="${id}neck"><path d="M0 0H400V${jawY}H252L247 ${jawY + 15}L234 ${jawY + 30}V255L${neck[1]} 286V325H${neck[0]}V286L166 255V${jawY + 30}L153 ${jawY + 15}L148 ${jawY}H0Z"/></clipPath><radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><filter id="${id}orc"><feColorMatrix type="matrix" values=".45 .2 0 0 .02 .2 .6 .1 0 .04 .1 .2 .25 0 .01 0 0 0 1 0"/></filter><clipPath id="${id}clip"><circle cx="200" cy="${128 + headY}" r="126"/></clipPath></defs>`;
-    const robeNeck = !avatar && clothStyle === 1
-      ? `<svg x="164" y="275" width="72" height="60" viewBox="36 220 72 20" preserveAspectRatio="none" aria-hidden="true"><image href="${source(face)}" xlink:href="${source(face)}" width="144" height="250"${faceFilter}/></svg>` : '';
-    const backCollar = collar ? image(cloth, ` data-depth="collar-back" clip-path="url(#${id}collarBack)"`) : '';
-    // 원본 얼굴·목을 먼저 놓고, 의상 앞깃 다음에 얼굴 윤곽을 다시 얹어 턱이 잘리지 않게 한다.
-    const neckPlane = underwear ? '' : image(face, ` data-depth="neck"${headTransform}${faceFilter} clip-path="url(#${id}neck)"`);
-    const bodyPlane = underwear ? image(cloth, ` data-depth="underwear" filter="url(#${id}bodyTone)" clip-path="url(#${id}bodyNeck)"`) : '';
-    const clothPlane = underwear ? '' : image(cloth, ` data-depth="garment-front"${collar ? ` mask="url(#${id}collarFront)"` : ''}`);
-    const headPlane = image(face, ` data-depth="head-front"${headTransform}${faceFilter} clip-path="url(#${id}head)"`);
+    const collarDefs = collar ? `<clipPath id="${id}back"><path d="${opening}"/></clipPath><mask id="${id}front" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><rect width="400" height="600" fill="white"/><path d="${opening}" fill="black"/></mask>` : '';
+    const neckWidth = {thin:52,normal:68,strong:76,heavy:92}[selection.bodyType];
+    const baseClips = `<clipPath id="${id}neck"><path d="M0 0H400V${chin+4}H${200+neckWidth/2}V330H${200-neckWidth/2}V${chin+4}H0Z"/></clipPath><clipPath id="${id}jaw"><rect width="400" height="${chin+2}"/></clipPath>`;
+    const featureY = female ? 175 : 165;
+    const features = `<radialGradient id="${id}features"><stop stop-color="white"/><stop offset=".9" stop-color="white"/><stop offset="1" stop-color="black"/></radialGradient><mask id="${id}featureMask" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><ellipse cx="200" cy="${featureY}" rx="62" ry="70" fill="url(#${id}features)"/></mask>`;
+    const ear = selection.layers.find(p => p.file === 'traits-0.webp');
+    const defs = `<defs>${ear ? toneDefs(ear,'ear') : ''}${toneDefs(face,'face')}${integrated ? toneDefs(base,'base') : ''}${baseClips}${features}${collarDefs}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><clipPath id="${id}circle"><circle cx="200" cy="${128+pose}" r="126"/></clipPath></defs>`;
+    const back = collar ? image(cloth, ` data-depth="collar-back" clip-path="url(#${id}back)"${garmentAttrs}`) : '';
+    const body = integrated
+      ? skinImage(base,'base', ` data-depth="${underwear ? 'underwear' : 'neck'}" transform="translate(0 ${pose})"${underwear ? '' : ` clip-path="url(#${id}neck)"`}`)
+      : skinImage(face,'face',` data-depth="neck" transform="translate(0 ${pose})"`);
+    const garment = underwear ? '' : image(cloth, ` data-depth="garment-front"${collar ? ` mask="url(#${id}front)"` : ''}${garmentAttrs}`);
+    const foreground = integrated && !underwear ? skinImage(base,'base',` data-depth="head-front" transform="translate(0 ${pose})" clip-path="url(#${id}jaw)"`) : '';
+    const facial = integrated ? `<g data-join="features" transform="translate(0 ${pose})" mask="url(#${id}featureMask)">${skinImage(face,'face',` data-depth="face-features" transform="translate(0 ${featureOffset})"`)}</g>` : '';
     const accessories = selection.layers.slice(2);
-    const glassesIndex = accessories.findIndex(part => part.file === 'traits-5.webp');
-    const hairIndex = accessories.findIndex(part => part.file.startsWith('hair-'));
-    if (glassesIndex > hairIndex && hairIndex >= 0) accessories.splice(hairIndex, 0, accessories.splice(glassesIndex, 1)[0]);
-    const details = accessories.map(part => image(part, headTransform)).join('');
-    const drawing = `<rect width="400" height="${Math.max(600, cardHeight)}" fill="#0a1220"/><ellipse cx="200" cy="190" rx="240" ry="300" fill="url(#${id}bg)"/>${bodyPlane}${robeNeck}${backCollar}${neckPlane}${clothPlane}${headPlane}${details}`;
-    const art = avatar ? `<g clip-path="url(#${id}clip)">${drawing}</g><circle cx="200" cy="${128 + headY}" r="125" fill="none" stroke="${ring}" stroke-width="4"/>` : drawing + `<rect x="1" y="${cropY + 1}" width="398" height="${cardHeight - 2}" fill="none" stroke="${ring}" stroke-width="2" opacity=".7"/>`;
-    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v6" data-head-offset="${headY}" data-outfit="${selection.outfit}" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size * cardHeight / 400)}" viewBox="${view}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${escape(avatar ? '초상화' : '캐릭터 일러스트')}">${background}${art}</svg>`;
+    const glass = accessories.findIndex(p => p.file === 'traits-5.webp');
+    const hair = accessories.findIndex(p => p.file.startsWith('hair-'));
+    if (glass > hair && hair >= 0) accessories.splice(hair,0,accessories.splice(glass,1)[0]);
+    const details = accessories.map(part => {
+      const onFace = /traits-(3|5)\.webp/.test(part.file);
+      const attrs = ` transform="translate(0 ${integrated && !onFace ? pose : headY})"`;
+      return part.file === 'traits-0.webp' ? skinImage(part,'ear',attrs) : image(part,attrs);
+    }).join('');
+    const layers = avatar ? `${body}${facial}${details}` : `${back}${body}${garment}${foreground}${facial}${details}`;
+    const drawing = `<rect width="400" height="600" fill="#0a1220"/><ellipse cx="200" cy="190" rx="240" ry="300" fill="url(#${id}bg)"/>${layers}`;
+    const art = avatar ? `<g clip-path="url(#${id}circle)">${drawing}</g><circle cx="200" cy="${128+pose}" r="125" fill="none" stroke="${ring}" stroke-width="4"/>` : drawing+`<rect x="1" y="1" width="398" height="${cardHeight-2}" fill="none" stroke="${ring}" stroke-width="2" opacity=".7"/>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="v9" data-head-offset="${headY}" data-base-offset="${pose}" data-outfit="${selection.outfit}" data-body-type="${selection.bodyType}" data-skin-tone="${selection.skinTone}" data-parts-key="${selection.key}" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size*cardHeight/400)}" viewBox="${view}" role="img" aria-label="${avatar ? '초상화' : '캐릭터 일러스트'}">${defs}${art}</svg>`;
   }
   PORTRAIT.card = function (seed, gender, element, rank, size = 200, opts = {}) {
     if (!opts.outfit && (!opts.race || opts.race === 'human') && PORTRAIT.imageFor(seed, gender)) return legacy.card.apply(this, arguments);
@@ -1680,22 +1874,36 @@ const PortraitParts = (() => {
   };
 
   // canvas 지도 마커: SVG 데이터 URL 안의 외부 이미지는 브라우저가 로드하지 않으므로 먼저 내장한다.
-  const cache = new Map();
+  const cache = new Map(), embeddedImages = new Map();
+  const loadImage = async source => {
+    const image = new Image(); image.src = source;
+    await new Promise((resolve, reject) => { if (image.complete && image.naturalWidth) resolve(); else { image.onload = resolve; image.onerror = reject; } });
+    return image;
+  };
+  const bitmap = image => {
+    const cv = document.createElement('canvas'); cv.width = image.naturalWidth; cv.height = image.naturalHeight;
+    cv.getContext('2d').drawImage(image, 0, 0); return cv.toDataURL('image/png');
+  };
+  const embed = source => {
+    if (embeddedImages.has(source)) return embeddedImages.get(source);
+    const promise = loadImage(source).then(bitmap);
+    if (embeddedImages.size >= 192) embeddedImages.delete(embeddedImages.keys().next().value);
+    embeddedImages.set(source,promise); promise.catch(() => embeddedImages.delete(source)); return promise;
+  };
   const rasterize = source => {
     if (cache.has(source)) return cache.get(source);
     const promise = (async () => {
       const doc = new DOMParser().parseFromString(source, 'image/svg+xml');
       await Promise.all([...doc.querySelectorAll('image')].map(async node => {
-        const img = new Image(); img.src = node.getAttribute('href');
-        await new Promise((resolve, reject) => { if (img.complete && img.naturalWidth) resolve(); else { img.onload = resolve; img.onerror = reject; } });
-        const cv = document.createElement('canvas'); cv.width = img.naturalWidth; cv.height = img.naturalHeight;
-        cv.getContext('2d').drawImage(img, 0, 0);
-        const data = cv.toDataURL('image/png'); node.setAttribute('href', data); node.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', data);
+        const data = await embed(node.getAttribute('href'));
+        node.setAttribute('href',data); node.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',data);
       }));
-      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(doc));
+      const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(doc));
+      // 지도는 매 프레임 SVG 필터를 다시 그리지 않도록 최종 얼굴 비트맵을 저장한다.
+      return doc.documentElement.classList.contains('avatar') ? bitmap(await loadImage(url)) : url;
     })();
     if (cache.size >= 48) cache.delete(cache.keys().next().value);
-    cache.set(source, promise); promise.catch(() => cache.delete(source)); return promise;
+    cache.set(source,promise); promise.catch(() => cache.delete(source)); return promise;
   };
   const baseMapImage = MapView.prototype.setPlayerImage;
   MapView.prototype.setPlayerImage = function (source) {

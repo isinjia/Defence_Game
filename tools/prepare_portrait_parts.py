@@ -61,7 +61,8 @@ manifest['traits'][5]={'file':'traits-5.webp','rect':[150,148,100,20]}
 # 기본 몸체는 별도 아틀라스에서 준비한다. 기존 등록을 함께 유지한다.
 for g in ['m', 'f']:
  if (root/('body-'+g+'.webp')).exists():
-  manifest['body-'+g]=[{'file':'body-'+g+'.webp','rect':[0,0,400,900]}]
+  previous=json.loads((root/'manifest.json').read_text())
+  manifest['body-'+g]=previous.get('body-'+g,[{'file':'body-'+g+'.webp','rect':[0,0,400,600]}])
 from calibrate_portrait_skin import calibrate
 calibrate(manifest, root)
 (root/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2))

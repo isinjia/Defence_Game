@@ -137,6 +137,10 @@ p { margin: 6px 0; }
 .id-preview { display: grid; gap: 10px; position: sticky; top: 0; justify-items: center; }
 .id-preview > .portrait, .id-preview > .portrait-img { max-width: 100%; height: auto; }
 .id-preview > button { justify-self: stretch; }
+.appearance-choices { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+.skin-choices { grid-template-columns:repeat(auto-fit,minmax(96px,1fr)); }
+.skin-choices .choice { display:flex; align-items:center; gap:7px; }
+.skin-swatch { width:18px; height:18px; border:1px solid #71808c; border-radius:50%; flex:none; }
 .choice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px; }
 .choice-grid.elems { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); }
 .choice { display: grid; gap: 2px; text-align: left; padding: 10px; line-height: 1.45; align-content: start; }

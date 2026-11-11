@@ -32,13 +32,14 @@ Object.assign(UI, {
     $app.innerHTML = `<div class="create">
       <div class="create-head"><div class="eyebrow">각성 전야</div><h2>당신은 누구입니까</h2></div>
       <div class="create-grid">
-        <div class="panel id-preview">${FX.portrait(s.look, s.gender, null, 0, 240, { age: 19, outfit: 'underwear' })}<button class="ghost full" data-act="ps-look">외형 바꾸기</button></div>
+        <div class="panel id-preview">${FX.portrait(s.look, s.gender, null, 0, 240, { age: 19, outfit: 'underwear', ...Wardrobe.appearance(s) })}<button class="ghost full" data-act="ps-look">외형 바꾸기</button></div>
         <div class="panel">
           <label class="sec-title" for="in-name">이름</label>
           <div class="name-row"><input id="in-name" type="text" maxlength="8" placeholder="이름을 입력" value="${s.name}"><button class="icon-btn dice" data-act="name-dice" aria-label="무작위 이름">${this.diceIcon()}</button></div>
           <div class="sec"><div class="sec-title">성별</div><div class="row">
             <button class="choice ${s.gender === 'M' ? 'sel' : ''}" data-act="ps-gender" data-v="M">남성</button>
             <button class="choice ${s.gender === 'F' ? 'sel' : ''}" data-act="ps-gender" data-v="F">여성</button></div></div>
+          ${Wardrobe.controls(s)}
           <div class="row end"><button class="ghost" data-act="new">뒤로</button><button class="primary" data-act="ps-start">이야기 시작</button></div>
         </div>
       </div></div>`;
@@ -138,7 +139,7 @@ Object.assign(UI, {
   },
   beginFromPrologue() {
     const s = this.pro; const r = s.result;
-    G.newGame({ name: s.name, gender: s.gender, bg: s.bg, element: r.element, talent: r.talent, traits: r.traits, look: s.look, cls: r.cls, awakenRank: r.rank });
+    G.newGame({ name: s.name, gender: s.gender, bg: s.bg, element: r.element, talent: r.talent, traits: r.traits, look: s.look, cls: r.cls, awakenRank: r.rank, ...Wardrobe.appearance(s) });
     // 소꿉친구가 실제 인물로 등장한다
     const p = G.player; const f = G.makeNpc(true);
     f.name = s.friend.name; f.gender = s.friend.gender; f.rankIdx = 0; f.stage = 0; f.ageMonths = p.ageMonths + RNG.int(-6, 6);

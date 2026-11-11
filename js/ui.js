@@ -142,7 +142,7 @@ const UI = {
       </div>
       <div class="create-grid">
         <div class="panel id-preview">
-          ${FX.portrait(c.look, c.gender, c.element, 0, 240, { age: 19, outfit: 'underwear' })}
+          ${FX.portrait(c.look, c.gender, c.element, 0, 240, { age: 19, outfit: 'underwear', ...Wardrobe.appearance(c) })}
           <button class="ghost full" data-act="c-look">외형 바꾸기</button>
         </div>
         <div class="panel">
@@ -154,6 +154,7 @@ const UI = {
                 <button class="choice ${c.gender === 'F' ? 'sel' : ''}" data-act="c-gender" data-v="F">여성</button>
               </div></div>
           </div>
+          ${Wardrobe.controls(c)}
           <div class="sec"><div class="sec-title">출신</div>
             <div class="choice-grid">${BACKGROUNDS.map((b) => `
               <button class="choice ${c.bg === b.id ? 'sel' : ''}" data-act="c-bg" data-v="${b.id}"><b>${b.name}</b><span class="dim">${b.desc}</span><span class="dim small">시작: ${regionById(b.region).name}</span></button>`).join('')}
@@ -731,7 +732,7 @@ const UI = {
 
   unitSprite(u, size) {
     if (u.isPlayer) return this.playerAvatar(size);
-    if (u.portrait) return FX.avatar(u.portrait.seed, u.portrait.gender, u.portrait.elem, u.tier || 0, size);
+    if (u.portrait) return FX.avatar(u.portrait.seed, u.portrait.gender, u.portrait.elem, u.tier || 0, size, u.portrait);
     if (u.npcId) { const n = G.npcById(u.npcId); return this.npcAvatar(n, size); }
     return FX.monster(u, size);
   },
@@ -1072,7 +1073,7 @@ const UI = {
       case 'c-start': {
         const name = (c.name || '').trim();
         if (!name) return this.toast('이름을 입력하세요.');
-        G.newGame({ name, gender: c.gender, bg: c.bg, element: c.element, talent: c.talent, traits: c.traits, look: c.look, cls: c.cls });
+        G.newGame({ name, gender: c.gender, bg: c.bg, element: c.element, talent: c.talent, traits: c.traits, look: c.look, cls: c.cls, ...Wardrobe.appearance(c) });
         this.saveName(name);
         G.save();
         this.screen = 'game';

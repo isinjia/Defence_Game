@@ -21,6 +21,7 @@ const { chromium, devices } = require('playwright');
     const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.woff2': 'font/woff2' };
     server = http.createServer((req, res) => {
       const rel = decodeURIComponent(req.url.split('?')[0]); const file = path.join(root, rel === '/' ? 'index.html' : rel);
+      if (rel === '/favicon.ico') { res.writeHead(204); return res.end(); }
       if (!file.startsWith(root)) { res.writeHead(403); return res.end(); }
       fs.readFile(file, (err, buf) => { if (err) { res.writeHead(404); return res.end(); } res.writeHead(200, { 'Content-Type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream', 'Cache-Control': 'no-store' }); res.end(buf); });
     });
@@ -111,7 +112,7 @@ const { chromium, devices } = require('playwright');
       const neckImg = new Image(); neckImg.src = neckSrc; await neckImg.decode();
       const neckCanvas = document.createElement('canvas'); neckCanvas.width = 400; neckCanvas.height = 480;
       const neckCtx = neckCanvas.getContext('2d'); neckCtx.drawImage(neckImg, 0, 0);
-      const outsideCollar = [...neckCtx.getImageData(153, 264, 10, 20).data, ...neckCtx.getImageData(155, 238, 8, 30).data];
+      const outsideCollar = [...neckCtx.getImageData(153, 264, 10, 20).data, ...neckCtx.getImageData(145, 272, 8, 20).data];
       for (let i = 0; i < outsideCollar.length; i += 4) if (outsideCollar[i] > 140 && outsideCollar[i + 1] > 100 && outsideCollar[i] > outsideCollar[i + 1] + 15) throw new Error('목 피부가 옷깃 밖으로 나옴');
       // 턱이 하이칼라 앞에 오고, 턱·옷깃 사이에 목 깊이가 있어야 한다.
       const chinSrc = await PortraitParts.rasterize(PORTRAIT.card('턱뎁스', 'F', null, 0, 400, { outfit: 'hanbok' }));
@@ -151,10 +152,13 @@ const { chromium, devices } = require('playwright');
         }
       }
       for (const gender of ['M', 'F']) {
+        const selected = PortraitParts.select('머리정렬', gender, { outfit: 'mandarin' });
         const doc = new DOMParser().parseFromString(PORTRAIT.card('머리정렬', gender, null, 0, 400, { outfit: 'mandarin' }), 'image/svg+xml');
-        const offset = gender === 'M' ? 8 : 0;
-        const attached = [...doc.querySelectorAll('image')].filter(im => /(?:face|hair|traits)-/.test(im.getAttribute('href')));
-        if (attached.some(im => im.getAttribute('transform') !== 'translate(0 ' + offset + ')')) throw new Error('얼굴과 머리·장신구 위치가 다름');
+        const pose = gender === 'M' ? 8 : 0;
+        const shift = (gender === 'M' ? 251 : 261) - selected.layers[0].chinY;
+        const hair = [...doc.querySelectorAll('image')].find(im => /hair-[mf]-\d+\.webp/.test(im.getAttribute('href')));
+        if (Number(doc.documentElement.dataset.baseOffset) !== pose || hair.getAttribute('transform') !== 'translate(0 ' + pose + ')') throw new Error('머리와 체형의 기준 위치가 다름');
+        if (doc.querySelector('[data-depth="face-features"]').getAttribute('transform') !== 'translate(0 ' + shift + ')') throw new Error('얼굴 특징 위치가 다름');
       }
       const robeSrc = await PortraitParts.rasterize(PORTRAIT.card('도포목선', 'M', null, 0, 400, { outfit: 'hanbok' }));
       const robeImg = new Image(); robeImg.src = robeSrc; await robeImg.decode();
@@ -165,7 +169,7 @@ const { chromium, devices } = require('playwright');
       const svg = PORTRAIT.avatar('고정인물', 'M', 'fire', 3, 96, { age: 25, race: 'elf' });
       const data = await PortraitParts.rasterize(svg);
       const img = new Image(); img.src = data; await img.decode();
-      if (!img.naturalWidth || !data.startsWith('data:image/svg+xml')) throw new Error('지도 초상화 변환 실패');
+      if (!img.naturalWidth || !data.startsWith('data:image/png')) throw new Error('지도 초상화 변환 실패');
       // 캔버스 파티 마커용: 변환 뒤에도 외부 assets 경로가 남으면 얼굴이 비어 보인다.
       const embedded = decodeURIComponent(data.replace(/^data:image\/svg\+xml;charset=utf-8,/, ''));
       if (/href="assets\//.test(embedded) || /xlink:href="assets\//.test(embedded)) throw new Error('지도 초상화에 외부 파츠 경로 잔존');
@@ -188,7 +192,7 @@ const { chromium, devices } = require('playwright');
     });
     if (!ok) throw new Error('검사 실패');
   });
-  await step('기본 몸체: 얼굴 30종 피부색 일치·목 중복 제거·짧은 연결', async () => {
+  await step('기본 몸체: 얼굴 30종 피부색·한 장의 턱·목·어깨·얼굴 특징 교체', async () => {
     await page.evaluate(async () => {
       const median = patches => [0, 1, 2].map(channel => {
         const values = [];
@@ -203,29 +207,42 @@ const { chromium, devices } = require('playwright');
         const doc = new DOMParser().parseFromString(PORTRAIT.card(seed, gender, null, 0, 400, { outfit: 'underwear' }), 'image/svg+xml');
         const root = doc.documentElement, offset = Number(root.dataset.headOffset);
         if (root.querySelector('[data-depth="neck"]')) throw new Error('얼굴 목과 몸 목이 겹침');
-        if (offset + PortraitParts.select(seed, gender, { outfit: 'underwear' }).layers[0].chinY !== (gender === 'M' ? 295 : 303)) throw new Error('기본 몸체의 긴 목 위치가 복귀함');
+        if (offset + PortraitParts.select(seed, gender, { outfit: 'underwear' }).layers[0].chinY !== (gender === 'M' ? 251 : 261)) throw new Error('기본 몸체의 긴 목 위치가 복귀함');
         // 머리카락·안경이 표본을 가리지 않도록 검사 그림에서만 제외한다.
         for (const node of root.querySelectorAll('image')) if (/(?:hair|traits)-/.test(node.getAttribute('href'))) node.remove();
         const src = await PortraitParts.rasterize(new XMLSerializer().serializeToString(doc));
         const image = new Image(); image.src = src; await image.decode();
-        const canvas = document.createElement('canvas'); canvas.width = 400; canvas.height = 480;
+        const canvas = document.createElement('canvas'); canvas.width = 400; canvas.height = 440;
         const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
-        const faceRgb = median([ctx.getImageData(170, 145 + offset, 12, 12).data, ctx.getImageData(218, 145 + offset, 12, 12).data]);
-        const bodyRgb = median([ctx.getImageData(150, 340, 8, 8).data]);
+        const faceRgb = median([ctx.getImageData(170, 185 + offset, 12, 12).data, ctx.getImageData(218, 185 + offset, 12, 12).data]);
+        const selected = PortraitParts.select(seed, gender, { outfit: 'underwear' });
+        const [sx, sy, sw, sh] = selected.baseBody.skinSample;
+        const bodyRgb = median([ctx.getImageData(sx, sy, sw, sh).data]);
         if (faceRgb.some((v, i) => Math.abs(v - bodyRgb[i]) > 5)) throw new Error('얼굴·몸 피부색 불일치: ' + gender + face);
         const neck = ctx.getImageData(200, gender === 'M' ? 272 : 278, 1, 1).data;
         if (neck[0] < 90 || neck[1] < 65) throw new Error('턱과 목 사이 빈 공간');
+        if (!root.querySelector('[data-join="features"] [data-depth="face-features"]')) throw new Error('얼굴 특징 교체 영역 없음');
+        // 얼굴 특징을 바꿔도 턱과 목은 한 장의 기본 원화 그대로여야 한다.
+        const jawPoints = [[185, (gender === 'M' ? 251 : 261) - 10], [200, gender === 'M' ? 251 : 261], [215, (gender === 'M' ? 251 : 261) - 10]];
+        const drawnJaw = jawPoints.map(([x, y]) => [...ctx.getImageData(x, y, 1, 1).data]);
+        const features = root.querySelector('[data-join="features"]'); if (features) features.remove();
+        const baseSrc = await PortraitParts.rasterize(new XMLSerializer().serializeToString(doc));
+        const base = new Image(); base.src = baseSrc; await base.decode(); ctx.clearRect(0, 0, 400, 440); ctx.drawImage(base, 0, 0);
+        for (let j = 0; j < jawPoints.length; j++) {
+          const [x, y] = jawPoints[j], baseJaw = ctx.getImageData(x, y, 1, 1).data;
+          if ([0, 1, 2].some(i => Math.abs(drawnJaw[j][i] - baseJaw[i]) > 2)) throw new Error('얼굴 특징이 턱·목 윤곽을 덮음');
+        }
         if (gender === 'M' && face === 0) {
           // 몸만 따로 그려 턱 바깥 잔여 윤곽과 어깨 잘림·과한 폭을 검사한다.
-          for (const node of root.querySelectorAll('image')) if (node.dataset.depth !== 'underwear') node.remove();
+          const features = root.querySelector('[data-join="features"]'); if (features) features.remove();
           const bodySrc = await PortraitParts.rasterize(new XMLSerializer().serializeToString(doc));
-          const body = new Image(); body.src = bodySrc; await body.decode(); ctx.clearRect(0, 0, 400, 480); ctx.drawImage(body, 0, 0);
-          for (const x of [170, 230]) if (ctx.getImageData(x, 240, 1, 1).data[0] > 100) throw new Error('몸 쪽 윤곽이 턱 바깥으로 나옴');
-          if (ctx.getImageData(155, 285, 1, 1).data[0] < 100) throw new Error('목 클립이 어깨를 자름');
+          const body = new Image(); body.src = bodySrc; await body.decode(); ctx.clearRect(0, 0, 400, 440); ctx.drawImage(body, 0, 0);
+          if (!root.querySelector('[data-depth="underwear"]')) throw new Error('통합 원화 없음');
+          if (ctx.getImageData(155, 310, 1, 1).data[0] < 100) throw new Error('목 클립이 어깨를 자름');
           const chest = ctx.getImageData(0, 360, 400, 1).data;
           const skinX = [];
           for (let x = 0; x < 400; x++) if (chest[x * 4] > 100 && chest[x * 4 + 1] > 70) skinX.push(x);
-          if (!skinX.length || skinX[skinX.length - 1] - skinX[0] > 325) throw new Error('머리 대비 몸 폭이 과함');
+          if (!skinX.length || skinX[skinX.length - 1] - skinX[0] > 380) throw new Error('머리 대비 몸 폭이 과함');
         }
       }
     });
@@ -236,7 +253,7 @@ const { chromium, devices } = require('playwright');
       for (const gender of ['M', 'F']) {
         UI.handle('ps-gender', gender);
         const svg = document.querySelector('.id-preview svg[data-portrait-parts]');
-        if (!svg || svg.dataset.outfit !== 'underwear' || svg.getAttribute('viewBox') !== '0 40 400 480') throw new Error('생성 화면이 기본 몸체가 아님: ' + gender);
+        if (!svg || svg.dataset.outfit !== 'underwear' || svg.getAttribute('viewBox') !== '0 0 400 440') throw new Error('생성 화면이 기본 몸체가 아님: ' + gender);
         if (svg.querySelector('[data-depth="garment-front"]')) throw new Error('생성 중 겉옷 표시');
         const src = await PortraitParts.rasterize(svg.outerHTML);
         const image = new Image(); image.src = src; await image.decode();
@@ -251,6 +268,71 @@ const { chromium, devices } = require('playwright');
       if (document.querySelector('.id-preview svg').dataset.outfit !== 'underwear') throw new Error('직접 설정 초기 복장 오류');
       UI.handle('c-bg', 'soldier');
       if (document.querySelector('.id-preview svg').dataset.outfit !== 'underwear') throw new Error('설정 완료 전에 직업복을 입음');
+    });
+  });
+  await step('체형 8종·피부색 보정: 흰자·속옷 보존·의상 전환', async () => {
+    await page.evaluate(async () => {
+      const palettes = { fair:[246,218,200], medium:[220,180,150], tan:[182,133,95], deep:[133,88,65] };
+      const med = (data) => [0,1,2].map(c => { const a=[]; for(let i=c;i<data.length;i+=4)a.push(data[i]);a.sort((x,y)=>x-y);return(a[(a.length-1)>>1]+a[a.length>>1])/2; });
+      const read = async (seed, gender, opts) => {
+        const doc = new DOMParser().parseFromString(PORTRAIT.card(seed,gender,null,0,400,{outfit:'underwear',...opts}), 'image/svg+xml');
+        for(const n of doc.querySelectorAll('image'))if(/(?:hair|traits)-/.test(n.getAttribute('href')))n.remove();
+        const source = await PortraitParts.rasterize(new XMLSerializer().serializeToString(doc));
+        const im = new Image(); im.src=source; await im.decode();
+        const cv=document.createElement('canvas');cv.width=400;cv.height=440;const ctx=cv.getContext('2d');ctx.drawImage(im,0,0);return ctx;
+      };
+      for(const gender of ['M','F']) {
+        let seed;
+        for(let i=0;i<2000;i++)if(PortraitParts.select('tone-'+i,gender).layers[0].file==='face-'+gender.toLowerCase()+'-0.webp'){seed='tone-'+i;break;}
+        const parts = PortraitParts.select(seed,gender);
+        const eye = new Image();eye.src='assets/portraits/parts/'+parts.layers[0].file;await eye.decode();
+        const mask = new Image();mask.src='assets/portraits/parts/'+parts.layers[0].skinMask;await mask.decode();
+        const cv=document.createElement('canvas');cv.width=144;cv.height=250;const ec=cv.getContext('2d');ec.drawImage(eye,0,0);const ed=ec.getImageData(0,0,144,250).data;ec.clearRect(0,0,144,250);ec.drawImage(mask,0,0);const md=ec.getImageData(0,0,144,250).data;
+        let eyePoint, best=-Infinity; const eyeY=gender==='M'?98:108;
+        for(let y=eyeY-3;y<eyeY+7;y++)for(let x=20;x<64;x++){const k=(y*144+x)*4,score=ed[k]+ed[k+1]+ed[k+2];if(ed[k]>215&&ed[k+1]>200&&ed[k+2]>190&&md[k]<10&&score>best){best=score;eyePoint=[128+x,55+y];}}
+        if(!eyePoint)throw new Error('흰자 표본 없음');
+        const files=new Set();const widths=[];
+        for(const bodyType of ['thin','normal','strong','heavy']) {
+          const selected=PortraitParts.select(seed,gender,{bodyType});files.add(selected.baseBody.file);
+          const normal=await read(seed,gender,{bodyType,skinTone:'natural'});
+          const [sx,sy,sw,sh]=selected.baseBody.skinSample;
+          const [ex,ey]=eyePoint;
+          const originalEye=[...normal.getImageData(ex,ey,1,1).data];
+          const originalTop=[...normal.getImageData(200,400,1,1).data];
+          const row=normal.getImageData(0,350,400,1).data;const xs=[];for(let x=0;x<400;x++)if(row[x*4]>100&&row[x*4+1]>70)xs.push(x);widths.push(xs[xs.length-1]-xs[0]);
+          for(const skinTone of ['fair','medium','tan','deep']) {
+            const ctx=await read(seed,gender,{bodyType,skinTone});const body=med(ctx.getImageData(sx,sy,sw,sh).data),target=palettes[skinTone];
+            if(body.some((v,i)=>Math.abs(v-target[i])>12))throw new Error('피부색 오차 '+gender+bodyType+skinTone+':'+body+'/'+target);
+            const white=ctx.getImageData(ex,ey,1,1).data;
+            if([0,1,2].some(i=>Math.abs(white[i]-originalEye[i])>12))throw new Error('피부색이 흰자에 적용됨');
+            if(gender==='F'){const top=ctx.getImageData(200,400,1,1).data;if([0,1,2].some(i=>Math.abs(top[i]-originalTop[i])>4))throw new Error('피부색이 속옷에 적용됨');}
+            for(const outfit of ['tactical','hanbok']){const svg=new DOMParser().parseFromString(PORTRAIT.card(seed,gender,null,0,200,{bodyType,skinTone,outfit}), 'image/svg+xml').documentElement;if(svg.dataset.bodyType!==bodyType||svg.dataset.skinTone!==skinTone)throw new Error('의상 변경 시 외형 소실');}
+          }
+        }
+        if(files.size!==4||widths[0]>=widths[3])throw new Error('체형 원화가 구분되지 않음');
+      }
+    });
+  });
+  await step('체형·피부색 직접 선택: 성별·외형 변경에도 유지', async () => {
+    await page.evaluate(() => {
+      for (const mode of ['story', 'manual']) {
+        UI.handle('new'); UI.handle('mode-' + mode);
+        const state = mode === 'story' ? UI.pro : UI.create;
+        const look = state.look;
+        for (const type of ['thin', 'normal', 'strong', 'heavy']) {
+          UI.handle('appearance-body', type);
+          const svg = document.querySelector('.id-preview svg');
+          if (svg.dataset.bodyType !== type || state.look !== look) throw new Error('체형 선택이 외형 시드를 바꿈');
+        }
+        for (const tone of ['natural', 'fair', 'medium', 'tan', 'deep']) {
+          UI.handle('appearance-skin', tone);
+          if (document.querySelector('.id-preview svg').dataset.skinTone !== tone || state.look !== look) throw new Error('피부색 선택 오류');
+        }
+        UI.handle(mode === 'story' ? 'ps-gender' : 'c-gender', 'F');
+        UI.handle(mode === 'story' ? 'ps-look' : 'c-look');
+        const svg = document.querySelector('.id-preview svg');
+        if (svg.dataset.bodyType !== 'heavy' || svg.dataset.skinTone !== 'deep') throw new Error('성별·외형 변경 시 선택값 소실');
+      }
     });
   });
   await step('이야기로 시작 → 프롤로그 끝까지', async () => {
@@ -289,10 +371,16 @@ const { chromium, devices } = require('playwright');
   });
   await step('복장 진행: 직업복·장비 교체·해제·저장 호환·코트 안쪽 목선', async () => {
     await page.evaluate(async () => {
-      const p = G.player, original = { cls: p.cls, equip: p.equip, inventory: p.inventory, hp: p.hp, mp: p.mp };
+      const p = G.player, original = { cls: p.cls, equip: p.equip, inventory: p.inventory, hp: p.hp, mp: p.mp, bodyType:p.bodyType, skinTone:p.skinTone };
       const outfitOf = html => new DOMParser().parseFromString(html, 'image/svg+xml').documentElement.dataset.outfit;
       try {
         p.equip = { ...p.equip, armor: { ...p.equip.armor, appearanceByClass: true } };
+        p.bodyType = 'heavy'; p.skinTone = 'deep';
+        const appearance = new DOMParser().parseFromString(UI.playerPortrait(200), 'image/svg+xml').documentElement;
+        if (appearance.dataset.bodyType !== 'heavy' || appearance.dataset.skinTone !== 'deep') throw new Error('플레이 복장에 외형 선택 미반영');
+        G.save(); const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+        if (saved.player.bodyType !== 'heavy' || saved.player.skinTone !== 'deep') throw new Error('체형·피부색 저장 실패');
+
         for (const [group, outfit] of [['fighter', 'tactical'], ['mage', 'mandarin'], ['east', 'hanbok']]) {
           p.cls = CLASSES.find(c => c.g === group).id;
           if (outfitOf(UI.playerPortrait(200)) !== outfit || outfitOf(UI.playerAvatar(64)) !== outfit) throw new Error('직업복 불일치: ' + group);
@@ -316,7 +404,7 @@ const { chromium, devices } = require('playwright');
           const neck = ctx.getImageData(200, 280, 1, 1).data, front = ctx.getImageData(200, 310, 1, 1).data;
           if (neck[0] < 100 || neck[1] < 65 || front[0] > 100) throw new Error('코트 안쪽 목선 깊이 오류: ' + gender);
         }
-      } finally { p.cls = original.cls; p.equip = original.equip; p.inventory = original.inventory; G.recalc(); p.hp = original.hp; p.mp = original.mp; UI.renderGame(); }
+      } finally { p.cls = original.cls; p.equip = original.equip; p.inventory = original.inventory; G.recalc(); p.hp = original.hp; p.mp = original.mp; p.bodyType = original.bodyType; p.skinTone = original.skinTone; G.save(); UI.renderGame(); }
     });
   });
   for (const s of ['char', 'gear', 'skills', 'party', 'people', 'quest', 'guild', 'hunter', 'log']) {
@@ -920,9 +1008,10 @@ const { chromium, devices } = require('playwright');
     await ev(() => { for (let i = 0; i < 36 && !G.over; i++) { if (i % 3) G.train(); else G.rest(); G.queue = []; } });
   });
   await step('저장 → 새로고침 → 이어하기', async () => {
-    const before = await ev(() => { G.save(); return { name: G.player.name, ym: G.year * 12 + G.month }; });
+    const before = await ev(() => { G.save(); return { name: G.player.name, ym: G.year * 12 + G.month, saved: Game.hasSave(), over: G.over }; });
+    if (!before.saved) throw new Error('이어하기 전 저장 없음: ' + JSON.stringify(before));
     await page.reload(); await page.waitForTimeout(600);
-    await page.click('[data-opening="skip"]');
+    if (await page.locator('[data-opening="skip"]').isVisible()) await page.click('[data-opening="skip"]');
     await page.click('[data-act="continue"]'); await page.waitForTimeout(300);
     const after = await ev(() => G.player ? { name: G.player.name, ym: G.year * 12 + G.month } : null);
     if (!after || after.name !== before.name || after.ym !== before.ym) throw new Error(`불러온 값이 다름: ${JSON.stringify(before)} → ${JSON.stringify(after)}`);
@@ -935,7 +1024,7 @@ const { chromium, devices } = require('playwright');
       localStorage.setItem(SAVE_KEY, JSON.stringify(d));
     });
     await page.reload(); await page.waitForTimeout(600);
-    await page.click('[data-opening="skip"]');
+    if (await page.locator('[data-opening="skip"]').isVisible()) await page.click('[data-opening="skip"]');
     await page.click('[data-act="continue"]'); await page.waitForTimeout(300);
     const r = await ev(() => ({ p: G.player.element, n: G.npcs[0].element, g: (G.mapGates.find((x) => x.id === 999777) || {}).elem, f: G.player.foeSeen[0], m: elemMult('holy', 'dark') + elemMult('water', 'fire') + elemMult('fire', 'water') }));
     if (r.p !== 'water' || r.n !== 'dark' || (r.g && r.g !== 'wood') || r.f !== '고목 거신' || Math.abs(r.m - 3.7) > 1e-9) throw new Error('이전 결과: ' + JSON.stringify(r));

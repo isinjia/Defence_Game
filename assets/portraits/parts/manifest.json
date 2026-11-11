@@ -13,7 +13,8 @@
         197.0,
         178.0
       ],
-      "chinY": 251
+      "chinY": 251,
+      "skinMask": "face-m-0-skin.webp"
     },
     {
       "file": "face-m-1.webp",
@@ -28,7 +29,8 @@
         194.0,
         174.0
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-1-skin.webp"
     },
     {
       "file": "face-m-2.webp",
@@ -43,7 +45,8 @@
         192.0,
         171.0
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-2-skin.webp"
     },
     {
       "file": "face-m-3.webp",
@@ -58,7 +61,8 @@
         194.5,
         169.0
       ],
-      "chinY": 246
+      "chinY": 246,
+      "skinMask": "face-m-3-skin.webp"
     },
     {
       "file": "face-m-4.webp",
@@ -73,7 +77,8 @@
         198.0,
         173.0
       ],
-      "chinY": 250
+      "chinY": 250,
+      "skinMask": "face-m-4-skin.webp"
     },
     {
       "file": "face-m-5.webp",
@@ -88,7 +93,8 @@
         201.0,
         168.5
       ],
-      "chinY": 251
+      "chinY": 251,
+      "skinMask": "face-m-5-skin.webp"
     },
     {
       "file": "face-m-6.webp",
@@ -103,7 +109,8 @@
         189.0,
         155.0
       ],
-      "chinY": 250
+      "chinY": 250,
+      "skinMask": "face-m-6-skin.webp"
     },
     {
       "file": "face-m-7.webp",
@@ -118,7 +125,8 @@
         197.5,
         195.0
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-7-skin.webp"
     },
     {
       "file": "face-m-8.webp",
@@ -133,7 +141,8 @@
         195.5,
         192.0
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-8-skin.webp"
     },
     {
       "file": "face-m-9.webp",
@@ -148,7 +157,8 @@
         206.5,
         152.0
       ],
-      "chinY": 246
+      "chinY": 246,
+      "skinMask": "face-m-9-skin.webp"
     },
     {
       "file": "face-m-10.webp",
@@ -163,7 +173,8 @@
         160.0,
         139.5
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-10-skin.webp"
     },
     {
       "file": "face-m-11.webp",
@@ -178,7 +189,8 @@
         159.0,
         137.0
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-11-skin.webp"
     },
     {
       "file": "face-m-12.webp",
@@ -193,7 +205,8 @@
         223.5,
         196.0
       ],
-      "chinY": 250
+      "chinY": 250,
+      "skinMask": "face-m-12-skin.webp"
     },
     {
       "file": "face-m-13.webp",
@@ -208,7 +221,8 @@
         222.0,
         199.0
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-13-skin.webp"
     },
     {
       "file": "face-m-14.webp",
@@ -223,7 +237,8 @@
         221.0,
         196.0
       ],
-      "chinY": 252
+      "chinY": 252,
+      "skinMask": "face-m-14-skin.webp"
     },
     {
       "file": "face-m-15.webp",
@@ -238,7 +253,8 @@
         198.0,
         178.5
       ],
-      "chinY": 247
+      "chinY": 247,
+      "skinMask": "face-m-15-skin.webp"
     },
     {
       "file": "face-m-16.webp",
@@ -253,7 +269,8 @@
         199.0,
         168.0
       ],
-      "chinY": 247
+      "chinY": 247,
+      "skinMask": "face-m-16-skin.webp"
     },
     {
       "file": "face-m-17.webp",
@@ -268,7 +285,8 @@
         223.5,
         201.5
       ],
-      "chinY": 247
+      "chinY": 247,
+      "skinMask": "face-m-17-skin.webp"
     }
   ],
   "face-f": [
@@ -285,7 +303,8 @@
         195.0,
         186.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-0-skin.webp"
     },
     {
       "file": "face-f-1.webp",
@@ -300,7 +319,8 @@
         194.0,
         184.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-1-skin.webp"
     },
     {
       "file": "face-f-2.webp",
@@ -315,7 +335,8 @@
         194.0,
         184.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-2-skin.webp"
     },
     {
       "file": "face-f-3.webp",
@@ -330,7 +351,8 @@
         191.0,
         167.0
       ],
-      "chinY": 239
+      "chinY": 239,
+      "skinMask": "face-f-3-skin.webp"
     },
     {
       "file": "face-f-4.webp",
@@ -345,7 +367,8 @@
         205.0,
         185.0
       ],
-      "chinY": 242
+      "chinY": 242,
+      "skinMask": "face-f-4-skin.webp"
     },
     {
       "file": "face-f-5.webp",
@@ -360,7 +383,8 @@
         199.0,
         176.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-5-skin.webp"
     },
     {
       "file": "face-f-6.webp",
@@ -375,7 +399,8 @@
         199.0,
         183.5
       ],
-      "chinY": 264
+      "chinY": 264,
+      "skinMask": "face-f-6-skin.webp"
     },
     {
       "file": "face-f-7.webp",
@@ -390,7 +415,8 @@
         197.0,
         207.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-7-skin.webp"
     },
     {
       "file": "face-f-8.webp",
@@ -405,7 +431,8 @@
         197.0,
         207.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-8-skin.webp"
     },
     {
       "file": "face-f-9.webp",
@@ -420,7 +447,8 @@
         191.5,
         184.0
       ],
-      "chinY": 239
+      "chinY": 239,
+      "skinMask": "face-f-9-skin.webp"
     },
     {
       "file": "face-f-10.webp",
@@ -435,7 +463,8 @@
         161.0,
         148.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-10-skin.webp"
     },
     {
       "file": "face-f-11.webp",
@@ -450,7 +479,8 @@
         161.0,
         148.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-11-skin.webp"
     },
     {
       "file": "face-f-12.webp",
@@ -465,7 +495,8 @@
         169.0,
         148.0
       ],
-      "chinY": 242
+      "chinY": 242,
+      "skinMask": "face-f-12-skin.webp"
     },
     {
       "file": "face-f-13.webp",
@@ -480,7 +511,8 @@
         222.0,
         210.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-13-skin.webp"
     },
     {
       "file": "face-f-14.webp",
@@ -495,7 +527,8 @@
         221.5,
         210.0
       ],
-      "chinY": 261
+      "chinY": 261,
+      "skinMask": "face-f-14-skin.webp"
     },
     {
       "file": "face-f-15.webp",
@@ -510,7 +543,8 @@
         194.0,
         183.0
       ],
-      "chinY": 258
+      "chinY": 258,
+      "skinMask": "face-f-15-skin.webp"
     },
     {
       "file": "face-f-16.webp",
@@ -525,7 +559,8 @@
         195.0,
         172.0
       ],
-      "chinY": 259
+      "chinY": 259,
+      "skinMask": "face-f-16-skin.webp"
     },
     {
       "file": "face-f-17.webp",
@@ -540,7 +575,8 @@
         220.0,
         207.0
       ],
-      "chinY": 258
+      "chinY": 258,
+      "skinMask": "face-f-17-skin.webp"
     }
   ],
   "hair-m": [
@@ -1459,7 +1495,13 @@
         162,
         218,
         66
-      ]
+      ],
+      "skinRgb": [
+        196.0,
+        166.0,
+        153.0
+      ],
+      "skinMask": "traits-0-skin.webp"
     },
     {
       "file": "traits-1.webp",
@@ -1509,17 +1551,91 @@
   ],
   "body-m": [
     {
+      "file": "body-m-normal.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "bodyType": "normal",
+      "skinMask": "body-m-normal-skin.webp",
+      "skinSample": [
+        80,
+        310,
+        8,
+        8
+      ],
+      "skinRgb": [
+        221.0,
+        187.0,
+        173.0
+      ]
+    },
+    {
+      "file": "body-m-thin.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "bodyType": "thin",
+      "skinMask": "body-m-thin-skin.webp",
+      "skinSample": [
+        76,
+        310,
+        8,
+        8
+      ],
+      "skinRgb": [
+        223.0,
+        189.0,
+        176.0
+      ]
+    },
+    {
       "file": "body-m.webp",
       "rect": [
         0,
         0,
         400,
-        900
+        600
+      ],
+      "bodyType": "strong",
+      "skinMask": "body-m-skin.webp",
+      "skinSample": [
+        284,
+        310,
+        8,
+        8
       ],
       "skinRgb": [
-        220.0,
-        188.0,
-        162.0
+        226.0,
+        190.0,
+        175.0
+      ]
+    },
+    {
+      "file": "body-m-heavy.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "bodyType": "heavy",
+      "skinMask": "body-m-heavy-skin.webp",
+      "skinSample": [
+        72,
+        310,
+        8,
+        8
+      ],
+      "skinRgb": [
+        221.0,
+        189.0,
+        177.0
       ]
     }
   ],
@@ -1530,12 +1646,86 @@
         0,
         0,
         400,
-        900
+        600
+      ],
+      "bodyType": "normal",
+      "skinMask": "body-f-skin.webp",
+      "skinSample": [
+        288,
+        310,
+        8,
+        8
       ],
       "skinRgb": [
-        230.0,
-        198.0,
-        184.0
+        219.0,
+        189.0,
+        181.0
+      ]
+    },
+    {
+      "file": "body-f-thin.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "bodyType": "thin",
+      "skinMask": "body-f-thin-skin.webp",
+      "skinSample": [
+        272,
+        314,
+        8,
+        8
+      ],
+      "skinRgb": [
+        220.0,
+        191.0,
+        183.0
+      ]
+    },
+    {
+      "file": "body-f-strong.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "bodyType": "strong",
+      "skinMask": "body-f-strong-skin.webp",
+      "skinSample": [
+        300,
+        338,
+        8,
+        8
+      ],
+      "skinRgb": [
+        220.0,
+        190.0,
+        183.0
+      ]
+    },
+    {
+      "file": "body-f-heavy.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "bodyType": "heavy",
+      "skinMask": "body-f-heavy-skin.webp",
+      "skinSample": [
+        88,
+        310,
+        8,
+        8
+      ],
+      "skinRgb": [
+        218.0,
+        187.0,
+        181.0
       ]
     }
   ]

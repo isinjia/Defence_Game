@@ -191,7 +191,7 @@ Object.assign(UI, {
   storyEnemies(spec) {
     if (spec.mirror) {
       const u = G.playerUnit();
-      return [{ ...u, id: 'mirror', name: '그림자', side: 'enemy', isPlayer: false, portrait: { seed: G.player.look, gender: G.player.gender, elem: G.player.element }, tier: G.player.rankIdx }];
+      return [{ ...u, id: 'mirror', name: '그림자', side: 'enemy', isPlayer: false, portrait: { seed: G.player.look, gender: G.player.gender, elem: G.player.element, ...Wardrobe.playerLook() }, tier: G.player.rankIdx }];
     }
     const m = spec.mobs; const list = [];
     for (let k = 0; k < m.n; k++) {
