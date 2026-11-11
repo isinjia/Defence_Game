@@ -225,3 +225,153 @@ MAIN.ch(31, {
     return '꿈속 목소리가 점점 작아진다. 아린의 얼굴이 흐려진다.';
   } },
 });
+
+// ---------- 32장 해협의 군주 (재앙 'strait'와 상태 공유) ----------
+const JIN_FACE = (g) => g.mainWho('mumyeong');
+MAIN.ch(32, {
+  part: 5, title: '해협의 군주', rank: 5, after: 1, where: 'busan', cal: 'strait',
+  goal: '대한해협 · 흰 배들 한가운데',
+  scenes: [
+    { id: 'c32_sea', lines: [
+      { narr: (g, M) => (M.flags.straitStrong ? '해협이 이미 반쯤 열려 있다. 당신 없이 시작된 의식이 석 달째. 균열에서 번개가 아니라 노래가 흘러나온다.' : ({ active: '부산 앞바다. 재앙 경보. 해협의 균열이 수평선을 가른다. 그 위에 흰 배 수백 척이 원을 그린다.', player: '해협 균열은 한 번 눌러 놓았다. 그 상처 위에 흰 배들이 다시 원을 그린다.', npc: '다른 헌터들이 눌러 놓은 균열. 흰 배들이 그 위에 닻을 내렸다.', fail: '할퀴어진 해상 도시 외곽. 그 상처가 그대로 의식장이 됐다.', none: '해협 한가운데 흰 배들이 원을 그린다. 원 안쪽 바다가 천천히 내려앉는다.', watch: '해협 한가운데 흰 배들이 원을 그린다. 원 안쪽 바다가 천천히 내려앉는다.' })[CAL_OF(g, 'strait')] || '') },
+      { narr: (g, M) => (M.flags.circuitCut ? '남쪽 하늘의 문이 지난달보다 흐리다. 관측소 회로를 끊은 뒤로.' : '남쪽 하늘의 문이 또렷하다. 북쪽 줄이 아직 살아 있다.') },
+    ] },
+    { id: 'c32_boat', lines: [
+      { narr: (g, M) => (M.flags.rivalEnd === 'with' && M.flags.rivalPath === 'solo' ? '동기가 구한 낡은 배. 엔진이 세 번 만에 걸린다. "뜬다고 했지. 간다고는 안 했다."' : SEO_ON5(M) ? '서윤이 관리국 고속정을 끌고 왔다. "폭격 개시까지 네 시간. 그 안에 끝내요."' : '어부 하나가 배를 빌려준다. 돈은 받지 않는다. "그 초록 물고기, 우리 애가 무서워해요."') },
+      { who: 'rival', when: (g, M) => M.flags.rivalEnd === 'with', text: (g, M) => RIVAL_LINE(g, M, { kama: '폭격 좌표에 우리 배가 들어가 있어. 위에선 알면서 그대로 뒀다. …나도 알면서 탔다.', cult: '사도 자리는 비우고 왔어. 선생님은 알 거야. 내가 어디 섰는지.', solo: '키는 내가 잡는다. 너는 앞만 봐.', alone: '배멀미 난다. 근데 안 내린다.', none: '간다.' }) },
+    ] },
+    { id: 'c32_lord', lines: [
+      { narr: '흰 배들의 원 안쪽으로 들어서는 순간 바다가 일어선다. 균열에서 무언가가 몸을 일으킨다. 해협 전체가 그것의 등이다.' },
+      { who: JIN_FACE, text: (g, M) => (M.flags.otherSide ? '저편에 다녀오셨군요. 그럼 아시겠죠. 저건 그쪽에서 새어 나온 마지막 숨이 뭉친 겁니다. 죽이지 마세요. …라고 해도 듣지 않으시겠죠.' : '오셨군요. 저건 의식이 깨운 게 아닙니다. 원래 거기 있었어요. 우리가 문을 반쯤 열 때마다 조금씩 자랐죠.') },
+    ], choices: [
+      { text: '해협의 군주에게 뛰어든다', set: { c32lord: 'fight' }, next: 'c32_jin',
+        fight: (g) => ({ title: g.mainCalBoss('strait', '해협의 군주'), mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 3, elem: 'bolt', boss: true, name: g.mainCalBoss('strait', '해협의 군주') },
+          ally: g.mainState().flags.rivalEnd === 'with' && g.mainWho('rival') ? { name: g.mainWho('rival').name, rank: g.mainWho('rival').rankIdx, elem: g.mainWho('rival').element } : undefined,
+          win: { text: '군주가 무너진다. 해협의 균열이 한 뼘씩 닫힌다. 흰 배들이 흔들린다.', gain: { fame: 25, rep: 15 } }, lose: { text: '파도에 배가 뒤집힌다. 정신을 잃기 직전, 누군가 당신 옷깃을 잡는다. 흰 소매.', gain: { injure: 2 } } }) },
+    ] },
+    { id: 'c32_jin', lines: [
+      { narr: (g, M) => (M.flags.fight_c32_lord === 'win' ? '물보라가 가라앉는다. 맨 앞 흰 배 갑판에 진서해가 서 있다. 소매가 젖었다. 기침을 한다. 손바닥이 붉다.' : '눈을 뜨니 흰 배 갑판이다. 진서해가 당신을 건져 올렸다. 그의 소매가 젖어 있다. 기침을 한다. 손바닥이 붉다.') },
+      { who: JIN_FACE, text: (g, M) => ({ foe: '반박하러 오셨죠. 들을게요. 이번엔 마지막이니까.', open: '정하셨나요. 저는 정했습니다. 이십 년 전에.', near: '제 옆자리, 비워 뒀습니다. 앉으시겠어요?' })[M.flags.jinBond || 'open'] },
+    ], choices: [
+      { text: '칼을 겨눈다 — 진서해와 겨룬다', set: { c32: 'fight' }, next: 'c32_after',
+        fight: (g) => ({ title: '진서해', mobs: { tier: Math.min(7, g.player.rankIdx + 1), n: 1, human: true, boss: true, elem: 'water', name: '진서해' }, win: { text: '진서해가 무릎을 꿇는다. 웃는다. "역시. 열쇠는 열쇠군요."', gain: { fame: 15 } }, lose: { text: '진서해가 칼을 내린다. 당신을 내려다본다. "아직입니다. 문 앞에서 다시."', gain: { injure: 1 } } }) },
+      { text: '칼을 내린다 — 이야기한다', when: (g, M) => !!M.flags.otherSide || !!M.flags.arinName, set: { c32: 'talk' }, next: 'c32_after',
+        say: [{ narr: '"아린을 만났어요. 강바닥을 봤어요. 당신이 문을 다 열면 우리 강도 저렇게 돼요. 당신도 알잖아요."' }, { who: JIN_FACE, text: '…알아요. 알면서 했습니다. 아흔아홉이 버려진 세상과 모두가 같이 끝나는 세상. 저는 뒤쪽이 더 공평하다고 생각했어요.' }] },
+    ] },
+    { id: 'c32_after', lines: [
+      { narr: '흰 배들의 노래가 멈춘다. 신도들이 갑판에 주저앉는다. 바다는 아직 갈라져 있다. 다만 더 벌어지지는 않는다.' },
+      { who: 'friend', when: (g, M) => M.flags.friend3 === 'late', text: '…나 여기 있었어. 맨 뒤 배에. 노래 멈추니까 바다 소리가 안 들려. 처음이야.' },
+      { who: 'seoyun', when: (g, M) => SEO_ON5(M), text: '(무전) 폭격 취소됐어요. 제가 한 게 아니에요. 위에서 겁먹은 거예요. 당신이 저 위에 있다는 걸 다 봤으니까.' },
+    ], next: 'end' },
+  ],
+  done: (g, M) => {
+    if (M.flags.fight_c32_lord === 'win') { g.mainCalClear('strait'); M.flags.straitStrong = false; }
+    g.lifeEvent(M.flags.fight_c32_lord === 'win' ? '해협의 군주를 쓰러뜨리고 진서해와 마주했다.' : '해협에서 진서해의 손에 건져졌다.');
+  },
+  expire: { months: 4, run: (g, M) => {
+    Object.assign(M.flags, { c32: 'missed', straitStrong: true, ritualDone: true });
+    g.rumor('대한해협 의식이 끝났다. 해협 균열이 원초의 게이트와 공명하기 시작했다는 말이 돈다.');
+    return '해협 의식이 끝났다는 뉴스. 제주 쪽 하늘이 밤에도 밝다.';
+  } },
+});
+
+// ---------- 33장 무명의 끝 ----------
+MAIN.ch(33, {
+  part: 5, title: '무명의 끝', rank: 5, after: 0, where: 'busan',
+  goal: '흰 배 갑판 · 진서해',
+  scenes: [
+    { id: 'c33_deck', lines: [
+      { narr: (g, M) => ({ fight: M.flags.fight_c32_jin === 'win' ? '갑판. 진서해가 난간에 기대 앉아 있다. 당신 칼에 베인 자리를 손으로 누른다. 피보다 기침이 더 붉다.' : '갑판. 진서해가 당신 옆에 앉는다. 이긴 사람이 진 사람 옆에 앉듯이.', talk: '갑판. 둘이 나란히 앉는다. 해협 바람. 신도들이 멀찍이서 지켜본다.', missed: '제주 쪽 하늘이 밝은 밤. 진서해가 먼저 연락해 온다. 부산 폐부두, 마지막 흰 배 위.' })[M.flags.c32 || 'missed'] },
+      { who: JIN_FACE, text: '폐가 반쯤 바닷물이에요. 첫 교신 때 들이마신 거. 이십 년 걸려서 여기까지 찼어요. 길어야 석 달.' },
+      { who: JIN_FACE, text: (g, M) => (M.flags.madoState === 'jailed' ? '도현이는 갇혔다죠. 면회 한 번 못 갔네요. 그 친구는 제가 오면 울 거예요. 그래서 못 갔어요.' : M.flags.madoState === 'ally' ? '도현이랑 손잡으셨다죠. 그 친구는 닫는 사람이에요. 끝까지. 그게 그 친구의 속죄예요. 제 것보다 정직하죠.' : '도현이는 아직 본청 꼭대기에 있죠. 그 친구는 질서를 믿어요. 저는 질서가 버린 사람들을 믿고요.') },
+    ] },
+    { id: 'c33_last', lines: [
+      { who: JIN_FACE, text: '마지막으로 하나만 말할게요. 문을 다 열면 모두 각성합니다. 그리고 절반이 죽어요. 저는 그걸 알았고, 신도들한텐 말 안 했습니다. 그게 제 죄예요. 문을 연 것보다 큰 죄.' },
+      { narr: (g, M) => (M.flags.friend3 === 'late' ? `멀리 ${g.mainFill(F2_TARGET(g))}이(가) 그 말을 듣는다. 표정이 움직이지 않는다. 손만 떨린다.` : '신도 몇이 그 말을 듣는다. 아무도 움직이지 않는다.') },
+    ], choices: [
+      { text: '끝낸다 — 이 사람이 다시 일어서지 못하게', set: { jinFate: 'slain' }, next: 'c33_after' },
+      { text: '체포한다 — 법정에서 다 말하게', when: (g, M) => SEO_ON5(M) || M.flags.madoState === 'jailed' || M.flags.c18 === 'arrest', set: { jinFate: 'jailed' }, next: 'c33_after' },
+      { text: '"같이 갑시다. 문 앞까지."', when: (g, M) => M.flags.jinBond === 'near' || M.flags.c32 === 'talk', set: { jinFate: 'with' }, next: 'c33_after' },
+      { text: '그가 일어서는 걸 막지 않는다', when: (g, M) => M.flags.c32 === 'talk' || M.flags.arinAsk === 'close', set: { jinFate: 'sacrifice' }, next: 'c33_after' },
+    ] },
+    { id: 'c33_after', lines: [
+      { narr: (g, M) => ({
+        slain: '칼끝이 가슴에 닿는다. 진서해가 눈을 감는다. "고마워요. 이 폐로 석 달을 더 사는 건… 좀 길었어요." 신도들이 운다. 노래 없이.',
+        jailed: '서윤이 수갑을 채운다. 진서해가 손목을 내민다. 순순하다. "도현이 옆 방이면 좋겠네요."',
+        with: '진서해가 웃는다. 처음으로 가면 쓴 사람 같지 않은 웃음이다. "열쇠랑 같이 문 앞에 가는 건… 상상해 본 적 없어요." 신도들 사이에서 누군가 당신을 "사도"라고 부른다.',
+        sacrifice: '진서해가 일어선다. 난간을 넘는다. 갈라진 해협 한가운데로 걸어 들어간다. 물이 그를 받친다. 그가 서 있는 자리부터 균열이 닫힌다. 마지막에 손을 흔든다. 당신에게가 아니라, 남쪽 하늘에.',
+      })[M.flags.jinFate] || '' },
+      { who: 'friend', when: (g, M) => M.flags.friend3 === 'late' && M.flags.jinFate !== 'slain', text: '…나 집에 갈래. 데려다줘.' },
+      { who: 'friend', when: (g, M) => M.flags.friend3 === 'late' && M.flags.jinFate === 'slain', text: '…선생님 그렇게 안 보내도 됐잖아. 됐잖아.' },
+      { who: 'arin', text: (g, M) => (M.flags.jinFate === 'sacrifice' ? '…그 사람이 이쪽으로 왔어. 해협 문을 안쪽에서 닫고. 미안하다고 백한 번째 말했어.' : M.flags.jinFate === 'with' ? '그 사람이랑 같이 온다고? …그래. 그날 첫 교신 때처럼.' : '그 사람 목소리가 안 들려. 이제.') },
+    ], next: 'end' },
+  ],
+  done: (g, M) => {
+    if (M.flags.friend3 === 'late' && M.flags.jinFate !== 'slain') M.flags.friendBack = true;
+    if (M.flags.jinFate === 'sacrifice') { M.flags.straitStrong = false; g.rumor('진서해가 해협 균열 한가운데로 걸어 들어갔다. 해협이 닫혔다.'); }
+    if (M.flags.jinFate === 'slain') g.rumor('균열교 교주 진서해가 해협에서 숨졌다.');
+    if (M.flags.jinFate === 'jailed') g.rumor('균열교 교주 진서해가 체포됐다. 그는 법정에서 모든 걸 말하겠다고 했다.');
+    if (M.flags.jinFate === 'with') { M.flags.apostle = true; g.rumor(`진서해가 ${g.player.name}과(와) 함께 남쪽으로 간다는 말이 돈다. 균열교가 술렁인다.`); }
+    g.lifeEvent(({ slain: '진서해를 내 손으로 끝냈다.', jailed: '진서해를 체포했다.', with: '진서해와 함께 문 앞까지 가기로 했다.', sacrifice: '진서해가 해협 균열 속으로 걸어 들어가는 걸 지켜봤다.' })[M.flags.jinFate] || '진서해와 마주했다.');
+  },
+  expire: { months: 4, run: (g, M) => {
+    Object.assign(M.flags, { c33: 'missed', jinFate: 'gone' });
+    g.rumor('진서해가 신도들과 함께 제주 쪽으로 사라졌다.');
+    return '진서해가 제주 쪽으로 사라졌다는 소식.';
+  } },
+});
+
+// ---------- 34장 출정 전야 ----------
+const P5_ALLIES = (g, M) => {
+  const a = [];
+  const L = g.mainWho('leader'); if (L && M.flags.leaderFate !== 'dead') a.push('leader');
+  if (g.mainWho('rival') && M.flags.rivalEnd === 'with') a.push('rival');
+  if (SEO_ON5(M)) a.push('seoyun');
+  const f = g.mainWho('friend'); if (f && (M.flags.friend3 === 'saved' || M.flags.friendBack)) a.push('friend');
+  if (M.flags.goJae === 'alive') a.push('goJae');
+  if (M.flags.jinFate === 'with') a.push('jin');
+  return a;
+};
+MAIN.ch(34, {
+  part: 5, title: '출정 전야', rank: 5, after: 1, where: 'city',
+  goal: '거점 · 함께 갈 사람들',
+  scenes: [
+    { id: 'c34_gather', lines: [
+      { narr: (g, M) => { const n = P5_ALLIES(g, M).length; return n >= 4 ? '거점 2층. 의자가 모자라 상자를 끌어온다. 이렇게 많은 사람이 이 방에 모인 건 처음이다.' : n >= 2 ? '거점 2층. 몇 사람이 모였다. 빈 의자가 몇 개 남는다.' : '거점 2층. 의자는 많은데 앉은 사람은 당신뿐이다.'; } },
+      { narr: '탁자 위에 제주 지도. 한라산 꼭대기에 빨간 원. 원초의 게이트.' },
+    ] },
+    { id: 'c34_table', lines: [
+      { who: 'leader', when: (g, M) => M.flags.leaderFate !== 'dead', text: (g, M) => g.mainReg(M.flags.leaderFate === 'hurt' ? { haera: '다리 하나로는 산 못 오른다. 대신 무전은 내가 잡는다. 끝까지.', haeyo: '이 다리로는 산 못 올라요. 대신 무전은 제가 잡을게요. 끝까지.', short: '무전은 내가 잡는다.' } : { haera: '은퇴한 놈이 왜 왔냐고? 분식집 문 닫고 왔다. 오늘 하루는 장사 안 해도 된다.', haeyo: '은퇴했는데 왜 왔냐고요? 가게 문 닫고 왔어요. 오늘 하루는 괜찮아요.', short: '가게 닫고 왔다.' }, g.mainWho('leader')) },
+      { narr: '벽에 붙은 리더 사진 앞에 붕대 한 롤. 누가 오늘 새로 놓고 갔다.', when: (g, M) => M.flags.leaderFate === 'dead' },
+      { who: 'rival', when: (g, M) => M.flags.rivalEnd === 'with', text: '시험 날 너랑 나, 둘 다 떨어질 줄 알았다. 여기까지 왔네. 마저 가자.' },
+      { who: 'seoyun', when: (g, M) => SEO_ON5(M), text: (g, M) => (M.flags.seoyunBurned ? '관리국에서 잘렸어요. 봉쇄선 기록 때문에. 이제 저는 그냥 한서윤이에요. 그 사람으로 갈게요.' : '사직서 냈어요. 처음으로 제 이름으로 서명한 서류예요.') },
+      { who: 'friend', when: (g, M) => M.flags.friend3 === 'saved' || M.flags.friendBack, text: (g, M) => (F2_AWAKE(g) ? '나 각성자야. 잊었어? 이번엔 뒤에 안 숨어. 지우도 응원한대.' : M.flags.friendBack ? '나 반쯤 저편 사람이래. 그럼 문 앞에서 쓸모 있겠지. 데려가.' : '나는 비각성자야. 문 앞까진 못 가. 대신 산 아래에서 기다릴게. 네가 내려올 때까지.') },
+      { who: GOJ, when: (g, M) => M.flags.goJae === 'alive', text: '나는 그 섬에서 나온 마지막 사람이야. 들어가는 마지막 사람도 돼야지. 길 안내는 내가 한다.' },
+      { who: JIN_FACE, when: (g, M) => M.flags.jinFate === 'with', text: '여러분이 저를 어떻게 보는지 압니다. 문 앞까지만 같이 가요. 그다음은 열쇠가 정합니다.' },
+      { who: 'madohyun', when: (g, M) => M.flags.madoState === 'ally', text: '(전화) 제주 봉쇄선은 내가 연다. 자네가 지나갈 동안만. 그다음은… 자네 몫이다.' },
+      { narr: '(구치소에서 편지 한 통. 마도현의 글씨.) "제주를 보게. 그리고 돌아오게. 나는 그날 돌아오지 못한 사람들 이름을 다 외운다."', when: (g, M) => M.flags.madoState === 'jailed' },
+    ] },
+    { id: 'c34_choose', lines: [
+      { narr: '지도 위에 손을 올린다. 누구와 함께 갈지 정할 시간이다.' },
+    ], choices: [
+      { text: '다 함께 간다', when: (g, M) => P5_ALLIES(g, M).length >= 2, set: { goWith: 'all' } },
+      { text: '가장 믿는 한 사람과 간다', when: (g, M) => P5_ALLIES(g, M).length >= 1, set: { goWith: 'one' } },
+      { text: '혼자 간다 — 아무도 문 앞에 세우지 않는다', set: { goWith: 'alone' } },
+    ] },
+    { id: 'c34_night', lines: [
+      { narr: (g, M) => ({ all: '밤이 깊도록 아무도 돌아가지 않는다. 누가 라면을 끓인다. 냄비 하나에 젓가락이 모자란다.', one: '다들 돌아가고 한 사람만 남는다. 둘이서 지도를 한 번 더 본다. 말은 별로 없다.', alone: '다들 돌아간다. 문 닫히는 소리가 하나씩. 마지막 사람이 문간에서 돌아본다. 아무 말도 하지 않는다.' })[M.flags.goWith] },
+      { who: 'arin', text: (g, M) => (M.flags.goWith === 'alone' ? '혼자 오지 마. …아니, 와. 어떻게 오든.' : '많이 데려오네. 좋다. 문 앞이 이렇게 북적인 적은 없었어.') },
+      { sys: '5부 「봉쇄선 너머」 끝. 6부 「원초의 문」은 S급이 되면 열린다.' },
+    ], next: 'end' },
+  ],
+  done: (g, M) => {
+    const allies = P5_ALLIES(g, M); M.flags.allies = M.flags.goWith === 'alone' ? [] : M.flags.goWith === 'one' ? allies.slice(0, 1) : allies;
+    M.part5 = { north: M.flags.northWay || 'late', circuit: !!M.flags.circuitCut, arin: M.flags.arinAsk || 'none', promise: !!M.flags.arinPromise, strait: M.flags.fight_c32_lord === 'win' ? 'player' : (M.flags.straitStrong ? 'strong' : 'other'), jin: M.flags.jinFate || 'gone', go: M.flags.goWith || 'alone', allies: M.flags.allies.length };
+    g.lifeEvent(M.flags.goWith === 'alone' ? '제주로 가기 전날 밤, 모두를 돌려보냈다.' : `제주로 가기 전날 밤, ${M.flags.allies.length}명과 함께 가기로 했다.`);
+  },
+  expire: { months: 6, run: (g, M) => {
+    Object.assign(M.flags, { c34: 'missed', goWith: 'alone', allies: [] });
+    M.part5 = { north: M.flags.northWay || 'late', circuit: !!M.flags.circuitCut, arin: M.flags.arinAsk || 'none', promise: !!M.flags.arinPromise, strait: M.flags.straitStrong ? 'strong' : 'other', jin: M.flags.jinFate || 'gone', go: 'alone', allies: 0 };
+    return '모이자고 한 날이 지났다. 사람들이 하나둘 각자의 자리로 돌아갔다.';
+  } },
+});
