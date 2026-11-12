@@ -307,6 +307,41 @@ const { chromium, devices } = require('playwright');
       }
     });
   });
+  await step('반삭 윤곽: 남녀·체형·피부색별 두상 밖 테두리 없음', async () => {
+    await page.evaluate(async () => {
+      const read=async (url,offset=0)=>{const im=new Image();im.src=url;await im.decode();const cv=document.createElement('canvas');cv.width=400;cv.height=600;const ctx=cv.getContext('2d');ctx.drawImage(im,0,offset);return ctx.getImageData(0,0,400,600).data;};
+      let checked=0;
+      for (const gender of ['M','F']) {
+        const samples=new Map();
+        for(let n=0;n<20000&&samples.size<2;n++) {
+          const seed='look5:반삭윤곽-'+n,selected=PortraitParts.select(seed,gender,{age:25,outfit:'underwear'});
+          const hair=Number(selected.layers[2].file.match(/-(\d+)\.webp/)[1]);
+          if([31,32].includes(hair)&&selected.layers[0].file==='face-'+gender.toLowerCase()+'-28.webp'&&selected.layers.length===3)samples.set(hair,seed);
+        }
+        if(samples.size!==2)throw Error('같은 얼굴 반삭·대머리 비교 시드 없음');
+        for(const bodyType of ['thin','normal','strong','heavy'])for(const skinTone of ['natural','fair','medium','tan','deep'])for(const outfit of ['underwear','coat','casual']) {
+          const opts={age:25,outfit,bodyType,skinTone};
+          const buzz=await PortraitParts.rasterize(PORTRAIT.card(samples.get(32),gender,null,0,400,opts));
+          const bald=await PortraitParts.rasterize(PORTRAIT.card(samples.get(31),gender,null,0,400,opts));
+          const doc=new DOMParser().parseFromString(decodeURIComponent(buzz.split(',').slice(1).join(',')),'image/svg+xml');
+          const [a,b,body]=await Promise.all([read(buzz),read(bald),read(doc.querySelector('image[data-body-scale]').getAttribute('href'),Number(doc.documentElement.dataset.baseOffset))]);
+          let visible=0;
+          for(let y=40;y<215;y++)for(let x=100;x<300;x++) {
+            const k=(y*400+x)*4,delta=Math.max(...[0,1,2].map(c=>Math.abs(a[k+c]-b[k+c])));
+            if(body[k+3]>245&&delta>5)visible++;
+            if(delta<=4)continue;
+            let nearBody=false;
+            for(let dy=-1;dy<=1&&!nearBody;dy++)for(let dx=-1;dx<=1;dx++)if(body[((y+dy)*400+x+dx)*4+3]>0){nearBody=true;break;}
+            if(!nearBody)throw Error('두상 밖 반삭 테두리: '+gender+' '+bodyType+' '+skinTone+' '+outfit+' '+[x,y]);
+          }
+          if(visible<80)throw Error('반삭 모발이 사라짐');
+          checked++;
+        }
+        for(const age of [10,16,25]){const im=new Image();im.src=await PortraitParts.rasterize(PORTRAIT.avatar(samples.get(32),gender,null,0,64,{age}));await im.decode();}
+      }
+      if(checked!==120)throw Error('반삭 윤곽 검증 조합 부족');
+    });
+  });
   await step('현대 헌터 직업복: 실행 직업 전체·남녀 의상·NPC 연결', async () => {
     const files=await page.evaluate(() => {
       const files=new Set();
@@ -366,6 +401,61 @@ const { chromium, devices } = require('playwright');
         let jawY=0,best=Infinity;for(let y=265;y<=287;y++){const p=ctx.getImageData(200,y,1,1).data,s=p[0]+p[1]+p[2];if(s<best){best=s;jawY=y;}}
         let collarY=0;for(let y=jawY+2;y<315;y++)if(ctx.getImageData(200,y,1,1).data[0]<80){collarY=y;break;}
         if(!collarY||collarY-jawY>28)throw Error('남성 코트 목 노출이 과함: '+bodyType+' '+[jawY,collarY]);
+      }
+    });
+  });
+  await step('여성 긴머리 연속성: 목 아래 머리카락 잘림 방지', async () => {
+    await page.evaluate(async () => {
+      const samples = new Map();
+      for (let n = 0; n < 30000 && samples.size < 7; n++) {
+        const seed = 'look5:긴머리연속-' + n, selected = PortraitParts.select(seed, 'F', { age: 25, outfit: 'underwear' });
+        const hair = Number(selected.layers[2].file.match(/-(\d+)\.webp/)[1]);
+        if ([0,2,24,25,26,28,29].includes(hair)) samples.set(hair, seed);
+      }
+      if (samples.size !== 7) throw Error('긴머리 표본 부족');
+      let checked = 0;
+      for (const [hair, seed] of samples) for (const bodyType of ['thin','normal','strong','heavy']) for (const outfit of ['underwear','coat','casual']) {
+        const source = await PortraitParts.rasterize(PORTRAIT.card(seed, 'F', null, 0, 400, { age:25, bodyType, outfit }));
+        const doc = new DOMParser().parseFromString(decodeURIComponent(source.split(',').slice(1).join(',')), 'image/svg+xml');
+        const front = doc.querySelector('image[data-hair-layer="front"]');
+        if (!front) throw Error('앞머리 레이어 없음');
+        const read = async (url, rect = [0,0,400,600]) => { const im = new Image(); im.src = url; await im.decode(); const cv = document.createElement('canvas'); cv.width=400;cv.height=600;const ctx=cv.getContext('2d');ctx.drawImage(im,...rect);return ctx.getImageData(0,0,400,600).data; };
+        const registered = PortraitParts.select(seed, 'F', {age:25, bodyType, outfit}).layers[2];
+        const original = await read('assets/portraits/parts/hair-f-'+hair+'.webp', registered.rect);
+        const baked = await read(front.getAttribute('href'));
+        let pixels = 0;
+        for (let y=264;y<420;y++) for (let x=70;x<330;x++) {
+          const alpha=(y*400+x)*4+3;
+          if (original[alpha] < 240) continue;
+          if (baked[alpha] < 230) throw Error('목 아래 헤어가 잘림: H'+hair+' '+bodyType+' '+outfit+' '+[x,y]);
+          pixels++;
+        }
+        if (pixels < 50) throw Error('목 아래 헤어 검증 표본 부족');
+        checked++;
+      }
+      if (checked !== 84) throw Error('긴머리 체형·의상 조합 누락');
+    });
+  });
+  await step('여성 H25 정수리: 네 체형 모두 두피 노출 없음', async () => {
+    await page.evaluate(async () => {
+      let seed;
+      for (let n=0;n<2000;n++) { const value='look5:정수리-'+n; if (PortraitParts.select(value,'F',{age:25}).layers[2].file==='hair-f-25.webp') { seed=value;break; } }
+      if (!seed) throw Error('H25 검증 시드 없음');
+      const read=async url=>{const im=new Image();im.src=url;await im.decode();const cv=document.createElement('canvas');cv.width=400;cv.height=600;const ctx=cv.getContext('2d');ctx.drawImage(im,0,0,400,600);return ctx.getImageData(0,0,400,600).data;};
+      for (const bodyType of ['thin','normal','strong','heavy']) {
+        const selected=PortraitParts.select(seed,'F',{age:25,bodyType,outfit:'underwear'});
+        const source=await PortraitParts.rasterize(PORTRAIT.card(seed,'F',null,0,400,{age:25,bodyType,outfit:'underwear'}));
+        const doc=new DOMParser().parseFromString(decodeURIComponent(source.split(',').slice(1).join(',')),'image/svg+xml');
+        const hair=await read(doc.querySelector('image[data-hair-layer="front"]').getAttribute('href'));
+        const body=await read('assets/portraits/parts/'+selected.baseBody.file);
+        let checked=0;
+        for (let y=60;y<106;y++) for (let x=140;x<261;x++) {
+          const alpha=(y*400+x)*4+3;
+          if (body[alpha]<=240) continue;
+          if (hair[alpha]<200) throw Error('H25 정수리 두피 노출: '+bodyType+' '+[x,y]);
+          checked++;
+        }
+        if (checked<100) throw Error('정수리 검증 표본 부족');
       }
     });
   });
@@ -1257,6 +1347,15 @@ const { chromium, devices } = require('playwright');
         if (document.getElementById('main-cut')) return '대화가 닫혔는데 그림이 남음';
         return '';
       } finally { if (UI.dlg) UI.dlgEnd(() => {}); G.flags.main = JSON.parse(keep); }
+    });
+    if (r) throw new Error(r);
+  });
+  await step('약초를 가진 채 인물 시트가 열림 (코어 목록에 다른 재료가 섞여도 깨지지 않음)', async () => {
+    const r = await ev(() => {
+      const p = G.player; const h = p.mats.herb; p.mats.herb = 2;
+      try { const s = UI.charHtml(); return s.includes('약초 2다발') ? '' : '인물 시트에 약초가 보이지 않음'; }
+      catch (e) { return '인물 시트 오류: ' + e.message; }
+      finally { if (h == null) delete p.mats.herb; else p.mats.herb = h; }
     });
     if (r) throw new Error(r);
   });

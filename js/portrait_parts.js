@@ -1587,7 +1587,7 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearEndY": 330
+      "rearEndY": 240
     },
     {
       "file": "hair-m-28.webp",
@@ -2079,18 +2079,18 @@ const PortraitParts = (() => {
       "file": "hair-f-25.webp",
       "rect": [
         0,
-        0,
+        -12,
         400,
         600
       ],
       "rearFile": "hair-f-25.webp",
       "rearRect": [
         0,
-        0,
+        -12,
         400,
         600
       ],
-      "rearEndY": 365
+      "rearEndY": 353
     },
     {
       "file": "hair-f-26.webp",
@@ -3116,10 +3116,11 @@ const PortraitParts = (() => {
     const fitHead = markup => headScale === 1 ? markup : `<g data-proportion="head" transform="${headTransform}">${markup}</g>`;
     const cardHeight = underwear ? 440 : 480;
     const view = avatar ? `72 ${pose} 256 256` : `0 0 400 ${cardHeight}`;
-    const source = part => root + part.file + '?v=11';
+    const source = part => root + part.file + '?v=12';
     const image = (part, attrs = '') => {
       const [x,y,w,h] = part.rect, src = source(part);
-      return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${part.opacity == null ? '' : ` opacity="${part.opacity}"`}${attrs}/>`;
+      const sideFit = part.file === 'hair-m-20.webp' ? ` data-hair-source="${src}" data-hair-rect="${part.rect.join(',')}" data-head-source="${source(base)}" data-head-chin="${chin}" data-hair-side-fit="true"` : '';
+      return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${part.opacity == null ? '' : ` opacity="${part.opacity}"`}${sideFit}${attrs}/>`;
     };
     const palette = { fair:[246,218,200], medium:[220,180,150], tan:[182,133,95], deep:[133,88,65] };
     const target = palette[selection.skinTone] || face.skinRgb || [230,195,180];
@@ -3167,7 +3168,10 @@ const PortraitParts = (() => {
     const baseClips = `<clipPath id="${id}col"><path d="${neckPath}"/></clipPath>${collar ? `<clipPath id="${id}fill"><path d="${neckPath}"/><path d="${opening}" transform="translate(0 ${-pose}) ${coatF ? garmentTf.replace(/translate\([-\d.]+ (-?[\d.]+)\) translate\(200/, 'translate(0 $1) translate(200') : garmentTf}"/></clipPath>` : ''}${collar ? `<clipPath id="${id}open"><rect width="400" height="${chin}"/><path d="${opening}" transform="translate(0 ${-pose}) ${coatF ? garmentTf.replace(/translate\([-\d.]+ (-?[\d.]+)\) translate\(200/, 'translate(0 $1) translate(200') : garmentTf}"/></clipPath>` : ''}<clipPath id="${id}neck">${neckClip}</clipPath><clipPath id="${id}jaw">${heavy ? `<path d="${jawShape}"/>` : female ? `<rect width="400" height="${neckTop}"/><rect x="${200-neckWidth/2}" width="${neckWidth}" height="${chin+24-22*headScale}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}</clipPath>`;
     const featureY = female ? 175 : 165;
     const features = `<radialGradient id="${id}features"><stop stop-color="white"/><stop offset=".9" stop-color="white"/><stop offset="1" stop-color="black"/></radialGradient><mask id="${id}featureMask" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><ellipse cx="200" cy="${featureY}" rx="62" ry="70" fill="url(#${id}features)"/></mask>`;
-    const defs = `<defs>${baseClips}${features}${collarDefs}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><clipPath id="${id}circle"><circle cx="200" cy="${128+pose}" r="126"/></clipPath></defs>`;
+    // 반삭은 두피 위의 짧은 모발이다. 두상 바깥에 반투명 파츠가 남아 띠처럼 보이지 않게 실제 원화 알파에 맞춘다.
+    const scalpMask = selection.layers[2].style === 'buzz'
+      ? `<mask id="${id}scalp" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="400" height="600" style="mask-type:alpha">${image(integrated ? base : face)}</mask>` : '';
+    const defs = `<defs>${baseClips}${features}${collarDefs}${scalpMask}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><clipPath id="${id}circle"><circle cx="200" cy="${128+pose}" r="126"/></clipPath></defs>`;
     // 세운 깃(3·5)은 뒷깃이 목 뒤로 완전히 숨으므로 그리지 않는다: 통통에서 목 옆 위로 뒷깃 모서리가 보이던 문제 (사용자 지적)
     const back = collar && style !== 3 && style !== 5 ? image(cloth, ` data-depth="collar-back" clip-path="url(#${id}back)"${garmentAttrs}`) : '';
     // 둥근 깃(4): 깃 구멍 안은 원화 피부(목이 어깨로 넓어지는 모양 그대로)로 채우고, 깃 앞판이 그 위를 덮는다. 구멍 위쪽은 목 폭. (사용자 지적: 목 밑 양옆이 뒷판으로 파먹힌 것처럼 보임)
@@ -3196,14 +3200,12 @@ const PortraitParts = (() => {
     const completeRearHair = hairPart && hairPart.rearFile
       ? fitHead(image({ file:hairPart.rearFile, rect:hairPart.rearRect }, ` data-depth="hair-rear-complete" transform="translate(0 ${pose})"`)) : '';
     const splitHair = integrated && female && hairPart && !hairPart.bald;
-    // 둥근 깃은 목 피부가 깃 구멍 전체로 넓어지므로, 목 앞에 남던 머리카락 부스러기도 그 폭까지 뒤로 보낸다 (사용자 지적)
-    const hairNeck = roundNeck && style === 4 ? ` data-neck-half="${Math.round(collar[2] * fit)}"` : '';
-    const hairData = splitHair ? ` data-hair-source="${source(hairPart)}" data-hair-rect="${hairPart.rect.join(',')}" data-head-source="${source(base)}" data-head-chin="${chin}"${hairNeck}` : '';
+    const hairData = splitHair ? ` data-hair-source="${source(hairPart)}" data-hair-rect="${hairPart.rect.join(',')}" data-head-source="${source(base)}" data-head-chin="${chin}"` : '';
     const rearHair = splitHair ? fitHead(image(hairPart, ` data-depth="hair-back" data-hair-layer="back" transform="translate(0 ${pose})"${hairData}`)) : '';
     const details = accessories.map(part => {
       if (part.bald) return '';
       const onFace = /traits-(3|5)\.webp/.test(part.file);
-      const attrs = ` transform="translate(0 ${integrated && !onFace ? pose : headY})"`;
+      const attrs = ` transform="translate(0 ${integrated && !onFace ? pose : headY})"${part.style === 'buzz' ? ` mask="url(#${id}scalp)"` : ''}`;
       if (splitHair && part.file.startsWith('hair-')) {
         return image(part, attrs + ` data-depth="hair-front" data-hair-layer="front"${hairData}`);
       }
@@ -3296,24 +3298,37 @@ const PortraitParts = (() => {
   };
   const hairBitmaps = new Map();
   const hairBitmap = node => {
-    const d=node.dataset, key=[d.hairSource,d.hairRect,d.headSource,d.headChin,d.neckHalf||''].join('|');
+    const d=node.dataset, key=[d.hairSource,d.hairRect,d.headSource,d.headChin,d.hairSideFit||''].join('|');
     if(hairBitmaps.has(key))return hairBitmaps.get(key);
     const promise=(async()=>{
       const [hair,head]=await Promise.all([loadImage(d.hairSource),loadImage(d.headSource)]);
       const cv=document.createElement('canvas');cv.width=400;cv.height=600;const ctx=cv.getContext('2d');
       ctx.drawImage(head,0,0,400,600);const silhouette=ctx.getImageData(0,0,400,600).data;
       ctx.clearRect(0,0,400,600);ctx.drawImage(hair,...d.hairRect.split(',').map(Number));const pixels=ctx.getImageData(0,0,400,600);
+      if(d.hairSideFit){
+        // 윗머리는 유지하고 관자놀이 아래만 연속해서 좁혀 구레나룻이 옆얼굴에 붙게 한다.
+        const original=new Uint8ClampedArray(pixels.data);
+        for(let y=135;y<600;y++){
+          const t=Math.max(0,Math.min(1,(y-135)/35)),scale=1-.18*t*t*(3-2*t);
+          const end=Math.max(0,Math.min(1,(188-y)/12)),fade=end*end*(3-2*end);
+          for(let x=0;x<400;x++){
+            const k=(y*400+x)*4,sx=200+(x-200)/scale,x0=Math.floor(sx),mix=sx-x0;
+            if(x0<0||x0+1>=400||!fade){pixels.data[k+3]=0;continue;}
+            const a=(y*400+x0)*4,b=a+4,wa=original[a+3]*(1-mix),wb=original[b+3]*mix,total=wa+wb;
+            // 투명 영역의 RGB가 가장자리에 섞이지 않게 알파를 곱한 색으로 보간한다.
+            for(let c=0;c<3;c++)pixels.data[k+c]=total?(original[a+c]*wa+original[b+c]*wb)/total:0;
+            pixels.data[k+3]=total*fade;
+          }
+        }
+      }
       const chin=Number(d.headChin),back=ctx.createImageData(400,600);
       let left=200,right=200;
-      for(let x=0;x<400;x++)if(silhouette[((chin+4)*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
-      const neckHalf=d.neckHalf?Number(d.neckHalf):Math.max(20,(right-left)/2);
-      left=200;right=200;
       for(let x=0;x<400;x++)if(silhouette[(220*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
       const cheekHalf=Math.max(20,(right-left)/2)+2;
-      // 턱까지는 실제 머리 윤곽을 그대로 사용한다. 그 아래는 목 안쪽으로 좁혀 긴 머리가 가슴 앞으로 이어지게 한다.
-      for(let y=195;y<330;y++){
-        const t=Math.max(0,Math.min(1,(y-195)/5)),weight=t*t*(3-2*t);
-        const half=y<=220?cheekHalf:y<=chin+4?200:neckHalf*Math.max(0,(330-y)/(330-chin-4));
+      // 얼굴·턱을 보호하는 분리는 턱 바로 아래에서 끝낸다. 목·어깨까지 피부 폭으로 가리면 긴 머리가 잘린다.
+      for(let y=195;y<chin;y++){
+        const t=Math.max(0,Math.min(1,(y-195)/5,(chin-y)/4)),weight=t*t*(3-2*t);
+        const half=y<=220?cheekHalf:200;
         for(let x=0;x<400;x++){
           const k=(y*400+x)*4,edge=Math.max(0,Math.min(1,half-Math.abs(x-200)+.5));
           const cover=silhouette[k+3]>8?weight*edge:0;

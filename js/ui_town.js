@@ -72,7 +72,7 @@ Object.assign(UI, {
         <p class="small dim">체력과 정신력을 모두 회복하고, 부상 기간이 1개월 줄어든다.</p></div>`;
       case 'market': {
         const s = G.getShop();
-        const coresOwned = Object.keys(p.mats).filter((k) => p.mats[k] > 0).map((k) => +k.slice(1)).sort((a, b) => a - b);
+        const coresOwned = Object.keys(p.mats).filter((k) => /^c[0-7]$/.test(k) && p.mats[k] > 0).map((k) => +k.slice(1)).sort((a, b) => a - b);
         return `<div class="cards">
           ${BIG_CITIES.includes(reg.id) ? `<div class="item-row hl"><span class="slot-ico" style="--c:var(--amber)">${facIcon('workshop', 20)}</span><div class="grow"><b>${RANKS[p.rankIdx].key}급 각성 촉매</b> <span class="small dim">보유 ${p.items[G.catalystKey()] || 0}</span><div class="small dim">돌파에 반드시 필요하다. 공방에서 직접 만들면 더 싸다.</div></div><button class="sm" data-act="buy-catalyst">${FX.icon('coin', 13)} ${price(G.catalystPrice() * pm)}</button></div>` : ''}
           ${CONSUMABLES.map((c) => `<div class="item-row"><div class="grow"><b>${c.name}</b> <span class="dim small">보유 ${p.items[c.id] || 0} · ${c.desc}</span></div><button class="sm" data-act="buy-item" data-v="${c.id}">${FX.icon('coin', 13)} ${price(c.price * pm)}</button></div>`).join('')}
@@ -105,7 +105,7 @@ Object.assign(UI, {
           <div class="sec-title sec">옆자리에서 들려오는 이야기</div><div class="logs">${G.rumors.slice(0, 4).map((r) => `<div class="l"><span class="d">${r.date}</span>${r.text}</div>`).join('') || '<div class="dim">조용한 밤이다.</div>'}</div>`;
       }
       case 'workshop': {
-        const coreList = Object.keys(p.mats).filter((k) => p.mats[k] > 0).map((k) => `${coreName(+k.slice(1))} ${p.mats[k]}`).join(' · ') || '없음';
+        const coreList = Object.keys(p.mats).filter((k) => /^c[0-7]$/.test(k) && p.mats[k] > 0).map((k) => `${coreName(+k.slice(1))} ${p.mats[k]}`).concat(p.mats.herb > 0 ? [`약초 ${p.mats.herb}다발`] : []).join(' · ') || '없음';
         return `<p class="small dim">보유 코어: ${coreList}. 높은 등급 코어는 낮은 등급 재료를 대신할 수 있다.</p>
           <div class="cards">${RECIPES.map((rc) => { const t = G.recipeTier(rc); return `<div class="item-row ${rc.out === 'catalyst' ? 'hl' : ''}"><div class="grow"><b>${rc.out === 'catalyst' ? `${RANKS[t].key}급 ` : ''}${rc.name}</b> ×${rc.n}
             <div class="small dim">${coreName(t)} ${rc.cores}개 + ${fmt(G.recipeCost(rc))} 크레딧${rc.out === 'catalyst' ? ' · 돌파에 반드시 필요' : ''}</div></div>

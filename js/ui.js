@@ -588,7 +588,7 @@ const UI = {
       <div class="sec"><div class="sec-title">유물 · 각성 촉매 · 코어</div><div class="cards">
         ${p.relics.map((r) => { const R = relicById(r.id); return `<div class="item-row"><div class="grow"><b style="color:${RARITY[r.grade].color}">${R.name}</b> <span class="tag">${RARITY[r.grade].name}</span><div class="small dim">돌파 때 바치면 ${R.desc} 영구 상승</div></div></div>`; }).join('')}
         ${Object.keys(p.items).filter((k) => k.startsWith('cat') && p.items[k] > 0).map((k) => `<div class="item-row hl"><div class="grow"><b>${RANKS[+k.slice(3)].key}급 각성 촉매</b> ×${p.items[k]}</div></div>`).join('')}
-        <div class="small dim">${Object.keys(p.mats).filter((k) => p.mats[k] > 0).map((k) => `${coreName(+k.slice(1))} ${p.mats[k]}`).join(' · ') || '코어 없음'} · 협회 공적 ${p.merit}</div>
+        <div class="small dim">${Object.keys(p.mats).filter((k) => /^c[0-7]$/.test(k) && p.mats[k] > 0).map((k) => `${coreName(+k.slice(1))} ${p.mats[k]}`).concat(p.mats.herb > 0 ? [`약초 ${p.mats.herb}다발`] : []).join(' · ') || '코어 없음'} · 협회 공적 ${p.merit}</div>
         ${Object.keys(p.relicBonus || {}).length ? `<div class="small">유물 누적 효과: ${Object.entries(p.relicBonus).map(([k, v]) => `${{ hp: '체력', atk: '공격', def: '방어', spd: '속도', mp: '정신력', luck: '운', train: '수련', life: '수명' }[k]} +${k === 'life' ? Math.round(v) + '년' : Math.round(v * 100) + '%'}`).join(', ')}</div>` : ''}
       </div></div>
       <div class="sec"><div class="sec-title">인생 기록</div><div class="logs">${p.lifeEvents.slice().reverse().map((e) => `<div class="l major"><span class="d">${e.date} · ${e.age}세</span>${e.text}</div>`).join('')}</div></div>

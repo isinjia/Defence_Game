@@ -173,7 +173,7 @@ Object.assign(Game.prototype, {
     const it = G.soulWeapon();
     if (id === 'workshop' && it) {
       const p = G.player; const s = it.soul; const next = SOUL_XP[s.lv] ;
-      const tiers = Object.keys(p.mats).filter((k) => p.mats[k] >= 5).map((k) => +k.slice(1)).sort((a, b) => b - a).slice(0, 3);
+      const tiers = Object.keys(p.mats).filter((k) => /^c[0-7]$/.test(k) && p.mats[k] >= 5).map((k) => +k.slice(1)).sort((a, b) => b - a).slice(0, 3);
       html = `<div class="sec-title">${it.name} 먹이기</div><div class="small dim">Lv${s.lv} · 경험 ${s.xp}${next ? `/${next}` : ' (최대)'}${s.evo ? ` · ${SOUL_EVO[s.evo].name}의 길` : ` · 지금 기운: ${SOUL_EVO[G.soulDominant(it)].name}`}${s.sulk ? ' · <span class="bad">삐침</span>' : ''}</div>
         <div class="row">${tiers.map((t) => `<button class="sm" data-act="soul-feed" data-v="${t}">${coreName(t)} 5개</button>`).join('') || '<span class="small dim">코어 5개 이상이 필요하다.</span>'}</div>` + html;
     }
