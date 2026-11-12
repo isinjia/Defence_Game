@@ -3167,7 +3167,10 @@ const PortraitParts = (() => {
     const baseClips = `<clipPath id="${id}col"><path d="${neckPath}"/></clipPath>${collar ? `<clipPath id="${id}fill"><path d="${neckPath}"/><path d="${opening}" transform="translate(0 ${-pose}) ${coatF ? garmentTf.replace(/translate\([-\d.]+ (-?[\d.]+)\) translate\(200/, 'translate(0 $1) translate(200') : garmentTf}"/></clipPath>` : ''}${collar ? `<clipPath id="${id}open"><rect width="400" height="${chin}"/><path d="${opening}" transform="translate(0 ${-pose}) ${coatF ? garmentTf.replace(/translate\([-\d.]+ (-?[\d.]+)\) translate\(200/, 'translate(0 $1) translate(200') : garmentTf}"/></clipPath>` : ''}<clipPath id="${id}neck">${neckClip}</clipPath><clipPath id="${id}jaw">${heavy ? `<path d="${jawShape}"/>` : female ? `<rect width="400" height="${neckTop}"/><rect x="${200-neckWidth/2}" width="${neckWidth}" height="${chin+24-22*headScale}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}</clipPath>`;
     const featureY = female ? 175 : 165;
     const features = `<radialGradient id="${id}features"><stop stop-color="white"/><stop offset=".9" stop-color="white"/><stop offset="1" stop-color="black"/></radialGradient><mask id="${id}featureMask" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><ellipse cx="200" cy="${featureY}" rx="62" ry="70" fill="url(#${id}features)"/></mask>`;
-    const defs = `<defs>${baseClips}${features}${collarDefs}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><clipPath id="${id}circle"><circle cx="200" cy="${128+pose}" r="126"/></clipPath></defs>`;
+    // 반삭은 두피 위의 짧은 모발이다. 두상 바깥에 반투명 파츠가 남아 띠처럼 보이지 않게 실제 원화 알파에 맞춘다.
+    const scalpMask = selection.layers[2].style === 'buzz'
+      ? `<mask id="${id}scalp" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="400" height="600" style="mask-type:alpha">${image(integrated ? base : face)}</mask>` : '';
+    const defs = `<defs>${baseClips}${features}${collarDefs}${scalpMask}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><clipPath id="${id}circle"><circle cx="200" cy="${128+pose}" r="126"/></clipPath></defs>`;
     // 세운 깃(3·5)은 뒷깃이 목 뒤로 완전히 숨으므로 그리지 않는다: 통통에서 목 옆 위로 뒷깃 모서리가 보이던 문제 (사용자 지적)
     const back = collar && style !== 3 && style !== 5 ? image(cloth, ` data-depth="collar-back" clip-path="url(#${id}back)"${garmentAttrs}`) : '';
     // 둥근 깃(4): 깃 구멍 안은 원화 피부(목이 어깨로 넓어지는 모양 그대로)로 채우고, 깃 앞판이 그 위를 덮는다. 구멍 위쪽은 목 폭. (사용자 지적: 목 밑 양옆이 뒷판으로 파먹힌 것처럼 보임)
@@ -3201,7 +3204,7 @@ const PortraitParts = (() => {
     const details = accessories.map(part => {
       if (part.bald) return '';
       const onFace = /traits-(3|5)\.webp/.test(part.file);
-      const attrs = ` transform="translate(0 ${integrated && !onFace ? pose : headY})"`;
+      const attrs = ` transform="translate(0 ${integrated && !onFace ? pose : headY})"${part.style === 'buzz' ? ` mask="url(#${id}scalp)"` : ''}`;
       if (splitHair && part.file.startsWith('hair-')) {
         return image(part, attrs + ` data-depth="hair-front" data-hair-layer="front"${hairData}`);
       }

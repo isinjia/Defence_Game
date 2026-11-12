@@ -307,6 +307,41 @@ const { chromium, devices } = require('playwright');
       }
     });
   });
+  await step('반삭 윤곽: 남녀·체형·피부색별 두상 밖 테두리 없음', async () => {
+    await page.evaluate(async () => {
+      const read=async (url,offset=0)=>{const im=new Image();im.src=url;await im.decode();const cv=document.createElement('canvas');cv.width=400;cv.height=600;const ctx=cv.getContext('2d');ctx.drawImage(im,0,offset);return ctx.getImageData(0,0,400,600).data;};
+      let checked=0;
+      for (const gender of ['M','F']) {
+        const samples=new Map();
+        for(let n=0;n<20000&&samples.size<2;n++) {
+          const seed='look5:반삭윤곽-'+n,selected=PortraitParts.select(seed,gender,{age:25,outfit:'underwear'});
+          const hair=Number(selected.layers[2].file.match(/-(\d+)\.webp/)[1]);
+          if([31,32].includes(hair)&&selected.layers[0].file==='face-'+gender.toLowerCase()+'-28.webp'&&selected.layers.length===3)samples.set(hair,seed);
+        }
+        if(samples.size!==2)throw Error('같은 얼굴 반삭·대머리 비교 시드 없음');
+        for(const bodyType of ['thin','normal','strong','heavy'])for(const skinTone of ['natural','fair','medium','tan','deep'])for(const outfit of ['underwear','coat','casual']) {
+          const opts={age:25,outfit,bodyType,skinTone};
+          const buzz=await PortraitParts.rasterize(PORTRAIT.card(samples.get(32),gender,null,0,400,opts));
+          const bald=await PortraitParts.rasterize(PORTRAIT.card(samples.get(31),gender,null,0,400,opts));
+          const doc=new DOMParser().parseFromString(decodeURIComponent(buzz.split(',').slice(1).join(',')),'image/svg+xml');
+          const [a,b,body]=await Promise.all([read(buzz),read(bald),read(doc.querySelector('image[data-body-scale]').getAttribute('href'),Number(doc.documentElement.dataset.baseOffset))]);
+          let visible=0;
+          for(let y=40;y<215;y++)for(let x=100;x<300;x++) {
+            const k=(y*400+x)*4,delta=Math.max(...[0,1,2].map(c=>Math.abs(a[k+c]-b[k+c])));
+            if(body[k+3]>245&&delta>5)visible++;
+            if(delta<=4)continue;
+            let nearBody=false;
+            for(let dy=-1;dy<=1&&!nearBody;dy++)for(let dx=-1;dx<=1;dx++)if(body[((y+dy)*400+x+dx)*4+3]>0){nearBody=true;break;}
+            if(!nearBody)throw Error('두상 밖 반삭 테두리: '+gender+' '+bodyType+' '+skinTone+' '+outfit+' '+[x,y]);
+          }
+          if(visible<80)throw Error('반삭 모발이 사라짐');
+          checked++;
+        }
+        for(const age of [10,16,25]){const im=new Image();im.src=await PortraitParts.rasterize(PORTRAIT.avatar(samples.get(32),gender,null,0,64,{age}));await im.decode();}
+      }
+      if(checked!==120)throw Error('반삭 윤곽 검증 조합 부족');
+    });
+  });
   await step('현대 헌터 직업복: 실행 직업 전체·남녀 의상·NPC 연결', async () => {
     const files=await page.evaluate(() => {
       const files=new Set();
