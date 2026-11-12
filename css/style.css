@@ -111,7 +111,7 @@ p { margin: 6px 0; }
 .title-screen .btns .primary:hover { background-color: #32668c; }
 @media (max-width: 640px) {
   .title-screen { padding: 16px; justify-content: center; }
-  .title-art { object-position: 68% center; }
+  .title-art { object-position: 50% center; }
   .title-screen::before { background: linear-gradient(180deg, rgba(5, 12, 26, .28), rgba(5, 12, 26, .8) 55%, rgba(5, 12, 26, .92)); }
   .title-inner { width: 100%; padding: 24px 0; }
   .title-inner .logo { font-size: clamp(32px, 9vw, 52px); }
