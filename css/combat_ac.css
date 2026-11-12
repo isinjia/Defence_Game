@@ -30,7 +30,10 @@
    휴대폰 세로: 가운데 정렬이라 선택지가 뜨면 대사 상자가 위로 밀렸다.
    대사 상자를 화면 아래쪽 일정한 자리에 고정하고(조금 더 아래), 선택지는 그 위에 쌓아 겹치지 않게 한다. */
 @media (orientation: portrait) and (max-width: 640px) {
-  html body #dlg { justify-content: flex-end; padding-bottom: calc(22vh + env(safe-area-inset-bottom, 0px)); }
+  /* 사용자 재요청: 너무 아래라 화면 가운데로 올린다. 자리는 그대로 고정(선택지는 위에 쌓임) — 대사 상자 아랫변이 화면 높이의 42% 지점 */
+  html body #dlg { justify-content: flex-end; padding-bottom: calc(42vh + env(safe-area-inset-bottom, 0px)); }
+  /* 메인 컷신 그림이 떠 있을 때는 그림을 가리지 않게 조금 아래 */
+  html body.main-cut-on #dlg { padding-bottom: calc(26vh + env(safe-area-inset-bottom, 0px)); }
 }
 #dlg .dlg-choices { margin-bottom: 4px; }
 

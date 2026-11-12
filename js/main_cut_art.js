@@ -7,10 +7,10 @@ if (typeof UI !== 'undefined') {
   const isCut = (k) => typeof k === 'string' && /^cut-[a-z0-9-]+$/.test(k);
   const src = (k) => ROOT + k + '.webp';
   UI.mainCutSrc = (k) => (isCut(k) ? src(k) : null);
-  UI.mainCutClear = function () { const el = document.getElementById('main-cut'); if (el) el.remove(); this._cut = null; };
+  UI.mainCutClear = function () { const el = document.getElementById('main-cut'); if (el) el.remove(); this._cut = null; document.body.classList.remove('main-cut-on'); };
   UI.mainCutShow = function (key) {
     if (!isCut(key) || this._cut === key) return;
-    this._cut = key;
+    this._cut = key; document.body.classList.add('main-cut-on');
     let el = document.getElementById('main-cut');
     if (!el) { el = document.createElement('div'); el.id = 'main-cut'; el.setAttribute('aria-hidden', 'true'); document.body.appendChild(el); requestAnimationFrame(() => el.classList.add('on')); }
     const img = new Image(); img.alt = ''; img.className = 'mc-img'; img.decoding = 'async';

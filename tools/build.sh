@@ -13,7 +13,7 @@ $ESBUILD dist/game.src.js --minify --target=es2017,chrome61,safari11 --charset=u
 FX3D_SRC=(vendor/three_fx.js js/fx3d.js)
 cat "${FX3D_SRC[@]}" > dist/fx3d.src.js
 $ESBUILD dist/fx3d.src.js --minify --target=es2017,chrome61,safari11 --charset=utf8 --log-level=warning --outfile=dist/fx3d.js
-cat css/style.css css/ui_b.css css/dialogue.css css/explore_view.css css/combat_ab.css css/combat_ac.css css/check.css css/eval_fix.css css/explore_cutscene.css css/prologue_cutscene.css css/explore_onescreen.css css/transport.css css/monster_art.css css/item_art.css css/skill_art.css css/world_opening.css css/main_cut.css css/polish.css > dist/style.src.css
+cat css/style.css css/ui_b.css css/dialogue.css css/explore_view.css css/combat_ab.css css/combat_ac.css css/check.css css/eval_fix.css css/explore_cutscene.css css/prologue_cutscene.css css/explore_onescreen.css css/transport.css css/monster_art.css css/item_art.css css/skill_art.css css/world_opening.css css/main_cut.css css/dlg_vn.css css/polish.css > dist/style.src.css
 $ESBUILD dist/style.src.css --target=chrome61,safari11 --charset=utf8 --log-level=warning --outfile=dist/style.css
 rm dist/game.src.js dist/style.src.css dist/fx3d.src.js
 echo "built dist/game.js ($(wc -c < dist/game.js) bytes), dist/fx3d.js ($(wc -c < dist/fx3d.js) bytes), dist/style.css ($(wc -c < dist/style.css) bytes)"

@@ -3064,7 +3064,7 @@ const PortraitParts = (() => {
     const bodyIndex = { normal:0, thin:1, strong:2, heavy:3 }[bodyType];
     const baseBody = parts['body-' + g][bodyIndex] || parts['body-' + g][0];
     const layers = [faces[face], underwear ? baseBody : cloths[cloth], hairs[hair]];
-    const trait = { elf: 0, beastkin: 1, dragonkin: 2, orc: 3, dwarf: 4 }[race];
+    const trait = { beastkin: 1, dragonkin: 2, orc: 3, dwarf: 4 }[race]; // 엘프 귀(traits 0)는 그리지 않는다 (사용자 요청)
     if (trait != null && !(race === 'dwarf' && (young || g === 'f'))) layers.push(parts.traits[trait]);
     if (!young && race === 'human' && (hash >>> 12) % 7 === 0) layers.push(parts.traits[5]);
     // 얼굴 바깥 사각형이 아니라 실제 눈·입·귀 위치에 맞춰 장신구를 등록한다.
@@ -3322,19 +3322,25 @@ const PortraitParts = (() => {
         }
       }
       const chin=Number(d.headChin),back=ctx.createImageData(400,600);
-      let left=200,right=200;
-      for(let x=0;x<400;x++)if(silhouette[(220*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
-      const cheekHalf=Math.max(20,(right-left)/2)+2;
-      // 얼굴·턱을 보호하는 분리는 턱 바로 아래에서 끝낸다. 목·어깨까지 피부 폭으로 가리면 긴 머리가 잘린다.
-      for(let y=195;y<chin;y++){
-        const t=Math.max(0,Math.min(1,(y-195)/5,(chin-y)/4)),weight=t*t*(3-2*t);
-        const half=y<=220?cheekHalf:200;
-        for(let x=0;x<400;x++){
-          const k=(y*400+x)*4,edge=Math.max(0,Math.min(1,half-Math.abs(x-200)+.5));
-          const cover=silhouette[k+3]>8?weight*edge:0;
-          if(!cover)continue;
-          for(let c=0;c<3;c++)back.data[k+c]=pixels.data[k+c];
-          back.data[k+3]=pixels.data[k+3]*cover;pixels.data[k+3]*=1-cover;
+      // 눈 아래의 머리를 고정 직사각형으로 끊지 않고 볼에서 턱으로 넓어지는 곡선으로 분리한다.
+      // H20 구레나룻은 옆얼굴 앞에 붙도록 맞춘 레이어이므로 그대로 둔다.
+      if(!d.hairSideFit){
+        let left=200,right=200;
+        for(let x=0;x<400;x++)if(silhouette[(220*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
+        const cheekHalf=Math.max(20,(right-left)/2)+2,templeHalf=cheekHalf+8;
+        for(let y=175;y<chin;y++){
+          const t=Math.max(0,Math.min(1,(y-175)/5,(chin-y)/4)),weight=t*t*(3-2*t);
+          const grow=Math.max(0,Math.min(1,(y-165)/20));
+          // 턱 밑의 목은 두상과 알파가 이어져 있다. 턱 곡선 바깥 목 피부까지 보호하면 모발에 직각 구멍이 난다.
+          const jawHalf=cheekHalf*Math.pow(Math.max(0,(chin-y)/(chin-220)),.6)+4;
+          const half=y<=220?templeHalf*grow*grow*(3-2*grow):jawHalf;
+          for(let x=0;x<400;x++){
+            const k=(y*400+x)*4,edge=Math.max(0,Math.min(1,(half-Math.abs(x-200)+1.5)/3));
+            const cover=silhouette[k+3]>8?weight*edge:0;
+            if(!cover)continue;
+            for(let c=0;c<3;c++)back.data[k+c]=pixels.data[k+c];
+            back.data[k+3]=pixels.data[k+3]*cover;pixels.data[k+3]*=1-cover;
+          }
         }
       }
       ctx.clearRect(0,0,400,600);ctx.putImageData(back,0,0);const rear=cv.toDataURL('image/png');

@@ -173,7 +173,7 @@ const PORTRAIT = (() => {
     const neck = `<path d="M89 134L111 134L113 182Q100 188 87 182Z" fill="${skin}"/>
       <path d="M89 140L100 156L111 140L112 162Q100 170 88 162Z" fill="${skinSh}"/>
       <path d="M89 134L111 134L113 182Q100 188 87 182Z" fill="none" stroke="${skinDeep}" stroke-width=".8" opacity=".6"/>`;
-    const ears = race === 'elf' ? `<path d="M71 98L44 76Q52 96 64 110Q68 116 72 116Z" fill="${skinSh}" stroke="${skinDeep}" stroke-width=".8"/><path d="M129 98L156 76Q148 96 136 110Q132 116 128 116Z" fill="${skin}" stroke="${skinDeep}" stroke-width=".8"/>`
+    const ears = false && race === 'elf' ? `<path d="M71 98L44 76Q52 96 64 110Q68 116 72 116Z" fill="${skinSh}" stroke="${skinDeep}" stroke-width=".8"/><path d="M129 98L156 76Q148 96 136 110Q132 116 128 116Z" fill="${skin}" stroke="${skinDeep}" stroke-width=".8"/>`
       : race === 'beastkin' ? '' : race === 'orc' ? `<path d="M70 96L58 90Q60 106 72 116Z" fill="${skinSh}"/><path d="M130 96L142 90Q140 106 128 116Z" fill="${skin}"/>`
       : `<path d="M70 98Q63 96 64 106Q66 116 72 116Z" fill="${skinSh}"/><path d="M130 98Q137 96 136 106Q134 116 128 116Z" fill="${skin}"/>`;
     const face = `${ears}<path d="${faceD}" fill="${skin}"/>
