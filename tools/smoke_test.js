@@ -90,7 +90,8 @@ const { chromium, devices } = require('playwright');
       if (aged >= 15) throw new Error('고령도 성인 얼굴 풀이어야 함');
       const kid = Number(PortraitParts.select('고정인물', 'F', { age: 10 }).layers[0].file.match(/face-f-(\d+)/)[1]);
       if (kid < 15) throw new Error('아이 얼굴 없음');
-      for (const race of ['elf', 'orc', 'dwarf', 'beastkin', 'dragonkin']) if (!PortraitParts.select('확인', 'M', { race }).layers.some(p => p.file.startsWith('traits'))) throw new Error('종족 특징 없음: ' + race);
+      if (PortraitParts.select('확인', 'M', { race: 'elf' }).layers.some(p => p.file.startsWith('traits-0'))) throw new Error('엘프 귀가 남아 있음(사용자 결정: 삭제)');
+      for (const race of ['orc', 'dwarf', 'beastkin', 'dragonkin']) if (!PortraitParts.select('확인', 'M', { race }).layers.some(p => p.file.startsWith('traits'))) throw new Error('종족 특징 없음: ' + race);
       if (PortraitParts.select('고정인물', 'M', { outfit: 'coat' }).key === PortraitParts.select('고정인물', 'M', { outfit: 'tactical' }).key) throw new Error('의상 변경 안 됨');
       const faceSet = new Set(), hairSet = new Set(), clothSet = new Set();
       for (let n = 0; n < 240; n++) {

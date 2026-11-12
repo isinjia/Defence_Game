@@ -3064,7 +3064,7 @@ const PortraitParts = (() => {
     const bodyIndex = { normal:0, thin:1, strong:2, heavy:3 }[bodyType];
     const baseBody = parts['body-' + g][bodyIndex] || parts['body-' + g][0];
     const layers = [faces[face], underwear ? baseBody : cloths[cloth], hairs[hair]];
-    const trait = { elf: 0, beastkin: 1, dragonkin: 2, orc: 3, dwarf: 4 }[race];
+    const trait = { beastkin: 1, dragonkin: 2, orc: 3, dwarf: 4 }[race]; // 엘프 귀(traits 0)는 그리지 않는다 (사용자 요청)
     if (trait != null && !(race === 'dwarf' && (young || g === 'f'))) layers.push(parts.traits[trait]);
     if (!young && race === 'human' && (hash >>> 12) % 7 === 0) layers.push(parts.traits[5]);
     // 얼굴 바깥 사각형이 아니라 실제 눈·입·귀 위치에 맞춰 장신구를 등록한다.
