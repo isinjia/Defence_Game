@@ -14,7 +14,7 @@ MAIN.ch(39, {
       { narr: '그리고 마지막. 당신 자신의 목소리. 각성하던 날의 숨소리.' },
     ] },
     { id: 'c39_in', lines: [
-      { narr: '문 안쪽. 소리가 없다. 한쪽은 검은 바다, 한쪽은 회색 강바닥. 그 사이에 당신이 서 있다.' },
+      { art: 'cut-39-inside', narr: '문 안쪽. 소리가 없다. 한쪽은 검은 바다, 한쪽은 회색 강바닥. 그 사이에 당신이 서 있다.' },
       { who: 'arin', text: '여기가 문 한가운데야. 여기서 정하면 그대로 돼.' },
       { narr: (g, M) => { const e = MAIN_ENDING(g, M); if (M.flags.gateChoice !== 'bridge' || e === 'bridge') return ''; const why = [M.flags.circuitCut ? '북쪽 줄은 관측소에서 끊었다' : '', !(M.flags.jinFate === 'with' || M.flags.jinFate === 'jailed') ? '다리를 함께 버텨 줄 진서해가 없다' : '', !FRIEND_ALIVE(g, M) ? '돌아갈 놀이터에서 기다리는 친구가 없다' : ''].filter(Boolean); return `${why.join('. ')}. ${ALLY_N(M) ? '등 뒤의 동료들이 문틀을 붙잡는다. 그래도 모자라다.' : '혼자 붙잡은 문틀이 손안에서 미끄러진다.'}`; }, when: (g, M) => M.flags.gateChoice === 'bridge' && MAIN_ENDING(g, M) !== 'bridge' },
       { narr: (g, M) => { const e = MAIN_ENDING(g, M); return M.flags.gateChoice === 'bridge' && e !== 'bridge' ? '원을 맞대 본다. 다리가 놓이려다 흔들린다. 북쪽 줄이 없거나, 버텨 줄 사람이 모자라다. 다리는 버티지 못한다. 남은 길은 하나.' : ''; }, when: (g, M) => M.flags.gateChoice === 'bridge' && MAIN_ENDING(g, M) !== 'bridge' },
@@ -23,7 +23,7 @@ MAIN.ch(39, {
       { text: '문에 손을 댄다', next: 'c39_end' },
     ] },
     { id: 'c39_end', lines: [
-      { narr: (g, M) => { M.ending = MAIN_ENDING(g, M); return ({
+      { art: (g, M) => (M.ending ? 'cut-end-' + M.ending : null), narr: (g, M) => { M.ending = MAIN_ENDING(g, M); return ({
         seal: '문이 천천히 닫힌다. 아린이 저편 쪽에서 손을 흔든다. 웃는다. 끝까지 웃는다. 마지막 틈으로 초록 바람이 한 번 불어온다.',
         bridge: '원이 문틀에 맞물린다. 문이 닫히지도 열리지도 않는다. 통로가 된다. 회색 강바닥에 처음으로 물이 흐른다. 아린이 울면서 웃는다. 누군가는 이 자리에 남아야 한다. 당신이 남는다.',
         open: '문이 끝까지 열린다. 초록 바람이 섬을 넘어 바다를 넘어 반도 전체로 분다. 모든 사람이 숨을 들이쉰다. 그리고 절반이 내쉬지 못한다.',

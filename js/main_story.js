@@ -221,9 +221,11 @@ if (typeof UI !== 'undefined') {
       for (const l of sc.lines || []) {
         if (l.when && !l.when(G, M)) continue;
         // art: 그림 키(assets/portraits/main/<키>). 서술·시스템 줄이면 삽화, 대사 줄이면 그 장면의 초상으로 쓴다(영역 B)
-        const art = typeof l.art === 'function' ? l.art(G, M) : l.art;
-        if (l.narr) { lines.push({ narr: G.mainFill(l.narr), ...(art ? { art } : {}) }); continue; }
-        if (l.sys) { lines.push({ sys: G.mainFill(l.sys), ...(art ? { art } : {}) }); continue; }
+        // 글을 먼저 채운 뒤 art를 고른다: 서술 함수가 갈래 플래그를 정하는 줄(13장 친구, 39장 엔딩)에서 그림이 그 결과를 따르게
+        const artOf = () => { const v = typeof l.art === 'function' ? l.art(G, M) : l.art; return v ? { art: v } : {}; };
+        if (l.narr) { const t = G.mainFill(l.narr); lines.push({ narr: t, ...artOf() }); continue; }
+        if (l.sys) { const t = G.mainFill(l.sys); lines.push({ sys: t, ...artOf() }); continue; }
+        const art = artOf().art;
         if (l.group) { lines.push({ narr: l.narr0 ? G.mainFill(l.narr0) : undefined, group: l.group.map((g) => ({ who: G.mainWho(g.who), text: G.mainFill(g.text) })).filter((g) => g.who) }); continue; }
         const who = G.mainWho(l.who);
         if (who) lines.push({ who, text: G.mainFill(G.mainReg(l.text, who)), ...(art ? { art } : {}) });

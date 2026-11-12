@@ -1,0 +1,12 @@
+/* 메인 컷신 그림: 대화창(#dlg, z 90) 바로 아래 층. 좁은 세로 화면에서는 가운데를 잘라 크게 보여 준다 */
+#main-cut { position: fixed; inset: 0; z-index: 89; pointer-events: none; background: #04060af2; opacity: 0; transition: opacity .35s ease; }
+#main-cut.on { opacity: 1; }
+#main-cut .mc-img { position: absolute; top: max(env(safe-area-inset-top), 0px); left: 50%; transform: translateX(-50%); width: min(100vw, 900px); height: min(100vw, 64vh); object-fit: cover; object-position: 50% 45%; animation: mcIn .7s ease-out both; -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); }
+#main-cut .mc-img.out { animation: mcOut .7s ease-in both; }
+@media (min-width: 700px) { #main-cut .mc-img { height: min(600px, 66vh); } }
+@keyframes mcIn { from { opacity: 0; transform: translateX(-50%) scale(1.04); } to { opacity: 1; transform: translateX(-50%) scale(1); } }
+@keyframes mcOut { from { opacity: 1; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { #main-cut .mc-img, #main-cut .mc-img.out { animation-duration: .01s; } }
+body.reduced #main-cut .mc-img { animation-duration: .01s; }
+/* 엔딩 화면 머리 그림 */
+.main-ending .main-ending-cut { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; margin: 0 0 12px; border: 1px solid var(--line, #22304a); }

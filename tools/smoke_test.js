@@ -1159,6 +1159,26 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
+  await step('메인 컷신: 대사 줄의 cut- 그림 파일이 모두 있고, 장면에서 뜨고 닫히면 내려감', async () => {
+    const fs = require('fs'); const path = require('path'); const root = path.join(__dirname, '..');
+    const keys = new Set();
+    for (const f of fs.readdirSync(path.join(root, 'js')).filter((n) => /^main_(part\d|ending)\.js$/.test(n))) for (const m of fs.readFileSync(path.join(root, 'js', f), 'utf8').matchAll(/'(cut-[a-z0-9-]*[a-z0-9])'/g)) keys.add(m[1]);
+    for (const e of ['seal', 'bridge', 'open', 'sacrifice', 'other']) keys.add('cut-end-' + e);
+    const lost = [...keys].filter((k) => !fs.existsSync(path.join(root, 'assets', 'main_cut', k + '.webp')));
+    if (lost.length) throw new Error('그림 파일 없음: ' + lost.join(', '));
+    if (keys.size < 55) throw new Error('연결된 컷신이 55장보다 적음: ' + keys.size);
+    const r = await ev(() => {
+      const M = G.mainState(); const keep = JSON.stringify(M);
+      try {
+        M.ch = 1; M.open[1] = G.monthKey(); UI.mainPlay('c1_street'); UI.dlgNext(); UI.dlgNext();
+        if (UI._cut !== 'cut-01-leaflet' || !document.querySelector('#main-cut img')) return '1장 전단 그림이 뜨지 않음';
+        UI.dlgEnd(() => {});
+        if (document.getElementById('main-cut')) return '대화가 닫혔는데 그림이 남음';
+        return '';
+      } finally { if (UI.dlg) UI.dlgEnd(() => {}); G.flags.main = JSON.parse(keep); }
+    });
+    if (r) throw new Error(r);
+  });
   await step('괴수 원화: 전 종 이미지·전용 보스·도감 확대와 복귀', async () => {
     const r = await ev(async () => {
       const missing = [...MONSTERS, MON_TREASURE].filter((m) => !MonsterArt.data[m.name]);
