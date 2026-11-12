@@ -1,0 +1,44 @@
+/* ===== 대화창: 비주얼 노벨식 (사용자 요청) =====
+   큰 인물이 화면에 서고, 대사는 화면 아래 어두운 띠 위에 이름(왼쪽 색 막대) + 글로 깔린다. 상자 테두리·작은 초상 카드는 쓰지 않는다.
+   선택지는 화면 가운데. 기존 마크업(dialogue.js)을 그대로 두고 모양만 바꾼다. 다른 파일의 #dlg 규칙을 덮어야 해서 맨 뒤에 둔다. */
+html body #dlg { justify-content: flex-end; gap: 0; padding: 0; background: linear-gradient(to top, #04060a 0%, #04060af2 16%, #04060ab3 38%, #04060a66 70%, #04060a59 100%); }
+html body.main-cut-on #dlg { padding: 0; background: none; }
+
+/* 대사 띠 */
+html body #dlg .dlg-box { position: relative; display: block; max-width: none; width: 100%; margin: 0; min-height: 22vh; padding: 16px 22px calc(34px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, #04060a 0%, #04060afa 62%, #04060ad9 84%, #04060a00 100%); border: 0; clip-path: none; box-shadow: none; }
+html body #dlg .dlg-box > .dlg-body { max-width: 720px; margin: 0 auto; }
+html body #dlg .dlg-box.still { opacity: 1; }
+html body #dlg .dlg-plate { margin: 0 0 8px; padding: 1px 0 1px 10px; border: 0; border-left: 3px solid var(--ac, #ffb547); gap: 8px; }
+html body #dlg .dlg-plate b { color: #f2f5f9; font-size: 15px; }
+html body #dlg .dlg-plate b::before { display: none; }
+html body #dlg .dlg-box.me .dlg-plate b { color: #f2f5f9; }
+html body #dlg .dlg-text { font-size: 16px; line-height: 1.75; color: #e6ecf3; min-height: 3.5em; padding-left: 13px; }
+html body #dlg .dlg-box.narr, html body #dlg .dlg-box.sys { background: linear-gradient(to top, #04060a 0%, #04060afa 62%, #04060ad9 84%, #04060a00 100%); border: 0; padding: 16px 22px calc(34px + env(safe-area-inset-bottom, 0px)); }
+html body #dlg .dlg-box.narr .dlg-text { color: #c3cdd9; font-style: normal; padding-left: 0; }
+html body #dlg .dlg-box.sys .dlg-text { color: #ffd28a; font-size: 15px; padding-left: 10px; border-left: 3px solid var(--amber, #ffb547); min-height: 0; }
+html body #dlg .dlg-more { right: 22px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); color: #c9d3df; }
+
+/* 인물: 대사 띠 바로 위에 크게 선다 */
+html body #dlg .dlg-face { position: absolute; left: 50%; bottom: calc(100% - 26px); transform: translateX(-50%); width: min(88vw, 54vh, 460px); z-index: -1; pointer-events: none; line-height: 0; order: 0;
+  -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
+html body #dlg .dlg-face > * { display: block; width: 100% !important; height: auto !important; max-width: none; border: 0 !important; background: none; }
+html body #dlg .dlg-face.enter { animation: vnIn .28s ease-out; }
+@keyframes vnIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+/* 메인 고정 인물은 전신 그림으로 */
+html body #dlg .dlg-face .vn-full { aspect-ratio: auto; overflow: visible; }
+html body #dlg .dlg-face .vn-full img { display: block; width: 100%; height: min(66vh, 640px); object-fit: contain; object-position: 50% 100%; filter: drop-shadow(0 6px 22px #000b); }
+html body #dlg .dlg-face:has(.vn-full) { width: min(96vw, 520px); bottom: calc(100% - 40px); }
+/* 만들어진 초상은 배경판·테두리를 빼고 인물만 세운다 */
+html body #dlg .dlg-face > svg.portrait > rect, html body #dlg .dlg-face > svg.portrait > ellipse { display: none; }
+html body #dlg .dlg-face > svg.portrait { filter: drop-shadow(0 6px 22px #000b); }
+
+/* 선택지: 화면 가운데 */
+html body #dlg .dlg-choices { position: relative; z-index: 2; margin: auto auto; padding: 0 20px; max-width: 560px; width: 100%; gap: 8px; }
+html body #dlg .dlg-choice { background: #0a0f18e6; border: 1px solid #3a4a62; }
+
+/* 여럿이 차례로 말하는 줄은 얼굴 목록 그대로 */
+html body #dlg .dlg-box.dlg-group .dlg-text { padding-left: 0; }
+@media (prefers-reduced-motion: reduce) { html body #dlg .dlg-face.enter { animation: none; } }
+/* 메인 컷신 그림이 떠 있으면 그 그림이 장면이므로 인물을 따로 세우지 않는다 (같은 인물이 두 번 보임) */
+html body.main-cut-on #dlg .dlg-face { display: none; }
