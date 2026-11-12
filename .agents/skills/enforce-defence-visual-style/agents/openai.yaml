@@ -1,0 +1,4 @@
+interface:
+  display_name: "게이트 크로니클 그림 기준"
+  short_description: "승인 원화 참조와 결과 비교로 웹툰풍 선화·명암을 유지"
+  default_prompt: "$enforce-defence-visual-style을 사용해 승인된 원화와 비주얼 기준을 확인하고, 제작 결과의 화풍·구조·모바일 구도를 검토해 주세요."

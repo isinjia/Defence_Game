@@ -3,7 +3,7 @@ const WorldOpening = (() => {
   const shots = [
     {
       "image": "assets/backgrounds/opening-omen.svg",
-      "focus": "55% center",
+      "focus": "50% center",
       "duration": 4200,
       "lines": [
         [
@@ -15,7 +15,7 @@ const WorldOpening = (() => {
     },
     {
       "image": "assets/backgrounds/opening-jeju.webp",
-      "focus": "58% center",
+      "focus": "50% center",
       "duration": 4800,
       "lines": [
         [
@@ -26,7 +26,7 @@ const WorldOpening = (() => {
     },
     {
       "image": "assets/prologue/dream.webp",
-      "focus": "65% center",
+      "focus": "50% center",
       "duration": 5000,
       "lines": [
         [
@@ -37,7 +37,7 @@ const WorldOpening = (() => {
     },
     {
       "image": "assets/prologue/gate-subway.webp",
-      "focus": "65% center",
+      "focus": "50% center",
       "duration": 4200,
       "lines": [
         [
@@ -70,7 +70,7 @@ const WorldOpening = (() => {
     },
     {
       "image": "assets/backgrounds/opening-ether.svg",
-      "focus": "55% center",
+      "focus": "50% center",
       "duration": 4200,
       "lines": [
         [
@@ -81,7 +81,7 @@ const WorldOpening = (() => {
     },
     {
       "image": "assets/prologue/hospital.webp",
-      "focus": "48% center",
+      "focus": "50% center",
       "duration": 4400,
       "lines": [
         [
@@ -114,7 +114,7 @@ const WorldOpening = (() => {
     },
     {
       "image": "assets/backgrounds/opening-quarantine.svg",
-      "focus": "55% center",
+      "focus": "50% center",
       "duration": 8000,
       "lines": [
         [
@@ -130,7 +130,7 @@ const WorldOpening = (() => {
     },
     {
       "image": "assets/backgrounds/title-gate.webp",
-      "focus": "77% center",
+      "focus": "50% center",
       "duration": 5000,
       "lines": [
         [
