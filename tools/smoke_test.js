@@ -1072,7 +1072,7 @@ const { chromium, devices } = require('playwright');
         const before = JSON.stringify({ p: G.player, queue: G.queue });
         for (const id of Object.keys(ExploreCinema.scenes).filter((id) => !ExploreCinema.scenes[id].prologue)) {
           ExploreCinema.show(id, true);
-          if (!document.querySelector('.ec-screen svg') || ExploreCinema.active.step !== 0) return '첫 장면 없음';
+          if (!document.querySelector('.ec-screen .ec-art') || ExploreCinema.active.step !== 0) return '첫 장면 없음';
           document.querySelector('.ec-next').click(); document.querySelector('.ec-next').click();
           if (ExploreCinema.active.step !== 2) return '세 번째 장면 없음';
           document.querySelector('.ec-next').click();
@@ -1084,7 +1084,7 @@ const { chromium, devices } = require('playwright');
         const chosen = UI.ctx.run.ev;
         // 한 화면 배치(js/explore_onescreen.js): 컷씬을 자동으로 띄우지 않고 그림·본문·선택지가 함께 보인다
         if (document.querySelector('.ec-screen')) return '사건에서 컷씬이 자동으로 뜸';
-        if (!document.querySelector('.ex-one .ex-art svg') || !document.querySelector('.ex-one .ex-body') || !document.querySelector('.ex-one .ex-foot [data-act="ck-ev"]')) return '한 화면 배치(그림·본문·선택지) 없음';
+        if (!document.querySelector('.ex-one .ex-art .ec-art') || !document.querySelector('.ex-one .ex-body') || !document.querySelector('.ex-one .ex-foot [data-act="ck-ev"]')) return '한 화면 배치(그림·본문·선택지) 없음';
         UI.handle('ec-replay', chosen.id);
         document.querySelector('.ec-skip').click();
         if (document.getElementById('modal').hasAttribute('inert')) return '사건 화면 잠금 잔류';
