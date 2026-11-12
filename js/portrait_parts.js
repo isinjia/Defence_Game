@@ -3322,19 +3322,23 @@ const PortraitParts = (() => {
         }
       }
       const chin=Number(d.headChin),back=ctx.createImageData(400,600);
-      let left=200,right=200;
-      for(let x=0;x<400;x++)if(silhouette[(220*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
-      const cheekHalf=Math.max(20,(right-left)/2)+2;
-      // 얼굴·턱을 보호하는 분리는 턱 바로 아래에서 끝낸다. 목·어깨까지 피부 폭으로 가리면 긴 머리가 잘린다.
-      for(let y=195;y<chin;y++){
-        const t=Math.max(0,Math.min(1,(y-195)/5,(chin-y)/4)),weight=t*t*(3-2*t);
-        const half=y<=220?cheekHalf:200;
-        for(let x=0;x<400;x++){
-          const k=(y*400+x)*4,edge=Math.max(0,Math.min(1,half-Math.abs(x-200)+.5));
-          const cover=silhouette[k+3]>8?weight*edge:0;
-          if(!cover)continue;
-          for(let c=0;c<3;c++)back.data[k+c]=pixels.data[k+c];
-          back.data[k+3]=pixels.data[k+3]*cover;pixels.data[k+3]*=1-cover;
+      // 눈 아래의 머리를 고정 직사각형으로 끊지 않고 볼에서 턱으로 넓어지는 곡선으로 분리한다.
+      // H20 구레나룻은 옆얼굴 앞에 붙도록 맞춘 레이어이므로 그대로 둔다.
+      if(!d.hairSideFit){
+        let left=200,right=200;
+        for(let x=0;x<400;x++)if(silhouette[(220*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
+        const templeHalf=Math.max(20,(right-left)/2)+10;
+        for(let y=175;y<chin;y++){
+          const t=Math.max(0,Math.min(1,(y-175)/5,(chin-y)/4)),weight=t*t*(3-2*t);
+          const grow=Math.max(0,Math.min(1,(y-165)/20));
+          const half=y<=220?templeHalf*grow*grow*(3-2*grow):200;
+          for(let x=0;x<400;x++){
+            const k=(y*400+x)*4,edge=Math.max(0,Math.min(1,(half-Math.abs(x-200)+1.5)/3));
+            const cover=silhouette[k+3]>8?weight*edge:0;
+            if(!cover)continue;
+            for(let c=0;c<3;c++)back.data[k+c]=pixels.data[k+c];
+            back.data[k+3]=pixels.data[k+3]*cover;pixels.data[k+3]*=1-cover;
+          }
         }
       }
       ctx.clearRect(0,0,400,600);ctx.putImageData(back,0,0);const rear=cv.toDataURL('image/png');

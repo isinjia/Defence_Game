@@ -404,6 +404,31 @@ const { chromium, devices } = require('playwright');
       }
     });
   });
+  await step('볼 옆 긴머리: 안경·체형·직업복의 검은 직각 조각 방지', async () => {
+    await page.evaluate(async () => {
+      const samples=[[0,'look5:볼안경-922'],[6,'look5:볼안경-14057'],[11,'look5:볼안경-3641'],[16,'look5:볼안경-20622']];
+      const read=async(url,rect=[0,0,400,600])=>{const im=new Image();im.src=url;await im.decode();const cv=document.createElement('canvas');cv.width=400;cv.height=600;const ctx=cv.getContext('2d');ctx.drawImage(im,...rect);return ctx.getImageData(0,0,400,600).data;};
+      let checked=0;
+      for(const[hair,seed]of samples)for(const bodyType of ['thin','normal','strong','heavy'])for(const outfit of ['underwear','coat',HunterOutfits.outfitFor('telepath'),HunterOutfits.outfitFor('alchemist')]){
+        const opts={age:25,bodyType,outfit},selected=PortraitParts.select(seed,'F',opts);
+        if(selected.layers[2].file!=='hair-f-'+hair+'.webp'||!selected.layers.some(p=>p.file==='traits-5.webp'))throw Error('안경 긴머리 회귀 시드 변경');
+        const source=await PortraitParts.rasterize(PORTRAIT.card(seed,'F',null,0,400,opts));
+        const doc=new DOMParser().parseFromString(decodeURIComponent(source.split(',').slice(1).join(',')),'image/svg+xml');
+        const front=doc.querySelector('image[data-hair-layer="front"]');
+        const[baked,original,head]=await Promise.all([read(front.getAttribute('href')),read('assets/portraits/parts/'+selected.layers[2].file,selected.layers[2].rect),read('assets/portraits/parts/'+selected.baseBody.file)]);
+        let points=0;
+        for(let y=185;y<206;y++)for(const[from,to]of[[152,160],[240,248]])for(let x=from;x<=to;x++){
+          const alpha=(y*400+x)*4+3;
+          if(head[alpha]<=240||original[alpha]<=200)continue;
+          if(baked[alpha]>30)throw Error('볼 위에 불투명 모발 조각: H'+hair+' '+bodyType+' '+outfit+' '+[x,y]);
+          points++;
+        }
+        if(points<10)throw Error('볼 옆 검증 표본 부족');
+        checked++;
+      }
+      if(checked!==64)throw Error('볼 옆 긴머리 조합 부족');
+    });
+  });
   await step('여성 긴머리 연속성: 목 아래 머리카락 잘림 방지', async () => {
     await page.evaluate(async () => {
       const samples = new Map();
