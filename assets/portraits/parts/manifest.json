@@ -1619,6 +1619,55 @@
         600
       ],
       "rearEndY": 342
+    },
+    {
+      "file": "hair-m-30.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "afro",
+      "rearFile": "hair-m-30.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ]
+    },
+    {
+      "file": "hair-m-31.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "bald",
+      "bald": true
+    },
+    {
+      "file": "hair-m-32.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "buzz",
+      "opacity": 0.55
+    },
+    {
+      "file": "hair-m-33.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "sport"
     }
   ],
   "hair-f": [
@@ -1971,6 +2020,55 @@
         600
       ],
       "rearEndY": 344
+    },
+    {
+      "file": "hair-f-30.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "afro",
+      "rearFile": "hair-f-30.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-31.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "bald",
+      "bald": true
+    },
+    {
+      "file": "hair-f-32.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "buzz",
+      "opacity": 0.55
+    },
+    {
+      "file": "hair-f-33.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "sport"
     }
   ],
   "cloth-m": [

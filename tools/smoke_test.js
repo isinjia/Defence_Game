@@ -244,7 +244,7 @@ const { chromium, devices } = require('playwright');
           if(/href="assets\//.test(svg))throw Error('외부 파츠 경로 남음');
         }
       }
-      if(!PortraitParts.newLook().startsWith('look4:'))throw Error('새 외형 시드 형식');
+      if(!PortraitParts.newLook().startsWith('look5:'))throw Error('새 외형 시드 형식');
     });
   });
   await step('미형 얼굴 추가: 남녀 각 5종·신규 추첨·기존 외형 보존', async () => {
@@ -272,6 +272,36 @@ const { chromium, devices } = require('playwright');
           }
           const avatar = PORTRAIT.avatar(seed, gender, null, 0, 56);
           if (!avatar.includes('data-portrait-parts')) throw Error('신규 외형이 기존 일러스트로 대체됨');
+        }
+      }
+    });
+  });
+  await step('아프로·대머리·반삭·스포츠머리: 신규 추첨·두피·피부색 합성', async () => {
+    await page.evaluate(async () => {
+      for (const gender of ['M', 'F']) {
+        const g = gender.toLowerCase(), hairs = new Set(), pairs = new Set(), samples = new Map();
+        for (let i = 0; i < 20000; i++) {
+          const seed = 'look5:새헤어-' + i, s = PortraitParts.select(seed, gender, { age: 25, outfit: 'underwear' });
+          const h = Number(s.layers[2].file.match(/-(\d+)\.webp/)[1]);
+          if ((gender === 'M' ? [4,5,10,12,15,17] : [4,10,15,21]).includes(h)) throw Error('제외 헤어 재등장');
+          hairs.add(h); pairs.add(s.layers[0].file + '|' + h);
+          if (h >= 30 && s.layers.length === 3) samples.set(h, seed);
+        }
+        const count = gender === 'M' ? 28 : 30, faceCount = gender === 'M' ? 23 : 25;
+        if (hairs.size !== count || pairs.size !== count * faceCount || samples.size !== 4) throw Error('신규 헤어 조합 누락');
+        for (const [h, seed] of samples) {
+          const selection = PortraitParts.select(seed, gender, { age: 25, outfit: 'underwear' });
+          if (selection.layers[2].style !== ['afro','bald','buzz','sport'][h - 30]) throw Error('헤어 종류 등록 불일치');
+          for (const bodyType of ['thin', 'normal', 'strong', 'heavy']) for (const skinTone of ['natural', 'fair', 'medium', 'tan', 'deep']) {
+            const source = PORTRAIT.card(seed, gender, null, 0, 160, { age: 25, outfit: 'underwear', bodyType, skinTone });
+            const doc = new DOMParser().parseFromString(source, 'image/svg+xml');
+            if (h === 31 && [...doc.querySelectorAll('image')].some(n => /hair-[mf]-/.test(n.getAttribute('href')))) throw Error('대머리에 헤어 레이어 잔존');
+            if (h === 32 && ![...doc.querySelectorAll('image')].some(n => /hair-[mf]-32\.webp/.test(n.getAttribute('href')) && Number(n.getAttribute('opacity')) === .55)) throw Error('반삭 두피 비침 누락');
+            const im = new Image(); im.src = await PortraitParts.rasterize(source); await im.decode();
+            if (!im.naturalWidth) throw Error('신규 헤어 합성 실패');
+          }
+          const avatar = PORTRAIT.avatar(seed, gender, null, 0, 56);
+          if (!avatar.includes('data-portrait-parts')) throw Error('신규 헤어 아바타 누락');
         }
       }
     });

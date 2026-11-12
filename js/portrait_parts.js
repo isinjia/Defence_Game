@@ -1622,6 +1622,55 @@ const PortraitParts = (() => {
         600
       ],
       "rearEndY": 342
+    },
+    {
+      "file": "hair-m-30.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "afro",
+      "rearFile": "hair-m-30.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ]
+    },
+    {
+      "file": "hair-m-31.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "bald",
+      "bald": true
+    },
+    {
+      "file": "hair-m-32.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "buzz",
+      "opacity": 0.55
+    },
+    {
+      "file": "hair-m-33.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "sport"
     }
   ],
   "hair-f": [
@@ -1974,6 +2023,55 @@ const PortraitParts = (() => {
         600
       ],
       "rearEndY": 344
+    },
+    {
+      "file": "hair-f-30.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "afro",
+      "rearFile": "hair-f-30.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ]
+    },
+    {
+      "file": "hair-f-31.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "bald",
+      "bald": true
+    },
+    {
+      "file": "hair-f-32.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "buzz",
+      "opacity": 0.55
+    },
+    {
+      "file": "hair-f-33.webp",
+      "rect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "style": "sport"
     }
   ],
   "cloth-m": [
@@ -2769,8 +2867,8 @@ const PortraitParts = (() => {
   const FACE_ADULT = 15;
   const FACE_YOUTH = 3;
   // 저장된 외형은 기존 풀로 해석하고, 새 외형만 확장 풀을 사용한다.
-  const LOOK_PREFIX = 'look4:';
-  const isExpandedLook = seed => /^(look3:|look4:)/.test(String(seed));
+  const LOOK_PREFIX = 'look5:';
+  const isExpandedLook = seed => /^look[345]:/.test(String(seed));
   const ADULT_FACES = [0,1,2,5,7,8,10,11,13,14,18,19,20,21,22,23,24,25,26,27];
   const NEW_ADULT_FACES = [...ADULT_FACES,28,29,30,31,32];
   const newLook = () => LOOK_PREFIX + Math.random().toString(36).slice(2);
@@ -2796,13 +2894,15 @@ const PortraitParts = (() => {
     if (!young) face = ({3:0,4:1,6:2,9:5,12:1})[face] ?? face;
     if (expanded && !young) {
       // look3 저장 외형의 추첨 순서·개수는 보존하고 새 외형만 미형 얼굴을 포함한다.
-      const pool = String(seed).startsWith(LOOK_PREFIX) ? NEW_ADULT_FACES : ADULT_FACES;
+      const pool = /^look[45]:/.test(String(seed)) ? NEW_ADULT_FACES : ADULT_FACES;
       face = pool[hash % pool.length];
     }
     // 사용자 삭제 지정: 남성 19·23번만 대체한다. 풀을 줄이면 다른 저장 외형까지 바뀐다.
     if (g === 'm') face = ({19:29,23:30})[face] ?? face;
     // 얼굴과 헤어에 같은 비트를 나눠 쓰면 특정 조합이 나오지 않는다. 새 풀은 따로 추첨한다.
-    let hair = expanded ? Math.floor(FX.rng(hash ^ 0x9e3779b9)() * hairs.length)
+    // look3/4 저장 외형의 헤어 추첨 폭은 30으로 고정한다.
+    const hairCount = String(seed).startsWith(LOOK_PREFIX) ? hairs.length : Math.min(30, hairs.length);
+    let hair = expanded ? Math.floor(FX.rng(hash ^ 0x9e3779b9)() * hairCount)
       : (hash >>> 4) % Math.min(20, hairs.length);
     // 선택 풀의 길이·순서를 보존하고 품질 기준에서 제외한 헤어만 대체한다.
     const hairReplacement = g === 'm'
@@ -2883,7 +2983,7 @@ const PortraitParts = (() => {
     const source = part => root + part.file + '?v=9';
     const image = (part, attrs = '') => {
       const [x,y,w,h] = part.rect, src = source(part);
-      return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${attrs}/>`;
+      return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${part.opacity == null ? '' : ` opacity="${part.opacity}"`}${attrs}/>`;
     };
     const palette = { fair:[246,218,200], medium:[220,180,150], tan:[182,133,95], deep:[133,88,65] };
     const target = palette[selection.skinTone] || face.skinRgb || [230,195,180];
@@ -2959,12 +3059,13 @@ const PortraitParts = (() => {
     // 원화에 없는 목덜미는 앞머리 분리로 복원할 수 없다. 별도 뒷머리를 몸·옷 뒤에 둔다.
     const completeRearHair = hairPart && hairPart.rearFile
       ? fitHead(image({ file:hairPart.rearFile, rect:hairPart.rearRect }, ` data-depth="hair-rear-complete" transform="translate(0 ${pose})"`)) : '';
-    const splitHair = integrated && female && hairPart;
+    const splitHair = integrated && female && hairPart && !hairPart.bald;
     // 둥근 깃은 목 피부가 깃 구멍 전체로 넓어지므로, 목 앞에 남던 머리카락 부스러기도 그 폭까지 뒤로 보낸다 (사용자 지적)
     const hairNeck = roundNeck && style === 4 ? ` data-neck-half="${Math.round(collar[2] * fit)}"` : '';
     const hairData = splitHair ? ` data-hair-source="${source(hairPart)}" data-hair-rect="${hairPart.rect.join(',')}" data-head-source="${source(base)}" data-head-chin="${chin}"${hairNeck}` : '';
     const rearHair = splitHair ? fitHead(image(hairPart, ` data-depth="hair-back" data-hair-layer="back" transform="translate(0 ${pose})"${hairData}`)) : '';
     const details = accessories.map(part => {
+      if (part.bald) return '';
       const onFace = /traits-(3|5)\.webp/.test(part.file);
       const attrs = ` transform="translate(0 ${integrated && !onFace ? pose : headY})"`;
       if (splitHair && part.file.startsWith('hair-')) {
