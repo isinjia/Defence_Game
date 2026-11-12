@@ -32,12 +32,10 @@ const ExploreCinema = (() => {
 
   scenes.vein = { ...scenes.crystal, title: '코어 광맥', lines: ['천장에 고드름처럼 돋아난 결정들이 빛난다.', '괴수 코어가 굳어 생긴 광맥이다. 발치에도 작은 조각들이 흩어져 있다.', '캐는 소리는 멀리 울릴 것이다. 얼마나 가져갈지 정해야 한다.'] };
   const siteMap = { spring: 'spring', remains: 'pack', altar: 'altar', ruin: 'ruin', outpost: 'outpost', village: 'village', merchant: 'merchant', tower: 'tower', oldcity: 'ruin', truth: 'mural', hermit: 'camp', leyline: 'crystal' };
-  let serial = 0;
   const art = (id, step = 0) => {
     const s = scenes[id]; if (!s) return '';
-    if (s.render) return s.render(step);
-    const n = `ec${++serial}`;
-    return `<svg class="ec-art ec-shot-${step}" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${s.title}"><defs><radialGradient id="${n}light"><stop stop-color="${s.color}" stop-opacity=".24"/><stop offset="1" stop-color="#07101c"/></radialGradient><linearGradient id="${n}floor" x2="0" y2="1"><stop stop-color="#253142"/><stop offset="1" stop-color="#080e19"/></linearGradient></defs><rect width="640" height="360" fill="#07101c"/><rect width="640" height="360" fill="url(#${n}light)"/><g class="ec-far"><path d="M0 0h640v72L544 53l-57 69-31-72-88 5-40-35-89 49-47-25-65 68L58 66 0 121Z" fill="#0b1422"/><path d="M0 251 135 214 247 234 361 220 502 211 640 258v102H0Z" fill="url(#${n}floor)"/><path d="m32 320 201-57m183 0 194 64M95 286l445 5M173 252l312 1" stroke="#344352" stroke-opacity=".35"/></g><g class="ec-subject">${s.art}</g><g class="ec-mist"><ellipse cx="240" cy="282" rx="280" ry="18" fill="${s.color}" opacity=".045"/><ellipse cx="520" cy="266" rx="190" ry="14" fill="${s.color}" opacity=".06"/></g><g class="ec-dust" fill="${s.color}">${Array.from({ length: 18 }, (_, i) => `<circle cx="${63 + (i * 107) % 520}" cy="${45 + (i * 43) % 240}" r="${i % 3 ? 1 : 1.6}" opacity="${.15 + (i % 4) * .1}"/>`).join('')}</g><g class="ec-near"><path d="M0 0h43l34 61-23 65 36 91-25 143H0ZM640 0h-41l-34 80 19 75-28 95 34 110h50Z" fill="#050c16"/><path d="m0 331 86-32 57 32 44-12 41 41H0Zm640-20-68-24-45 41-49-7-29 39h191Z" fill="#060c16"/>${person(130, 326, .64)}<path d="m133 267 103-61-83 83Z" fill="#d1ebd8" opacity=".035"/></g></svg>`;
+    const image = id === 'vein' ? 'crystal' : id;
+    return `<img class="ec-art ec-shot-${step}" src="assets/explore/${image}.webp" width="1280" height="720" alt="${s.title} 장면" decoding="async" draggable="false">`;
   };
   let active = null;
   let owner = null;

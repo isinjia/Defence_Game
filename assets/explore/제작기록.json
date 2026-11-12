@@ -1,0 +1,169 @@
+{
+  "제작방식": "내장 이미지 생성 도구로 미리보기 제작 후 사용자 검수·승인",
+  "화풍": "한국 헌터 액션 웹툰풍 준실사 배경, 선명한 윤곽선과 절제된 셀 채색",
+  "원칙": "각 탐색 장면의 고유 구도를 사용하며 사람·초상·문자·UI를 배제한다. 갈라진 벽 구도는 wall 장면에만 사용한다.",
+  "aliases": {
+    "vein": "crystal",
+    "oldcity": "ruin",
+    "leyline": "crystal",
+    "remains": "pack",
+    "truth": "mural",
+    "hermit": "camp"
+  },
+  "images": [
+    {
+      "id": "pack",
+      "title": "쓰러진 헌터의 배낭",
+      "file": "pack.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "pool",
+      "title": "에테르 웅덩이",
+      "file": "pool.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "survivor",
+      "title": "갇힌 생존자",
+      "file": "survivor.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "altar",
+      "title": "수상한 제단",
+      "file": "altar.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "wall",
+      "title": "갈라진 벽",
+      "file": "wall.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "trail",
+      "title": "다른 파티의 흔적",
+      "file": "trail.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "echo",
+      "title": "메아리",
+      "file": "echo.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "crystal",
+      "title": "거대한 결정 기둥",
+      "file": "crystal.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "fork",
+      "title": "갈림길",
+      "file": "fork.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "spring",
+      "title": "에테르 샘",
+      "file": "spring.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "chest",
+      "title": "녹슨 상자",
+      "file": "chest.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "trap",
+      "title": "갈라진 바닥",
+      "file": "trap.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "hunter",
+      "title": "먼저 온 헌터",
+      "file": "hunter.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "nest",
+      "title": "알 무더기",
+      "file": "nest.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "mural",
+      "title": "벽화",
+      "file": "mural.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "camp",
+      "title": "버려진 야영지",
+      "file": "camp.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "boss_door",
+      "title": "보스 구역 앞",
+      "file": "boss_door.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "ruin",
+      "title": "폐허 탐사",
+      "file": "ruin.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "outpost",
+      "title": "버려진 관리국 초소",
+      "file": "outpost.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "village",
+      "title": "생존자 마을",
+      "file": "village.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "merchant",
+      "title": "떠돌이 상인",
+      "file": "merchant.webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "id": "tower",
+      "title": "감시탑",
+      "file": "tower.webp",
+      "width": 1280,
+      "height": 720
+    }
+  ]
+}
