@@ -2862,7 +2862,7 @@ const PortraitParts = (() => {
     const integrated = selection.stage !== 'child';
     const style = underwear ? -1 : Number(cloth.file.match(/cloth-[mf]-(\d+)/)[1]) % 6;
     // 여자 코트는 안쪽이 목폴라라 목이 그만큼 짧아져야 한다: 남자 코트처럼 몸·머리를 내려 목폴라가 턱 바로 밑에 오게 (사용자 지적)
-    const pose = underwear ? 0 : female ? (style === 0 && selection.stage !== 'child' ? { thin:24, normal:24, strong:26, heavy:28 }[selection.bodyType] : 0) : style === 0 ? 28 : style === 5 ? 22 : 8; // 남자 오버코트(5)는 안쪽 목폴라가 턱에서 멀어 목이 드러났다 → 머리를 내려 턱이 폴라 위에 오게 (사용자 요청)
+    const pose = underwear ? 0 : female ? (style === 0 && selection.stage !== 'child' ? { thin:24, normal:24, strong:26, heavy:28 }[selection.bodyType] : 0) : style === 0 ? 28 : style === 5 || style === 3 ? 22 : 8; // 남자 오버코트(5)·전술복(3)은 안쪽 목폴라가 턱에서 멀어 목이 드러났다 → 머리를 내려 턱이 폴라 위에 오게 (사용자 요청)
     const chin = female ? 261 : 251;
     const featureOffset = chin - (face.chinY || chin);
     const headY = integrated ? pose + featureOffset : pose;
@@ -2884,7 +2884,7 @@ const PortraitParts = (() => {
     const skinImage = (part, name, attrs = '', feature = false) => `<g${attrs}>${image(part, ` data-skin-source="${source(part)}" data-skin-mask="${root+part.skinMask}?v=9" data-skin-rgb="${part.skinRgb.join(',')}" data-skin-target="${target.join(',')}" data-skin-race="${selection.race}"${feature ? ` data-face-feature="${female ? 'f' : 'm'}" data-feature-offset="${featureOffset}"` : ''}${name === 'base' ? ` data-body-scale="${headScale}" data-body-pivot="${chin+24}"` : ''}`)}</g>`;
     const fit = integrated ? { thin:.9, normal:1, strong:1.04, heavy:1.24 }[selection.bodyType] : 1; // 통통 1.12 는 깃이 목보다 작아 옷을 키움 (사용자 지적)
     // 여자 옷 원화는 몸통 중심(x≈199)보다 1.5~8px 오른쪽에 그려져 있어 목이 왼쪽으로 치우쳐 보였다 (사용자 지적). 깃 중심을 몸에 맞춘다.
-    const shiftX = female && !underwear ? [-2, -2.5, -4.5, -4, -3, -8][style] || 0 : 0;
+    const shiftX = female && !underwear ? [-2, -2.5, -4.5, -4, -3, -8][style] || 0 : !underwear && (style === 3 || style === 5) ? -4.5 : 0; // 남자 전술복·오버코트 목폴라도 원화가 4~5px 오른쪽 (사용자 지적: 머리가 왼쪽으로 치우침)
     // 통통 원화는 목이 짧고 어깨선이 턱 높이에서 시작해, 옷을 그대로 두면 턱 아래 양옆에 어깨 피부가 혹처럼 남는다. 옷을 위로 올려 덮는다.
     // 여자 코트는 안쪽 목폴라가 턱에서 멀어 목이 길게 드러났다 → 옷을 올려 목폴라가 목을 감싸게 (사용자 지적)
     const coatLift = integrated && !underwear && female && style === 0 ? 0 : 0; // (목 길이는 위 pose 로 맞춘다)
@@ -2914,8 +2914,8 @@ const PortraitParts = (() => {
     // 옷 위에 그리는 턱 레이어는 턱선(U자)까지만: 옷을 올려도 턱 양옆 어깨 피부가 옷 위에 남지 않게
     const jw = female ? 44 : 52;
     const jawShape = `M0 0H400V${colTop}H${200+jw}C${200+jw} ${chin-4} ${214} ${chin+3} 200 ${chin+3}C${186} ${chin+3} ${200-jw} ${chin-4} ${200-jw} ${colTop}H0Z`;
-    // 남자 오버코트: 턱이 목폴라 바로 위에 오므로 옷 위 턱 레이어를 턱선(U자)까지만 — 턱 양옆 사각 피부가 폴라 위에 남지 않게
-    const polaM = !female && style === 5 && integrated && !underwear;
+    // 남자 오버코트·전술복: 턱이 목폴라 바로 위에 오므로 옷 위 턱 레이어를 턱선(U자)까지만 — 턱 양옆 사각 피부가 폴라 위에 남지 않게
+    const polaM = !female && (style === 5 || style === 3) && integrated && !underwear;
     const neckTop = female ? chin - 8 : chin + 4; // 여자는 턱 8px 위부터 목 폭: 턱과 옷 사이에 어깨 피부가 사각으로 보이던 문제
     // 여자 코트: 목이 안쪽 목폴라로 살짝 넓어지며 들어간다(곧은 사각 기둥처럼 보이던 문제, 사용자 지적)
     const coatF = female && style === 0 && integrated && !underwear;
