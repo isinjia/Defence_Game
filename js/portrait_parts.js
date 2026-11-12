@@ -1785,11 +1785,19 @@ const PortraitParts = (() => {
     {
       "file": "hair-f-12.webp",
       "rect": [
-        80,
-        24,
-        240,
-        246
-      ]
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-12.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 270
     },
     {
       "file": "hair-f-13.webp",
@@ -1913,7 +1921,7 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-f-23-rear.webp",
+      "rearFile": "hair-f-23.webp",
       "rearRect": [
         0,
         0,
@@ -2980,7 +2988,7 @@ const PortraitParts = (() => {
     const fitHead = markup => headScale === 1 ? markup : `<g data-proportion="head" transform="${headTransform}">${markup}</g>`;
     const cardHeight = underwear ? 440 : 480;
     const view = avatar ? `72 ${pose} 256 256` : `0 0 400 ${cardHeight}`;
-    const source = part => root + part.file + '?v=9';
+    const source = part => root + part.file + '?v=10';
     const image = (part, attrs = '') => {
       const [x,y,w,h] = part.rect, src = source(part);
       return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${part.opacity == null ? '' : ` opacity="${part.opacity}"`}${attrs}/>`;

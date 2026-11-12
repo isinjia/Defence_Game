@@ -1782,11 +1782,19 @@
     {
       "file": "hair-f-12.webp",
       "rect": [
-        80,
-        24,
-        240,
-        246
-      ]
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-12.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 270
     },
     {
       "file": "hair-f-13.webp",
@@ -1910,7 +1918,7 @@
         400,
         600
       ],
-      "rearFile": "hair-f-23-rear.webp",
+      "rearFile": "hair-f-23.webp",
       "rearRect": [
         0,
         0,
