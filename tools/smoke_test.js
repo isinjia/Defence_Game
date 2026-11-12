@@ -214,7 +214,8 @@ const { chromium, devices } = require('playwright');
         for (const [seed, face, hair] of [['고정인물',1,2],['저장호환-0',8,5],['저장호환-29',2,14],['look3:current-audit-0',25,0],['look3:current-audit-1',20,14],['look3:current-audit-2',23,9]]) {
           const s = PortraitParts.select(seed,gender,{age:25,outfit:'underwear'});
           const expectedFace = gender === 'M' ? ({19:29,23:30})[face] ?? face : face;
-          if(s.layers[0].file !== `face-${g}-${expectedFace}.webp` || s.layers[2].file !== `hair-${g}-${hair}.webp`) throw Error('저장 외형 변경');
+          const expectedHair = (gender === 'M' ? {4:20,5:1,10:20,12:1,15:20,17:1} : {4:24,10:24,15:24,21:3})[hair] ?? hair;
+          if(s.layers[0].file !== `face-${g}-${expectedFace}.webp` || s.layers[2].file !== `hair-${g}-${expectedHair}.webp`) throw Error('저장 외형 변경');
         }
         const faces=new Set(), hairs=new Set(), pairs=new Set(), samples=new Map();
         for(let i=0;i<20000;i++) {
@@ -224,10 +225,12 @@ const { chromium, devices } = require('playwright');
           const f=Number(face.file.match(/-(\d+)\.webp/)[1]),h=Number(hair.file.match(/-(\d+)\.webp/)[1]);
           if(f>=15 && f<18)throw Error('성인에 유스 얼굴');
           if(gender==='M' && [19,23].includes(f))throw Error('삭제한 남성 얼굴 재등장');
+          if((gender==='M'?[4,5,10,12,15,17]:[4,10,15,21]).includes(h))throw Error('제외한 헤어 재등장');
           if(f>=18)samples.set(face.file,seed);
           if(h>=20){if(!hair.rearFile)throw Error('뒷머리 없음');samples.set(hair.file,seed);}
         }
-        if(faces.size!==20 || hairs.size!==30 || pairs.size!==600)throw Error('확장 파츠 조합 누락');
+        const hairCount=gender==='M'?24:26;
+        if(faces.size!==20 || hairs.size!==hairCount || pairs.size!==20*hairCount)throw Error('확장 파츠 조합 누락');
         const kid=PortraitParts.select('look3:검증',gender,{age:10}).layers[0].file;
         if(!new RegExp(`face-${g}-(15|16|17)\\.webp`).test(kid))throw Error('유스 풀 변경');
         for(const [file,seed] of samples) {
@@ -257,7 +260,8 @@ const { chromium, devices } = require('playwright');
           if (face >= 28) samples.set(face, seed);
         }
         const count = gender === 'M' ? 23 : 25;
-        if (faces.size !== count || pairs.size !== count * 30 || samples.size !== 5) throw Error('미형 얼굴 추첨 조합 누락');
+        const hairCount = gender === 'M' ? 24 : 26;
+        if (faces.size !== count || pairs.size !== count * hairCount || samples.size !== 5) throw Error('미형 얼굴 추첨 조합 누락');
         const child = PortraitParts.select('look4:어린이검증', gender, { age: 10 }).layers[0].file;
         if (!new RegExp(`face-${g}-(15|16|17)\\.webp`).test(child)) throw Error('미형 얼굴이 어린이 풀에 들어감');
         for (const seed of samples.values()) {
@@ -291,7 +295,7 @@ const { chromium, devices } = require('playwright');
     const fs=require('fs');
     for(const file of files)if(!fs.existsSync(path.resolve(__dirname,'..','assets','portraits','outfits',file)))throw Error('의상 파일 없음: '+file);
   });
-  await step('턱·목 합성: 여성 헤어 20종·체형 4종과 남성 코트 목선', async () => {
+  await step('턱·목 합성: 여성 활성 헤어·체형 4종과 남성 코트 목선', async () => {
     await page.evaluate(async () => {
       const read=async svg=>{
         const source=await PortraitParts.rasterize(svg),doc=new DOMParser().parseFromString(decodeURIComponent(source.split(',').slice(1).join(',')),'image/svg+xml');
@@ -300,7 +304,8 @@ const { chromium, devices } = require('playwright');
         return{doc,ctx,rc};
       };
       let checked=0,points=0;
-      for(const bodyType of ['thin','normal','strong','heavy'])for(let hair=0;hair<20;hair++){
+      const jawHairs=[0,1,2,3,5,6,7,8,9,11,12,13,14,16,17,18,19,24];
+      for(const bodyType of ['thin','normal','strong','heavy'])for(const hair of jawHairs){
         let seed;for(let i=0;i<20000;i++){const s='jaw-'+i,q=PortraitParts.select(s,'F');if(q.layers[0].file==='face-f-0.webp'&&q.layers[2].file==='hair-f-'+hair+'.webp'){seed=s;break;}}
         if(!seed)throw Error('헤어 조합 없음');
         const{ctx,rc}=await read(PORTRAIT.card(seed,'F',null,0,400,{bodyType,outfit:'underwear'}));
@@ -315,7 +320,7 @@ const { chromium, devices } = require('playwright');
           }
         }checked++;
       }
-      if(checked!==80||points<100)throw Error('턱 윤곽 검증 표본 부족');
+      if(checked!==4*jawHairs.length||points<100)throw Error('턱 윤곽 검증 표본 부족');
       for(const bodyType of ['thin','normal','strong','heavy']){
         let seed;for(let i=0;i<2000;i++){const s='coat-join-'+i,q=PortraitParts.select(s,'M',{outfit:'coat'});if(q.layers[2].file==='hair-m-1.webp'&&!q.layers.some(p=>p.file==='traits-5.webp')){seed=s;break;}}
         const{ctx,rc,doc}=await read(PORTRAIT.card(seed,'M',null,0,400,{bodyType,outfit:'coat'}));const pose=Number(doc.documentElement.dataset.baseOffset);
@@ -510,7 +515,8 @@ const { chromium, devices } = require('playwright');
         if([0,1,2].some(c=>Math.abs(colors[0][c]-colors[1][c])>25))throw Error('흰자까지 피부색 적용: '+gender+face+' xy='+white+' colors='+colors.map(a=>[...a].join(',')));
       }
       for(const gender of ['M','F'])for(let i=0;i<600;i++){const face=PortraitParts.select('style-'+i,gender).layers[0].file;if(/face-[mf]-(3|4|6|9|12)\.webp/.test(face))throw Error('다른 화풍의 성인 얼굴이 선택됨');}
-      for(const n of [4,10,15]){let p;for(let i=0;i<3000;i++){const q=PortraitParts.select('hair-fix-'+i,'F');if(q.layers[2].file==='hair-f-'+n+'.webp'){p=q.layers[2];break;}}if(!p||p.rect.join(',')!=='80,24,240,262')throw Error('여성 헤어 원본 크기 등록 오류');}
+      // 제외한 4·10·15·21번 대신 실제 표시되는 대체 헤어의 전체 캔버스 등록을 확인한다.
+      for(const n of [3,24]){let p;for(let i=0;i<3000;i++){const q=PortraitParts.select('hair-fix-'+i,'F');if(q.layers[2].file==='hair-f-'+n+'.webp'){p=q.layers[2];break;}}if(!p||p.rect.join(',')!=='0,0,400,600')throw Error('여성 대체 헤어 원본 크기 등록 오류');}
     });
   });
   await step('체형·피부색 직접 선택: 성별·외형 변경에도 유지', async () => {
