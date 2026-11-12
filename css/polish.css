@@ -36,3 +36,10 @@
 .title-screen .btns [data-act="continue"] { display: grid; gap: 2px; justify-items: center; padding-top: 9px; padding-bottom: 9px; }
 .title-screen .btns .tc-main { font-weight: 700; }
 .title-screen .btns .tc-sub { font-size: 12px; font-weight: 400; opacity: .82; letter-spacing: 0; }
+
+/* 좁은 화면(380px 이하) 인물 시트: 겹겹이 들어간 안쪽 여백을 줄여 글 칸을 넓힌다 */
+@media (max-width: 380px) {
+  .modal-box.sheet .sheet-body { padding-left: 8px; padding-right: 8px; }
+  .modal-box.sheet .sheet-body > .panel, .modal-box.sheet .sheet-body .panel { padding-left: 10px; padding-right: 10px; }
+  .modal-box.sheet .item-row { padding-left: 8px; padding-right: 8px; gap: 8px; }
+}
