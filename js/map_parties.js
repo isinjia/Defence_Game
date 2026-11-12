@@ -107,7 +107,7 @@ function partyFaceImage(n) {
 Object.assign(UI, {
   partyAt(x, y) {
     if (!G.mapParties) return null;
-    return G.mapParties().find((pt) => Math.round(pt.x) === x && Math.round(pt.y) === y && G.revealed(x, y)) || null;
+    return G.mapParties().find((pt) => Math.round(pt.x) === x && Math.round(pt.y) === y && G.seenNow(x, y)) || null;
   },
   partyKindName(pt) { return { raid: '게이트 공략팀', break: '브레이크 출동', bounty: '현상금 사냥꾼', crew: '파티원 모집' }[pt.kind] || '파티'; },
   partyCard(key) {
@@ -187,7 +187,7 @@ Object.assign(UI, {
     baseTip.call(this, x, y);
     const tip = document.getElementById('hud-tip'); if (!tip) return;
     const g = G.objAt(x, y);
-    if (g && g.kind === 'gate' && g.raid && G.revealed(x, y)) {
+    if (g && g.kind === 'gate' && g.raid && G.seenNow(x, y)) {
       const pos = G.raidPos(g);
       if (pos) {
         const team = (g.raid.ids || []).map((id) => G.npcById(id)).filter((n) => n);
@@ -200,7 +200,7 @@ Object.assign(UI, {
   const baseTap = UI.onTap;
   UI.onTap = function (x, y) {
     if (!this.walking && !this.ctx && !this.modalOpen() && !(this.map && this.map.moving)) {
-      const all = G.mapParties ? G.mapParties().filter((q) => Math.round(q.x) === x && Math.round(q.y) === y && G.revealed(x, y)) : [];
+      const all = G.mapParties ? G.mapParties().filter((q) => Math.round(q.x) === x && Math.round(q.y) === y && G.seenNow(x, y)) : [];
       if (all.length === 1) { this.hideTip(); return this.partyCard(all[0].key); }
       if (all.length > 1) {
         this.hideTip();
@@ -224,11 +224,11 @@ Object.assign(UI, {
     baseObjs.call(this);
     if (!G.player || !G.mapParties) return;
     const c = this.ctx, s = this.tile, t = this.t;
-    const list = G.mapParties().filter((pt) => G.revealed(Math.round(pt.x), Math.round(pt.y)));
+    const list = G.mapParties().filter((pt) => G.seenNow(Math.round(pt.x), Math.round(pt.y)));
     // 게이트로 가는 공략팀은 남은 길을 점선으로
     for (const pt of list) {
       if (pt.kind !== 'raid') continue;
-      const g = G.mapGates.find((x) => x.id === pt.gate); if (!g || !G.revealed(g.x, g.y)) continue;
+      const g = G.mapGates.find((x) => x.id === pt.gate); if (!g || !G.gateSeen(g)) continue;
       const [ax, ay] = this.toScreen(pt.x + 0.5, pt.y + 0.5), [bx, by] = this.toScreen(g.x + 0.5, g.y + 0.5);
       c.strokeStyle = G.affilColor(pt.guild); c.globalAlpha = 0.45; c.lineWidth = 1.5; c.setLineDash([3, 5]); c.lineDashOffset = -t / 3;
       c.beginPath(); c.moveTo(ax, ay); c.lineTo(bx, by); c.stroke(); c.setLineDash([]); c.globalAlpha = 1;

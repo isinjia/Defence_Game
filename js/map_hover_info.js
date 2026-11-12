@@ -41,7 +41,7 @@
     let body = '';
     if (!known) body = '<div class="small dim">신호가 닿지 않는다. 가까이 가면 드러난다.</div>';
     else {
-      const obj = G.objAt(x, y);
+      const obj = G.objAtSeen(x, y);
       if (obj && obj.kind === 'gate') body += `<div class="look-row">${this.rift ? this.rift(obj.tier) : ''}<span><b>${G.gateName(obj)}</b> ${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)}</span></div>`;
       if (obj && obj.kind === 'mob') body += `<div class="look-row"><span class="mob-dot" style="--c:${elemColor(obj.elem)}"></span><span><b>${obj.name} 무리 ×${obj.count}</b> ${this.rankTag(obj.tier)}</span></div>`;
       const ns = this.npcsAt ? this.npcsAt(x, y) : [];

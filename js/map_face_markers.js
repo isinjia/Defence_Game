@@ -105,7 +105,7 @@ function mapDrawGuildBadge(c, px, py, R, guild) {
     if (!G.player) return;
 
     const c = this.ctx, s = this.tile, t = this.t;
-    const vis = (x, y) => G.revealed(x, y);
+    const vis = (x, y) => G.seenNow(x, y);
 
     // 이미 파티 아이콘으로 나온 인물은 서 있는 초상과 겹치지 않게
     const inParty = new Set();
@@ -155,14 +155,14 @@ function mapDrawGuildBadge(c, px, py, R, guild) {
   const baseTip = UI.showTip;
   UI.showTip = function (x, y) {
     baseTip.call(this, x, y);
-    const tip = document.getElementById('hud-tip'); if (!tip || !G.revealed(x, y)) return;
+    const tip = document.getElementById('hud-tip'); if (!tip || !G.seenNow(x, y)) return;
     const mon = mobAt(x, y); if (mon) swapMobDot(tip, mon, 34);
   };
   if (UI.mapLookHtml) {
     const baseLook = UI.mapLookHtml;
     UI.mapLookHtml = function (x, y) {
       const html = baseLook.call(this, x, y);
-      if (!G.revealed(x, y)) return html;
+      if (!G.seenNow(x, y)) return html;
       const mon = mobAt(x, y); if (!(mon && FX.monster)) return html;
       return html.replace(/<span class="mob-dot"[^>]*><\/span>/, `<span class="mob-face">${FX.monster(mon, 22)}</span>`);
     };

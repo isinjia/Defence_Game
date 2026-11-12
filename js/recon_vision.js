@@ -53,11 +53,11 @@ const RECON_FIELD = { senseBase: 5, scanDays: 0.5, scanPlus: 4, rogueBase: 0.5, 
     const s = this.reconSenser(); const w = this.world; if (!w) return;
     w.sensed ??= {};
     // 사라졌거나 이미 보이는 것은 지운다
-    for (const k of Object.keys(w.sensed)) { const o = this.reconObj(k); if (!o || this.revealed(o.x, o.y)) delete w.sensed[k]; }
+    for (const k of Object.keys(w.sensed)) { const o = this.reconObj(k); if (!o || this.objSeen(o)) delete w.sensed[k]; }
     if (!s) return;
     const R = RECON_FIELD.senseBase + (s.rankIdx || 0) + (s.adv || 0) + (plus || 0);
     const look = (o, key) => {
-      const d = Math.max(Math.abs(o.x - x), Math.abs(o.y - y)); if (d > R || this.revealed(o.x, o.y) || w.sensed[key]) return;
+      const d = Math.max(Math.abs(o.x - x), Math.abs(o.y - y)); if (d > R || this.objSeen(o) || w.sensed[key]) return;
       let t = null;
       if (s.cls === 'farsight') { const off = d > R * 0.5 && RNG.chance(RECON_FIELD.farWrong) ? RNG.pick([-1, 1]) : 0; t = Math.max(0, Math.min(7, (o.tier || 0) + off)); }
       w.sensed[key] = { t, by: s.name };
@@ -130,7 +130,7 @@ if (typeof MapView !== 'undefined') {
       const sensed = G.world && G.world.sensed; if (!sensed) return r;
       const c = this.ctx, s = this.tile, t = this.t || 0;
       for (const [k, info] of Object.entries(sensed)) {
-        const o = G.reconObj(k); if (!o || G.revealed(o.x, o.y)) continue;
+        const o = G.reconObj(k); if (!o || G.objSeen(o)) continue;
         const [px, py] = this.toScreen(o.x + 0.5, o.y + 0.5);
         if (px < -s || py < -s || px > this.w + s || py > this.hgt + s) continue;
         const col = k[0] === 'g' ? '#d65cff' : '#ff6b7d'; const a2 = 0.55 + Math.sin(t / 20 + o.id) * 0.2;

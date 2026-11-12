@@ -315,7 +315,7 @@ class MapView {
 
   drawObjects() {
     const c = this.ctx, s = this.tile, t = this.t;
-    const vis = (x, y) => G.revealed(x, y);
+    const vis = (x, y) => G.seenNow(x, y); // 지금 시야 (sight_now.js)
     // NPC 표식
     for (const n of G.npcs) {
       if (!n.alive || n.isCompanion) continue;
@@ -345,8 +345,8 @@ class MapView {
       this.chip(px, py + s * 0.48, `${RANKS[m.tier].key}·${m.count}`, RANKS[m.tier].color);
     }
     // 게이트
-    for (const g of G.mapGates) {
-      if (!vis(g.x, g.y)) continue;
+    for (const g of G.gatesShown()) {
+      c.globalAlpha = vis(g.x, g.y) ? 1 : 0.42; // 시야 밖은 기억 속 모습(흐리게)
       const [px, py] = this.toScreen(g.x + 0.5, g.y + 0.5);
       if (px < -s * 2 || py < -s * 2 || px > this.w + s * 2 || py > this.hgt + s * 2) continue;
       const col = g.final || g.variant === 'red' ? '#ff4f6a' : RANKS[g.tier].color;
@@ -362,6 +362,7 @@ class MapView {
       c.setLineDash([]);
       c.fillStyle = '#fff'; c.beginPath(); c.ellipse(px, py, s * 0.06 * sc, s * 0.16 * sc, 0, 0, Math.PI * 2); c.fill();
       this.chip(px, py + s * 0.5 * sc + 4, g.final ? '원초' : g.mission ? `임무·${RANKS[g.tier].key}` : g.bid ? `낙찰·${RANKS[g.tier].key}` : g.variant === 'red' ? `레드·${RANKS[g.tier].key}` : `${RANKS[g.tier].key}급`, g.mission || g.bid ? '#ffb547' : col);
+      c.globalAlpha = 1;
     }
   }
 
@@ -425,7 +426,7 @@ class MapView {
       m.fillStyle = ty === T.NORTH ? '#121722' : !known ? '#141b26' : ty === T.CITY ? '#46e0d0' : ty === T.MOUNTAIN ? '#2f4258' : ty === T.ETHER ? '#5a3a80' : ty === T.BRIDGE ? '#1f5a5a' : ty === T.FOREST ? '#1e3a30' : ty === T.FIELD ? '#3a4a32' : ty === T.WASTE ? '#3a2a48' : ty === T.RUIN ? '#2a3038' : '#22303f';
       m.fillRect(x * sx, y * sy, Math.ceil(sx), Math.ceil(sy));
     }
-    for (const g of G.mapGates) if (G.revealed(g.x, g.y)) { m.fillStyle = g.final ? '#ff4f6a' : '#d65cff'; m.fillRect(g.x * sx - 1, g.y * sy - 1, sx + 2, sy + 2); }
+    for (const g of G.gatesShown()) { m.fillStyle = g.final ? '#ff4f6a' : '#d65cff'; m.fillRect(g.x * sx - 1, g.y * sy - 1, sx + 2, sy + 2); }
     m.fillStyle = '#ffb547'; m.fillRect(G.player.x * sx - 2, G.player.y * sy - 2, sx + 4, sy + 4);
     // 현재 시야
     const vw = this.w / this.tile, vh = this.hgt / this.tile;
