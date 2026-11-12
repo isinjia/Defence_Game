@@ -1587,7 +1587,7 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearEndY": 330
+      "rearEndY": 240
     },
     {
       "file": "hair-m-28.webp",
@@ -3116,7 +3116,7 @@ const PortraitParts = (() => {
     const fitHead = markup => headScale === 1 ? markup : `<g data-proportion="head" transform="${headTransform}">${markup}</g>`;
     const cardHeight = underwear ? 440 : 480;
     const view = avatar ? `72 ${pose} 256 256` : `0 0 400 ${cardHeight}`;
-    const source = part => root + part.file + '?v=11';
+    const source = part => root + part.file + '?v=12';
     const image = (part, attrs = '') => {
       const [x,y,w,h] = part.rect, src = source(part);
       return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${part.opacity == null ? '' : ` opacity="${part.opacity}"`}${attrs}/>`;
