@@ -643,3 +643,8 @@ html body .combat-box.fit #foes.foe-grid { align-items: end; }
 /* 적 위 표시 자리: 왼쪽 위 = 유형(.mtype)과 그 아래 약점(.edge-mark) / 오른쪽 위 = 행동 예고(.intent) / 그림 아래 = 상태 이상 줄(.status) */
 .foe > .edge-mark { right: auto; left: 4px; top: 18px; min-width: 16px; height: 16px; padding: 0 3px; font-size: 10px; border-radius: 8px; }
 .foe .intent { margin-right: -8px; margin-top: -6px; }
+
+/* 메인 고정 인물 일러스트 (main_cast_art.js): 투명 배경 상반신 */
+.portrait-img.main-art { background: radial-gradient(ellipse at 50% 35%, #1d3a48, #0a0f18 75%); }
+.portrait-img.main-art img { object-fit: contain; object-position: 50% 0; }
+.avatar-img.main-art img { object-fit: cover; object-position: 50% 4%; transform: scale(1.9); transform-origin: 50% 8%; }
