@@ -100,13 +100,21 @@
 
   // 멈춘 동안에는 화면 어디를 눌러도 "다음"
   // (window 단계에서 잡는다: 문서 단계의 다른 잠금(tut_lock.js)보다 먼저 받아야 한다)
+  const passThrough = (e) => {
+    const h = UI._hold; if (!h || h.i < h.lines.length - 1 || Date.now() - h.at < 250) return false;
+    const t = e.target && e.target.closest ? e.target.closest('.coach-spot, #cb-ctrl [data-act], #foes .foe, #allies .ally.fig, .stage .ally.fig') : null;
+    return !!(t && !t.disabled);
+  };
   window.addEventListener('click', (e) => {
     if (typeof ExploreCinema !== 'undefined' && ExploreCinema.active) return;
     if (!UI.tutHeld()) return;
+    // [평가 28] 말풍선이 시킨 조작(명령 버튼·적·아군)을 바로 누르면 말풍선만 닫히고 조작이 삼켜져 두 번 눌러야 했다.
+    // 마지막 문장까지 보인 상태에서 조작 대상을 누르면 말풍선을 닫고 그 누르기도 그대로 통과시킨다.
+    if (passThrough(e)) { UI.tutNext(); return; }
     e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
     UI.tutNext();
   }, true);
-  window.addEventListener('pointerdown', (e) => { if (typeof ExploreCinema !== 'undefined' && ExploreCinema.active) return; if (UI._hold) e.stopPropagation(); }, true); // 길게 누르기 등도 막는다
+  window.addEventListener('pointerdown', (e) => { if (typeof ExploreCinema !== 'undefined' && ExploreCinema.active) return; if (UI._hold && !passThrough(e)) e.stopPropagation(); }, true); // 길게 누르기 등도 막는다
 
   // 전투 시간 정지
   const baseTick = Combat.prototype.tick;

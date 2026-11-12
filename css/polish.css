@@ -7,7 +7,7 @@
 .hud-tip { background: var(--panel-solid); box-shadow: 0 10px 28px #000c; z-index: 12; }
 
 /* 알림 띠: 창이 열려 있을 때는 창 머리(제목·닫기)를 덮지 않게 아래쪽 확인 버튼 위로 내린다 */
-#toast.low { top: auto; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
+#toast.low { top: calc(4px + env(safe-area-inset-top, 0px)); bottom: auto; padding-top: 7px; padding-bottom: 7px; font-size: 13px; }
 /* 지도에서는 메뉴·날짜 줄 바로 아래 */
 @media (orientation: portrait) and (max-width: 640px) { #toast:not(.low) { top: calc(62px + env(safe-area-inset-top, 0px)); } }
 .toast { border-radius: 10px; box-shadow: 0 8px 24px #000b; }
@@ -42,4 +42,65 @@
   .modal-box.sheet .sheet-body { padding-left: 8px; padding-right: 8px; }
   .modal-box.sheet .sheet-body > .panel, .modal-box.sheet .sheet-body .panel { padding-left: 10px; padding-right: 10px; }
   .modal-box.sheet .item-row { padding-left: 8px; padding-right: 8px; gap: 8px; }
+}
+
+/* 창 위 확인 창 (js/polish.js confirmOver) */
+#pl-confirm { position: fixed; inset: 0; z-index: 1500; display: grid; place-items: center; padding: 20px; background: rgba(3, 6, 10, .72); }
+#pl-confirm .plc-box { width: min(380px, 100%); background: var(--panel-solid); border: 1px solid var(--line-hi); border-top: 2px solid #ff6a5a; padding: 16px; box-shadow: 0 18px 48px #000d; }
+#pl-confirm h3 { margin: 0 0 8px; font-size: 18px; }
+#pl-confirm p { margin: 0 0 14px; color: var(--dim); font-size: 14px; line-height: 1.6; word-break: keep-all; }
+#pl-confirm .plc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+#pl-confirm .plc-row button { min-height: 46px; justify-content: center; }
+
+/* [평가 11] 튜토리얼 건너뛰기: 화면 안쪽(64px 아래)에 떠서 안내 패널·말풍선·범례를 덮었다. 맨 위 가장자리의 작은 손잡이로 옮긴다 */
+#tut-skip { top: env(safe-area-inset-top, 0px) !important; right: 64px; left: auto; height: 28px; padding: 0 12px; font-size: 11.5px; line-height: 28px; border-radius: 0 0 10px 10px; border-top: 0; background: rgba(10, 14, 24, .9); white-space: nowrap; }
+#tut-skip::before { content: ""; position: absolute; inset: -6px -6px -10px -6px; } /* 누르는 영역은 넉넉하게 */
+@media (max-width: 350px) { #tut-skip { right: 56px; padding: 0 9px; } }
+
+/* [평가 13] 의뢰·길드 시트: 보유 크레딧 칩이 탭 줄에 끼어 탭이 29px로 찌그러졌다. 칩은 아랫줄로 내린다 */
+#modal-box.wallet-in-head .sheet-head { flex-wrap: wrap; row-gap: 6px; }
+#modal-box.wallet-in-head .sheet-head .tabs { flex: 1 1 0; min-width: calc(100% - 60px); }
+#modal-box.wallet-in-head .sheet-head .wallet-chip { order: 3; margin-left: auto; }
+@media (max-width: 640px) { .sheet-head .tabs button { min-height: 44px; } }
+
+/* [평가 19] 한글이 낱말 중간에서 줄바꿈되지 않게 (긴 낱말·주소는 넘치지 않게 끊는다) */
+body, button, .modal-box, .dlg-box, #dlg { word-break: keep-all; overflow-wrap: anywhere; }
+
+/* [평가 17] 알림 띠는 눌러서 바로 닫을 수 있다 (js/polish.js) */
+.toast { pointer-events: auto !important; cursor: pointer; }
+
+/* [평가 12] 대사가 나오는 동안에는 지도 아래 인물 카드·행동 패널·퀘스트 칸을 숨겨 대사창 뒤로 비치지 않게 한다 */
+body.dlg-on .hud-bottom, body.dlg-on .hud-tr, body.dlg-on #hud-money { visibility: hidden; }
+
+/* [평가 15] 전투 스킬·아이템 목록: 명령 단추 위에 떠서 뒷줄 아군(체력)을 가렸다. 세로 화면에서는 명령 단추 자리를 덮어 띄운다 */
+@media (orientation: portrait) and (max-width: 640px) {
+  #cb-ctrl .cmd-list.cmd-pop { bottom: 0; max-height: min(62vh, calc(48px * 5 + 50px)); }
+  .cmd-pop-head button { min-height: 40px !important; min-width: 56px; }
+}
+/* [평가 16] 차례가 아닐 때: 흐린 단추 위에 상태 글이 어정쩡하게 걸쳐 보였다. 단추를 더 흐리게, 상태 글은 또렷한 한 줄 띠로 */
+.cmd-wrap.cmd-wait .cmd-main .cmd { opacity: .16; filter: grayscale(.8); }
+.cmd-wrap.cmd-wait > .turn-wait { left: 8px !important; right: 8px !important; top: 50% !important; transform: translateY(-50%) !important; width: auto !important; text-align: center; padding: 10px 12px !important; border-radius: 8px !important; font-size: 13.5px !important; background: #0b111bf0 !important; border: 1px solid var(--line-hi) !important; color: var(--text) !important; white-space: normal !important; }
+
+/* [평가 20] 전투의 핵심 숫자·꼬리표는 최소 10.5~11px (360px 이상 화면) */
+@media (min-width: 360px) {
+  html body .combat-box.fit .foe.foe-card > .foe-hp, .combat-box.fit .foe-hp { font-size: 11px; }
+  .combat-box.fit .ally.fig .lead-tag, .combat-box.fit .ally.fig .order-tag { font-size: 10.5px; }
+  .cb-tools .tactic-btn .tac-k { font-size: 10.5px; }
+  .tag.tiny { font-size: 11px; }
+}
+
+/* [평가 22] 도시의 각성자 카드: 둘째 줄(등급·직업·처음 봄)이 잘렸다. 두 줄까지 보여 준다 */
+.npc-strip .npc-chip .small { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; }
+
+/* [평가 18] 아주 좁은 화면의 상점 행: 설명이 글자 단위로 꺾였다. 값 단추를 아랫줄 오른쪽으로 내려 설명에 전폭을 준다 */
+@media (max-width: 350px) {
+  .city-body .item-row { flex-wrap: wrap; }
+  .city-body .item-row > .grow { flex: 1 1 calc(100% - 60px); min-width: 0; }
+  .city-body .item-row > button { margin-left: auto; }
+}
+
+/* [평가 25] 자주 누르는 작은 단추의 누르는 높이 44px */
+@media (max-width: 640px) {
+  [data-act="g-leave"], .obj-link.hq, .fold-obj-btn, .explore-chip { min-height: 44px; }
+  .fold-obj-btn { min-width: 44px; }
 }

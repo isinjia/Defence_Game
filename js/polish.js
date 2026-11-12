@@ -72,4 +72,78 @@
     if (act === 'new-ok') { this.closeModal(); this._newOk = true; try { return baseHandle2.call(this, 'new', v); } finally { this._newOk = false; } }
     return baseHandle2.call(this, act, v);
   };
+
+  // [평가 1] 타이틀에서 창(게임 안내·새로 시작 확인)을 닫으면 사건 큐 처리가 돌아 오류 띠가 떴다: 게임 밖에서는 큐를 돌리지 않는다
+  const baseQueue = UI.processQueue;
+  if (baseQueue) UI.processQueue = function (...a) { if (this.screen !== 'game' || !G.player) return; return baseQueue.apply(this, a); };
+
+  // [평가 2] 도시 창 안에서 한 행동(마켓 구매 등)이 인물 정보 시트로 튕겼다: 도시 창이면 도시 화면으로 다시 그리고, 보던 자리(스크롤)도 지킨다
+  const keepScroll = (fn) => {
+    const box = document.getElementById('modal-box'); const sc = box && (box.querySelector('.city-body') || box.querySelector('.sheet-body'));
+    const cls = sc ? sc.className : ''; const top = sc ? sc.scrollTop : 0;
+    const r = fn();
+    try { if (top) { const n = [...document.querySelectorAll('#modal-box .city-body, #modal-box .sheet-body')].find((e) => e.className === cls); if (n) n.scrollTop = top; } } catch (e) { /* 무시 */ }
+    return r;
+  };
+  const baseAfterCity = UI.afterCity;
+  if (baseAfterCity) UI.afterCity = function (msg) { return keepScroll(() => baseAfterCity.call(this, msg)); };
+  const baseAfter = UI.after;
+  UI.after = function (msg) {
+    if (this.sheet === 'city' && this.modalOpen() && this.afterCity && document.querySelector('#modal-box .city-hero')) return this.afterCity(msg);
+    return keepScroll(() => baseAfter.call(this, msg));
+  };
+
+  // 창 위에 뜨는 작은 확인 창 (전투·게이트 창을 갈아 끼우지 않고 그 위에 띄운다)
+  UI.confirmOver = function (title, text, okLabel, onOk) {
+    const old = document.getElementById('pl-confirm'); if (old) old.remove();
+    const el = document.createElement('div'); el.id = 'pl-confirm'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
+    el.innerHTML = `<div class="plc-box"><h3>${title}</h3><p>${text}</p><div class="plc-row"><button class="ghost" data-plc="no">취소</button><button class="danger" data-plc="ok">${okLabel}</button></div></div>`;
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const b = e.target.closest('[data-plc]'); if (!b && e.target !== el) return;
+      el.remove(); if (b && b.dataset.plc === 'ok') onOk();
+    });
+    document.body.appendChild(el);
+  };
+  // [평가 27] 도주·철수는 한 번 누르면 바로 게이트 밖이었다: 잃는 것을 알리고 한 번 더 묻는다
+  const baseHandle3 = UI.handle;
+  UI.handle = function (act, v) {
+    if ((act === 'c-flee' || act === 'g-leave') && !this._fleeOk) {
+      const c = this.ctx; const gate = c && c.kind === 'gate';
+      if (act === 'c-flee' && !(c && c.combat && c.combat.waiting && !c.combat.result && c.combat.canFlee)) return baseHandle3.call(this, act, v);
+      const text = act === 'g-leave' ? '지금 철수하면 이 게이트는 여기서 끝납니다. 낸 입장료와 쓴 시간은 돌아오지 않습니다.'
+        : gate ? '도주에 성공하면 게이트 밖으로 나가며, 이 게이트는 여기서 끝납니다. 낸 입장료와 쓴 시간은 돌아오지 않습니다. 실패하면 차례만 잃습니다.'
+          : '도주에 성공하면 전투에서 빠져나옵니다. 실패하면 차례만 잃습니다.';
+      return this.confirmOver(act === 'g-leave' ? '철수할까요?' : '도주할까요?', text, act === 'g-leave' ? '철수한다' : '도주한다', () => { this._fleeOk = true; try { this.handle(act, v); } finally { this._fleeOk = false; } });
+    }
+    return baseHandle3.call(this, act, v);
+  };
+
+  // [평가 17] 알림 띠는 누르면 바로 닫힌다
+  { const t = document.getElementById('toast'); if (t) t.addEventListener('click', (e) => { e.stopPropagation(); t.classList.add('hidden'); }); }
+  // [평가 12] 대사 중 표시 (css 가 지도 아래 패널을 숨긴다)
+  setInterval(() => { try { document.body.classList.toggle('dlg-on', !!(UI.dlg && UI.screen === 'game' && !UI.modalOpen())); } catch (e) { /* 무시 */ } }, 150);
+
+  // [평가 29] 다른 파티가 먼저 보스를 잡으면 게이트가 예고 없이 닫혀 이유를 알 수 없었다.
+  // 층 지도의 경쟁 줄에 규칙과 "얼마나 급한지"를 덧붙인다(정확한 위치는 탐색 능력의 몫이라 가까움·멂만 알린다).
+  const baseGateMap = UI.renderGateMap;
+  if (baseGateMap) UI.renderGateMap = function (note) {
+    const r = baseGateMap.call(this, note);
+    try {
+      const c = this.ctx; const line = document.querySelector('#modal .gp-line'); const run = c && c.run; const m = run && run.map;
+      if (line && m && G.gatePartiesIn && !line.querySelector('.gp-race')) {
+        const last = run.floor >= (run.floors || 1) - 1; const top = m.rows.length - 1;
+        const here = G.gatePartiesIn(c.gate).filter((pt) => !pt.gone && !pt.allied && pt.floor === run.floor);
+        if (here.length) {
+          const left = Math.min(...here.map((pt) => top - (pt.row || 0)));
+          const near = left <= 2;
+          const txt = last
+            ? (near ? '경쟁 파티의 기척이 보스 바로 앞에서 느껴진다. 먼저 잡히면 게이트가 닫히고 보스 보상은 없다.' : '경쟁 파티가 먼저 보스를 잡으면 게이트가 닫히고 보스 보상은 없다. 아직은 거리가 있다.')
+            : '경쟁 파티가 먼저 올라가고 있다. 마지막 층 보스를 먼저 잡히면 게이트가 닫힌다.';
+          line.insertAdjacentHTML('beforeend', ` <span class="gp-race ${near && last ? 'bad' : 'dim'}">${txt}</span>`);
+        }
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
 }
