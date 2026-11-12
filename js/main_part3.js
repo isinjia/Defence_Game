@@ -354,6 +354,7 @@ MAIN.ch(20, {
       { who: 'arin', text: '우리 세계야. 에테르가 바닥났어. 너희 쪽으로 다 흘러갔거든. 문이 열린 그날부터.' },
       { who: 'arin', when: (g, M) => M.flags.goJae === 'alive', text: '그 할아버지, 아직 살아 있구나. 고마워. 그날 나를 본 유일한 사람이야.' },
       { who: 'arin', when: (g, M) => M.flags.friend3 === 'late', text: (g) => `${g.mainFill(F2_TARGET(g))}… 여기 가까이 와 있어. 진서해 옆에서. 문 냄새가 나.` },
+      { narr: '저편 하늘 어딘가에서 파란 점 하나가 깜빡인다. 누리의 눈과 같은 색이다.', when: (g) => !!(g.flags.story && g.flags.story.nuri) },
     ], choices: [
       { text: '"저편은 어떤 곳이었어?"', set: { c20: 'world' }, next: 'c20_world' },
       { text: '"왜 나야?"', set: { c20: 'why' }, next: 'c20_why' },

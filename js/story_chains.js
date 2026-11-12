@@ -116,10 +116,14 @@ S({ id: 'nuri_1', chain: 'nuri', step: 1, gap: 1, city: true, text: '공방 기�
   ] });
 S({ id: 'nuri_2', chain: 'nuri', step: 2, gap: 2, text: '누리가 말을 꽤 잘하게 됐다. 뉴스를 보며 "인간은 왜 서로 싸워?"라고 묻는다. 게이트 근처에선 에테르 흐름을 읽어 약점을 알려 준다.',
   choices: [{ text: '"같이 배워 가자"', do: (g) => { g.chainNext('nuri'); g.player.relicBonus.luck = (g.player.relicBonus.luck || 0) + 1.5; g.recalc(); return '누리가 어깨에 앉아 함께 다니기 시작했다. (운 영구 +15)'; } }] });
-S({ id: 'nuri_3', chain: 'nuri', step: 3, gap: 4, minRank: 3, text: '누리가 처음으로 망설이며 말한다. "기억이 돌아왔어. 나는 게이트 너머에서 온 탐사기야. 저편 사람들이 이쪽을 이해하려고 보냈어. 이제… 돌아가서 보고해야 해."',
+// 메인 설정과 맞춤: 누리는 저편(에테르가 말라 가는 세계)이 보낸 탐사기. 메인 20장(아린의 이름) 전에는 저편의 정체를 흐리게만 말한다
+S({ id: 'nuri_3', chain: 'nuri', step: 3, gap: 4, minRank: 3, text: (g) => { const M = g.flags.main || {}; const f = M.flags || {};
+    return f.arinName
+      ? '누리가 처음으로 망설이며 말한다. "기억이 돌아왔어. 나는 문 너머, 강이 마른 쪽에서 왔어. 저편 사람들이 마지막 에테르를 모아 나를 만들었어. 이쪽에 숨을 나눌 방법이 있는지 보고 오라고. …아린을 알아. 너를 찾으라고 한 것도 아린이야. 이제 돌아가서 보고해야 해."'
+      : '누리가 처음으로 망설이며 말한다. "기억이 돌아왔어. 나는 문 너머에서 왔어. 거기는 하늘이 회색이야. 누가 나를 보냈는지는… 기억이 아직 반쪽이야. 그래도 하나는 알아. 돌아가서 보고해야 해. 이쪽에 숨 쉴 데가 있다고."'; },
   choices: [
-    { text: '돌려보낸다', do: (g) => { g.chainEnd('nuri'); g.lifeEvent('누리를 게이트 너머로 돌려보냈다.'); return '누리는 마지막으로 당신 뺨에 부딪혔다. "인간은 싸우지만, 너 같은 인간도 있다고 말할게." 남은 자리에 빛나는 결정이 떨어져 있었다.' + g.gain({ relic: 3 }); } },
-    { text: '"남아 줘"', do: (g) => { g.chainEnd('nuri'); g.player.relicBonus.train = (g.player.relicBonus.train || 0) + 0.08; g.recalc(); g.lifeEvent('누리가 곁에 남기로 했다.'); g.setClass('machinist', '히든 직업 각성'); return '히든 직업 [기계 교감자]에 각성했다. ' + '누리는 오래 깜빡이다 대답했다. "…응. 보고서는 천천히 써도 되겠지." (수련 효율 영구 +8%)'; } },
+    { text: '돌려보낸다', do: (g) => { g.chainEnd('nuri'); g.flags.story.nuri = 'returned'; g.lifeEvent('누리를 게이트 너머로 돌려보냈다.'); return '누리는 마지막으로 당신 뺨에 부딪혔다. "인간은 싸우지만, 너 같은 인간도 있다고 말할게." 남은 자리에 빛나는 결정이 떨어져 있었다.' + g.gain({ relic: 3 }); } },
+    { text: '"남아 줘"', do: (g) => { g.chainEnd('nuri'); g.flags.story.nuri = 'stayed'; g.player.relicBonus.train = (g.player.relicBonus.train || 0) + 0.08; g.recalc(); g.lifeEvent('누리가 곁에 남기로 했다.'); g.setClass('machinist', '히든 직업 각성'); return '히든 직업 [기계 교감자]에 각성했다. ' + '누리는 오래 깜빡이다 대답했다. "…응. 보고서는 천천히 써도 되겠지." (수련 효율 영구 +8%)'; } },
   ] });
 
 // ===== 7. 부산 암시장 =====

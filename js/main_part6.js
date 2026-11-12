@@ -152,6 +152,8 @@ MAIN.ch(37, {
       { narr: (g, M) => (M.flags.ringWhole ? '손안의 원이 빛난다. 아린이 그걸 보고 웃는다. "그거 있으면 다리를 놓을 수 있어. 할아버지가 본 거."' : M.flags.halfRing ? '주머니 속 반쪽 원이 떨린다. 아린의 손에 나머지 반쪽이 있다.' : '아린의 손이 비어 있다. 당신 손도.') },
       { who: 'arin', text: (g, M) => (M.flags.arinPromise ? ({ close: '약속, 기억해? 닫아 달라고 했던 거. …아직 그 말 그대로야.', bridge: '약속했지. 다리. 여기까지 왔으니까 해 볼 수 있어.', open: '약속했지. 열게 둬 달라고. …정말 괜찮아?' })[M.flags.arinAsk] || '약속, 기억해?' : '약속은 안 했지. 그래도 와 줬어. 이제 정해 줘.') },
       { who: 'arin', when: (g, M) => !!(M.prevRun && M.prevRun.ending), text: (g, M) => `이상하지. 너를 처음 보는데, 네가 이 문 앞에서 「${(ENDINGS[M.prevRun.ending] || {}).title || '다른 끝'}」을 고르는 걸 본 것 같아. 이번엔… 어떻게 할 거야?` },
+      { who: 'arin', when: (g) => !!(g.flags.story && g.flags.story.nuri === 'returned'), text: '누리가 돌아와서 네 얘기를 했어. 그 작은 게 하루 종일 떠들었어. 그래서 기다릴 수 있었어.' },
+      { narr: '어깨 위 누리가 문을 향해 깜빡인다. 아린이 누리를 보고 웃는다. "너, 거기 있었구나. 보고는 안 와도 돼. 이제 다 봤어."', when: (g) => !!(g.flags.story && g.flags.story.nuri === 'stayed') },
     ] },
     { id: 'c37_echo', lines: [
       { narr: (g, M) => (M.flags.arinFade ? '아린의 윤곽이 군데군데 비어 있다. 오래 기다린 탓이다. 목소리가 바람보다 작다.' : '아린의 발밑에 그림자가 있다. 저편에서 처음 생겼던 그 그림자.') },
