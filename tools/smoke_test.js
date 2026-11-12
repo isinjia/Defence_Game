@@ -369,6 +369,37 @@ const { chromium, devices } = require('playwright');
       }
     });
   });
+  await step('여성 긴머리 연속성: 목 아래 머리카락 잘림 방지', async () => {
+    await page.evaluate(async () => {
+      const samples = new Map();
+      for (let n = 0; n < 30000 && samples.size < 7; n++) {
+        const seed = 'look5:긴머리연속-' + n, selected = PortraitParts.select(seed, 'F', { age: 25, outfit: 'underwear' });
+        const hair = Number(selected.layers[2].file.match(/-(\d+)\.webp/)[1]);
+        if ([0,2,24,25,26,28,29].includes(hair)) samples.set(hair, seed);
+      }
+      if (samples.size !== 7) throw Error('긴머리 표본 부족');
+      let checked = 0;
+      for (const [hair, seed] of samples) for (const bodyType of ['thin','normal','strong','heavy']) for (const outfit of ['underwear','coat','casual']) {
+        const source = await PortraitParts.rasterize(PORTRAIT.card(seed, 'F', null, 0, 400, { age:25, bodyType, outfit }));
+        const doc = new DOMParser().parseFromString(decodeURIComponent(source.split(',').slice(1).join(',')), 'image/svg+xml');
+        const front = doc.querySelector('image[data-hair-layer="front"]');
+        if (!front) throw Error('앞머리 레이어 없음');
+        const read = async url => { const im = new Image(); im.src = url; await im.decode(); const cv = document.createElement('canvas'); cv.width=400;cv.height=600;const ctx=cv.getContext('2d');ctx.drawImage(im,0,0,400,600);return ctx.getImageData(0,0,400,600).data; };
+        const original = await read('assets/portraits/parts/hair-f-'+hair+'.webp');
+        const baked = await read(front.getAttribute('href'));
+        let pixels = 0;
+        for (let y=264;y<420;y++) for (let x=70;x<330;x++) {
+          const alpha=(y*400+x)*4+3;
+          if (original[alpha] < 240) continue;
+          if (baked[alpha] < 230) throw Error('목 아래 헤어가 잘림: H'+hair+' '+bodyType+' '+outfit+' '+[x,y]);
+          pixels++;
+        }
+        if (pixels < 50) throw Error('목 아래 헤어 검증 표본 부족');
+        checked++;
+      }
+      if (checked !== 84) throw Error('긴머리 체형·의상 조합 누락');
+    });
+  });
   await step('기본 몸체: 얼굴 20종 피부색·한 장의 턱·목·어깨·얼굴 특징 교체', async () => {
     await page.evaluate(async () => {
       const median = patches => [0, 1, 2].map(channel => {

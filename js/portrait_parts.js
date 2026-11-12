@@ -3196,9 +3196,7 @@ const PortraitParts = (() => {
     const completeRearHair = hairPart && hairPart.rearFile
       ? fitHead(image({ file:hairPart.rearFile, rect:hairPart.rearRect }, ` data-depth="hair-rear-complete" transform="translate(0 ${pose})"`)) : '';
     const splitHair = integrated && female && hairPart && !hairPart.bald;
-    // 둥근 깃은 목 피부가 깃 구멍 전체로 넓어지므로, 목 앞에 남던 머리카락 부스러기도 그 폭까지 뒤로 보낸다 (사용자 지적)
-    const hairNeck = roundNeck && style === 4 ? ` data-neck-half="${Math.round(collar[2] * fit)}"` : '';
-    const hairData = splitHair ? ` data-hair-source="${source(hairPart)}" data-hair-rect="${hairPart.rect.join(',')}" data-head-source="${source(base)}" data-head-chin="${chin}"${hairNeck}` : '';
+    const hairData = splitHair ? ` data-hair-source="${source(hairPart)}" data-hair-rect="${hairPart.rect.join(',')}" data-head-source="${source(base)}" data-head-chin="${chin}"` : '';
     const rearHair = splitHair ? fitHead(image(hairPart, ` data-depth="hair-back" data-hair-layer="back" transform="translate(0 ${pose})"${hairData}`)) : '';
     const details = accessories.map(part => {
       if (part.bald) return '';
@@ -3296,7 +3294,7 @@ const PortraitParts = (() => {
   };
   const hairBitmaps = new Map();
   const hairBitmap = node => {
-    const d=node.dataset, key=[d.hairSource,d.hairRect,d.headSource,d.headChin,d.neckHalf||''].join('|');
+    const d=node.dataset, key=[d.hairSource,d.hairRect,d.headSource,d.headChin].join('|');
     if(hairBitmaps.has(key))return hairBitmaps.get(key);
     const promise=(async()=>{
       const [hair,head]=await Promise.all([loadImage(d.hairSource),loadImage(d.headSource)]);
@@ -3305,15 +3303,12 @@ const PortraitParts = (() => {
       ctx.clearRect(0,0,400,600);ctx.drawImage(hair,...d.hairRect.split(',').map(Number));const pixels=ctx.getImageData(0,0,400,600);
       const chin=Number(d.headChin),back=ctx.createImageData(400,600);
       let left=200,right=200;
-      for(let x=0;x<400;x++)if(silhouette[((chin+4)*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
-      const neckHalf=d.neckHalf?Number(d.neckHalf):Math.max(20,(right-left)/2);
-      left=200;right=200;
       for(let x=0;x<400;x++)if(silhouette[(220*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
       const cheekHalf=Math.max(20,(right-left)/2)+2;
-      // 턱까지는 실제 머리 윤곽을 그대로 사용한다. 그 아래는 목 안쪽으로 좁혀 긴 머리가 가슴 앞으로 이어지게 한다.
-      for(let y=195;y<330;y++){
-        const t=Math.max(0,Math.min(1,(y-195)/5)),weight=t*t*(3-2*t);
-        const half=y<=220?cheekHalf:y<=chin+4?200:neckHalf*Math.max(0,(330-y)/(330-chin-4));
+      // 얼굴·턱을 보호하는 분리는 턱 바로 아래에서 끝낸다. 목·어깨까지 피부 폭으로 가리면 긴 머리가 잘린다.
+      for(let y=195;y<chin;y++){
+        const t=Math.max(0,Math.min(1,(y-195)/5,(chin-y)/4)),weight=t*t*(3-2*t);
+        const half=y<=220?cheekHalf:200;
         for(let x=0;x<400;x++){
           const k=(y*400+x)*4,edge=Math.max(0,Math.min(1,half-Math.abs(x-200)+.5));
           const cover=silhouette[k+3]>8?weight*edge:0;
