@@ -2894,11 +2894,16 @@ const PortraitParts = (() => {
     const round = {2:[200,264,38,0],3:[200,266,37,7],4:[201,262,44,28],5:[200,264,36,7]}; // 4: 여자 평상복 둥근 깃 — 깃 안쪽(뒷판)이 목 뒤로 가게 (사용자 지적: 목 밑이 잘리고 옷 뒤가 보임) // 2: 여자 차이나 깃(구멍 모양은 아래 vCollar)
     // 남자 둥근 깃(4)·세운 깃(3·5)도 같은 방식: 깃 안쪽 어두운 뒷판 앞으로 목이 내려와 앞깃 뒤로 들어간다 (사용자 지적: 남자는 턱 바로 밑이 뒷판이라 목이 비어 보임)
     const roundM = {3:[200,265,37,16],4:[200,262,45,28],5:[200,265,36,14]};
-    const collar = style === 0 ? (female ? [200,290,{thin:34,normal:37,strong:44,heavy:48}[selection.bodyType]||34,6] : [201,289,42,15]) : female ? round[style] : roundM[style] || null;
+    // 남자 전술복(3)·오버코트(5): 머리를 내려 턱이 목폴라 위에 얹히므로 깃 구멍을 파지 않는다 — 구멍 경계가 폴라 윗선을 계단처럼 잘라 울퉁불퉁했다 (사용자 지적)
+    const polaM = !female && (style === 5 || style === 3) && integrated && !underwear;
+    const collar = polaM ? null : style === 0 ? (female ? [200,290,{thin:34,normal:37,strong:44,heavy:48}[selection.bodyType]||34,6] : [201,289,42,15]) : female ? round[style] : roundM[style] || null;
     // 여자 차이나 깃(2)은 깃 안쪽이 V자: 뒷깃(검은 안쪽)은 목 뒤에, 앞깃 테두리는 목 앞에 온다. 목은 구멍 전체가 아니라 목 폭만 보인다.
     const vCollar = female && style === 2 && !underwear;
     const opening = vCollar ? 'M166 0H242V264C242 280 214 284 207 300H199C192 284 168 280 166 266Z'
       : collar ? `M${collar[0]-collar[2]} 0H${collar[0]+collar[2]}V${collar[1]}A${collar[2]} ${collar[3]} 0 0 1 ${collar[0]-collar[2]} ${collar[1]}Z` : '';
+    // 폴라 원화 윗단은 양옆이 네모 기둥처럼 잘려 있다: 턱을 내리면 턱 옆에 각진 모서리가 드러나 울퉁불퉁 → 윗단을 둥근 돔 모양으로 깎는다 (사용자 지적)
+    const gy = cloth.rect[1];
+    const polaDefs = polaM ? `<mask id="${id}pola" maskUnits="userSpaceOnUse" x="-100" y="0" width="600" height="700"><rect x="-100" width="600" height="700" fill="white"/><path fill="black" d="M142 ${gy-10}H262V${gy+30}C252 ${gy+4} 232 ${gy+1} 202 ${gy+1}C172 ${gy+1} 152 ${gy+4} 142 ${gy+30}Z"/></mask>` : '';
     const collarDefs = collar ? `<clipPath id="${id}back"><path d="${opening}"/></clipPath><mask id="${id}front" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><rect width="400" height="600" fill="white"/><path d="${opening}" fill="black"/></mask>` : '';
     // 닫힌 칼라는 기존 폭을 유지하고, 코트는 아래에서 실제 칼라 구멍으로 목을 연결한다.
     // 목 폭은 턱 높이 원화 목 폭. 그 아래는 원화 목이 넓어지지만(승모근) 옷깃이 좁아 잘라야 하므로, 잘린 경계에 원화와 같은 윤곽선을 그려 넣는다(neckLines) (사용자 지적: 곧은 단면·피부 사각형).
@@ -2913,10 +2918,9 @@ const PortraitParts = (() => {
     const side = (end) => `M0 0H400V${colTop}H${R}V${bend}Q${R} ${chin} ${R-inset} ${chin+4}${end}`;
     const column = side(`V330H${L+inset}V${chin+4}Q${L} ${chin} ${L} ${bend}V${colTop}H0Z`);
     // 옷 위에 그리는 턱 레이어는 턱선(U자)까지만: 옷을 올려도 턱 양옆 어깨 피부가 옷 위에 남지 않게
-    const jw = female || polaHeavy ? 44 : 52;
+    const jw = female ? 44 : 52;
     const jawShape = `M0 0H400V${colTop}H${200+jw}C${200+jw} ${chin-4} ${214} ${chin+3} 200 ${chin+3}C${186} ${chin+3} ${200-jw} ${chin-4} ${200-jw} ${colTop}H0Z`;
     // 남자 오버코트·전술복: 턱이 목폴라 바로 위에 오므로 옷 위 턱 레이어를 턱선(U자)까지만 — 턱 양옆 사각 피부가 폴라 위에 남지 않게
-    const polaM = !female && (style === 5 || style === 3) && integrated && !underwear;
     const neckTop = female ? chin - 8 : chin + 4; // 여자는 턱 8px 위부터 목 폭: 턱과 옷 사이에 어깨 피부가 사각으로 보이던 문제
     // 여자 코트: 목이 안쪽 목폴라로 살짝 넓어지며 들어간다(곧은 사각 기둥처럼 보이던 문제, 사용자 지적)
     const coatF = female && style === 0 && integrated && !underwear;
@@ -2927,7 +2931,7 @@ const PortraitParts = (() => {
     const baseClips = `<clipPath id="${id}col"><path d="${neckPath}"/></clipPath>${collar ? `<clipPath id="${id}fill"><path d="${neckPath}"/><path d="${opening}" transform="translate(0 ${-pose}) ${coatF ? garmentTf.replace(/translate\([-\d.]+ (-?[\d.]+)\) translate\(200/, 'translate(0 $1) translate(200') : garmentTf}"/></clipPath>` : ''}${collar ? `<clipPath id="${id}open"><rect width="400" height="${chin}"/><path d="${opening}" transform="translate(0 ${-pose}) ${coatF ? garmentTf.replace(/translate\([-\d.]+ (-?[\d.]+)\) translate\(200/, 'translate(0 $1) translate(200') : garmentTf}"/></clipPath>` : ''}<clipPath id="${id}neck">${neckClip}</clipPath><clipPath id="${id}jaw">${heavy ? `<path d="${jawShape}"/>` : polaM ? `<path d="${jawShape}" transform="translate(200 ${chin+24}) scale(${headScale}) translate(-200 ${-(chin+24)})"/>` : female ? `<rect width="400" height="${neckTop}"/><rect x="${200-neckWidth/2}" width="${neckWidth}" height="${chin+24-22*headScale}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}</clipPath>`;
     const featureY = female ? 175 : 165;
     const features = `<radialGradient id="${id}features"><stop stop-color="white"/><stop offset=".9" stop-color="white"/><stop offset="1" stop-color="black"/></radialGradient><mask id="${id}featureMask" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><ellipse cx="200" cy="${featureY}" rx="62" ry="70" fill="url(#${id}features)"/></mask>`;
-    const defs = `<defs>${baseClips}${features}${collarDefs}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><clipPath id="${id}circle"><circle cx="200" cy="${128+pose}" r="126"/></clipPath></defs>`;
+    const defs = `<defs>${polaDefs}${baseClips}${features}${collarDefs}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><clipPath id="${id}circle"><circle cx="200" cy="${128+pose}" r="126"/></clipPath></defs>`;
     // 세운 깃(3·5)은 뒷깃이 목 뒤로 완전히 숨으므로 그리지 않는다: 통통에서 목 옆 위로 뒷깃 모서리가 보이던 문제 (사용자 지적)
     const back = collar && style !== 3 && style !== 5 ? image(cloth, ` data-depth="collar-back" clip-path="url(#${id}back)"${garmentAttrs}`) : '';
     // 둥근 깃(4): 깃 구멍 안은 원화 피부(목이 어깨로 넓어지는 모양 그대로)로 채우고, 깃 앞판이 그 위를 덮는다. 구멍 위쪽은 목 폭. (사용자 지적: 목 밑 양옆이 뒷판으로 파먹힌 것처럼 보임)
@@ -2938,13 +2942,13 @@ const PortraitParts = (() => {
       : integrated
       ? skinImage(base,'base', ` data-depth="${underwear ? 'underwear' : 'neck'}" transform="translate(0 ${pose})"${underwear ? '' : ` clip-path="url(#${id}neck)"`}`)
       : skinImage(face,'face',` data-depth="neck" transform="translate(0 ${pose})"`);
-    const lineOn = integrated && !underwear && !(roundNeck && style === 4) && (female ? style !== 3 && style !== 5 : (!collar || heavy)); // 여자는 모든 옷: 옷 위로 드러난 목 옆선을 그린다(옷 뒤에 그려 옷이 덮는 곳은 안 보임)
+    const lineOn = integrated && !underwear && !(roundNeck && style === 4) && (female ? style !== 3 && style !== 5 : !polaM && (!collar || heavy)); // 여자는 모든 옷: 옷 위로 드러난 목 옆선을 그린다(옷 뒤에 그려 옷이 덮는 곳은 안 보임)
     const edge = heavy && !female ? `M${200+colHalf} ${bend}Q${200+colHalf} ${chin} ${200+colHalf-inset} ${chin+4}V330M${200-colHalf} ${bend}Q${200-colHalf} ${chin} ${200-colHalf+inset} ${chin+4}V330`
       : heavy ? `M${200+colHalf-inset} ${chin+6}V330M${200-colHalf+inset} ${chin+6}V330`
       : coatF ? `M${200+nw} ${chin+2}Q${200+nw} 278 ${200+nw+flare} 296M${200-nw} ${chin+2}Q${200-nw} 278 ${200-nw-flare} 296`
       : `M${200+neckWidth/2} ${chin+4}V330M${200-neckWidth/2} ${chin+4}V330`;
     const neckLines = lineOn ? `<path data-depth="neck-line" d="${edge}" fill="none" stroke="#3b2622" stroke-opacity=".75" stroke-width="1.8" stroke-linecap="round" transform="translate(0 ${pose})"/>` : '';
-    const garment = underwear ? '' : image(cloth, ` data-depth="garment-front"${collar ? ` mask="url(#${id}front)"` : ''}${garmentAttrs}`);
+    const garment = underwear ? '' : image(cloth, ` data-depth="garment-front"${collar ? ` mask="url(#${id}front)"` : polaM ? ` mask="url(#${id}pola)"` : ''}${garmentAttrs}`);
     const rawForeground = integrated && !underwear ? skinImage(base,'base',` data-depth="head-front" transform="translate(0 ${pose})" clip-path="url(#${id}jaw)"`) : '';
     const facial = integrated ? `<g data-join="features" transform="translate(0 ${pose})" mask="url(#${id}featureMask)">${skinImage(face,'face',` data-depth="face-features" transform="translate(0 ${featureOffset})"`, true)}</g>` : '';
     const accessories = selection.layers.slice(2);
