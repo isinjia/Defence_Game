@@ -415,9 +415,9 @@ const PortraitParts = (() => {
         250
       ],
       "skinRgb": [
-        225.0,
-        191.0,
-        176.0
+        219.0,
+        190.0,
+        179.0
       ],
       "chinY": 251,
       "eyeCenters": [
@@ -935,9 +935,9 @@ const PortraitParts = (() => {
         250
       ],
       "skinRgb": [
-        226.0,
-        192.0,
-        182.0
+        222.0,
+        195.0,
+        189.0
       ],
       "chinY": 261,
       "eyeCenters": [
@@ -1443,10 +1443,10 @@ const PortraitParts = (() => {
     {
       "file": "hair-f-5.webp",
       "rect": [
-        80,
-        24,
-        240,
-        246
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
@@ -2637,7 +2637,7 @@ const PortraitParts = (() => {
     const fitHead = markup => headScale === 1 ? markup : `<g data-proportion="head" transform="${headTransform}">${markup}</g>`;
     const cardHeight = underwear ? 440 : 480;
     const view = avatar ? `72 ${pose} 256 256` : `0 0 400 ${cardHeight}`;
-    const source = part => root + part.file + '?v=8';
+    const source = part => root + part.file + '?v=9';
     const image = (part, attrs = '') => {
       const [x,y,w,h] = part.rect, src = source(part);
       return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${attrs}/>`;
@@ -2645,7 +2645,7 @@ const PortraitParts = (() => {
     const palette = { fair:[246,218,200], medium:[220,180,150], tan:[182,133,95], deep:[133,88,65] };
     const target = palette[selection.skinTone] || face.skinRgb || [230,195,180];
     // 피부 마스크 안의 색만 바꿔 흰자·입술·검은 선·속옷 색은 보존한다.
-    const skinImage = (part, name, attrs = '', feature = false) => `<g${attrs}>${image(part, ` data-skin-source="${source(part)}" data-skin-mask="${root+part.skinMask}?v=8" data-skin-rgb="${part.skinRgb.join(',')}" data-skin-target="${target.join(',')}" data-skin-race="${selection.race}"${feature ? ` data-face-feature="${female ? 'f' : 'm'}" data-feature-offset="${featureOffset}"` : ''}${name === 'base' ? ` data-body-scale="${headScale}" data-body-pivot="${chin+24}"` : ''}`)}</g>`;
+    const skinImage = (part, name, attrs = '', feature = false) => `<g${attrs}>${image(part, ` data-skin-source="${source(part)}" data-skin-mask="${root+part.skinMask}?v=9" data-skin-rgb="${part.skinRgb.join(',')}" data-skin-target="${target.join(',')}" data-skin-race="${selection.race}"${feature ? ` data-face-feature="${female ? 'f' : 'm'}" data-feature-offset="${featureOffset}"` : ''}${name === 'base' ? ` data-body-scale="${headScale}" data-body-pivot="${chin+24}"` : ''}`)}</g>`;
     const fit = integrated ? { thin:.9, normal:1, strong:1.04, heavy:1.24 }[selection.bodyType] : 1; // 통통 1.12 는 깃이 목보다 작아 옷을 키움 (사용자 지적)
     // 여자 옷 원화는 몸통 중심(x≈199)보다 1.5~8px 오른쪽에 그려져 있어 목이 왼쪽으로 치우쳐 보였다 (사용자 지적). 깃 중심을 몸에 맞춘다.
     const shiftX = female && !underwear ? [-2, -2.5, -4.5, -4, -3, -8][style] || 0 : 0;

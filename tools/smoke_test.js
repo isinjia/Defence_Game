@@ -109,6 +109,20 @@ const { chromium, devices } = require('playwright');
           if ([...bottom].some((v, i) => i % 4 === 3 && v > 50)) throw new Error('긴 머리 하단이 늘어남');
         }
       }
+      // 원본만 검사하면 전체 캔버스를 작은 rect로 줄여 정수리만 남는 오류를 놓친다.
+      // 실제 선택된 등록 좌표에서도 양쪽 관자 부위에 머리가 이어지는지 확인한다.
+      {
+        let hair;
+        for (let n = 0; n < 2000 && !hair; n++) {
+          const candidate = PortraitParts.select('look3:묶음등록-' + n, 'F', { age: 25, outfit: 'underwear' }).layers[2];
+          if (candidate.file === 'hair-f-5.webp') hair = candidate;
+        }
+        if (!hair) throw new Error('묶음머리 등록 검증 시드 없음');
+        const im = new Image(); im.src = 'assets/portraits/parts/' + hair.file; await im.decode();
+        const cv = document.createElement('canvas'); cv.width = 400; cv.height = 600;
+        const ctx = cv.getContext('2d'); ctx.drawImage(im, ...hair.rect);
+        for (const x of [150, 250]) if (ctx.getImageData(x, 110, 1, 1).data[3] < 100) throw new Error('묶음머리 등록 축소로 관자 머리가 사라짐');
+      }
       const neckSrc = await PortraitParts.rasterize(PORTRAIT.card('목선확인', 'M', null, 0, 400, { outfit: 'mandarin' }));
       const neckImg = new Image(); neckImg.src = neckSrc; await neckImg.decode();
       const neckCanvas = document.createElement('canvas'); neckCanvas.width = 400; neckCanvas.height = 480;
