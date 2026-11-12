@@ -211,7 +211,7 @@ const { chromium, devices } = require('playwright');
     await page.evaluate(async () => {
       for (const gender of ['M','F']) {
         const g = gender.toLowerCase();
-        for (const [seed, face, hair] of [['고정인물',1,2],['저장호환-0',8,5],['저장호환-29',2,14]]) {
+        for (const [seed, face, hair] of [['고정인물',1,2],['저장호환-0',8,5],['저장호환-29',2,14],['look3:current-audit-0',25,0],['look3:current-audit-1',20,14],['look3:current-audit-2',23,9]]) {
           const s = PortraitParts.select(seed,gender,{age:25,outfit:'underwear'});
           if(s.layers[0].file !== `face-${g}-${face}.webp` || s.layers[2].file !== `hair-${g}-${hair}.webp`) throw Error('저장 외형 변경');
         }
@@ -239,7 +239,33 @@ const { chromium, devices } = require('playwright');
           if(/href="assets\//.test(svg))throw Error('외부 파츠 경로 남음');
         }
       }
-      if(!PortraitParts.newLook().startsWith('look3:'))throw Error('새 외형 시드 형식');
+      if(!PortraitParts.newLook().startsWith('look4:'))throw Error('새 외형 시드 형식');
+    });
+  });
+  await step('미형 얼굴 추가: 남녀 각 5종·신규 추첨·기존 외형 보존', async () => {
+    await page.evaluate(async () => {
+      for (const gender of ['M', 'F']) {
+        const g = gender.toLowerCase(), faces = new Set(), pairs = new Set(), samples = new Map();
+        for (let n = 0; n < 20000; n++) {
+          const seed = 'look4:미형검증-' + n, selection = PortraitParts.select(seed, gender, { age: 25, outfit: 'underwear' });
+          const face = Number(selection.layers[0].file.match(/-(\d+)\.webp/)[1]), hair = selection.layers[2].file;
+          if ([3,4,6,9,12,15,16,17].includes(face)) throw Error('제외/유스 얼굴이 성인 풀에 포함됨');
+          faces.add(face); pairs.add(face + '|' + hair);
+          if (face >= 28) samples.set(face, seed);
+        }
+        if (faces.size !== 25 || pairs.size !== 750 || samples.size !== 5) throw Error('미형 얼굴 추첨 조합 누락');
+        const child = PortraitParts.select('look4:어린이검증', gender, { age: 10 }).layers[0].file;
+        if (!new RegExp(`face-${g}-(15|16|17)\\.webp`).test(child)) throw Error('미형 얼굴이 어린이 풀에 들어감');
+        for (const seed of samples.values()) {
+          for (const tone of ['natural', 'fair', 'medium', 'tan', 'deep']) {
+            const svg = PORTRAIT.card(seed, gender, null, 0, 160, { outfit: 'underwear', skinTone: tone });
+            const im = new Image(); im.src = await PortraitParts.rasterize(svg); await im.decode();
+            if (!im.naturalWidth) throw Error('미형 얼굴 피부색 합성 실패');
+          }
+          const avatar = PORTRAIT.avatar(seed, gender, null, 0, 56);
+          if (!avatar.includes('data-portrait-parts')) throw Error('신규 외형이 기존 일러스트로 대체됨');
+        }
+      }
     });
   });
   await step('현대 헌터 직업복: 실행 직업 전체·남녀 의상·NPC 연결', async () => {
