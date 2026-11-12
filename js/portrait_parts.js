@@ -2906,13 +2906,14 @@ const PortraitParts = (() => {
     // 통통 체형 원화는 목이 짧고 어깨선 피부가 턱 높이까지 올라온다(사용자 지적: 옷깃 옆으로 피부가 삐져나오고 목이 옷깃 위에 얹혀 보임).
     //  그래서 통통은 턱 24px 위부터 원화의 목 폭(남 56·여 46)만 남겨 옷 뒤에 그리고, 옷 위에 그리는 턱 레이어는 턱 끝에서 멈춘다 → 옷깃이 목 앞에 온다.
     const heavy = selection.bodyType === 'heavy' && integrated;
-    const colTop = chin - 24, colHalf = female ? 47 : 57;
+    const polaHeavy = heavy && !female && !underwear && (style === 3 || style === 5); // 통통 남자 전술복·오버코트: 머리를 내려 목 기둥·턱 옆 피부가 옷깃 위로 삐져나왔다 → 턱선 폭으로 좁힘 (사용자 지적)
+    const colTop = chin - 24, colHalf = female ? 47 : polaHeavy ? 49.5 : 57; // polaHeavy: 깃 구멍(옷과 같이 4.5px 왼쪽)만 덮는 폭
     // 목 옆선은 턱 끝 12px 위부터 안쪽으로 둥글게 좁아진다 (턱선과 직각으로 꺾이지 않게)
-    const R = 200 + colHalf, L = 200 - colHalf, bend = female ? chin - 6 : chin - 12, inset = female ? 5 : 9;
+    const colX = polaHeavy ? 197.5 : 200, R = colX + colHalf, L = colX - colHalf, bend = female ? chin - 6 : chin - 12, inset = female ? 5 : polaHeavy ? 0 : 9;
     const side = (end) => `M0 0H400V${colTop}H${R}V${bend}Q${R} ${chin} ${R-inset} ${chin+4}${end}`;
     const column = side(`V330H${L+inset}V${chin+4}Q${L} ${chin} ${L} ${bend}V${colTop}H0Z`);
     // 옷 위에 그리는 턱 레이어는 턱선(U자)까지만: 옷을 올려도 턱 양옆 어깨 피부가 옷 위에 남지 않게
-    const jw = female ? 44 : 52;
+    const jw = female || polaHeavy ? 44 : 52;
     const jawShape = `M0 0H400V${colTop}H${200+jw}C${200+jw} ${chin-4} ${214} ${chin+3} 200 ${chin+3}C${186} ${chin+3} ${200-jw} ${chin-4} ${200-jw} ${colTop}H0Z`;
     // 남자 오버코트·전술복: 턱이 목폴라 바로 위에 오므로 옷 위 턱 레이어를 턱선(U자)까지만 — 턱 양옆 사각 피부가 폴라 위에 남지 않게
     const polaM = !female && (style === 5 || style === 3) && integrated && !underwear;
