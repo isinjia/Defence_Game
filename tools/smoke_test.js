@@ -147,7 +147,8 @@ const { chromium, devices } = require('playwright');
         const frame = PortraitParts.select(glassesSeed, gender).layers.find(part => part.file === 'traits-5.webp').rect;
         if (frame[2] > 104 || frame[3] > 21 || Math.abs(frame[2] / frame[3] - 5) > .01) throw new Error('안경 비율 불일치');
         const doc = new DOMParser().parseFromString(PORTRAIT.card(glassesSeed, gender, null, 0), 'image/svg+xml');
-        const order = [...doc.querySelectorAll('image')].filter(image => image.dataset.depth !== 'hair-back').map(image => image.getAttribute('href'));
+        // 몸 뒤의 완성 뒷머리와 분리 뒷머리를 앞머리 순서 검사에서 제외한다.
+        const order = [...doc.querySelectorAll('image')].filter(image => !['hair-back', 'hair-rear-complete'].includes(image.dataset.depth)).map(image => image.getAttribute('href'));
         if (order.findIndex(url => url.includes('traits-5.webp')) > order.findIndex(url => url.includes('hair-'))) throw new Error('안경이 앞머리 위에 표시됨');
       }
       // 뒤깃 → 목 → 앞깃 → 턱: 실제 픽셀로 검증해 목구멍과 턱 잘림의 재발을 막는다.

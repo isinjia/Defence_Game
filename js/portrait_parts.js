@@ -1276,37 +1276,37 @@ const PortraitParts = (() => {
     {
       "file": "hair-m-0.webp",
       "rect": [
-        105,
-        28,
-        190,
-        193
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
       "file": "hair-m-1.webp",
       "rect": [
-        105,
-        28,
-        190,
-        200
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
       "file": "hair-m-2.webp",
       "rect": [
-        105,
-        28,
-        190,
-        184
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
       "file": "hair-m-3.webp",
       "rect": [
-        105,
-        28,
-        190,
-        233
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
@@ -1330,37 +1330,37 @@ const PortraitParts = (() => {
     {
       "file": "hair-m-6.webp",
       "rect": [
-        105,
-        28,
-        190,
-        193
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
       "file": "hair-m-7.webp",
       "rect": [
-        105,
-        28,
-        190,
-        200
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
       "file": "hair-m-8.webp",
       "rect": [
-        105,
-        28,
-        190,
-        184
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
       "file": "hair-m-9.webp",
       "rect": [
-        105,
-        28,
-        190,
-        233
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
@@ -1375,10 +1375,10 @@ const PortraitParts = (() => {
     {
       "file": "hair-m-11.webp",
       "rect": [
-        105,
-        28,
-        190,
-        193
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
@@ -1393,19 +1393,19 @@ const PortraitParts = (() => {
     {
       "file": "hair-m-13.webp",
       "rect": [
-        105,
-        28,
-        190,
-        184
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
       "file": "hair-m-14.webp",
       "rect": [
-        105,
-        28,
-        190,
-        233
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
@@ -1420,10 +1420,10 @@ const PortraitParts = (() => {
     {
       "file": "hair-m-16.webp",
       "rect": [
-        105,
-        28,
-        190,
-        193
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
@@ -1438,19 +1438,19 @@ const PortraitParts = (() => {
     {
       "file": "hair-m-18.webp",
       "rect": [
-        105,
-        28,
-        190,
-        184
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
       "file": "hair-m-19.webp",
       "rect": [
-        105,
-        28,
-        190,
-        233
+        0,
+        0,
+        400,
+        600
       ]
     },
     {
@@ -1461,14 +1461,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-m-20-rear.webp",
+      "rearFile": "hair-m-20.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 230
+      "rearEndY": 211
     },
     {
       "file": "hair-m-21.webp",
@@ -1478,14 +1478,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-m-21-rear.webp",
+      "rearFile": "hair-m-21.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 230
+      "rearEndY": 204
     },
     {
       "file": "hair-m-22.webp",
@@ -1495,14 +1495,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-m-22-rear.webp",
+      "rearFile": "hair-m-22.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 230
+      "rearEndY": 205
     },
     {
       "file": "hair-m-23.webp",
@@ -1512,14 +1512,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-m-23-rear.webp",
+      "rearFile": "hair-m-23.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 230
+      "rearEndY": 203
     },
     {
       "file": "hair-m-24.webp",
@@ -1529,14 +1529,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-m-24-rear.webp",
+      "rearFile": "hair-m-24.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 235
+      "rearEndY": 202
     },
     {
       "file": "hair-m-25.webp",
@@ -1546,14 +1546,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-m-25-rear.webp",
+      "rearFile": "hair-m-25.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 278
+      "rearEndY": 280
     },
     {
       "file": "hair-m-26.webp",
@@ -1563,14 +1563,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-m-26-rear.webp",
+      "rearFile": "hair-m-26.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 235
+      "rearEndY": 195
     },
     {
       "file": "hair-m-27.webp",
@@ -1580,14 +1580,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-m-27-rear.webp",
+      "rearFile": "hair-m-27.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 255
+      "rearEndY": 330
     },
     {
       "file": "hair-m-28.webp",
@@ -1597,14 +1597,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-m-28-rear.webp",
+      "rearFile": "hair-m-28.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 302
+      "rearEndY": 306
     },
     {
       "file": "hair-m-29.webp",
@@ -1614,14 +1614,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-m-29-rear.webp",
+      "rearFile": "hair-m-29.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 342
+      "rearEndY": 346
     },
     {
       "file": "hair-m-30.webp",
@@ -1681,16 +1681,32 @@ const PortraitParts = (() => {
         0,
         400,
         600
-      ]
+      ],
+      "rearFile": "hair-f-0.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 390
     },
     {
       "file": "hair-f-1.webp",
       "rect": [
-        80,
-        24,
-        240,
-        246
-      ]
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-1.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 255
     },
     {
       "file": "hair-f-2.webp",
@@ -1699,7 +1715,15 @@ const PortraitParts = (() => {
         0,
         400,
         600
-      ]
+      ],
+      "rearFile": "hair-f-2.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 400
     },
     {
       "file": "hair-f-3.webp",
@@ -1708,7 +1732,15 @@ const PortraitParts = (() => {
         0,
         400,
         600
-      ]
+      ],
+      "rearFile": "hair-f-3.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 361
     },
     {
       "file": "hair-f-4.webp",
@@ -1726,7 +1758,15 @@ const PortraitParts = (() => {
         0,
         400,
         600
-      ]
+      ],
+      "rearFile": "hair-f-5.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 178
     },
     {
       "file": "hair-f-6.webp",
@@ -1735,16 +1775,32 @@ const PortraitParts = (() => {
         0,
         400,
         600
-      ]
+      ],
+      "rearFile": "hair-f-6.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 390
     },
     {
       "file": "hair-f-7.webp",
       "rect": [
-        80,
-        24,
-        240,
-        246
-      ]
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-7.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 255
     },
     {
       "file": "hair-f-8.webp",
@@ -1753,7 +1809,15 @@ const PortraitParts = (() => {
         0,
         400,
         600
-      ]
+      ],
+      "rearFile": "hair-f-8.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 400
     },
     {
       "file": "hair-f-9.webp",
@@ -1762,7 +1826,15 @@ const PortraitParts = (() => {
         0,
         400,
         600
-      ]
+      ],
+      "rearFile": "hair-f-9.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 361
     },
     {
       "file": "hair-f-10.webp",
@@ -1780,7 +1852,15 @@ const PortraitParts = (() => {
         0,
         400,
         600
-      ]
+      ],
+      "rearFile": "hair-f-11.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 390
     },
     {
       "file": "hair-f-12.webp",
@@ -1806,7 +1886,15 @@ const PortraitParts = (() => {
         0,
         400,
         600
-      ]
+      ],
+      "rearFile": "hair-f-13.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 400
     },
     {
       "file": "hair-f-14.webp",
@@ -1815,7 +1903,15 @@ const PortraitParts = (() => {
         0,
         400,
         600
-      ]
+      ],
+      "rearFile": "hair-f-14.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 361
     },
     {
       "file": "hair-f-15.webp",
@@ -1833,16 +1929,32 @@ const PortraitParts = (() => {
         0,
         400,
         600
-      ]
+      ],
+      "rearFile": "hair-f-16.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 390
     },
     {
       "file": "hair-f-17.webp",
       "rect": [
-        80,
-        24,
-        240,
-        246
-      ]
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearFile": "hair-f-17.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 255
     },
     {
       "file": "hair-f-18.webp",
@@ -1851,7 +1963,15 @@ const PortraitParts = (() => {
         0,
         400,
         600
-      ]
+      ],
+      "rearFile": "hair-f-18.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 400
     },
     {
       "file": "hair-f-19.webp",
@@ -1860,7 +1980,15 @@ const PortraitParts = (() => {
         0,
         400,
         600
-      ]
+      ],
+      "rearFile": "hair-f-19.webp",
+      "rearRect": [
+        0,
+        0,
+        400,
+        600
+      ],
+      "rearEndY": 361
     },
     {
       "file": "hair-f-20.webp",
@@ -1870,14 +1998,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-f-20-rear.webp",
+      "rearFile": "hair-f-20.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 306
+      "rearEndY": 295
     },
     {
       "file": "hair-f-21.webp",
@@ -1904,14 +2032,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-f-22-rear.webp",
+      "rearFile": "hair-f-22.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 280
+      "rearEndY": 465
     },
     {
       "file": "hair-f-23.webp",
@@ -1938,14 +2066,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-f-24-rear.webp",
+      "rearFile": "hair-f-24.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 346
+      "rearEndY": 345
     },
     {
       "file": "hair-f-25.webp",
@@ -1955,7 +2083,7 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-f-25-rear.webp",
+      "rearFile": "hair-f-25.webp",
       "rearRect": [
         0,
         0,
@@ -1972,14 +2100,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-f-26-rear.webp",
+      "rearFile": "hair-f-26.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 396
+      "rearEndY": 400
     },
     {
       "file": "hair-f-27.webp",
@@ -1989,14 +2117,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-f-27-rear.webp",
+      "rearFile": "hair-f-27.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 280
+      "rearEndY": 315
     },
     {
       "file": "hair-f-28.webp",
@@ -2006,14 +2134,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-f-28-rear.webp",
+      "rearFile": "hair-f-28.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 280
+      "rearEndY": 435
     },
     {
       "file": "hair-f-29.webp",
@@ -2023,14 +2151,14 @@ const PortraitParts = (() => {
         400,
         600
       ],
-      "rearFile": "hair-f-29-rear.webp",
+      "rearFile": "hair-f-29.webp",
       "rearRect": [
         0,
         0,
         400,
         600
       ],
-      "rearEndY": 344
+      "rearEndY": 340
     },
     {
       "file": "hair-f-30.webp",
@@ -2988,7 +3116,7 @@ const PortraitParts = (() => {
     const fitHead = markup => headScale === 1 ? markup : `<g data-proportion="head" transform="${headTransform}">${markup}</g>`;
     const cardHeight = underwear ? 440 : 480;
     const view = avatar ? `72 ${pose} 256 256` : `0 0 400 ${cardHeight}`;
-    const source = part => root + part.file + '?v=10';
+    const source = part => root + part.file + '?v=11';
     const image = (part, attrs = '') => {
       const [x,y,w,h] = part.rect, src = source(part);
       return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${part.opacity == null ? '' : ` opacity="${part.opacity}"`}${attrs}/>`;
