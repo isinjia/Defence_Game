@@ -276,22 +276,22 @@ const { chromium, devices } = require('playwright');
       }
     });
   });
-  await step('아프로·대머리·반삭·스포츠머리: 신규 추첨·두피·피부색 합성', async () => {
+  await step('아프로 제외·대머리·반삭·스포츠머리: 추첨·두피·피부색 합성', async () => {
     await page.evaluate(async () => {
       for (const gender of ['M', 'F']) {
         const g = gender.toLowerCase(), hairs = new Set(), pairs = new Set(), samples = new Map();
         for (let i = 0; i < 20000; i++) {
           const seed = 'look5:새헤어-' + i, s = PortraitParts.select(seed, gender, { age: 25, outfit: 'underwear' });
           const h = Number(s.layers[2].file.match(/-(\d+)\.webp/)[1]);
-          if ((gender === 'M' ? [4,5,10,12,15,17] : [4,10,15,21]).includes(h)) throw Error('제외 헤어 재등장');
+          if ((gender === 'M' ? [4,5,10,12,15,17,30] : [4,10,15,21,30]).includes(h)) throw Error('제외 헤어 재등장');
           hairs.add(h); pairs.add(s.layers[0].file + '|' + h);
-          if (h >= 30 && s.layers.length === 3) samples.set(h, seed);
+          if (h >= 31 && s.layers.length === 3) samples.set(h, seed);
         }
-        const count = gender === 'M' ? 28 : 30, faceCount = gender === 'M' ? 23 : 25;
-        if (hairs.size !== count || pairs.size !== count * faceCount || samples.size !== 4) throw Error('신규 헤어 조합 누락');
+        const count = gender === 'M' ? 27 : 29, faceCount = gender === 'M' ? 23 : 25;
+        if (hairs.size !== count || pairs.size !== count * faceCount || samples.size !== 3) throw Error('신규 헤어 조합 누락');
         for (const [h, seed] of samples) {
           const selection = PortraitParts.select(seed, gender, { age: 25, outfit: 'underwear' });
-          if (selection.layers[2].style !== ['afro','bald','buzz','sport'][h - 30]) throw Error('헤어 종류 등록 불일치');
+          if (selection.layers[2].style !== ({31:'bald',32:'buzz',33:'sport'})[h]) throw Error('헤어 종류 등록 불일치');
           for (const bodyType of ['thin', 'normal', 'strong', 'heavy']) for (const skinTone of ['natural', 'fair', 'medium', 'tan', 'deep']) {
             const source = PORTRAIT.card(seed, gender, null, 0, 160, { age: 25, outfit: 'underwear', bodyType, skinTone });
             const doc = new DOMParser().parseFromString(source, 'image/svg+xml');

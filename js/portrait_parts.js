@@ -2914,8 +2914,8 @@ const PortraitParts = (() => {
       : (hash >>> 4) % Math.min(20, hairs.length);
     // 선택 풀의 길이·순서를 보존하고 품질 기준에서 제외한 헤어만 대체한다.
     const hairReplacement = g === 'm'
-      ? {4:20,5:1,10:20,12:1,15:20,17:1}
-      : {4:24,10:24,15:24,21:3};
+      ? {4:20,5:1,10:20,12:1,15:20,17:1,30:20}
+      : {4:24,10:24,15:24,21:3,30:24};
     hair = hairReplacement[hair] ?? hair;
     // 의상 계열: 같은 스타일(6종)을 색 변형으로 묶는다. 아이는 casual 계열.
     const outfits = { coat: 0, hanbok: 1, mandarin: 2, tactical: 3, casual: 4, overcoat: 5 };
