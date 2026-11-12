@@ -1291,6 +1291,15 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
+  await step('약초를 가진 채 인물 시트가 열림 (코어 목록에 다른 재료가 섞여도 깨지지 않음)', async () => {
+    const r = await ev(() => {
+      const p = G.player; const h = p.mats.herb; p.mats.herb = 2;
+      try { const s = UI.charHtml(); return s.includes('약초 2다발') ? '' : '인물 시트에 약초가 보이지 않음'; }
+      catch (e) { return '인물 시트 오류: ' + e.message; }
+      finally { if (h == null) delete p.mats.herb; else p.mats.herb = h; }
+    });
+    if (r) throw new Error(r);
+  });
   await step('괴수 원화: 전 종 이미지·전용 보스·도감 확대와 복귀', async () => {
     const r = await ev(async () => {
       const missing = [...MONSTERS, MON_TREASURE].filter((m) => !MonsterArt.data[m.name]);
