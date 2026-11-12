@@ -219,11 +219,13 @@ if (typeof UI !== 'undefined') {
       const lines = [];
       for (const l of sc.lines || []) {
         if (l.when && !l.when(G, M)) continue;
-        if (l.narr) { lines.push({ narr: G.mainFill(l.narr) }); continue; }
-        if (l.sys) { lines.push({ sys: G.mainFill(l.sys) }); continue; }
+        // art: 그림 키(assets/portraits/main/<키>). 서술·시스템 줄이면 삽화, 대사 줄이면 그 장면의 초상으로 쓴다(영역 B)
+        const art = typeof l.art === 'function' ? l.art(G, M) : l.art;
+        if (l.narr) { lines.push({ narr: G.mainFill(l.narr), ...(art ? { art } : {}) }); continue; }
+        if (l.sys) { lines.push({ sys: G.mainFill(l.sys), ...(art ? { art } : {}) }); continue; }
         if (l.group) { lines.push({ narr: l.narr0 ? G.mainFill(l.narr0) : undefined, group: l.group.map((g) => ({ who: G.mainWho(g.who), text: G.mainFill(g.text) })).filter((g) => g.who) }); continue; }
         const who = G.mainWho(l.who);
-        if (who) lines.push({ who, text: G.mainFill(G.mainReg(l.text, who)) });
+        if (who) lines.push({ who, text: G.mainFill(G.mainReg(l.text, who)), ...(art ? { art } : {}) });
         else if (l.alt) { const aw = typeof l.alt === 'object' && !Array.isArray(l.alt) && l.alt.who ? G.mainWho(l.alt.who) : null; if (aw) lines.push({ who: aw, text: G.mainFill(G.mainReg(l.alt.text, aw)) }); else if (typeof l.alt === 'string' || typeof l.alt === 'function') lines.push({ narr: G.mainFill(l.alt) }); }
       }
       const nextOf = (x) => { if (x === 'end') return 'end'; if (x) return x; if (sc.next) return sc.next; const s = def.scenes[def.scenes.indexOf(sc) + 1]; return s ? s.id : 'end'; };
