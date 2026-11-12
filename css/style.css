@@ -935,8 +935,14 @@ html body .combat-box.fit #foes.foe-grid { grid-template-rows: repeat(2, calc(va
 .modal-box.st-modal { display: flex; flex-direction: column; max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); overflow: hidden; padding-bottom: 10px; }
 .st-check { display: flex; flex-direction: column; min-height: 0; flex: 1; }
 .st-scroll { overflow-y: auto; min-height: 0; flex: 1; }
-.st-head { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; }
-.st-name { font-size: 17px; margin-right: 4px; }
+/* 머리: 초상을 가로 전체로, 이름·나이·태그는 오른쪽 아래에 겹친다 (사용자 요청) */
+.st-hero { position: relative; width: 100%; aspect-ratio: 4 / 3; max-height: 46vh; overflow: hidden; margin-bottom: 8px; background: #0a0f18; border: 1px solid var(--line, #22304a); }
+.st-hero > :first-child { display: block; width: 100% !important; max-width: none; height: auto !important; aspect-ratio: 5 / 6; border: 0; transform: translateY(-18%); }
+.st-hero::after { content: ''; position: absolute; inset: 45% 0 0 0; background: linear-gradient(transparent, #04060ae6); pointer-events: none; }
+.st-hero-name { position: absolute; right: 10px; bottom: 8px; z-index: 1; display: grid; gap: 4px; justify-items: end; text-align: right; text-shadow: 0 1px 4px #000; }
+.st-hero-name .st-nameline { justify-content: flex-end; }
+.st-name { font-size: 22px; }
+.st-age { margin-left: 6px; font-size: 14px; color: var(--dim, #8a97ab); }
 .st-box { border-left: 3px solid; padding: 4px 8px; background: rgba(255,255,255,.03); border-radius: 4px; }
 .st-t { font-size: 11px; color: var(--dim, #8a97ab); margin: 7px 0 3px; letter-spacing: .05em; }
 .st-sks { display: grid; gap: 2px; }

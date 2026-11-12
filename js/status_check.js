@@ -53,10 +53,10 @@ if (typeof UI !== 'undefined') {
       const skills = p.skills.filter((id) => id !== 'strike');
       return `<div class="st-check">
         <div class="st-scroll">
-        <div class="st-head">${this.playerPortrait(56)}<div><div class="eyebrow">${forExam ? '내 상태 확인' : '내 상태 한눈에'}</div><div class="st-nameline"><b class="st-name">${p.name}</b>${this.clsTag(p.cls, p.clsAdv)}${this.elemTag(p.element)}</div></div></div>
+        <div class="st-hero">${this.playerPortrait(320)}
+          <div class="st-hero-name"><div><b class="st-name">${p.name}</b><span class="st-age">${G.ageYears()}세</span></div><div class="st-nameline">${this.clsTag(p.cls, p.clsAdv)}${this.elemTag(p.element)}</div></div></div>
         <div class="st-box" style="border-left-color:${g.color}"><b>${className(p.cls, p.clsAdv)}</b> <span class="small" style="color:${g.color}">${g.name} · ${CLASS_RARITY[k.r]} · ${ROLE_TXT[k.role] || k.role}</span>
           <div class="small dim">${k.desc}<br>전직: ${[k.name, ...k.adv].map((n, i) => (i === p.clsAdv ? `<b class="amber">${n}</b>` : n)).join('→')} (C·S급)</div></div>
-        <div class="st-sit">${this.statusSituation()}</div>
         <div class="st-t">기술 · 누르면 자세히</div><div class="st-sks">${skills.map((id) => this.statusSkillHtml(id)).join('')}</div>
         <div class="st-t">능력치</div>
         <div class="st-stats">${STAT.map(([key, nm]) => `<span><i>${nm}</i><b class="num">${Math.round(p[key] || 0)}</b></span>`).join('')}</div>
