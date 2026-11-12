@@ -384,8 +384,9 @@ const { chromium, devices } = require('playwright');
         const doc = new DOMParser().parseFromString(decodeURIComponent(source.split(',').slice(1).join(',')), 'image/svg+xml');
         const front = doc.querySelector('image[data-hair-layer="front"]');
         if (!front) throw Error('앞머리 레이어 없음');
-        const read = async url => { const im = new Image(); im.src = url; await im.decode(); const cv = document.createElement('canvas'); cv.width=400;cv.height=600;const ctx=cv.getContext('2d');ctx.drawImage(im,0,0,400,600);return ctx.getImageData(0,0,400,600).data; };
-        const original = await read('assets/portraits/parts/hair-f-'+hair+'.webp');
+        const read = async (url, rect = [0,0,400,600]) => { const im = new Image(); im.src = url; await im.decode(); const cv = document.createElement('canvas'); cv.width=400;cv.height=600;const ctx=cv.getContext('2d');ctx.drawImage(im,...rect);return ctx.getImageData(0,0,400,600).data; };
+        const registered = PortraitParts.select(seed, 'F', {age:25, bodyType, outfit}).layers[2];
+        const original = await read('assets/portraits/parts/hair-f-'+hair+'.webp', registered.rect);
         const baked = await read(front.getAttribute('href'));
         let pixels = 0;
         for (let y=264;y<420;y++) for (let x=70;x<330;x++) {
@@ -398,6 +399,29 @@ const { chromium, devices } = require('playwright');
         checked++;
       }
       if (checked !== 84) throw Error('긴머리 체형·의상 조합 누락');
+    });
+  });
+  await step('여성 H25 정수리: 네 체형 모두 두피 노출 없음', async () => {
+    await page.evaluate(async () => {
+      let seed;
+      for (let n=0;n<2000;n++) { const value='look5:정수리-'+n; if (PortraitParts.select(value,'F',{age:25}).layers[2].file==='hair-f-25.webp') { seed=value;break; } }
+      if (!seed) throw Error('H25 검증 시드 없음');
+      const read=async url=>{const im=new Image();im.src=url;await im.decode();const cv=document.createElement('canvas');cv.width=400;cv.height=600;const ctx=cv.getContext('2d');ctx.drawImage(im,0,0,400,600);return ctx.getImageData(0,0,400,600).data;};
+      for (const bodyType of ['thin','normal','strong','heavy']) {
+        const selected=PortraitParts.select(seed,'F',{age:25,bodyType,outfit:'underwear'});
+        const source=await PortraitParts.rasterize(PORTRAIT.card(seed,'F',null,0,400,{age:25,bodyType,outfit:'underwear'}));
+        const doc=new DOMParser().parseFromString(decodeURIComponent(source.split(',').slice(1).join(',')),'image/svg+xml');
+        const hair=await read(doc.querySelector('image[data-hair-layer="front"]').getAttribute('href'));
+        const body=await read('assets/portraits/parts/'+selected.baseBody.file);
+        let checked=0;
+        for (let y=60;y<106;y++) for (let x=140;x<261;x++) {
+          const alpha=(y*400+x)*4+3;
+          if (body[alpha]<=240) continue;
+          if (hair[alpha]<200) throw Error('H25 정수리 두피 노출: '+bodyType+' '+[x,y]);
+          checked++;
+        }
+        if (checked<100) throw Error('정수리 검증 표본 부족');
+      }
     });
   });
   await step('기본 몸체: 얼굴 20종 피부색·한 장의 턱·목·어깨·얼굴 특징 교체', async () => {

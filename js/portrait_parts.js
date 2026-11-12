@@ -2079,18 +2079,18 @@ const PortraitParts = (() => {
       "file": "hair-f-25.webp",
       "rect": [
         0,
-        0,
+        -12,
         400,
         600
       ],
       "rearFile": "hair-f-25.webp",
       "rearRect": [
         0,
-        0,
+        -12,
         400,
         600
       ],
-      "rearEndY": 365
+      "rearEndY": 353
     },
     {
       "file": "hair-f-26.webp",
