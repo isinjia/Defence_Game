@@ -1130,6 +1130,13 @@ const { chromium, devices } = require('playwright');
         if (MAIN.chapters[38].scenes.length < 4) return '38장 장면이 4개 미만이다';
         if (!/관측소에서 끊었다/.test(linesOf(39, { gateChoice: 'bridge', circuitCut: true, jinFate: 'with', friend3: 'saved', allies: ['friend'] }, 'c39_in'))) return '다리 실패 서사 줄이 없다';
         if (!/심연의 사도/.test(linesOf(33, { apostle: true }, 'c33_breath'))) return '33장 사도 향미 대사가 없다';
+        // 폴리시2: 얇은 장 장면 수, 만료 잔향 소비, 메인 기록 탭, 39장 play + 엔딩 HTML, 남의 이야기 HTML
+        for (const [n, k] of [[6, 5], [7, 4], [8, 5], [12, 5]]) if (MAIN.chapters[n].scenes.length < k) return `${n}장 장면이 ${k}개 미만이다`;
+        if (!/분지/.test(linesOf(17, { basinBurn: true }, 'c17_way'))) return '분지 만료 잔향이 17장에 없다';
+        M.log = [{ n: 1, title: '전단지', how: 'done', choice: '전단을 한 장 떼어 읽어 본다' }];
+        if (!/메인 이야기/.test(UI.charHtml()) || !/전단을 한 장/.test(UI.charHtml())) return '정보 탭에 메인 기록이 없다';
+        p.rankIdx = 6; setCh(39, { gateChoice: 'close', allies: ['friend'], friend3: 'saved' }); if (!play(39, 0) || M.ending !== 'seal' || !/봉인/.test(UI.mainEndingHtml())) return '39장 봉인 엔딩 HTML이 없다';
+        setCh(38, {}); delete M.ending; MAIN.partEnd[6](G, M); if (M.ending !== 'other' || !/남의 이야기/.test(UI.mainEndingHtml())) return '남의 이야기 엔딩 HTML이 없다';
         // 부 시계: 2부를 18개월 넘게 끌면 남은 장이 만료(13장 → 친구 늦음)
         p.rankIdx = 2; setCh(13, {}); M.open[9] = G.monthKey() - 19; G.mainCheck();
         if (M.ch !== 15 || !M.done[14] || M.flags.friend3 !== 'late') return '2부 부 시계가 남은 장을 만료시키지 않았다';

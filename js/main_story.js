@@ -183,7 +183,8 @@ const MAIN = {
     M.done[n] = { mk: this.monthKey(), how: how || 'done' };
     M.scene = null; M.pending = null;
     if (def && how !== 'missed' && def.done) def.done(this, M);
-    M.log.push({ n, title: def ? def.title : '', how: how || 'done', when: this.fullDate ? this.fullDate() : '' });
+    const picks = (M.picks && M.picks[n]) || [];
+    M.log.push({ n, title: def ? def.title : '', how: how || 'done', when: this.fullDate ? this.fullDate() : '', choice: picks.slice(-2).join(' / ') });
     if (how !== 'missed') this.lifeEvent(`메인 이야기 ${n}장 「${def ? def.title : ''}」을(를) 마쳤다.`);
     M.ch = n + 1;
   };
@@ -234,6 +235,7 @@ if (typeof UI !== 'undefined') {
       if (choices.length) {
         lines.push({ choices: choices.map((c) => ({ text: G.mainFill(c.text), go: () => {
           if (c.set) Object.assign(M.flags, c.set);
+          M.picks ??= {}; (M.picks[def.n] ??= []).push(G.mainFill(c.text));
           if (c.run) c.run(G, M);
           if (c.rel) G.mainRel(c.rel, c.relWhy);
           const g = c.gain ? G.gain(c.gain) : '';
