@@ -25,10 +25,8 @@ html body #dlg .dlg-face { position: absolute; left: 50%; bottom: calc(100% - 26
 html body #dlg .dlg-face > * { display: block; width: 100% !important; height: auto !important; max-width: none; border: 0 !important; background: none; }
 html body #dlg .dlg-face.enter { animation: vnIn .28s ease-out; }
 @keyframes vnIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
-/* 메인 고정 인물은 전신 그림으로 */
-html body #dlg .dlg-face .vn-full { aspect-ratio: auto; overflow: visible; }
-html body #dlg .dlg-face .vn-full img { display: block; width: 100%; height: min(66vh, 640px); object-fit: contain; object-position: 50% 100%; filter: drop-shadow(0 6px 22px #000b); }
-html body #dlg .dlg-face:has(.vn-full) { width: min(96vw, 520px); bottom: calc(100% - 40px); }
+/* 메인 고정 인물도 다른 인물처럼 상반신만 (투명 배경 상반신 그림, 사용자 요청) */
+html body #dlg .dlg-face > .portrait-img { filter: drop-shadow(0 6px 22px #000b); overflow: visible; }
 /* 만들어진 초상은 배경판·테두리를 빼고 인물만 세운다 */
 html body #dlg .dlg-face > svg.portrait > rect, html body #dlg .dlg-face > svg.portrait > ellipse { display: none; }
 html body #dlg .dlg-face > svg.portrait { filter: drop-shadow(0 6px 22px #000b); }
