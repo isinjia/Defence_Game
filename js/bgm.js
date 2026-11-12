@@ -22,7 +22,7 @@ const BGM = {
     if (s !== 'game') return s === 'prologue' || s === 'pro-result' ? 'world' : 'title';
     if (typeof G !== 'undefined' && G && G.over) return 'end';
     const c = UI.ctx;
-    if (c && c.combat) {
+    if (c && c.combat && typeof c.combat.toggleAuto === 'function') { // 층 지도 단계의 ctx.combat 은 전투 객체가 아니다
       if (!c.combat.result) return (c.combat.units || []).some((u) => u.side === 'enemy' && u.boss) ? 'boss' : 'battle';
       return this.cur === 'boss' || this.cur === 'battle' ? this.cur : 'battle'; // 결과 창이 떠 있는 동안은 그대로
     }

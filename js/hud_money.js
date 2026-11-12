@@ -35,7 +35,7 @@
     Game.prototype.initSandbox = function (...a) { const r = baseInit.apply(this, a); if (this.player) this.player.ledger ??= []; return r; };
   }
 
-  let who = null, seen = 0, shown = 0, anim = 0;
+  let who = null, seen = 0, shown = 0, anim = 0, rolling = false;
   const visible = () => {
     if (typeof G === 'undefined' || !G || !G.player || G.over || UI.screen !== 'game' || UI.dlg) return 0;
     if (!document.getElementById('world') || document.getElementById('tut-skip') || document.querySelector('#dlg.on')) return 0; // 튜토리얼 중에는 건너뛰기 버튼 자리
@@ -47,12 +47,12 @@
     return 0; // [A, 사용자 제보] 창 위에 떠 있는 표시와 창 안 표시가 둘 다 보여 헷갈렸다. 창이 열리면 창 안의 보유 크레딧(js/wallet_chip.js) 하나만 쓴다
   };
   const roll = (el, from, to) => {
-    const id = ++anim; const t0 = performance.now(); const dur = FX && FX.reduced ? 1 : 600;
+    const id = ++anim; const t0 = performance.now(); const dur = FX && FX.reduced ? 1 : 600; rolling = true;
     const f = (now) => {
       if (id !== anim) return;
       const k = Math.min(1, (now - t0) / dur); const e = 1 - Math.pow(1 - k, 3);
       shown = Math.round(from + (to - from) * e); el.textContent = UI.moneyShort(shown);
-      if (k < 1) requestAnimationFrame(f);
+      if (k < 1) requestAnimationFrame(f); else rolling = false;
     };
     requestAnimationFrame(f);
   };
@@ -86,7 +86,7 @@
       f.textContent = (d > 0 ? '+' : '−') + UI.moneyShort(Math.abs(d)); document.body.appendChild(f); // 버튼 모서리 자르기(clip-path)에 잘리지 않게 바깥에 띄운다
       setTimeout(() => f.remove(), 1600);
       el.classList.remove('up', 'down'); void el.offsetWidth; el.classList.add(d > 0 ? 'up' : 'down');
-    } else if (shown !== now && !anim) { shown = now; n.textContent = UI.moneyShort(now); }
+    } else if (!rolling && n.textContent !== UI.moneyShort(now)) { shown = now; n.textContent = UI.moneyShort(now); } // 창이 열려 있는 동안 바뀐 금액도 지도로 돌아오면 맞춘다
     else if (n.textContent === '') n.textContent = UI.moneyShort(shown);
   };
 
