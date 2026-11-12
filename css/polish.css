@@ -15,3 +15,24 @@
 /* 전투 말풍선: 말하는 인물을 맨 위로 (js/polish.js 가 .saying 을 붙인다) */
 .ally.fig.saying, .foe.saying { z-index: 30; }
 .float-num.say { box-shadow: 0 4px 12px #000a; }
+
+/* 메뉴 아래 줄: 게임 안내 · 저장하고 타이틀로 */
+.menu-sub.menu-sub2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.menu-sub.menu-sub2 button { min-height: 44px; justify-content: center; }
+
+/* 도시 머리말의 작은 글자는 한 줄로 (좁은 화면에서 두 줄이 되면 보유 크레딧 칩 밑으로 들어갔다) */
+.city-title .eyebrow { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 아주 좁은 화면(350px 이하): 메뉴 단추는 아이콘만 남겨 날짜 칸이 크레딧 칸과 겹치지 않게 한다 */
+@media (max-width: 350px) {
+  .hud-tl .menu-btn.menu-one span { display: none !important; }
+  .hud-tl .menu-btn.menu-one { width: 44px; min-width: 44px; padding: 0; justify-content: center; }
+}
+/* 낮은 화면(600px 이하): 이동 안내 글은 접힌 초상과 겹치므로 숨긴다(튜토리얼에서 이미 안내) */
+@media (max-height: 600px) and (max-width: 640px) { #hud-actions .act-hint { display: none; } }
+
+/* 타이틀 단추: 모두 가운데 정렬, 이어하기에는 저장 요약 한 줄 */
+.title-screen .btns button { justify-content: center; text-align: center; }
+.title-screen .btns [data-act="continue"] { display: grid; gap: 2px; justify-items: center; padding-top: 9px; padding-bottom: 9px; }
+.title-screen .btns .tc-main { font-weight: 700; }
+.title-screen .btns .tc-sub { font-size: 12px; font-weight: 400; opacity: .82; letter-spacing: 0; }
