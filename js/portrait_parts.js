@@ -2862,7 +2862,7 @@ const PortraitParts = (() => {
     const integrated = selection.stage !== 'child';
     const style = underwear ? -1 : Number(cloth.file.match(/cloth-[mf]-(\d+)/)[1]) % 6;
     // 여자 코트는 안쪽이 목폴라라 목이 그만큼 짧아져야 한다: 남자 코트처럼 몸·머리를 내려 목폴라가 턱 바로 밑에 오게 (사용자 지적)
-    const pose = underwear ? 0 : female ? (style === 0 && selection.stage !== 'child' ? { thin:24, normal:24, strong:26, heavy:28 }[selection.bodyType] : 0) : style === 0 ? 28 : 8;
+    const pose = underwear ? 0 : female ? (style === 0 && selection.stage !== 'child' ? { thin:24, normal:24, strong:26, heavy:28 }[selection.bodyType] : 0) : style === 0 ? 28 : style === 5 ? 22 : 8; // 남자 오버코트(5)는 안쪽 목폴라가 턱에서 멀어 목이 드러났다 → 머리를 내려 턱이 폴라 위에 오게 (사용자 요청)
     const chin = female ? 261 : 251;
     const featureOffset = chin - (face.chinY || chin);
     const headY = integrated ? pose + featureOffset : pose;
@@ -2914,6 +2914,8 @@ const PortraitParts = (() => {
     // 옷 위에 그리는 턱 레이어는 턱선(U자)까지만: 옷을 올려도 턱 양옆 어깨 피부가 옷 위에 남지 않게
     const jw = female ? 44 : 52;
     const jawShape = `M0 0H400V${colTop}H${200+jw}C${200+jw} ${chin-4} ${214} ${chin+3} 200 ${chin+3}C${186} ${chin+3} ${200-jw} ${chin-4} ${200-jw} ${colTop}H0Z`;
+    // 남자 오버코트: 턱이 목폴라 바로 위에 오므로 옷 위 턱 레이어를 턱선(U자)까지만 — 턱 양옆 사각 피부가 폴라 위에 남지 않게
+    const polaM = !female && style === 5 && integrated && !underwear;
     const neckTop = female ? chin - 8 : chin + 4; // 여자는 턱 8px 위부터 목 폭: 턱과 옷 사이에 어깨 피부가 사각으로 보이던 문제
     // 여자 코트: 목이 안쪽 목폴라로 살짝 넓어지며 들어간다(곧은 사각 기둥처럼 보이던 문제, 사용자 지적)
     const coatF = female && style === 0 && integrated && !underwear;
@@ -2921,7 +2923,7 @@ const PortraitParts = (() => {
     const nw = neckWidth / 2;
     const neckPath = heavy ? column : coatF ? `M0 0H400V${neckTop}H${200+nw}Q${200+nw} 278 ${200+nw+flare} 296V330H${200-nw-flare}V296Q${200-nw} 278 ${200-nw} ${neckTop}H0Z` : `M0 0H400V${neckTop}H${200+nw}V330H${200-nw}V${neckTop}H0Z`;
     const neckClip = vCollar ? `<path d="${neckPath}"/>` : collar ? `${heavy ? `<path d="${column}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}<path d="${opening}" transform="translate(0 ${-pose}) ${coatF ? garmentTf.replace(/translate\([-\d.]+ (-?[\d.]+)\) translate\(200/, 'translate(0 $1) translate(200') : garmentTf}"/>` : `<path d="${neckPath}"/>`;
-    const baseClips = `<clipPath id="${id}col"><path d="${neckPath}"/></clipPath>${collar ? `<clipPath id="${id}fill"><path d="${neckPath}"/><path d="${opening}" transform="translate(0 ${-pose}) ${coatF ? garmentTf.replace(/translate\([-\d.]+ (-?[\d.]+)\) translate\(200/, 'translate(0 $1) translate(200') : garmentTf}"/></clipPath>` : ''}${collar ? `<clipPath id="${id}open"><rect width="400" height="${chin}"/><path d="${opening}" transform="translate(0 ${-pose}) ${coatF ? garmentTf.replace(/translate\([-\d.]+ (-?[\d.]+)\) translate\(200/, 'translate(0 $1) translate(200') : garmentTf}"/></clipPath>` : ''}<clipPath id="${id}neck">${neckClip}</clipPath><clipPath id="${id}jaw">${heavy ? `<path d="${jawShape}"/>` : female ? `<rect width="400" height="${neckTop}"/><rect x="${200-neckWidth/2}" width="${neckWidth}" height="${chin+24-22*headScale}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}</clipPath>`;
+    const baseClips = `<clipPath id="${id}col"><path d="${neckPath}"/></clipPath>${collar ? `<clipPath id="${id}fill"><path d="${neckPath}"/><path d="${opening}" transform="translate(0 ${-pose}) ${coatF ? garmentTf.replace(/translate\([-\d.]+ (-?[\d.]+)\) translate\(200/, 'translate(0 $1) translate(200') : garmentTf}"/></clipPath>` : ''}${collar ? `<clipPath id="${id}open"><rect width="400" height="${chin}"/><path d="${opening}" transform="translate(0 ${-pose}) ${coatF ? garmentTf.replace(/translate\([-\d.]+ (-?[\d.]+)\) translate\(200/, 'translate(0 $1) translate(200') : garmentTf}"/></clipPath>` : ''}<clipPath id="${id}neck">${neckClip}</clipPath><clipPath id="${id}jaw">${heavy ? `<path d="${jawShape}"/>` : polaM ? `<path d="${jawShape}" transform="translate(200 ${chin+24}) scale(${headScale}) translate(-200 ${-(chin+24)})"/>` : female ? `<rect width="400" height="${neckTop}"/><rect x="${200-neckWidth/2}" width="${neckWidth}" height="${chin+24-22*headScale}"/>` : `<rect width="400" height="${chin+24-22*headScale}"/>`}</clipPath>`;
     const featureY = female ? 175 : 165;
     const features = `<radialGradient id="${id}features"><stop stop-color="white"/><stop offset=".9" stop-color="white"/><stop offset="1" stop-color="black"/></radialGradient><mask id="${id}featureMask" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><ellipse cx="200" cy="${featureY}" rx="62" ry="70" fill="url(#${id}features)"/></mask>`;
     const defs = `<defs>${baseClips}${features}${collarDefs}<radialGradient id="${id}bg"><stop stop-color="${aura}" stop-opacity=".22"/><stop offset="1" stop-color="#080d19"/></radialGradient><clipPath id="${id}circle"><circle cx="200" cy="${128+pose}" r="126"/></clipPath></defs>`;
