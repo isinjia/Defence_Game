@@ -72,7 +72,7 @@ if (typeof UI !== 'undefined' && UI.hqAsk) {
         const d = (o) => Math.max(Math.abs(o.x - p.x), Math.abs(o.y - p.y));
         const cap = p.rankIdx + (G.party().length >= 2 ? 1 : 0);
         const hunt = /hunt|kill|mob|사냥|처치/.test(`${q.type || ''} ${q.title || ''}`);
-        const pool = hunt ? (G.mobs || []).filter((m) => G.revealed(m.x, m.y) && m.tier <= cap) : (G.mapGates || []).filter((g) => G.revealed(g.x, g.y) && g.tier <= cap && !g.final);
+        const pool = hunt ? (G.mobs || []).filter((m) => G.seenNow(m.x, m.y) && m.tier <= cap) : (G.mapGates || []).filter((g) => G.gateSeen(g) && g.tier <= cap && !g.final);
         const o = pool.sort((a, b) => d(a) - d(b))[0];
         if (o) return this.handle('travel-xy', `${o.x},${o.y}`);
       }
@@ -124,7 +124,7 @@ if (typeof UI !== 'undefined' && UI.questsHtml) {
       if (t && t.id === 'gate' && G.mapGates && G.revealed) {
         const cap = p.rankIdx + (G.party().length >= 2 ? 1 : 0); const d = (o) => Math.max(Math.abs(o.x - p.x), Math.abs(o.y - p.y));
         const fit = G.mapGates.filter((x) => x.tier <= cap && !x.cleared).sort((a, b) => d(a) - d(b));
-        if (fit.length && !fit.some((x) => G.revealed(x.x, x.y))) {
+        if (fit.length && !fit.some((x) => G.gateSeen(x))) {
           const g = fit[0]; if (G.reveal) G.reveal(g.x, g.y, 1);
           G.log(`헌터 협회 앱 공지: ${RANKS[g.tier].key}급 게이트 위치가 공개됐다. (걸어서 약 ${d(g) * 2}일)`);
         }

@@ -250,8 +250,8 @@ const UI = {
   hudObjective() {
     const p = G.player;
     const dist = (o) => Math.max(Math.abs(o.x - p.x), Math.abs(o.y - p.y));
-    const gates = G.mapGates.filter((g) => G.revealed(g.x, g.y) && (g.final || g.tier <= p.rankIdx + 1)).sort((a, b) => dist(a) - dist(b));
-    const mobs = G.mobs.filter((m) => G.revealed(m.x, m.y) && m.tier <= p.rankIdx).sort((a, b) => dist(a) - dist(b));
+    const gates = G.mapGates.filter((g) => G.gateSeen(g) && (g.final || g.tier <= p.rankIdx + 1)).sort((a, b) => dist(a) - dist(b));
+    const mobs = G.mobs.filter((m) => G.seenNow(m.x, m.y) && m.tier <= p.rankIdx).sort((a, b) => dist(a) - dist(b));
     const last = G.logs[0];
     return `<div class="obj">
         <div class="obj-title">현재 상황</div>
@@ -328,7 +328,7 @@ const UI = {
     let body = '';
     if (!known) body = '<div class="dim">신호가 닿지 않는 미탐색 지역이다. 가까이 가면 드러난다.</div>';
     else {
-      const obj = G.objAt(x, y);
+      const obj = G.objAtSeen(x, y);
       if (obj && obj.kind === 'gate') body += `<div class="tip-obj">${this.rift(obj.tier)}<div><b>${G.gateName(obj)}</b><div class="small">${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)} 난이도 ${this.gateRisk(obj.tier + (obj.variant === 'red' ? 1 : 0))}</div></div></div>`;
       if (obj && obj.kind === 'mob') body += `<div class="tip-obj"><span class="mob-dot big" style="--c:${elemColor(obj.elem)}"></span><div><b>${obj.name} 무리 ×${obj.count}</b><div class="small">${this.rankTag(obj.tier)} ${this.elemTag(obj.elem)} 난이도 ${this.gateRisk(obj.tier)}</div></div></div>`;
       const ns = this.npcsAt(x, y);

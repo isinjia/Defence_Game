@@ -1359,6 +1359,34 @@ const { chromium, devices } = require('playwright');
     });
     if (r) throw new Error(r);
   });
+  await step('현재 위치 기준 시야: 시야 밖 괴수는 안 보이고, 본 게이트는 기억 표식으로 남음', async () => {
+    const r = await ev(() => {
+      const p = G.player; const px = p.x, py = p.y; const mobs0 = G.mobs.slice(), gates0 = G.mapGates.slice(); const memo0 = JSON.stringify((G.world && G.world.gateMemo) || {});
+      try {
+        const s = G.sightMap(); if (!s || !G.seenNow(p.x, p.y)) return '내 자리가 시야에 없음';
+        // 멀리 떨어진, 이미 밝힌 칸을 하나 고른다
+        let far = null; for (let i = 0; i < G.fog.length && !far; i++) { if (!G.fog[i] || s[i]) continue; const [x, y] = WORLD.xy(i); if (!G.objAt(x, y) && Math.max(Math.abs(x - p.x), Math.abs(y - p.y)) >= 4) far = [x, y]; }
+        if (!far) { G.reveal(p.x, p.y, 30); G._sight = null; const s2 = G.sightMap(); for (let i = 0; i < G.fog.length && !far; i++) { if (!G.fog[i] || s2[i]) continue; const [x, y] = WORLD.xy(i); if (!G.objAt(x, y) && WORLD.type(x, y) !== WORLD.T.SEA) far = [x, y]; } }
+        if (!far) return '시야 밖의 밝혀진 칸을 찾지 못함';
+        const [fx, fy] = far;
+        const m = { id: 99701, kind: 'mob', x: fx, y: fy, region: p.region, tier: 0, elem: 'fire', name: '시험 쥐', shape: 'beast', count: 2, born: G.monthKey() }; G.mobs.push(m);
+        const g = { id: 99702, kind: 'gate', x: fx, y: fy, region: p.region, tier: 0, elem: 'fire' };
+        if (!G.revealed(fx, fy)) return '고른 칸이 밝혀져 있지 않음';
+        if (G.seenNow(fx, fy) || G.objSeen(m) || G.objAtSeen(fx, fy)) return '시야 밖 괴수가 보임';
+        G.mobs.pop(); G.mapGates.push(g); G._syncKey = null;
+        if (G.gateSeen(g)) return '본 적 없는 시야 밖 게이트가 보임';
+        p.x = fx; p.y = fy; G.reveal(fx, fy, 3);
+        if (!G.gateSeen(g) || !G.gatesShown().includes(g)) return '눈앞의 게이트가 보이지 않음';
+        p.x = px; p.y = py; G.reveal(px, py, 3);
+        if (G.seenNow(fx, fy)) return '떠난 뒤에도 그 칸이 시야에 있음';
+        if (!G.gateSeen(g)) return '본 게이트가 기억 표식으로 남지 않음';
+        G.mapGates.pop(); G._syncKey = null;
+        if (!G.gatesShown().some((o) => o.gone && o.x === fx && o.y === fy)) return '사라진 게이트가 시야 밖에서 바로 지워짐(가 봐야 알아야 함)';
+        return '';
+      } finally { G.mobs = mobs0; G.mapGates = gates0; p.x = px; p.y = py; if (G.world) G.world.gateMemo = JSON.parse(memo0); G._sight = null; G._syncKey = null; G._shown = null; }
+    });
+    if (r) throw new Error(r);
+  });
   await step('괴수 원화: 전 종 이미지·전용 보스·도감 확대와 복귀', async () => {
     const r = await ev(async () => {
       const missing = [...MONSTERS, MON_TREASURE].filter((m) => !MonsterArt.data[m.name]);

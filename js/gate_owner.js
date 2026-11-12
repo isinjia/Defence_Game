@@ -204,7 +204,7 @@ Object.assign(UI, {
   UI.showTip = function (x, y) {
     baseTip.call(this, x, y);
     const tip = document.getElementById('hud-tip'); if (!tip) return;
-    const g = G.objAt(x, y); if (!g || g.kind !== 'gate' || !G.revealed(x, y)) return;
+    const g = G.objAt(x, y); if (!g || g.kind !== 'gate' || !G.gateSeen(g)) return;
     tip.insertAdjacentHTML('beforeend', fixJosa(this.gateAccessHtml(g)));
   };
   // 지도: 게이트 옆 관리 깃발
@@ -215,7 +215,7 @@ Object.assign(UI, {
     if (!G.mapGates) return;
     const c = this.ctx, s = this.tile;
     for (const g of G.mapGates) {
-      if (!G.revealed(g.x, g.y) || !g.owner || g.north || g.final) continue;
+      if (!G.gateSeen(g) || !g.owner || g.north || g.final) continue;
       const [px, py] = this.toScreen(g.x + 0.5, g.y + 0.5);
       if (px < -s || py < -s || px > this.w + s || py > this.hgt + s) continue;
       const col = G.ownerColor(g.owner); const fx = px + s * 0.32, fy = py - s * 0.46;
