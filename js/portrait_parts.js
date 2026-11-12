@@ -3119,7 +3119,8 @@ const PortraitParts = (() => {
     const source = part => root + part.file + '?v=12';
     const image = (part, attrs = '') => {
       const [x,y,w,h] = part.rect, src = source(part);
-      return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${part.opacity == null ? '' : ` opacity="${part.opacity}"`}${attrs}/>`;
+      const sideFit = part.file === 'hair-m-20.webp' ? ` data-hair-source="${src}" data-hair-rect="${part.rect.join(',')}" data-head-source="${source(base)}" data-head-chin="${chin}" data-hair-side-fit="true"` : '';
+      return `<image href="${src}" xlink:href="${src}" x="${x}" y="${y}" width="${w}" height="${h}"${part.opacity == null ? '' : ` opacity="${part.opacity}"`}${sideFit}${attrs}/>`;
     };
     const palette = { fair:[246,218,200], medium:[220,180,150], tan:[182,133,95], deep:[133,88,65] };
     const target = palette[selection.skinTone] || face.skinRgb || [230,195,180];
@@ -3297,13 +3298,29 @@ const PortraitParts = (() => {
   };
   const hairBitmaps = new Map();
   const hairBitmap = node => {
-    const d=node.dataset, key=[d.hairSource,d.hairRect,d.headSource,d.headChin].join('|');
+    const d=node.dataset, key=[d.hairSource,d.hairRect,d.headSource,d.headChin,d.hairSideFit||''].join('|');
     if(hairBitmaps.has(key))return hairBitmaps.get(key);
     const promise=(async()=>{
       const [hair,head]=await Promise.all([loadImage(d.hairSource),loadImage(d.headSource)]);
       const cv=document.createElement('canvas');cv.width=400;cv.height=600;const ctx=cv.getContext('2d');
       ctx.drawImage(head,0,0,400,600);const silhouette=ctx.getImageData(0,0,400,600).data;
       ctx.clearRect(0,0,400,600);ctx.drawImage(hair,...d.hairRect.split(',').map(Number));const pixels=ctx.getImageData(0,0,400,600);
+      if(d.hairSideFit){
+        // 윗머리는 유지하고 관자놀이 아래만 연속해서 좁혀 구레나룻이 옆얼굴에 붙게 한다.
+        const original=new Uint8ClampedArray(pixels.data);
+        for(let y=135;y<600;y++){
+          const t=Math.max(0,Math.min(1,(y-135)/35)),scale=1-.18*t*t*(3-2*t);
+          const end=Math.max(0,Math.min(1,(188-y)/12)),fade=end*end*(3-2*end);
+          for(let x=0;x<400;x++){
+            const k=(y*400+x)*4,sx=200+(x-200)/scale,x0=Math.floor(sx),mix=sx-x0;
+            if(x0<0||x0+1>=400||!fade){pixels.data[k+3]=0;continue;}
+            const a=(y*400+x0)*4,b=a+4,wa=original[a+3]*(1-mix),wb=original[b+3]*mix,total=wa+wb;
+            // 투명 영역의 RGB가 가장자리에 섞이지 않게 알파를 곱한 색으로 보간한다.
+            for(let c=0;c<3;c++)pixels.data[k+c]=total?(original[a+c]*wa+original[b+c]*wb)/total:0;
+            pixels.data[k+3]=total*fade;
+          }
+        }
+      }
       const chin=Number(d.headChin),back=ctx.createImageData(400,600);
       let left=200,right=200;
       for(let x=0;x<400;x++)if(silhouette[(220*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
