@@ -6,7 +6,7 @@
 .ec-screen button { min-height: 44px; cursor: pointer; font: inherit; }
 .ec-skip { color: #c1ccd9; background: transparent; border: 1px solid #ffffff24; padding: 8px 16px; border-radius: 4px; letter-spacing: 0; }
 .ec-stage { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; background: #0a1321; }
-.ec-art { display: block; width: 100%; height: 100%; }
+.ec-art { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .ec-stage > .ec-art { position: absolute; inset: 0; animation: ec-reveal 600ms ease-out both; }
 .ec-subject { transform-origin: 325px 195px; transition: transform 1.8s ease; }
 .ec-shot-1 .ec-subject { transform: translate(-20px, 7px) scale(1.09); }
