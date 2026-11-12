@@ -2,7 +2,7 @@
 const WorldOpening = (() => {
   const shots = [
     {
-      "image": "assets/backgrounds/opening-omen.svg",
+      "image": "assets/backgrounds/opening-omen-webtoon.webp",
       "focus": "55% center",
       "duration": 4200,
       "lines": [
@@ -25,7 +25,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/prologue/dream.webp",
+      "image": "assets/backgrounds/opening-unknown-webtoon.webp",
       "focus": "65% center",
       "duration": 5000,
       "lines": [
@@ -36,7 +36,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/prologue/gate-subway.webp",
+      "image": "assets/backgrounds/opening-many-gates-webtoon.webp",
       "focus": "65% center",
       "duration": 4200,
       "lines": [
@@ -47,7 +47,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/prologue/gate-break.webp",
+      "image": "assets/backgrounds/opening-outbreak-webtoon.webp",
       "focus": "50% center",
       "duration": 5200,
       "lines": [
@@ -58,7 +58,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/prologue/memorial.webp",
+      "image": "assets/backgrounds/opening-memorial-webtoon.webp",
       "focus": "50% center",
       "duration": 4600,
       "lines": [
@@ -69,7 +69,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/backgrounds/opening-ether.svg",
+      "image": "assets/backgrounds/opening-ether-webtoon.webp",
       "focus": "55% center",
       "duration": 4200,
       "lines": [
@@ -80,7 +80,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/prologue/hospital.webp",
+      "image": "assets/backgrounds/opening-cost-webtoon.webp",
       "focus": "48% center",
       "duration": 4400,
       "lines": [
@@ -91,7 +91,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/prologue/awakening.webp",
+      "image": "assets/backgrounds/opening-awaken-webtoon.webp",
       "focus": "50% center",
       "duration": 4200,
       "lines": [
@@ -102,7 +102,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/backgrounds/opening-hunters.svg",
+      "image": "assets/backgrounds/opening-hunters-webtoon.webp",
       "focus": "50% center",
       "duration": 5800,
       "lines": [
@@ -113,7 +113,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/backgrounds/opening-quarantine.svg",
+      "image": "assets/backgrounds/opening-quarantine-webtoon.webp",
       "focus": "55% center",
       "duration": 8000,
       "lines": [

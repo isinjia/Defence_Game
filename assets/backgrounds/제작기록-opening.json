@@ -1,0 +1,15 @@
+{
+  "version": "cutscene-opening-unique",
+  "map": {
+    "omen": "assets/backgrounds/opening-omen-webtoon.webp",
+    "unknown": "assets/backgrounds/opening-unknown-webtoon.webp",
+    "many_gates": "assets/backgrounds/opening-many-gates-webtoon.webp",
+    "outbreak": "assets/backgrounds/opening-outbreak-webtoon.webp",
+    "memorial": "assets/backgrounds/opening-memorial-webtoon.webp",
+    "ether": "assets/backgrounds/opening-ether-webtoon.webp",
+    "cost": "assets/backgrounds/opening-cost-webtoon.webp",
+    "awaken": "assets/backgrounds/opening-awaken-webtoon.webp",
+    "hunters": "assets/backgrounds/opening-hunters-webtoon.webp",
+    "quarantine": "assets/backgrounds/opening-quarantine-webtoon.webp"
+  }
+}
