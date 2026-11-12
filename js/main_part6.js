@@ -7,13 +7,15 @@ const HAS_ALLY = (M, k) => (M.flags.allies || []).includes(k);
 const JIN_ALIVE = (M) => M.flags.jinFate === 'with' || M.flags.jinFate === 'jailed';
 const FRIEND_ALIVE = (g, M) => { const f = g.mainWho('friend'); return !!f && (M.flags.friend3 === 'saved' || !!M.flags.friendBack); };
 // 37장 "열겠다"를 고를 수 있는 조건: 사도(진서해와 동행) 또는 23장 동의 + 24장 신도 편
-const CAN_OPEN = (M) => !!M.flags.apostle || (M.flags.c23 === 'agree' && M.flags.c24 === 'join');
+// 37장 "열겠다": 사도(33장 진서해와 동행 또는 히든 직업 심연의 사도) 또는 23장 동의 + 24장 신도 편
+const CAN_OPEN = (M, g) => !!M.flags.apostle || !!(g && g.player && g.player.cls === 'apostle') || (M.flags.c23 === 'agree' && M.flags.c24 === 'join');
 // 엔딩 판정 (조건 엄수)
 const MAIN_ENDING = (g, M) => {
   const c = M.flags.gateChoice;
-  if (c === 'open' && CAN_OPEN(M)) return 'open';
+  if (c === 'open' && CAN_OPEN(M, g)) return 'open';
   if (c === 'bridge' && !M.flags.circuitCut && JIN_ALIVE(M) && FRIEND_ALIVE(g, M)) return 'bridge';
-  if (ALLY_N(M) === 0) return 'sacrifice';
+  // 희생은 "닫겠다" + 함께 온 동료 0명일 때만. 다리 조건이 모자라 닫히면 동료 수와 상관없이 봉인(실패 서사)
+  if (c === 'close' && ALLY_N(M) === 0) return 'sacrifice';
   return 'seal';
 };
 const ENDINGS = {
@@ -149,6 +151,7 @@ MAIN.ch(37, {
       { who: 'arin', when: (g) => g.player.cls === 'heir', text: '그 사람들이 너를 억지로 깨웠지. 대붕괴의 아이. …괜찮아. 억지로 깬 것도 깬 거야. 여기선 그게 힘이 돼.' },
       { narr: (g, M) => (M.flags.ringWhole ? '손안의 원이 빛난다. 아린이 그걸 보고 웃는다. "그거 있으면 다리를 놓을 수 있어. 할아버지가 본 거."' : M.flags.halfRing ? '주머니 속 반쪽 원이 떨린다. 아린의 손에 나머지 반쪽이 있다.' : '아린의 손이 비어 있다. 당신 손도.') },
       { who: 'arin', text: (g, M) => (M.flags.arinPromise ? ({ close: '약속, 기억해? 닫아 달라고 했던 거. …아직 그 말 그대로야.', bridge: '약속했지. 다리. 여기까지 왔으니까 해 볼 수 있어.', open: '약속했지. 열게 둬 달라고. …정말 괜찮아?' })[M.flags.arinAsk] || '약속, 기억해?' : '약속은 안 했지. 그래도 와 줬어. 이제 정해 줘.') },
+      { who: 'arin', when: (g, M) => !!(M.prevRun && M.prevRun.ending), text: (g, M) => `이상하지. 너를 처음 보는데, 네가 이 문 앞에서 「${(ENDINGS[M.prevRun.ending] || {}).title || '다른 끝'}」을 고르는 걸 본 것 같아. 이번엔… 어떻게 할 거야?` },
     ] },
     { id: 'c37_echo', lines: [
       { narr: (g, M) => (M.flags.arinFade ? '아린의 윤곽이 군데군데 비어 있다. 오래 기다린 탓이다. 목소리가 바람보다 작다.' : '아린의 발밑에 그림자가 있다. 저편에서 처음 생겼던 그 그림자.') },
@@ -166,10 +169,12 @@ MAIN.ch(37, {
     ] },
     { id: 'c37_choose', lines: [
       { narr: '문, 군주, 아린. 그리고 당신. 이십 년 동안 이 자리에 선 사람은 없었다.' },
+      { sys: (g, M) => `지금 가진 것 — 북쪽 줄: ${M.flags.circuitCut ? '끊음' : '살아 있음'} · 진서해: ${JIN_ALIVE(M) ? '살아 있음' : '없음'} · 친구: ${FRIEND_ALIVE(g, M) ? '살아 있음' : '곁에 없음'} · 함께 온 사람: ${ALLY_N(M)}명` },
+      { narr: '심연의 사도의 힘이 문 쪽으로 기운다. 여는 손이 될 수 있다는 걸 몸이 안다.', when: (g) => g.player.cls === 'apostle' },
     ], choices: [
       { text: '"닫겠다."', set: { gateChoice: 'close' }, next: 'c37_after' },
       { text: '"함께 사는 길을 찾겠다."', set: { gateChoice: 'bridge' }, next: 'c37_after' },
-      { text: '"열겠다."', when: (g, M) => CAN_OPEN(M), set: { gateChoice: 'open' }, next: 'c37_after' },
+      { text: '"열겠다."', when: (g, M) => CAN_OPEN(M, g), set: { gateChoice: 'open' }, next: 'c37_after' },
     ] },
     { id: 'c37_after', lines: [
       { who: 'arin', text: (g, M) => ({ close: '…응. 그래. 고마워. 끝까지 옆에 있을게.', bridge: '다리. 그래. 그럼 저 문지기부터 재워야 해. 죽이지 말고. 할 수 있겠어?', open: '그 사람 꿈이네. …알았어. 그럼 저 문지기를 넘어야 해.' })[M.flags.gateChoice] },

@@ -1117,8 +1117,8 @@ const { chromium, devices } = require('playwright');
         setCh(39, { gateChoice: 'bridge', circuitCut: false, jinFate: 'with', friend3: 'saved', allies: ['friend'] });
         if (MAIN_ENDING(G, M) !== 'bridge') return '다리 조건 조합이 다리가 아니다';
         M.flags.circuitCut = true; if (MAIN_ENDING(G, M) !== 'seal') return '회로를 끊었는데 다리가 됐다';
-        M.flags.allies = []; if (MAIN_ENDING(G, M) !== 'sacrifice') return '동료 없이 닫았는데 희생이 아니다';
-        M.flags.gateChoice = 'open'; M.flags.apostle = true; if (MAIN_ENDING(G, M) !== 'open') return '사도의 열기가 개방이 아니다';
+        M.flags.allies = []; if (MAIN_ENDING(G, M) !== 'seal') return '다리 실패 단독이 봉인이 아니다'; M.flags.gateChoice = 'close'; if (MAIN_ENDING(G, M) !== 'sacrifice') return '동료 없이 닫았는데 희생이 아니다';
+        M.flags.gateChoice = 'open'; M.flags.apostle = false; const cls0 = p.cls; p.cls = 'apostle'; const viaCls = MAIN_ENDING(G, M); p.cls = cls0; if (viaCls !== 'open') return '히든 직업 사도의 열기가 개방이 아니다'; M.flags.apostle = true; if (MAIN_ENDING(G, M) !== 'open') return '사도의 열기가 개방이 아니다';
         // voice/cult 단계: 14장은 cult 4만, 20장은 voice를 올리지 않는다
         p.rankIdx = 3; setCh(14, { friend3: 'saved' }); G.flags.chains = { voice: 2 }; if (!play(14, 0) || G.flags.chains.voice !== 2 || G.flags.chains.cult !== 4) return '14장 voice/cult 단계가 틀렸다';
         setCh(20, {}); G.flags.chains = { voice: 3 }; if (!play(20, 0) || G.flags.chains.voice !== 3) return '20장이 voice를 올렸다';
