@@ -3327,11 +3327,13 @@ const PortraitParts = (() => {
       if(!d.hairSideFit){
         let left=200,right=200;
         for(let x=0;x<400;x++)if(silhouette[(220*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
-        const templeHalf=Math.max(20,(right-left)/2)+10;
+        const cheekHalf=Math.max(20,(right-left)/2)+2,templeHalf=cheekHalf+8;
         for(let y=175;y<chin;y++){
           const t=Math.max(0,Math.min(1,(y-175)/5,(chin-y)/4)),weight=t*t*(3-2*t);
           const grow=Math.max(0,Math.min(1,(y-165)/20));
-          const half=y<=220?templeHalf*grow*grow*(3-2*grow):200;
+          // 턱 밑의 목은 두상과 알파가 이어져 있다. 턱 곡선 바깥 목 피부까지 보호하면 모발에 직각 구멍이 난다.
+          const jawHalf=cheekHalf*Math.pow(Math.max(0,(chin-y)/(chin-220)),.6)+4;
+          const half=y<=220?templeHalf*grow*grow*(3-2*grow):jawHalf;
           for(let x=0;x<400;x++){
             const k=(y*400+x)*4,edge=Math.max(0,Math.min(1,(half-Math.abs(x-200)+1.5)/3));
             const cover=silhouette[k+3]>8?weight*edge:0;

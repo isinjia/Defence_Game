@@ -371,20 +371,24 @@ const { chromium, devices } = require('playwright');
         return{doc,ctx,rc};
       };
       let checked=0,points=0;
-      const jawHairs=[0,1,2,3,5,6,7,8,9,11,12,13,14,16,17,18,19,24];
+      const jawHairs=[0,1,2,3,5,6,7,8,9,11,12,13,14,16,17,18,19,24,25,26];
       for(const bodyType of ['thin','normal','strong','heavy'])for(const hair of jawHairs){
-        let seed;for(let i=0;i<20000;i++){const s='jaw-'+i,q=PortraitParts.select(s,'F');if(q.layers[0].file==='face-f-0.webp'&&q.layers[2].file==='hair-f-'+hair+'.webp'){seed=s;break;}}
+        let seed;for(let i=0;i<20000;i++){const s=(hair>=25?'look5:jaw-':'jaw-')+i,q=PortraitParts.select(s,'F');if(q.layers[0].file==='face-f-0.webp'&&q.layers[2].file==='hair-f-'+hair+'.webp'){seed=s;break;}}
         if(!seed)throw Error('헤어 조합 없음');
         const{ctx,rc}=await read(PORTRAIT.card(seed,'F',null,0,400,{bodyType,outfit:'underwear'}));
         const scale=PortraitParts.HEAD_SCALE.F[bodyType];
-        // 통합 원화의 턱·목 바깥 윤곽을 찾아 합성 뒤에도 그대로 남는지 비교한다.
-        for(let rawY=230;rawY<=256;rawY+=3){const y=Math.round(285+(rawY-285)*scale);
-          for(const[from,to]of[[80,198],[202,320]]){
-            let pick;for(let x=from;x<=to;x++){const p=rc.getImageData(x,y,1,1).data;if(p[3]>250&&(pick==null||(to<200?x<pick:x>pick)))pick=x;}
-            if(pick==null)continue;
-            const a=rc.getImageData(pick,y,1,1).data,b=ctx.getImageData(pick,y,1,1).data;
-            if([0,1,2].some(c=>Math.abs(a[c]-b[c])>7))throw Error('머리카락·얼굴이 턱 윤곽을 덮음: '+bodyType+' hair='+hair+' xy='+[pick,y]+' '+[...a]+'/'+[...b]);points++;
-          }
+        // 몸체 알파 외곽은 턱 아래 목까지 포함한다. 원화의 실제 턱선 점을 따로 확인한다.
+        const jaw={
+          normal:[[230,160,239],[235,164,235],[240,169,230],[245,175,225],[250,180,219],[255,187,213],[258,192,208]],
+          thin:[[230,160,238],[235,164,234],[240,169,230],[245,174,225],[250,180,220],[255,186,214],[258,190,210]],
+          strong:[[230,160,239],[235,164,235],[240,169,230],[245,175,225],[250,180,219],[255,187,213],[258,192,208]],
+          heavy:[[230,153,245],[235,157,242],[240,162,237],[245,168,232],[250,175,225],[255,184,216],[258,190,210]],
+        }[bodyType];
+        // 턱선의 반투명 가장자리는 뒷머리와 정상 혼합된다. 선 안쪽 2px의 불투명 피부를 비교한다.
+        for(const[rawY,left,right]of jaw)for(const rawX of [left+2,right-2]){
+          const x=Math.round(200+(rawX-200)*scale),y=Math.round(285+(rawY-285)*scale);
+          const a=rc.getImageData(x,y,1,1).data,b=ctx.getImageData(x,y,1,1).data;
+          if([0,1,2].some(c=>Math.abs(a[c]-b[c])>7))throw Error('머리카락·얼굴이 실제 턱선 안쪽을 덮음: '+bodyType+' hair='+hair+' xy='+[x,y]+' '+[...a]+'/'+[...b]);points++;
         }checked++;
       }
       if(checked!==4*jawHairs.length||points<100)throw Error('턱 윤곽 검증 표본 부족');
@@ -428,6 +432,32 @@ const { chromium, devices } = require('playwright');
         checked++;
       }
       if(checked!==64)throw Error('볼 옆 긴머리 조합 부족');
+    });
+  });
+  await step('H2·H25 목 옆: 턱 아래 피부 모양으로 헤어가 파이지 않음', async () => {
+    await page.evaluate(async () => {
+      const samples=new Map();
+      for(let n=0;n<3000&&samples.size<2;n++) { const seed='look5:목파임-'+n,part=PortraitParts.select(seed,'F',{age:25,outfit:'underwear'}).layers[2],h=Number(part.file.match(/-(\d+)\.webp/)[1]);if([2,25].includes(h))samples.set(h,seed); }
+      if(samples.size!==2)throw Error('목 옆 검증 헤어 없음');
+      const read=async(url,rect=[0,0,400,600])=>{const im=new Image();im.src=url;await im.decode();const cv=document.createElement('canvas');cv.width=400;cv.height=600;const ctx=cv.getContext('2d');ctx.drawImage(im,...rect);return ctx.getImageData(0,0,400,600).data;};
+      const neckPoints={normal:[168,232],thin:[170,228],strong:[164,234],heavy:[158,242]};
+      let checked=0;
+      for(const[h,seed]of samples)for(const bodyType of ['thin','normal','strong','heavy'])for(const outfit of ['underwear','coat','casual',HunterOutfits.outfitFor('telepath')]){
+        const opts={age:25,bodyType,outfit},selected=PortraitParts.select(seed,'F',opts);
+        const source=await PortraitParts.rasterize(PORTRAIT.card(seed,'F',null,0,400,opts));
+        const doc=new DOMParser().parseFromString(decodeURIComponent(source.split(',').slice(1).join(',')),'image/svg+xml');
+        const front=doc.querySelector('image[data-hair-layer="front"]');
+        const[actual,original,body]=await Promise.all([read(front.getAttribute('href')),read('assets/portraits/parts/'+selected.layers[2].file,selected.layers[2].rect),read('assets/portraits/parts/'+selected.baseBody.file)]);
+        let points=0;
+        for(const y of [250,253,256])for(const x of neckPoints[bodyType]){
+          const alpha=(y*400+x)*4+3;
+          if(body[alpha]<=240||original[alpha]<=200)continue;
+          if(actual[alpha]<original[alpha]-8)throw Error('턱 바깥 목 위의 모발이 깎임: H'+h+' '+bodyType+' '+outfit+' '+[x,y]);
+          points++;
+        }
+        if(points<3)throw Error('목 옆 검증 표본 부족');checked++;
+      }
+      if(checked!==32)throw Error('목 옆 조합 부족');
     });
   });
   await step('여성 긴머리 연속성: 목 아래 머리카락 잘림 방지', async () => {
