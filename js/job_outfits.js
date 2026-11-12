@@ -749,6 +749,8 @@ const HunterOutfits = (() => {
   const outfitFor=cls=>(byId.has(cls)||byId.has(aliases[cls]))?prefix+cls:null;
   const get=(outfit,gender)=>{const id=idOf(outfit),c=byId.get(aliases[id]||id);return c?{...c.variants[gender==='F'?'f':'m'],classId:id,familyId:c.id,name:c.name}:null;};
   const legacy={card:PORTRAIT.card,avatar:PORTRAIT.avatar,select:PortraitParts.select};
+  // 남자 옷마다 깃 안쪽 깊이(옷 그림 px, 기본 17): 깃 안쪽 면이 목 아래로 남아 보이는 옷만 더 깊게
+  const IN_D={priest:23,alchemist:24,tamer:23,healer:22,telepath:22,monk:21,summoner:21,paladin:21,bard:21};
   const cache=new Map();
   const node=(doc,name,attrs)=>{const e=doc.createElementNS(ns,name);for(const[k,v]of Object.entries(attrs||{}))e.setAttribute(k,v);return e;};
   function render(avatar,seed,gender,element,rank,size,opts){
@@ -763,8 +765,11 @@ const HunterOutfits = (() => {
     const pivot=(female?261:251)+24;
     const actualChin=pivot+(chin-pivot)*scale+pose;
     const fit={thin:.9,normal:1,strong:1.08,heavy:1.25}[type]||1;
-    const frontY=actualChin+(type==='heavy'?12:female?18:20),backY=actualChin+2;
-    const radius=(female?29:33)*fit,depth=7;
+    // 남자(사용자 요청): 옷은 그대로 두고 목을 깃 안쪽까지 내린다. 목 창을 깃 안쪽 모양(넓고 얕은 U)으로 파서
+    // 목 뒤쪽 옷(깃 안쪽 면)이 보이지 않고, 앞깃·폴라 윗선이 목 위로 온다. 옷 그림 기준 값: 안쪽 반폭 inW, 가운데 깊이 inD(px).
+    const backY=actualChin+2,inW=41*fit,inD=(IN_D[part.familyId]||17)*.82;
+    const frontY=female?actualChin+(type==='heavy'?12:18):backY+inD;
+    const radius=female?29*fit:inW,side=female?0:backY+3,depth=female?7:Math.max(3,frontY-side);
     const opening=`M${200-radius} 0H${200+radius}V${frontY-depth}A${radius} ${depth} 0 0 1 ${200-radius} ${frontY-depth}Z`;
     const id='ho'+FX.hash(selected.key+opts.outfit+avatar),clip=node(doc,'clipPath',{id:id+'skin'});
     const jaw=doc.querySelector('clipPath[id$="jaw"]');
