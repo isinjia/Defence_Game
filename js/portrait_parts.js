@@ -2799,6 +2799,8 @@ const PortraitParts = (() => {
       const pool = String(seed).startsWith(LOOK_PREFIX) ? NEW_ADULT_FACES : ADULT_FACES;
       face = pool[hash % pool.length];
     }
+    // 사용자 삭제 지정: 남성 19·23번만 대체한다. 풀을 줄이면 다른 저장 외형까지 바뀐다.
+    if (g === 'm') face = ({19:29,23:30})[face] ?? face;
     // 얼굴과 헤어에 같은 비트를 나눠 쓰면 특정 조합이 나오지 않는다. 새 풀은 따로 추첨한다.
     const hair = expanded ? Math.floor(FX.rng(hash ^ 0x9e3779b9)() * hairs.length)
       : (hash >>> 4) % Math.min(20, hairs.length);

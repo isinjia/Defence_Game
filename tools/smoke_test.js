@@ -213,7 +213,8 @@ const { chromium, devices } = require('playwright');
         const g = gender.toLowerCase();
         for (const [seed, face, hair] of [['고정인물',1,2],['저장호환-0',8,5],['저장호환-29',2,14],['look3:current-audit-0',25,0],['look3:current-audit-1',20,14],['look3:current-audit-2',23,9]]) {
           const s = PortraitParts.select(seed,gender,{age:25,outfit:'underwear'});
-          if(s.layers[0].file !== `face-${g}-${face}.webp` || s.layers[2].file !== `hair-${g}-${hair}.webp`) throw Error('저장 외형 변경');
+          const expectedFace = gender === 'M' ? ({19:29,23:30})[face] ?? face : face;
+          if(s.layers[0].file !== `face-${g}-${expectedFace}.webp` || s.layers[2].file !== `hair-${g}-${hair}.webp`) throw Error('저장 외형 변경');
         }
         const faces=new Set(), hairs=new Set(), pairs=new Set(), samples=new Map();
         for(let i=0;i<20000;i++) {
@@ -222,6 +223,7 @@ const { chromium, devices } = require('playwright');
           pairs.add(face.file+'|'+hair.file);
           const f=Number(face.file.match(/-(\d+)\.webp/)[1]),h=Number(hair.file.match(/-(\d+)\.webp/)[1]);
           if(f>=15 && f<18)throw Error('성인에 유스 얼굴');
+          if(gender==='M' && [19,23].includes(f))throw Error('삭제한 남성 얼굴 재등장');
           if(f>=18)samples.set(face.file,seed);
           if(h>=20){if(!hair.rearFile)throw Error('뒷머리 없음');samples.set(hair.file,seed);}
         }
@@ -250,10 +252,12 @@ const { chromium, devices } = require('playwright');
           const seed = 'look4:미형검증-' + n, selection = PortraitParts.select(seed, gender, { age: 25, outfit: 'underwear' });
           const face = Number(selection.layers[0].file.match(/-(\d+)\.webp/)[1]), hair = selection.layers[2].file;
           if ([3,4,6,9,12,15,16,17].includes(face)) throw Error('제외/유스 얼굴이 성인 풀에 포함됨');
+          if (gender === 'M' && [19,23].includes(face)) throw Error('삭제한 남성 얼굴이 신규 풀에 포함됨');
           faces.add(face); pairs.add(face + '|' + hair);
           if (face >= 28) samples.set(face, seed);
         }
-        if (faces.size !== 25 || pairs.size !== 750 || samples.size !== 5) throw Error('미형 얼굴 추첨 조합 누락');
+        const count = gender === 'M' ? 23 : 25;
+        if (faces.size !== count || pairs.size !== count * 30 || samples.size !== 5) throw Error('미형 얼굴 추첨 조합 누락');
         const child = PortraitParts.select('look4:어린이검증', gender, { age: 10 }).layers[0].file;
         if (!new RegExp(`face-${g}-(15|16|17)\\.webp`).test(child)) throw Error('미형 얼굴이 어린이 풀에 들어감');
         for (const seed of samples.values()) {
