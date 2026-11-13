@@ -107,3 +107,11 @@ body.dlg-on .hud-bottom, body.dlg-on .hud-tr, body.dlg-on #hud-money { visibilit
 
 #pl-confirm .plc-box:has(.primary) { border-top-color: var(--amber); }
 #pl-confirm p b { color: var(--text); }
+
+/* [평가 21] 세로로 긴 화면(높이 800px 이상): 전장 가운데가 크게 비고 아군 초상이 34px로 작았다. 아군 초상을 46px로 키운다 */
+@media (min-height: 800px) and (max-width: 640px) {
+  html body .combat-box.fit .ally.fig .sprite .avatar, html body .combat-box.fit .ally.fig .sprite svg, html body .combat-box.fit .ally.fig .sprite img { width: 46px !important; height: 46px !important; }
+  html body .combat-box.fit .ally.fig { width: 72px; }
+}
+/* 아군 말풍선은 얼굴 위가 아니라 머리 위로 */
+.ally .float-num.say { top: -20px; }
