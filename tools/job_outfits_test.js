@@ -9,7 +9,7 @@ const{chromium}=require('playwright');
  const browser=await chromium.launch();
  try{
  const p=await browser.newPage({viewport:{width:1300,height:950},reducedMotion:'reduce'}),errors=[];p.on('pageerror',e=>errors.push(e.message));
- await p.route('https://fonts.googleapis.com/**',r=>r.abort());await p.goto('http://127.0.0.1:'+server.address().port);await p.click('[data-opening="skip"]');
+ await p.route('https://fonts.googleapis.com/**',r=>r.abort());await p.goto('http://127.0.0.1:'+server.address().port);await p.click('[data-opening="skip"]');await p.waitForFunction(()=>!window.GateBoot||GateBoot.ready);
  const result=await p.evaluate(async()=>{
   const seen=new Set(),pictures=[],bodies=['thin','normal','strong','heavy'];let cards=0,avatars=0;
   const read=async source=>{const im=new Image();im.src=await PortraitParts.rasterize(source);await im.decode();const cv=document.createElement('canvas');cv.width=400;cv.height=480;const c=cv.getContext('2d');c.drawImage(im,0,0);return c;};
@@ -28,6 +28,13 @@ const{chromium}=require('playwright');
      for(const skinTone of ['natural','deep']){
       const source=PORTRAIT.card(seed,gender,null,0,400,{outfit,bodyType,skinTone});const svg=new DOMParser().parseFromString(source,'image/svg+xml').documentElement;
       if(svg.dataset.jobClass!==cls.id||svg.dataset.bodyType!==bodyType||svg.dataset.skinTone!==skinTone)throw Error('외형 정보 소실');
+      const garment=svg.querySelector('[data-depth="job-garment-front"]'),selected=PortraitParts.select(seed,gender,{outfit,bodyType,skinTone});
+      const rect=['x','y','width','height'].map(k=>Number(garment.getAttribute(k)));
+      if(rect.some((n,i)=>Math.abs(n-selected.layers[1].rect[i])>.01))throw Error('의상 선택/렌더 좌표 불일치 '+gender+cls.id+bodyType);
+      if(gender==='M'&&part.familyId==='blackflame'){
+       const expected=400*({thin:.9,normal:1,strong:1.08,heavy:1.25}[bodyType])*1.368;
+       if(Math.abs(rect[2]-expected)>.01||Math.abs(rect[3]-423)>.01)throw Error('승인 의상 비율 불일치 '+cls.id+bodyType);
+      }
       const ctx=await read(source),base=bare.get(bodyType+skinTone),chin=(gender==='M'?251:261),pivot=chin+24,actual=pivot+(chin-pivot)*PortraitParts.HEAD_SCALE[gender][bodyType];
       const jawY=Math.floor(actual-4),a=ctx.getImageData(200,jawY,1,1).data,b=base.getImageData(200,jawY,1,1).data;
       if([0,1,2].some(k=>Math.abs(a[k]-b[k])>8))throw Error('턱 덮임 '+gender+cls.id+bodyType);

@@ -757,9 +757,28 @@ const HunterOutfits = (() => {
   const IN_D={priest:23,alchemist:24,tamer:23,healer:22,telepath:22,monk:21,summoner:21,paladin:21,bard:21};
   // 깃이 높은 옷(IN_D)은 많이 올리면 깃이 턱에 붙어 목이 사라진다 → 턱 아래 목이 남도록 덜 올린다
   const IN_PROF={"m":{"swordsman":[9,13,17,21,23,25,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,9],"berserker":[9,13,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,9],"lancer":[0,11,15,18,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,15,10,0],"monk":[0,6,10,13,16,19,21,22,23,24,26,26,26,25,24,23,22,20,18,15,11,6,0],"dualblade":[9,13,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,9],"guardian":[9,13,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,9],"paladin":[9,13,16,18,19,20,27,28,29,30,30,30,30,30,29,28,27,21,19,18,16,13,9],"giant":[0,6,14,17,20,23,24,26,28,30,30,30,30,30,27,25,24,22,20,17,12,6,0],"assassin":[0,6,15,19,21,23,25,26,27,29,30,30,30,30,27,26,25,24,22,19,16,6,0],"thief":[0,13,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,0],"poisoner":[9,13,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,9],"archer":[0,6,10,12,13,14,15,16,16,17,17,17,17,17,16,16,15,14,13,12,10,6,0],"sniper":[0,6,10,12,13,14,15,16,16,17,17,17,17,17,16,16,15,14,13,12,10,6,0],"gunslinger":[9,13,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,9],"elementalist":[0,6,10,12,13,14,15,16,16,17,17,17,17,17,16,16,15,14,13,12,10,6,0],"warlock":[9,13,17,21,24,26,27,28,29,30,30,29,30,30,29,28,27,26,24,21,17,13,9],"warder":[0,13,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,0],"chronomancer":[0,6,16,20,23,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,6,0],"summoner":[0,6,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,0],"necromancer":[0,13,17,21,24,25,26,27,28,28,29,29,29,28,28,27,26,25,24,21,17,13,0],"tamer":[9,13,17,21,23,24,25,26,29,30,30,30,30,30,29,26,25,24,23,21,17,13,9],"healer":[0,13,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,0],"priest":[0,6,14,18,22,24,27,28,29,30,30,30,30,30,29,28,27,25,22,19,15,6,0],"bard":[0,6,15,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,10,6,0],"alchemist":[0,6,15,18,20,22,23,24,24,25,27,30,30,30,24,24,23,22,21,19,16,6,0],"telekinetic":[0,6,14,17,19,21,22,23,24,24,25,25,25,24,24,23,22,21,20,18,15,6,0],"telepath":[0,13,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,12,0],"teleporter":[9,13,17,21,24,26,27,28,29,30,30,30,30,28,29,28,27,26,24,21,17,13,9],"seer":[9,13,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,9],"shaman":[9,13,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,9],"taoist":[9,13,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,9],"swordmonk":[9,13,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,9],"blackflame":[0,6,10,12,13,14,15,16,16,17,17,17,17,17,16,16,15,14,13,12,10,6,0],"apostle":[0,6,10,12,13,14,15,16,16,17,17,17,17,17,16,16,15,14,13,12,10,6,0],"machinist":[0,6,10,12,13,14,15,16,16,17,17,17,17,17,16,16,15,14,13,12,10,6,0],"gatekeeper":[0,6,10,12,13,14,15,16,16,17,17,17,17,17,16,16,15,14,13,12,10,6,0],"heir":[9,13,17,21,24,26,27,28,29,30,30,30,30,30,29,28,27,26,24,21,17,13,9]},"f":{"swordsman":[0,7,12,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,7,0],"berserker":[0,6,10,12,14,16,17,18,18,19,19,19,19,19,19,18,17,16,15,13,10,7,0],"lancer":[0,7,12,16,18,19,19,22,22,22,30,30,30,29,24,22,21,19,18,16,12,7,0],"monk":[0,7,12,16,19,20,21,22,23,23,24,24,24,24,23,22,21,20,19,16,12,7,0],"dualblade":[0,7,12,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,7,0],"guardian":[0,0,0,8,11,12,13,14,14,15,15,15,15,15,14,14,13,12,11,8,0,0,0],"paladin":[0,7,12,16,20,22,23,24,25,26,26,26,26,26,25,24,23,22,20,16,12,7,0],"giant":[0,7,12,16,19,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,7,0],"assassin":[0,7,12,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,7,0],"thief":[0,7,12,16,18,17,17,17,16,16,16,16,16,16,16,17,17,17,18,16,12,7,0],"poisoner":[0,7,12,16,20,23,23,23,24,24,24,24,24,24,24,24,23,23,20,16,12,7,0],"archer":[0,7,12,16,18,19,20,21,22,22,23,23,23,22,22,21,20,19,18,16,12,0,0],"sniper":[0,7,12,11,11,12,13,14,14,15,15,15,15,15,14,14,13,12,11,11,12,7,0],"gunslinger":[0,7,12,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,0,0],"elementalist":[0,7,12,16,18,19,20,21,22,23,30,30,30,29,23,22,21,20,19,16,12,7,0],"warlock":[0,7,12,16,20,22,24,28,29,29,30,30,30,29,29,28,25,21,20,16,12,7,0],"warder":[0,0,12,16,19,21,22,23,24,24,25,25,25,24,24,23,22,21,20,16,12,0,0],"chronomancer":[0,0,11,15,18,20,22,26,27,29,30,30,30,29,29,28,26,20,18,14,9,0,0],"summoner":[0,7,12,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,7,0],"necromancer":[0,7,8,8,11,12,13,14,14,15,15,15,15,15,14,14,13,12,11,8,7,7,0],"tamer":[0,0,12,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,0,0],"healer":[0,7,12,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,7,0],"priest":[0,0,12,16,18,19,21,22,23,24,30,30,30,29,23,22,21,20,18,16,12,0,0],"bard":[0,0,0,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,0,0],"alchemist":[0,7,12,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,7,0],"telekinetic":[0,0,12,16,20,24,26,27,28,29,30,30,30,29,28,27,26,24,20,16,12,0,0],"telepath":[0,7,12,16,20,24,25,26,27,27,28,28,28,27,27,26,26,24,20,16,12,7,0],"teleporter":[0,7,12,16,20,24,26,28,29,29,30,27,30,29,29,28,26,24,20,16,12,7,0],"seer":[0,0,12,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,0,0],"shaman":[0,7,12,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,7,0],"taoist":[0,0,12,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,0,0],"swordmonk":[0,7,12,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,0,0],"blackflame":[0,7,12,16,20,23,24,28,29,29,30,30,30,29,29,28,26,24,20,16,12,7,0],"apostle":[0,7,12,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,7,0],"machinist":[0,0,10,13,15,16,17,18,19,19,19,25,25,25,19,18,18,17,16,14,11,0,0],"gatekeeper":[0,0,12,16,20,21,23,25,29,29,30,30,30,29,29,25,23,22,20,16,12,0,0],"heir":[0,7,12,16,20,24,26,28,29,29,30,30,30,29,29,28,26,24,20,16,12,7,0]}};
-  const rimOff=(part,female,type)=>female?2:Math.max(IN_D[part.familyId]?-5:-18,(OFF_M[part.familyId]??-8)+(TYPE_ADJ[type]||0));
+  // 여자도 체형별로 옷을 맞춘다: 통통·건장은 목이 넓어 깃 위로 넓은 살색 면이 보이므로 옷을 조금 올린다
+  const TYPE_ADJ_F={thin:3,normal:2,strong:0,heavy:-5};
+  // 어깨 맞춤(사용자 요청): 머리 밑 몸의 어깨선과 옷 그림의 어깨선이 같은 높이가 되도록 옷의 위아래 위치를 정한다.
+  // SHOULDER[성별][옷]=[마름,보통,건장,통통]: 깃 뒤 테두리 높이(턱 기준). 몸 어깨선(가운데에서 90~130px)과 옷 어깨선을 재서 중앙값으로 뽑았다.
+  const SHOULDER={"m":{"swordsman":[-3,-5,-7,-27],"berserker":[17,16,17,1],"lancer":[-15,-16,-15,-30],"monk":[13,9,9,-9],"dualblade":[5,1,1,-17],"guardian":[19,16,15,-5],"paladin":[-2,-6,-4,-21],"giant":[2,1,3,-13],"assassin":[-4,-3,2,-6],"thief":[-11,-13,-13,-23],"poisoner":[-10,-13,-13,-30],"archer":[-7,-10,-10,-27],"sniper":[-8,-9,-7,-7],"gunslinger":[6,4,4,-13],"elementalist":[-1,-3,-3,-19],"warlock":[-5,-8,-7,-23],"warder":[-2,-3,1,-14],"chronomancer":[-4,-7,-7,-23],"summoner":[-12,-12,-13,-29],"necromancer":[-24,-26,-25,-25],"tamer":[-10,-11,-12,-27],"healer":[-4,-7,-7,-23],"priest":[-1,-5,-5,-23],"bard":[-4,-7,-6,-23],"alchemist":[-8,-11,-10,-26],"telekinetic":[-5,-8,-7,-24],"telepath":[-6,-10,-9,-27],"teleporter":[-11,-15,-14,-32],"seer":[-17,-10,-8,-25],"shaman":[-6,-10,-9,-27],"taoist":[-9,-12,-12,-29],"swordmonk":[-6,-10,-9,-27],"blackflame":[12,8,9,-10],"apostle":[-6,-1,1,-16],"machinist":[18,16,17,0],"gatekeeper":[2,3,5,-11],"heir":[-2,-6,-6,-23]},"f":{"swordsman":[4,-4,-6,-22],"berserker":[25,18,16,5],"lancer":[1,-5,-8,-21],"monk":[27,19,17,1],"dualblade":[14,7,4,-9],"guardian":[27,17,13,-1],"paladin":[6,-1,-3,-16],"giant":[11,3,1,-10],"assassin":[6,-4,4,8],"thief":[-21,-26,-27,-21],"poisoner":[-12,-17,-19,-31],"archer":[-2,-8,-10,-23],"sniper":[-18,-24,-24,-10],"gunslinger":[-1,-7,-9,-21],"elementalist":[-11,-14,-16,-28],"warlock":[-7,-12,-13,-24],"warder":[0,-7,-6,-10],"chronomancer":[5,0,-3,-17],"summoner":[-7,-15,-17,-25],"necromancer":[-14,-22,-23,-15],"tamer":[-2,-9,-11,-22],"healer":[0,-7,-9,-21],"priest":[9,1,-1,-14],"bard":[8,2,0,-13],"alchemist":[-3,-10,-13,-25],"telekinetic":[-1,-8,-11,-22],"telepath":[0,-8,-10,-24],"teleporter":[-4,-10,-12,-26],"seer":[3,-4,-6,-19],"shaman":[-2,-8,-10,-23],"taoist":[-3,-9,-12,-24],"swordmonk":[-3,-9,-12,-25],"blackflame":[0,-6,-8,-20],"apostle":[-3,-9,-12,-25],"machinist":[5,-3,-5,-19],"gatekeeper":[2,-5,-7,-20],"heir":[1,-6,-7,-19]}};
+  const TI={thin:0,normal:1,strong:2,heavy:3};
+  const rimOff=(part,female,type)=>{
+    const v=((SHOULDER[female?'f':'m']||{})[part.familyId]||[])[TI[type]??1];
+    if(v==null)return female?(TYPE_ADJ_F[type]??2):Math.max(IN_D[part.familyId]?-5:-18,(OFF_M[part.familyId]??-8)+(TYPE_ADJ[type]||0));
+    // 단, 앞깃 윗선이 턱보다 MIN_NECK 이상 아래에 오게 한다(깃이 높은 옷을 올리면 깃이 턱까지 올라와 목이 사라진다)
+    const pr=(IN_PROF[female?'f':'m']||{})[part.familyId],front=pr?Math.max(...pr)*.82:(IN_D[part.familyId]||(female?15:17))*.82;
+    return Math.max(-24,MIN_NECK-front,Math.min(8,v));
+  };
+  const MIN_NECK=10;
   const cache=new Map();
   const node=(doc,name,attrs)=>{const e=doc.createElementNS(ns,name);for(const[k,v]of Object.entries(attrs||{}))e.setAttribute(k,v);return e;};
+  // 승인 시안: 남성 흑염 코트는 어깨 폭 +14% 뒤 +20%, 세로 축척 .82→.94.
+  // 카드·아바타와 파츠 선택 좌표가 같은 의상 비율을 사용한다.
+  function garmentFit(part,female,type){
+    const wider=!female&&part.familyId==='blackflame';
+    return {x:({thin:.9,normal:1,strong:1.08,heavy:1.25}[type]||1)*(wider?1.368:1),y:wider?.94:.82};
+  }
   function render(avatar,seed,gender,element,rank,size,opts){
     const part=get(opts.outfit,gender);
     if(!part)return legacy[avatar?'avatar':'card'](seed,gender,element,rank,size,opts);
@@ -771,16 +790,16 @@ const HunterOutfits = (() => {
     const chin=selected.stage==='child'?(selected.layers[0].chinY|| (female?261:251)):(female?261:251);
     const pivot=(female?261:251)+24;
     const actualChin=pivot+(chin-pivot)*scale+pose;
-    const fit={thin:.9,normal:1,strong:1.08,heavy:1.25}[type]||1;
+    const fitting=garmentFit(part,female,type),fit=fitting.x,garmentY=fitting.y;
     // 남자(사용자 요청): 옷은 그대로 두고 목을 깃 안쪽까지 내린다. 목 창을 깃 안쪽 모양(넓고 얕은 U)으로 파서
     // 목 뒤쪽 옷(깃 안쪽 면)이 보이지 않고, 앞깃·폴라 윗선이 목 위로 온다. 옷 그림 기준 값: 안쪽 반폭 inW, 가운데 깊이 inD(px).
     // 목은 깃 안쪽(목 뒤 옷·안쪽 폴라 윗부분)을 채워 앞깃 윗선까지 내려온다 → 목이 옷 앞쪽에 바로 닿는다(사용자 요청).
     // IN_PROF: 옷 그림에서 찾은 앞깃 윗선(가운데에서 -44..44, 4px 간격, 옷 그림 px). 없으면 깃 안쪽 호 모양.
     const backY=actualChin+rimOff(part,female,type),prof=(IN_PROF[female?'f':'m']||{})[part.familyId];
-    const inW=(female?34:41)*fit,inD=(IN_D[part.familyId]||(female?15:17))*.82;
-    const frontY=prof?backY+Math.max(...prof)*.82:backY+inD,radius=prof?44*fit:inW,side=backY+3,depth=Math.max(3,frontY-side);
+    const inW=(female?34:41)*fit,inD=(IN_D[part.familyId]||(female?15:17))*garmentY;
+    const frontY=prof?backY+Math.max(...prof)*garmentY:backY+inD,radius=prof?44*fit:inW,side=backY+3,depth=Math.max(3,frontY-side);
     const opening=!prof?`M${200-radius} 0H${200+radius}V${frontY-depth}A${radius} ${depth} 0 0 1 ${200-radius} ${frontY-depth}Z`
-      :`M${200-radius} 0H${200+radius}`+prof.map((d,k)=>`L${(200+(44-k*4)*fit).toFixed(1)} ${(backY+prof[prof.length-1-k]*.82).toFixed(1)}`).join('')+'Z';
+      :`M${200-radius} 0H${200+radius}`+prof.map((d,k)=>`L${(200+(44-k*4)*fit).toFixed(1)} ${(backY+prof[prof.length-1-k]*garmentY).toFixed(1)}`).join('')+'Z';
     const id='ho'+FX.hash(selected.key+opts.outfit+avatar),clip=node(doc,'clipPath',{id:id+'skin'});
     const jaw=doc.querySelector('clipPath[id$="jaw"]');
     // clipPath 안에는 <g>를 둘 수 없어(브라우저가 무시) 턱 영역이 빠지고 얼굴이 좁은 기둥으로 잘렸다 → 도형마다 transform 을 붙인다
@@ -793,10 +812,11 @@ const HunterOutfits = (() => {
     const body=doc.querySelector('[data-depth="underwear"],[data-depth="neck"]');if(!body)return legacy[avatar?'avatar':'card'](seed,gender,element,rank,size,bare);
     const parent=body.parentNode,wrap=node(doc,'g',{'data-depth':'job-skin','clip-path':`url(#${id}skin)`});parent.insertBefore(wrap,body);wrap.append(body);
     const garment=depthName=>{
-      const e=node(doc,'image',{'data-depth':depthName,'data-job':part.classId,href:root+part.file+'?v=1',x:200-part.neck[0]*fit,y:backY-part.neck[1]*.82,width:400*fit,height:450*.82,preserveAspectRatio:'none'});
+      const e=node(doc,'image',{'data-depth':depthName,'data-job':part.classId,href:root+part.file+'?v=1',x:200-part.neck[0]*fit,y:backY-part.neck[1]*garmentY,width:400*fit,height:450*garmentY,preserveAspectRatio:'none'});
       e.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',root+part.file+'?v=1');return e;
     };
-    parent.insertBefore(garment('job-garment-back'),wrap);
+    // 옷 그림에 그려진 목 뒤쪽 깃(안쪽 면·폴라 뒷부분)은 지운다: 목 창 안에서는 옷 뒷면도 그리지 않아 목이 앞깃에 바로 닿는다(사용자 제안)
+    const backG=garment('job-garment-back');backG.setAttribute('mask',`url(#${id}front)`);parent.insertBefore(backG,wrap);
     const front=garment('job-garment-front');front.setAttribute('mask',`url(#${id}front)`);parent.insertBefore(front,wrap.nextSibling);
     if(jaw){const protect=node(doc,'g',{'data-depth':'job-jaw-front','clip-path':`url(#${id}jaw)`});
       const jawClip=node(doc,'clipPath',{id:id+'jaw'});for(const c of jaw.children)jawClip.append(shift(c));defs.append(jawClip);
@@ -812,8 +832,8 @@ const HunterOutfits = (() => {
     const part=get(opts.outfit,g);if(!part)return legacy.select(seed,g,opts);
     const s=legacy.select(seed,g,{...opts,outfit:'underwear'}),female=g==='F',young=s.stage==='child';
     const chin=young?s.layers[0].chinY:(female?261:251),pivot=(female?261:251)+24,scale=young?1:PortraitParts.HEAD_SCALE[g][s.bodyType],pose=young&&!female?8:0;
-    const fit={thin:.9,normal:1,strong:1.08,heavy:1.25}[s.bodyType],back=pivot+(chin-pivot)*scale+pose+rimOff(part,female,s.bodyType);
-    s.layers[1]={...part,file:'../outfits/'+part.file,rect:[200-part.neck[0]*fit,back-part.neck[1]*.82,400*fit,450*.82]};
+    const fitting=garmentFit(part,female,s.bodyType),fit=fitting.x,back=pivot+(chin-pivot)*scale+pose+rimOff(part,female,s.bodyType);
+    s.layers[1]={...part,file:'../outfits/'+part.file,rect:[200-part.neck[0]*fit,back-part.neck[1]*fitting.y,400*fit,450*fitting.y]};
     s.outfit=opts.outfit;s.key+='-'+opts.outfit;return s;
   };
   const oldProfession=Wardrobe.profession,oldPlayer=Wardrobe.playerLook,oldPrologue=Wardrobe.prologueLook;

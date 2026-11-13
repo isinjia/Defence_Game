@@ -16,6 +16,8 @@ const fs = require('fs');
       page.on('pageerror', (e) => errors.push(e.message));
       try {
         await page.goto('file://' + path.resolve(__dirname, '../index.html'));
+      if (await page.locator('[data-opening="skip"]').count()) await page.locator('[data-opening="skip"]').click();
+      await page.waitForFunction(() => !window.GateBoot || GateBoot.ready);
         await page.evaluate(() => ExploreCinema.show('pack', true));
         await page.locator('.ec-next').click();
         if (await page.evaluate(() => ExploreCinema.active.step) !== 1) throw new Error('다음 장면 이동 실패');

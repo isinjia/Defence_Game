@@ -2,7 +2,7 @@
 const WorldOpening = (() => {
   const shots = [
     {
-      "image": "assets/backgrounds/opening-omen.svg",
+      "image": "assets/backgrounds/opening-omen.webp",
       "focus": "50% center",
       "duration": 4200,
       "lines": [
@@ -69,7 +69,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/backgrounds/opening-ether.svg",
+      "image": "assets/backgrounds/opening-ether.webp",
       "focus": "50% center",
       "duration": 4200,
       "lines": [
@@ -102,7 +102,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/backgrounds/opening-hunters.svg",
+      "image": "assets/backgrounds/opening-hunters.webp",
       "focus": "50% center",
       "duration": 5800,
       "lines": [
@@ -113,7 +113,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/backgrounds/opening-quarantine.svg",
+      "image": "assets/backgrounds/opening-quarantine.webp",
       "focus": "50% center",
       "duration": 8000,
       "lines": [
@@ -150,6 +150,7 @@ const WorldOpening = (() => {
   const finish = () => {
     if (!root) return;
     stop(); root.remove(); root = null;
+    document.dispatchEvent(new Event('gate-opening-finished'));
     document.removeEventListener('keydown', keydown, true);
     document.removeEventListener('visibilitychange', visibility);
     const target = returnFocus && returnFocus !== document.body && returnFocus.isConnected ? returnFocus : document.querySelector('.title-screen [data-act="new"]');
@@ -182,13 +183,14 @@ const WorldOpening = (() => {
       incoming.style.setProperty('--shot-focus', shot.focus || '61% center');
       // 비활성 레이어의 그림을 교체한 뒤 두 레이어를 교차 전환한다.
       layers[1 - layerIndex].classList.remove('is-active');
-      void incoming.offsetWidth;
+      if (shotIndex >= 0) void incoming.offsetWidth;
       incoming.classList.add('is-active', 'has-shot');
       incoming.style.setProperty('--shot-duration', shot.duration + 1600 + 'ms');
       incoming.style.setProperty('--pan', at.i % 2 ? '-1.5%' : '1.5%');
       layerIndex = 1 - layerIndex;
       root.dataset.shot = String(at.i);
       shotIndex = at.i; lineIndex = -1;
+      document.dispatchEvent(new CustomEvent('gate-opening-scene', { detail: at.i }));
       if (shots[at.i + 1]) { const nextImage = new Image(); nextImage.src = shots[at.i + 1].image; }
     }
     let nextLine = -1;
@@ -240,13 +242,13 @@ const WorldOpening = (() => {
     }
   };
   const start = () => {
-    if (root || UI.screen !== 'title') return;
+    if (root || (typeof UI !== 'undefined' && UI.screen !== 'title')) return;
     returnFocus = document.activeElement;
     elapsed = 0; shotIndex = -1; lineIndex = -1; layerIndex = 0; finishing = false;
     manual = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     root = document.createElement('section'); root.className = 'world-opening';
     root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', '게임 오프닝'); root.tabIndex = -1;
-    root.innerHTML = `<div class="opening-picture" aria-hidden="true"><img class="opening-art" alt=""><img class="opening-art" alt=""></div>
+    root.innerHTML = `<div class="opening-picture" aria-hidden="true"><img class="opening-art" alt="" decoding="async"><img class="opening-art" alt="" decoding="async"></div>
       <div class="opening-atmosphere" aria-hidden="true">${Array.from({ length: 12 }, (_, i) => `<i style="--x:${(i * 23 + 7) % 100}%;--delay:-${i * 1.7}s;--drift:${i % 2 ? 34 : -28}px"></i>`).join('')}</div>
       <div class="opening-vignette" aria-hidden="true"></div>
       <div class="opening-letterbox opening-letterbox-top" aria-hidden="true"></div><div class="opening-letterbox opening-letterbox-bottom" aria-hidden="true"></div>
@@ -259,9 +261,14 @@ const WorldOpening = (() => {
     root.addEventListener('click', (event) => { if (event.target.closest('[data-opening="skip"]')) finish(); else advance(); });
     document.body.appendChild(root);
     document.addEventListener('keydown', keydown, true); document.addEventListener('visibilitychange', visibility);
-    root.focus(); lastTime = performance.now();
+    lastTime = performance.now();
     if (manual) elapsed = shots[0].lines[0][0];
-    paint(); raf = requestAnimationFrame((now) => { if (!root) return; root.classList.add('is-playing'); tick(now); });
+    paint(); raf = requestAnimationFrame((now) => {
+      if (!root) return;
+      root.classList.add('is-playing'); tick(now);
+      // 첫 장면을 그린 다음 초점을 옮겨 초기 DOM 쓰기와 강제 레이아웃을 분리한다.
+      requestAnimationFrame(() => { if (root) root.focus({ preventScroll: true }); });
+    });
   };
   const addReplay = () => {
     const buttons = document.querySelector('.title-screen .btns');
@@ -269,10 +276,15 @@ const WorldOpening = (() => {
     const button = document.createElement('button'); button.type = 'button'; button.className = 'ghost';
     button.dataset.act = 'world-opening'; button.textContent = '오프닝 다시 보기'; buttons.appendChild(button);
   };
-  const baseTitle = UI.renderTitle;
-  UI.renderTitle = function (...args) { const result = baseTitle.apply(this, args); addReplay(); return result; };
-  const baseHandle = UI.handle;
-  UI.handle = function (action, ...args) { if (action === 'world-opening') return start(); return baseHandle.call(this, action, ...args); };
-  addReplay(); start();
+  const connectGame = () => {
+    const baseTitle = UI.renderTitle;
+    UI.renderTitle = function (...args) { const result = baseTitle.apply(this, args); addReplay(); return result; };
+    const baseHandle = UI.handle;
+    UI.handle = function (action, ...args) { if (action === 'world-opening') return start(); return baseHandle.call(this, action, ...args); };
+    addReplay();
+  };
+  if (typeof UI !== 'undefined') connectGame();
+  else document.addEventListener('gate-game-ready', connectGame, { once: true });
+  start();
   return { start, finish, get active() { return !!root; } };
 })();

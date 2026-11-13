@@ -5,13 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>게이트 크로니클</title>
   <meta name="description" content="귀곡팔황식 자유 성장 구조의 한국 SF 헌터 RPG">
+  <link rel="icon" href="data:,">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/gate-display.woff2" crossorigin>
+  <style>@font-face{font-family:GateDisplay;src:url("assets/fonts/gate-display.woff2") format("woff2");font-weight:400;font-display:swap}.title-screen .logo,.title-screen .logo-sub{font-family:GateDisplay,"Black Han Sans",sans-serif}</style>
   <meta name="theme-color" content="#05080d">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="dist/style.css?v=s2.0.93">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="image" href="assets/backgrounds/opening-omen.webp" fetchpriority="high">
+  <link id="game-fonts" data-href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="dist/boot.css?v=s2.0.99">
 </head>
 <body>
-  <div id="app"></div>
+  <div id="app"><div class="title-screen"><img class="title-art" data-src="assets/backgrounds/title-gate.webp" alt="" aria-hidden="true" decoding="async"><div class="title-inner">
+    <div class="logo-en">GATE CHRONICLE</div><h1 class="logo">게이트 크로니클</h1>
+    <div class="logo-sub">각성 연대기</div>
+    <p class="sub">2087년, 대붕괴로부터 20년.<br>한반도 곳곳에 열린 게이트, 그리고 각성자들.</p>
+    <div class="btns"><button class="primary big" data-act="new">새로운 각성</button><button class="ghost" data-act="help">게임 안내</button></div>
+  </div></div></div>
   <div id="modal" class="modal hidden"><div id="modal-box" class="modal-box"></div></div>
   <div id="toast" class="toast hidden" role="status"></div>
   <script>
@@ -26,6 +36,6 @@
       document.body.appendChild(d);
     });
   </script>
-  <script src="dist/game.js?v=s2.0.93"></script>
+  <script defer src="dist/boot.js?v=s2.0.99" data-game="dist/game.js?v=s2.0.99" data-style="dist/style.css?v=s2.0.99"></script>
 </body>
 </html>

@@ -28,6 +28,8 @@ const partial = process.argv.includes('--partial');
       const errors = []; page.on('pageerror', (e) => errors.push(e.message));
       await page.addInitScript(() => { window.TUT_AUTO_TAP = true; });
       await page.goto('file://' + path.join(root, 'index.html'));
+      if (await page.locator('[data-opening="skip"]').count()) await page.locator('[data-opening="skip"]').click();
+      await page.waitForFunction(() => !window.GateBoot || GateBoot.ready);
       await page.evaluate((partial) => {
         UI.handle('new'); UI.handle('mode-manual'); UI.create.name = '원화검사'; UI.handle('c-start');
         for (let i = 0; i < 10; i++) UI.closeModal();

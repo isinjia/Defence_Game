@@ -1,0 +1,48 @@
+/* 사용자 승인 1안: 국가 각성자 관리국의 종이 등록 신청서 */
+.modal-box.st-modal.registration-modal{padding:0;max-width:660px;border:1px solid #76847c;clip-path:none;background:#efece2;max-height:calc(100dvh - 20px);border-radius:2px;box-shadow:0 20px 80px #0009;color:#26352f}
+.registration{font-family:inherit;color:#26352f;line-height:1.55;--ac:#2c5b4a;--line:#c9cbbc;--dim:#59665e;--amber:#765024}
+.registration .reg-paper{padding:22px 20px 18px;background:#f4f1e7}
+.reg-agency{display:flex;justify-content:space-between;gap:8px;align-items:center;padding-bottom:10px;border-bottom:2px solid #344d40;font-size:12px;font-weight:700;letter-spacing:.03em}
+.reg-agency>span{font-size:10px;font-weight:400;color:#5b685d;letter-spacing:0}
+.reg-heading{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:18px}
+.reg-kicker{font-size:10px;color:#59665e;letter-spacing:.08em;margin-bottom:5px}
+.registration h2{word-break:keep-all;font-size:25px;letter-spacing:-1.2px;line-height:1.3;color:#263b30;margin:0;font-weight:800}
+.reg-stamp{flex:none;border:1px solid #718577;color:#4f6c59;text-align:center;font-size:10px;line-height:1.55;padding:6px 9px;transform:rotate(-5deg)}
+.reg-stamp b{font-size:12px;font-weight:700}
+.reg-intro{font-size:11px;color:#59665e;margin:10px 0 18px}
+.reg-section{margin:0 0 19px}
+.registration h3{display:flex;align-items:center;gap:7px;margin:0 0 9px;border-bottom:1px solid #6b7e6c;padding:0 0 6px;font-size:13px;font-weight:700;color:#304937}
+.reg-section h3>span{font-size:10px;font-weight:500;letter-spacing:.1em;color:#61765f}
+.registration dl{margin:0;min-width:0}
+.reg-applicant{display:grid;grid-template-columns:minmax(0,1fr) 94px;gap:13px;align-items:start}
+.reg-field{display:grid;grid-template-columns:64px minmax(0,1fr);gap:4px;min-height:31px;align-items:center;border-bottom:1px solid #d7d8cb;padding:4px 0;font-size:12px}
+.reg-field dt{font-size:10px;color:#59665e}
+.reg-field dd{margin:0;overflow-wrap:anywhere}
+.reg-field dd strong{font-size:14px;font-weight:700;color:#263b30}
+.reg-photo{margin:0;position:relative;border:1px solid #9da896;background:#dce1d7;overflow:hidden;height:128px}
+.reg-photo>svg,.reg-photo>.portrait-img{width:100%!important;height:auto!important;max-width:none;display:block;transform:scale(1.04);transform-origin:50% 40%}
+.reg-photo figcaption{position:absolute;bottom:0;left:0;right:0;text-align:center;background:#ebece3ed;color:#5b685d;font-size:9px;line-height:20px;border-top:1px solid #bbc4b4}
+.reg-awakening .reg-field{grid-template-columns:70px minmax(0,1fr)}
+.reg-awakening dd>span{display:block;font-size:11px;color:#59665e;margin-top:2px}
+.reg-awakening dd>.reg-pending{color:#46634d;font-weight:600;font-size:12px;margin:0}
+.reg-class-desc{font-size:12px;margin:9px 0 5px;color:#425344}
+.reg-advance{font-size:10px;color:#59665e;margin:0}
+.registration .st-sks{gap:6px}
+.registration .st-sk{border:1px solid #c1cabb;background:#e9ecdf;color:#263b30;border-radius:2px;min-height:44px;padding:8px}
+.registration .st-sk .tag{color:#475c46;background:#dce3d4;border-color:#bdcbb5;font-size:10px}
+.registration .st-sk .small.dim{color:#59665e;font-size:10px}
+.registration .st-sk b{font-size:12px}
+.registration .st-more{color:#61765f}
+.reg-hint{font-size:10px;color:#59665e;margin:6px 0 0}
+.reg-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid #c9cbbc;border-left:1px solid #c9cbbc}
+.reg-stats>div{display:flex;align-items:center;justify-content:space-between;gap:6px;border-right:1px solid #c9cbbc;border-bottom:1px solid #c9cbbc;padding:8px}
+.reg-stats span{font-size:10px;color:#59665e}
+.reg-stats b{font-size:15px;color:#263b30;font-variant-numeric:tabular-nums}
+.reg-traits>div{border-bottom:1px solid #d7d8cb;padding:5px 0}
+.reg-traits b{font-size:12px}.reg-traits p{font-size:11px;color:#59665e;margin:2px 0 4px}
+.registration .st-inv{padding:9px;border:1px solid #c9cbbc;background:#eeeee3}.registration .st-inv .small{font-size:11px;color:#344d40}.registration .st-inv .dim{color:#59665e}
+.reg-sign{border-top:1px solid #a8b29f;margin-top:22px;padding-top:12px;font-size:11px;color:#59665e}
+.reg-sign p{margin:0 0 14px}.reg-sign>div{display:flex;align-items:baseline;justify-content:flex-end;gap:12px}.reg-sign b{font-size:17px;color:#344d40;border-bottom:1px solid #8b9985;min-width:84px;text-align:center;padding:0 6px 3px}.reg-sign small{font-size:10px}
+.registration .reg-action{padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid #c0c8b6;background:#e9e9dc;margin:0}
+.registration .reg-action button{background:#294f40;color:#faf7ed;border:1px solid #294f40;min-height:48px;border-radius:2px;box-shadow:none;font-size:14px;display:flex;justify-content:space-between;padding:10px 14px;clip-path:none;letter-spacing:0}
+@media(max-width:350px){.registration .reg-paper{padding:17px 14px}.registration h2{font-size:20px}.reg-stamp{padding:5px 7px}.reg-applicant{grid-template-columns:minmax(0,1fr) 82px;gap:9px}.reg-photo{height:123px}.reg-field{grid-template-columns:56px minmax(0,1fr);font-size:11px}.reg-field dd strong{font-size:13px}}
