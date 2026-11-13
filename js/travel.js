@@ -10,9 +10,9 @@ const BASE_DAYS_PER_COST = WORLD.DAYS_PER_COST;
 WORLD.daysFor = (cost) => Math.max(1, Math.round(cost * WORLD.DAYS_PER_COST));
 
 const VEHICLES = [
-  { id: 'bike', name: '오토바이', price: 250, desc: '한 달 동안 이동력 +11.', range: 11 },
-  { id: 'truck', name: '장갑차', price: 1200, desc: '한 달 동안 이동에 드는 날이 절반, 괴수 기습을 받지 않는다. 이동력 +7.', range: 7 },
-  { id: 'heli', name: '헬기 대절', price: 4000, desc: '다음 한 번의 이동만. 이동력 +40, 산도 평지처럼 건넌다. 길 위의 일도 피한다.', range: 40, once: true },
+  { id: 'bike', name: '오토바이', price: 250, desc: '한 달 동안 도보보다 3배 빠르게 이동. 이동력 +11.', range: 11 },
+  { id: 'truck', name: '장갑차', price: 1200, desc: '한 달 동안 이동 시간이 절반, 괴수 기습을 받지 않는다. 이동력 +7.', range: 7 },
+  { id: 'heli', name: '헬기 대절', price: 4000, desc: '다음 한 번의 이동만 도보보다 10배 빠르게. 이동력 +40, 산도 평지처럼 건넌다. 길 위의 일도 피한다.', range: 40, once: true },
 ];
 const vehicleById = (id) => VEHICLES.find((v) => v.id === id);
 

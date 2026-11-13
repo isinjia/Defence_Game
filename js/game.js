@@ -346,6 +346,7 @@ class Game {
   moveAlong(path, cost) {
     if (!this.canAct() || !path || path.length < 2) return 0;
     const p = this.player;
+    const duration = this.travelPathDays(path.slice(1));
     for (const i of path) { const [x, y] = WORLD.xy(i); this.reveal(x, y, 3); }
     [p.x, p.y] = WORLD.xy(path[path.length - 1]);
     const reg = WORLD.regionAt(p.x, p.y);
@@ -356,8 +357,7 @@ class Game {
     const city = this.onCity();
     if (city) { this.reveal(p.x, p.y, 5); this.visitCity(city.id); this.questEvent('arrive', { region: city.id }); }
     this.syncParty();
-    const days = WORLD.daysFor(cost);
-    this.advanceDays(days, { eventChance: 0.3 });
+    const days = this.advanceTravel(duration, { eventChance: 0.3 });
     return days;
   }
   advanceDays(n, opts = {}) {
@@ -373,7 +373,7 @@ class Game {
   walkStep(x, y, diag) {
     const p = this.player;
     const t = WORLD.type(x, y);
-    // 칸마다 걸린 시간을 소수로 모았다가 하루가 차면 날짜가 넘어간다 (국도 0.5일, 평지 1일, 산 2일, 대각선 1.4배)
+    // 칸마다 걸린 시간을 소수로 모았다가 하루가 차면 날짜가 넘어간다 (기본 국도 7.5분, 평지 15분, 산 30분, 대각선 1.4배)
     p.dayFrac = (p.dayFrac || 0) + WORLD.stepCostAt(x, y) * (diag ? 1.4 : 1) * WORLD.DAYS_PER_COST;
     const days = Math.floor(p.dayFrac + 1e-9); p.dayFrac -= days;
     p.x = x; p.y = y;

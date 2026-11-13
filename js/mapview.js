@@ -197,8 +197,9 @@ class MapView {
         path.forEach((i, k) => { const [x, y] = WORLD.xy(i); const [px, py] = this.toScreen(x + 0.5, y + 0.5); k ? c.lineTo(px, py) : c.moveTo(px, py); });
         c.stroke(); c.setLineDash([]);
         const [hx, hy] = WORLD.xy(this.hover); const [px, py] = this.toScreen(hx, hy);
-        const days = WORLD.daysFor(rd.dist.get(this.hover));
-        this.chip(px + s / 2, py - 6, `${days}일`, '#ffb547', '#1a1205');
+        const duration = G.travelPathDays(WORLD.pathTo(rd, this.hover).slice(1));
+        const days = WORLD.formatTravelTime(duration);
+        this.chip(px + s / 2, py - 6, `${days}`, '#ffb547', '#1a1205');
       }
     }
     // 남은 경로

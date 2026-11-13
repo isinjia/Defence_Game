@@ -6,11 +6,11 @@
 // 저장: G.player.ownVehicle(E와 같은 필드), G.player.driveLicense (p.license 는 헌터 등록번호라 따로)
 
 const OWN_VEH_FX = {
-  bicycle: { range: 2, desc: '이동력 +2.' },
-  usedbike: { range: 5, desc: '이동력 +5.' },
-  car: { range: 3, road: 0.5, desc: '이동력 +3, 국도 위 이동 날 절반. 운전면허 필요.' },
-  suv: { range: 4, road: 0.5, mountain: 0.67, noAmbush: true, desc: '이동력 +4, 국도 날 절반, 산길 비용 감소, 괴수 기습 무시. C급 이상 장비 허가.' },
-  heli: { range: 14, fly: true, noAmbush: true, desc: '이동력 +14, 산도 평지처럼 넘고 괴수 기습을 받지 않는다. A급 이상 비행 허가.' },
+  bicycle: { range: 2, desc: '도보보다 1.5배 빠른 이동. 이동력 +2.' },
+  usedbike: { range: 5, desc: '도보보다 3배 빠른 이동. 이동력 +5.' },
+  car: { range: 3, road: 0.5, desc: '이동력 +3, 이동 시간 절반, 국도 위에서는 추가 절반. 운전면허 필요.' },
+  suv: { range: 4, road: 0.5, mountain: 0.67, noAmbush: true, desc: '이동력 +4, 이동 시간 절반, 국도 위에서는 추가 절반, 산길 비용 감소, 괴수 기습 무시. C급 이상 장비 허가.' },
+  heli: { range: 14, fly: true, noAmbush: true, desc: '이동력 +14, 도보보다 10배 빠르게 이동, 산도 평지처럼 넘고 괴수 기습을 받지 않는다. A급 이상 비행 허가.' },
 };
 const ownVehFx = (id) => {
   const V = typeof ownVehicleById === 'function' ? ownVehicleById(id) : null;
