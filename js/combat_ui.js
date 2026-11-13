@@ -212,6 +212,38 @@
     return r;
   };
 
+  // 적: 비는 양쪽 칸을 접어 좌우로 모아 누르기 쉽게 (자리 배정·상대 간격은 유지)
+  const baseRefreshFoes = UI.refreshUnits;
+  UI.refreshUnits = function (...a) {
+    let r;
+    try { r = baseRefreshFoes.apply(this, a); } catch (e) { /* 기본 갱신 실패해도 모으기는 시도 */ }
+    try {
+      const box = document.getElementById('modal-box');
+      const fz = document.getElementById('foes');
+      const cb = this.ctx && this.ctx.combat;
+      if (!box || !box.classList.contains('cu-v2') || !fz || !cb) return r;
+      fz.classList.add('foe-grid');
+      const vis = [];
+      for (const u of cb.units) {
+        if (u.side !== 'enemy' || !u.slot) continue;
+        const el = document.getElementById('u-' + u.id);
+        if (!el || el.classList.contains('slot-freed')) continue;
+        vis.push({ u, el, s: u.slot });
+      }
+      if (!vis.length) return r;
+      const minC = Math.min(...vis.map((x) => x.s.c));
+      const maxC = Math.max(...vis.map((x) => x.s.c + x.s.w));
+      const cols = Math.max(2, maxC - minC);
+      fz.style.gridTemplateColumns = `repeat(${cols}, minmax(48px, 54px))`;
+      fz.classList.add('cu-foe-pack');
+      for (const x of vis) {
+        const col = `${x.s.c - minC + 1} / span ${x.s.w}`;
+        if (x.el.style.gridColumn !== col) x.el.style.gridColumn = col;
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+
   // 파티 시너지(정석/균형): 제목 옆 → 아군 영역 좌측 위
   const basePb = UI.drawPartyBonus;
   if (basePb) UI.drawPartyBonus = function (...a) {

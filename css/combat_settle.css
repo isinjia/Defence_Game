@@ -1,5 +1,30 @@
-/* 전투 결산: 획득 → MVP → 파티 피해/치유/피격 */
-.settle-pop.combat .settle-box { width: min(460px, 100%); max-height: min(88dvh, 640px); }
+/* 전투 결산: 획득 → MVP → 파티 피해/치유/피격 · 확인은 스크롤 밖 하단 고정 */
+.settle-pop.combat .settle-box {
+  width: min(460px, 100%);
+  max-height: min(88dvh, 640px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+.settle-pop.combat .settle-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 4px;
+}
+.settle-pop.combat .settle-box > .row.end {
+  position: sticky !important;
+  bottom: 0;
+  z-index: 3;
+  flex: none;
+  margin: 0 -14px 0 !important;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  border-top: 1px solid #2a3648 !important;
+  background: linear-gradient(180deg, #141a24ee, #10161f) !important;
+  box-shadow: 0 -8px 16px #0006;
+}
 .settle-pop.combat .settle-rows.cs-loot,
 .settle-pop.combat .settle-rows { display: grid; gap: 0; margin: 0 0 10px; padding: 10px; background: linear-gradient(160deg, #142418, #10161f 60%); border: 1px solid #6bdc8b55; border-radius: 4px; }
 .cs-loot-h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; font-size: 12px; font-weight: 700; letter-spacing: .04em; color: #cfe9d6; }
@@ -24,12 +49,20 @@
 .cs-row { display: grid; gap: 6px; padding: 8px; background: #0d131c; border: 1px solid #243146; border-radius: 4px; }
 .cs-row.is-mvp { border-color: #ffb54788; background: #17140e; }
 .cs-row.down { opacity: .72; }
-.cs-who { display: grid; grid-template-columns: 40px 1fr; gap: 8px; align-items: center; }
-.cs-face { position: relative; width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #0a0f16; border: 1px solid #3a4a62; line-height: 0; }
+.cs-who { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; }
+.cs-face-wrap { position: relative; width: 40px; height: 40px; overflow: visible; }
+.cs-face { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #0a0f16; border: 1px solid #3a4a62; line-height: 0; }
 .cs-face > svg, .cs-face > img { width: 40px !important; height: 40px !important; display: block; object-fit: cover; }
-.cs-badge, .cs-ord { position: absolute; left: -2px; bottom: -2px; min-width: 18px; height: 16px; padding: 0 4px; border-radius: 3px; font-size: 9px; font-weight: 800; font-style: normal; display: grid; place-items: center; }
-.cs-badge { background: var(--amber, #ffb547); color: #1a1205; }
-.cs-ord { background: #243146; color: #9fb0c4; }
+/* 순위·MVP 배지: 원 밖(왼쪽 아래)에 걸쳐 보이게 */
+.cs-badge, .cs-ord {
+  position: absolute; left: -8px; bottom: -6px; z-index: 2;
+  min-width: 22px; height: 18px; padding: 0 5px; border-radius: 4px;
+  font-size: 10px; font-weight: 800; font-style: normal; letter-spacing: .02em;
+  display: grid; place-items: center; line-height: 1;
+  border: 1px solid #0006; box-shadow: 0 1px 3px #000a;
+}
+.cs-badge { background: var(--amber, #ffb547); color: #1a1205; border-color: #ffd27a; }
+.cs-ord { background: #e8eef6; color: #121820; border-color: #fff; }
 .cs-name { min-width: 0; display: grid; gap: 1px; }
 .cs-name b { font-size: 14px; color: #e8eef6; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .cs-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }

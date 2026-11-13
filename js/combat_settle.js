@@ -56,7 +56,7 @@
       const down = !(u.hp > 0);
       return `<div class="cs-row ${isMvp ? 'is-mvp' : ''} ${down ? 'down' : ''}">
         <div class="cs-who">
-          <div class="cs-face">${faceOf(u, 40)}${isMvp ? '<em class="cs-badge">MVP</em>' : `<em class="cs-ord">${i + 1}</em>`}</div>
+          <div class="cs-face-wrap">${isMvp ? '<em class="cs-badge">MVP</em>' : `<em class="cs-ord">${i + 1}</em>`}<div class="cs-face">${faceOf(u, 40)}</div></div>
           <div class="cs-name"><b>${nameOf(u)}</b><span class="small dim">${down ? '전투 불능' : `잔여 ${Math.round(u.hp)}`}${s.kills ? ` · 처치 ${s.kills}` : ''}</span></div>
         </div>
         <div class="cs-cols">
@@ -161,6 +161,18 @@
       // settle_pop이 감싸 둔 빈 껍데기 div 정리
       for (const el of [...box.children]) {
         if (el.tagName === 'DIV' && !el.className && !el.children.length) el.remove();
+      }
+      // 확인 버튼은 스크롤 밖 하단에 고정
+      if (btns && !box.querySelector(':scope > .settle-scroll')) {
+        const scroll = document.createElement('div');
+        scroll.className = 'settle-scroll';
+        for (const el of [...box.children]) {
+          if (el === btns || el.classList.contains('settle-scroll')) continue;
+          scroll.appendChild(el);
+        }
+        box.insertBefore(scroll, btns);
+      } else if (btns) {
+        box.appendChild(btns);
       }
     } catch (e) { /* 무시 */ }
     return r;

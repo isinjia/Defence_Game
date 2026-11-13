@@ -52,6 +52,19 @@
 #modal-box.cu-v2.combat-box.fit #foes {
   border-bottom: 1px solid #2a3a5288; padding-bottom: 6px;
 }
+/* 적 좌우 모아 배치: 쓰는 칸만 두고 가운데 정렬 */
+#modal-box.cu-v2.combat-box.fit #foes.foe-grid.cu-foe-pack {
+  width: max-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  justify-content: center;
+  justify-items: center;
+  column-gap: 2px;
+}
+#modal-box.cu-v2.combat-box.fit #foes.foe-grid.cu-foe-pack .foe.foe-card {
+  min-width: 52px;
+}
 
 /* 원형 글자 배지·무리형(무)·적 타겟 조준·의도 타겟 얼굴·아군 위협(!) 숨김 */
 #modal-box.cu-v2 .elem-badge,
