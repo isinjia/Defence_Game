@@ -821,6 +821,44 @@ const { chromium, devices } = require('playwright');
     if (!ok) throw new Error('방어구·테마·제작 검사 실패');
     await closeAll();
   });
+  await step('제작·장비 의뢰·장인 부탁', async () => {
+    const ok = await ev(() => {
+      if (typeof G.makeCraftBounty !== 'function') throw new Error('makeCraftBounty 없음');
+      if (!REQUESTS.need_parts || !REQUESTS.want_theme || !REQUESTS.smith_intro) throw new Error('제작 NPC 부탁 없음');
+      if (!STORY.some((e) => e.id === 'craft_rush_order' || e.id === 'craft_fake_set')) throw new Error('제작 사건 없음');
+      const b = G.makeCraftBounty('suwon', 'test-craft-1');
+      if (!G.isCraftBoard(b.type) || !b.title) throw new Error('제작 의뢰 생성 실패');
+      // 장인 부탁 수락 → 전달
+      G.craftInit();
+      const crafters = G.cityCrafters('suwon');
+      if (!crafters.length) throw new Error('수원 장인 없음');
+      const c = crafters[0];
+      const msg = G.acceptCraftRequest({ type: 'craft_req', kind: 'craft_parts', crafterId: c.id, region: 'suwon' });
+      if (!/부탁을 수락/.test(msg)) throw new Error('장인 부탁 수락 실패: ' + msg);
+      const q = G.player.quests.find((x) => x.kind === 'craft');
+      if (!q || q.type !== 'craft_parts') throw new Error('장인 퀘스트 미등록');
+      G.player.parts = G.player.parts || {};
+      G.player.parts[`${q.part}:${q.tier}`] = q.n;
+      G.player.region = 'suwon';
+      const [cx, cy] = WORLD.cityPos.suwon; G.player.x = cx; G.player.y = cy;
+      const done = G.finishCraftQuest(q.id);
+      if (!/만족|크레딧/.test(done)) throw new Error('장인 부탁 완료 실패: ' + done);
+      if (G.player.quests.some((x) => x.id === q.id)) throw new Error('완료 퀘스트가 남음');
+      // 테마 납품형 협회 의뢰
+      const themeQ = G.makeCraftBounty('suwon', 'test-theme');
+      themeQ.type = 'theme'; themeQ.theme = 'city_guard'; themeQ.n = 1; themeQ.craft = true;
+      themeQ.kind = 'bounty'; themeQ.status = 'turnin'; themeQ.from = 'suwon';
+      themeQ.money = 100; themeQ.merit = 5; themeQ.repGain = 3;
+      G.player.quests.push(themeQ);
+      const piece = G.makeThemePiece('city_guard', 0, G.player.rankIdx, 1);
+      G.player.inventory.push(piece);
+      const claim = G.claimBounty(themeQ.id);
+      if (!/의뢰 완료/.test(claim)) throw new Error('테마 의뢰 보고 실패: ' + claim);
+      return true;
+    });
+    if (!ok) throw new Error('제작 퀘스트 검사 실패');
+    await closeAll();
+  });
   await step('아이템 칩·상세 팝업 (얻은 물건 탭)', async () => {
     const ok = await ev(() => {
       if (typeof UI.itemInfoHtml !== 'function' || typeof UI.showItemInfo !== 'function') throw new Error('item_pop 없음');
