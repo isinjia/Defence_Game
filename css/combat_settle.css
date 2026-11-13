@@ -3,9 +3,12 @@
 .settle-pop.combat .settle-rows.cs-loot,
 .settle-pop.combat .settle-rows { display: grid; gap: 0; margin: 0 0 10px; padding: 10px; background: linear-gradient(160deg, #142418, #10161f 60%); border: 1px solid #6bdc8b55; border-radius: 4px; }
 .cs-loot-h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; font-size: 12px; font-weight: 700; letter-spacing: .04em; color: #cfe9d6; }
+.cs-loot-h .dim { font-weight: 400; font-size: 11px; color: #8aa896; }
 .settle-pop.combat .settle-rows .sr { border-bottom-color: #2a4033; padding: 7px 2px; }
 .settle-pop.combat .settle-rows .sr b { font-size: 16px; }
 .settle-pop.combat .settle-rows .sr-line { color: #ffe2a8; border-bottom-color: #2a4033; }
+.settle-pop.combat .cs-loot-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0 4px; border-bottom: 1px dashed #2a4033; }
+.settle-pop.combat .cs-loot-chips .ss-item { min-height: 34px; }
 .combat-settle { display: grid; gap: 10px; margin: 0 0 8px; }
 .cs-mvp { display: grid; grid-template-columns: 64px 1fr; gap: 10px; align-items: center; padding: 10px; background: linear-gradient(135deg, #2a2110, #121820); border: 1px solid #ffb54766; border-radius: 4px; }
 .cs-mvp.empty { display: block; background: #10161f; border-color: #2a3648; }

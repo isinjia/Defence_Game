@@ -70,6 +70,53 @@
     return `<div class="combat-settle" data-result="${cb.result}">${mvpHead}<div class="cs-head"><span>파티 결산</span><span class="dim">${list.length}명</span></div><div class="cs-list">${rows}</div></div>`;
   };
 
+  const takeQty = (s) => {
+    const m = /^(.*?)\s*(?:×\s*|\s)?(\d+)\s*개?$/.exec(String(s || '').trim());
+    return m ? { name: m[1].trim(), n: +m[2] } : { name: String(s || '').trim(), n: 1 };
+  };
+  const classifyLootName = (name) => {
+    const n = String(name || '').trim();
+    if (!n) return null;
+    if (/코어/.test(n)) return '괴수 코어';
+    if (/유물/.test(n)) return '유물 발견';
+    if (/각성 촉매/.test(n)) return '전리품';
+    if (/갑옷|투구|장갑|장화|망토|방패|검|도|창|활|총|지팡이|단검|장신구|반지|목걸이|장비/.test(n)) return '장비 획득';
+    return '전리품';
+  };
+  const parseLootLine = (text) => {
+    const t = String(text || '').replace(/\s+/g, ' ').trim();
+    if (!t || /건진 코어가 없다|쓰러지면|게이트 누적/.test(t)) return [];
+    const headed = /^(괴수 코어|부산물|유물 발견|보스 드롭|장비 획득|전리품)\s*:\s*(.+)$/.exec(t);
+    if (headed) {
+      const kind = headed[1];
+      return headed[2].split(/,\s*/).map((part) => {
+        const q = takeQty(part); if (!q.name) return null;
+        let name = q.name;
+        if (kind === '괴수 코어' && !/코어$/.test(name) && /급$/.test(name)) name += ' 코어';
+        return { kind, name, n: q.n };
+      }).filter(Boolean);
+    }
+    const q = takeQty(t); if (!q.name) return [];
+    return [{ kind: classifyLootName(q.name), name: q.name, n: q.n }];
+  };
+  const chipOf = (it) => (UI.itemChip
+    ? UI.itemChip(it.kind, it.name, it.n)
+    : `<button type="button" class="ss-item" data-act="item-info" data-v="${encodeURIComponent(it.kind || '')}|${encodeURIComponent(it.name || '')}">${it.name}${it.n > 1 ? `<b>×${it.n}</b>` : ''}</button>`);
+
+  const wireLootChips = (loot) => {
+    if (!loot || loot.dataset.csChips) return;
+    loot.dataset.csChips = '1';
+    for (const line of [...loot.querySelectorAll('.sr-line')]) {
+      if (line.classList.contains('dim') && /없다/.test(line.textContent)) continue;
+      const items = parseLootLine(line.textContent);
+      if (!items.length) continue;
+      const wrap = document.createElement('div');
+      wrap.className = 'cs-loot-chips ss-items';
+      wrap.innerHTML = items.map(chipOf).join('');
+      line.replaceWith(wrap);
+    }
+  };
+
   // 제목 → 이번 획득 → MVP·파티 결산 → 버튼 순으로 맞춘다 (획득이 스크롤 아래로 밀리지 않게)
   const baseControls = UI.renderControls;
   UI.renderControls = function (...a) {
@@ -101,9 +148,13 @@
         }
       }
       if (loot && !loot.querySelector('.cs-loot-h')) {
-        loot.insertAdjacentHTML('afterbegin', '<div class="cs-loot-h"><span>이번 획득</span></div>');
+        loot.insertAdjacentHTML('afterbegin', '<div class="cs-loot-h"><span>이번 획득</span><span class="dim">눌러 상세</span></div>');
         loot.classList.add('cs-loot');
+      } else if (loot) {
+        const h = loot.querySelector('.cs-loot-h');
+        if (h && !h.querySelector('.dim')) h.insertAdjacentHTML('beforeend', '<span class="dim">눌러 상세</span>');
       }
+      if (loot) wireLootChips(loot);
       if (head && loot) head.after(loot);
       if (loot && board) loot.after(board);
       if (btns) box.appendChild(btns);
