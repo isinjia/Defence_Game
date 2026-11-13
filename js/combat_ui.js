@@ -217,4 +217,30 @@
     } catch (e) { /* 무시 */ }
     return r;
   };
+
+  // 파티 시너지(정석/균형): 제목 옆 → 아군 영역 좌측 위
+  const basePb = UI.drawPartyBonus;
+  if (basePb) UI.drawPartyBonus = function (...a) {
+    try {
+      const box = document.getElementById('modal-box');
+      if (!box || !box.classList.contains('cu-v2')) return basePb.apply(this, a);
+      // 제목 옆 옛 태그는 제거
+      box.querySelectorAll('.cb-head .pb-tag, .cb-head h3 .pb-tag').forEach((n) => n.remove());
+      const c = this.ctx; const cb = c && c.combat;
+      const allies = document.getElementById('allies');
+      if (!cb || !cb.partyBonus || !allies) return;
+      allies.classList.add('cu-pb-host');
+      const pb = cb.partyBonus();
+      let tag = allies.querySelector(':scope > .pb-tag');
+      if (!pb.full || cb.result) { if (tag) tag.remove(); return; }
+      const lab = pb.form ? '정석' : '균형';
+      const title = this.partyBonusTitle(pb);
+      if (!tag) {
+        allies.insertAdjacentHTML('afterbegin', `<span class="pb-tag ${pb.form ? 'form' : ''}" title="${title}" aria-label="${title}">${lab}</span>`);
+      } else {
+        tag.className = 'pb-tag' + (pb.form ? ' form' : '');
+        tag.title = title; tag.setAttribute('aria-label', title); tag.textContent = lab;
+      }
+    } catch (e) { try { return basePb.apply(this, a); } catch (e2) { /* 무시 */ } }
+  };
 }

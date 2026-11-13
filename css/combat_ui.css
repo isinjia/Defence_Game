@@ -133,6 +133,7 @@
 /* ---------- 아군: 전열·후열 2줄만 (리더도 진형 칸에) ---------- */
 #modal-box.cu-v2 #allies.cu-rows,
 #modal-box.cu-v2 #allies.ally-rows {
+  position: relative;
   display: flex; flex-direction: column; align-items: stretch; gap: 4px;
   flex: none; margin-top: 2px; padding-top: 6px;
   background:
@@ -141,6 +142,19 @@
     repeating-linear-gradient(0deg, transparent 0 14px, #1a2a3c18 14px 15px);
   border-top: 1px solid #ffb54766;
 }
+/* 파티 시너지(정석/균형): 아군 영역 좌측 위 */
+#modal-box.cu-v2 #allies.cu-pb-host > .pb-tag,
+#modal-box.cu-v2 #allies > .pb-tag {
+  position: absolute; top: 4px; left: 6px; right: auto; z-index: 6;
+  display: inline-block; font-size: 10px; font-weight: 700; line-height: 1;
+  padding: 3px 6px; margin: 0; border-radius: 3px;
+  color: #0b1a10; background: #7fd99a;
+  pointer-events: none;
+}
+#modal-box.cu-v2 #allies > .pb-tag.form {
+  background: linear-gradient(90deg, #7fd99a, #ffd36b);
+}
+#modal-box.cu-v2 .cb-head h3 .pb-tag { display: none !important; }
 #modal-box.cu-v2 #allies.cu-rows > .allies,
 #modal-box.cu-v2 #allies.ally-rows > .allies {
   display: flex; flex-wrap: nowrap; justify-content: center; align-items: flex-start; gap: 6px;
