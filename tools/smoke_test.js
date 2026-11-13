@@ -878,11 +878,17 @@ const { chromium, devices } = require('playwright');
     const seen = [];
     for (let i = 0; i < 150; i++) {
       if (await ev(() => !UI.ctx && !UI.modalOpen())) break;
-      const acts = await ev(() => [...document.querySelectorAll('#modal-box [data-act]')].map((e) => e.dataset.act + '|' + (e.dataset.v || '')));
+      if (await ev(() => !!UI.dlg)) { await ev(() => UI.dlgNext()); await page.waitForTimeout(150); continue; }
+      if (await ev(() => !!UI._hold)) { await page.mouse.click(160, 300); await page.waitForTimeout(200); continue; }
+      if (await ev(() => !!document.getElementById('skill-hold'))) { await ev(() => UI.hideSkillHold()); continue; }
+      const acts = await ev(() => {
+        const scope = document.querySelector('#council-ov') || document.querySelector('#modal-box > .settle-pop') || document.getElementById('modal-box');
+        return [...scope.querySelectorAll('[data-act]:not([disabled])')].filter(e => e.getClientRects().length).map(e => e.dataset.act + '|' + (e.dataset.v || ''));
+      });
       // 진짜 전투 중이면 자동 전투로 돌린다(층 지도 단계의 ctx.combat 은 전투 객체가 아니다)
       if (await ev(() => !!(UI.ctx && UI.ctx.combat && typeof UI.ctx.combat.toggleAuto === 'function' && !UI.ctx.combat.result))) { await ev(() => { const c = UI.ctx; if (!c.combat.auto) c.combat.toggleAuto(); c.speed = 2; }); await page.waitForFunction(() => !UI.ctx || !UI.ctx.combat || typeof UI.ctx.combat.toggleAuto !== 'function' || (UI.ctx.combat.result && !UI.ctx.playing), null, { timeout: 90000 }); continue; }
-      const pick = acts.find((a) => /^(g-next|g-finish\|clear|c-done)/.test(a)) || acts.find((a) => /^cn-(go|force|vote\|O)/.test(a)) || acts.find((a) => /^xr-go/.test(a)) || acts.find((a) => /^g-node/.test(a)) || acts.find((a) => /^modal-close/.test(a)) || acts.find((a) => !/^(c-|cn-|ec-|zoom|sheet|focus|g-leave)/.test(a));
-      if (!pick) break;
+      const pick = acts.find((a) => /^(settle-close|g-next|g-finish\|clear|c-done)/.test(a)) || acts.find((a) => /^cn-(go|force|vote\|O|lead\|O|tut)/.test(a)) || acts.find((a) => /^xr-go/.test(a)) || acts.find((a) => /^g-node/.test(a)) || acts.find((a) => /^modal-close/.test(a)) || acts.find((a) => !/^(c-|cn-|ec-|zoom|sheet|focus|g-leave|item-info)/.test(a));
+      if (!pick) { await page.waitForTimeout(200); continue; }
       seen.push(pick.split('|')[0]);
       const [a, v] = pick.split('|'); await act(a, v || undefined); await page.waitForTimeout(200);
     }
@@ -1519,7 +1525,7 @@ const { chromium, devices } = require('playwright');
           if (pop && pop.style.visibility !== 'hidden') { const t = Math.round(pop.getBoundingClientRect().top); const k = pop.textContent.slice(0, 30); if (lastKey === k && last !== null && Math.abs(t - last) > 3) { window.__sp.jumps++; window.__sp.note = '자리 튐 ' + last + '→' + t; } last = t; lastKey = k; } else { last = null; lastKey = null; }
         }, 40);
       });
-      const st = () => pg.evaluate(() => ({ acts: [...new Set([...document.querySelectorAll('#modal-box [data-act]')].map((e) => e.dataset.act))], dlg: !!UI.dlg, hold: !!UI._hold, kind: UI.ctx && UI.ctx.kind, wait: !!(UI.ctx && UI.ctx.combat && UI.ctx.combat.waiting), acted: UI.ctx && UI.ctx.tutorial ? UI.ctx.tutorial.acted : -1 }));
+      const st = () => pg.evaluate(() => ({ acts: [...new Set([...(document.querySelector('#council-ov') || document.getElementById('modal-box')).querySelectorAll('[data-act]:not([disabled])')].map((e) => e.dataset.act))], dlg: !!UI.dlg, hold: !!UI._hold, kind: UI.ctx && UI.ctx.kind, wait: !!(UI.ctx && UI.ctx.combat && UI.ctx.combat.waiting), acted: UI.ctx && UI.ctx.tutorial ? UI.ctx.tutorial.acted : -1 }));
       let fought = false;
       for (let i = 0; i < 70; i++) {
         if (await pg.evaluate(() => !!ExploreCinema.active)) { await pg.click('.ec-skip'); continue; }
@@ -1531,8 +1537,8 @@ const { chromium, devices } = require('playwright');
           if (s.wait) await pg.evaluate(() => { const c = UI.ctx, cb = c.combat; if (c.playing) return; if (!c.sel) UI.handle('c-skill', cb.player.skills[0]); else { const f = cb.units.find((u) => u.side === 'enemy' && u.alive); UI.handle('c-target', f.id); } });
           await pg.waitForTimeout(400); continue;
         }
-        const pick = ['st-go', 'cn-tut', 'exam-party', 'exm-watch', 'exm-node', 'ex-go', 'ex-pick', 'story-choice', 'modal-close'].find((a) => s.acts.includes(a)) || s.acts[0];
-        if (pick) await pg.click('#modal-box [data-act="' + pick + '"]:not([disabled]) >> nth=0', { timeout: 3000 }).catch(() => {});
+        const pick = ['st-go', 'cn-lead', 'cn-vote', 'cn-go', 'cn-tut', 'exam-party', 'exm-watch', 'exm-node', 'ex-go', 'ex-pick', 'story-choice', 'modal-close'].find((a) => s.acts.includes(a)) || s.acts[0];
+        if (pick) { const scope = await pg.locator('#council-ov').count() ? '#council-ov' : '#modal-box'; await pg.locator(scope + ' [data-act="' + pick + '"]:not([disabled])').first().click({ timeout: 3000 }).catch(() => {}); }
         await pg.waitForTimeout(400);
       }
       const r = await pg.evaluate(() => window.__sp);
