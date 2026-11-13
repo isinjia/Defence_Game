@@ -197,6 +197,8 @@ Object.assign(Game.prototype, {
     }
     it.theme = T.id;
     it.themePiece = pieceIdx;
+    // equip_slots가 방어구 부위를 무작위로 바꿔도 테마 피스는 설계 칸을 지킨다 (몸통·무기·장신구)
+    it.slot = pc.slot;
     it.name = `[${RANKS[t].key}] ${pc.name} 〈${T.name}〉`;
     it.value = Math.round(it.value * 1.15);
     it.brand = null; // 테마와 브랜드를 동시에 붙이지 않음
