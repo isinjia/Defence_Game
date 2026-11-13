@@ -54,6 +54,10 @@ const CouncilDialog = (() => {
       if((act==='cn-lead'||act==='cn-vote')&&value==='X')button.textContent='반대 의견을 낸다';
       if(button.classList.contains('primary'))button.classList.add('cv-agree');else button.classList.add('cv-disagree');
     }
+    // 응답 순서: 왼쪽 반대 · 오른쪽 따르기. 실제 버튼을 옮겨 선택값을 유지한다.
+    const agree=actions.querySelector('[data-act="cn-lead"][data-v="O"],[data-act="cn-vote"][data-v="O"]');
+    const disagree=actions.querySelector('[data-act="cn-lead"][data-v="X"],[data-act="cn-vote"][data-v="X"]');
+    if(agree&&disagree)actions.insertBefore(disagree,agree);
     dialog.querySelector('.cv-footer').append(actions);
     // 반대·설득·강행에 대한 기존 설명과 관계 변화 안내를 유지한다.
     for(const el of [...source.children]){
