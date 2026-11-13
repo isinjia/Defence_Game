@@ -881,7 +881,7 @@ const { chromium, devices } = require('playwright');
       const acts = await ev(() => [...document.querySelectorAll('#modal-box [data-act]')].map((e) => e.dataset.act + '|' + (e.dataset.v || '')));
       // 진짜 전투 중이면 자동 전투로 돌린다(층 지도 단계의 ctx.combat 은 전투 객체가 아니다)
       if (await ev(() => !!(UI.ctx && UI.ctx.combat && typeof UI.ctx.combat.toggleAuto === 'function' && !UI.ctx.combat.result))) { await ev(() => { const c = UI.ctx; if (!c.combat.auto) c.combat.toggleAuto(); c.speed = 2; }); await page.waitForFunction(() => !UI.ctx || !UI.ctx.combat || typeof UI.ctx.combat.toggleAuto !== 'function' || (UI.ctx.combat.result && !UI.ctx.playing), null, { timeout: 90000 }); continue; }
-      const pick = acts.find((a) => /^(g-next|g-finish\|clear|c-done)/.test(a)) || acts.find((a) => /^cn-(go|force|vote\|O)/.test(a)) || acts.find((a) => /^g-node/.test(a)) || acts.find((a) => /^modal-close/.test(a)) || acts.find((a) => !/^(c-|cn-|ec-|zoom|sheet|focus|g-leave)/.test(a));
+      const pick = acts.find((a) => /^(g-next|g-finish\|clear|c-done)/.test(a)) || acts.find((a) => /^cn-(go|force|vote\|O)/.test(a)) || acts.find((a) => /^xr-go/.test(a)) || acts.find((a) => /^g-node/.test(a)) || acts.find((a) => /^modal-close/.test(a)) || acts.find((a) => !/^(c-|cn-|ec-|zoom|sheet|focus|g-leave)/.test(a));
       if (!pick) break;
       seen.push(pick.split('|')[0]);
       const [a, v] = pick.split('|'); await act(a, v || undefined); await page.waitForTimeout(200);
@@ -896,8 +896,8 @@ const { chromium, devices } = require('playwright');
       const p = G.player; p.hp = p.maxHp; p.mp = p.maxMp; p.councilAsk = true;
       if (!G.party().length) { const n = G.makeNpc(false, 'human'); Object.assign(n, { region: p.region, met: true, relation: 50, links: {}, disciples: [], parents: [], isCompanion: true }); G.npcs.push(n); (p.party ||= []).push(n.id); }
       const g = { id: 999002, kind: 'gate', x: p.x, y: p.y, region: p.region, tier: 0, theme: '상의', elem: 'fire', born: G.monthKey(), variant: 'normal' }; G.mapGates.push(g); UI.startGate(g.id);
-      const nd = document.querySelector('#modal-box [data-act="g-node"]'); if (!nd) return '층 지도 칸 없음';
-      UI.handle('g-node', nd.dataset.v);
+      const nd = document.querySelector('#modal-box .xr-card, #modal-box [data-act="g-node"]'); if (!nd) return '탐색 경로 없음';
+      if(nd.classList.contains('xr-card')){UI.handle('xr-select',nd.dataset.v);UI.handle('xr-go');}else UI.handle('g-node', nd.dataset.v);
       // '매번 묻기'는 사용자 요청으로 삭제: 전원 찬성이면 패널 없이 바로 진행하는 것도 정상
       const ov = document.getElementById('council-ov');
       if (!ov) { const run = UI.ctx && UI.ctx.run; const moved = !!(run && run.map && run.map.pos) || !!document.getElementById('stage') || !UI.ctx; if (!moved) return '상의 패널도 없고 진행도 안 됨'; p.councilAsk = false; return ''; }
