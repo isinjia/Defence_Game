@@ -69,4 +69,49 @@
 
     return `<div class="combat-settle" data-result="${cb.result}">${mvpHead}<div class="cs-head"><span>파티 결산</span><span class="dim">${list.length}명</span></div><div class="cs-list">${rows}</div></div>`;
   };
+
+  // 제목 → 이번 획득 → MVP·파티 결산 → 버튼 순으로 맞춘다 (획득이 스크롤 아래로 밀리지 않게)
+  const baseControls = UI.renderControls;
+  UI.renderControls = function (...a) {
+    const r = baseControls.apply(this, a);
+    try {
+      const box = document.querySelector('#modal-box > .settle-pop.combat .settle-box');
+      if (!box) return r;
+      const head = box.querySelector('.settle-head');
+      let loot = box.querySelector('.settle-rows');
+      const board = box.querySelector('.combat-settle');
+      const btns = box.querySelector('.row.end');
+      // 게이트가 아닌 승리(토벌은 별도 창)에서도 처치·드롭 요약이 있으면 획득 칸으로 올린다
+      if (!loot && board) {
+        const c = this.ctx; const cb = c && c.combat;
+        if (cb && cb.result === 'win') {
+          const kills = cb.kills || [];
+          const lines = cb._lootLines || [];
+          const money = c.kind === 'gate' && c.loot ? Math.max(0, (c.loot.money || 0) - ((c._lootBefore && c._lootBefore.money) || 0)) : null;
+          const ether = c.kind === 'gate' && c.loot ? Math.max(0, (c.loot.ether || 0) - ((c._lootBefore && c._lootBefore.ether) || 0)) : null;
+          if (kills.length || lines.length || money || ether) {
+            loot = document.createElement('div');
+            loot.className = 'settle-rows';
+            loot.innerHTML = `${money != null ? `<div class="sr"><span>크레딧</span><b class="amber">+${fmt(money)}</b></div>` : ''}
+              ${ether != null ? `<div class="sr"><span>에테르</span><b class="ether">+${fmt(ether)}</b></div>` : ''}
+              ${kills.length ? `<div class="sr"><span>처치</span><b>${kills.length}마리</b></div>` : ''}
+              ${lines.map((l) => `<div class="sr-line">${fixJosa(l)}</div>`).join('') || ''}`;
+            box.insertBefore(loot, board);
+          }
+        }
+      }
+      if (loot && !loot.querySelector('.cs-loot-h')) {
+        loot.insertAdjacentHTML('afterbegin', '<div class="cs-loot-h"><span>이번 획득</span></div>');
+        loot.classList.add('cs-loot');
+      }
+      if (head && loot) head.after(loot);
+      if (loot && board) loot.after(board);
+      if (btns) box.appendChild(btns);
+      // settle_pop이 감싸 둔 빈 껍데기 div 정리
+      for (const el of [...box.children]) {
+        if (el.tagName === 'DIV' && !el.className && !el.children.length) el.remove();
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
 })();
