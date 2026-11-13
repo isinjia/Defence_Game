@@ -3386,15 +3386,38 @@ const PortraitParts = (() => {
   const bakeSkins = async root => Promise.all([...root.querySelectorAll('image[data-skin-source]')].map(async node => {
     const src=await skinBitmap(node);node.setAttribute('href',src);node.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',src);
   }));
-  let scanQueued=false;
-  new MutationObserver(()=>{if(scanQueued)return;scanQueued=true;queueMicrotask(()=>{scanQueued=false;
-    for(const node of document.querySelectorAll('image[data-hair-source]:not([data-hair-ready])')){
-      node.setAttribute('data-hair-ready','pending');hairBitmap(node).then(src=>setHairBitmap(node,src)).catch(()=>node.removeAttribute('data-hair-ready'));
-    }
-    for(const node of document.querySelectorAll('image[data-skin-source]:not([data-skin-ready])')){
-      node.setAttribute('data-skin-ready','pending');skinBitmap(node).then(src=>{node.setAttribute('href',src);node.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',src);node.setAttribute('data-skin-ready','true')}).catch(()=>node.removeAttribute('data-skin-ready'));
-    }
-  })}).observe(document.documentElement,{childList:true,subtree:true});
+  // 초상이 DOM에 붙으면 피부·머리·파츠를 한꺼번에 구운 뒤에만 보여 준다 (하나씩 뜨는 깜빡임 방지)
+  const prepareElement = async (svg) => {
+    if (!svg || svg.getAttribute('data-parts-ready') === '1') return svg;
+    await Promise.all([bakeSkins(svg), bakeHairs(svg)]);
+    await Promise.all([...svg.querySelectorAll('image')].map(async (node) => {
+      const href = node.getAttribute('href') || node.getAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href') || '';
+      if (!href || href.startsWith('data:')) return;
+      try {
+        const data = await embed(href);
+        node.setAttribute('href', data);
+        node.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', data);
+      } catch (e) { /* 개별 파츠 실패는 초상 전체를 막지 않는다 */ }
+    }));
+    svg.setAttribute('data-parts-ready', '1');
+    svg.removeAttribute('data-parts-pending');
+    return svg;
+  };
+  let scanQueued = false;
+  new MutationObserver(() => {
+    if (scanQueued) return;
+    scanQueued = true;
+    queueMicrotask(() => {
+      scanQueued = false;
+      for (const svg of document.querySelectorAll('svg[data-portrait-parts]:not([data-parts-ready]):not([data-parts-pending])')) {
+        svg.setAttribute('data-parts-pending', '1');
+        prepareElement(svg).catch(() => {
+          svg.setAttribute('data-parts-ready', '1');
+          svg.removeAttribute('data-parts-pending');
+        });
+      }
+    });
+  }).observe(document.documentElement, { childList: true, subtree: true });
   const bitmap = image => {
     const cv = document.createElement('canvas'); cv.width = image.naturalWidth; cv.height = image.naturalHeight;
     cv.getContext('2d').drawImage(image, 0, 0); return cv.toDataURL('image/png');
@@ -3429,5 +3452,5 @@ const PortraitParts = (() => {
     this._partsSource = source;
     rasterize(source).then(url => { if (this._partsSource === source) baseMapImage.call(this, url); }).catch(() => { if (this._partsSource === source) this._partsSource = null; });
   };
-  return { select, rasterize, HEAD_SCALE, newLook };
+  return { select, rasterize, prepareElement, HEAD_SCALE, newLook };
 })();
