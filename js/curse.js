@@ -186,17 +186,7 @@ Object.assign(Game.prototype, {
     const base = UI[fn]; if (!base) continue;
     UI[fn] = function (...a) { flushTaint(this.ctx && this.ctx.combat); return base.apply(this, a); };
   }
-  // 한계 돌파 버튼
-  const baseCtrl = UI.renderControls;
-  UI.renderControls = function () {
-    baseCtrl.call(this);
-    const c = this.ctx; if (!c || !c.combat) return;
-    const cb = c.combat; const row = document.querySelector('#cb-ctrl .ctrl-row'); if (!row || cb.result) return;
-    const ready = cb.waiting && !c.playing && !cb.auto;
-    const low = cb.player.hp <= cb.player.maxHp * 0.5 || cb.limitUsed;
-    if (!low && !cb.limitUsed) return;
-    row.insertAdjacentHTML('afterbegin', `<button class="sm danger" data-act="c-limit" ${!ready || cb.limitUsed ? 'disabled' : ''} title="공격 +80% 2턴, 체력 15% 회복">${cb.limitUsed ? '한계 돌파 사용함' : '한계 돌파'}</button>`);
-  };
+  // 한계 돌파 버튼은 사용자 결정으로 뺐다 (필살 게이지 js/limit_gauge.js 와 역할이 겹침)
   // 시설: 감정·치료소
   const baseFac = UI.facilityHtml;
   UI.facilityHtml = function (id, reg) {
