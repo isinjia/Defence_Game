@@ -130,7 +130,7 @@ Object.assign(UI, {
       let idx = 0; for (let k = 0; k < pt.row && k < m.rows.length; k++) idx += m.rows[k].length; idx += pt.col;
       const btn = nodes[idx]; if (!btn) continue;
       const L = G.gatePartyLeader(pt);
-      box.insertAdjacentHTML('beforeend', `<div class="gp-mark" style="left:${btn.style.left};top:${btn.style.top};--c:${this.gpvColor(pt)}" title="${this.gpvName(pt)}">${L ? this.npcAvatar(L, 26) : ''}<b>${G.gatePartyMembers(pt).length}</b></div>`);
+      box.insertAdjacentHTML('beforeend', `<div class="gp-mark" style="left:${btn.style.left};top:${btn.style.top};--c:${this.gpvColor(pt)}" title="${this.gpvName(pt)}">${L ? (this.npcBust ? this.npcBust(L, 26) : this.npcAvatar(L, 26)) : ''}<b>${G.gatePartyMembers(pt).length}</b></div>`);
     }
     const lg = document.querySelector('#modal .gmap-legend');
     if (lg && !document.querySelector('#modal .gp-line')) {

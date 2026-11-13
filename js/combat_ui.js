@@ -13,19 +13,20 @@
     }
   };
 
-  // 아바타는 얼굴만 그려 의상이 안 보이므로, 상반신 포트레이트(의상 포함)로 바꿔 원에 넣는다
+  // 상반신 초상 (공통 UI.toBustHtml / playerBust / npcBust 사용)
   const allyBustHtml = (u) => {
     try {
       if (!u || u.summon) return null;
-      if (u.isPlayer && typeof UI.playerPortrait === 'function') return UI.playerPortrait(120);
-      if (u.npcId && typeof UI.npcPortrait === 'function') {
-        const n = G.npcById(u.npcId); if (n) return UI.npcPortrait(n, 120);
+      if (u.isPlayer && UI.playerBust) return UI.playerBust(54);
+      if (u.npcId && UI.npcBust) {
+        const n = G.npcById(u.npcId); if (n) return UI.npcBust(n, 54);
       }
       if (u.portrait && typeof FX !== 'undefined' && FX.portrait) {
         const q = u.portrait;
         const opts = { ...(typeof Wardrobe !== 'undefined' && Wardrobe.appearance ? Wardrobe.appearance(u) : {}), ...q };
         if (!opts.outfit && typeof Wardrobe !== 'undefined' && Wardrobe.profession) opts.outfit = Wardrobe.profession(u.cls, u.bg);
-        return FX.portrait(q.seed, q.gender, q.elem, u.tier || 0, 120, opts);
+        const raw = FX.portrait(q.seed, q.gender, q.elem, u.tier || 0, 120, opts);
+        return UI.toBustHtml ? UI.toBustHtml(raw, 54) : raw;
       }
     } catch (e) { /* 실패 시 기존 아바타 유지 */ }
     return null;
@@ -39,14 +40,7 @@
     spr.dataset.cuBust = '1';
     spr.innerHTML = html;
     const svg = spr.querySelector('svg');
-    if (svg) {
-      svg.classList.add('cu-bust');
-      // 머리~상체·의상이 원에 들어오게 상단 크롭
-      svg.setAttribute('viewBox', '45 55 310 310');
-      svg.setAttribute('width', '54');
-      svg.setAttribute('height', '54');
-      svg.querySelectorAll(':scope > circle, :scope > rect').forEach((n) => n.remove());
-    }
+    if (svg) svg.classList.add('cu-bust');
   };
 
   // 아군: 전열·후열 두 줄만 (리더 전용 줄은 만들지 않음)
