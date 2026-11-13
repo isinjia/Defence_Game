@@ -79,6 +79,14 @@ Object.assign(Game.prototype, {
     const p = this.player; if (!p || !p.equip) return;
     for (const s of ARMOR_SLOT_IDS) p.equip[s] ??= null;
     for (const s of ACC_SLOT_IDS) p.equip[s] ??= null;
+    // 시작 장비·옛 저장이 몸통 칸에 넣어 둔 다른 부위 장비를 제자리로 옮긴다.
+    for (const slot of ARMOR_SLOT_IDS) {
+      const item = p.equip[slot];
+      if (!item || !isArmorSlot(item.slot) || item.slot === slot) continue;
+      p.equip[slot] = null;
+      if (!p.equip[item.slot]) p.equip[item.slot] = item;
+      else if (p.equip[item.slot] !== item && !p.inventory.includes(item)) p.inventory.push(item);
+    }
   },
   pickArmorPart() {
     const keys = ARMOR_SLOT_IDS;
@@ -266,17 +274,21 @@ Object.assign(Game.prototype, {
     const block = `<div class="sec"><div class="sec-title">방어구 · 5칸</div><div class="cards">${armorRows}</div></div>`
       + `<div class="sec"><div class="sec-title">장신구 · 3칸</div><div class="cards">${accRows}</div></div>`;
     // 기존 "장착 장비"(무기·구 1방어·구 1장신)만 무기로 줄이고, 바로 뒤에 5·3칸을 붙인다
-    html = html.replace(
-      /<div class="sec"><div class="sec-title">장착 장비<\/div><div class="cards">[\s\S]*?<\/div><\/div>/,
-      () => {
-        const w = p.equip.weapon;
-        const weaponRow = w
-          ? this.equipRow(w, `<button class="sm ghost" data-act="unequip" data-v="weapon">해제</button>`)
-          : `<div class="item-row">${this.slotIcon('weapon', '#3a4560')}<div class="grow dim">무기 없음</div></div>`;
-        return `<div class="sec"><div class="sec-title">장착 장비</div><div class="cards">${weaponRow}</div></div>${block}`;
-      }
-    );
-    return html;
+    // 장비 행 안에도 div가 여러 겹 있으므로 문자열 패턴으로 끝 태그를 찾으면
+    // 첫 행 중간이 잘려 패널·스크롤 구조까지 깨진다. 구역 전체를 DOM으로 교체한다.
+    const root = document.createElement('template'); root.innerHTML = html;
+    const section = [...root.content.querySelectorAll('.sec')].find(sec => {
+      const title = sec.querySelector(':scope > .sec-title');
+      return title && title.textContent.trim() === '장착 장비';
+    });
+    if (section) {
+      const w = p.equip.weapon;
+      const weaponRow = w
+        ? this.equipRow(w, `<button class="sm ghost" data-act="unequip" data-v="weapon">해제</button>`)
+        : `<div class="item-row">${this.slotIcon('weapon', '#3a4560')}<div class="grow dim">무기 없음</div></div>`;
+      section.outerHTML = `<div class="sec"><div class="sec-title">장착 장비</div><div class="cards">${weaponRow}</div></div>${block}`;
+    }
+    return root.innerHTML;
   };
 
   const baseHandle = UI.handle;

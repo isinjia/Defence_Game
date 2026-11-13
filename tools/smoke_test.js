@@ -798,6 +798,33 @@ const { chromium, devices } = require('playwright');
   for (const s of ['char', 'gear', 'skills', 'party', 'people', 'quest', 'guild', 'hunter', 'log']) {
     await step(`시트 탭: ${s}`, async () => { await act('sheet', s); const len = await ev(() => document.getElementById('modal-box').innerHTML.length); if (len < 200) throw new Error('내용이 거의 없음'); await closeAll(); });
   }
+  await step('장비 탭: 패널 구조·방어구 5칸·장신구 3칸·가방 유지', async () => {
+    await ev(() => {
+      const sheet = UI.sheet; const p = G.player;
+      const equip = p.equip, inventory = p.inventory;
+      try {
+        const gloves = { uid: 'slot-test', slot: 'gloves' };
+        p.equip = { armor: gloves }; p.inventory = []; G.equipSlotsInit();
+        if (p.equip.armor || p.equip.gloves !== gloves) throw new Error('잘못 저장된 방어구 부위 복구 실패');
+        const existing = { uid: 'slot-existing', slot: 'gloves' };
+        p.equip = { armor: gloves, gloves: existing }; p.inventory = []; G.equipSlotsInit();
+        if (p.equip.gloves !== existing || !p.inventory.includes(gloves)) throw new Error('부위 복구 중 장비 유실');
+        p.equip = equip; p.inventory = inventory;
+        UI.sheet = 'gear';
+        const root = document.createElement('template'); root.innerHTML = UI.sheetHtml();
+        const body = root.content.querySelector('.sheet-body');
+        const panel = body && body.querySelector(':scope > .panel');
+        if (!panel || body.children.length !== 1) throw new Error('장비 패널 밖으로 구역이 빠짐');
+        const sections = [...panel.querySelectorAll(':scope > .sec')];
+        const section = title => sections.find(s => s.querySelector(':scope > .sec-title')?.textContent.trim() === title);
+        for (const [title, count] of [['장착 장비', 1], ['방어구 · 5칸', 5], ['장신구 · 3칸', 3]]) {
+          if (section(title)?.querySelectorAll(':scope > .cards > .item-row').length !== count) throw new Error('장비 칸 누락: ' + title);
+        }
+        if (!section('가방') || !section('소모품')) throw new Error('인벤토리 누락');
+        if (!sections.some(s => s.textContent.includes('테마 세트 도감'))) throw new Error('확장 장비 구역 누락');
+      } finally { UI.sheet = sheet; p.equip = equip; p.inventory = inventory; }
+    });
+  });
   await step('방어구 계열·테마 세트·제작 길드', async () => {
     const ok = await ev(() => {
       if (typeof ARMOR_FAMS === 'undefined' || !ARMOR_FAMS.plate) throw new Error('ARMOR_FAMS 없음');

@@ -3,7 +3,7 @@
 // - 인생 기록·생애 통계는 연대기 탭으로
 // 다른 파일들이 charHtml 에 덧붙이는 내용을 그대로 살리려고, 완성된 HTML을 구역(.sec) 제목으로 나눈다.
 {
-  const GEAR = ['장착 장비', '가방', '소모품', '감정 · 미감정', '성장형 무기'];
+  const GEAR = ['장착 장비', '방어구', '장신구', '가방', '소모품', '감정 · 미감정', '성장형 무기', '테마 세트'];
   const LIFE = ['인생 기록', '생애 통계'];
   const titleOf = (sec) => { const t = sec.querySelector(':scope > .sec-title'); return t ? t.textContent.trim() : ''; };
   const isIn = (list, t) => list.some((k) => t.startsWith(k));
@@ -12,7 +12,8 @@
   UI.charSections = function (keep) {
     const tpl = document.createElement('template'); tpl.innerHTML = this.charHtml();
     const panel = tpl.content.querySelector('.panel') || tpl.content;
-    const secs = [...panel.querySelectorAll(':scope > .sec')];
+    // 확장 모듈이 패널 뒤에 덧붙인 장비 구역도 같은 탭에 포함한다.
+    const secs = [...tpl.content.querySelectorAll('.sec')].filter(sec => sec.parentNode === panel || sec.parentNode === tpl.content);
     const out = [];
     for (const s of secs) { if (keep(titleOf(s))) out.push(s.outerHTML); else s.remove(); }
     return { rest: tpl.innerHTML, picked: out.join('') };
