@@ -29,7 +29,7 @@ Object.assign(UI, {
   // ---------- 이야기 준비: 이름, 성별 ----------
   renderStorySetup() {
     const s = this.pro;
-    $app.innerHTML = `<div class="create">
+    $app.innerHTML = `<div class="create story-setup">
       <div class="create-head"><div class="eyebrow">각성 전야</div><h2>당신은 누구입니까</h2></div>
       <div class="create-grid">
         <div class="panel id-preview">${FX.portrait(s.look, s.gender, null, 0, 240, { age: 19, outfit: 'underwear', ...Wardrobe.appearance(s) })}<button class="ghost full" data-act="ps-look">외형 바꾸기</button></div>
