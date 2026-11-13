@@ -52,6 +52,7 @@ const fs = require('fs'), path = require('path'), http = require('http');
       reset(); p.vehicle = { id: 'bike', until: G.monthKey() + 1 }; G.applyTerrain(); minutes.motorbike = move([b], 5);
       reset(); p.ownVehicle = { id: 'bicycle' }; G.applyTerrain(); minutes.bicycle = move([b], 10);
       reset(); p.ownVehicle = { id: 'car' }; WORLD.road[b] = 1; G.applyTerrain(); minutes.carRoad = move([b], 1.875);
+      reset(); p.ownVehicle = { id: 'car' }; WORLD.road[b] = 1; UI.crewMarch = { ride: 'truck' }; G.applyTerrain(); minutes.carAndPartyRoad = move([b], .9375); UI.crewMarch = null;
       reset(); p.ownVehicle = { id: 'car', broken: true }; G.applyTerrain(); move([b], 15);
       reset(); UI.crewMarch = { ride: 'truck' }; minutes.partyTruck = move([b], 7.5); UI.crewMarch = null;
       reset(); const route = Array.from({ length: 96 }, (_, i) => i % 2 ? a : b);

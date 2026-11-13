@@ -66,7 +66,9 @@ Object.assign(Game.prototype, {
   });
   wrap('walkStep', function (base, x, y, diag) {
     const p = this.player; const V = this.ownVehicle();
-    if (V && V.road && WORLD.isRoad(x, y)) p.dayFrac = (p.dayFrac || 0) - WORLD.stepCostAt(x, y) * (diag ? 1.4 : 1) * WORLD.DAYS_PER_COST * (1 - V.road);
+    // 안쪽 crew_time도 시간을 절반으로 줄인다. 같은 시간 기준에서 국도 보정을 빼야 0분이 되지 않는다.
+    const partyTime = typeof UI !== 'undefined' && UI.crewMarch?.ride === 'truck' ? .5 : 1;
+    if (V && V.road && WORLD.isRoad(x, y)) p.dayFrac = (p.dayFrac || 0) - WORLD.stepCostAt(x, y) * (diag ? 1.4 : 1) * WORLD.DAYS_PER_COST * partyTime * (1 - V.road);
     const res = base.call(this, x, y, diag);
     if (!V) return res;
     if (V.noAmbush) {
