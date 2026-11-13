@@ -43,7 +43,7 @@ Object.assign(Game.prototype, {
     if (p.money < c) return '크레딧이 부족하다.';
     p.money -= c; L.life++; p.lifeBonus += 1;
     let side = '';
-    if (RNG.chance(LATE.life.side)) { if (this.addTaint) this.addTaint(20, '수명 연장 시술'); p.injured = Math.max(p.injured, 2); this.recalc(); side = ' 부작용으로 에테르가 탁해졌다. (오염 +20, 부상 2개월)'; }
+    if (RNG.chance(LATE.life.side)) { p.injured = Math.max(p.injured, 2); this.recalc(); side = ' 부작용으로 몸이 상했다. (부상 2개월)'; }
     this.lifeEvent(`수명 연장 시술 ${L.life}회째.`);
     this.advanceMonth(1, { eventChance: 0 });
     return `시술이 끝났다. 수명 +1년 (−${fmt(c)} 크레딧, 한 달)${side}`;
@@ -132,7 +132,7 @@ Object.assign(Game.prototype, {
       <div class="cards">
         <div class="item-row"><div class="grow"><b>에테르 연구 후원</b> <span class="tag">${L.research}/${LATE.research.max}</span><div class="small dim">단계마다 모든 기본 능력 +2% 영구 (지금 +${Math.round(L.research * LATE.research.per * 100)}%). 한 달 걸린다.</div></div>
           ${rc ? `<button class="sm" data-act="late-research">${coin(rc)}</button>` : '<span class="small amber">완료</span>'}</div>
-        <div class="item-row"><div class="grow"><b>수명 연장 시술</b> <span class="tag">${L.life}/${LATE.life.max}</span><div class="small dim">A급 이상. 회당 수명 +1년, 20% 부작용(오염·부상). 한 달 걸린다.</div></div>
+        <div class="item-row"><div class="grow"><b>수명 연장 시술</b> <span class="tag">${L.life}/${LATE.life.max}</span><div class="small dim">A급 이상. 회당 수명 +1년, 20% 부작용(부상). 한 달 걸린다.</div></div>
           ${lc ? `<button class="sm" data-act="late-life" ${p.rankIdx < 5 ? 'disabled' : ''}>${coin(lc)}</button>` : '<span class="small amber">한계</span>'}</div>
       </div>
       <div class="sec-title sec">길드 지분</div><div class="small dim">값은 길드 위상을 따라 매달 움직인다. ${LATE.share.seat}% 이상이면 이사회 의석: 그 길드 계약 월급 +15%, 본부 도시 물가 −10%. 팔 때 수수료 5%.</div>

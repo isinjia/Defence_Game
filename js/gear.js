@@ -31,7 +31,7 @@ const famOfName = (name) => {
 };
 const BAG_ITEMS = [
   { id: 'antidote', name: '해독제', price: 90, desc: '전투용 · 중독·기절 등 상태 이상 해제', effect: 'combat' },
-  { id: 'amp', name: '강화 앰플', price: 260, desc: '전투용 · 3턴 공격 +40%, 오염 +3', effect: 'combat' },
+  { id: 'amp', name: '강화 앰플', price: 260, desc: '전투용 · 3턴 공격 +40%', effect: 'combat' },
   { id: 'flash', name: '섬광탄', price: 200, desc: '전투용 · 적 전체 소량 피해, 35% 기절', effect: 'combat' },
   { id: 'recall', name: '귀환석', price: 0, noShop: true, desc: '매우 귀함 · 어디서든(전투 중·보스전·변이 게이트) 즉시 탈출 · 상점에서 팔지 않음', effect: 'combat' },
   { id: 'guardcharm', name: '결계 부적', price: 220, desc: '전투용 · 다음 피해 한 번 무효', effect: 'combat' },
@@ -113,7 +113,6 @@ Object.assign(Game.prototype, {
         this.push(`${u.name}: 해독제로 몸을 추슬렀다.`, 'heal', { k: 'buff', dst: u.id, mp: u.mp }); break;
       case 'amp':
         u.buffs.atk = Math.max(u.buffs.atk, 0.4); u.buffs.atkT = Math.max(u.buffs.atkT, 3);
-        this.taintGain = (this.taintGain || 0) + 3;
         this.push(`${u.name}: 강화 앰플 투여! 공격 상승.`, 'heal', { k: 'buff', dst: u.id, mp: u.mp }); break;
       case 'flash': {
         const sk = { id: 'flash', name: '섬광탄', type: 'aoe', power: 0.45, mp: 0, elem: null };

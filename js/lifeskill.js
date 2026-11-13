@@ -54,10 +54,9 @@ Object.assign(Game.prototype, {
     p.items.stim--;
     const val = 0.15 + 0.02 * this.lsLv('brew');
     p.buffs.push({ stat: 'atk', val, until: this.monthKey(), name: '불법 각성제' });
-    if (this.addTaint) this.addTaint(Math.max(4, 12 - this.lsLv('brew')), '불법 각성제');
     if (this.addLaw) this.addLaw(-3);
     this.recalc();
-    return `각성제를 삼켰다. 핏줄이 타오른다. 이번 달 공격 +${Math.round(val * 100)}% (오염 상승)`;
+    return `각성제를 삼켰다. 핏줄이 타오른다. 이번 달 공격 +${Math.round(val * 100)}%`;
   },
   // ---------- 결계 ----------
   wardCost() { return Math.round(500 * RANKS[this.player.rankIdx].mult * this.priceMul()); },
@@ -142,7 +141,7 @@ Object.assign(Game.prototype, {
     html += `<div class="sec-title sec">생활 기술</div><div class="small dim">${LSKILLS.map((s) => `${s.name} Lv${G.lsLv(s.id)}`).join(' · ')} — 직업에 맞는 기술은 빨리 는다.</div>
       <div class="cards">
         <div class="item-row"><div class="grow"><b>조제 · 응급 회복제</b><div class="small dim">코어 1개로 ${2 + Math.floor(G.lsLv('brew') / 2)}개</div></div><button class="sm" data-act="ls-brew">${coin(Math.round(30 * G.priceMul()))}</button></div>
-        <div class="item-row"><div class="grow"><b>조제 · 불법 각성제</b> <span class="small dim">보유 ${p.items.stim || 0}</span><div class="small dim">조제 Lv1. 마시면 이번 달 공격 +15%~, 오염·무법</div></div>
+        <div class="item-row"><div class="grow"><b>조제 · 불법 각성제</b> <span class="small dim">보유 ${p.items.stim || 0}</span><div class="small dim">조제 Lv1. 마시면 이번 달 공격 +15%~, 무법</div></div>
           <span class="row"><button class="sm" data-act="ls-stim" ${G.lsLv('brew') < 1 ? 'disabled' : ''}>${coin(Math.round(200 * RANKS[p.rankIdx].mult * G.priceMul()))}</button>${p.items.stim ? '<button class="sm danger" data-act="ls-drink">마신다</button>' : ''}</span></div>
         <div class="item-row"><div class="grow"><b>결계 · ${reg.name}</b><div class="small dim">${w ? `<span class="good">작동 중 · ${w.until - G.monthKey() + 1}개월 남음</span>` : `1년간 이 지역 게이트가 터질 때 ${Math.round((0.45 + 0.08 * G.lsLv('ward')) * 100)}% 확률로 막는다`}</div></div>
           <button class="sm" data-act="ls-ward" ${w ? 'disabled' : ''}>${coin(G.wardCost())}</button></div>
