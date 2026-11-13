@@ -156,25 +156,23 @@
 #modal-box.cu-v2 #allies-lead,
 #modal-box.cu-v2 #allies-party { display: contents; }
 
-/* 이름: 초상 원 외곽 테두리와 겹침 (검은 배경 없음, 선택·내 차례여도 흰색 유지) */
+/* 이름: 초상 원 하단 겹침. 기본 흰색, 내 차례(ready)·본인(me)이면 琥珀色 */
 #modal-box.cu-v2 .ally.fig > .fx-host { position: relative; overflow: visible; }
 #modal-box.cu-v2 .ally.fig .fx-host > .fig-name,
-#modal-box.cu-v2 .ally.fig.me .fx-host > .fig-name,
-#modal-box.cu-v2 .ally.fig.ready .fx-host > .fig-name,
 #modal-box.cu-v2 .ally.fig.target .fx-host > .fig-name,
 #modal-box.cu-v2 .ally.fig.lead-fig .fx-host > .fig-name {
   position: absolute; left: 50%; bottom: -11px; top: auto; right: auto;
   transform: translateX(-50%); z-index: 5; margin: 0; width: max-content; max-width: 90%;
   font-size: 10.5px; font-weight: 700; line-height: 1.15; text-align: center;
-  color: #fff !important; background: none !important; padding: 0; border-radius: 0;
+  color: #fff; background: none !important; padding: 0; border-radius: 0;
   text-shadow: 0 1px 2px #000, 0 0 4px #000, 0 0 1px #000;
   pointer-events: none; white-space: nowrap; overflow: visible;
 }
-#modal-box.cu-v2 .ally.fig .fx-host > .fig-name b,
+#modal-box.cu-v2 .ally.fig .fx-host > .fig-name b { color: #fff; }
 #modal-box.cu-v2 .ally.fig.me .fx-host > .fig-name b,
-#modal-box.cu-v2 .ally.fig.ready .fx-host > .fig-name b,
-#modal-box.cu-v2 .ally.fig.lead-fig .fx-host > .fig-name b {
-  color: #fff !important;
+#modal-box.cu-v2 .ally.fig.ready .fx-host > .fig-name,
+#modal-box.cu-v2 .ally.fig.ready .fx-host > .fig-name b {
+  color: var(--amber, #ffb547);
 }
 /* 이름 아래로 내린 만큼 첫 막대만 살짝 띄우고, HP·MP는 서로 붙임 */
 #modal-box.cu-v2 .ally.fig > .bar-row { margin-top: 9px; }
@@ -203,22 +201,25 @@
   transform: none; object-fit: cover;
 }
 #modal-box.cu-v2 #allies .ally.fig .fx-host > .fig-name { font-size: 10px; bottom: -10px; max-width: 78px; }
-#modal-box.cu-v2 #allies .ally.fig .bar-row { width: 100%; }
-/* HP·MP 두께를 몬스터(5px)와 맞춤 */
+/* HP·MP: 좌우 폭 ~20% 축소, MP 두께 40% 축소(5→3px) */
+#modal-box.cu-v2 #allies .ally.fig .bar-row {
+  width: 80%; margin-left: auto; margin-right: auto;
+}
 #modal-box.cu-v2 #allies .ally.fig .bar.hp,
 #modal-box.cu-v2 #allies .ally.fig .bar.mp {
-  height: 5px; margin: 0; border: 0; border-radius: 2px;
+  margin: 0; border: 0; border-radius: 2px;
   background: #070b12;
 }
-#modal-box.cu-v2 #allies .ally.fig .bar.hp { background: #2a1520; }
-#modal-box.cu-v2 #allies .ally.fig .bar.mp { background: #0f1a2e; }
+#modal-box.cu-v2 #allies .ally.fig .bar.hp { height: 5px; background: #2a1520; }
+#modal-box.cu-v2 #allies .ally.fig .bar.mp { height: 3px; background: #0f1a2e; }
 #modal-box.cu-v2 #allies .ally.fig > .bar-row + .bar-row { margin-top: 0 !important; gap: 0; }
 #modal-box.cu-v2 .foe.foe-card > .brk { margin-top: 1px; }
 #modal-box.cu-v2 #allies .ally.fig.lead-fig > .fx-host {
   box-shadow: 0 0 0 2px #ffb547, 0 0 10px #ffb54744;
 }
+/* 리더 표시: 중앙 → 좌측 */
 #modal-box.cu-v2 #allies .ally.fig.lead-fig .lead-tag {
-  top: -2px; left: 50%; transform: translateX(-50%); right: auto;
+  top: -2px; left: -2px; right: auto; transform: none;
   font-size: 9px; padding: 0 5px; border-radius: 3px;
 }
 #modal-box.cu-v2 #allies .ally.fig.lead-fig.ready {
