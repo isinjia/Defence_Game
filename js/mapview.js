@@ -345,9 +345,10 @@ class MapView {
     }
     // 게이트
     for (const g of G.gatesShown()) {
-      c.globalAlpha = vis(g.x, g.y) ? 1 : 0.42; // 시야 밖은 기억 속 모습(흐리게)
       const [px, py] = this.toScreen(g.x + 0.5, g.y + 0.5);
       if (px < -s * 2 || py < -s * 2 || px > this.w + s * 2 || py > this.hgt + s * 2) continue;
+      // 화면 밖 게이트는 상태를 바꾸기 전에 건너뛴다. 뒤에 그리는 NPC·플레이어에 투명도가 새지 않게 한다.
+      c.globalAlpha = vis(g.x, g.y) ? 1 : 0.42; // 시야 밖은 기억 속 모습(흐리게)
       const col = g.final || g.variant === 'red' ? '#ff4f6a' : RANKS[g.tier].color;
       const sc = g.final ? 1.6 : 1;
       const glow = c.createRadialGradient(px, py, 1, px, py, s * 0.8 * sc);
