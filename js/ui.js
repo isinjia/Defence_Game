@@ -192,7 +192,7 @@ const UI = {
       if (this.map) this.map.destroy();
       $app.innerHTML = `
         <div class="world" id="world">
-          <canvas id="map-cv" aria-label="월드맵. 빛나는 칸을 눌러 이동합니다."></canvas>
+          <canvas id="map-cv" aria-label="월드맵. 목적지를 선택해 이동합니다."></canvas>
           <nav class="hud hud-tl" id="hud-tl"></nav>
           <aside class="hud hud-tr" id="hud-tr"></aside>
           <div class="hud hud-zoom">
