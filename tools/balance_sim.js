@@ -14,8 +14,11 @@ const POLICIES = (process.argv[4] || 'train,gate,party').split(',');
   const page = await browser.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  await page.goto('file://' + path.resolve(__dirname, '..', 'index.html'));
-  await page.waitForTimeout(500);
+  await page.route('https://fonts.googleapis.com/**', r => r.abort());
+  if (process.env.BALANCE_GAME_FILE) await page.route('**/dist/game.js*', r => r.fulfill({ path: process.env.BALANCE_GAME_FILE, contentType: 'text/javascript' }));
+  await page.goto(process.env.BALANCE_TEST_URL || 'file://' + path.resolve(__dirname, '..', 'index.html'));
+  await page.click('[data-opening="skip"]');
+  await page.waitForFunction(() => !window.GateBoot || GateBoot.ready);
 
   const results = await page.evaluate(({ RUNS, YEARS, POLICIES }) => {
     const out = [];

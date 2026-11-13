@@ -297,7 +297,7 @@ const UI = {
         <button data-act="rest">${FX.icon('rest')} 휴식 <span class="dim-in">1개월</span></button>
 
       </div>
-      <div class="act-hint small dim">빛나는 칸을 눌러 이동 · 평지 한 칸 ${WORLD.DAYS_PER_COST}일 · 국도 ${WORLD.DAYS_PER_COST * WORLD.ROAD_COST}일(대각선·산은 더) · 이동력 ${G.moveRange()}</div>`;
+      <div class="act-hint small dim">빛나는 칸을 눌러 이동 · 평지 한 칸 ${WORLD.formatTravelTime(G.travelCostDays(1))} · 국도 ${WORLD.formatTravelTime(G.travelCostDays(WORLD.ROAD_COST,true))}(대각선·산은 더) · 이동력 ${G.moveRange()}</div>`;
   },
 
   // NPC의 지도 위치 (매달 도시 근처에서 바뀜)
@@ -354,7 +354,7 @@ const UI = {
 
   // 한 칸씩 걸으며 시간이 흐르고, 길 위에서 일이 생기면 멈춘다
   walk(steps) {
-    const w = this.walking = { steps, i: 0, stop: false, days: 0 };
+    const w = this.walking = { steps, i: 0, stop: false, days: 0, elapsedDays: 0 };
     this.map.walkPath = steps.slice();
     const next = () => {
       if (this.walking !== w) return;
@@ -367,8 +367,10 @@ const UI = {
       this.map.tween(from, to, ms, () => {
         if (this.walking !== w) return;
         G._walkLast = w.i >= w.steps.length; // 이 칸이 목적지인가
+        const timeBefore = G.player.dayFrac || 0;
         let res; try { res = G.walkStep(to[0], to[1], diag); } finally { G._walkLast = undefined; }
         w.days += res.days;
+        w.elapsedDays += res.days + (G.player.dayFrac || 0) - timeBefore;
         let stop = res.stop;
         // 길에서 다른 각성자와 마주침
         if (!stop) {
@@ -392,7 +394,7 @@ const UI = {
     const p = G.player;
     G.save();
     this.renderGame();
-    if (w && w.days) this.toast(`${w.days}일 동안 걸었다.${w.i < w.steps.length && !G.over ? ' 걸음을 멈췄다.' : ''}`);
+    if (w && w.elapsedDays > 0) this.toast(`${WORLD.formatTravelTime(w.elapsedDays)} 이동했다.${w.i < w.steps.length && !G.over ? ' 걸음을 멈췄다.' : ''}`);
     if (G.over || G.queue.length) return this.processQueue();
     const obj = G.objAt(p.x, p.y);
     if (obj) return this.encounter(obj);

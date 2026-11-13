@@ -18,7 +18,7 @@
   UI.hudQuests = function () {
     const p = G.player; const rows = [];
     const t = this.travel;
-    if (t && this.travelDaysLeft && this.travelDaysLeft()) rows.push(`<button class="obj-link travel-chip" data-act="travel-resume">▶ 이어서 이동 · ${t.label}까지 ${this.travelDaysLeft()}일</button>`);
+    if (t && this.travelDaysLeft && this.travelDaysLeft()) rows.push(`<button class="obj-link travel-chip" data-act="travel-resume">▶ 이어서 이동 · ${t.label}까지 ${WORLD.formatTravelTime(this.travelDaysLeft())}</button>`);
     (p.quests || []).slice(0, 4).forEach((q, i) => {
       const reg = this.questTarget ? this.questTarget(q) : null; const R = reg && regionById(reg);
       rows.push(`<button class="obj-link hq" data-act="hq-go" data-v="q${i}"><span class="hq-mark ${q.status === 'done' ? 'done' : ''}">${q.status === 'done' ? '✔' : '▸'}</span><span class="hq-t">${q.title}</span>${R ? `<span class="hq-r">${R.name}</span>` : ''}</button>`);

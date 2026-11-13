@@ -4,7 +4,7 @@
 //  - 지역 넓이에 맞게 게이트·괴수 무리를 더 띄우고
 //  - 중도시·읍을 도시처럼 쓰게 하고(이름·시설 등급), 지도에 읍 이름표와 국도를 그리고
 //  - 옛 지도(36×58 / 80×130) 저장의 위치를 새 지도 좌표로 옮긴다.
-// 이동 비용: 평지 1일, 산 2일, 국도 0.5일(world.js), 이동력 ×K(travel.js), 걷기는 소수 일수를 모아 넘긴다(game.js walkStep).
+// 이동 시간: 약 2km 한 칸, 기본 도보 평지 15분·산 30분·국도 7.5분. 차량·기상은 world_travel_time.js와 travel.js, 소수 일수 누적은 game.js walkStep.
 
 const TOWN_TIER = { 2: { name: '중도시', facs: ['inn', 'market', 'board', 'tavern', 'workshop', 'transit', 'merc', 'garage'] }, 3: { name: '읍', facs: ['inn', 'market', 'board'] } };
 
@@ -110,7 +110,7 @@ Object.assign(Game.prototype, {
     const tip = document.getElementById('hud-tip'); if (!tip || !WORLD.inb(x, y) || !G.revealed(x, y)) return;
     const t = WORLD.townAt(x, y); const b = tip.querySelector('b');
     if (t && b) b.textContent = townName(t);
-    else if (WORLD.isRoad(x, y)) tip.insertAdjacentHTML('beforeend', `<div class="small dim">국도 · 한 칸 ${WORLD.DAYS_PER_COST * WORLD.ROAD_COST}일</div>`);
+    else if (WORLD.isRoad(x, y)) tip.insertAdjacentHTML('beforeend', `<div class="small dim">국도 · 한 칸 ${WORLD.formatTravelTime(G.travelCostDays(WORLD.ROAD_COST,true))}</div>`);
   };
 
   // 지도: 국도와 읍 이름표
