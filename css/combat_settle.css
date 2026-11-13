@@ -1,0 +1,80 @@
+/* 전투 결산: 획득 → MVP → 파티 피해/치유/피격 · 확인은 스크롤 밖 하단 고정 */
+.settle-pop.combat .settle-box {
+  width: min(460px, 100%);
+  max-height: min(88dvh, 640px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+.settle-pop.combat .settle-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 4px;
+}
+.settle-pop.combat .settle-box > .row.end {
+  position: sticky !important;
+  bottom: 0;
+  z-index: 3;
+  flex: none;
+  margin: 0 -14px 0 !important;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  border-top: 1px solid #2a3648 !important;
+  background: linear-gradient(180deg, #141a24ee, #10161f) !important;
+  box-shadow: 0 -8px 16px #0006;
+}
+.settle-pop.combat .settle-rows.cs-loot,
+.settle-pop.combat .settle-rows { display: grid; gap: 0; margin: 0 0 10px; padding: 10px; background: linear-gradient(160deg, #142418, #10161f 60%); border: 1px solid #6bdc8b55; border-radius: 4px; }
+.cs-loot-h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; font-size: 12px; font-weight: 700; letter-spacing: .04em; color: #cfe9d6; }
+.cs-loot-h .dim { font-weight: 400; font-size: 11px; color: #8aa896; }
+.settle-pop.combat .settle-rows .sr { border-bottom-color: #2a4033; padding: 7px 2px; }
+.settle-pop.combat .settle-rows .sr b { font-size: 16px; }
+.settle-pop.combat .settle-rows .sr-line { color: #ffe2a8; border-bottom-color: #2a4033; }
+.settle-pop.combat .cs-loot-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0 4px; border-bottom: 1px dashed #2a4033; }
+.settle-pop.combat .cs-loot-chips .ss-item { min-height: 34px; }
+.combat-settle { display: grid; gap: 10px; margin: 0 0 8px; }
+.cs-mvp { display: grid; grid-template-columns: 64px 1fr; gap: 10px; align-items: center; padding: 10px; background: linear-gradient(135deg, #2a2110, #121820); border: 1px solid #ffb54766; border-radius: 4px; }
+.cs-mvp.empty { display: block; background: #10161f; border-color: #2a3648; }
+.cs-mvp-face { width: 64px; height: 64px; border-radius: 50%; overflow: hidden; border: 2px solid var(--amber, #ffb547); background: #0a0f16; line-height: 0; }
+.cs-mvp-face > svg, .cs-mvp-face > img { width: 64px !important; height: 64px !important; display: block; object-fit: cover; }
+.cs-mvp-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cs-mvp-line b { font-size: 17px; color: #fff7e6; }
+.cs-say { margin: 4px 0 0; color: var(--amber, #ffb547); font-size: 13px; font-style: italic; }
+.cs-mvp-sum { margin: 4px 0 0; color: #9fb0c4; }
+.cs-mvp-sum b { color: #e8eef6; }
+.cs-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; font-weight: 700; color: #d5deea; letter-spacing: .04em; padding: 0 2px; }
+.cs-list { display: grid; gap: 6px; }
+.cs-row { display: grid; gap: 6px; padding: 8px; background: #0d131c; border: 1px solid #243146; border-radius: 4px; }
+.cs-row.is-mvp { border-color: #ffb54788; background: #17140e; }
+.cs-row.down { opacity: .72; }
+.cs-who { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; }
+.cs-face-wrap { position: relative; width: 40px; height: 40px; overflow: visible; }
+.cs-face { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #0a0f16; border: 1px solid #3a4a62; line-height: 0; }
+.cs-face > svg, .cs-face > img { width: 40px !important; height: 40px !important; display: block; object-fit: cover; }
+/* 순위·MVP 배지: 원 밖(왼쪽 아래)에 걸쳐 보이게 */
+.cs-badge, .cs-ord {
+  position: absolute; left: -8px; bottom: -6px; z-index: 2;
+  min-width: 22px; height: 18px; padding: 0 5px; border-radius: 4px;
+  font-size: 10px; font-weight: 800; font-style: normal; letter-spacing: .02em;
+  display: grid; place-items: center; line-height: 1;
+  border: 1px solid #0006; box-shadow: 0 1px 3px #000a;
+}
+.cs-badge { background: var(--amber, #ffb547); color: #1a1205; border-color: #ffd27a; }
+.cs-ord { background: #e8eef6; color: #121820; border-color: #fff; }
+.cs-name { min-width: 0; display: grid; gap: 1px; }
+.cs-name b { font-size: 14px; color: #e8eef6; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cs-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.cs-col { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto 4px; gap: 2px 6px; align-items: end; }
+.cs-col > span { font-size: 10px; color: #7f8ea3; }
+.cs-col > b { font-size: 13px; text-align: right; color: #e6edf5; font-variant-numeric: tabular-nums; }
+.cs-col > i { grid-column: 1 / -1; display: block; height: 4px; border-radius: 2px; background: #ff8a4c; }
+.cs-col > i.heal { background: #6bdc8b; }
+.cs-col > i.taken { background: #8cc4ff; }
+.cs-col > i.dmg { background: #ff8a4c; }
+@media (max-width: 360px) {
+  .cs-mvp { grid-template-columns: 52px 1fr; }
+  .cs-mvp-face, .cs-mvp-face > svg, .cs-mvp-face > img { width: 52px !important; height: 52px !important; }
+  .cs-col > b { font-size: 12px; }
+}

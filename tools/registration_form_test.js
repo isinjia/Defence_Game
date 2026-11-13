@@ -46,11 +46,12 @@ const {chromium}=require('playwright');
     UI.showStatusCheck(true);
    });
    await page.click('[data-act="st-go"]');
-   await page.waitForFunction(()=>G.player.statusSeen&&!UI._stPending&&!document.querySelector('.registration')&&!!UI.exam);
+   // 서명·페이드 연출 후 시험장으로 (reducedMotion이면 짧게)
+   await page.waitForFunction(()=>G.player.statusSeen&&!UI._stPending&&!UI._regSigning&&!document.querySelector('.registration')&&!!UI.exam,{timeout:15000});
    await page.evaluate(()=>{const data=JSON.parse(localStorage.getItem(SAVE_KEY));if(!data.player.statusSeen)throw Error('신청서 제출 상태 저장 실패');});
    results.push(layout);await page.close();
   }
   if(errors.length)throw Error(errors.join('\n'));
-  console.log(JSON.stringify({viewports:results,skillDetails:true,existingInfoView:true,examTransition:true,savedStatus:true,pageErrors:errors.length}));
+  console.log(JSON.stringify({viewports:results,skillDetails:true,existingInfoView:true,examTransition:true,submitSignFade:true,savedStatus:true,pageErrors:errors.length}));
  }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
 })().catch(error=>{console.error(error);process.exit(1)});

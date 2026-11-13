@@ -430,11 +430,21 @@
 .combat-box.fit #cb-ctrl > .order-panel .row.between button { min-height: 32px; }
 @media (max-height: 600px) { .combat-box.fit #cb-ctrl:not(.cb-done) { height: calc(42px * 2 + 4px + 16px + env(safe-area-inset-bottom, 0px)); } }
 
-/* ===== 지도 HUD 정리: 메뉴 하나, 현재 퀘스트, 확대 버튼 없음 ===== */
+/* ===== 지도 HUD 정리: 메뉴 하나, 현재 퀘스트, 줌인·줌아웃 노출 ===== */
 .hud-tl { display: flex !important; grid-template-columns: none !important; right: auto !important; }
 .menu-btn.menu-one { width: auto; min-width: 64px; min-height: 44px; flex-direction: row; gap: 6px; padding: 6px 12px; font-size: 13px; clip-path: var(--cut); }
 .menu-btn.menu-one span { display: inline !important; }
-.hud-zoom [data-act=zoom-in], .hud-zoom [data-act=zoom-out], .hud-zoom [data-act=zoom-me] { display: none !important; }
+/* 내 위치(핀)는 하단 초상 탭으로 대체. +/− 와 설정만 표시 */
+.hud-zoom [data-act=zoom-me] { display: none !important; }
+.hud-zoom [data-act=zoom-in],
+.hud-zoom [data-act=zoom-out] {
+  display: inline-flex !important;
+  width: 40px; height: 40px; font-size: 20px; font-weight: 700;
+  background: #0d1520ee; border: 1px solid #3a4a62; color: #e8eef6;
+}
+.hud-zoom [data-act=zoom-in]:disabled,
+.hud-zoom [data-act=zoom-out]:disabled { opacity: .35; }
+.hud-zoom.hud-zoom-on { gap: 6px; }
 @media (max-width: 640px) {
   .hud-tr { top: calc(60px + env(safe-area-inset-top, 0px)) !important; left: 12px !important; right: auto !important; width: min(300px, 64vw) !important; } /* 메뉴 아래 왼쪽 (사용자 요청) */
   .hud-zoom { top: calc(8px + env(safe-area-inset-top, 0px)) !important; }

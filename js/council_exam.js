@@ -1,21 +1,11 @@
 // ===== 시험 게이트: 길과 사건은 리더가 정하고, 이동도 리더가 한다 (영역 D, 4-3 · 사용자 요청) =====
 // 내가 리더가 아닐 때는 지도 칸을 누르지 않는다. 흐름은 매 칸 똑같다:
 //   리더가 한마디(대화, 한 번 나오고 끝) → 팀 상의(동기 O/X, 나는 [따른다]/[반대한다]만) → 정해진 칸으로 자동 이동.
-//   [따른다]는 몇 초 뒤 저절로 눌린다(UI.autoFollow). 길이 하나뿐이면 한마디 뒤 바로 이동.
+//   응답 시간 제한 없이 직접 선택한다. 길이 하나뿐이면 한마디 뒤 바로 이동.
 // 칸 안의 사건(갈림길·상자·샘)도 리더가 고르고, 나는 따르거나 반대(다른 의견)만 낸다.
 
-// 몇 초 뒤 저절로 눌리는 버튼. 대화창이 떠 있는 동안은 세지 않는다.
-if (typeof UI !== 'undefined') UI.autoFollow = function (btn, secs = 5) {
-  if (!btn || btn._auto) return; btn._auto = true;
-  const label = btn.textContent; let left = typeof window !== 'undefined' && window.TUT_AUTO_TAP ? 1 : secs;
-  const tick = () => {
-    if (!btn.isConnected || btn.disabled) return;
-    if (UI.dlg || document.getElementById('skill-hold')) return setTimeout(tick, 400);
-    if (left <= 0) return btn.click();
-    btn.textContent = `${label} (${left})`; left--; setTimeout(tick, 1000);
-  };
-  tick();
-};
+// 선택은 플레이어가 직접 한다. 자동 시험 지원은 no_autofollow.js에서만 제공한다.
+if (typeof UI !== 'undefined') UI.autoFollow = function () {};
 
 if (typeof UI !== 'undefined' && UI.renderExamMap) {
   const V = (T, L) => (T.banmal && G.personaRegister && G.personaRegister(L) === 'banmal' ? T.banmal : T[voiceKey(L)] ?? T[voiceCol(L)] ?? T.just);
@@ -96,8 +86,7 @@ if (typeof UI !== 'undefined' && UI.renderExamMap) {
       this.councilLead = { votes, nd, key, alt, first: m.step === 'intro' };
       this.councilPanel(`<div class="cn-card"><b>팀 상의 · 리더 제안: <span style="color:${GNODE[nd.t].color}">${nm}</span></b>
         <div class="cn-mems">${this.councilVotesHtml({ votes })}</div>
-        <div class="cn-btns"><button class="primary" data-act="cn-lead" data-v="O">따른다</button><button class="danger" data-act="cn-lead" data-v="X">반대한다</button></div>
-        <p class="small dim">정하는 건 리더다. 가만히 있으면 따른다.</p></div>`);
+        <div class="cn-btns"><button class="primary" data-act="cn-lead" data-v="O">따른다</button><button class="danger" data-act="cn-lead" data-v="X">반대한다</button></div></div>`);
       this.autoFollow(document.querySelector('#council-ov [data-act="cn-lead"][data-v="O"]'), 5);
     },
     councilLeadResolve(v) {

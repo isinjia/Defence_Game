@@ -40,8 +40,9 @@ const{chromium}=require('playwright');
       if([0,1,2].some(k=>Math.abs(a[k]-b[k])>8))throw Error('턱 덮임 '+gender+cls.id+bodyType);
       const front=Number(svg.dataset.jobFrontY),neckY=Math.round((actual+front)/2),n=ctx.getImageData(200,neckY,1,1).data;
       const bn=base.getImageData(200,neckY,1,1).data;
-      if([0,1,2].some(k=>Math.abs(n[k]-bn[k])>8))throw Error('목 연결 단절 '+gender+cls.id+bodyType+' '+[...n]);
-      palette.push([...ctx.getImageData(200,Math.ceil(front+20),1,1).data]);cards++;
+      // 깃이 턱 바로 아래까지 오는 옷(목이 보이지 않음)은 건너뛴다: 어깨선 통일이 우선이고 턱은 깃 앞에 그린다(사용자 확정)
+      if(front>actual+6&&[0,1,2].some(k=>Math.abs(n[k]-bn[k])>8))throw Error('목 연결 단절 '+gender+cls.id+bodyType+' '+[...n]);
+      palette.push([...ctx.getImageData(200,Math.ceil(Math.max(front,actual)+20),1,1).data]);/* 깃이 턱보다 높으면 턱은 깃 앞(사용자 확정): 턱 아래 옷에서 잰다 */cards++;
      }
      if([0,1,2].some(k=>Math.abs(palette[0][k]-palette[1][k])>3))throw Error('피부색이 의상에 적용됨 '+cls.id);
     }
