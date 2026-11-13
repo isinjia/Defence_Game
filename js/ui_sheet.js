@@ -42,7 +42,7 @@
       } else if (body && (name === 'char' || !name)) {
         const panel = body.querySelector('.panel');
         if (panel) for (const s of [...panel.querySelectorAll(':scope > .sec')]) { const t = titleOf(s); if (isIn(GEAR, t) || isIn(LIFE, t)) s.remove(); }
-        if (panel && !panel.querySelector('.gear-link')) panel.insertAdjacentHTML('beforeend', '<div class="sec"><button class="full gear-link" data-act="sheet" data-v="gear">장비 · 가방 · 소모품 보기</button></div>');
+        // '장비 · 가방 · 소모품 보기' 단추는 사용자 요청으로 뺐다 (위쪽 '장비' 탭으로 간다)
       } else if (body && name === 'log') {
         const { picked } = this.charSections((t) => isIn(LIFE, t));
         if (picked) body.insertAdjacentHTML('afterbegin', `<div class="panel life-panel">${picked}</div>`);
