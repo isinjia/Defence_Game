@@ -173,15 +173,31 @@ class MapView {
     const rd = this.reachData;
     if (rd && !this.moving && !UI.ctx) {
       // 마우스를 올린 경로
-      if (this.hover >= 0 && rd.dist.has(this.hover) && this.hover !== rd.start) {
-        const path = WORLD.pathTo(rd, this.hover);
+      // 고른 칸(이동 확정 대기)이 있으면 그 경로, 없으면 마우스를 올린 경로
+      const sel = UI._moveSel && WORLD.inb(UI._moveSel[0], UI._moveSel[1]) ? WORLD.idx(UI._moveSel[0], UI._moveSel[1]) : -1;
+      const tgt = sel >= 0 && rd.dist.has(sel) ? sel : this.hover;
+      if (tgt >= 0 && rd.dist.has(tgt) && tgt !== rd.start) {
+        const path = WORLD.pathTo(rd, tgt);
+        const pts = path.map((i) => { const [x, y] = WORLD.xy(i); return this.toScreen(x + 0.5, y + 0.5); });
         c.strokeStyle = '#ffb547'; c.lineWidth = 3; c.setLineDash([6, 5]); c.beginPath();
-        path.forEach((i, k) => { const [x, y] = WORLD.xy(i); const [px, py] = this.toScreen(x + 0.5, y + 0.5); k ? c.lineTo(px, py) : c.moveTo(px, py); });
+        pts.forEach(([px, py], k) => (k ? c.lineTo(px, py) : c.moveTo(px, py)));
         c.stroke(); c.setLineDash([]);
-        const [hx, hy] = WORLD.xy(this.hover); const [px, py] = this.toScreen(hx, hy);
-        const duration = G.travelPathDays(WORLD.pathTo(rd, this.hover).slice(1));
-        const days = WORLD.formatTravelTime(duration);
-        this.chip(px + s / 2, py - 6, `${days}`, '#ffb547', '#1a1205');
+        // 끝 화살촉
+        if (pts.length >= 2) {
+          const [ax, ay] = pts[pts.length - 2], [bx, by] = pts[pts.length - 1], an = Math.atan2(by - ay, bx - ax), L = Math.max(8, s * 0.32);
+          c.fillStyle = '#ffb547'; c.beginPath(); c.moveTo(bx, by); c.lineTo(bx - L * Math.cos(an - 0.45), by - L * Math.sin(an - 0.45)); c.lineTo(bx - L * Math.cos(an + 0.45), by - L * Math.sin(an + 0.45)); c.closePath(); c.fill();
+        }
+        // 하루가 차는 칸마다 'N일' (사용자 요청: 화살표 위에 하루 단위로)
+        let acc = G.player ? (G.player.dayFrac || 0) : 0, day = 0;
+        const total = WORLD.formatTravelTime(G.travelPathDays(path.slice(1)));
+        for (let k = 1; k < path.length; k++) {
+          const [x, y] = WORLD.xy(path[k]), [x0, y0] = WORLD.xy(path[k - 1]);
+          acc += G.travelStepDays(x, y, x !== x0 && y !== y0);
+          const d = Math.floor(acc + 1e-9);
+          if (d > day && k < path.length - 1) { day = d; const [px, py] = pts[k]; c.font = `700 ${s > 34 ? 12 : 10}px "IBM Plex Sans KR", sans-serif`; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.lineWidth = 3; c.strokeStyle = 'rgba(8,12,18,.85)'; c.strokeText(`${day}일`, px, py - s * 0.18); c.fillStyle = '#ffe2a8'; c.fillText(`${day}일`, px, py - s * 0.18); }
+        }
+        const [hx, hy] = WORLD.xy(tgt); const [px, py] = this.toScreen(hx, hy);
+        this.chip(px + s / 2, py - 6, `${total}`, '#ffb547', '#1a1205');
       }
     }
     // 남은 경로
