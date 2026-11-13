@@ -59,9 +59,12 @@
 #modal-box.cu-v2 .foe .reticle,
 #modal-box.cu-v2 .foe.target .reticle,
 #modal-box.cu-v2 #foes.aim .foe .reticle,
+#modal-box.cu-v2 .intent,
 #modal-box.cu-v2 .intent .intent-face,
-#modal-box.cu-v2 .intent > b,
-#modal-box.cu-v2 .ally.threatened .fx-host::before { display: none !important; content: none !important; }
+#modal-box.cu-v2 .intent > b { display: none !important; }
+#modal-box.cu-v2 .ally.threatened .fx-host::before {
+  display: none !important; content: none !important; opacity: 0 !important; width: 0 !important; height: 0 !important;
+}
 #modal-box.cu-v2 .foe.foe-card.target .foe-hp,
 #modal-box.cu-v2.fit-tiny .foe.foe-card.target .foe-hp { display: none !important; }
 
@@ -194,6 +197,9 @@
 #modal-box.cu-v2 #allies .ally.fig .sprite svg,
 #modal-box.cu-v2 #allies .ally.fig .sprite img {
   width: 54px !important; height: 54px !important; border-radius: 50%;
+  /* 보조: 살짝 축소·아래로 밀어 의상 노출 */
+  transform: scale(1.08) translateY(6%);
+  transform-origin: 50% 35%;
 }
 #modal-box.cu-v2 #allies .ally.fig .fx-host > .fig-name { font-size: 10px; bottom: -10px; max-width: 78px; }
 #modal-box.cu-v2 #allies .ally.fig .bar-row { width: 100%; }

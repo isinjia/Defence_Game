@@ -13,17 +13,19 @@
     }
   };
 
-  // 초상 크롭을 내려·키워 상체·의상이 원에 들어오게
+  // 초상: 원 중심을 내려 얼굴은 위·상체·의상은 아래에 들어오게
   const bustCrop = (host) => {
     const svg = host && host.querySelector('.sprite svg[data-portrait-parts]');
     if (!svg || svg.dataset.cuBust) return;
     svg.dataset.cuBust = '1';
     const pose = parseFloat(svg.getAttribute('data-base-offset') || '0') || 0;
-    svg.setAttribute('viewBox', `28 ${Math.max(0, pose - 4)} 344 360`);
+    // 창을 아래로 옮겨 가슴·옷깃이 원에 들어오게 (머리만 보이던 문제)
+    svg.setAttribute('viewBox', `60 ${40 + pose} 280 280`);
     const clip = svg.querySelector('clipPath circle');
     const ring = [...svg.children].find((n) => n.tagName === 'circle');
-    if (clip) { clip.setAttribute('cy', String(168 + pose)); clip.setAttribute('r', '162'); }
-    if (ring) { ring.setAttribute('cy', String(168 + pose)); ring.setAttribute('r', '160'); ring.setAttribute('stroke-width', '3.2'); }
+    const cy = 175 + pose;
+    if (clip) { clip.setAttribute('cx', '200'); clip.setAttribute('cy', String(cy)); clip.setAttribute('r', '138'); }
+    if (ring) { ring.setAttribute('cx', '200'); ring.setAttribute('cy', String(cy)); ring.setAttribute('r', '136'); ring.setAttribute('stroke-width', '3'); }
   };
 
   // 아군: 전열·후열 두 줄만 (리더 전용 줄은 만들지 않음)
