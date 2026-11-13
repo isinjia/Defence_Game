@@ -53,12 +53,14 @@
   border-bottom: 1px solid #2a3a5288; padding-bottom: 6px;
 }
 
-/* 원형 글자 배지·무리형(무)·적 타겟 조준·아군 위협(!) 숨김 */
+/* 원형 글자 배지·무리형(무)·적 타겟 조준·의도 타겟 얼굴·아군 위협(!) 숨김 */
 #modal-box.cu-v2 .elem-badge,
 #modal-box.cu-v2 .mtype,
 #modal-box.cu-v2 .foe .reticle,
 #modal-box.cu-v2 .foe.target .reticle,
 #modal-box.cu-v2 #foes.aim .foe .reticle,
+#modal-box.cu-v2 .intent .intent-face,
+#modal-box.cu-v2 .intent > b,
 #modal-box.cu-v2 .ally.threatened .fx-host::before { display: none !important; content: none !important; }
 #modal-box.cu-v2 .foe.foe-card.target .foe-hp,
 #modal-box.cu-v2.fit-tiny .foe.foe-card.target .foe-hp { display: none !important; }

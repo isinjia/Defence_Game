@@ -13,17 +13,17 @@
     }
   };
 
-  // 초상 viewBox를 살짝 내려·키워 상체·의상이 원에 들어오게
+  // 초상 크롭을 내려·키워 상체·의상이 원에 들어오게
   const bustCrop = (host) => {
     const svg = host && host.querySelector('.sprite svg[data-portrait-parts]');
     if (!svg || svg.dataset.cuBust) return;
     svg.dataset.cuBust = '1';
     const pose = parseFloat(svg.getAttribute('data-base-offset') || '0') || 0;
-    svg.setAttribute('viewBox', `48 ${pose} 304 320`);
+    svg.setAttribute('viewBox', `28 ${Math.max(0, pose - 4)} 344 360`);
     const clip = svg.querySelector('clipPath circle');
     const ring = [...svg.children].find((n) => n.tagName === 'circle');
-    if (clip) { clip.setAttribute('cy', String(148 + pose)); clip.setAttribute('r', '148'); }
-    if (ring) { ring.setAttribute('cy', String(148 + pose)); ring.setAttribute('r', '147'); ring.setAttribute('stroke-width', '3.5'); }
+    if (clip) { clip.setAttribute('cy', String(168 + pose)); clip.setAttribute('r', '162'); }
+    if (ring) { ring.setAttribute('cy', String(168 + pose)); ring.setAttribute('r', '160'); ring.setAttribute('stroke-width', '3.2'); }
   };
 
   // 아군: 전열·후열 두 줄만 (리더 전용 줄은 만들지 않음)
