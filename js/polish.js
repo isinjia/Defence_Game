@@ -175,4 +175,21 @@
     }
     return baseHandle5.call(this, act, v);
   };
+
+  // [평가 10] 프롤로그 끝에서 세계를 만드는 2~3초 동안 화면이 멈춘 듯 보였다: 먼저 '각성 중' 화면을 한 번 그린 뒤 만든다.
+  // 뒤따르는 감싸기들이 세계가 만들어진 직후를 전제로 하므로, 만드는 함수가 아니라 'pro-begin' 처리 전체를 한 박자 늦춘다.
+  // 자동 시험(TUT_AUTO_TAP)은 바로 이어서 상태를 읽으므로 늦추지 않는다.
+  const baseHandle6 = UI.handle;
+  UI.handle = function (act, v) {
+    if (act === 'pro-begin' && !this._beginGo && !window.TUT_AUTO_TAP) {
+      if (document.getElementById('pl-busy')) return;
+      const el = document.createElement('div'); el.id = 'pl-busy'; el.innerHTML = '<div class="plb-ring"></div><b>각성 중…</b><span>세계가 깨어나고 있습니다</span>';
+      document.body.appendChild(el);
+      let done = false;
+      const go = () => { if (done) return; done = true; this._beginGo = true; try { baseHandle6.call(this, act, v); } finally { this._beginGo = false; el.remove(); } };
+      requestAnimationFrame(() => requestAnimationFrame(go)); setTimeout(go, 150);
+      return;
+    }
+    return baseHandle6.call(this, act, v);
+  };
 }

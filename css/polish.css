@@ -115,3 +115,22 @@ body.dlg-on .hud-bottom, body.dlg-on .hud-tr, body.dlg-on #hud-money { visibilit
 }
 /* 아군 말풍선은 얼굴 위가 아니라 머리 위로 */
 .ally .float-num.say { top: -20px; }
+
+/* 세계 생성 중 화면 (js/polish.js) */
+#pl-busy { position: fixed; inset: 0; z-index: 1600; display: grid; place-content: center; justify-items: center; gap: 10px; background: #05080d; color: var(--text); text-align: center; }
+#pl-busy b { font-family: var(--font-display); font-weight: 400; font-size: 26px; letter-spacing: .04em; }
+#pl-busy span { color: var(--dim); font-size: 13px; }
+#pl-busy .plb-ring { width: 46px; height: 46px; border-radius: 50%; border: 3px solid #22304a; border-top-color: var(--ether); animation: plbspin .9s linear infinite; }
+@keyframes plbspin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { #pl-busy .plb-ring { animation: none; } }
+
+/* [평가 26] 전투 위쪽 아이콘 단추에 이름을 붙인다 (배속·자동·도주) */
+.cb-tools .icon-btn[data-act="c-speed"], .cb-tools .icon-btn[data-act="c-auto"], .cb-tools .icon-btn[data-act="c-flee"] { flex-direction: column; gap: 0; padding-top: 3px; min-width: 44px; height: 44px; }
+.cb-tools .icon-btn[data-act="c-speed"] svg, .cb-tools .icon-btn[data-act="c-auto"] svg, .cb-tools .icon-btn[data-act="c-flee"] svg { width: 17px; height: 17px; }
+.cb-tools .icon-btn[data-act="c-speed"]::after { content: "배속"; }
+.cb-tools .icon-btn[data-act="c-auto"]::after { content: "자동"; }
+.cb-tools .icon-btn[data-act="c-flee"]::after { content: "도주"; }
+.cb-tools .icon-btn[data-act="c-speed"]::after, .cb-tools .icon-btn[data-act="c-auto"]::after, .cb-tools .icon-btn[data-act="c-flee"]::after { font-size: 10.5px; line-height: 1.15; font-weight: 600; letter-spacing: 0; color: inherit; opacity: .9; }
+.cb-tools .tactic-btn { height: 44px; }
+/* 도주는 자동·배속과 조금 떼어 놓는다 (실수로 누르지 않게) */
+.cb-tools .icon-btn[data-act="c-flee"] { margin-left: 8px; }
