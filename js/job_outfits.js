@@ -760,6 +760,12 @@ const HunterOutfits = (() => {
   const rimOff=(part,female,type)=>female?2:Math.max(IN_D[part.familyId]?-5:-18,(OFF_M[part.familyId]??-8)+(TYPE_ADJ[type]||0));
   const cache=new Map();
   const node=(doc,name,attrs)=>{const e=doc.createElementNS(ns,name);for(const[k,v]of Object.entries(attrs||{}))e.setAttribute(k,v);return e;};
+  // 승인 시안: 남성 흑염 코트는 어깨 폭 +14% 뒤 +20%, 세로 축척 .82→.94.
+  // 카드·아바타와 파츠 선택 좌표가 같은 의상 비율을 사용한다.
+  function garmentFit(part,female,type){
+    const wider=!female&&part.familyId==='blackflame';
+    return {x:({thin:.9,normal:1,strong:1.08,heavy:1.25}[type]||1)*(wider?1.368:1),y:wider?.94:.82};
+  }
   function render(avatar,seed,gender,element,rank,size,opts){
     const part=get(opts.outfit,gender);
     if(!part)return legacy[avatar?'avatar':'card'](seed,gender,element,rank,size,opts);
@@ -771,16 +777,16 @@ const HunterOutfits = (() => {
     const chin=selected.stage==='child'?(selected.layers[0].chinY|| (female?261:251)):(female?261:251);
     const pivot=(female?261:251)+24;
     const actualChin=pivot+(chin-pivot)*scale+pose;
-    const fit={thin:.9,normal:1,strong:1.08,heavy:1.25}[type]||1;
+    const fitting=garmentFit(part,female,type),fit=fitting.x,garmentY=fitting.y;
     // 남자(사용자 요청): 옷은 그대로 두고 목을 깃 안쪽까지 내린다. 목 창을 깃 안쪽 모양(넓고 얕은 U)으로 파서
     // 목 뒤쪽 옷(깃 안쪽 면)이 보이지 않고, 앞깃·폴라 윗선이 목 위로 온다. 옷 그림 기준 값: 안쪽 반폭 inW, 가운데 깊이 inD(px).
     // 목은 깃 안쪽(목 뒤 옷·안쪽 폴라 윗부분)을 채워 앞깃 윗선까지 내려온다 → 목이 옷 앞쪽에 바로 닿는다(사용자 요청).
     // IN_PROF: 옷 그림에서 찾은 앞깃 윗선(가운데에서 -44..44, 4px 간격, 옷 그림 px). 없으면 깃 안쪽 호 모양.
     const backY=actualChin+rimOff(part,female,type),prof=(IN_PROF[female?'f':'m']||{})[part.familyId];
-    const inW=(female?34:41)*fit,inD=(IN_D[part.familyId]||(female?15:17))*.82;
-    const frontY=prof?backY+Math.max(...prof)*.82:backY+inD,radius=prof?44*fit:inW,side=backY+3,depth=Math.max(3,frontY-side);
+    const inW=(female?34:41)*fit,inD=(IN_D[part.familyId]||(female?15:17))*garmentY;
+    const frontY=prof?backY+Math.max(...prof)*garmentY:backY+inD,radius=prof?44*fit:inW,side=backY+3,depth=Math.max(3,frontY-side);
     const opening=!prof?`M${200-radius} 0H${200+radius}V${frontY-depth}A${radius} ${depth} 0 0 1 ${200-radius} ${frontY-depth}Z`
-      :`M${200-radius} 0H${200+radius}`+prof.map((d,k)=>`L${(200+(44-k*4)*fit).toFixed(1)} ${(backY+prof[prof.length-1-k]*.82).toFixed(1)}`).join('')+'Z';
+      :`M${200-radius} 0H${200+radius}`+prof.map((d,k)=>`L${(200+(44-k*4)*fit).toFixed(1)} ${(backY+prof[prof.length-1-k]*garmentY).toFixed(1)}`).join('')+'Z';
     const id='ho'+FX.hash(selected.key+opts.outfit+avatar),clip=node(doc,'clipPath',{id:id+'skin'});
     const jaw=doc.querySelector('clipPath[id$="jaw"]');
     // clipPath 안에는 <g>를 둘 수 없어(브라우저가 무시) 턱 영역이 빠지고 얼굴이 좁은 기둥으로 잘렸다 → 도형마다 transform 을 붙인다
@@ -793,7 +799,7 @@ const HunterOutfits = (() => {
     const body=doc.querySelector('[data-depth="underwear"],[data-depth="neck"]');if(!body)return legacy[avatar?'avatar':'card'](seed,gender,element,rank,size,bare);
     const parent=body.parentNode,wrap=node(doc,'g',{'data-depth':'job-skin','clip-path':`url(#${id}skin)`});parent.insertBefore(wrap,body);wrap.append(body);
     const garment=depthName=>{
-      const e=node(doc,'image',{'data-depth':depthName,'data-job':part.classId,href:root+part.file+'?v=1',x:200-part.neck[0]*fit,y:backY-part.neck[1]*.82,width:400*fit,height:450*.82,preserveAspectRatio:'none'});
+      const e=node(doc,'image',{'data-depth':depthName,'data-job':part.classId,href:root+part.file+'?v=1',x:200-part.neck[0]*fit,y:backY-part.neck[1]*garmentY,width:400*fit,height:450*garmentY,preserveAspectRatio:'none'});
       e.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',root+part.file+'?v=1');return e;
     };
     parent.insertBefore(garment('job-garment-back'),wrap);
@@ -812,8 +818,8 @@ const HunterOutfits = (() => {
     const part=get(opts.outfit,g);if(!part)return legacy.select(seed,g,opts);
     const s=legacy.select(seed,g,{...opts,outfit:'underwear'}),female=g==='F',young=s.stage==='child';
     const chin=young?s.layers[0].chinY:(female?261:251),pivot=(female?261:251)+24,scale=young?1:PortraitParts.HEAD_SCALE[g][s.bodyType],pose=young&&!female?8:0;
-    const fit={thin:.9,normal:1,strong:1.08,heavy:1.25}[s.bodyType],back=pivot+(chin-pivot)*scale+pose+rimOff(part,female,s.bodyType);
-    s.layers[1]={...part,file:'../outfits/'+part.file,rect:[200-part.neck[0]*fit,back-part.neck[1]*.82,400*fit,450*.82]};
+    const fitting=garmentFit(part,female,s.bodyType),fit=fitting.x,back=pivot+(chin-pivot)*scale+pose+rimOff(part,female,s.bodyType);
+    s.layers[1]={...part,file:'../outfits/'+part.file,rect:[200-part.neck[0]*fit,back-part.neck[1]*fitting.y,400*fit,450*fitting.y]};
     s.outfit=opts.outfit;s.key+='-'+opts.outfit;return s;
   };
   const oldProfession=Wardrobe.profession,oldPlayer=Wardrobe.playerLook,oldPrologue=Wardrobe.prologueLook;
