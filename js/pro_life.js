@@ -36,11 +36,11 @@ Object.assign(PROLOGUE, {
     ['퇴직금으로 게이밍 컴퓨터를 산다. 해 보고 싶던 게임이 있었다', 'bolt', { shooter: 1, esper: 1 }, { reckless: 1 }, 'game_1'],
     ['동창회 공지에 "참석"을 누른다. 오랜만이다', 'fire', { support: 1, fighter: 1 }, { charisma: 1 }, 'bloom_1'],
   ]),
-  idle_5: LIFE_INTRO('랭크전', '새벽 네 시. 랭크전 9연패. 팀원은 탈주했고 상대는 "ez"를 친다. 모니터 불빛만 방을 비춘다.\n\n엄마가 문 너머에서 말한다. "너 그 게임 속 칼질하는 것만큼 현실에서 살아 봐라."', [
-    ['한 판만 더. 이번엔 이긴다', 'fire', { fighter: 1, shooter: 1 }, { reckless: 1 }, 'game_1'],
-    ['리플레이를 돌려 내 실수를 하나하나 분석한다', 'water', { mage: 1, shooter: 1 }, { genius: 1 }, 'game_1'],
-    ['헤드셋을 벗고 창문을 연다. 새벽 공기가 차다', 'dark', { esper: 1, support: 1 }, null, 'nap_1'],
-    ['길드원들에게 "오늘은 접는다" 하고 자러 간다', 'wood', { support: 1, guard: 1 }, { charisma: 1 }, 'quest_1'],
+  idle_5: LIFE_INTRO('랭크전', '새벽 네 시. 동네 PC방에는 빈자리가 더 많다. 랭크전은 9연패째. 팀원은 탈주했고, 상대는 채팅창에 "ez"를 남긴다.\n\n휴대폰을 켜니 엄마에게서 온 문자가 두 통 쌓여 있다.\n"아직도 PC방이니? 밥은 먹었어?"\n"그만하고 들어와. 내일 또 하루 종일 자려고?"', [
+    ['이용 시간을 더 넣고 한 판을 잡는다. 이번엔 이긴다', 'fire', { fighter: 1, shooter: 1 }, { reckless: 1 }, 'game_1'],
+    ['방금 진 경기의 리플레이를 켠다. 어디서 꼬였는지 확인한다', 'water', { mage: 1, shooter: 1 }, { genius: 1 }, 'game_1'],
+    ['헤드셋을 내려놓고 가게 밖으로 나온다. 집까지 걸으며 머리를 식힌다', 'dark', { esper: 1, support: 1 }, null, 'nap_1'],
+    ['엄마에게 "이제 들어가요"라고 답장하고, 길드원들에게도 인사를 남긴다', 'wood', { support: 1, guard: 1 }, { charisma: 1 }, 'quest_1'],
   ]),
   idle_6: LIFE_INTRO('치킨집 뒷주방', '부모님 치킨집 뒷주방. 튀김기 기름이 180도에서 끓는다. 오늘 주문 마흔두 건. 배달 기사는 둘 다 연락이 안 된다.\n\n아버지가 앞치마를 던져 준다. "네가 가. 오토바이 탈 줄 알지?"', [
     ['앞치마를 매고 튀김기 앞을 지킨다', 'fire', { fighter: 1, guard: 1 }, { iron_body: 1 }, 'cvs_1'],
