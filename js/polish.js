@@ -201,4 +201,11 @@
     }
     return baseHandle6.call(this, act, v);
   };
+
+  // [재평가 G] 시험 결과 창은 새 등급(예: E급)을 말하는데 뒤의 인물 카드는 아직 F였다: 결과 창을 띄우기 전에 지도 화면을 한 번 다시 그린다
+  const baseExamEnd = UI.renderExamEnd;
+  if (baseExamEnd) UI.renderExamEnd = function (...a) {
+    try { if (this.screen === 'game' && document.getElementById('world')) this.renderGame(); } catch (e) { /* 무시 */ }
+    return baseExamEnd.apply(this, a);
+  };
 }
