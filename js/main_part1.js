@@ -608,7 +608,8 @@ MAIN.ch(8, {
   done: (g, M) => { M.part1 = { c4: M.flags.c4, rivalPath: M.flags.rivalPath || null, dream: M.flags.dream || null }; g.lifeEvent('헌터로서 첫 해를 보냈다.'); },
 });
 
-// 데뷔 첫 사건(자격증 받은 날)을 넘기면 메인 1장 「전단지」가 바로 열린다. 석 달 기다리지 않는다
+// 데뷔 첫 사건(자격증 받은 날)을 넘기고 5~10일(무작위)이 지나면 메인 1장 「전단지」가 열린다. 석 달 기다리지 않는다.
+// (전에는 넘기자마자 바로 열려 튜토리얼 직후에 메인이 곧장 시작됐다 — 사용자 요청으로 며칠 간격을 둔다. 실제로 여는 것은 main_story.js mainCheck)
 if (typeof Game !== 'undefined') {
   const GP = Game.prototype; const baseDN = GP.debutNext;
   GP.debutNext = function (...a) {
@@ -618,8 +619,7 @@ if (typeof Game !== 'undefined') {
       const M = this.mainState();
       if (M.ch === 1 && !M.open[1] && !M.done[1]) {
         this.flags.story ??= {}; if (d.tier === 'normal') this.flags.story.mainLeaflet = true;
-        M.open[1] = this.monthKey();
-        this.queue.push({ type: 'toast', text: '메인 이야기 · 1장 「전단지」가 열렸다. 현재 퀘스트 맨 위를 보라.' });
+        M.firstDay ??= this.mainToday() + RNG.int(5, 10);
       }
     }
     return r;

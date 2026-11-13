@@ -100,9 +100,12 @@ const MAIN = {
     M.startMk ??= mk;
     const def = MAIN.chapters[M.ch]; if (!def || M.done[def.n]) return;
     if (!M.open[def.n]) {
+      // 1장은 데뷔 첫 사건 뒤 5~10일이 지나면 열린다(M.firstDay, js/main_part1.js 가 정한다 · 사용자 요청). 그 날짜가 없으면 예전처럼 석 달 뒤
+      const early = def.n === 1 && M.firstDay != null;
+      if (early && this.mainToday() < M.firstDay) return;
       const prevMk = def.n > 1 && M.done[def.n - 1] ? M.done[def.n - 1].mk : M.startMk;
       if (p.rankIdx < (def.rank || 0)) return;
-      if (mk - prevMk < (def.after || 0)) return;
+      if (!early && mk - prevMk < (def.after || 0)) return;
       if (def.when && !def.when(this, M)) return;
       M.open[def.n] = mk;
       if (def.cal) this.mainCalOpen(def.cal);

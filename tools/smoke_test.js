@@ -1181,7 +1181,15 @@ const { chromium, devices } = require('playwright');
       if (typeof MAIN === 'undefined' || !MAIN.chapters[1]) return '메인 시나리오 틀이 없다';
       const M = G.mainState(); const keep = JSON.stringify(M); const q = G.queue.slice(); const p = G.player; const pos0 = [p.x, p.y, p.region];
       try {
-        M.ch = 1; M.open = {}; M.done = {}; M.started = {}; M.flags = {}; M.scene = null; M.pending = null; M.startMk = G.monthKey() - 5;
+        M.ch = 1; M.open = {}; M.done = {}; M.started = {}; M.flags = {}; M.scene = null; M.pending = null;
+        // 시험 직후에는 열리지 않고 5~10일 뒤에 열린다
+        // 데뷔 첫 사건 뒤 며칠(5~10일)은 열리지 않고, 그 날이 되면 석 달을 기다리지 않고 열린다
+        M.startMk = G.monthKey(); M.firstDay = G.mainToday() + 7; G.mainCheck();
+        if (M.open[1]) return '1장이 대기일 전에 열렸다';
+        M.firstDay = G.mainToday(); G.mainCheck(); if (!M.open[1]) return '대기일이 지났는데 1장이 열리지 않았다';
+        // 대기일 정보가 없는 판(옛 저장)은 예전처럼 석 달 뒤
+        M.open = {}; M.firstDay = null; M.startMk = G.monthKey(); G.mainCheck(); if (M.open[1]) return '대기일 없는 판에서 1장이 바로 열렸다';
+        M.startMk = G.monthKey() - 5;
         G.mainCheck(); if (!M.open[1]) return '1장이 열리지 않았다';
         const city = WORLD.cityPos[p.region]; p.x = city[0]; p.y = city[1];
         if (!UI.hudQuests().includes('main-go')) return '퀘스트 목록에 메인 줄이 없다';
