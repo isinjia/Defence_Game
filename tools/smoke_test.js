@@ -1508,23 +1508,15 @@ const { chromium, devices } = require('playwright');
   await step('20년 무작위 진행에서 예외 없음', async () => {
     await ev(() => { for (let i = 0; i < 240 && !G.over; i++) { G.advanceMonth(1, { eventChance: 0.3 }); G.queue = []; } });
   });
-  await step('배경 음악: 곡 파일 6개가 있고 장면에 맞는 곡을 고른다', async () => {
-    const r = await ev(async () => {
-      const miss = [];
-      for (const [k, f] of Object.entries(BGM.TRACKS)) { const res = await fetch(BGM.DIR + f, { method: 'HEAD' }).catch(() => null); if (!res || !res.ok) miss.push(k); }
-      const keep = { s: UI.screen, c: UI.ctx, o: G.over }; const got = {};
-      UI.screen = 'title'; got.title = BGM.want();
-      UI.screen = 'game'; UI.ctx = null; G.over = null; got.world = BGM.want();
-      UI.ctx = { kind: 'gate', combat: {} }; got.gate = BGM.want();
-      UI.ctx = { kind: 'mob', combat: { toggleAuto() {}, units: [{ side: 'enemy' }] } }; got.battle = BGM.want();
-      UI.ctx = { kind: 'gate', combat: { toggleAuto() {}, units: [{ side: 'enemy', boss: true }] } }; got.boss = BGM.want();
-      UI.ctx = null; G.over = { date: '', reason: '' }; got.end = BGM.want();
-      UI.screen = keep.s; UI.ctx = keep.c; G.over = keep.o;
-      return { miss, bad: Object.keys(got).filter((k) => got[k] !== k), rows: UI.settingsHtml().includes('set-bgm-vol') };
-    });
-    if (r.miss.length) throw new Error('곡 파일 없음: ' + r.miss.join(', '));
-    if (r.bad.length) throw new Error('장면과 곡이 안 맞음: ' + r.bad.join(', '));
-    if (!r.rows) throw new Error('설정 창에 배경 음악 줄이 없음');
+  await step('배경 음악 제거 · 효과음 설정 유지', async () => {
+    const r = await ev(() => ({
+      absent: typeof BGM === 'undefined',
+      settings: !/set-bgm|배경 음악|음악 음량/.test(UI.settingsHtml()),
+      effects: typeof SFX !== 'undefined' && typeof SFX.play === 'function',
+      requests: performance.getEntriesByType('resource').filter(x => /assets\/bgm\//.test(x.name)).length,
+    }));
+    if (!r.absent || !r.settings || r.requests) throw new Error('배경 음악 코드·설정·요청이 남아 있음');
+    if (!r.effects) throw new Error('효과음 기능 누락');
   });
 
   const ver = await ev(() => typeof GAME_VERSION !== 'undefined' ? GAME_VERSION : '?');
