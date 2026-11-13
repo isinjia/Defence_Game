@@ -74,3 +74,13 @@ if (typeof UI !== 'undefined' && UI.charHtml) {
     return out;
   };
 }
+
+// 정보 창 탭 줄에서 '인물'·'도감' 탭을 뺀다 (사용자 요청). 기능(관계·도감 피해 보너스)은 그대로 남는다.
+if (typeof UI !== 'undefined' && UI.sheetHtml) {
+  const baseSheet = UI.sheetHtml;
+  UI.sheetHtml = function () {
+    const html = baseSheet.apply(this, arguments);
+    if (typeof html !== 'string') return html;
+    return html.replace(/<button\b[^>]*data-act="sheet" data-v="(?:people|dex)"[^>]*>[^<]*<\/button>/g, '');
+  };
+}
