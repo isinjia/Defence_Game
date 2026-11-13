@@ -3093,12 +3093,14 @@ const PortraitParts = (() => {
   //  남자 '매우 마름'·'보통'은 어깨가 좁아 머리가 커 보여서 한 단계 더 줄였다 (사용자 요청).
   //  여자 '통통'은 1이면 머리·헤어가 몸보다 커지고 턱이 옷깃에 붙어서 근육질과 비슷하게 줄였다 (사용자 요청).
   const HEAD_SCALE = { F: { thin:.86, normal:.92, strong:.96, heavy:.95 }, M: { thin:.80, normal:.85, strong:.96, heavy:1 } };
+  let _svgUid = 0;
   function svg(seed, gender, element, rankIdx, size, opts, avatar) {
     const selection = select(seed, gender, opts);
     const rank = Math.max(0, Math.min(RANKS.length - 1, rankIdx || 0));
     const ring = RANKS[rank].color;
     const aura = ELEMENTS[element] ? elemColor(element) : '#46e0d0';
-    const id = 'pp' + FX.hash(selection.key + element + rank + avatar);
+    // 호출마다 고유 id — 동일 캐릭터가 화면에 둘이면 clip/mask url(#…)이 엉켜 나체+옷이 겹쳐 보임
+    const id = 'pp' + FX.hash(selection.key + element + rank + avatar) + 'u' + (++_svgUid);
     const face = selection.layers[0], cloth = selection.layers[1], base = selection.baseBody;
     const female = face.file.startsWith('face-f');
     const underwear = selection.outfit === 'underwear';

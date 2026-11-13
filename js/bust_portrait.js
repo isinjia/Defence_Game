@@ -5,11 +5,26 @@
 {
   const BUST_VB = '45 55 310 310';
 
+  let _bustUid = 0;
+  /** clip/mask id를 호출마다 바꿔 대화 초상과 작은 아바타가 동시에 있어도 나체가 비치지 않게 */
+  function remintPortraitIds(html) {
+    const u = 'b' + (++_bustUid);
+    const map = new Map();
+    const rename = (id) => {
+      if (!/^(ho|pp)/.test(id)) return id;
+      if (!map.has(id)) map.set(id, id.replace(/[ub]\d+$/, '') + u);
+      return map.get(id);
+    };
+    return String(html)
+      .replace(/\bid="([^"]+)"/g, (_, id) => `id="${rename(id)}"`)
+      .replace(/url\(#([^)]+)\)/g, (_, id) => `url(#${rename(id)})`);
+  }
+
   /** 포트레이트 HTML → 상반신 크롭 SVG 문자열 */
   UI.toBustHtml = function (html, size = 64) {
     if (!html) return '';
     const d = document.createElement('div');
-    d.innerHTML = html;
+    d.innerHTML = remintPortraitIds(html);
     const svg = d.querySelector('svg');
     if (!svg) return html; // img 기반 초상 등은 그대로
     svg.setAttribute('viewBox', BUST_VB);

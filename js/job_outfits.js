@@ -772,6 +772,20 @@ const HunterOutfits = (() => {
   };
   const MIN_NECK=10;
   const cache=new Map();
+  let _hoUid=0;
+  // 같은 선임이 대화 초상+작은 아바타로 동시에 뜨면 clip/mask id가 문서에서 충돌해
+  // 직업옷 아래 기본 나체(underwear)가 그대로 보인다. 반환마다 id를 다시 붙인다.
+  function mintIds(html){
+    const u='u'+(++_hoUid),map=new Map();
+    const rename=id=>{
+      if(!/^(ho|pp)/.test(id))return id;
+      if(!map.has(id))map.set(id,id.replace(/u\d+$/,'')+u);
+      return map.get(id);
+    };
+    return String(html)
+      .replace(/\bid="([^"]+)"/g,(_,id)=>`id="${rename(id)}"`)
+      .replace(/url\(#([^)]+)\)/g,(_,id)=>`url(#${rename(id)})`);
+  }
   const node=(doc,name,attrs)=>{const e=doc.createElementNS(ns,name);for(const[k,v]of Object.entries(attrs||{}))e.setAttribute(k,v);return e;};
   // 승인 시안: 남성 흑염 코트는 어깨 폭 +14% 뒤 +20%, 세로 축척 .82→.94.
   // 카드·아바타와 파츠 선택 좌표가 같은 의상 비율을 사용한다.
@@ -782,7 +796,7 @@ const HunterOutfits = (() => {
   function render(avatar,seed,gender,element,rank,size,opts){
     const part=get(opts.outfit,gender);
     if(!part)return legacy[avatar?'avatar':'card'](seed,gender,element,rank,size,opts);
-    const key=JSON.stringify([avatar,seed,gender,element,rank,size,opts]);if(cache.has(key))return cache.get(key);
+    const key=JSON.stringify([avatar,seed,gender,element,rank,size,opts]);if(cache.has(key))return mintIds(cache.get(key));
     const bare={...opts,outfit:'underwear'}, selected=legacy.select(seed,gender,bare);
     const doc=new DOMParser().parseFromString(legacy[avatar?'avatar':'card'](seed,gender,element,rank,size,bare),'image/svg+xml');
     const svg=doc.documentElement,defs=doc.querySelector('defs'),female=gender==='F',type=selected.bodyType;
@@ -800,7 +814,7 @@ const HunterOutfits = (() => {
     const frontY=prof?backY+Math.max(...prof)*garmentY:backY+inD,radius=prof?44*fit:inW,side=backY+3,depth=Math.max(3,frontY-side);
     const opening=!prof?`M${200-radius} 0H${200+radius}V${frontY-depth}A${radius} ${depth} 0 0 1 ${200-radius} ${frontY-depth}Z`
       :`M${200-radius} 0H${200+radius}`+prof.map((d,k)=>`L${(200+(44-k*4)*fit).toFixed(1)} ${(backY+prof[prof.length-1-k]*garmentY).toFixed(1)}`).join('')+'Z';
-    const id='ho'+FX.hash(selected.key+opts.outfit+avatar),clip=node(doc,'clipPath',{id:id+'skin'});
+    const id='ho'+FX.hash(selected.key+opts.outfit+avatar)+'u'+(++_hoUid),clip=node(doc,'clipPath',{id:id+'skin'});
     const jaw=doc.querySelector('clipPath[id$="jaw"]');
     // clipPath 안에는 <g>를 둘 수 없어(브라우저가 무시) 턱 영역이 빠지고 얼굴이 좁은 기둥으로 잘렸다 → 도형마다 transform 을 붙인다
     const shift=c=>{const e=c.cloneNode(true);e.setAttribute('transform',`translate(0 ${pose}) ${e.getAttribute('transform')||''}`.trim());return e;};
@@ -824,7 +838,7 @@ const HunterOutfits = (() => {
     }
     svg.dataset.outfit=opts.outfit;svg.dataset.jobClass=part.classId;svg.dataset.jobFrontY=frontY;svg.dataset.jobBackY=backY;
     if(!avatar){svg.setAttribute('viewBox','0 0 400 480');svg.setAttribute('height',Math.round(size*480/400));const border=[...svg.children].find(n=>n.tagName==='rect'&&n.getAttribute('x')==='1');if(border)border.setAttribute('height',478);}
-    const result=new XMLSerializer().serializeToString(doc);if(cache.size>=96)cache.delete(cache.keys().next().value);cache.set(key,result);return result;
+    const result=new XMLSerializer().serializeToString(doc);if(cache.size>=96)cache.delete(cache.keys().next().value);cache.set(key,result);return mintIds(result);
   }
   PORTRAIT.card=(seed,g,e,r,size=200,opts={})=>render(false,seed,g,e,r,size,opts);
   PORTRAIT.avatar=(seed,g,e,r,size=56,opts={})=>render(true,seed,g,e,r,size,opts);
