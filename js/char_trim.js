@@ -49,6 +49,20 @@ if (typeof UI !== 'undefined' && UI.charHtml) {
         out = out.slice(0, i) + out.slice(j);
       }
     }
+    // 빛·어둠(선악) 칸: 제목 없이 끼어 있던 문구를 지우고, 성향 칸 바로 아래에 막대로 보여 준다
+    out = out.replace(/<div class="small align-line">[\s\S]*?<\/div>/, '');
+    const pl = typeof G !== 'undefined' && G.player;
+    const lm2 = findSec(out, '성향');
+    if (pl && lm2) {
+      const A = Math.round(pl.align || 0); const pct = Math.round((A + 100) / 2);
+      const kind = A >= 30 ? '빛' : A <= -30 ? '어둠' : '중립';
+      const txt = Math.abs(A) >= 30 && G.alignText ? G.alignText() : '';
+      const box = `<div class="sec"><div class="sec-title">빛 · 어둠 · ${kind} <span class="small dim num">(${A > 0 ? '+' : ''}${A})</span></div>
+        <div style="position:relative;height:8px;border-radius:4px;background:linear-gradient(90deg,#6b4a8a,#555 50%,#d9b65a)"><span style="position:absolute;top:-3px;left:calc(${pct}% - 7px);width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid #222"></span></div>
+        <div class="row small dim" style="justify-content:space-between"><span>어둠</span><span>빛</span></div>${txt ? `<div class="small dim">${txt}</div>` : ''}</div>`;
+      const e = blockEnd(out, lm2.index);
+      if (e > lm2.index) out = out.slice(0, e) + box + out.slice(e);
+    }
     // 성향 칸 위에 스테이터스(능력치) 칸
     const p = typeof G !== 'undefined' && G.player;
     const sm = findSec(out, '성향');
