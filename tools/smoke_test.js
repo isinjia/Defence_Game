@@ -1379,7 +1379,7 @@ const { chromium, devices } = require('playwright');
         for (const [n, k] of [[6, 5], [7, 4], [8, 5], [12, 5]]) if (MAIN.chapters[n].scenes.length < k) return `${n}장 장면이 ${k}개 미만이다`;
         if (!/분지/.test(linesOf(17, { basinBurn: true }, 'c17_way'))) return '분지 만료 잔향이 17장에 없다';
         M.log = [{ n: 1, title: '전단지', how: 'done', choice: '전단을 한 장 떼어 읽어 본다' }];
-        if (!/메인 이야기/.test(UI.charHtml()) || !/전단을 한 장/.test(UI.charHtml())) return '정보 탭에 메인 기록이 없다';
+        if (!/메인 이야기/.test(UI.mainLogHtml()) || !/전단을 한 장/.test(UI.mainLogHtml())) return '메인 기록이 만들어지지 않는다'; // 정보 탭에서는 사용자 요청으로 뺐다(js/char_trim.js)
         p.rankIdx = 6; setCh(39, { gateChoice: 'close', allies: ['friend'], friend3: 'saved' }); if (!play(39, 0) || M.ending !== 'seal' || !/봉인/.test(UI.mainEndingHtml())) return '39장 봉인 엔딩 HTML이 없다';
         setCh(38, {}); delete M.ending; MAIN.partEnd[6](G, M); if (M.ending !== 'other' || !/남의 이야기/.test(UI.mainEndingHtml())) return '남의 이야기 엔딩 HTML이 없다';
         // 부 시계: 2부를 18개월 넘게 끌면 남은 장이 만료(13장 → 친구 늦음)

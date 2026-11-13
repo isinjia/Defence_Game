@@ -90,7 +90,8 @@ if (typeof UI !== 'undefined') {
   const baseChar = UI.charHtml;
   UI.charHtml = function () {
     const html = baseChar.apply(this, arguments);
-    return html.replace('<div class="sec"><div class="sec-title">직업</div>', '<div class="sec"><button class="full" data-act="st-view">내 상태 한눈에 (직업·기술·상성·상황)</button></div><div class="sec"><div class="sec-title">직업</div>');
+    // 사용자 요청: '내 상태 한눈에' 단추와 직업 칸 삭제(직업은 위 태그로 보인다)
+    return html; // 칸 지우기는 js/char_trim.js(빌드 맨 뒤)에서
   };
 
   const baseHandle = UI.handle;
