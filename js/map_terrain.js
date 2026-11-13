@@ -24,7 +24,8 @@ const MapTerrain = (() => {
     im.src = src + '?v=webtoon-1';
   });
 
-  (async () => {
+  let loading = null;
+  const load = () => loading || (loading = (async () => {
     const base = 'assets/map/';
     const jobs = [];
     for (let t = 0; t < TYPE_COUNT; t++) {
@@ -43,7 +44,8 @@ const MapTerrain = (() => {
     ready.clear();
     atlas = null;
     resolveReady(assetsReady);
-  })();
+    return assetsReady;
+  })());
 
   const ensureAtlas = () => {
     if (!atlas) {
@@ -179,9 +181,11 @@ const MapTerrain = (() => {
   };
 
   return {
-    colors, ready, TYPE_COUNT, whenReady,
+    colors, ready, TYPE_COUNT, load,
+    get whenReady() { load(); return whenReady; },
     get readyAssets() { return assetsReady; },
     draw(c, type, px, py, s, x, y, frame) {
+      load();
       if (type < 0 || type >= TYPE_COUNT) return false;
       const variant = Math.floor(WORLD.h2(x, y, 73) * VARIANTS);
       sprite(c, type, variant, px, py, s);

@@ -33,6 +33,7 @@ const http = require('http');
       await page.goto(url);
       await page.click('[data-opening="skip"]');
       await page.waitForSelector('.world-opening', { state: 'hidden' });
+      await page.waitForFunction(() => !window.GateBoot || GateBoot.ready);
       const result = await page.evaluate(async () => {
         window.TUT_AUTO_TAP = true;
         UI.handle('new'); UI.handle('mode-manual'); UI.create.name = '지도검사'; UI.handle('c-start');

@@ -2,7 +2,7 @@
 const WorldOpening = (() => {
   const shots = [
     {
-      "image": "assets/backgrounds/opening-omen.svg",
+      "image": "assets/backgrounds/opening-omen.webp",
       "focus": "50% center",
       "duration": 4200,
       "lines": [
@@ -69,7 +69,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/backgrounds/opening-ether.svg",
+      "image": "assets/backgrounds/opening-ether.webp",
       "focus": "50% center",
       "duration": 4200,
       "lines": [
@@ -102,7 +102,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/backgrounds/opening-hunters.svg",
+      "image": "assets/backgrounds/opening-hunters.webp",
       "focus": "50% center",
       "duration": 5800,
       "lines": [
@@ -113,7 +113,7 @@ const WorldOpening = (() => {
       ]
     },
     {
-      "image": "assets/backgrounds/opening-quarantine.svg",
+      "image": "assets/backgrounds/opening-quarantine.webp",
       "focus": "50% center",
       "duration": 8000,
       "lines": [
@@ -150,6 +150,7 @@ const WorldOpening = (() => {
   const finish = () => {
     if (!root) return;
     stop(); root.remove(); root = null;
+    document.dispatchEvent(new Event('gate-opening-finished'));
     document.removeEventListener('keydown', keydown, true);
     document.removeEventListener('visibilitychange', visibility);
     const target = returnFocus && returnFocus !== document.body && returnFocus.isConnected ? returnFocus : document.querySelector('.title-screen [data-act="new"]');
@@ -189,6 +190,7 @@ const WorldOpening = (() => {
       layerIndex = 1 - layerIndex;
       root.dataset.shot = String(at.i);
       shotIndex = at.i; lineIndex = -1;
+      document.dispatchEvent(new CustomEvent('gate-opening-scene', { detail: at.i }));
       if (shots[at.i + 1]) { const nextImage = new Image(); nextImage.src = shots[at.i + 1].image; }
     }
     let nextLine = -1;
@@ -240,7 +242,7 @@ const WorldOpening = (() => {
     }
   };
   const start = () => {
-    if (root || UI.screen !== 'title') return;
+    if (root || (typeof UI !== 'undefined' && UI.screen !== 'title')) return;
     returnFocus = document.activeElement;
     elapsed = 0; shotIndex = -1; lineIndex = -1; layerIndex = 0; finishing = false;
     manual = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -269,10 +271,15 @@ const WorldOpening = (() => {
     const button = document.createElement('button'); button.type = 'button'; button.className = 'ghost';
     button.dataset.act = 'world-opening'; button.textContent = '오프닝 다시 보기'; buttons.appendChild(button);
   };
-  const baseTitle = UI.renderTitle;
-  UI.renderTitle = function (...args) { const result = baseTitle.apply(this, args); addReplay(); return result; };
-  const baseHandle = UI.handle;
-  UI.handle = function (action, ...args) { if (action === 'world-opening') return start(); return baseHandle.call(this, action, ...args); };
-  addReplay(); start();
+  const connectGame = () => {
+    const baseTitle = UI.renderTitle;
+    UI.renderTitle = function (...args) { const result = baseTitle.apply(this, args); addReplay(); return result; };
+    const baseHandle = UI.handle;
+    UI.handle = function (action, ...args) { if (action === 'world-opening') return start(); return baseHandle.call(this, action, ...args); };
+    addReplay();
+  };
+  if (typeof UI !== 'undefined') connectGame();
+  else document.addEventListener('gate-game-ready', connectGame, { once: true });
+  start();
   return { start, finish, get active() { return !!root; } };
 })();

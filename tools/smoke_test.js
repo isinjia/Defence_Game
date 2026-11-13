@@ -57,6 +57,7 @@ const { chromium, devices } = require('playwright');
     await page.click('.world-opening', { position: { x: 50, y: 200 } });
     await page.waitForFunction(() => /하늘|아무도/.test(document.querySelector('.opening-caption-space').textContent));
     await page.click('[data-opening="skip"]');
+    await page.waitForFunction(() => !window.GateBoot || GateBoot.ready);
     if (await page.locator('.world-opening').count()) throw new Error('스킵 실패');
     await page.click('[data-act="world-opening"]');
     await page.keyboard.press('Escape');
@@ -1468,6 +1469,7 @@ const { chromium, devices } = require('playwright');
     if (!before.saved) throw new Error('이어하기 전 저장 없음: ' + JSON.stringify(before));
     await page.reload(); await page.waitForTimeout(600);
     if (await page.locator('[data-opening="skip"]').isVisible()) await page.click('[data-opening="skip"]');
+    await page.waitForFunction(() => !window.GateBoot || GateBoot.ready);
     await page.click('[data-act="continue"]'); await page.waitForTimeout(300);
     const after = await ev(() => G.player ? { name: G.player.name, ym: G.year * 12 + G.month } : null);
     if (!after || after.name !== before.name || after.ym !== before.ym) throw new Error(`불러온 값이 다름: ${JSON.stringify(before)} → ${JSON.stringify(after)}`);
@@ -1481,6 +1483,7 @@ const { chromium, devices } = require('playwright');
     });
     await page.reload(); await page.waitForTimeout(600);
     if (await page.locator('[data-opening="skip"]').isVisible()) await page.click('[data-opening="skip"]');
+    await page.waitForFunction(() => !window.GateBoot || GateBoot.ready);
     await page.click('[data-act="continue"]'); await page.waitForTimeout(300);
     const r = await ev(() => ({ p: G.player.element, n: G.npcs[0].element, g: (G.mapGates.find((x) => x.id === 999777) || {}).elem, f: G.player.foeSeen[0], m: elemMult('holy', 'dark') + elemMult('water', 'fire') + elemMult('fire', 'water') }));
     if (r.p !== 'water' || r.n !== 'dark' || (r.g && r.g !== 'wood') || r.f !== '고목 거신' || Math.abs(r.m - 3.7) > 1e-9) throw new Error('이전 결과: ' + JSON.stringify(r));
@@ -1506,7 +1509,7 @@ const { chromium, devices } = require('playwright');
     const c3 = await browser.newContext({ ...devices['iPhone SE'] }); const pg = await c3.newPage();
     const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
     try {
-      await pg.goto(url); await pg.evaluate(() => localStorage.clear()); await pg.reload(); await pg.waitForTimeout(300); await pg.click('[data-opening="skip"]');
+      await pg.goto(url); await pg.evaluate(() => localStorage.clear()); await pg.reload(); await pg.waitForTimeout(300); await pg.click('[data-opening="skip"]'); await pg.waitForFunction(() => !window.GateBoot || GateBoot.ready);
       await pg.evaluate(() => { UI.handle('new'); UI.handle('mode-manual'); UI.create.name = '말풍선'; UI.handle('c-start'); });
       await pg.evaluate(() => {
         window.__sp = { max: 0, jumps: 0, note: '' }; let last = null, lastKey = null;
@@ -1541,7 +1544,7 @@ const { chromium, devices } = require('playwright');
   for (const D of ['iPhone SE', 'Galaxy S9+', 'Galaxy Z Fold 7 Cover', 'Pixel 7']) {
     const c2 = await browser.newContext({ ...devices[D] }); await c2.addInitScript(() => { window.TUT_AUTO_TAP = true; }); const pg = await c2.newPage();
     try {
-      await pg.goto(url); await pg.evaluate(() => localStorage.clear()); await pg.reload(); await pg.waitForTimeout(400); await pg.click('[data-opening="skip"]');
+      await pg.goto(url); await pg.evaluate(() => localStorage.clear()); await pg.reload(); await pg.waitForTimeout(400); await pg.click('[data-opening="skip"]'); await pg.waitForFunction(() => !window.GateBoot || GateBoot.ready);
       await pg.evaluate(() => {
         UI.handle('new'); UI.handle('mode-manual'); UI.create.name = '화면'; UI.handle('c-start');
         for (let i = 0; i < 12 && UI.modalOpen(); i++) UI.closeModal(); G.queue = []; G.player.examDone = true;
