@@ -25,15 +25,15 @@ html, body { height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 14px; line-height: 1.5; overflow: hidden; }
 #app { height: 100%; }
 button { font: inherit; color: var(--text); background: var(--panel2); border: 1px solid var(--line); border-radius: 4px; padding: 7px 12px; cursor: pointer; transition: border-color .15s, background .15s, transform .1s; display: inline-flex; align-items: center; gap: 6px; }
-button:hover:not(:disabled) { border-color: var(--ether); background: #17243a; }
+@media (hover: hover) { button:hover:not(:disabled) { border-color: var(--ether); background: #17243a; } }
 button:active:not(:disabled) { transform: translateY(1px); }
 button:focus-visible, [tabindex]:focus-visible, input:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 button:disabled { opacity: .38; cursor: not-allowed; }
 button.primary { background: var(--amber); border-color: var(--amber); color: #1a1205; font-weight: 700; }
-button.primary:hover:not(:disabled) { background: #ffc66e; border-color: #ffc66e; }
+@media (hover: hover) { button.primary:hover:not(:disabled) { background: #ffc66e; border-color: #ffc66e; } }
 button.primary .dim-in, button.primary .num { color: #3a2a0a; }
 button.danger { border-color: #ff5a6e88; color: #ffb3bc; background: #2a1219; }
-button.danger:hover:not(:disabled) { border-color: var(--bad); background: #3a1621; }
+@media (hover: hover) { button.danger:hover:not(:disabled) { border-color: var(--bad); background: #3a1621; } }
 button.ghost { background: transparent; }
 button.sm { padding: 4px 9px; font-size: 12.5px; }
 button.big { padding: 12px 18px; font-size: 16px; justify-content: center; }
@@ -416,7 +416,7 @@ p { margin: 6px 0; }
 
 /* ---------- 직업, 파티 ---------- */
 .tag.cls { color: var(--c); border-color: color-mix(in srgb, var(--c) 45%, transparent); }
-.tag.tiny { font-size: 10.5px; padding: 0 5px; }
+.tag.tiny { font-size: 11px; padding: 0 5px; }
 .tag.rar { font-family: var(--font-num); }
 .tag.rar.r1 { color: #6fb8ff; border-color: #6fb8ff66; }
 .tag.rar.r2 { color: #c58cff; border-color: #c58cff66; }
@@ -506,7 +506,7 @@ p { margin: 6px 0; }
 }
 
 /* 버전 표시 */
-.ver { position: fixed; right: max(4px, env(safe-area-inset-right, 0px)); bottom: max(1px, env(safe-area-inset-bottom, 0px)); z-index: 50; font-family: var(--font-num); font-size: 10px; letter-spacing: .06em; color: var(--dim); opacity: .75; pointer-events: none; }
+.ver { position: fixed; right: max(4px, env(safe-area-inset-right, 0px)); bottom: max(1px, env(safe-area-inset-bottom, 0px)); z-index: 50; font-family: var(--font-num); font-size: 11px; letter-spacing: .06em; color: var(--dim); opacity: .75; pointer-events: none; }
 .title-ver { font-family: var(--font-num); font-size: 12px; letter-spacing: .2em; color: var(--ether); opacity: .8; margin-top: 2px; }
 .tag.race { color: #9be36b; border-color: #9be36b55; }
 
@@ -552,7 +552,7 @@ button.item-row { width: 100%; text-align: left; }
 .ally .bar-row .bar { margin: 0; }
 .ally .hp-t, .ally .mp-t { font-size: 11px; line-height: 1; min-width: 4.6em; text-align: right; }
 .ally .mp-t { color: #8cc4ff; }
-@media (max-width: 640px) { .ally .hp-t, .ally .mp-t { font-size: 10px; min-width: 4.2em; } .ally .bar-row { gap: 4px; margin-top: 2px; } }
+@media (max-width: 640px) { .ally .hp-t, .ally .mp-t { font-size: 11px; min-width: 4.2em; } .ally .bar-row { gap: 4px; margin-top: 2px; } }
 
 /* 전투 로그 대신 무대와 조작부 사이 간격 */
 .combat-box #cb-ctrl { margin-top: 8px; }
@@ -611,7 +611,7 @@ button.item-row { width: 100%; text-align: left; }
 .ally.fig .sprite .avatar, .ally.fig .sprite svg { width: 58px; height: 58px; }
 .ally.fig.summon .sprite svg { width: 52px; height: 52px; }
 .ally.fig .fig-name { font-size: 12.5px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
-.ally.fig .tag.cls { font-size: 10px; padding: 0 4px; margin: 0; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ally.fig .tag.cls { font-size: 11px; padding: 0 4px; margin: 0; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .ally.fig .bar-row { width: 100%; margin-top: 1px; }
 .ally.fig .bar.atb.mini { width: 100%; }
 .ally.fig.me .fig-name b { color: var(--amber); }
@@ -623,12 +623,12 @@ button.item-row { width: 100%; text-align: left; }
   .ally.fig { width: 31%; max-width: 118px; padding: 3px 2px 4px; }
   .ally.fig .sprite .avatar, .ally.fig .sprite svg { width: 50px; height: 50px; }
   .ally.fig .tag.cls { display: none; }
-  .ally.fig .hp-t, .ally.fig .mp-t { min-width: 3.9em; font-size: 9.5px; }
+  .ally.fig .hp-t, .ally.fig .mp-t { min-width: 3.9em; font-size: 11px; }
 }
 
 /* ---------- 전투 오더 ---------- */
-.ally.fig .lead-tag { position: absolute; top: 0; left: 2px; font-size: 10px; font-weight: 700; color: #1a1205; background: var(--amber); padding: 0 4px; border-radius: 3px; z-index: 2; }
-.ally.fig .order-tag { position: absolute; top: 0; right: 2px; max-width: 70%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 10px; color: #8cc4ff; background: #0d1a2a; border: 1px solid #8cc4ff88; padding: 0 4px; border-radius: 3px; z-index: 2; }
+.ally.fig .lead-tag { position: absolute; top: 0; left: 2px; font-size: 11px; font-weight: 700; color: #1a1205; background: var(--amber); padding: 0 4px; border-radius: 3px; z-index: 2; }
+.ally.fig .order-tag { position: absolute; top: 0; right: 2px; max-width: 70%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 11px; color: #8cc4ff; background: #0d1a2a; border: 1px solid #8cc4ff88; padding: 0 4px; border-radius: 3px; z-index: 2; }
 .ally.fig.leader { border-color: #ffb54755; }
 .order-panel .skill-btns { margin: 4px 0; }
 .lead-order { border: 1px solid #8cc4ff88; border-left: 3px solid #8cc4ff; background: #0d1a2a; padding: 6px 10px; margin-bottom: 6px; font-size: 13px; }
@@ -665,9 +665,9 @@ button.item-row { width: 100%; text-align: left; }
 .order-bubble { position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%); z-index: 7; pointer-events: none; white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; background: #f4efe4; color: #1b1712; font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 12px; box-shadow: 0 4px 12px #0009; animation: sayin .25s ease-out; }
 .order-bubble::after { content: ""; position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); border: 6px solid transparent; border-bottom: 0; border-top-color: #f4efe4; }
 .foe.marked .reticle, .ally.marked .reticle { opacity: 1; border-color: #8cc4ff; animation: pulse-r 1s infinite; }
-.foe.marked .fx-host::after, .ally.fig.marked .fx-host::after { content: "지목"; position: absolute; top: -2px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: #08131f; background: #8cc4ff; padding: 0 5px; border-radius: 3px; z-index: 3; }
+.foe.marked .fx-host::after, .ally.fig.marked .fx-host::after { content: "지목"; position: absolute; top: -2px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 700; color: #08131f; background: #8cc4ff; padding: 0 5px; border-radius: 3px; z-index: 3; }
 .skill-btn.ordered { box-shadow: inset 0 0 0 2px #8cc4ff; position: relative; }
-.skill-btn.ordered::after { content: "리더"; position: absolute; top: 3px; right: 4px; font-size: 10px; font-weight: 700; color: #08131f; background: #8cc4ff; padding: 0 5px; border-radius: 3px; }
+.skill-btn.ordered::after { content: "리더"; position: absolute; top: 3px; right: 4px; font-size: 11px; font-weight: 700; color: #08131f; background: #8cc4ff; padding: 0 5px; border-radius: 3px; }
 .ally.fig .order-tag { display: inline-flex; align-items: center; gap: 2px; }
 svg.order-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; }
 svg.order-lines line { stroke: #8cc4ff; stroke-width: 2; stroke-dasharray: 5 4; opacity: .85; }
@@ -696,8 +696,8 @@ svg.order-lines line { stroke: #8cc4ff; stroke-width: 2; stroke-dasharray: 5 4; 
 
 /* ---------- 적 행동 예고 ---------- */
 .foe .fx-host { position: relative; }
-.intent { position: absolute; top: 0; right: 0; z-index: 3; display: inline-flex; align-items: center; gap: 2px; padding: 2px 4px 2px 3px; border-radius: 12px; background: rgba(8, 12, 20, .88); border: 1px solid var(--ic, #ff6b5a); color: var(--ic, #ff6b5a); font-size: 10px; line-height: 1; pointer-events: none; animation: intentin .2s ease-out; box-shadow: 0 0 8px color-mix(in srgb, var(--ic, #ff6b5a) 45%, transparent); }
-.intent b { font-size: 10px; }
+.intent { position: absolute; top: 0; right: 0; z-index: 3; display: inline-flex; align-items: center; gap: 2px; padding: 2px 4px 2px 3px; border-radius: 12px; background: rgba(8, 12, 20, .88); border: 1px solid var(--ic, #ff6b5a); color: var(--ic, #ff6b5a); font-size: 11px; line-height: 1; pointer-events: none; animation: intentin .2s ease-out; box-shadow: 0 0 8px color-mix(in srgb, var(--ic, #ff6b5a) 45%, transparent); }
+.intent b { font-size: 11px; }
 .intent-face { line-height: 0; }
 .intent-face .avatar, .intent-face svg { width: 18px !important; height: 18px !important; border-radius: 50%; }
 @keyframes intentin { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
@@ -705,7 +705,7 @@ svg.order-lines line { stroke: #8cc4ff; stroke-width: 2; stroke-dasharray: 5 4; 
 
 /* ---------- 동료 작전 지시 버튼 (전투 머리 도구 줄) ---------- */
 .cb-tools .tactic-btn { width: auto; min-width: 44px; padding: 2px 8px; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; line-height: 1.1; }
-.cb-tools .tactic-btn .tac-k { font-size: 9.5px; color: var(--dim, #9aa6b8); letter-spacing: .05em; }
+.cb-tools .tactic-btn .tac-k { font-size: 11px; color: var(--dim, #9aa6b8); letter-spacing: .05em; }
 .cb-tools .tactic-btn b { font-size: 12.5px; }
 .cb-tools .tactic-btn.on { border-color: var(--amber); color: var(--amber); }
 .cb-tools .tactic-btn.locked { opacity: .75; border-style: dashed; }
@@ -725,7 +725,7 @@ svg.order-lines line { stroke: #8cc4ff; stroke-width: 2; stroke-dasharray: 5 4; 
 
 /* ---------- 속성 상태 이상 (그림 왼쪽 아래 작은 아이콘) ---------- */
 .stfx { position: absolute; left: 0; bottom: 0; z-index: 3; display: flex; gap: 1px; pointer-events: none; }
-.stfx i { font-style: normal; width: 15px; height: 15px; border-radius: 50%; display: grid; place-items: center; font-size: 9.5px; font-weight: 800; color: #0b0f17; background: var(--sc); box-shadow: 0 0 6px var(--sc); }
+.stfx i { font-style: normal; width: 15px; height: 15px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #0b0f17; background: var(--sc); box-shadow: 0 0 6px var(--sc); }
 .ally .fx-host { position: relative; }
 
 /* ---------- 원소 반응·연계 연출 ---------- */
@@ -754,7 +754,7 @@ html body .idc-top, html body .idc-body { position: relative; z-index: 1; }
 html body .idc-photo { background: #fff; }
 html body .idc-photo * { animation: none !important; }
 html body .idc-row.dim, html body .idc-info .dim { opacity: 1; color: inherit; font-weight: 600; }
-html body .idc-info .small { font-size: 10.5px; }
+html body .idc-info .small { font-size: 11px; }
 
 
 /* 오더 중: 전장 맨 위 띠 (누구에게 · 무엇을 · 지시함) */
@@ -801,7 +801,7 @@ html body .skill-btn > .sk-tags > .sk-tag { display: inline-block !important; wi
 .gnode.unknown { --c: #8a94a6; }
 .gnode.unknown svg { opacity: .85; }
 .gnode.scouted.unsure { border-style: dashed !important; }
-.gnode.scouted.unsure::after { content: "?"; position: absolute; right: -4px; top: -4px; width: 14px; height: 14px; border-radius: 50%; background: #2a3242; color: #ffd84d; font-size: 10px; font-weight: 800; line-height: 14px; text-align: center; }
+.gnode.scouted.unsure::after { content: "?"; position: absolute; right: -4px; top: -4px; width: 14px; height: 14px; border-radius: 50%; background: #2a3242; color: #ffd84d; font-size: 11px; font-weight: 800; line-height: 14px; text-align: center; }
 .scout-line { margin: 2px 0 4px; line-height: 1.4; }
 .scout-line .scout-who { color: #5ee0c8; }
 .scout-line .scout-who.none { color: #ffb36b; }
@@ -843,13 +843,13 @@ html body .duel-choice .choice-btn::before { display: none; }
 :root { --order: #8cc4ff; }
 /* 대상(적·아군): 오더 점선의 대상 쪽 끝에 달린 배지 (자리는 js/orders.js가 빈 쪽으로 잡는다) + 파란 조준 고리 */
 html body .foe.marked .fx-host::after, html body .ally.fig.marked .fx-host::after { content: none; }
-.order-end { position: absolute; transform: translate(-50%, -50%); font-size: 10px; font-weight: 800; line-height: 14px; color: #08131f; background: var(--order); padding: 0 5px; border-radius: 7px;
+.order-end { position: absolute; transform: translate(-50%, -50%); font-size: 11px; font-weight: 800; line-height: 14px; color: #08131f; background: var(--order); padding: 0 5px; border-radius: 7px;
   box-shadow: 0 0 0 1.5px #05080d; z-index: 4; pointer-events: none; white-space: nowrap; }
 /* 스킬 버튼: 왼쪽 위 모서리에 걸친 배지 (MP·속성·상성·범위 태그를 가리지 않는다) */
 html body .skill-btn.ordered, html body .cmd-main .cmd.ordered { box-shadow: inset 0 0 0 2px var(--order); position: relative; overflow: visible !important; }
 html body .skill-btn.ordered::after, html body .cmd-main .cmd.ordered::after {
   content: "오더"; position: absolute; top: -9px; left: 8px; right: auto;
-  font-size: 10px; font-weight: 800; line-height: 14px; color: #08131f; background: var(--order); padding: 0 5px; border-radius: 7px;
+  font-size: 11px; font-weight: 800; line-height: 14px; color: #08131f; background: var(--order); padding: 0 5px; border-radius: 7px;
   box-shadow: 0 0 0 1.5px #05080d; z-index: 2; pointer-events: none; }
 /* 오더를 받은 아군 머리 위 표식도 같은 색·모양 */
 html body .ally.fig .order-tag { color: #08131f; background: var(--order); border: 0; border-radius: 7px; font-weight: 800; padding: 0 5px; box-shadow: 0 0 0 1.5px #05080d; z-index: 2; }
@@ -899,7 +899,7 @@ html body .combat-box.fit #foes.foe-grid .foe { margin: 0; max-width: none; }
 html body #foes.foe-grid .foe.slot-freed { display: none !important; }
 /* 스킬 버튼: 오더 표시는 이름 오른쪽 */
 html body .skill-btn.ordered::after, html body .cmd-main .cmd.ordered::after { content: none; }
-.order-chip { display: inline-block; vertical-align: middle; font-style: normal; font-size: 10px; font-weight: 800; line-height: 14px; color: #08131f; background: var(--order, #8cc4ff); padding: 0 5px; border-radius: 7px; margin-left: 4px; }
+.order-chip { display: inline-block; vertical-align: middle; font-style: normal; font-size: 11px; font-weight: 800; line-height: 14px; color: #08131f; background: var(--order, #8cc4ff); padding: 0 5px; border-radius: 7px; margin-left: 4px; }
 html body .cmd-list .skill-btn.ordered { margin-top: 0; }
 .ally.vanishing { animation: vanishOut .38s ease-out forwards; }
 /* 아군 줄: 보이지 않는 5칸 */
@@ -917,8 +917,8 @@ html body .combat-box .foe.foe-card .bar.atb { display: none; }
 html body .combat-box.fit .foe.foe-card > .fx-host { order: 0; }
 html body .combat-box.fit .foe.foe-card > .bar.hp { order: 1; margin-top: 3px; }
 html body .combat-box.fit .foe.foe-card > .brk { order: 2; }
-html body .combat-box.fit .foe.foe-card > .foe-hp { order: 3; font-size: 9.5px; line-height: 1.1; }
-html body .combat-box.fit .foe.foe-card > .foe-name { order: 4; font-size: 10.5px; line-height: 1.2; }
+html body .combat-box.fit .foe.foe-card > .foe-hp { order: 3; font-size: 11px; line-height: 1.1; }
+html body .combat-box.fit .foe.foe-card > .foe-name { order: 4; font-size: 11px; line-height: 1.2; }
 html body .combat-box.fit .foe.foe-card > .status { order: 5; }
 /* 리더 결정 (D) */
 .choice-btn.lead-pick { outline: 2px solid var(--amber, #f5b84a); opacity: 1 !important; }
@@ -948,7 +948,7 @@ html body .combat-box.fit #foes.foe-grid { grid-template-rows: repeat(2, calc(va
 .st-sks { display: grid; gap: 2px; }
 .st-sk { display: flex; align-items: center; gap: 5px; font-size: 13px; min-width: 0; }
 .st-sk b { white-space: nowrap; }
-.st-sk .tag { flex: none; font-size: 10px; padding: 0 4px; }
+.st-sk .tag { flex: none; font-size: 11px; padding: 0 4px; }
 .st-sk-d { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .st-dot { width: 14px; height: 14px; flex: none; }
 .st-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px 8px; margin-top: 4px; font-size: 12px; }

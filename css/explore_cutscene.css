@@ -43,7 +43,7 @@
 @keyframes ec-glow { from { opacity: .45; } to { opacity: 1; } }
 @media (max-width: 520px) {
   .ec-header, .ec-footer { padding-left: 20px; padding-right: 20px; }
-  .ec-header { font-size: 10px; letter-spacing: .04em; }
+  .ec-header { font-size: 11px; letter-spacing: .04em; }
   .ec-header i { margin: 0 4px; }
   .ec-stage > .ec-art { height: 80%; }
   .ec-caption { bottom: 6%; }

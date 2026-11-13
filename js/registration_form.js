@@ -18,7 +18,7 @@
  ${section('04', '기초 능력', `<div class="reg-stats">${[['maxHp', '체력'], ['maxMp', '정신력'], ['atk', '공격'], ['def', '방어'], ['spd', '속도'], ['luck', '운']].map(([key, name]) => `<div><span>${name}</span><b>${Math.round(p[key] || 0)}</b></div>`).join('')}</div>`)}
  ${section('05', '선천 특성', `<div class="reg-traits">${p.traits.map((id) => { const t = traitById(id); return t ? `<div><b>${esc(t.name)}</b><p>${esc(t.desc)}</p></div>` : ''; }).join('') || '<p>특이 사항 없음</p>'}</div>`)}
  ${section('06', '소지품', `<div class="st-inv">${this.statusInvHtml()}</div>`)}
- <footer class="reg-sign"><p>위 기재 사항을 확인하고 각성자 등록을 신청합니다.</p><div class="reg-sign-row"><span>신청인</span><b class="reg-sig-name">${esc(p.name)}</b><div class="reg-sig-slot" aria-label="서명란"><i class="reg-sig-ink" aria-hidden="true"></i></div><small>(서명)</small></div></footer>
+ <footer class="reg-sign"><p>위 기재 사항을 확인하고 각성자 등록을 신청합니다.</p><div class="reg-sign-row"><span>신청인</span><b class="reg-sig-name">${esc(p.name)}</b><span class="reg-sig-spot" aria-label="서명란"><small>(서명)</small><i class="reg-sig-ink" aria-hidden="true"></i></span></div></footer>
  </div><div class="st-foot reg-action"><button class="primary full" data-act="st-go">신청서 제출 · 시험장으로 <span aria-hidden="true">→</span></button></div></div>`;
   };
 
