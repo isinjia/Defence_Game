@@ -56,6 +56,7 @@
 /* 원형 글자 배지·무리형(무)·적 타겟 조준·의도 타겟 얼굴·아군 위협(!) 숨김 */
 #modal-box.cu-v2 .elem-badge,
 #modal-box.cu-v2 .mtype,
+#modal-box.cu-v2 .stfx,
 #modal-box.cu-v2 .foe .reticle,
 #modal-box.cu-v2 .foe.target .reticle,
 #modal-box.cu-v2 #foes.aim .foe .reticle,
@@ -195,11 +196,11 @@
 }
 #modal-box.cu-v2 #allies .ally.fig .sprite .avatar,
 #modal-box.cu-v2 #allies .ally.fig .sprite svg,
-#modal-box.cu-v2 #allies .ally.fig .sprite img {
+#modal-box.cu-v2 #allies .ally.fig .sprite img,
+#modal-box.cu-v2 #allies .ally.fig .sprite svg.cu-bust,
+#modal-box.cu-v2 #allies .ally.fig .sprite svg.portrait {
   width: 54px !important; height: 54px !important; border-radius: 50%;
-  /* 보조: 살짝 축소·아래로 밀어 의상 노출 */
-  transform: scale(1.08) translateY(6%);
-  transform-origin: 50% 35%;
+  transform: none; object-fit: cover;
 }
 #modal-box.cu-v2 #allies .ally.fig .fx-host > .fig-name { font-size: 10px; bottom: -10px; max-width: 78px; }
 #modal-box.cu-v2 #allies .ally.fig .bar-row { width: 100%; }

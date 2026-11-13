@@ -13,19 +13,40 @@
     }
   };
 
-  // 초상: 원 중심을 내려 얼굴은 위·상체·의상은 아래에 들어오게
-  const bustCrop = (host) => {
-    const svg = host && host.querySelector('.sprite svg[data-portrait-parts]');
-    if (!svg || svg.dataset.cuBust) return;
-    svg.dataset.cuBust = '1';
-    const pose = parseFloat(svg.getAttribute('data-base-offset') || '0') || 0;
-    // 창을 아래로 옮겨 가슴·옷깃이 원에 들어오게 (머리만 보이던 문제)
-    svg.setAttribute('viewBox', `60 ${40 + pose} 280 280`);
-    const clip = svg.querySelector('clipPath circle');
-    const ring = [...svg.children].find((n) => n.tagName === 'circle');
-    const cy = 175 + pose;
-    if (clip) { clip.setAttribute('cx', '200'); clip.setAttribute('cy', String(cy)); clip.setAttribute('r', '138'); }
-    if (ring) { ring.setAttribute('cx', '200'); ring.setAttribute('cy', String(cy)); ring.setAttribute('r', '136'); ring.setAttribute('stroke-width', '3'); }
+  // 아바타는 얼굴만 그려 의상이 안 보이므로, 상반신 포트레이트(의상 포함)로 바꿔 원에 넣는다
+  const allyBustHtml = (u) => {
+    try {
+      if (!u || u.summon) return null;
+      if (u.isPlayer && typeof UI.playerPortrait === 'function') return UI.playerPortrait(120);
+      if (u.npcId && typeof UI.npcPortrait === 'function') {
+        const n = G.npcById(u.npcId); if (n) return UI.npcPortrait(n, 120);
+      }
+      if (u.portrait && typeof FX !== 'undefined' && FX.portrait) {
+        const q = u.portrait;
+        const opts = { ...(typeof Wardrobe !== 'undefined' && Wardrobe.appearance ? Wardrobe.appearance(u) : {}), ...q };
+        if (!opts.outfit && typeof Wardrobe !== 'undefined' && Wardrobe.profession) opts.outfit = Wardrobe.profession(u.cls, u.bg);
+        return FX.portrait(q.seed, q.gender, q.elem, u.tier || 0, 120, opts);
+      }
+    } catch (e) { /* 실패 시 기존 아바타 유지 */ }
+    return null;
+  };
+
+  const applyAllyBust = (u, host) => {
+    const spr = host && host.querySelector('.sprite');
+    if (!spr || spr.dataset.cuBust) return;
+    const html = allyBustHtml(u);
+    if (!html) return;
+    spr.dataset.cuBust = '1';
+    spr.innerHTML = html;
+    const svg = spr.querySelector('svg');
+    if (svg) {
+      svg.classList.add('cu-bust');
+      // 머리~상체·의상이 원에 들어오게 상단 크롭
+      svg.setAttribute('viewBox', '45 55 310 310');
+      svg.setAttribute('width', '54');
+      svg.setAttribute('height', '54');
+      svg.querySelectorAll(':scope > circle, :scope > rect').forEach((n) => n.remove());
+    }
   };
 
   // 아군: 전열·후열 두 줄만 (리더 전용 줄은 만들지 않음)
@@ -74,7 +95,7 @@
     el.classList.remove('threatened');
     // 이름은 초상(.fx-host) 하단 테두리에 겹침, 속성 아이콘은 이름 옆
     if (el.classList.contains('ally')) {
-      bustCrop(host);
+      applyAllyBust(u, host);
       const name = el.querySelector('.fig-name');
       if (name && name.parentNode !== host) host.appendChild(name);
       ensureNameIcon(name, u);
