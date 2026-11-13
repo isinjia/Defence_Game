@@ -1,7 +1,13 @@
 // 오프닝은 게임 계산 없이 바로 표시한다. 본편은 첫 입력 또는 오프닝 종료 시 준비한다.
 (() => {
   const source = document.currentScript.dataset.game;
-  let loading = null, actionPending = false;
+  const styleSource = document.currentScript.dataset.style;
+  let loading = null, engine = null, stylesheet = null, actionPending = false;
+  const loadAsset = element => new Promise((resolve, reject) => {
+    element.onload = resolve;
+    element.onerror = () => { element.remove(); reject(new Error('게임을 불러오지 못했습니다. 다시 시도해 주세요.')); };
+    document.head.appendChild(element);
+  });
   window.GateBoot = {
     ready: false,
     load() {
@@ -10,19 +16,21 @@
       if (artwork && !artwork.src) artwork.src = artwork.dataset.src;
       const fonts = document.getElementById('game-fonts');
       if (fonts && !fonts.href) { fonts.rel = 'stylesheet'; fonts.href = fonts.dataset.href; }
-      loading = new Promise((resolve, reject) => {
+      if (!stylesheet) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet'; link.href = styleSource;
+        stylesheet = loadAsset(link).catch(error => { stylesheet = null; throw error; });
+      }
+      if (!engine) {
         const script = document.createElement('script');
         script.src = source;
-        script.onload = () => {
-          GateBoot.ready = true;
-          document.dispatchEvent(new Event('gate-game-ready'));
-          resolve();
-        };
-        script.onerror = () => {
-          script.remove(); loading = null;
-          reject(new Error('게임을 불러오지 못했습니다. 다시 시도해 주세요.'));
-        };
-        document.head.appendChild(script);
+        engine = loadAsset(script).catch(error => { engine = null; throw error; });
+      }
+      loading = Promise.all([engine, stylesheet]).then(() => {
+        GateBoot.ready = true;
+        document.dispatchEvent(new Event('gate-game-ready'));
+      }).catch(error => {
+        loading = null; throw error;
       });
       return loading;
     },

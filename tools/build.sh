@@ -13,6 +13,18 @@ BOOT_SRC=(js/world_opening.js js/boot.js)
 cat "${BOOT_SRC[@]}" > dist/boot.src.js
 $ESBUILD dist/boot.src.js --minify --target=es2017,chrome61,safari11 --charset=utf8 --log-level=warning --outfile=dist/boot.js
 rm dist/boot.src.js
+# 초기 화면의 스타일만 추출한다. 본편 스타일과 같은 원문을 사용해 중복 수정을 피한다.
+node - <<'JS' > dist/boot.src.css
+const fs = require('fs');
+const css = fs.readFileSync('css/style.css', 'utf8');
+const baseEnd = css.indexOf('/* 바 */');
+const titleStart = css.indexOf('/* ---------- 타이틀 ---------- */');
+const titleEnd = css.indexOf('/* ---------- 캐릭터 생성 ---------- */');
+if (baseEnd < 0 || titleStart < 0 || titleEnd <= titleStart) throw new Error('초기 스타일 경계 확인 필요');
+console.log(css.slice(0, baseEnd), css.slice(titleStart, titleEnd), fs.readFileSync('css/world_opening.css', 'utf8'));
+JS
+$ESBUILD dist/boot.src.css --minify --target=chrome61,safari11 --charset=utf8 --log-level=warning --outfile=dist/boot.css
+rm dist/boot.src.css
 # three.js 스킬 이펙트는 따로 묶어 늦게 불러온다 (js/fx3d_loader.js, 4-15)
 FX3D_SRC=(vendor/three_fx.js js/fx3d.js)
 cat "${FX3D_SRC[@]}" > dist/fx3d.src.js

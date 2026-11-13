@@ -183,7 +183,7 @@ const WorldOpening = (() => {
       incoming.style.setProperty('--shot-focus', shot.focus || '61% center');
       // 비활성 레이어의 그림을 교체한 뒤 두 레이어를 교차 전환한다.
       layers[1 - layerIndex].classList.remove('is-active');
-      void incoming.offsetWidth;
+      if (shotIndex >= 0) void incoming.offsetWidth;
       incoming.classList.add('is-active', 'has-shot');
       incoming.style.setProperty('--shot-duration', shot.duration + 1600 + 'ms');
       incoming.style.setProperty('--pan', at.i % 2 ? '-1.5%' : '1.5%');
@@ -248,7 +248,7 @@ const WorldOpening = (() => {
     manual = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     root = document.createElement('section'); root.className = 'world-opening';
     root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', '게임 오프닝'); root.tabIndex = -1;
-    root.innerHTML = `<div class="opening-picture" aria-hidden="true"><img class="opening-art" alt=""><img class="opening-art" alt=""></div>
+    root.innerHTML = `<div class="opening-picture" aria-hidden="true"><img class="opening-art" alt="" decoding="async"><img class="opening-art" alt="" decoding="async"></div>
       <div class="opening-atmosphere" aria-hidden="true">${Array.from({ length: 12 }, (_, i) => `<i style="--x:${(i * 23 + 7) % 100}%;--delay:-${i * 1.7}s;--drift:${i % 2 ? 34 : -28}px"></i>`).join('')}</div>
       <div class="opening-vignette" aria-hidden="true"></div>
       <div class="opening-letterbox opening-letterbox-top" aria-hidden="true"></div><div class="opening-letterbox opening-letterbox-bottom" aria-hidden="true"></div>
@@ -261,9 +261,14 @@ const WorldOpening = (() => {
     root.addEventListener('click', (event) => { if (event.target.closest('[data-opening="skip"]')) finish(); else advance(); });
     document.body.appendChild(root);
     document.addEventListener('keydown', keydown, true); document.addEventListener('visibilitychange', visibility);
-    root.focus(); lastTime = performance.now();
+    lastTime = performance.now();
     if (manual) elapsed = shots[0].lines[0][0];
-    paint(); raf = requestAnimationFrame((now) => { if (!root) return; root.classList.add('is-playing'); tick(now); });
+    paint(); raf = requestAnimationFrame((now) => {
+      if (!root) return;
+      root.classList.add('is-playing'); tick(now);
+      // 첫 장면을 그린 다음 초점을 옮겨 초기 DOM 쓰기와 강제 레이아웃을 분리한다.
+      requestAnimationFrame(() => { if (root) root.focus({ preventScroll: true }); });
+    });
   };
   const addReplay = () => {
     const buttons = document.querySelector('.title-screen .btns');
