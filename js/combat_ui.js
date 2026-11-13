@@ -68,27 +68,30 @@
     if (!el || !u) return;
     const host = el.querySelector('.fx-host'); if (!host) return;
     if (!host.querySelector('.elem-badge')) host.insertAdjacentHTML('beforeend', ELEM_BADGE(u));
-    // 시안: 초상 → 이름 → 막대 → 상태 (체력 숫자 숨김은 CSS)
-    if (el.classList.contains('ally') && !el.classList.contains('cu-ord')) {
-      const name = el.querySelector(':scope > .fig-name');
-      const bars = [...el.querySelectorAll(':scope > .bar-row')];
-      if (name && host.nextElementSibling !== name) host.after(name);
-      let at = name || host;
-      for (const row of bars) { at.after(row); at = row; }
-      el.classList.add('cu-ord');
+    // 이름은 초상(.fx-host) 안 하단에 겹침 → 막대가 원 바로 아래에 붙어 세로 공간 확보
+    if (el.classList.contains('ally')) {
+      const name = el.querySelector('.fig-name');
+      if (name && name.parentNode !== host) host.appendChild(name);
+      if (!el.classList.contains('cu-ord')) {
+        const bars = [...el.querySelectorAll(':scope > .bar-row')];
+        let at = host;
+        for (const row of bars) { at.after(row); at = row; }
+        el.classList.add('cu-ord');
+      }
     }
-    if (el.classList.contains('foe') && !el.classList.contains('cu-ord')) {
-      // 초상 → 체력 → 그로기 → 이름 → 상태 (숫자는 CSS로 숨김)
-      const nm = el.querySelector(':scope > .foe-name');
-      const hp = el.querySelector(':scope > .bar.hp');
-      const brk = el.querySelector(':scope > .brk');
-      const fh = el.querySelector(':scope > .foe-hp');
-      if (hp && host.nextElementSibling !== hp) host.after(hp);
-      let at = hp || host;
-      if (brk) { at.after(brk); at = brk; }
-      if (nm) { at.after(nm); at = nm; }
-      if (fh) at.after(fh);
-      el.classList.add('cu-ord', 'foe-card');
+    if (el.classList.contains('foe')) {
+      const nm = el.querySelector('.foe-name');
+      if (nm && nm.parentNode !== host) host.appendChild(nm);
+      if (!el.classList.contains('cu-ord')) {
+        const hp = el.querySelector(':scope > .bar.hp');
+        const brk = el.querySelector(':scope > .brk');
+        const fh = el.querySelector(':scope > .foe-hp');
+        if (hp && host.nextElementSibling !== hp) host.after(hp);
+        let at = hp || host;
+        if (brk) { at.after(brk); at = brk; }
+        if (fh) at.after(fh);
+        el.classList.add('cu-ord', 'foe-card');
+      }
     }
   };
 
