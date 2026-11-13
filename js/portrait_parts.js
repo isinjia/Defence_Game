@@ -3296,9 +3296,12 @@ const PortraitParts = (() => {
     if(skinBitmaps.size>=192)skinBitmaps.delete(skinBitmaps.keys().next().value);
     skinBitmaps.set(key,promise);promise.catch(()=>skinBitmaps.delete(key));return promise;
   };
+  const HAIR_TAPER=/hair-f-(3|9|14|19)\.webp/;
   const hairBitmaps = new Map();
   const hairBitmap = node => {
-    const d=node.dataset, key=[d.hairSource,d.hairRect,d.headSource,d.headChin,d.hairSideFit||''].join('|');
+    // 구레나룻 가닥이 있는 헤어만 볼 옆을 천천히 비운다(아래로 가늘어지게). 볼을 덮는 단발 등은 빠르게 비워야 경계가 깔끔하다.
+    const taper=typeof window!=='undefined'&&window.__hairTaperAll!=null?!!window.__hairTaperAll:HAIR_TAPER.test(node.dataset.hairSource||'');
+    const d=node.dataset, key=[d.hairSource,d.hairRect,d.headSource,d.headChin,d.hairSideFit||'',taper?'t':''].join('|');
     if(hairBitmaps.has(key))return hairBitmaps.get(key);
     const promise=(async()=>{
       const [hair,head]=await Promise.all([loadImage(d.hairSource),loadImage(d.headSource)]);
@@ -3328,15 +3331,39 @@ const PortraitParts = (() => {
         let left=200,right=200;
         for(let x=0;x<400;x++)if(silhouette[(220*400+x)*4+3]>8){left=Math.min(left,x);right=Math.max(right,x);}
         const cheekHalf=Math.max(20,(right-left)/2)+2,templeHalf=cheekHalf+8;
+        // 눈높이(174)에서 머리카락이 얼굴을 어디까지 덮는지 좌우 따로 잰다. 그 안쪽 끝에서 얼굴 가장자리까지 비스듬히 이어 비우면
+        // 덮은 머리와 비운 자리 사이에 수평 계단(직각 경계)이 생기지 않는다.
+        const open=[templeHalf,templeHalf];
+        // 눈썹 높이(TOP)부터 잰다: 옆머리가 눈꼬리를 덮은 채 눈 아래에서 수평으로 끊기지 않게, 눈썹 옆에서 볼까지 비스듬히 걷어 낸다.
+        const TOP=158;
+        for(const sd of [0,1]){for(let w=Math.round(cheekHalf*.35);w<templeHalf;w++){const x=200+(sd?1:-1)*w;if(x<0||x>=400)break;if(pixels.data[(TOP*400+x)*4+3]>40){open[sd]=w;break;}}}
+        const slope=open.map(w=>Math.max(.9,(templeHalf-w)/30));
+        // 남자 헤어는 눈을 덮는 앞머리가 디자인이므로 예전 방식(눈 아래부터 얼굴 폭으로 비움)을 그대로 쓴다.
+        const diag=!taper&&/hair-f-/.test(d.hairSource||'');
+        if(diag)for(let y=TOP;y<175;y++)for(const sd of [0,1]){
+          const half=Math.min(templeHalf,open[sd]+(y-TOP)*slope[sd]);
+          for(let w=open[sd];w<=half+2;w++){
+            const x=200+(sd?1:-1)*w;if(x<0||x>=400)continue;const k=(y*400+x)*4;if(silhouette[k+3]<=8)continue;
+            const cover=Math.max(0,Math.min(1,(half-w+1.5)/3))*Math.max(0,Math.min(1,(w-open[sd]+1)/2));if(!cover)continue;
+            for(let c=0;c<3;c++)back.data[k+c]=pixels.data[k+c];
+            back.data[k+3]=pixels.data[k+3]*cover;pixels.data[k+3]*=1-cover;
+          }
+        }
         for(let y=175;y<chin;y++){
           const t=Math.max(0,Math.min(1,(y-175)/5,(chin-y)/4)),weight=t*t*(3-2*t);
           const grow=Math.max(0,Math.min(1,(y-165)/20));
           // 턱 밑의 목은 두상과 알파가 이어져 있다. 턱 곡선 바깥 목 피부까지 보호하면 모발에 직각 구멍이 난다.
           const jawHalf=cheekHalf*Math.pow(Math.max(0,(chin-y)/(chin-220)),.6)+4;
-          const half=y<=220?templeHalf*grow*grow*(3-2*grow):jawHalf;
+          // 구레나룻 가닥이 있는 헤어: 얼굴 안쪽은 빨리, 가장자리는 천천히 비워 가닥이 아래로 가늘어지게 한다.
+          const inner=Math.max(8,cheekHalf-12),slow=Math.max(0,Math.min(1,(y-185)/32));
+          const taperHalf=inner*grow*grow*(3-2*grow)+(templeHalf-inner)*slow*slow*(3-2*slow);
+          const sideHalf=sd=>y>220?jawHalf:taper?taperHalf:diag?Math.min(templeHalf,open[sd]+(y-TOP)*slope[sd]):templeHalf*grow*grow*(3-2*grow);
           for(let x=0;x<400;x++){
+            const half=sideHalf(x>=200?1:0);
             const k=(y*400+x)*4,edge=Math.max(0,Math.min(1,(half-Math.abs(x-200)+1.5)/3));
-            const cover=silhouette[k+3]>8?weight*edge:0;
+            // 옆머리 구간은 위(TOP)에서 이미 걷어 내기 시작했으므로 여기서 다시 서서히 시작하지 않는다(가는 가로줄이 남는다)
+            const tc=Math.max(0,Math.min(1,(chin-y)/4)),wSide=diag&&Math.abs(x-200)>=open[x>=200?1:0]?tc*tc*(3-2*tc):weight;
+            const cover=silhouette[k+3]>8?wSide*edge:0;
             if(!cover)continue;
             for(let c=0;c<3;c++)back.data[k+c]=pixels.data[k+c];
             back.data[k+3]=pixels.data[k+3]*cover;pixels.data[k+3]*=1-cover;
