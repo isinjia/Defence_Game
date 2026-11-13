@@ -140,6 +140,11 @@
   .sheet-head .tabs button { flex: none; padding: 6px 10px; }
 }
 .gear-link { margin-top: 4px; }
+@media (max-width: 640px) {
+  .item-row.equip-choice-row { flex-wrap: wrap; }
+  .equip-choice-row > .grow { flex: 1 1 calc(100% - 60px); min-width: 0; }
+  .equip-choice-row > .equip-slot-actions { flex: 1 1 100%; justify-content: flex-end; }
+}
 
 /* 가로 화면 안내 */
 .rotate-hint { display: none; }

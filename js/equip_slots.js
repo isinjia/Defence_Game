@@ -248,11 +248,13 @@ Object.assign(Game.prototype, {
   const baseRow = UI.equipRow;
   UI.equipRow = function (it, right, extra = '') {
     const p = G.player;
+    let choices = false;
     if (it && p.inventory.includes(it) && equipSlotKind(it.slot) === 'acc') {
       const btns = ACC_SLOT_IDS.map((s) => `<button class="sm ghost" data-act="equip-acc" data-v="${it.uid}|${s}">${ACC_SLOT_NAMES[s].replace('장신구 ', '')}</button>`).join('');
-      if (right) right = `<span class="row" style="flex-wrap:wrap;gap:4px">${btns}${right}</span>`;
+      if (right) { right = `<span class="row equip-slot-actions" style="flex-wrap:wrap;gap:4px">${btns}${right}</span>`; choices = true; }
     }
-    return baseRow.call(this, it, right, extra);
+    const html = baseRow.call(this, it, right, extra);
+    return choices ? html.replace('class="item-row', 'class="item-row equip-choice-row') : html;
   };
 
   const baseChar = UI.charHtml;
