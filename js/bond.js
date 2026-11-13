@@ -218,7 +218,7 @@ Object.assign(UI, {
     const hint = (k) => { const m = t.known['g_' + k]; return m === 'like' ? '<span class="small good">좋아함</span>' : m === 'hate' ? '<span class="small bad">별로</span>' : m ? '<span class="small dim">줘 본 것</span>' : ''; };
     this.modal(fixJosa(`<div class="story-portrait">${this.npcPortrait(n, 110)}<div><div class="eyebrow">선물 · 한 달에 한 번</div><b>${n.name}</b><div class="small dim">관계 ${relationLabel(n.relation)} (${n.relation})</div></div></div>
       <p class="event-text">무엇을 건넬까? 사람마다 좋아하는 물건이 다르다.</p>
-      <div class="cards">${opts.map((o) => `<button class="choice-btn" data-act="gift-item" data-v="${id}|${o.key}">${GIFT_KINDS[o.kind]} · ${o.name} ${hint(o.kind)}</button>`).join('') || '<div class="dim">줄 만한 물건이 없다. 코어·회복제·장비·유물을 구하거나, 도시에서 술이라도 한 병 사 가자.</div>'}</div>
+      <div class="cards">${opts.map((o) => `<button class="choice-btn" data-act="gift-item" data-v="${id}|${o.key}">${String(o.name).includes(GIFT_KINDS[o.kind]) ? o.name : `${GIFT_KINDS[o.kind]} · ${o.name}`} ${hint(o.kind)}</button>`).join('') || '<div class="dim">줄 만한 물건이 없다. 코어·회복제·장비·유물을 구하거나, 도시에서 술이라도 한 병 사 가자.</div>'}</div>
       <div class="row end"><button class="ghost" data-act="bond-back">그만둔다</button></div>`), 'event-box');
   },
   showApproach(id) {

@@ -134,3 +134,50 @@ body.dlg-on .hud-bottom, body.dlg-on .hud-tr, body.dlg-on #hud-money { visibilit
 .cb-tools .tactic-btn { height: 44px; }
 /* 도주는 자동·배속과 조금 떼어 놓는다 (실수로 누르지 않게) */
 .cb-tools .icon-btn[data-act="c-flee"] { margin-left: 8px; }
+
+/* [재평가 N1] 튜토리얼 건너뛰기: 전투에서는 전장 왼쪽 위 빈 구석, 층 지도에서는 둘째 줄 가운데 */
+body.ctx-combat #tut-skip { top: calc(env(safe-area-inset-top, 0px) + 58px) !important; left: 12px; right: auto; border-radius: 10px; border-top: 1px solid rgba(255, 255, 255, .18); height: 26px; line-height: 24px; opacity: .85; }
+body.ctx-gmap #tut-skip { top: calc(env(safe-area-inset-top, 0px) + 40px) !important; left: 50%; right: auto; transform: translateX(-50%); border-radius: 10px; border-top: 1px solid rgba(255, 255, 255, .18); }
+@media (max-height: 600px) { body.ctx-combat #tut-skip { top: calc(env(safe-area-inset-top, 0px) + 50px) !important; height: 22px; line-height: 20px; font-size: 10.5px; padding: 0 8px; } }
+
+/* [재평가 E] 차례가 아닐 때 흐린 단추의 글자가 상태 띠 위아래로 삐져나왔다: 글자를 감춘다 */
+.cmd-wrap.cmd-wait .cmd-main .cmd { color: transparent !important; text-shadow: none; }
+.cmd-wrap.cmd-wait .cmd-main .cmd * { visibility: hidden; }
+
+/* [재평가 N3] 창 위 알림 띠는 닫기(×) 단추를 덮지 않게 오른쪽을 비운다 */
+#toast.low { right: 66px; left: 12px; margin: 0; }
+
+/* [재평가 M] 누르는 영역 44px: 대상 취소·상태 창 기술 줄 (게이트 탐색 화면은 사용자가 따로 고칠 예정이라 건드리지 않는다) */
+[data-act="c-cancel"] { min-height: 44px !important; min-width: 52px; }
+.st-sk { min-height: 44px; }
+
+/* [재평가 I] 선점·판정 결과 창의 단추는 좌우 여백을 같게 */
+.ck-box .row.end { width: 100%; box-sizing: border-box; }
+
+/* [재평가 D] 스킬을 고른 뒤의 대상 안내 바도 명령 단추 자리에 띄워 뒷줄 아군의 이름·체력을 가리지 않는다 */
+@media (orientation: portrait) and (max-width: 640px) {
+  #cb-ctrl .cmd-float:has(> .skill-info) { bottom: 0; margin-bottom: 0; }
+  #cb-ctrl .cmd-float > .skill-info { min-height: 96px; box-sizing: border-box; }
+}
+/* [재평가 N2] 아주 좁은 화면의 튜토리얼 말풍선: 글자와 여백을 줄여 아군 줄을 덜 가린다 */
+@media (max-width: 350px) {
+  #coach-pop.speech { padding: 6px 10px 6px 6px; max-width: 286px; }
+  #coach-pop.speech .coach-card { font-size: 12.5px; line-height: 1.4; }
+  #coach-pop.speech .sb-face .avatar, #coach-pop.speech .sb-face svg { width: 28px; height: 28px; }
+}
+
+/* ── 전투 화면 다시 보기 ── */
+/* 대상 안내 바: 반투명이라 아래 명령 단추 글자가 비쳐 겹쳐 보였다. 불투명하게, 명령 단추 자리를 꽉 채운다 */
+#cb-ctrl .cmd-float > .skill-info { background: #0b111b !important; border: 1px solid var(--line-hi); border-left: 3px solid var(--c, var(--amber)); padding: 10px 12px; }
+#cb-ctrl .cmd-float > .skill-info .row.between { align-items: center; gap: 8px; }
+/* 아이템 목록: 이름을 스킬 목록처럼 왼쪽에 붙이고, 두 칸으로 놓아 높이를 줄인다(뒷줄 아군을 덜 가린다) */
+.cmd-list .cmd-item { justify-content: flex-start; gap: 8px; text-align: left; }
+.cmd-list .cmd-item > :last-child { margin-left: auto; }
+/* 적이 많고 화면이 좁을 때 행동 예고 배지가 괴수 그림을 절반쯤 덮었다: 좁은 화면에서는 배지를 줄이고 그림 밖 위쪽으로 조금 올린다 */
+@media (max-width: 400px) {
+  .combat-box.fit .foe .intent:not(.charge) { transform: scale(.82); transform-origin: top right; top: -6px; right: -4px; }
+}
+/* 대상 안내 바의 빈 자리에 무엇을 해야 하는지 한 줄 */
+@media (orientation: portrait) and (max-width: 640px) {
+  #cb-ctrl .cmd-float > .skill-info:not(:has(.use-btn))::after { content: "대상을 누르면 발동합니다"; display: block; margin-top: 6px; font-size: 12.5px; color: var(--dim); }
+}

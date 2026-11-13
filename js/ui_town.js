@@ -102,7 +102,7 @@ Object.assign(UI, {
           <div class="cards">${DRINKS.map((d) => `<div class="item-row"><div class="grow"><b>${d.name}</b><div class="small dim">${d.desc}</div></div>
             <button class="sm" data-act="drink" data-v="${d.id}" ${d.effect === 'social' && used ? 'disabled' : ''}>${FX.icon('coin', 13)} ${price(G.drinkPrice(d))}</button></div>`).join('')}</div>
           ${buffs.length ? `<div class="sec-title sec">지금 받는 기운</div>${buffs.map((b) => `<div class="small">${b.name} · ${G.monthKey() === b.until ? '이번 달까지' : `${b.until - G.monthKey() + 1}개월 남음`}</div>`).join('')}` : ''}
-          <div class="sec-title sec">옆자리에서 들려오는 이야기</div><div class="logs">${G.rumors.slice(0, 4).map((r) => `<div class="l"><span class="d">${r.date}</span>${r.text}</div>`).join('') || '<div class="dim">조용한 밤이다.</div>'}</div>`;
+          <div class="sec-title sec">옆자리에서 들려오는 이야기</div><div class="logs">${G.rumors.filter((r, i, a) => a.findIndex((x) => x.text === r.text) === i).slice(0, 4).map((r) => `<div class="l"><span class="d">${r.date}</span>${r.text}</div>`).join('') || '<div class="dim">조용한 밤이다.</div>'}</div>`;
       }
       case 'workshop': {
         const coreList = Object.keys(p.mats).filter((k) => /^c[0-7]$/.test(k) && p.mats[k] > 0).map((k) => `${coreName(+k.slice(1))} ${p.mats[k]}`).concat(p.mats.herb > 0 ? [`약초 ${p.mats.herb}다발`] : []).join(' · ') || '없음';

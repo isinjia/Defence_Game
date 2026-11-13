@@ -50,19 +50,20 @@
     } catch (e) { return null; }
   };
   const baseTitle = UI.renderTitle;
-  UI.renderTitle = function (...a) {
-    const r = baseTitle.apply(this, a);
+  const fixTitle = () => {
     try {
       const box = document.querySelector('.title-screen .btns'); const cont = box && box.querySelector('[data-act="continue"]'); const neu = box && box.querySelector('[data-act="new"]');
       if (cont && neu) {
         const info = saveInfo();
         cont.classList.add('primary'); neu.classList.remove('primary');
         if (info) cont.innerHTML = `<span class="tc-main">이어하기</span><span class="tc-sub">${info}</span>`;
-        box.insertBefore(cont, neu);
+        if (cont.nextElementSibling !== neu || box.firstElementChild !== cont) box.insertBefore(cont, box.firstElementChild);
       }
     } catch (e) { /* 무시 */ }
-    return r;
   };
+  UI.renderTitle = function (...a) { const r = baseTitle.apply(this, a); fixTitle(); return r; };
+  fixTitle(); // 첫 타이틀은 이 파일보다 먼저 그려진다
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fixTitle);
   const baseHandle2 = UI.handle;
   UI.handle = function (act, v) {
     if (act === 'new' && this.screen === 'title' && Game.hasSave() && !this._newOk) {
@@ -122,7 +123,15 @@
   // [평가 17] 알림 띠는 누르면 바로 닫힌다
   { const t = document.getElementById('toast'); if (t) t.addEventListener('click', (e) => { e.stopPropagation(); t.classList.add('hidden'); }); }
   // [평가 12] 대사 중 표시 (css 가 지도 아래 패널을 숨긴다)
-  setInterval(() => { try { document.body.classList.toggle('dlg-on', !!(UI.dlg && UI.screen === 'game' && !UI.modalOpen())); } catch (e) { /* 무시 */ } }, 150);
+  setInterval(() => {
+    try {
+      const b = document.body; const open = UI.modalOpen && UI.modalOpen(); const box = document.getElementById('modal-box');
+      b.classList.toggle('dlg-on', !!(UI.dlg && UI.screen === 'game' && !open));
+      // [재평가 N1] 건너뛰기 손잡이가 전투의 작전·배속 단추와 층 지도 제목을 덮었다: 화면 종류에 따라 빈 자리로 옮긴다(css)
+      b.classList.toggle('ctx-combat', !!(open && box && box.classList.contains('combat-box')));
+      b.classList.toggle('ctx-gmap', !!(open && box && !box.classList.contains('combat-box') && box.querySelector('.gmap')));
+    } catch (e) { /* 무시 */ }
+  }, 150);
 
   // [평가 29] 다른 파티가 먼저 보스를 잡으면 게이트가 예고 없이 닫혀 이유를 알 수 없었다.
   // 층 지도의 경쟁 줄에 규칙과 "얼마나 급한지"를 덧붙인다(정확한 위치는 탐색 능력의 몫이라 가까움·멂만 알린다).
