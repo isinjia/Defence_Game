@@ -3,14 +3,27 @@
 // 적·아군 원형 초상 + 속성 배지, 전열·후열 2줄, 커맨드 2×2.
 // 리더는 따로 줄을 만들지 않고 전열·후열 진형 칸에 그대로 둔다.
 {
-  // 이름 옆 속성 아이콘 (원형 글자 배지 대신)
+  // 이름 옆 속성 아이콘 (원형 글자 배지 대신) — 이름은 중앙, 아이콘은 CSS로 오른쪽에
   const ensureNameIcon = (nameEl, u) => {
     if (!nameEl) return;
     nameEl.querySelectorAll('.elem-badge').forEach((n) => n.remove());
     if (!nameEl.querySelector('.cu-elem')) {
-      const ico = (typeof FX !== 'undefined' && FX.elemIcon) ? FX.elemIcon(u && u.elem, 11) : '';
-      if (ico) nameEl.insertAdjacentHTML('beforeend', ` <span class="cu-elem">${ico}</span>`);
+      const ico = (typeof FX !== 'undefined' && FX.elemIcon) ? FX.elemIcon(u && u.elem, 14) : '';
+      if (ico) nameEl.insertAdjacentHTML('beforeend', `<span class="cu-elem">${ico}</span>`);
     }
+  };
+
+  // 초상 viewBox를 살짝 내려·키워 상체·의상이 원에 들어오게
+  const bustCrop = (host) => {
+    const svg = host && host.querySelector('.sprite svg[data-portrait-parts]');
+    if (!svg || svg.dataset.cuBust) return;
+    svg.dataset.cuBust = '1';
+    const pose = parseFloat(svg.getAttribute('data-base-offset') || '0') || 0;
+    svg.setAttribute('viewBox', `48 ${pose} 304 320`);
+    const clip = svg.querySelector('clipPath circle');
+    const ring = [...svg.children].find((n) => n.tagName === 'circle');
+    if (clip) { clip.setAttribute('cy', String(148 + pose)); clip.setAttribute('r', '148'); }
+    if (ring) { ring.setAttribute('cy', String(148 + pose)); ring.setAttribute('r', '147'); ring.setAttribute('stroke-width', '3.5'); }
   };
 
   // 아군: 전열·후열 두 줄만 (리더 전용 줄은 만들지 않음)
@@ -53,11 +66,13 @@
   UI.decorateUnitCard = function (u, el) {
     if (!el || !u) return;
     const host = el.querySelector('.fx-host'); if (!host) return;
-    // 원형 속성 글자(염·화 등) 배지는 쓰지 않는다
-    host.querySelectorAll('.elem-badge').forEach((n) => n.remove());
-    el.querySelectorAll('.elem-badge').forEach((n) => n.remove());
+    // 원형 글자·무리형(무)·타겟 조준 표시는 쓰지 않는다
+    host.querySelectorAll('.elem-badge, .mtype, .reticle').forEach((n) => n.remove());
+    el.querySelectorAll('.elem-badge, .mtype').forEach((n) => n.remove());
+    el.classList.remove('threatened');
     // 이름은 초상(.fx-host) 하단 테두리에 겹침, 속성 아이콘은 이름 옆
     if (el.classList.contains('ally')) {
+      bustCrop(host);
       const name = el.querySelector('.fig-name');
       if (name && name.parentNode !== host) host.appendChild(name);
       ensureNameIcon(name, u);
@@ -71,7 +86,7 @@
     if (el.classList.contains('foe')) {
       const nm = el.querySelector('.foe-name');
       if (nm && nm.parentNode !== host) host.appendChild(nm);
-      // 이름 옆 아이콘은 unitEl에 이미 있음. 원형 배지만 제거
+      // 이름 옆 SVG 아이콘이 중앙 정렬을 밀지 않게 절대 배치용 클래스 유지
       if (!el.classList.contains('cu-ord')) {
         const hp = el.querySelector(':scope > .bar.hp');
         const brk = el.querySelector(':scope > .brk');
