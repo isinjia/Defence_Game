@@ -38,6 +38,25 @@ if (typeof UI !== 'undefined' && UI.charHtml) {
         if (c >= 0) { const ce = blockEnd(out, c); if (ce > c) out = out.slice(0, ce - 6) + ltCards + out.slice(ce - 6); }
       }
     }
+    // 인연 칸부터 아래는 모두 지운다 (같은 패널 안의 뒤따르는 덩어리 전부)
+    const km = findSec(out, '인연');
+    if (km) {
+      let i = km.index;
+      for (let guard = 0; guard < 40; guard++) {
+        while (/\s/.test(out[i] || '')) i++;
+        if (!out.startsWith('<div', i)) break;
+        const j = blockEnd(out, i); if (j <= i) break;
+        out = out.slice(0, i) + out.slice(j);
+      }
+    }
+    // 성향 칸 위에 스테이터스(능력치) 칸
+    const p = typeof G !== 'undefined' && G.player;
+    const sm = findSec(out, '성향');
+    if (p && sm) {
+      const STAT = [['maxHp', '체력'], ['maxMp', '정신력'], ['atk', '공격'], ['def', '방어'], ['spd', '속도'], ['luck', '운']];
+      const box = `<div class="sec"><div class="sec-title">스테이터스</div><div class="st-stats">${STAT.map(([k, nm]) => `<span><i>${nm}</i><b class="num">${Math.round(p[k] || 0)}</b></span>`).join('')}</div></div>`;
+      out = out.slice(0, sm.index) + box + out.slice(sm.index);
+    }
     return out;
   };
 }
