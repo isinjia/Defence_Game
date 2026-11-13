@@ -169,27 +169,9 @@ class MapView {
     for (let x = Math.max(0, x0); x <= Math.min(WORLD.COLS, x1 + 1); x++) { const [px] = this.toScreen(x, 0); c.moveTo(px + 0.5, 0); c.lineTo(px + 0.5, this.hgt); }
     for (let y = Math.max(0, y0); y <= Math.min(WORLD.ROWS, y1 + 1); y++) { const [, py] = this.toScreen(0, y); c.moveTo(0, py + 0.5); c.lineTo(this.w, py + 0.5); }
     c.stroke();
-    // 이동 가능 범위
+    // 도달 가능한 목적지의 경로 (거리·스탯에 따른 선택 제한 없음)
     const rd = this.reachData;
     if (rd && !this.moving && !UI.ctx) {
-      const pulse = 0.08 + Math.sin(t / 20) * 0.025;
-      for (const [i] of rd.dist) {
-        if (i === rd.start) continue;
-        const [x, y] = WORLD.xy(i); const [px, py] = this.toScreen(x, y);
-        if (px < -s || py < -s || px > this.w || py > this.hgt) continue;
-        c.fillStyle = `rgba(150,240,230,${pulse})`; c.fillRect(px + 1, py + 1, s - 2, s - 2);
-      }
-      // 범위 외곽선
-      c.strokeStyle = 'rgba(150,240,230,.55)'; c.lineWidth = 1.5; c.beginPath();
-      for (const [i] of rd.dist) {
-        const [x, y] = WORLD.xy(i); const [px, py] = this.toScreen(x, y);
-        const has = (dx, dy) => WORLD.inb(x + dx, y + dy) && rd.dist.has(WORLD.idx(x + dx, y + dy));
-        if (!has(0, -1)) { c.moveTo(px, py); c.lineTo(px + s, py); }
-        if (!has(0, 1)) { c.moveTo(px, py + s); c.lineTo(px + s, py + s); }
-        if (!has(-1, 0)) { c.moveTo(px, py); c.lineTo(px, py + s); }
-        if (!has(1, 0)) { c.moveTo(px + s, py); c.lineTo(px + s, py + s); }
-      }
-      c.stroke();
       // 마우스를 올린 경로
       if (this.hover >= 0 && rd.dist.has(this.hover) && this.hover !== rd.start) {
         const path = WORLD.pathTo(rd, this.hover);

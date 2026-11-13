@@ -297,7 +297,7 @@ const UI = {
         <button data-act="rest">${FX.icon('rest')} 휴식 <span class="dim-in">1개월</span></button>
 
       </div>
-      <div class="act-hint small dim">빛나는 칸을 눌러 이동 · 평지 한 칸 ${WORLD.formatTravelTime(G.travelCostDays(1))} · 국도 ${WORLD.formatTravelTime(G.travelCostDays(WORLD.ROAD_COST,true))}(대각선·산은 더) · 이동력 ${G.moveRange()}</div>`;
+      <div class="act-hint small dim">목적지를 선택해 이동 · 평지 한 칸 ${WORLD.formatTravelTime(G.travelCostDays(1))} · 국도 ${WORLD.formatTravelTime(G.travelCostDays(WORLD.ROAD_COST,true))}(대각선·산은 더)</div>`;
   },
 
   // NPC의 지도 위치 (매달 도시 근처에서 바뀜)

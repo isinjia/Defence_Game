@@ -10,6 +10,20 @@
   };
   WORLD.daysFor = cost => Math.max(0, cost * WORLD.DAYS_PER_COST);
   const GP = Game.prototype, baseTerrain = GP.applyTerrain;
+  GP.travelIsOnFoot = function () {
+    return !(this.player?.vehicle || this.ownVehicle?.() || (typeof UI !== 'undefined' && UI.crewMarch?.ride === 'truck'));
+  };
+  GP.travelFootFactor = function () {
+    if (!this.travelIsOnFoot()) return 1;
+    const speed = Number(this.player?.spd);
+    const minutes = Math.max(7, 15 - 2 * Math.log2(Math.max(1, Number.isFinite(speed) ? speed : 10) / 10));
+    return minutes / 15;
+  };
+  GP.travelBaseDays = function (cost, diag = false) {
+    let days = cost * WORLD.DAYS_PER_COST;
+    if (this.travelIsOnFoot()) days = Math.max(7 / 1440, days * this.travelFootFactor());
+    return days * (diag ? 1.4 : 1);
+  };
   GP.applyTerrain = function (...args) {
     const result = baseTerrain.apply(this, args);
     const rented = this.player?.vehicle, owned = this.player && this.ownVehicle?.();
@@ -17,14 +31,14 @@
     WORLD.DAYS_PER_COST = BASE * factor;
     return result;
   };
-  GP.travelCostDays = function (cost, road = false) {
+  GP.travelCostDays = function (cost, road = false, diag = false) {
     const own = this.ownVehicle?.();
     const roadFactor = road && own?.road ? own.road : 1;
     const partyFactor = typeof UI !== 'undefined' && UI.crewMarch?.ride === 'truck' ? .5 : 1;
-    return Math.max(0, cost * WORLD.DAYS_PER_COST * roadFactor * partyFactor);
+    return Math.max(0, this.travelBaseDays(cost, diag) * roadFactor * partyFactor);
   };
   GP.travelStepDays = function (x, y, diag = false) {
-    return this.travelCostDays(WORLD.stepCostAt(x, y) * (diag ? 1.4 : 1), WORLD.isRoad(x, y));
+    return this.travelCostDays(WORLD.stepCostAt(x, y), WORLD.isRoad(x, y), diag);
   };
   GP.travelPathDays = function (steps) {
     let x = this.player.x, y = this.player.y, days = 0;
