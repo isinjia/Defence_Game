@@ -99,7 +99,7 @@
     w.classList.toggle('fold-card', !!this.fold.card);
     w.classList.toggle('fold-obj', !!this.fold.obj);
     const por = document.querySelector('#hud-card .card-portrait');
-    if (por) { por.dataset.act = 'fold-card'; por.setAttribute('role', 'button'); por.setAttribute('aria-label', this.fold.card ? '인물 카드 펼치기' : '인물 카드 접기'); }
+    if (por) { por.dataset.act = 'sheet'; por.dataset.v = 'char'; por.setAttribute('aria-label', '캐릭터 정보 열기'); }
     const tr = document.getElementById('hud-tr');
     if (tr && tr.children.length && !tr.querySelector('.fold-obj-btn')) tr.insertAdjacentHTML('afterbegin', `<button class="fold-obj-btn" data-act="fold-obj" aria-label="현재 상황 접기·펼치기">${this.fold.obj ? '▸' : '▾'}</button>`);
   };

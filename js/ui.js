@@ -268,7 +268,7 @@ const UI = {
     const req = stageReq(p.rankIdx, p.stage);
     const R = RANKS[p.rankIdx];
     const left = G.maxLife() - G.ageYears();
-    return `<div class="card-portrait" style="--rc:${R.color}">${this.playerAvatar(78)}<span class="card-rank" style="--c:${R.color}"><b>${R.key}</b></span></div>
+    return `<button type="button" class="card-portrait" data-act="sheet" data-v="char" aria-label="캐릭터 정보 열기" style="--rc:${R.color}">${this.playerAvatar(78)}<span class="card-rank" style="--c:${R.color}"><b>${R.key}</b></span></button>
       <div class="card-body">
         <div class="card-name"><b>${p.name}</b> <span class="small dim">${rankLabel(p.rankIdx, p.stage)} · ${className(p.cls, p.clsAdv)}</span> ${FX.elemIcon(p.element, 13)}</div>
         <div class="card-date num">${G.fullDate()} · <span class="${left <= 5 ? 'bad' : ''}">${G.ageYears()}세 / ${G.maxLife()}</span></div>
