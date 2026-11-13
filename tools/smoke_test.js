@@ -795,6 +795,32 @@ const { chromium, devices } = require('playwright');
   for (const s of ['char', 'gear', 'skills', 'party', 'people', 'quest', 'guild', 'hunter', 'log']) {
     await step(`시트 탭: ${s}`, async () => { await act('sheet', s); const len = await ev(() => document.getElementById('modal-box').innerHTML.length); if (len < 200) throw new Error('내용이 거의 없음'); await closeAll(); });
   }
+  await step('방어구 계열·테마 세트·제작 길드', async () => {
+    const ok = await ev(() => {
+      if (typeof ARMOR_FAMS === 'undefined' || !ARMOR_FAMS.plate) throw new Error('ARMOR_FAMS 없음');
+      if (typeof THEME_SETS === 'undefined' || THEME_SETS.length < 6) throw new Error('THEME_SETS 부족');
+      if (typeof CRAFT_ROLES === 'undefined' || !CRAFT_ROLES.weapon) throw new Error('CRAFT_ROLES 없음');
+      if (typeof GUILD_CRAFT_DEPT === 'undefined' || !GUILD_CRAFT_DEPT.baekho) throw new Error('GUILD_CRAFT_DEPT 없음');
+      if (!GUILDS.suwonforge || !GUILDS.ulsanframe || !GUILDS.daejeonjewel) throw new Error('제작 길드 미등록');
+      const armor = G.makeEquipment('armor', 1, 1);
+      if (!armor.afam || !ARMOR_FAMS[armor.afam]) throw new Error('방어구 계열 미부여');
+      const piece = G.makeThemePiece('city_guard', 1, 1, 1);
+      if (!piece || piece.theme !== 'city_guard' || !/경비대/.test(piece.name)) throw new Error('테마 피스 실패');
+      G.player.inventory.push(piece);
+      G.equipItem(piece.uid);
+      if (!G.themeCount().city_guard) throw new Error('테마 장착 카운트 실패');
+      G.craftInit();
+      const crafters = G.cityCrafters('suwon');
+      if (!crafters.some((c) => c.role === 'armor')) throw new Error('수원 방어구공 없음');
+      const themes = G.craftableThemes('suwon');
+      if (!themes.some((t) => t.id === 'iron_line' || t.id === 'city_guard')) throw new Error('수원 제작 테마 없음');
+      const html = UI.equipStats(piece);
+      if (!/중갑|세트/.test(html)) throw new Error('방어구 계열·세트 표시 없음');
+      return true;
+    });
+    if (!ok) throw new Error('방어구·테마·제작 검사 실패');
+    await closeAll();
+  });
   await step('아이템 칩·상세 팝업 (얻은 물건 탭)', async () => {
     const ok = await ev(() => {
       if (typeof UI.itemInfoHtml !== 'function' || typeof UI.showItemInfo !== 'function') throw new Error('item_pop 없음');
