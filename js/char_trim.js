@@ -84,3 +84,35 @@ if (typeof UI !== 'undefined' && UI.sheetHtml) {
     return html.replace(/<button\b[^>]*data-act="sheet" data-v="(?:people|dex)"[^>]*>[^<]*<\/button>/g, '');
   };
 }
+
+// 스킬 탭 맨 위에 장착 칸을 그림으로 보여 준다 (사용자 요청). 채운 칸을 누르면 장착 해제.
+if (typeof UI !== 'undefined' && UI.skillsHtml) {
+  if (typeof document !== 'undefined' && !document.getElementById('sk-slot-css')) {
+    const st = document.createElement('style'); st.id = 'sk-slot-css';
+    st.textContent = `.sk-slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;margin:6px 0 10px}
+.sk-slot{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;min-height:64px;border:1px solid var(--line,#2a3546);border-radius:8px;background:rgba(255,255,255,.03);font-size:11px;line-height:1.2;text-align:center;color:inherit}
+.sk-slot.empty{border-style:dashed;color:var(--dim,#8a97ab);justify-content:center}
+.sk-slot b{font-weight:600;word-break:keep-all}`;
+    document.head.appendChild(st);
+  }
+  const baseSk = UI.skillsHtml;
+  UI.skillsHtml = function (...a) {
+    const html = baseSk.apply(this, a);
+    try {
+      const p = G.player; const n = G.skillSlots ? G.skillSlots() : (p.equipSkills || []).length;
+      const eq = (p.equipSkills || []).filter((id) => id !== 'strike');
+      let cells = '';
+      for (let i = 0; i < n; i++) {
+        const sk = eq[i] && skillById(eq[i]);
+        cells += sk
+          ? `<button class="sk-slot" data-act="toggle-skill" data-v="${sk.id}" title="누르면 장착 해제">${FX.skillIcon ? FX.skillIcon(sk, 30) : ''}<b>${sk.name}</b></button>`
+          : '<div class="sk-slot empty">빈 칸</div>';
+      }
+      const nx = typeof RANKS !== 'undefined' && RANKS[(p.rankIdx || 0) + 1];
+      if (nx && G.skillSlots) cells += `<div class="sk-slot empty" title="${nx.key}급이 되면 열린다">잠김<br>${nx.key}급</div>`;
+      const box = `<div class="sk-slots">${cells}</div>`;
+      const at = html.indexOf('</h3>');
+      return at < 0 ? box + html : html.slice(0, at + 5) + box + html.slice(at + 5);
+    } catch (e) { return html; }
+  };
+}
