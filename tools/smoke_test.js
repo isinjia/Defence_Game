@@ -721,6 +721,9 @@ const { chromium, devices } = require('playwright');
   });
   await step('이야기로 시작 → 프롤로그 끝까지', async () => {
     await act('new'); await act('mode-story');
+    // 이야기 준비 화면은 스크롤 없이 한 화면에 '이야기 시작'까지 보인다 (js/setup_fit.js)
+    const fit = await ev(() => { const c = document.querySelector('.create.ps-fit'); const b = document.querySelector('[data-act="ps-start"]'); if (!c || !b) return 'ps-fit 없음'; const r = b.getBoundingClientRect(); return c.scrollHeight > c.clientHeight + 1 ? '스크롤 생김 ' + c.scrollHeight + '/' + c.clientHeight : r.bottom > innerHeight + 1 ? '시작 단추가 화면 밖' : ''; });
+    if (fit) throw new Error('이야기 준비 화면: ' + fit);
     await ev(() => { UI.pro.name = '점검'; }); await act('ps-start');
     for (let i = 0; i < 25; i++) {
       const has = await ev(() => !!document.querySelector('[data-act="pro-choice"]'));
