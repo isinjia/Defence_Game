@@ -53,17 +53,12 @@
   border-bottom: 1px solid #2a3a5288; padding-bottom: 6px;
 }
 
-/* ---------- 속성 배지 (초상 왼쪽 위) ---------- */
-#modal-box.cu-v2 .elem-badge {
-  position: absolute; left: -2px; top: -2px; z-index: 4;
-  width: 18px; height: 18px; border-radius: 50%;
-  display: grid; place-items: center;
-  font-style: normal; font-size: 10px; font-weight: 800; line-height: 1;
-  color: #0b0f17; background: var(--ec, #c9a84a);
-  box-shadow: 0 0 0 1.5px #05080d, 0 0 6px color-mix(in srgb, var(--ec, #c9a84a) 50%, transparent);
-  pointer-events: none;
-}
-#modal-box.cu-v2 .ally.lead-fig .elem-badge { width: 20px; height: 20px; font-size: 11px; left: 0; top: 0; }
+/* 원형 속성 글자 배지는 숨김 — 이름 옆 아이콘만 */
+#modal-box.cu-v2 .elem-badge { display: none !important; }
+#modal-box.cu-v2 .cu-elem { display: inline-flex; align-items: center; margin-left: 2px; vertical-align: -1px; line-height: 0; }
+#modal-box.cu-v2 .cu-elem svg { width: 11px !important; height: 11px !important; }
+#modal-box.cu-v2 .foe-name svg,
+#modal-box.cu-v2 .fig-name .cu-elem svg { width: 11px !important; height: 11px !important; flex: none; }
 
 /* ---------- 적: 원형 초상 + 고리 ---------- */
 #modal-box.cu-v2 .foe.foe-card {
@@ -90,7 +85,7 @@
 #modal-box.cu-v2 .foe.foe-card.target .foe-hp,
 #modal-box.cu-v2.fit-tiny .foe.foe-card.target .foe-hp { display: block; font-size: 9px; }
 #modal-box.cu-v2 .foe.foe-card > .bar.hp {
-  width: 88%; height: 5px; margin-top: 6px; border-radius: 2px; order: 1;
+  width: 88%; height: 5px; margin-top: 10px; border-radius: 2px; order: 1;
   background: #2a1520; border: 0;
 }
 #modal-box.cu-v2 .foe.foe-card > .bar.hp > i {
@@ -101,7 +96,7 @@
 /* 이름: 초상 원 외곽 테두리와 겹침 (검은 배경 없음, 항상 흰색) */
 #modal-box.cu-v2 .foe.foe-card > .fx-host { overflow: visible; }
 #modal-box.cu-v2 .foe.foe-card .fx-host > .foe-name {
-  position: absolute; left: 50%; bottom: -7px; top: auto; right: auto;
+  position: absolute; left: 50%; bottom: -11px; top: auto; right: auto;
   transform: translateX(-50%); z-index: 5; margin: 0; order: unset;
   width: max-content; max-width: calc(var(--fs, 72px) + 20px);
   font-size: 10.5px; font-weight: 700; line-height: 1.15;
@@ -142,7 +137,7 @@
 #modal-box.cu-v2 .ally.fig.ready .fx-host > .fig-name,
 #modal-box.cu-v2 .ally.fig.target .fx-host > .fig-name,
 #modal-box.cu-v2 .ally.fig.lead-fig .fx-host > .fig-name {
-  position: absolute; left: 50%; bottom: -6px; top: auto; right: auto;
+  position: absolute; left: 50%; bottom: -11px; top: auto; right: auto;
   transform: translateX(-50%); z-index: 5; margin: 0; width: max-content; max-width: 110%;
   font-size: 10.5px; font-weight: 700; line-height: 1.15; text-align: center;
   color: #fff !important; background: none !important; padding: 0; border-radius: 0;
@@ -155,7 +150,10 @@
 #modal-box.cu-v2 .ally.fig.lead-fig .fx-host > .fig-name b {
   color: #fff !important;
 }
-#modal-box.cu-v2 .ally.fig > .bar-row { margin-top: 4px; }
+/* 이름 아래로 내린 만큼 첫 막대만 살짝 띄우고, HP·MP는 서로 붙임 */
+#modal-box.cu-v2 .ally.fig > .bar-row { margin-top: 9px; }
+#modal-box.cu-v2 .ally.fig > .bar-row + .bar-row { margin-top: 0; }
+#modal-box.cu-v2 .ally.fig > .bar-row .bar { margin: 0; }
 
 /* 아군 카드 (리더 포함 같은 줄·같은 크기, 리더만 금테·태그) */
 #modal-box.cu-v2 #allies .ally.fig {
@@ -175,10 +173,18 @@
 #modal-box.cu-v2 #allies .ally.fig .sprite img {
   width: 48px !important; height: 48px !important; border-radius: 50%;
 }
-#modal-box.cu-v2 #allies .ally.fig .fx-host > .fig-name { font-size: 10px; bottom: -5px; max-width: 72px; }
+#modal-box.cu-v2 #allies .ally.fig .fx-host > .fig-name { font-size: 10px; bottom: -10px; max-width: 72px; }
 #modal-box.cu-v2 #allies .ally.fig .bar-row { width: 100%; }
+/* HP·MP 두께를 몬스터(5px)와 맞춤 */
 #modal-box.cu-v2 #allies .ally.fig .bar.hp,
-#modal-box.cu-v2 #allies .ally.fig .bar.mp { height: 4px; }
+#modal-box.cu-v2 #allies .ally.fig .bar.mp {
+  height: 5px; margin: 0; border: 0; border-radius: 2px;
+  background: #070b12;
+}
+#modal-box.cu-v2 #allies .ally.fig .bar.hp { background: #2a1520; }
+#modal-box.cu-v2 #allies .ally.fig .bar.mp { background: #0f1a2e; }
+#modal-box.cu-v2 #allies .ally.fig > .bar-row + .bar-row { margin-top: 0 !important; gap: 0; }
+#modal-box.cu-v2 .foe.foe-card > .brk { margin-top: 1px; }
 #modal-box.cu-v2 #allies .ally.fig.lead-fig > .fx-host {
   box-shadow: 0 0 0 2px #ffb547, 0 0 10px #ffb54744;
 }

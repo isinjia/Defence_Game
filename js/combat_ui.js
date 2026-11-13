@@ -3,11 +3,14 @@
 // 적·아군 원형 초상 + 속성 배지, 전열·후열 2줄, 커맨드 2×2.
 // 리더는 따로 줄을 만들지 않고 전열·후열 진형 칸에 그대로 둔다.
 {
-  const ELEM_BADGE = (u) => {
-    const e = u && u.elem; const E = e && ELEMENTS[e];
-    const name = E ? E.name : '무';
-    const c = E ? E.color : '#c9a84a';
-    return `<i class="elem-badge" style="--ec:${c}" aria-hidden="true">${name}</i>`;
+  // 이름 옆 속성 아이콘 (원형 글자 배지 대신)
+  const ensureNameIcon = (nameEl, u) => {
+    if (!nameEl) return;
+    nameEl.querySelectorAll('.elem-badge').forEach((n) => n.remove());
+    if (!nameEl.querySelector('.cu-elem')) {
+      const ico = (typeof FX !== 'undefined' && FX.elemIcon) ? FX.elemIcon(u && u.elem, 11) : '';
+      if (ico) nameEl.insertAdjacentHTML('beforeend', ` <span class="cu-elem">${ico}</span>`);
+    }
   };
 
   // 아군: 전열·후열 두 줄만 (리더 전용 줄은 만들지 않음)
@@ -50,11 +53,14 @@
   UI.decorateUnitCard = function (u, el) {
     if (!el || !u) return;
     const host = el.querySelector('.fx-host'); if (!host) return;
-    if (!host.querySelector('.elem-badge')) host.insertAdjacentHTML('beforeend', ELEM_BADGE(u));
-    // 이름은 초상(.fx-host) 안 하단에 겹침 → 막대가 원 바로 아래에 붙어 세로 공간 확보
+    // 원형 속성 글자(염·화 등) 배지는 쓰지 않는다
+    host.querySelectorAll('.elem-badge').forEach((n) => n.remove());
+    el.querySelectorAll('.elem-badge').forEach((n) => n.remove());
+    // 이름은 초상(.fx-host) 하단 테두리에 겹침, 속성 아이콘은 이름 옆
     if (el.classList.contains('ally')) {
       const name = el.querySelector('.fig-name');
       if (name && name.parentNode !== host) host.appendChild(name);
+      ensureNameIcon(name, u);
       if (!el.classList.contains('cu-ord')) {
         const bars = [...el.querySelectorAll(':scope > .bar-row')];
         let at = host;
@@ -65,6 +71,7 @@
     if (el.classList.contains('foe')) {
       const nm = el.querySelector('.foe-name');
       if (nm && nm.parentNode !== host) host.appendChild(nm);
+      // 이름 옆 아이콘은 unitEl에 이미 있음. 원형 배지만 제거
       if (!el.classList.contains('cu-ord')) {
         const hp = el.querySelector(':scope > .bar.hp');
         const brk = el.querySelector(':scope > .brk');
