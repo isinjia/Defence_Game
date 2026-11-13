@@ -34,7 +34,7 @@ if (typeof UI !== 'undefined') {
     },
     statusInvHtml() {
       const p = G.player;
-      const gear = ['weapon', 'armor', 'acc'].map((sl) => p.equip[sl]).filter(Boolean).map((it) => `<div class="small"><span class="dim">${this.slotName ? this.slotName(it.slot) : ''}</span> ${it.name}</div>`).join('');
+      const gear = Object.keys(p.equip || {}).map((sl) => p.equip[sl]).filter(Boolean).map((it) => `<div class="small"><span class="dim">${this.slotName ? this.slotName(it.slot) : ''}</span> ${it.name}</div>`).join('');
       const cons = (typeof CONSUMABLES !== 'undefined' ? CONSUMABLES : []).filter((c) => p.items[c.id]).map((c) => `<div class="small"><span class="dim">소모품</span> ${c.name} ×${p.items[c.id]}</div>`).join('');
       return `<div class="small"><span class="dim">돈</span> <b class="num">${fmt(p.money)}</b> 크레딧</div>` + gear + cons;
     },

@@ -83,7 +83,7 @@ Object.assign(Game.prototype, {
     }
     if (plus < 7) return `<span class="bad">강화 실패.</span> 재료만 날아갔다. (성공률 ${rate}%)`;
     if (RNG.chance(0.3)) {
-      for (const s of ['weapon', 'armor', 'acc']) if (p.equip[s] === it) p.equip[s] = null;
+      for (const s of Object.keys(p.equip || {})) if (p.equip[s] === it) p.equip[s] = null;
       p.inventory = p.inventory.filter((e) => e !== it);
       this.recalc();
       this.log(`${it.name} +${plus}이(가) 강화 도중 산산조각 났다.`, 'bad');
