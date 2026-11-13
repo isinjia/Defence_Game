@@ -1,7 +1,7 @@
 // ===== 게이트 크로니클: 전투 UI 시안 반영 (영역 B) =====
 // 사용자 시안: 머리 도구(작전·배속·자동·도주) 글자 버튼,
-// 적·아군 원형 초상 + 속성 배지, 리더 대형 중앙 / 동료 소형 가로 줄, 커맨드 2×2.
-// 기존 전투 로직·진형(전열·후열)·오더·커맨드는 유지하고 화면만 바꾼다.
+// 적·아군 원형 초상 + 속성 배지, 전열·후열 2줄, 커맨드 2×2.
+// 리더는 따로 줄을 만들지 않고 전열·후열 진형 칸에 그대로 둔다.
 {
   const ELEM_BADGE = (u) => {
     const e = u && u.elem; const E = e && ELEMENTS[e];
@@ -10,57 +10,40 @@
     return `<i class="elem-badge" style="--ec:${c}" aria-hidden="true">${name}</i>`;
   };
 
-  // 아군 영역: 리더 칸 + (전열·후열) 동료 줄
+  // 아군: 전열·후열 두 줄만 (리더 전용 줄은 만들지 않음)
   UI.ensureLeadLayout = function () {
     const a = document.getElementById('allies'); if (!a) return;
-    if (document.getElementById('allies-lead')) { a.classList.add('lead-focus'); return; }
-    const front = document.getElementById('allies-front');
-    const back = document.getElementById('allies-back');
-    a.classList.add('ally-rows', 'lead-focus');
-    a.classList.remove('allies');
-    const party = document.createElement('div'); party.className = 'ally-party'; party.id = 'allies-party';
-    const lead = document.createElement('div'); lead.className = 'allies'; lead.id = 'allies-lead';
-    // 진형 줄이 이미 있으면 옮기고, 없으면 만든다
-    if (front && back) {
-      for (const t of a.querySelectorAll(':scope > .row-tag')) t.remove();
-      party.appendChild(front); party.appendChild(back);
-    } else {
-      party.innerHTML = '<div class="allies" id="allies-front"></div><div class="allies" id="allies-back"></div>';
-      // 옛 한 줄 배치의 카드를 후열로
-      for (const el of [...a.querySelectorAll(':scope > .ally')]) party.querySelector('#allies-back').appendChild(el);
+    a.classList.add('ally-rows', 'cu-rows');
+    a.classList.remove('allies', 'lead-focus');
+    // 예전에 넣었던 리더 전용 칸이 있으면 해체하고 전열·후열로 되돌린다
+    const oldLead = document.getElementById('allies-lead');
+    const party = document.getElementById('allies-party');
+    if (oldLead || party) {
+      const front = document.getElementById('allies-front') || (() => { const d = document.createElement('div'); d.className = 'allies'; d.id = 'allies-front'; return d; })();
+      const back = document.getElementById('allies-back') || (() => { const d = document.createElement('div'); d.className = 'allies'; d.id = 'allies-back'; return d; })();
+      for (const el of [...(oldLead ? oldLead.children : [])]) back.appendChild(el);
+      a.innerHTML = '';
+      a.appendChild(front);
+      a.appendChild(back);
     }
-    a.innerHTML = '';
-    a.appendChild(lead);
-    a.appendChild(party);
+    if (!document.getElementById('allies-front')) {
+      a.innerHTML = '<div class="allies" id="allies-front"></div><div class="allies" id="allies-back"></div>';
+    }
+    for (const t of a.querySelectorAll(':scope > .row-tag')) t.remove();
   };
 
-  // 리더는 큰 칸, 나머지는 전열·후열 줄 (진형 판정은 그대로)
+  // 리더 표시만 (자리는 전열·후열 유지)
   UI.placeLeadFocus = function () {
     const c = this.ctx; const cb = c && c.combat; if (!cb || !cb.units) return;
     this.ensureLeadLayout();
-    const leadHost = document.getElementById('allies-lead'); if (!leadHost) return;
     const lid = cb.leaderId;
     for (const u of cb.units) {
       if (u.side !== 'ally') continue;
       const el = document.getElementById('u-' + u.id); if (!el) continue;
       const isLead = lid != null && u.id === lid;
       el.classList.toggle('lead-fig', isLead);
-      if (isLead) {
-        if (el.parentNode !== leadHost) leadHost.appendChild(el);
-      } else {
-        const host = document.getElementById('allies-' + (u.row || 'back')) || document.getElementById('allies-back');
-        if (host && el.parentNode !== host) host.appendChild(el);
-      }
-    }
-    // 리더가 아직 DOM에 없으면(첫 프레임) 리더 칸만 비워 둔다
-    for (const el of [...leadHost.querySelectorAll('.ally')]) {
-      const id = el.id && el.id.slice(2);
-      if (id !== lid) {
-        const u = cb.units.find((x) => x.id === id);
-        const host = document.getElementById('allies-' + ((u && u.row) || 'back')) || document.getElementById('allies-back');
-        if (host) host.appendChild(el);
-        el.classList.remove('lead-fig');
-      }
+      const host = document.getElementById('allies-' + (u.row || 'back')) || document.getElementById('allies-back');
+      if (host && el.parentNode !== host) host.appendChild(el);
     }
   };
 
@@ -172,7 +155,7 @@
     return r;
   };
 
-  // 대상 조준 시 리더 칸·동료 줄도 같이
+  // 대상 조준: 전열·후열
   const baseAim = UI.aimGlow;
   if (baseAim) UI.aimGlow = function (...a) {
     const r = baseAim.apply(this, a);
@@ -182,10 +165,10 @@
       const sel = c.sel && !cb.result ? (G.skillEff ? G.skillEff(skillById(c.sel)) : skillById(c.sel)) : null;
       const on = sel && cb.waiting && !c.playing && !cb.auto && sel.mp <= cb.player.mp;
       const aim = sel ? (SKILL_AIM[sel.type] || 'none') : null;
-      const lead = document.getElementById('allies-lead');
-      const party = document.getElementById('allies-party');
-      if (lead) lead.classList.toggle('aim', !!(on && aim === 'ally'));
-      if (party) party.classList.toggle('aim', !!(on && aim === 'ally'));
+      const yes = !!(on && aim === 'ally');
+      for (const id of ['allies', 'allies-front', 'allies-back']) {
+        const el = document.getElementById(id); if (el) el.classList.toggle('aim', yes);
+      }
     } catch (e) { /* 무시 */ }
     return r;
   };

@@ -90,7 +90,7 @@
 #modal-box.cu-v2 .foe.foe-card.target .foe-hp,
 #modal-box.cu-v2.fit-tiny .foe.foe-card.target .foe-hp { display: block; font-size: 9px; }
 #modal-box.cu-v2 .foe.foe-card > .bar.hp {
-  width: 88%; height: 5px; margin-top: 0; border-radius: 2px; order: 1;
+  width: 88%; height: 5px; margin-top: 6px; border-radius: 2px; order: 1;
   background: #2a1520; border: 0;
 }
 #modal-box.cu-v2 .foe.foe-card > .bar.hp > i {
@@ -98,113 +98,98 @@
 }
 #modal-box.cu-v2 .foe.foe-card > .brk { width: 88%; order: 2; height: 3px; }
 #modal-box.cu-v2 .foe.foe-card > .brk > i.on { background: #e8c547; }
-/* 이름: 초상 원 안 하단에 겹침 (막대는 원 바로 아래) */
+/* 이름: 초상 원 외곽 테두리와 겹침 (검은 배경 없음, 항상 흰색) */
+#modal-box.cu-v2 .foe.foe-card > .fx-host { overflow: visible; }
 #modal-box.cu-v2 .foe.foe-card .fx-host > .foe-name {
-  position: absolute; left: 50%; bottom: 2px; top: auto; right: auto;
+  position: absolute; left: 50%; bottom: -7px; top: auto; right: auto;
   transform: translateX(-50%); z-index: 5; margin: 0; order: unset;
-  width: max-content; max-width: 96%;
+  width: max-content; max-width: calc(var(--fs, 72px) + 20px);
   font-size: 10.5px; font-weight: 700; line-height: 1.15;
   display: inline-flex; align-items: center; gap: 2px; justify-content: center;
-  color: #f2f5fa; text-shadow: 0 1px 2px #000, 0 0 4px #000;
-  background: #05080dcc; padding: 1px 5px; border-radius: 3px;
+  color: #fff !important; background: none; padding: 0; border-radius: 0;
+  text-shadow: 0 1px 2px #000, 0 0 4px #000, 0 0 1px #000;
   pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+#modal-box.cu-v2 .foe.foe-card .fx-host > .foe-name b { color: #fff !important; }
 #modal-box.cu-v2 .foe.foe-card > .status { order: 5; min-height: 12px; height: 12px; }
 #modal-box.cu-v2 .foe.foe-card > .foe-hp { order: 3; }
 
-/* ---------- 아군: 리더 대형 + 동료 소형 ---------- */
-#modal-box.cu-v2 #allies.lead-focus {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  flex: none; margin-top: 2px;
-  padding-top: 6px;
+/* ---------- 아군: 전열·후열 2줄만 (리더도 진형 칸에) ---------- */
+#modal-box.cu-v2 #allies.cu-rows,
+#modal-box.cu-v2 #allies.ally-rows {
+  display: flex; flex-direction: column; align-items: stretch; gap: 4px;
+  flex: none; margin-top: 2px; padding-top: 6px;
   background:
     linear-gradient(180deg, transparent, #0e1824aa 30%),
     repeating-linear-gradient(90deg, transparent 0 18px, #1a2a3c22 18px 19px),
     repeating-linear-gradient(0deg, transparent 0 14px, #1a2a3c18 14px 15px);
   border-top: 1px solid #ffb54766;
 }
-#modal-box.cu-v2 #allies-lead {
-  display: flex; justify-content: center; width: 100%;
-  border: 0 !important; padding: 0 !important; margin: 0 !important;
-}
-#modal-box.cu-v2 #allies-party {
-  display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%;
-}
-#modal-box.cu-v2 #allies-party .allies {
-  display: flex; flex-wrap: nowrap; justify-content: center; gap: 6px;
+#modal-box.cu-v2 #allies.cu-rows > .allies,
+#modal-box.cu-v2 #allies.ally-rows > .allies {
+  display: flex; flex-wrap: nowrap; justify-content: center; align-items: flex-start; gap: 6px;
   border: 0 !important; padding: 0 !important; margin: 0 !important; width: 100%;
 }
-#modal-box.cu-v2 #allies.lead-focus .row-tag { display: none !important; }
+#modal-box.cu-v2 #allies.cu-rows .row-tag,
+#modal-box.cu-v2 #allies.ally-rows .row-tag { display: none !important; }
+#modal-box.cu-v2 #allies-lead,
+#modal-box.cu-v2 #allies-party { display: contents; }
 
-/* 이름: 초상 원 안 하단에 겹침 */
-#modal-box.cu-v2 .ally.fig > .fx-host { position: relative; }
-#modal-box.cu-v2 .ally.fig .fx-host > .fig-name {
-  position: absolute; left: 50%; bottom: 2px; top: auto; right: auto;
-  transform: translateX(-50%); z-index: 5; margin: 0; width: max-content; max-width: 96%;
+/* 이름: 초상 원 외곽 테두리와 겹침 (검은 배경 없음, 선택·내 차례여도 흰색 유지) */
+#modal-box.cu-v2 .ally.fig > .fx-host { position: relative; overflow: visible; }
+#modal-box.cu-v2 .ally.fig .fx-host > .fig-name,
+#modal-box.cu-v2 .ally.fig.me .fx-host > .fig-name,
+#modal-box.cu-v2 .ally.fig.ready .fx-host > .fig-name,
+#modal-box.cu-v2 .ally.fig.target .fx-host > .fig-name,
+#modal-box.cu-v2 .ally.fig.lead-fig .fx-host > .fig-name {
+  position: absolute; left: 50%; bottom: -6px; top: auto; right: auto;
+  transform: translateX(-50%); z-index: 5; margin: 0; width: max-content; max-width: 110%;
   font-size: 10.5px; font-weight: 700; line-height: 1.15; text-align: center;
-  color: #f2f5fa; text-shadow: 0 1px 2px #000, 0 0 4px #000;
-  background: #05080dcc; padding: 1px 5px; border-radius: 3px;
+  color: #fff !important; background: none !important; padding: 0; border-radius: 0;
+  text-shadow: 0 1px 2px #000, 0 0 4px #000, 0 0 1px #000;
   pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-#modal-box.cu-v2 .ally.fig > .bar-row { margin-top: 0; }
+#modal-box.cu-v2 .ally.fig .fx-host > .fig-name b,
+#modal-box.cu-v2 .ally.fig.me .fx-host > .fig-name b,
+#modal-box.cu-v2 .ally.fig.ready .fx-host > .fig-name b,
+#modal-box.cu-v2 .ally.fig.lead-fig .fx-host > .fig-name b {
+  color: #fff !important;
+}
+#modal-box.cu-v2 .ally.fig > .bar-row { margin-top: 4px; }
 
-/* 리더 카드 */
-#modal-box.cu-v2 .ally.fig.lead-fig {
-  width: auto; min-width: 96px; max-width: 140px; padding: 4px 8px 4px; gap: 1px;
-  border: 0; background: transparent; box-shadow: none;
-}
-#modal-box.cu-v2 .ally.fig.lead-fig > .fx-host {
-  width: 78px; height: 78px; border-radius: 50%;
-  box-shadow: 0 0 0 2px #ffb547, 0 0 14px #ffb54755;
-}
-#modal-box.cu-v2 .ally.fig.lead-fig .sprite {
-  width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
-  display: grid; place-items: center; line-height: 0;
-  background: #0a0f18;
-}
-#modal-box.cu-v2 .ally.fig.lead-fig .sprite .avatar,
-#modal-box.cu-v2 .ally.fig.lead-fig .sprite svg,
-#modal-box.cu-v2 .ally.fig.lead-fig .sprite img {
-  width: 78px !important; height: 78px !important; border-radius: 50%;
-}
-#modal-box.cu-v2 .ally.fig.lead-fig .fx-host > .fig-name {
-  font-size: 12.5px; bottom: 4px; max-width: 92%;
-}
-#modal-box.cu-v2 .ally.fig.lead-fig .bar-row { width: 92px; }
-#modal-box.cu-v2 .ally.fig.lead-fig .bar.hp,
-#modal-box.cu-v2 .ally.fig.lead-fig .bar.mp { height: 5px; }
-#modal-box.cu-v2 .ally.fig.lead-fig .lead-tag {
-  top: 2px; left: 50%; transform: translateX(-50%); right: auto;
-  font-size: 10px; padding: 1px 7px; border-radius: 3px;
-}
-#modal-box.cu-v2 .ally.fig.lead-fig.ready {
-  background: transparent;
-  filter: drop-shadow(0 0 10px rgba(255, 181, 71, .55));
-}
-
-/* 동료·소환 카드 */
-#modal-box.cu-v2 #allies-party .ally.fig {
+/* 아군 카드 (리더 포함 같은 줄·같은 크기, 리더만 금테·태그) */
+#modal-box.cu-v2 #allies .ally.fig {
   width: min(72px, calc((100vw - 48px) / 4.2)); max-width: 80px; min-width: 56px;
   padding: 2px 2px 2px; gap: 1px; border: 0; background: transparent;
 }
-#modal-box.cu-v2 #allies-party .ally.fig > .fx-host {
-  width: 44px; height: 44px; border-radius: 50%;
+#modal-box.cu-v2 #allies .ally.fig > .fx-host {
+  width: 48px; height: 48px; border-radius: 50%;
   box-shadow: 0 0 0 1.5px #3a4e68;
 }
-#modal-box.cu-v2 #allies-party .ally.fig .sprite {
+#modal-box.cu-v2 #allies .ally.fig .sprite {
   width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
   display: grid; place-items: center; line-height: 0; background: #0a0f18;
 }
-#modal-box.cu-v2 #allies-party .ally.fig .sprite .avatar,
-#modal-box.cu-v2 #allies-party .ally.fig .sprite svg,
-#modal-box.cu-v2 #allies-party .ally.fig .sprite img {
-  width: 44px !important; height: 44px !important; border-radius: 50%;
+#modal-box.cu-v2 #allies .ally.fig .sprite .avatar,
+#modal-box.cu-v2 #allies .ally.fig .sprite svg,
+#modal-box.cu-v2 #allies .ally.fig .sprite img {
+  width: 48px !important; height: 48px !important; border-radius: 50%;
 }
-#modal-box.cu-v2 #allies-party .ally.fig .fx-host > .fig-name { font-size: 10px; bottom: 1px; max-width: 96%; }
-#modal-box.cu-v2 #allies-party .ally.fig .bar-row { width: 100%; }
-#modal-box.cu-v2 #allies-party .ally.fig .bar.hp,
-#modal-box.cu-v2 #allies-party .ally.fig .bar.mp { height: 4px; }
-#modal-box.cu-v2 #allies-party .ally.fig .lead-tag { display: none; }
+#modal-box.cu-v2 #allies .ally.fig .fx-host > .fig-name { font-size: 10px; bottom: -5px; max-width: 72px; }
+#modal-box.cu-v2 #allies .ally.fig .bar-row { width: 100%; }
+#modal-box.cu-v2 #allies .ally.fig .bar.hp,
+#modal-box.cu-v2 #allies .ally.fig .bar.mp { height: 4px; }
+#modal-box.cu-v2 #allies .ally.fig.lead-fig > .fx-host {
+  box-shadow: 0 0 0 2px #ffb547, 0 0 10px #ffb54744;
+}
+#modal-box.cu-v2 #allies .ally.fig.lead-fig .lead-tag {
+  top: -2px; left: 50%; transform: translateX(-50%); right: auto;
+  font-size: 9px; padding: 0 5px; border-radius: 3px;
+}
+#modal-box.cu-v2 #allies .ally.fig.lead-fig.ready {
+  background: transparent;
+  filter: drop-shadow(0 0 8px rgba(255, 181, 71, .5));
+}
 
 /* 필살·턴 고리가 원형 초상에 맞게 */
 #modal-box.cu-v2 .ally .fx-host .ult-aura,
@@ -219,10 +204,10 @@
 }
 #modal-box.cu-v2 .ally .status .tag.good { background: #1a3a24; color: #7be0a0; border-color: #2a5a38; }
 
-/* 조준 (부모 #allies.aim · 리더 칸 · 동료 줄) */
+/* 조준 */
 #modal-box.cu-v2 #allies.aim .ally:not(.summon),
-#modal-box.cu-v2 #allies-lead.aim .ally,
-#modal-box.cu-v2 #allies-party.aim .ally:not(.summon) {
+#modal-box.cu-v2 #allies-front.aim .ally:not(.summon),
+#modal-box.cu-v2 #allies-back.aim .ally:not(.summon) {
   cursor: crosshair; outline: 2px dashed var(--amber); outline-offset: 2px;
 }
 
