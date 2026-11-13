@@ -67,7 +67,7 @@ Object.assign(UI, {
     }));
     const from = pt(opts.move ? opts.move[0] : m.pos);
     const L = this.examLeader && this.examLeader();
-    const token = `<div class="gtoken lead" id="gtoken" style="left:${from.x}%;top:${from.y}%">${L ? this.npcAvatar(L, 26) : this.playerAvatar(26)}</div>`; // 탐색을 이끄는 리더의 얼굴
+    const token = `<div class="gtoken lead" id="gtoken" style="left:${from.x}%;top:${from.y}%">${L ? (this.npcBust ? this.npcBust(L, 26) : this.npcAvatar(L, 26)) : (this.playerBust ? this.playerBust(26) : this.playerAvatar(26))}</div>`; // 탐색을 이끄는 리더의 얼굴
     const legend = ['fight', 'event', 'rest', 'treasure', 'boss'].map((t) => `<span class="gl" style="--c:${GNODE[t].color}"><i></i>${GNODE[t].name}</span>`).join('');
     const stepNo = { intro: 1, pick1: 1, your1: 2, your2: 3, boss: 4 }[step] || 1;
     this.modal(`<div class="cb-head"><h3>헌터 자격 시험 · 훈련용 게이트</h3><span class="tag">탐색 안내 ${stepNo}/4</span></div>
