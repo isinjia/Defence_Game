@@ -35,6 +35,8 @@ const MAIN = {
       case 'leader': {
         const c = this.crewLeader && this.crewLeader(); if (c) return c;
         const ft = this.flags.story && this.flags.story.firstTeam; const f = ft && alive(this.npcById(ft.leader)); if (f) return f;
+        // 혼자 시작했으면(소속 팀 없음) 리더가 없다: 시험 때 선임을 리더로 끌어오지 않는다(사용자 제보). 리더 줄은 alt 또는 생략.
+        if (this.flags.story && this.flags.story.affPath === 'solo') return null;
         return alive(this.npcs.filter((n) => n.examLeader).pop());
       }
       case 'friend': return alive(this.npcs.find((n) => n.friendhood));
