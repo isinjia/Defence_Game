@@ -157,13 +157,17 @@
 #modal-box.cu-v2 .cb-head h3 .pb-tag { display: none !important; }
 #modal-box.cu-v2 #allies.cu-rows > .allies,
 #modal-box.cu-v2 #allies.ally-rows > .allies {
-  display: flex; flex-wrap: nowrap; justify-content: center; align-items: flex-start; gap: 6px;
+  display: flex; flex-wrap: nowrap; justify-content: center; align-items: flex-start; gap: 8px;
   border: 0 !important; padding: 0 !important; margin: 0 !important; width: 100%;
 }
-/* 후열: 좌우 간격 더 벌림 */
+/* 전열·후열 비슷한 간격 (후열만 과하게 벌리지 않음) */
+#modal-box.cu-v2 #allies.cu-rows > #allies-front,
+#modal-box.cu-v2 #allies.ally-rows > #allies-front {
+  gap: 8px !important; justify-content: center; padding: 0 !important;
+}
 #modal-box.cu-v2 #allies.cu-rows > #allies-back,
 #modal-box.cu-v2 #allies.ally-rows > #allies-back {
-  gap: 18px !important; justify-content: space-evenly; padding: 0 6px !important;
+  gap: 10px !important; justify-content: center; padding: 0 !important;
 }
 #modal-box.cu-v2 #allies.cu-rows .row-tag,
 #modal-box.cu-v2 #allies.ally-rows .row-tag { display: none !important; }
