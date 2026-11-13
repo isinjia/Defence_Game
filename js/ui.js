@@ -94,7 +94,7 @@ const UI = {
 
   helpHtml() {
     return `<h3>게임 안내</h3>
-      <p>귀곡팔황식 자유 성장 헌터 RPG입니다. 모든 행동은 시간을 소모하고, 세계는 당신과 무관하게 흘러갑니다.</p>
+      <p>자유롭게 성장하는 헌터 RPG입니다. 모든 행동은 시간을 소모하고, 세계는 당신과 무관하게 흘러갑니다.</p>
       <ul class="help">
         <li><b>각성 등급</b>: F → E → D → C → B → A → S → SS. 각 등급은 초기·중기·후기로 나뉩니다.</li>
         <li><b>에테르</b>: 수련·게이트·가르침으로 쌓고, 후기를 채우면 <b>돌파</b>를 시도합니다. 실패하면 내상을 입습니다.</li>
@@ -1064,7 +1064,7 @@ const UI = {
         return this.modal('<h3>타이틀로 돌아갈까요?</h3><p class="dim">진행 상황은 매달 자동 저장됩니다.</p><div class="row end"><button class="ghost" data-act="modal-close">취소</button><button class="primary" data-act="to-title">타이틀로</button></div>');
       case 'modal-close': this.closeModal(); return this.after();
       // 생성
-      case 'c-gender': c.gender = v; return this.render();
+      case 'c-gender': { c.gender = v; const inp = document.getElementById('in-name'); if (inp) c.name = inp.value; if (c._diced && c.name === c._diced) c.name = c._diced = this.randomName(v); return this.render(); }
       case 'c-bg': c.bg = v; return this.render();
       case 'c-elem': c.element = v; return this.render();
       case 'c-cls': c.cls = v; return this.render();

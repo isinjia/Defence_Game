@@ -94,10 +94,10 @@
   };
 
   // 창 위에 뜨는 작은 확인 창 (전투·게이트 창을 갈아 끼우지 않고 그 위에 띄운다)
-  UI.confirmOver = function (title, text, okLabel, onOk) {
+  UI.confirmOver = function (title, text, okLabel, onOk, okCls = 'danger') {
     const old = document.getElementById('pl-confirm'); if (old) old.remove();
     const el = document.createElement('div'); el.id = 'pl-confirm'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
-    el.innerHTML = `<div class="plc-box"><h3>${title}</h3><p>${text}</p><div class="plc-row"><button class="ghost" data-plc="no">취소</button><button class="danger" data-plc="ok">${okLabel}</button></div></div>`;
+    el.innerHTML = `<div class="plc-box"><h3>${title}</h3><p>${text}</p><div class="plc-row"><button class="ghost" data-plc="no">취소</button><button class="${okCls}" data-plc="ok">${okLabel}</button></div></div>`;
     el.addEventListener('click', (e) => {
       e.stopPropagation();
       const b = e.target.closest('[data-plc]'); if (!b && e.target !== el) return;
@@ -145,5 +145,34 @@
       }
     } catch (e) { /* 무시 */ }
     return r;
+  };
+
+  // [평가 33] 설정에 저장 항목: 언제 저장되는지 알리고, 지도 화면에서는 바로 저장할 수 있다
+  const baseSet = UI.settingsHtml;
+  if (baseSet) UI.settingsHtml = function () {
+    const h = baseSet.call(this);
+    const can = this.screen === 'game' && G.player && !G.over && !this.ctx;
+    const row = `<div class="set-row"><div><b>저장</b><div class="small dim">매달, 그리고 큰일이 끝날 때마다 이 기기에 자동 저장됩니다.</div></div><button data-act="save-now" ${can ? '' : 'disabled'}>지금 저장</button></div>`;
+    const at = h.lastIndexOf('<div class="row end">');
+    return at < 0 ? h + row : h.slice(0, at) + row + h.slice(at);
+  };
+  const baseHandle4 = UI.handle;
+  UI.handle = function (act, v) {
+    if (act === 'save-now') { try { G.save(); this.toast('저장했다.'); } catch (e) { this.toast('저장하지 못했다.'); } return; }
+    return baseHandle4.call(this, act, v);
+  };
+
+  // [평가 32] 소속(길드·관리국) 가입은 한 번 누르면 확정이었다: 조건을 요약해 보여 주고 한 번 더 묻는다
+  const baseHandle5 = UI.handle;
+  UI.handle = function (act, v) {
+    if (act === 'dlg-choice' && !this._dlgOk && !window.TUT_AUTO_TAP) { // 자동 시험(TUT_AUTO_TAP)은 확인 없이 지나간다
+      const d = this.dlg; const line = d && d.lines[d.i]; const c = line && line.choices && line.choices[+v];
+      if (c && c.info && c.info.type === 'guild' && /들어간다/.test(c.text || '') && typeof GUILDS !== 'undefined') {
+        const id = c.info.id; const name = id === 'kama' ? '관리국 보호국' : (GUILDS[id] ? GUILDS[id].name : '이 소속');
+        let terms = ''; try { terms = G.payTermsText ? G.payTermsText(id) : ''; } catch (e) { terms = ''; }
+        return this.confirmOver(`${name}에 들어갈까요?`, `${terms ? terms + '<br><br>' : ''}소속은 나중에 쉽게 바꾸기 어렵습니다. 조건을 확인하고 정하세요.`, '들어간다', () => { this._dlgOk = true; try { this.handle(act, v); } finally { this._dlgOk = false; } }, 'primary');
+      }
+    }
+    return baseHandle5.call(this, act, v);
   };
 }

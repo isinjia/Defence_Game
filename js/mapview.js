@@ -37,7 +37,7 @@ class MapView {
     this.w = r.width; this.hgt = r.height;
     this.cv.width = r.width * this.dpr; this.cv.height = r.height * this.dpr;
     this.cv.style.width = r.width + 'px'; this.cv.style.height = r.height + 'px';
-    if (this.w < 600 && this.tile > 40) this.tile = 38;
+    if (this.w < 600 && this.tile > 44) this.tile = 44; // [평가 34] 좁은 화면 기본 배율을 38→44로: 밝혀진 땅과 표식이 너무 작았다
   }
 
   // 타일 좌표 <-> 화면 좌표

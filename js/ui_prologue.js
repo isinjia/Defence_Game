@@ -183,12 +183,12 @@ Object.assign(UI, {
       case 'name-dice': {
         const inp = document.getElementById('in-name');
         const target = this.screen === 'story-setup' ? this.pro : this.create;
-        target.name = this.randomName(target.gender);
+        target.name = this.randomName(target.gender); target._diced = target.name;
         if (inp) inp.value = target.name;
         const n = document.querySelector('.id-name'); if (n) n.textContent = target.name;
         return;
       }
-      case 'ps-gender': this.pro.gender = v; return this.render();
+      case 'ps-gender': { const s = this.pro; s.gender = v; const inp = document.getElementById('in-name'); if (inp) s.name = inp.value; if (s._diced && s.name === s._diced) s.name = s._diced = this.randomName(v); return this.render(); }
       case 'ps-look': this.pro.look = PortraitParts.newLook(); return this.render();
       case 'ps-start': {
         const s = this.pro; s.name = (s.name || '').trim();

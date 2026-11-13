@@ -27,7 +27,8 @@ if (typeof UI !== 'undefined') {
 
   Object.assign(UI, {
     statusSkillHtml(id) {
-      const sk = skillById(id); if (!sk) return '';
+      const sk0 = skillById(id); if (!sk0) return '';
+      let sk = sk0; try { sk = (G.skillEff && G.skillEff(sk0)) || sk0; } catch (e) { sk = sk0; } // 전투에서 보이는 이름·소모와 같게(접사 반영)
       const p = G.player; const e = sk.elem === 'self' ? p.element : sk.elem;
       return `<button class="st-sk" data-act="st-sk" data-v="${id}">${e && ELEMENTS[e] ? FX.elemIcon(e, 14) : `<svg class="st-phys" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c9d3e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19 17 7l2-4 2 2-4 2L5 19zM4 16l4 4M3 21l2-2"/></svg>`}<b>${sk.name}</b><span class="tag">${TYPE_NAME[sk.type] || '특수'}</span><span class="small dim">MP ${sk.mp}</span><span class="st-more">›</span></button>`;
     },

@@ -104,3 +104,6 @@ body.dlg-on .hud-bottom, body.dlg-on .hud-tr, body.dlg-on #hud-money { visibilit
   [data-act="g-leave"], .obj-link.hq, .fold-obj-btn, .explore-chip { min-height: 44px; }
   .fold-obj-btn { min-width: 44px; }
 }
+
+#pl-confirm .plc-box:has(.primary) { border-top-color: var(--amber); }
+#pl-confirm p b { color: var(--text); }
