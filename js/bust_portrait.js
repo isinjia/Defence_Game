@@ -1,5 +1,6 @@
-// ===== 게이트 크로니클: 상반신(버스트) 초상 — 전투·월드맵 캐릭터 표시 공통 =====
-// 아바타(얼굴만) 대신 포트레이트를 원형으로 잘라 상체·의상이 보이게 한다.
+// ===== 게이트 크로니클: 상반신(버스트) 초상 — 전역 캐릭터 아이콘 공통 =====
+// 월드맵·전투와 같이 원형 아이콘에서도 상의·의상이 보이게 한다.
+// FX.avatar(얼굴만) 대신 포트레이트(의상 포함)를 잘라 쓴다.
 
 {
   const BUST_VB = '45 55 310 310';
@@ -14,26 +15,111 @@
     svg.setAttribute('viewBox', BUST_VB);
     svg.setAttribute('width', String(size));
     svg.setAttribute('height', String(size));
-    svg.classList.add('bust');
+    svg.classList.add('bust', 'avatar');
     if (!svg.getAttribute('xmlns')) svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     if (!svg.getAttribute('xmlns:xlink')) svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+    // 카드 테두리·배경 사각형은 원형 아이콘에서 빼 둔다
     svg.querySelectorAll(':scope > circle, :scope > rect').forEach((n) => n.remove());
     return svg.outerHTML;
   };
 
+  const bustFromPortrait = (raw, size, fallback) => {
+    try {
+      if (raw && /<svg/i.test(raw)) {
+        const bust = UI.toBustHtml(raw, size);
+        if (bust) return bust;
+      }
+    } catch (e) { /* 무시 */ }
+    return typeof fallback === 'function' ? fallback() : (fallback || '');
+  };
+
+  // 모든 FX.avatar 호출 → 의상 포함 상반신 (레거시 사진 img는 기존 유지)
+  if (FX && typeof FX.avatar === 'function' && typeof FX.portrait === 'function') {
+    const baseFxAvatar = FX.avatar.bind(FX);
+    FX.avatar = function (seed, gender, element, rankIdx, size = 56, opts = {}) {
+      try {
+        const raw = FX.portrait(seed, gender, element, rankIdx, Math.max(160, size * 2), opts || {});
+        const bust = bustFromPortrait(raw, size, null);
+        if (bust && /<svg/i.test(bust)) return bust;
+      } catch (e) { /* 무시 */ }
+      return baseFxAvatar(seed, gender, element, rankIdx, size, opts);
+    };
+  }
+
   UI.playerBust = function (size = 64) {
     try {
-      const raw = this.playerPortrait(Math.max(120, size * 2));
-      return this.toBustHtml(raw, size) || this.playerAvatar(size);
-    } catch (e) { return this.playerAvatar(size); }
+      return bustFromPortrait(this.playerPortrait(Math.max(160, size * 2)), size, () => this.playerAvatar(size));
+    } catch (e) {
+      try { return this.playerAvatar(size); } catch (e2) { return ''; }
+    }
   };
 
   UI.npcBust = function (n, size = 64) {
     try {
-      const raw = this.npcPortrait(n, Math.max(120, size * 2));
-      return this.toBustHtml(raw, size) || this.npcAvatar(n, size);
-    } catch (e) { return this.npcAvatar(n, size); }
+      return bustFromPortrait(this.npcPortrait(n, Math.max(160, size * 2)), size, () => this.npcAvatar(n, size));
+    } catch (e) {
+      try { return this.npcAvatar(n, size); } catch (e2) { return ''; }
+    }
   };
+
+  // UI 아바타도 상반신으로 (wardrobe/job_outfits가 FX.avatar를 쓰므로 대부분 위에서 처리되지만 이중 보장)
+  const basePlayerAvatar = UI.playerAvatar.bind(UI);
+  UI.playerAvatar = function (size) {
+    try {
+      return bustFromPortrait(this.playerPortrait(Math.max(160, size * 2)), size, () => basePlayerAvatar(size));
+    } catch (e) { return basePlayerAvatar(size); }
+  };
+
+  const baseNpcAvatar = UI.npcAvatar.bind(UI);
+  UI.npcAvatar = function (n, size) {
+    if (!n) return '';
+    try {
+      return bustFromPortrait(this.npcPortrait(n, Math.max(160, size * 2)), size, () => baseNpcAvatar(n, size));
+    } catch (e) { return baseNpcAvatar(n, size); }
+  };
+
+  if (UI.unitAvatar) {
+    const baseUnitAvatar = UI.unitAvatar.bind(UI);
+    UI.unitAvatar = function (u, size) {
+      try {
+        if (!u) return '';
+        if (u.isPlayer) return this.playerAvatar(size);
+        if (u.npcId != null) {
+          const n = G.npcById(u.npcId);
+          if (n) return this.npcAvatar(n, size);
+        }
+        if (u.portrait && FX.portrait) {
+          const q = u.portrait;
+          const opts = { ...(typeof Wardrobe !== 'undefined' && Wardrobe.appearance ? Wardrobe.appearance(u) : {}), ...q };
+          if (!opts.outfit && typeof Wardrobe !== 'undefined' && Wardrobe.profession) opts.outfit = Wardrobe.profession(u.cls, u.bg);
+          const raw = FX.portrait(q.seed, q.gender, q.elem, u.tier || 0, Math.max(160, size * 2), opts);
+          return bustFromPortrait(raw, size, () => baseUnitAvatar(u, size));
+        }
+      } catch (e) { /* 무시 */ }
+      return baseUnitAvatar(u, size);
+    };
+  }
+
+  if (UI.unitSprite) {
+    const baseUnitSprite = UI.unitSprite.bind(UI);
+    UI.unitSprite = function (u, size) {
+      try {
+        if (u && u.isPlayer) return this.playerAvatar(size);
+        if (u && u.npcId != null) {
+          const n = G.npcById(u.npcId);
+          if (n) return this.npcAvatar(n, size);
+        }
+        if (u && u.portrait && FX.portrait) {
+          const q = u.portrait;
+          const opts = { ...(typeof Wardrobe !== 'undefined' && Wardrobe.appearance ? Wardrobe.appearance(u) : {}), ...q };
+          if (!opts.outfit && typeof Wardrobe !== 'undefined' && Wardrobe.profession) opts.outfit = Wardrobe.profession(u.cls, u.bg);
+          const raw = FX.portrait(q.seed, q.gender, q.elem, u.tier || 0, Math.max(160, size * 2), opts);
+          return bustFromPortrait(raw, size, () => baseUnitSprite(u, size));
+        }
+      } catch (e) { /* 무시 */ }
+      return baseUnitSprite(u, size);
+    };
+  }
 
   // 월드맵 플레이어 마커 → 상반신
   const baseRG = UI.renderGame;
