@@ -375,7 +375,7 @@ function tutAddSys(h, text) {
   };
   const GP = Game.prototype; const baseLine = GP.personaLine;
   if (baseLine) GP.personaLine = function (n, key, ...a) {
-    if (key === 'leadGreet' && typeof UI !== 'undefined' && UI._examGreeting) return null;
+    if ((key === 'leadGreet' || key === 'leadBrief') && typeof UI !== 'undefined' && UI._examGreeting) return null; // 출발 전 한마디(leadBrief)도 "우리 이름을 알릴 첫걸음" 같은 장기 팀 말이 섞여 있어 같이 뺀다
     return baseLine.call(this, n, key, ...a);
   };
 }
