@@ -226,3 +226,7 @@ html body .tsk-proxy.tsk-proxy::before { content: '건너뛰기' !important; pos
 html body .tsk-proxy.tsk-proxy.armed { background: rgba(120, 40, 40, .95) !important; border-color: rgba(255, 140, 140, .6) !important; color: #fff !important; }
 html body .tsk-proxy.tsk-proxy.armed::before { content: '한 번 더' !important; }
 html body .tsk-proxy.tsk-proxy::after { content: ''; position: absolute; top: 0; bottom: 0; left: -14px; right: 0; height: auto; min-height: 0; transform: none; } /* 누르는 폭은 넉넉하게 */
+
+/* 여럿이 차례로 말하는 대화(인사 등): 글이 길면 상자가 위로 자라서 초상들 자리가 판마다 오르내렸다.
+   상자 높이를 넉넉히 고정해 첫 줄·초상 자리가 글 길이와 상관없이 같은 곳에서 시작하게 한다 (사용자 요청) */
+html body #dlg .dlg-box.dlg-group { min-height: min(46vh, 360px); box-sizing: border-box; justify-content: flex-start; align-content: flex-start; }

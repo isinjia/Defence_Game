@@ -185,3 +185,17 @@ if (typeof UI !== 'undefined' && UI.leadSay) {
     return baseLead.call(this, key);
   };
 }
+// 대화에서 이름 옆에 직업도 (사용자 요청): "시험 동기" → "시험 동기 · 방패 기사"
+if (typeof UI !== 'undefined' && UI.dlgSpeaker) {
+  const baseSp = UI.dlgSpeaker;
+  UI.dlgSpeaker = function (who) {
+    const sp = baseSp.call(this, who);
+    try {
+      if (sp && who && who !== 'player' && typeof who === 'object' && who.cls && typeof className === 'function') {
+        const job = className(who.cls, who.clsAdv || 0);
+        if (job && !String(sp.sub || '').includes(job)) sp.sub = sp.sub ? `${sp.sub} · ${job}` : job;
+      }
+    } catch (e) { /* 직업 이름 실패는 대화를 막지 않는다 */ }
+    return sp;
+  };
+}
