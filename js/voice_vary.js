@@ -276,11 +276,23 @@ if (typeof Game !== 'undefined' && Game.prototype.councilOpinion) {
   const SYS = {
     gauge: '인물 초상을 두른 고리가 다 차면 그 인물의 차례입니다.',
     turn: '내 차례에는 시간이 멈춥니다. 아래에서 공격·스킬·아이템·방어 중 하나를 고르세요.',
-    aimEnemy: '적을 누르면 바로 씁니다.',
-    aimAlly: '동료를 누르면 바로 씁니다.',
+    aimEnemy: '적을 눌러 타겟을 설정합니다.',
+    aimAlly: '동료를 눌러 타겟을 설정합니다.',
     aimNone: '[사용]을 누르면 씁니다.',
     done: '아이템: 회복약으로 체력 회복 · 방어: 다음 차례까지 받는 피해가 줄어듭니다.',
     tools: '오른쪽 위 단추: 배속(전투 속도) · 자동(자동 전투)',
   };
   if (typeof UI !== 'undefined' && UI.coachSys) { const baseSys = UI.coachSys; UI.coachSys = function (key) { return SYS[key] || baseSys.call(this, key); }; }
+  // 안내 말풍선 안의 나머지 설명 글도 지금 조작 순서에 맞춘다 (tutorial.js coachHtml 이 직접 쓰는 문장)
+  if (typeof UI !== 'undefined' && UI.coachHtml) {
+    const baseCoach = UI.coachHtml;
+    const FIX = [
+      ['쓸 스킬을 누르세요. 그다음 공격할 적을 누르면 발동합니다.', '쓸 스킬을 고른 뒤, 적을 눌러 타겟을 설정합니다.'],
+      ['쓸 물건을 누르세요.', '쓸 아이템을 고른 뒤, 동료를 눌러 타겟을 설정합니다.'],
+      ['안내 3/3 · 더', '추가 안내'],
+    ];
+    UI.coachHtml = function (...a) { let h = baseCoach.apply(this, a); if (h) for (const [x, y] of FIX) h = h.split(x).join(y); return h; };
+  }
+  // 시험 탐색 지도: 셋째 줄 왼쪽 칸은 들어가면 '녹슨 보급 상자'인데 지도·카드에는 '사건(?)'으로 보여, 리더의 "왼쪽은 녹슨 보급 상자" 설명과 어긋났다 → 보물 칸으로 표시
+  if (typeof EXAM_MAP !== 'undefined' && EXAM_MAP[2] && EXAM_MAP[2][0] && EXAM_MAP[2][0].node === 'chest') EXAM_MAP[2][0].t = 'treasure';
 }
