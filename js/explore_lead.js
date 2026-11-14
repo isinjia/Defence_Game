@@ -89,7 +89,7 @@
     root.classList.add('xr-overview', 'xr-cnmap'); document.body.classList.add('cn-map-on');
     root.querySelectorAll('.xr-lead-node').forEach((e) => e.remove());
     const info = leadKey(); const node = info && root.querySelector(`.gnode[data-xr-key="${info.key}"]`);
-    if (node && info.L) { node.classList.add('xr-leadnode'); node.insertAdjacentHTML('beforeend', `<span class="xr-lead-node" aria-hidden="true">${face(info.L, 96)}</span>`); }
+    if (node && info.L) { node.classList.add('xr-leadnode'); node.insertAdjacentHTML('beforeend', `<span class="xr-lead-node" aria-hidden="true">${face(info.L, 96)}<b class="xr-lead-node-tag">리더 선택</b></span>`); }
     const sc = root.querySelector('.xr-map-scroll'); if (sc && node) sc.scrollTop = Math.max(0, node.offsetTop - sc.clientHeight / 2);
   };
   const dock = () => {
