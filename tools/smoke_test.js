@@ -795,7 +795,7 @@ const { chromium, devices } = require('playwright');
       } finally { p.cls = original.cls; p.equip = original.equip; p.inventory = original.inventory; G.recalc(); p.hp = original.hp; p.mp = original.mp; p.bodyType = original.bodyType; p.skinTone = original.skinTone; G.save(); UI.renderGame(); }
     });
   });
-  for (const s of ['char', 'gear', 'skills', 'party', 'people', 'quest', 'guild', 'hunter', 'log']) {
+  for (const s of ['char', 'gear', 'inventory', 'skills', 'party', 'people', 'quest', 'guild', 'hunter', 'log']) {
     await step(`시트 탭: ${s}`, async () => { await act('sheet', s); const len = await ev(() => document.getElementById('modal-box').innerHTML.length); if (len < 200) throw new Error('내용이 거의 없음'); await closeAll(); });
   }
   await step('장비 탭: 패널 구조·방어구 5칸·장신구 3칸·가방 유지', async () => {
@@ -818,8 +818,13 @@ const { chromium, devices } = require('playwright');
         for (const slot of ['weapon', ...ARMOR_SLOT_IDS, ...ACC_SLOT_IDS]) {
           if (layout.querySelectorAll(`[data-act="gear-slot"][data-v="${slot}"]`).length !== 1) throw new Error('장비 칸 누락: ' + slot);
         }
-        if (!layout.querySelector('.gl-inventory [data-v="equip"]') || !layout.querySelector('.gl-inventory [data-v="cons"]')) throw new Error('인벤토리 누락');
+        if (!layout.querySelector('.gl-replacements') || layout.querySelector('[data-act="use-item"]')) throw new Error('장비 탭의 착용·교체 영역 분리 실패');
         if (!layout.textContent.includes('테마 세트 도감')) throw new Error('확장 장비 구역 누락');
+        UI.sheet = 'inventory'; root.innerHTML = UI.sheetHtml();
+        if (root.content.querySelector('.gl-loadout')) throw new Error('인벤토리에 장착 슬롯 중복');
+        for (const category of ['all', 'equip', 'cons', 'material']) {
+          if (!root.content.querySelector(`[data-act="inventory-filter"][data-v="${category}"]`)) throw new Error('인벤토리 분류 누락: ' + category);
+        }
       } finally { UI.sheet = sheet; p.equip = equip; p.inventory = inventory; }
     });
   });
