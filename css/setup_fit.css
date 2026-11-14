@@ -57,3 +57,8 @@
     width: min(100cqw, 100cqh) !important; height: min(100cqw, 100cqh) !important; max-width: none; max-height: none; flex: none; overflow: hidden; }
   .create.ps-fit .id-preview .portrait-swap-slot > svg { width: 100% !important; height: 100% !important; }
 }
+@media (orientation: portrait), (max-width: 700px) {
+  /* 외형 바꾸기 동안 덮어 두는 이전 초상도 같은 크기로 (작게 줄었다 커지던 문제) */
+  .create.ps-fit .id-preview .portrait-swap-hold { inset: 0; width: 100%; height: 100%; }
+  .create.ps-fit .id-preview .portrait-swap-hold > svg, .create.ps-fit .id-preview .portrait-swap-hold > .portrait-img { width: 100% !important; height: 100% !important; max-width: none; }
+}

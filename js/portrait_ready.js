@@ -24,13 +24,19 @@
     const g = gender === 'F' ? 'f' : 'm';
     if (warmed.has(g)) return;
     warmed.add(g);
-    try {
-      const looks = [PortraitParts.newLook(), PortraitParts.newLook(), PortraitParts.newLook()];
-      for (const look of looks) {
-        const html = FX.portrait(look, gender === 'F' ? 'F' : 'M', 'fire', 0, 160, { age: 19, outfit: 'underwear' });
-        if (html && html.includes('data-portrait-parts=')) PortraitParts.rasterize(html).catch(() => {});
-      }
-    } catch (e) { /* 무시 */ }
+    // 외형 바꾸기 첫 몇 번이 무겁지 않게, 화면에 들어오자마자 부품 그림을 미리 받아 둔다 (사용자 요청).
+    // 한꺼번에 하면 화면이 멈추므로 한가할 때 하나씩 차례로 준비한다.
+    const N = 10; let i = 0;
+    const idle = (fn) => (typeof requestIdleCallback === 'function' ? requestIdleCallback(fn, { timeout: 600 }) : setTimeout(fn, 60));
+    const step = () => {
+      if (i++ >= N) return;
+      try {
+        const html = FX.portrait(PortraitParts.newLook(), gender === 'F' ? 'F' : 'M', 'fire', 0, 160, { age: 19, outfit: 'underwear' });
+        const p = html && html.includes('data-portrait-parts=') ? PortraitParts.rasterize(html) : null;
+        if (p && p.then) p.catch(() => {}).finally(() => idle(step)); else idle(step);
+      } catch (e) { idle(step); }
+    };
+    idle(step);
   };
 
   const findPreviewHost = () => document.querySelector('.id-preview, .panel.id-preview')
@@ -85,7 +91,7 @@
   UI.render = function (...a) {
     const r = baseRender.apply(this, a);
     try {
-      if (this.screen === 'create' || this.screen === 'prologue' || this.screen === 'pro-id' || this.screen === 'pro-result') {
+      if (this.screen === 'create' || this.screen === 'story-setup' || this.screen === 'prologue' || this.screen === 'pro-id' || this.screen === 'pro-result') {
         const gender = (this.create && this.create.gender) || (this.pro && this.pro.gender) || 'M';
         warmGender(gender);
       }
