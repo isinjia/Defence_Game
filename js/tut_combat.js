@@ -364,3 +364,18 @@ function tutAddSys(h, text) {
     } catch (e) { /* 무시 */ }
   }, 150);
 }
+
+// 자격 시험 첫인사: 성격별 리더 첫인사(leadGreet)는 "우리 팀은 언젠가 길드가 돼", "우린 더 높이 간다"처럼 오래 함께할 팀을 전제한 말이 많아
+// 하루짜리 임시 파티의 선임이 하기엔 거창했다(사용자 지적). 시험을 시작할 때는 빼고, 짧은 인사 + "내 오더 잘 들어라"(brief)만 쓴다.
+{
+  const baseStart = UI.startExam;
+  if (baseStart) UI.startExam = function (...a) {
+    this._examGreeting = true;
+    try { return baseStart.apply(this, a); } finally { this._examGreeting = false; }
+  };
+  const GP = Game.prototype; const baseLine = GP.personaLine;
+  if (baseLine) GP.personaLine = function (n, key, ...a) {
+    if (key === 'leadGreet' && typeof UI !== 'undefined' && UI._examGreeting) return null;
+    return baseLine.call(this, n, key, ...a);
+  };
+}
