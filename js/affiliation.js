@@ -187,7 +187,7 @@ Object.assign(UI, {
       <p class="event-text">${head}</p>
       <div class="cards">${list.map((n) => `<button class="item-row choice-btn ${this.fpPick.has(n.id) ? 'on' : ''}" data-act="fp-pick" data-v="${n.id}">${this.npcAvatar(n, 40)}<div class="grow"><b>${n.name}</b> ${this.rankTag(n.rankIdx, n.stage)}
         <div><span class="tag cls tiny" style="--c:${groupColor(classById(n.cls).g)}">${className(n.cls)}</span> <span class="small dim">${tag(n)} · ${persById(n.personality).name}</span></div></div><b class="${this.fpPick.has(n.id) ? 'amber' : 'dim'}">${this.fpPick.has(n.id) ? '함께' : '—'}</b></button>`).join('')}</div>
-      <div class="row end"><button class="ghost" data-act="fp-done" data-v="0">혼자 시작한다</button><button class="primary" data-act="fp-done" data-v="1" ${this.fpPick.size ? '' : 'disabled'}>이 파티로 시작한다</button></div>`), 'event-box');
+      <div class="row end"><button class="ghost" data-act="fp-done" data-v="0">혼자 시작한다</button><button class="primary" data-act="fp-done" data-v="1" ${this.fpPick.size ? '' : 'disabled'}>이 파티로 시작한다</button></div>`), 'event-box fit-box');
   },
   firstPartyDone(yes) {
     const p = G.player; const joined = [];

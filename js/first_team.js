@@ -105,7 +105,7 @@ if (typeof UI !== 'undefined') {
         <div class="story-portrait">${this.npcPortrait(L, 96)}<div><p class="event-text">"${ask(L, t)}"</p></div></div>
         <div class="cards">${teamHtml(this, t)}</div>${welcome(t)}
         ${G.payTermsText ? `<p class="small dim">${G.payTermsText(p.guild)}</p>` : ''}
-        <div class="row end"><button class="ghost" data-act="ft-solo">혼자 시작한다</button><button class="primary" data-act="ft-join" data-v="0">팀에 들어간다</button></div>`), 'event-box');
+        <div class="row end"><button class="ghost" data-act="ft-solo">혼자 시작한다</button><button class="primary" data-act="ft-join" data-v="0">팀에 들어간다</button></div>`), 'event-box fit-box');
     },
     // 무소속: 프리랜서 리더 제안 2~3개
     firstTeamFree() {
