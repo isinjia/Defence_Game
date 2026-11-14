@@ -239,7 +239,7 @@
   setInterval(() => { try { syncSkip(); } catch (e) { /* 무시 */ } }, 120);
 }
 
-// 보스 표시: 아군 '리더' 꼬리표와 같은 자리(카드 왼쪽 위)에 '보스' (사용자 요청). 크기는 css/polish.css 에서 1.3배.
+// 보스 표시: 아군 '리더' 꼬리표와 같은 자리(카드 왼쪽 위)에 '보스' (사용자 요청). 크기는 css/polish.css 에서 1.5배.
 if (typeof UI !== 'undefined' && UI.unitEl) {
   const baseUnitEl = UI.unitEl;
   UI.unitEl = function (u, ...a) {
