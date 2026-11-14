@@ -563,7 +563,7 @@ if (typeof GateRun !== 'undefined' && GateRun.enemies) {
 if (typeof document !== 'undefined' && !document.getElementById('mon-pack-css')) {
   const st = document.createElement('style'); st.id = 'mon-pack-css';
   st.textContent = `.foe .fx-host{position:relative}
-.mtype{position:absolute;left:0;top:0;min-width:16px;height:16px;padding:0 3px;border-radius:8px;background:rgba(10,13,20,.85);border:1px solid var(--mc);color:var(--mc);font-size:10px;line-height:14px;font-weight:700;text-align:center;pointer-events:none;z-index:3}
+.mtype{position:absolute;left:0;top:0;min-width:16px;height:16px;padding:0 3px;border-radius:8px;background:rgba(10,13,20,.85);border:1px solid var(--mc);color:var(--mc);font-size:11px;line-height:14px;font-weight:700;text-align:center;pointer-events:none;z-index:3}
 .mtype b{color:#fff;margin-left:2px}
 .foe.variant .foe-name{color:#ffb547}.foe.treasure .foe-name{color:#ffe066}`;
   (document.head || document.documentElement).appendChild(st);

@@ -4,7 +4,7 @@
 .combo-btn .combo-ic { flex: none; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #1a0f22; background: linear-gradient(135deg, #ffd27a, #e19bff); }
 .combo-btn[disabled] .combo-ic { filter: grayscale(.8); opacity: .6; }
 @keyframes comboPing { from { transform: scale(.9); } to { transform: scale(1.12); } }
-.cmd-main .cmd .cmd-badge { position: absolute; top: -6px; right: -4px; font-size: 10px; font-weight: 700; line-height: 16px; width: 16px; height: 16px; border-radius: 50%; text-align: center; color: #1a0f22; pointer-events: none; }
+.cmd-main .cmd .cmd-badge { position: absolute; top: -6px; right: -4px; font-size: 11px; font-weight: 700; line-height: 16px; width: 16px; height: 16px; border-radius: 50%; text-align: center; color: #1a0f22; pointer-events: none; }
 .cmd-main .cmd .cmd-badge.combo { background: linear-gradient(135deg, #ffd27a, #e19bff); box-shadow: 0 0 8px #e19bff; }
 .cmd-main .cmd .cmd-badge.ult { background: linear-gradient(135deg, #fff1a8, #ffb547); box-shadow: 0 0 8px #ffb547; }
 .cmd-main .cmd .cmd-badge.combo + .cmd-badge.ult, .cmd-main .cmd .cmd-badge.ult + .cmd-badge.combo { right: 14px; }
@@ -22,7 +22,7 @@
 .ult-btn .ult-ic { flex: none; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #231a08; background: linear-gradient(135deg, #fff1a8, #ffb547); }
 .ult-btn[disabled] .ult-ic { filter: grayscale(.8); opacity: .6; }
 /* 역할 구성 보너스 */
-.cb-head h3 .pb-tag { display: inline-block; vertical-align: middle; font-size: 10px; font-weight: 700; line-height: 1; padding: 3px 5px; margin-left: 4px; border-radius: 3px; color: #0b1a10; background: #7fd99a; }
+.cb-head h3 .pb-tag { display: inline-block; vertical-align: middle; font-size: 11px; font-weight: 700; line-height: 1; padding: 3px 5px; margin-left: 4px; border-radius: 3px; color: #0b1a10; background: #7fd99a; }
 .cb-head h3 .pb-tag.form { background: linear-gradient(90deg, #7fd99a, #ffd36b); }
 .pb-line { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 6px 0; }
 

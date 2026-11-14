@@ -1,0 +1,1002 @@
+[
+  {
+    "name": "얼어붙은 합창",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      185,
+      33,
+      1069,
+      1219
+    ],
+    "candidate": "candidates/얼어붙은 합창.png",
+    "sha256": "1566fd9b18b615e86f3fbab59a16879085643b587a77c1d43c8edaee66117a4a",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "얼음가시 쥐",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      58,
+      45,
+      1230,
+      1193
+    ],
+    "candidate": "candidates/얼음가시 쥐.png",
+    "sha256": "d49a970615ba827645ba68a20e88e756a7f0cf471fd8470f72a7a31b56cf11ba",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "에테르 거품슬라임",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      87,
+      56,
+      1163,
+      1165
+    ],
+    "candidate": "candidates/에테르 거품슬라임.png",
+    "sha256": "ff6db9d6e701f640dee8ecb81d7a27f74eb055adf86751ece6c70caecfd90004",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "에테르 늑대군주",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      72,
+      9,
+      1198,
+      1248
+    ],
+    "candidate": "candidates/에테르 늑대군주.png",
+    "sha256": "923bf8b4951f4997cafde466b63dce0d33c830b7c19d28691518c4494bad26e1",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "에테르 반딧불",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      132,
+      16,
+      1114,
+      1236
+    ],
+    "candidate": "candidates/에테르 반딧불.png",
+    "sha256": "185bb60e13b7df382a5521567dbebe47b9c457b6acb2fce1ec0c731e87d92415",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "에테르 사슴",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      34,
+      13,
+      1217,
+      1240
+    ],
+    "candidate": "candidates/에테르 사슴.png",
+    "sha256": "8f0751ad192c6dc4f84ec97c23ddaf046f82be8cb34a766628178d9ae188b1c0",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "엘리베이터 괴담",
+    "size": [
+      1184,
+      1328
+    ],
+    "alpha_range": [
+      0,
+      254
+    ],
+    "visible_bbox_alpha128": [
+      168,
+      67,
+      1023,
+      1268
+    ],
+    "candidate": "candidates/엘리베이터 괴담.png",
+    "sha256": "c1506e1a5daa114e24f3ffcd65523864872f9742ed4cce27f6d7cfa9979cc865",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "엘리베이터 손",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      172,
+      87,
+      968,
+      1177
+    ],
+    "candidate": "candidates/엘리베이터 손.png",
+    "sha256": "884de01f55736dbfb3af3dbb1f49166c98a7a0a7572f2d58d94a36db7094f25c",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "열린문의 눈",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      215,
+      71,
+      1074,
+      1184
+    ],
+    "candidate": "candidates/열린문의 눈.png",
+    "sha256": "ed2777da6be40eb6b324fdf9a970ae0319ff0fc8ae1fca2a04e1786afdb878b0",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "열풍 하피",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      118,
+      129,
+      1134,
+      1153
+    ],
+    "candidate": "candidates/열풍 하피.png",
+    "sha256": "00f806f3afdadaf57f9c9c8c2946f3532df619b70df8aa1df0d2ee80d7e703cb",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "영안실 세이렌",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      210,
+      59,
+      1058,
+      1209
+    ],
+    "candidate": "candidates/영안실 세이렌.png",
+    "sha256": "51921fa7ae9f620f902e34dfbc80d3d5d65acab33c8d6e738aaefa1eecebd3b2",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "오염 꽃정령",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      222,
+      36,
+      1026,
+      1229
+    ],
+    "candidate": "candidates/오염 꽃정령.png",
+    "sha256": "44028ce2e5e4464ef304b1182e3b35638653121b988b9e4d2fba962b97b33a70",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "오크 대족장",
+    "size": [
+      1199,
+      1312
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      112,
+      107,
+      1105,
+      1214
+    ],
+    "candidate": "candidates/오크 대족장.png",
+    "sha256": "98495a5cfef557fcca476a990043b51bbc1730ecaa4a7721d721217db2a8cac9",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "오크 약탈자",
+    "size": [
+      1199,
+      1312
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      95,
+      89,
+      1078,
+      1235
+    ],
+    "candidate": "candidates/오크 약탈자.png",
+    "sha256": "7f24f7c7bcdf99513726cfe86b73fddfb0e4d148463a66570fc96360f0368354",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "오크 주술사",
+    "size": [
+      1219,
+      1290
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      114,
+      89,
+      1108,
+      1226
+    ],
+    "candidate": "candidates/오크 주술사.png",
+    "sha256": "9b1b38880ad88b20ed6bca3e71917364c846e243692338461667683f0d5cb8d7",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "옥상 까마귀",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      80,
+      132,
+      1172,
+      1132
+    ],
+    "candidate": "candidates/옥상 까마귀.png",
+    "sha256": "e908c37266abd44b62a90fafe5ab6dde5dad8617d12513a0ce585003e7099d31",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "옥상정원 덩굴",
+    "size": [
+      1536,
+      1024
+    ],
+    "alpha_range": [
+      0,
+      254
+    ],
+    "visible_bbox_alpha128": [
+      75,
+      29,
+      1461,
+      1015
+    ],
+    "candidate": "candidates/옥상정원 덩굴.png",
+    "sha256": "64aeab4c5c3da4e913b9388225733addf808c093ff2a2b80ea233509c3c0142d",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "용광로 임프",
+    "size": [
+      1199,
+      1312
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      248,
+      97,
+      923,
+      1222
+    ],
+    "candidate": "candidates/용광로 임프.png",
+    "sha256": "197afa34a0e958972c8845a024590ca6d795b1ea0f8d493a078af46302cb8960",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "용암 두꺼비",
+    "size": [
+      1536,
+      1024
+    ],
+    "alpha_range": [
+      0,
+      254
+    ],
+    "visible_bbox_alpha128": [
+      157,
+      120,
+      1382,
+      955
+    ],
+    "candidate": "candidates/용암 두꺼비.png",
+    "sha256": "a570c4166cd8c71f962c65ece6bd3061ef23f4020c131498caf42f3962640bff",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "용암주조 골렘",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      179,
+      106,
+      1074,
+      1157
+    ],
+    "candidate": "candidates/용암주조 골렘.png",
+    "sha256": "3a20e2d43496904c385c703724da576738ed7cefb9fbcea2039a9c820a4d4640",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "용접불티 쥐",
+    "size": [
+      1312,
+      1199
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      129,
+      98,
+      1197,
+      1099
+    ],
+    "candidate": "candidates/용접불티 쥐.png",
+    "sha256": "19ef85546714dc562b77f3a138975fbbbca8b90b1aed31f6456a0bf6fbda5fb9",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "원죄의 용",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      105,
+      79,
+      1155,
+      1196
+    ],
+    "candidate": "candidates/원죄의 용.png",
+    "sha256": "78ce25b6488063d531f6e348e264352975fefcf42aff7216e1a0d3ff32405478",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "원초 감시자",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      119,
+      87,
+      1135,
+      1177
+    ],
+    "candidate": "candidates/원초 감시자.png",
+    "sha256": "054dbc6b236cd17a83f89f4979313ad3a6729d48c694926a30d07be4e3230bf5",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "원초의 파편",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      224,
+      112,
+      1040,
+      1173
+    ],
+    "candidate": "candidates/원초의 파편.png",
+    "sha256": "8b9e729297f2f5a62f46f8e88303261d0ccae24e812c24d2bf237f0a437f2ef7",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "의무기록 미믹",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      117,
+      72,
+      1157,
+      1202
+    ],
+    "candidate": "candidates/의무기록 미믹.png",
+    "sha256": "f84f390e6dc38ecd5afbf3edc36310ae12f8b9e00c2d213783e7639c893520bb",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "의사가운 기사",
+    "size": [
+      1199,
+      1312
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      291,
+      159,
+      889,
+      1208
+    ],
+    "candidate": "candidates/의사가운 기사.png",
+    "sha256": "8db5e4ceb3c668a072cf6ad683b0b84b05d47f233b8250dd1a6626de179b8291",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "이끼 골렘",
+    "size": [
+      1312,
+      1199
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      129,
+      140,
+      1179,
+      1105
+    ],
+    "candidate": "candidates/이끼 골렘.png",
+    "sha256": "1392f52c6247a08c957a0d116368a1b20398460c0ff7c034e18e747a666579c5",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "이단 주술사",
+    "size": [
+      1199,
+      1312
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      237,
+      61,
+      964,
+      1240
+    ],
+    "candidate": "candidates/이단 주술사.png",
+    "sha256": "270f9c2898ac6d7cb52856ac7925530d92bc140770d23d920d6aac64ad36faf1",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "이슬 슬라임",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      212,
+      83,
+      1043,
+      1200
+    ],
+    "candidate": "candidates/이슬 슬라임.png",
+    "sha256": "e62eb1d9fadf1159fe3814c783f5990645fb58f03a37acc777845348db9674f6",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "이중그림자",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      168,
+      35,
+      1122,
+      1228
+    ],
+    "candidate": "candidates/이중그림자.png",
+    "sha256": "e6ab5afd2cc1c1a0a257b6c83910cd6d19e3b8146fd8ae7f63287d9f3b806922",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "이중문 수호룡",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      131,
+      44,
+      1125,
+      1222
+    ],
+    "candidate": "candidates/이중문 수호룡.png",
+    "sha256": "e6290fa4d9bc27347c31775d7836b2219a83b6b56766e2162975b22b104a6738",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "자동화 경비병",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      215,
+      31,
+      1018,
+      1229
+    ],
+    "candidate": "candidates/자동화 경비병.png",
+    "sha256": "5d07922f62e5e6801960d022bc719effc911d26ad99943efac5774eb1a92f473",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "자판기 미믹",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      180,
+      67,
+      1071,
+      1211
+    ],
+    "candidate": "candidates/자판기 미믹.png",
+    "sha256": "2f939448ceab028522109385125efaeec937ec8cd8422bee9b10b7c968b6ce96",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "잠든 수도의 왕",
+    "size": [
+      1199,
+      1312
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      231,
+      36,
+      981,
+      1252
+    ],
+    "candidate": "candidates/잠든 수도의 왕.png",
+    "sha256": "dae134d70eaebc1a11340ee9e0da99bd0ce0f298c144c6ce8aaa774e9bed61ea",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "잠수함 잔해령",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      111,
+      50,
+      1143,
+      1204
+    ],
+    "candidate": "candidates/잠수함 잔해령.png",
+    "sha256": "e894575b32adb8d9bb5eba6521201356d7c246b951bf337a7480e684f21a5a25",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "장기보관 키메라",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      145,
+      40,
+      1123,
+      1230
+    ],
+    "candidate": "candidates/장기보관 키메라.png",
+    "sha256": "f0979915e8ba3b6d34ba9b7e66b216ea61ee0b6ec93dbae45c7ef1c28fffef45",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "잿불 임프",
+    "size": [
+      1312,
+      1199
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      130,
+      40,
+      1193,
+      1164
+    ],
+    "candidate": "candidates/잿불 임프.png",
+    "sha256": "d2b85f057d5e3157742efd8843ef66ee0fef00c199a63fb76799eb41f5c3617f",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "적룡 파편체",
+    "size": [
+      1536,
+      1024
+    ],
+    "alpha_range": [
+      0,
+      254
+    ],
+    "visible_bbox_alpha128": [
+      87,
+      61,
+      1469,
+      980
+    ],
+    "candidate": "candidates/적룡 파편체.png",
+    "sha256": "559b8f80ccbae5e2755ffa748c80b9a01ce8a18fa87d344320cc0a13253f873f",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "적신호 골렘",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      155,
+      27,
+      1099,
+      1232
+    ],
+    "candidate": "candidates/적신호 골렘.png",
+    "sha256": "edf32b530d7c8411a2de0508af623e464147bd6110c61f0bd6642cdf2aeb097b",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "전기 날벌레떼",
+    "size": [
+      1312,
+      1199
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      60,
+      63,
+      1243,
+      1124
+    ],
+    "candidate": "candidates/전기 날벌레떼.png",
+    "sha256": "83df5818f5cac05ce96cc3e0c2b9fc5f48789f7b02ff8f5a363ac562e7ec47ea",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "전염 군단핵",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      77,
+      33,
+      1175,
+      1206
+    ],
+    "candidate": "candidates/전염 군단핵.png",
+    "sha256": "43c68dd677fad0168bce2e80e5f4866cfca4e20e3d6a9fa86b9080e15946c7d4",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "절벽 산양",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      134,
+      58,
+      1148,
+      1209
+    ],
+    "candidate": "candidates/절벽 산양.png",
+    "sha256": "e1761028f592294a8ced14c1c769c023f2652c8bedd50853faa7a93c0e8015bf",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "정상 감시안",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      218,
+      69,
+      1035,
+      1194
+    ],
+    "candidate": "candidates/정상 감시안.png",
+    "sha256": "c6527ae8e322e43ab9db836f9408ccf5b64a9df657259dc9d73351eb746f37b5",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "제단 불꽃",
+    "size": [
+      1086,
+      1448
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      152,
+      39,
+      926,
+      1407
+    ],
+    "candidate": "candidates/제단 불꽃.png",
+    "sha256": "babd40ac30beee786ccf67fdf89089f387561f7646e7098a84dd4b1ae76f63fc",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "조개껍질 골렘",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      204,
+      52,
+      1068,
+      1207
+    ],
+    "candidate": "candidates/조개껍질 골렘.png",
+    "sha256": "1a43ab80febaaf5ec061c09092bc9515998d523c6c942e5d415f29e4464b7c7c",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "조류 소용돌이핵",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      94,
+      41,
+      1162,
+      1215
+    ],
+    "candidate": "candidates/조류 소용돌이핵.png",
+    "sha256": "0fcfb6739ecec1f2220f61de7b5c45e7b42e6545572bceadcd7ba50496af76c6",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "종말 의무실장",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      122,
+      24,
+      1172,
+      1226
+    ],
+    "candidate": "candidates/종말 의무실장.png",
+    "sha256": "cc8e580f053bc79464cc517f2e9eff06a87b33f747998ceb1ccaf9a201d3b860",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "주사기 벌레떼",
+    "size": [
+      1536,
+      1024
+    ],
+    "alpha_range": [
+      0,
+      254
+    ],
+    "visible_bbox_alpha128": [
+      304,
+      30,
+      1231,
+      1004
+    ],
+    "candidate": "candidates/주사기 벌레떼.png",
+    "sha256": "98cecfbcf479b55dca274b35413705740f0f14bc0c89d55a848ec905526b64ad",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "지리산 나무정령",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      93,
+      49,
+      1158,
+      1213
+    ],
+    "candidate": "candidates/지리산 나무정령.png",
+    "sha256": "db9d2ec17b017dc0603b28d09903850d73b70af3255b27a07f3a32a118f03029",
+    "status": "미적용 시안·재보정 대기"
+  },
+  {
+    "name": "지하상가 구더기",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "visible_bbox_alpha128": [
+      102,
+      151,
+      1150,
+      1114
+    ],
+    "candidate": "candidates/지하상가 구더기.png",
+    "sha256": "6687d94e0f469cbaf3fdaca2e4a2cbefb33f66f338cb53a855ed2152cd0150c6",
+    "status": "미적용 시안·재보정 대기"
+  }
+]

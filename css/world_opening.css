@@ -23,7 +23,7 @@
 .world-opening .opening-skip { position: absolute; top: max(12px, env(safe-area-inset-top)); right: max(18px, env(safe-area-inset-right)); min-height: 44px; min-width: 72px; padding: 10px 12px; border: 0; border-radius: 0; background: transparent; color: #e0e5ec; font-size: 12px; letter-spacing: .12em; opacity: .75; text-shadow: 0 1px 6px #000; }
 .world-opening .opening-skip:hover, .world-opening .opening-skip:focus-visible { opacity: 1; background: #ffffff12; }
 .opening-skip span { font-size: 20px; line-height: 1; }
-.opening-hint { position: absolute; left: 16px; right: 16px; bottom: max(14px, env(safe-area-inset-bottom)); text-align: center; color: #87909c; font-size: 10px; letter-spacing: .1em; pointer-events: none; animation: opening-hint 9s ease both; }
+.opening-hint { position: absolute; left: 16px; right: 16px; bottom: max(14px, env(safe-area-inset-bottom)); text-align: center; color: #c3cad4; font-size: 11px; letter-spacing: .1em; pointer-events: none; animation: opening-hint 9s ease both; }
 .opening-accessible { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .opening-atmosphere { overflow: hidden; }
 .opening-atmosphere i { position: absolute; left: var(--x); top: 110%; width: 2px; height: 2px; border-radius: 50%; background: #93dcff; box-shadow: 0 0 8px 2px #579ade55; animation: opening-ether 16s var(--delay) linear infinite; opacity: 0; }

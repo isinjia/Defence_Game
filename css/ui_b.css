@@ -44,7 +44,7 @@
   .act-btns button .dim-in { font-size: 11px; }
   /* 메뉴: 8개를 한 줄에, 아이콘 아래 짧은 글자 */
   .hud-tl { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px; }
-  .menu-btn { width: auto; min-height: 44px; padding: 4px 0 3px; flex-direction: column; gap: 1px; justify-content: center; font-size: 10.5px; line-height: 1.1; clip-path: none; }
+  .menu-btn { width: auto; min-height: 44px; padding: 4px 0 3px; flex-direction: column; gap: 1px; justify-content: center; font-size: 11px; line-height: 1.1; clip-path: none; }
   .menu-btn span { display: block; white-space: nowrap; }
   .hud-zoom { top: calc(62px + env(safe-area-inset-top, 0px)); }
   .modal-box:not(.sheet):not(.combat-box):not(.city-box) { padding: 14px; }
@@ -184,7 +184,7 @@
 .combat-box.fit .foe-name { font-size: 11.5px; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: block; text-align: center; line-height: 1.25; }
 .combat-box.fit .foe .bar.hp { height: 5px; }
 .combat-box.fit .foe .bar.atb.mini { height: 2px; margin-top: 0; border: 0; }
-.combat-box.fit .foe-hp { font-size: 10.5px; line-height: 1.2; }
+.combat-box.fit .foe-hp { font-size: 11px; line-height: 1.2; }
 .combat-box.fit .foe .status:empty { display: none; }
 .combat-box.fit-tight .foe-name { display: none; }
 .combat-box.fit-tiny .foe-hp, .combat-box.fit-tiny .foe .status { display: none; }
@@ -197,14 +197,14 @@
 .combat-box.fit .ally.fig { width: min(60px, calc((100vw - 66px) / 5)); max-width: none; min-width: 0; padding: 2px 2px 3px; gap: 1px; }
 .combat-box.fit .ally.fig .sprite .avatar, .combat-box.fit .ally.fig .sprite svg, .combat-box.fit .ally.fig .sprite img { width: 34px !important; height: 34px !important; }
 .combat-box.fit .ally.fig .sprite { animation: none; }
-.combat-box.fit .ally.fig .fig-name { font-size: 10.5px; line-height: 1.2; width: 100%; }
+.combat-box.fit .ally.fig .fig-name { font-size: 11px; line-height: 1.2; width: 100%; }
 .combat-box.fit .ally.fig .tag.cls, .combat-box.fit .ally .hp-t, .combat-box.fit .ally .mp-t { display: none; }
 .combat-box.fit .ally .bar-row { display: block; margin-top: 1px; }
 .combat-box.fit .ally .bar.hp, .combat-box.fit .ally .bar.mp { height: 4px; }
 .combat-box.fit .ally .bar.atb.mini { height: 2px; border: 0; margin-top: 1px; }
 .combat-box.fit .ally .status:empty { display: none; }
-.combat-box.fit .ally .status { font-size: 9px; }
-.combat-box.fit .ally.fig .lead-tag, .combat-box.fit .ally.fig .order-tag { font-size: 9px; padding: 0 3px; top: -2px; }
+.combat-box.fit .ally .status { font-size: 11px; }
+.combat-box.fit .ally.fig .lead-tag, .combat-box.fit .ally.fig .order-tag { font-size: 11px; padding: 0 3px; top: -2px; }
 .combat-box.fit .ally.fig .order-tag { max-width: 90%; top: auto; bottom: 100%; right: 0; }
 .combat-box.fit .ally.fig.ready { animation: meready 1s ease-in-out infinite alternate; }
 @keyframes meready { from { box-shadow: 0 0 6px rgba(255, 181, 71, .3); } to { box-shadow: 0 0 18px rgba(255, 181, 71, .8); } }
@@ -213,7 +213,7 @@
 .combat-box.fit .skill-btn { min-height: 44px; height: 44px; padding: 3px 6px; gap: 4px; overflow: hidden; }
 .combat-box.fit .skill-btn > span { min-width: 0; line-height: 1.15; }
 .combat-box.fit .skill-btn b { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-.combat-box.fit .skill-btn .small { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.combat-box.fit .skill-btn .small { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .combat-box.fit .skill-btn svg { flex: none; width: 14px; height: 14px; }
 .combat-box.fit .ctrl-row { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 4px; margin: 4px 0 0; }
 .combat-box.fit .ctrl-row::-webkit-scrollbar { display: none; }
@@ -229,7 +229,7 @@
 .combat-box.fit .lead-order .small { display: none; }
 .combat-box.fit .bag-row { flex-wrap: nowrap !important; overflow-x: auto; }
 .combat-box.fit .status { display: flex; flex-wrap: nowrap; gap: 1px; justify-content: center; max-width: 100%; overflow: hidden; }
-.combat-box.fit .status .tag { font-size: 9px; padding: 0 2px; line-height: 1.3; }
+.combat-box.fit .status .tag { font-size: 11px; padding: 0 2px; line-height: 1.3; }
 .combat-box.fit #allies, .combat-box.fit .ally-rows { align-items: flex-start; }
 /* 진형: 전열·후열 두 줄 (글자 없이 줄 색으로만 구분) */
 .combat-box.fit #allies.ally-rows { flex-direction: column; align-items: stretch; gap: 3px; }
@@ -245,7 +245,7 @@
 .cb-tools .icon-btn { width: 40px; height: 40px; min-height: 40px; position: relative; color: var(--text); }
 .cb-tools .icon-btn.on { border-color: var(--amber); color: var(--amber); background: #261c0c; }
 .cb-tools .icon-btn.danger { color: #ffb3bc; }
-.cb-tools .icon-btn i { position: absolute; right: 3px; bottom: 1px; font-style: normal; font-size: 9px; font-weight: 700; }
+.cb-tools .icon-btn i { position: absolute; right: 3px; bottom: 1px; font-style: normal; font-size: 11px; font-weight: 700; }
 @media (max-width: 640px) { .combat-box.fit .cb-head h3 { flex: 1 1 auto; font-size: 14px; } }
 .cmd-wrap { display: grid; grid-template-columns: 96px 1fr; gap: 6px; }
 .cmd-main { display: grid; gap: 4px; align-content: start; }
@@ -337,7 +337,7 @@
 .doc-head { display: flex; gap: 10px; align-items: center; border-bottom: 2px solid #2a2620; padding-bottom: 8px; }
 .doc-logo { width: 34px; height: 34px; color: #1f3b6b; flex: none; }
 .doc-head b { font-size: 15px; letter-spacing: .1em; color: #1f3b6b; }
-.doc-meta { font-size: 10.5px; color: #6b6355; font-family: var(--font-num); }
+.doc-meta { font-size: 11px; color: #6b6355; font-family: var(--font-num); }
 .doc-title { text-align: center; margin: 10px 0 8px; font-size: 18px; letter-spacing: .3em; color: #1d1a15; }
 .doc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .doc-table th, .doc-table td { border: 1px solid #8a7f6a; padding: 5px 6px; text-align: left; vertical-align: middle; }
@@ -367,12 +367,12 @@
 .idc.silver .idc-face { background: linear-gradient(135deg, #f4f6f9, #9aa3b0 45%, #e7ebf0 55%, #8a94a3); color: #121821; }
 .idc.gold .idc-face { background: linear-gradient(135deg, #fff1c2, #c8962e 45%, #ffe39a 55%, #a0721c); color: #2a1a02; }
 .idc.black .idc-face { background: linear-gradient(135deg, #2b2f36, #0b0d10 50%, #33373f); color: #e8ecf2; box-shadow: 0 14px 40px #000d, inset 0 0 0 1px #ffffff40, inset 0 0 0 3px #00000080; }
-.idc-top { display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; letter-spacing: .08em; opacity: .75; border-bottom: 1px solid currentColor; padding-bottom: 4px; }
+.idc-top { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; letter-spacing: .08em; opacity: .75; border-bottom: 1px solid currentColor; padding-bottom: 4px; }
 .idc-body { flex: 1; display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; margin-top: 6px; min-height: 0; }
 .idc-photo { width: 72px; height: 90px; border-radius: 6px; overflow: hidden; background: #fff8; display: grid; place-items: center; box-shadow: inset 0 0 0 1px #0003; }
 .idc-photo svg, .idc-photo img { width: 84px !important; height: auto !important; }
 .idc-info { min-width: 0; display: grid; gap: 2px; font-size: 11.5px; }
-.idc-info .small { font-size: 10px; }
+.idc-info .small { font-size: 11px; }
 .idc-name { font-size: 18px; font-weight: 800; letter-spacing: .04em; }
 .idc-row { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .idc-row.dim { opacity: .7; }
@@ -386,10 +386,10 @@
 .idc-bar { display: flex; height: 34px; align-items: stretch; gap: 0; background: #fff; padding: 3px 6px; border-radius: 3px; width: fit-content; }
 .idc-bar i { display: block; background: #111; margin-right: 1px; }
 .idc-no { font-size: 11px; margin: 2px 0 4px; letter-spacing: .1em; }
-.idc-back p { font-size: 9.5px; line-height: 1.4; margin: 0 0 4px; opacity: .85; }
-.idc-sign { display: flex; gap: 8px; align-items: baseline; font-size: 10px; border-bottom: 1px solid currentColor; width: 60%; }
+.idc-back p { font-size: 11px; line-height: 1.4; margin: 0 0 4px; opacity: .85; }
+.idc-sign { display: flex; gap: 8px; align-items: baseline; font-size: 11px; border-bottom: 1px solid currentColor; width: 60%; }
 .idc-sign i { font-family: 'Black Han Sans', var(--font-display); font-size: 15px; }
-.idc-call { margin-top: auto; opacity: .7; font-size: 9.5px; }
+.idc-call { margin-top: auto; opacity: .7; font-size: 11px; }
 .idc-tip { text-align: center; }
 .idc-mini { gap: 10px; }
 .idc-chip { display: grid; place-items: center; width: 40px; height: 26px; border-radius: 5px; font-weight: 800; font-family: var(--font-num); color: var(--rc); }
@@ -656,7 +656,7 @@ html body .combat-box.fit #foes.foe-grid { align-items: end; }
 /* 3마리 줄은 반 칸 밀어 가운데로 (js/foe_rows.js) */
 #foes.foe-grid .foe.row-shift { position: relative; left: 50%; }
 /* 적 위 표시 자리: 왼쪽 위 = 유형(.mtype)과 그 아래 약점(.edge-mark) / 오른쪽 위 = 행동 예고(.intent) / 그림 아래 = 상태 이상 줄(.status) */
-.foe > .edge-mark { right: auto; left: 4px; top: 18px; min-width: 16px; height: 16px; padding: 0 3px; font-size: 10px; border-radius: 8px; }
+.foe > .edge-mark { right: auto; left: 4px; top: 18px; min-width: 16px; height: 16px; padding: 0 3px; font-size: 11px; border-radius: 8px; }
 .foe .intent { margin-right: -8px; margin-top: -6px; }
 
 /* 메인 고정 인물 일러스트 (main_cast_art.js): 투명 배경 상반신 */

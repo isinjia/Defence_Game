@@ -1,0 +1,101 @@
+/* ===== 모바일 UI·UX 보정 (측정 도구: tools/ux_audit.js) =====
+   기준: 터치 영역 40px 이상, 글자 11px 이상, 조작끼리 겹치지 않기. 보이는 크기를 키우면 한 화면 배치가 깨지는 곳은
+   ::after 로 누르는 영역만 넓힌다(보이는 크기는 그대로). */
+@media (max-width: 640px), (pointer: coarse) {
+  /* --- 누르는 영역만 세로 40px 로 --- */
+  .cb-tools .tool-btn, .explore-chip, .xr-header-actions button, button.ss-item, .settle-sheet .ss-item[data-act], [data-act="ec-replay"], .gmap-head .leave-btn, .obj-link { position: relative; }
+  .cb-tools .tool-btn::after, .explore-chip::after, .xr-header-actions button::after, button.ss-item::after, .settle-sheet .ss-item[data-act]::after, [data-act="ec-replay"]::after, .gmap-head .leave-btn::after, .obj-link::after {
+    content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 42px; min-height: 100%; transform: translateY(-50%);
+  }
+  .gmap-head .leave-btn, .xr-header-actions .leave-btn { min-width: 40px; justify-content: center; }
+  /* --- 보이는 크기도 40px 로 (자리가 넉넉한 곳) --- */
+  .sheet-head .tabs button { min-height: 40px; }
+  .fold-obj-btn::after { content: ''; position: absolute; left: -6px; right: -2px; top: -6px; bottom: -4px; }
+  .obj-link.main-q, .obj-row .obj-link { min-height: 40px; }
+  #hud-card .card-bars[data-act] { min-height: 40px; align-content: center; }
+  .icon-btn:not(.sm) { min-width: 40px; min-height: 40px; }
+}
+/* --- '튜토리얼 건너뛰기': 떠 있는 버튼이 적 그림·경로 버튼·정신력 수치를 덮던 문제 ---
+   탐색·전투 창에서는 머리줄 버튼 줄 안에 넣고(js/mobile_ux.js), 글자는 '건너뛰기'로 줄인다. */
+#modal-box .xr-header-actions #tut-skip, #modal-box .cb-tools #tut-skip {
+  position: relative; top: auto !important; right: auto; inset: auto; z-index: auto; transform: none; box-shadow: none;
+  font-size: 0; white-space: nowrap; flex: none; border-radius: 5px; justify-content: center;
+}
+#modal-box .xr-header-actions #tut-skip::before, #modal-box .cb-tools #tut-skip::before { content: '건너뛰기'; font-size: 12px; }
+#modal-box .xr-header-actions #tut-skip.armed::before, #modal-box .cb-tools #tut-skip.armed::before { content: '한 번 더'; }
+#modal-box .xr-header-actions #tut-skip { background: transparent; color: #c4d3dc; border: 1px dashed #647d8d; padding: 6px 9px; }
+#modal-box .cb-tools #tut-skip { min-height: 30px; padding: 2px 8px; background: transparent; color: #aeb9c8; border: 1px dashed rgba(255, 255, 255, .28); }
+#modal-box .cb-tools #tut-skip::before { font-size: 11.5px; }
+#modal-box .xr-header-actions #tut-skip.armed, #modal-box .cb-tools #tut-skip.armed { background: rgba(120, 40, 40, .9); color: #fff; border-style: solid; border-color: rgba(255, 140, 140, .6); }
+#tut-skip::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 42px; min-height: 100%; transform: translateY(-50%); }
+#council-ov #tut-skip { position: relative; }
+/* 월드맵(입장 내레이션): 확대·축소·설정 버튼 아래 */
+@media (max-width: 640px) { body > #tut-skip { top: calc(env(safe-area-inset-top, 0px) + 172px) !important; } }
+
+/* --- 대비 --- */
+/* 종이 바탕(등록 신청서) 위 버튼: 터치 뒤에 남는 hover 색(어두운 남색·호박색)이 글자를 묻던 문제 */
+.registration .reg-action button:hover:not(:disabled) { background: #1f4234; border-color: #1f4234; color: #faf7ed; }
+.registration .st-sk:hover:not(:disabled) { background: #dfe5d3; border-color: #9fb096; color: #263b30; }
+.registration .reg-section h3 > span { color: #4f6450; }
+.registration .st-more { color: #4f6450; }
+.registration .st-sk .small.dim { color: #4c5a52; }
+/* 전투 머리줄 '작전' 작은 글자 */
+#modal-box.cu-v2 .cb-tools .tactic-btn .tac-k, .cb-tools .tactic-btn .tac-k { color: #b9c4d2; }
+/* 안내 말풍선 '터치하여 계속' */
+#coach-pop.speech .tp-next { color: #8a3206; font-weight: 700; }
+/* 좁은 화면(340px 이하): 정보 시트 탭은 4칸(칸 너비 40px 이상), 전투 머리줄은 아이콘을 빼 제목 자리를 낸다 */
+@media (max-width: 340px) {
+  #modal-box.cu-v2 .cb-tools .tactic-btn .tac-k { display: none; }
+}
+/* 전투 머리줄: 휴대폰 폭에서는 도구 버튼의 아이콘을 빼고 글자만 남겨 제목(게이트 이름) 자리를 낸다 */
+@media (max-width: 480px) {
+  #modal-box.cu-v2 .cb-tools .tool-btn > svg, #modal-box .cb-tools .tool-btn > svg { display: none; }
+  #modal-box.cu-v2.combat-box .cb-head h3 { min-width: 3.2em; }
+}
+/* 장비·소모품 이름 줄(눌러서 상세): 배치는 그대로 두고 누르는 영역만 위아래로 넓힌다 */
+.item-tap[data-act] { padding-block: 10px; margin-block: -10px; }
+/* 전투 대상 고르기 줄의 '취소' */
+#modal-box [data-act="c-cancel"] { min-height: 40px; min-width: 48px; justify-content: center; }
+
+/* ===== 글줄: 한글은 낱말 단위로 줄바꿈 =====
+   '에테르 결/정', '헌터 ID 카드 받/기', '누/적'처럼 낱말 가운데서 끊기던 것을 띄어쓰기 자리에서 끊는다.
+   한 낱말이 칸보다 길 때만 낱말 안에서 끊는다. */
+body { word-break: keep-all; overflow-wrap: break-word; }
+/* 전투 머리줄 도구 버튼: 폭도 40px 이상 */
+@media (max-width: 640px) { html body #modal-box .cb-tools .tool-btn, html body #modal-box.cu-v2 .cb-tools .tool-btn { min-width: 40px; justify-content: center; } }
+#modal-box #cb-ctrl button.sm[data-act="c-cmd"] { min-height: 40px; }
+/* 적 이름: 옆 적 이름과 겹치지 않게 칸 안에서 말줄임 */
+#modal-box.cu-v2 .foe.foe-card .fx-host > .foe-name { max-width: calc(var(--fs, 72px) + 14px); overflow: hidden; text-overflow: ellipsis; letter-spacing: -.2px; }
+/* 좁은 화면(340px 이하) 보정 */
+@media (max-width: 340px) {
+  /* 아래 버튼 줄: 글자를 조금 줄여 두 줄로 꺾이지 않게 */
+  html body #modal-box .row.end > button:not(.sm):not(.icon-btn) { font-size: 14px; padding-inline: 8px; }
+  /* 상점 줄: 가격 버튼 안의 '부족' 표시는 가격 아래로 내려 이름 칸을 넓힌다 */
+  #modal-box .cant-afford { flex-direction: column; gap: 1px; }
+  #modal-box .cant-afford .afford-tag { margin-left: 0; }
+  .toast { font-size: 13px; padding: 7px 12px; left: 10px; right: 10px; }
+}
+#modal-box .afford-tag { color: #ffe1e5; }
+
+/* ===== 터치 기기 기본기 =====
+   - 버튼의 hover 색은 마우스가 있는 기기에서만(css/style.css). 터치에서는 누른 뒤에도 색이 남아 '선택됨'처럼 보였다.
+   - 두 번 눌러 확대·당겨서 새로고침을 막는다(게임 도중 실수로 화면이 커지거나 새로고침되지 않게).
+   - 길게 눌러도 버튼 글자가 선택되거나 메뉴가 뜨지 않게.
+   - 입력 칸 글자는 16px 이상(작으면 아이폰이 입력할 때 화면을 확대한다). */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html, body { overscroll-behavior-y: none; }
+button, [data-act], a, input, select, summary { touch-action: manipulation; }
+button, [data-act]:not(input) { -webkit-tap-highlight-color: transparent; }
+button, .tabs, .hud, #hud-card, .menu-btn, .cmd, .tag { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+@media (hover: none), (pointer: coarse) {
+  input[type="text"], input[type="search"], input[type="number"], select, textarea { font-size: 16px; }
+  /* 누르는 순간의 반응은 또렷하게 */
+  button:active:not(:disabled) { filter: brightness(1.18); }
+}
+/* 정보 시트 탭: 칸 너비 40px 이상을 지키면서 한 줄에 들어가는 만큼 넣는다(390px 폭이면 7개가 한 줄) */
+@media (max-width: 640px) {
+  .sheet-head .tabs { grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); flex: 1 1 auto; min-width: 0; } /* 줄 나눔은 js/mobile_ux.js 가 다시 고르게 맞춘다 */
+  .sheet-head .tabs button { font-size: 12.5px; padding: 6px 0; }
+}
+/* 토스트: 도시·정보 시트 창에서는 제목과 닫기(×)를 가리지 않게 아래쪽에 (js/mobile_ux.js) */
+.toast.toast-low { top: auto !important; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }

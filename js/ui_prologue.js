@@ -56,20 +56,32 @@ Object.assign(UI, {
     const t = this.proFill(raw);
     return String(t).split(/\n+/).map((para) => {
       const p = para.trim(); if (!p) return '';
-      const sents = p.replace(/([.!?…]+)(["」』'”]*)(?=\s+)/g, '$1$2\n').split(/\n+/).map((s) => s.trim()).filter(Boolean);
-      // 짧은 문장은 줄을 바꾸지 않고 다음 문장과 잇는다. 효과음(콰직. 쾅!)과 대사("…")는 따로 한 줄 (사용자 요청)
+      // 짧은 문장은 줄을 바꾸지 않고 다음 문장과 잇는다. 효과음(콰직. 쾅!)은 따로 한 줄.
+      // 대사("…")는 새 줄에서 시작하고, 대사 안에서도 같은 규칙으로 짧은 문장을 잇는다 (사용자 요청)
       const SHORT = 14, MAXLINE = 42;
       const bare = (x) => x.replace(/[.!?…~"「」『』'“”\s]/g, '');
       const isSfx = (x) => { const b = bare(x); return !/\s/.test(x.trim()) && !/\d/.test(b) && b.length >= 1 && b.length <= 4 && /^[가-힣]+$/.test(b) && !/(다|요|까|지|네|군|나|가|야|어|아|죠|래|해|게|걸|데|니|자|라|냐|오)$/.test(b); };
-      const isLine = (x) => /^["「『“']/.test(x);
-      const lines = []; let buf = '';
-      const flush = () => { if (buf) { lines.push(buf); buf = ''; } };
-      for (const x of sents) {
-        if (isSfx(x) || isLine(x)) { flush(); lines.push(x); continue; }
-        buf = buf ? buf + ' ' + x : x;
-        if (bare(x).length >= SHORT || buf.length >= MAXLINE) flush();
+      const split = (t) => t.replace(/([.!?…]+|\u0002)(?=\s+)/g, '$1\n').split(/\n+/).map((x) => x.trim()).filter(Boolean);
+      const joinShort = (arr, noSfx) => { const out = []; let buf = ''; const flush = () => { if (buf) { out.push(buf); buf = ''; } };
+        for (const x of arr) { if (!noSfx && isSfx(x)) { flush(); out.push(x); continue; } buf = buf ? buf + ' ' + x : x; if (bare(x).length >= SHORT || buf.length >= MAXLINE) flush(); }
+        flush(); return out; };
+      const quotes = [];
+      const prot = p.replace(/(["“「『])([^"”」』]*)(["”」』])/g, (m) => { quotes.push(m); return `\u0001${quotes.length - 1}\u0002`; });
+      const restore = (x) => x.replace(/\u0001(\d+)\u0002/g, (_, i) => quotes[+i]);
+      const lines = []; let narr = [];
+      const flushNarr = () => { if (narr.length) { lines.push(...joinShort(narr).map(restore)); narr = []; } };
+      for (const x of split(prot)) {
+        const m = /^\u0001(\d+)\u0002$/.exec(x);
+        if (m) {
+          flushNarr();
+          const q = quotes[+m[1]]; const inner = joinShort(split(q.slice(1, -1)), true);
+          if (!inner.length) { lines.push(q); continue; }
+          inner[0] = q[0] + inner[0]; inner[inner.length - 1] += q[q.length - 1];
+          lines.push(...inner); continue;
+        }
+        narr.push(x);
       }
-      flush();
+      flushNarr();
       return `<p>${lines.join('<br>')}</p>`;
     }).join('');
   },
