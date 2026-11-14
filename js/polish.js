@@ -211,18 +211,24 @@
 
   // '튜토리얼 건너뛰기' 자리 고정 (사용자 요청): 원래 단추(#tut-skip)는 화면마다 다른 곳으로 옮겨진다(mobile_ux.js·council_dialog.js).
   // 원래 단추는 숨겨 두고, body 바로 아래 같은 자리의 대리 단추를 보인다. 누르면 원래 단추를 누른 것과 똑같이 처리된다(tut_skip.js 두 번 누르기).
-  let proxy = null;
+  let proxy = null; let skipAsk = false;
+  // 확인 창이 떠 있는 동안: 튜토리얼 말풍선의 '화면 아무 데나 누르면 다음'이 창 단추 누르기를 가로채지 않게 하고, 전투 시간도 멈춘다
+  if (UI.tutHeld) { const baseHeld = UI.tutHeld; UI.tutHeld = function (...a) { if (skipAsk) return false; return baseHeld.apply(this, a); }; }
+  if (typeof Combat !== 'undefined') { const baseTick = Combat.prototype.tick; Combat.prototype.tick = function (...a) { if (skipAsk) return null; return baseTick.apply(this, a); }; }
   const syncSkip = () => {
     const real = document.getElementById('tut-skip');
     if (!real || !real.isConnected) { if (proxy) { proxy.remove(); proxy = null; } return; }
     real.classList.add('tsk-hide');
     if (!proxy) {
       proxy = document.createElement('button'); proxy.type = 'button'; proxy.className = 'tsk-proxy'; proxy.setAttribute('aria-label', '튜토리얼 건너뛰기');
+      // 누르면 "한 번 더" 대신 가운데 확인 창으로 묻는다 (사용자 요청)
       proxy.addEventListener('pointerdown', (e) => {
         e.preventDefault(); e.stopPropagation();
-        const r = document.getElementById('tut-skip'); if (!r || r.disabled) return;
-        r.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
-        setTimeout(syncSkip, 0);
+        const r = document.getElementById('tut-skip'); if (!r || r.disabled || skipAsk) return;
+        skipAsk = true;
+        UI.confirmOver('튜토리얼을 끝낼까요?', '자격 시험을 여기서 끝내고 바로 결과(등급 판정)로 넘어갑니다.', '튜토리얼 끝내기', () => { skipAsk = false; if (UI.tutSkipNow) UI.tutSkipNow(); }, 'primary');
+        // 취소(또는 바깥 누름)로 창이 닫히면 묻는 중 표시를 푼다
+        const watch = setInterval(() => { if (!document.getElementById('pl-confirm')) { skipAsk = false; clearInterval(watch); } }, 100);
       });
       proxy.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
       document.body.appendChild(proxy);
