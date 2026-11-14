@@ -238,3 +238,13 @@
   };
   setInterval(() => { try { syncSkip(); } catch (e) { /* 무시 */ } }, 120);
 }
+
+// 보스 표시: 아군 '리더' 꼬리표와 같은 자리(카드 왼쪽 위)에 '보스' (사용자 요청). 크기는 css/polish.css 에서 1.3배.
+if (typeof UI !== 'undefined' && UI.unitEl) {
+  const baseUnitEl = UI.unitEl;
+  UI.unitEl = function (u, ...a) {
+    const h = baseUnitEl.call(this, u, ...a);
+    try { if (u && u.side === 'enemy' && u.boss && typeof h === 'string' && !h.includes('boss-tag')) { const i = h.indexOf('>'); if (i > 0) return h.slice(0, i + 1) + '<span class="boss-tag">보스</span>' + h.slice(i + 1); } } catch (e) { /* 무시 */ }
+    return h;
+  };
+}
