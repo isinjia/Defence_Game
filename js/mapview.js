@@ -403,6 +403,8 @@ class MapView {
     c.beginPath(); c.arc(px, py, R + 4 + pulse * 6, 0, Math.PI * 2); c.stroke();
     c.fillStyle = 'rgba(0,0,0,.5)'; c.beginPath(); c.ellipse(px, py + R * 0.95, R * 0.9, R * 0.25, 0, 0, Math.PI * 2); c.fill();
     c.save(); c.beginPath(); c.arc(px, py, R, 0, Math.PI * 2); c.clip();
+    // 원 안 배경: 초상이 투명 배경이라 지도가 비치지 않게 깐다 (사용자 요청)
+    { const g = c.createRadialGradient(px, py - R * 0.3, R * 0.1, px, py, R); g.addColorStop(0, '#3a4a5e'); g.addColorStop(1, '#141c28'); c.fillStyle = g; c.fillRect(px - R, py - R, R * 2, R * 2); }
     if (this.imgs.player && this.imgs.player.complete) c.drawImage(this.imgs.player, px - R, py - R, R * 2, R * 2);
     else { c.fillStyle = '#46e0d0'; c.fill(); }
     c.restore();
