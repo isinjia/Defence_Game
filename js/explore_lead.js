@@ -1,5 +1,5 @@
 // 탐색(게이트 입장 후 길 선택 화면) — 리더가 고른 길과 이동을 눈에 보이게 (영역 F·B, 사용자 요청)
-// 1. 리더가 고른 칸: 목적지 카드와 경로 지도 칸에 리더 얼굴을 크게 붙이고 "○○(리더)의 선택"이라고 쓴다.
+// 1. 리더가 고른 칸: 목적지 카드에 리더 얼굴을 크게 붙이고(경로 지도 칸에는 테두리 강조만) "○○(리더)의 선택"이라고 쓴다.
 //    (전에는 카드 왼쪽 위의 작은 "✓ 선택한 경로" 글자뿐이라 내가 고른 것인지 리더가 고른 것인지 알 수 없었다)
 // 2. 모바일 이동: 좁은 화면에서는 경로 지도가 "전체 경로 보기" 안에 숨어 있어, 표식이 움직이는 1초 동안 빈 화면만 기다렸다.
 //    이동하는 동안에는 경로 지도를 저절로 펼쳐 표식이 움직이는 것을 보여 준다.
@@ -37,8 +37,9 @@
       card.classList.add('xr-leadpick');
       card.insertAdjacentHTML('beforeend', `<span class="xr-lead-badge" aria-label="${esc(L.name)}(리더)의 선택"><span class="xr-lead-face">${face(L, 144)}</span><span class="xr-lead-tag">리더 선택</span><span class="xr-lead-name">${esc(L.name)}</span></span>`);
     }
+    // 경로 지도 칸 위의 리더 얼굴은 뺐다(사용자 요청: 움직이는 표식과 얼굴이 겹쳐 보임). 칸 테두리 강조만 남긴다
     const node = root.querySelector(`.gnode[data-xr-key="${key}"]`);
-    if (node) { node.classList.add('xr-leadnode'); node.insertAdjacentHTML('beforeend', `<span class="xr-lead-node" aria-hidden="true">${face(L, 96)}</span>`); }
+    if (node) node.classList.add('xr-leadnode');
   };
 
   const after = (name) => { const base = UI[name]; if (!base) return; UI[name] = function (...a) { const r = base.apply(this, a); try { mark(); } catch (e) { /* 무시 */ } return r; }; };
