@@ -66,3 +66,17 @@
 /* 프롤로그 장면: 위쪽 인물 정보(초상·이름·출신·속성·진행 점)를 없애고 장면을 맨 위로 (사용자 요청) */
 .prologue .pro-side { display: none !important; }
 .prologue .pro-inner { grid-template-columns: 1fr !important; grid-template-rows: auto !important; align-content: start !important; }
+
+/* '외형 바꾸기': 초상 위에 떠 있던 작은 단추 → 초상 바로 아래 한 줄 전체 큰 단추, 눈에 띄는 색 (사용자 요청) */
+@media (orientation: portrait), (max-width: 700px) {
+  .create.ps-fit .id-preview { flex-direction: column; gap: 8px; }
+  .create.ps-fit .id-preview > svg, .create.ps-fit .id-preview > .portrait, .create.ps-fit .id-preview > .portrait-img, .create.ps-fit .id-preview .portrait-swap-slot { flex: 1 1 auto; min-height: 0; height: auto !important; }
+  .create.ps-fit .id-preview > button[data-act="ps-look"] {
+    position: static; align-self: stretch; width: 100%; min-height: 48px; padding: 0 16px; border-radius: 8px; flex: none;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: #46e0d0; border: 1px solid #8ff3e8; color: #04201d; font-size: 15px; font-weight: 800; box-shadow: 0 4px 14px #46e0d044;
+  }
+  .create.ps-fit .id-preview > button[data-act="ps-look"]::before { content: "↻"; font-size: 17px; line-height: 1; }
+  .create.ps-fit .id-preview > button[data-act="ps-look"]:active { filter: brightness(.92); }
+}
+@media (orientation: portrait) and (max-height: 620px) { .create.ps-fit .id-preview > button[data-act="ps-look"] { min-height: 42px; font-size: 14px; } }
