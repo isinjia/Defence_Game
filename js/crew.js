@@ -90,7 +90,7 @@ Object.assign(Game.prototype, {
       p.party.push(n.id);
     }
     for (const b of Object.values(this.world.crewBoards || {})) b.list = b.list.filter((x) => x.id !== L.id);
-    this.lifeEvent(`${leader.name}이(가) 이끄는 ${L.name}에 정식 파티원으로 들어갔다.`);
+    this.lifeEvent(`${leader.name}이(가) 이끄는 ${L.name}에 ${L.firstSortie ? '첫 공략 전투원으로 동행했다' : '정식 파티원으로 들어갔다'}.`);
     return `${leader.name}: "환영해요. 오늘부터 ${L.name} 정식 파티원이에요. 일정은 내가 잡아서 연락할게요."${left.length ? ` (기존 동료 ${left.map((n) => n.name).join(', ')}와(과)는 헤어졌다)` : ''}`;
   },
   crewLeave(why) {

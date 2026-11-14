@@ -67,6 +67,28 @@ const FXMAP = (() => {
     const at = (el) => { if (!el) return null; const h = el.querySelector ? (el.querySelector('.fx-host') || el) : el; const r = h.getBoundingClientRect(); return r.width ? { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height } : null; };
     const unitEl = (id) => document.getElementById('u-' + id);
     const sideArea = (side) => at(document.getElementById(side === 'enemy' ? 'foes' : 'allies'));
+    // 그로기 표시 상태에 기존 기절용 별 연출을 동기화한다.
+    const baseBreaks = UI.drawBreaks;
+    if (baseBreaks) UI.drawBreaks = function (...args) {
+      const r = baseBreaks.apply(this, args); const c = this.ctx;
+      if (!c || !c.combat) return r;
+      for (const u of c.combat.units) {
+        if (u.side !== 'enemy') continue;
+        const el = unitEl(u.id); if (!el) continue;
+        const visible = () => this.ctx === c && el.isConnected && u.alive &&
+          c.dispBrk?.[u.id]?.groggy && mode() !== 'off';
+        if (!visible()) {
+          if (el._groggyStars) el._groggyStars.life = 0;
+          el._groggyStars = null;
+          continue;
+        }
+        if ((!el._groggyStars || el._groggyStars.life === 0) && active()) {
+          const pos = at(el);
+          if (pos) el._groggyStars = FXF.stars(pos, () => visible() ? at(el) : null);
+        }
+      }
+      return r;
+    };
     const hushOld = () => { if (typeof FX3D !== 'undefined' && !FX3D._hushed) { FX3D._hushed = true; const on = FX3D.on; FX3D.on = function () { return active() ? false : on.call(this); }; } if (FXG.S.cv && FXG.S.cv.style.zIndex !== '26') FXG.S.cv.style.zIndex = '26'; };
     const vt = (t) => (t === 'crit' || t === 'pierce' || t === 'multi' || t === 'stun' ? t : 'dmg');
     const base = UI.applyEvent;
