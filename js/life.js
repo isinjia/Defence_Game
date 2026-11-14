@@ -241,7 +241,7 @@ Object.assign(Game.prototype, {
     const box = `<div class="sec"><div class="sec-title">성향 · ${lawLabel(L)} <span class="small dim num">(${L > 0 ? '+' : ''}${L})</span></div>
       <div class="law-bar" style="position:relative;height:8px;border-radius:4px;background:linear-gradient(90deg,#c0504d,#555 50%,#4f81bd)"><span style="position:absolute;top:-3px;left:calc(${pct}% - 7px);width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid #222"></span></div>
       <div class="row small dim" style="justify-content:space-between"><span>무법</span><span>관리국</span></div>
-      <div class="small dim">${L >= 40 ? '관리국의 신뢰: 친화 +5%' : L <= -40 ? '암시장 연줄: 물가 −5%, 친화 −5%' : '의뢰·구조·브레이크 저지는 관리국 쪽, 무고한 살인·균열교는 무법 쪽으로 기운다.'}${L >= 60 ? ' · 매달 협회 공적 +2' : L <= -60 ? ' · 감찰반이 가끔 들이닥친다' : ''}</div></div>
+      <div class="small dim">${L >= 40 ? '관리국의 신뢰: 친화 +5%' : L <= -40 ? '암시장 연줄: 물가 −5%, 친화 −5%' : ''}${L >= 60 ? ' · 매달 협회 공적 +2' : L <= -60 ? ' · 감찰반이 가끔 들이닥친다' : ''}</div></div>
       <div class="sec"><div class="sec-title">후천 특성 <span class="small dim">${p.ltraits.length}/${LTRAIT_SLOTS}</span></div>${lt ? `<div class="cards traits">${lt}</div>` : '<div class="small dim">아직 삶이 남긴 흔적이 없다. 레드 게이트 생환, 브레이크 저지, 잃은 사람들… 기록이 특성으로 새겨진다.</div>'}</div>`;
     const at = html.indexOf('<div class="sec"><div class="sec-title">선천 특성</div>');
     return at < 0 ? html + box : html.slice(0, at) + box + html.slice(at);

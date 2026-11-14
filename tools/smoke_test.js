@@ -795,9 +795,103 @@ const { chromium, devices } = require('playwright');
       } finally { p.cls = original.cls; p.equip = original.equip; p.inventory = original.inventory; G.recalc(); p.hp = original.hp; p.mp = original.mp; p.bodyType = original.bodyType; p.skinTone = original.skinTone; G.save(); UI.renderGame(); }
     });
   });
-  for (const s of ['char', 'gear', 'skills', 'party', 'people', 'quest', 'guild', 'hunter', 'log']) {
+  for (const s of ['char', 'gear', 'inventory', 'skills', 'party', 'people', 'quest', 'guild', 'hunter', 'log']) {
     await step(`시트 탭: ${s}`, async () => { await act('sheet', s); const len = await ev(() => document.getElementById('modal-box').innerHTML.length); if (len < 200) throw new Error('내용이 거의 없음'); await closeAll(); });
   }
+  await step('장비 탭: 패널 구조·방어구 5칸·장신구 3칸·가방 유지', async () => {
+    await ev(() => {
+      const sheet = UI.sheet; const p = G.player;
+      const equip = p.equip, inventory = p.inventory;
+      try {
+        const gloves = { uid: 'slot-test', slot: 'gloves' };
+        p.equip = { armor: gloves }; p.inventory = []; G.equipSlotsInit();
+        if (p.equip.armor || p.equip.gloves !== gloves) throw new Error('잘못 저장된 방어구 부위 복구 실패');
+        const existing = { uid: 'slot-existing', slot: 'gloves' };
+        p.equip = { armor: gloves, gloves: existing }; p.inventory = []; G.equipSlotsInit();
+        if (p.equip.gloves !== existing || !p.inventory.includes(gloves)) throw new Error('부위 복구 중 장비 유실');
+        p.equip = equip; p.inventory = inventory;
+        UI.sheet = 'gear';
+        const root = document.createElement('template'); root.innerHTML = UI.sheetHtml();
+        const body = root.content.querySelector('.sheet-body');
+        const layout = body && body.querySelector(':scope > .gl-layout');
+        if (!layout || body.children.length !== 1) throw new Error('장비 패널 밖으로 구역이 빠짐');
+        for (const slot of ['weapon', ...ARMOR_SLOT_IDS, ...ACC_SLOT_IDS]) {
+          if (layout.querySelectorAll(`[data-act="gear-slot"][data-v="${slot}"]`).length !== 1) throw new Error('장비 칸 누락: ' + slot);
+        }
+        if (!layout.querySelector('.gl-replacements') || layout.querySelector('[data-act="use-item"]')) throw new Error('장비 탭의 착용·교체 영역 분리 실패');
+        if (!layout.textContent.includes('테마 세트 도감')) throw new Error('확장 장비 구역 누락');
+        UI.sheet = 'inventory'; root.innerHTML = UI.sheetHtml();
+        if (root.content.querySelector('.gl-loadout')) throw new Error('인벤토리에 장착 슬롯 중복');
+        for (const category of ['all', 'equip', 'cons', 'material']) {
+          if (!root.content.querySelector(`[data-act="inventory-filter"][data-v="${category}"]`)) throw new Error('인벤토리 분류 누락: ' + category);
+        }
+      } finally { UI.sheet = sheet; p.equip = equip; p.inventory = inventory; }
+    });
+  });
+  await step('방어구 계열·테마 세트·제작 길드', async () => {
+    const ok = await ev(() => {
+      if (typeof ARMOR_FAMS === 'undefined' || !ARMOR_FAMS.plate) throw new Error('ARMOR_FAMS 없음');
+      if (typeof THEME_SETS === 'undefined' || THEME_SETS.length < 6) throw new Error('THEME_SETS 부족');
+      if (typeof CRAFT_ROLES === 'undefined' || !CRAFT_ROLES.weapon) throw new Error('CRAFT_ROLES 없음');
+      if (typeof GUILD_CRAFT_DEPT === 'undefined' || !GUILD_CRAFT_DEPT.baekho) throw new Error('GUILD_CRAFT_DEPT 없음');
+      if (!GUILDS.suwonforge || !GUILDS.ulsanframe || !GUILDS.daejeonjewel) throw new Error('제작 길드 미등록');
+      const armor = G.makeEquipment('armor', 1, 1);
+      if (!armor.afam || !ARMOR_FAMS[armor.afam]) throw new Error('방어구 계열 미부여');
+      const piece = G.makeThemePiece('city_guard', 1, 1, 1);
+      if (!piece || piece.theme !== 'city_guard' || !/경비대/.test(piece.name)) throw new Error('테마 피스 실패');
+      G.player.inventory.push(piece);
+      G.equipItem(piece.uid);
+      if (!G.themeCount().city_guard) throw new Error('테마 장착 카운트 실패');
+      G.craftInit();
+      const crafters = G.cityCrafters('suwon');
+      if (!crafters.some((c) => c.role === 'armor')) throw new Error('수원 방어구공 없음');
+      const themes = G.craftableThemes('suwon');
+      if (!themes.some((t) => t.id === 'iron_line' || t.id === 'city_guard')) throw new Error('수원 제작 테마 없음');
+      const html = UI.equipStats(piece);
+      if (!/중갑|세트/.test(html)) throw new Error('방어구 계열·세트 표시 없음');
+      return true;
+    });
+    if (!ok) throw new Error('방어구·테마·제작 검사 실패');
+    await closeAll();
+  });
+  await step('제작·장비 의뢰·장인 부탁', async () => {
+    const ok = await ev(() => {
+      if (typeof G.makeCraftBounty !== 'function') throw new Error('makeCraftBounty 없음');
+      if (!REQUESTS.need_parts || !REQUESTS.want_theme || !REQUESTS.smith_intro) throw new Error('제작 NPC 부탁 없음');
+      if (!STORY.some((e) => e.id === 'craft_rush_order' || e.id === 'craft_fake_set')) throw new Error('제작 사건 없음');
+      const b = G.makeCraftBounty('suwon', 'test-craft-1');
+      if (!G.isCraftBoard(b.type) || !b.title) throw new Error('제작 의뢰 생성 실패');
+      // 장인 부탁 수락 → 전달
+      G.craftInit();
+      const crafters = G.cityCrafters('suwon');
+      if (!crafters.length) throw new Error('수원 장인 없음');
+      const c = crafters[0];
+      const msg = G.acceptCraftRequest({ type: 'craft_req', kind: 'craft_parts', crafterId: c.id, region: 'suwon' });
+      if (!/부탁을 수락/.test(msg)) throw new Error('장인 부탁 수락 실패: ' + msg);
+      const q = G.player.quests.find((x) => x.kind === 'craft');
+      if (!q || q.type !== 'craft_parts') throw new Error('장인 퀘스트 미등록');
+      G.player.parts = G.player.parts || {};
+      G.player.parts[`${q.part}:${q.tier}`] = q.n;
+      G.player.region = 'suwon';
+      const [cx, cy] = WORLD.cityPos.suwon; G.player.x = cx; G.player.y = cy;
+      const done = G.finishCraftQuest(q.id);
+      if (!/만족|크레딧/.test(done)) throw new Error('장인 부탁 완료 실패: ' + done);
+      if (G.player.quests.some((x) => x.id === q.id)) throw new Error('완료 퀘스트가 남음');
+      // 테마 납품형 협회 의뢰
+      const themeQ = G.makeCraftBounty('suwon', 'test-theme');
+      themeQ.type = 'theme'; themeQ.theme = 'city_guard'; themeQ.n = 1; themeQ.craft = true;
+      themeQ.kind = 'bounty'; themeQ.status = 'turnin'; themeQ.from = 'suwon';
+      themeQ.money = 100; themeQ.merit = 5; themeQ.repGain = 3;
+      G.player.quests.push(themeQ);
+      const piece = G.makeThemePiece('city_guard', 0, G.player.rankIdx, 1);
+      G.player.inventory.push(piece);
+      const claim = G.claimBounty(themeQ.id);
+      if (!/의뢰 완료/.test(claim)) throw new Error('테마 의뢰 보고 실패: ' + claim);
+      return true;
+    });
+    if (!ok) throw new Error('제작 퀘스트 검사 실패');
+    await closeAll();
+  });
   await step('아이템 칩·상세 팝업 (얻은 물건 탭)', async () => {
     const ok = await ev(() => {
       if (typeof UI.itemInfoHtml !== 'function' || typeof UI.showItemInfo !== 'function') throw new Error('item_pop 없음');
@@ -1379,7 +1473,7 @@ const { chromium, devices } = require('playwright');
         for (const [n, k] of [[6, 5], [7, 4], [8, 5], [12, 5]]) if (MAIN.chapters[n].scenes.length < k) return `${n}장 장면이 ${k}개 미만이다`;
         if (!/분지/.test(linesOf(17, { basinBurn: true }, 'c17_way'))) return '분지 만료 잔향이 17장에 없다';
         M.log = [{ n: 1, title: '전단지', how: 'done', choice: '전단을 한 장 떼어 읽어 본다' }];
-        if (!/메인 이야기/.test(UI.charHtml()) || !/전단을 한 장/.test(UI.charHtml())) return '정보 탭에 메인 기록이 없다';
+        if (!/메인 이야기/.test(UI.mainLogHtml()) || !/전단을 한 장/.test(UI.mainLogHtml())) return '메인 기록이 만들어지지 않는다'; // 정보 탭에서는 사용자 요청으로 뺐다(js/char_trim.js)
         p.rankIdx = 6; setCh(39, { gateChoice: 'close', allies: ['friend'], friend3: 'saved' }); if (!play(39, 0) || M.ending !== 'seal' || !/봉인/.test(UI.mainEndingHtml())) return '39장 봉인 엔딩 HTML이 없다';
         setCh(38, {}); delete M.ending; MAIN.partEnd[6](G, M); if (M.ending !== 'other' || !/남의 이야기/.test(UI.mainEndingHtml())) return '남의 이야기 엔딩 HTML이 없다';
         // 부 시계: 2부를 18개월 넘게 끌면 남은 장이 만료(13장 → 친구 늦음)
@@ -1508,23 +1602,15 @@ const { chromium, devices } = require('playwright');
   await step('20년 무작위 진행에서 예외 없음', async () => {
     await ev(() => { for (let i = 0; i < 240 && !G.over; i++) { G.advanceMonth(1, { eventChance: 0.3 }); G.queue = []; } });
   });
-  await step('배경 음악: 곡 파일 6개가 있고 장면에 맞는 곡을 고른다', async () => {
-    const r = await ev(async () => {
-      const miss = [];
-      for (const [k, f] of Object.entries(BGM.TRACKS)) { const res = await fetch(BGM.DIR + f, { method: 'HEAD' }).catch(() => null); if (!res || !res.ok) miss.push(k); }
-      const keep = { s: UI.screen, c: UI.ctx, o: G.over }; const got = {};
-      UI.screen = 'title'; got.title = BGM.want();
-      UI.screen = 'game'; UI.ctx = null; G.over = null; got.world = BGM.want();
-      UI.ctx = { kind: 'gate', combat: {} }; got.gate = BGM.want();
-      UI.ctx = { kind: 'mob', combat: { toggleAuto() {}, units: [{ side: 'enemy' }] } }; got.battle = BGM.want();
-      UI.ctx = { kind: 'gate', combat: { toggleAuto() {}, units: [{ side: 'enemy', boss: true }] } }; got.boss = BGM.want();
-      UI.ctx = null; G.over = { date: '', reason: '' }; got.end = BGM.want();
-      UI.screen = keep.s; UI.ctx = keep.c; G.over = keep.o;
-      return { miss, bad: Object.keys(got).filter((k) => got[k] !== k), rows: UI.settingsHtml().includes('set-bgm-vol') };
-    });
-    if (r.miss.length) throw new Error('곡 파일 없음: ' + r.miss.join(', '));
-    if (r.bad.length) throw new Error('장면과 곡이 안 맞음: ' + r.bad.join(', '));
-    if (!r.rows) throw new Error('설정 창에 배경 음악 줄이 없음');
+  await step('배경 음악 제거 · 효과음 설정 유지', async () => {
+    const r = await ev(() => ({
+      absent: typeof BGM === 'undefined',
+      settings: !/set-bgm|배경 음악|음악 음량/.test(UI.settingsHtml()),
+      effects: typeof SFX !== 'undefined' && typeof SFX.play === 'function',
+      requests: performance.getEntriesByType('resource').filter(x => /assets\/bgm\//.test(x.name)).length,
+    }));
+    if (!r.absent || !r.settings || r.requests) throw new Error('배경 음악 코드·설정·요청이 남아 있음');
+    if (!r.effects) throw new Error('효과음 기능 누락');
   });
 
   const ver = await ev(() => typeof GAME_VERSION !== 'undefined' ? GAME_VERSION : '?');

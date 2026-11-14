@@ -68,7 +68,8 @@ const fs = require('fs'), path = require('path'), http = require('http');
       try{if(!QuestRoute.target()?.unlocated||UI.map.questRouteData())throw Error('미발견 토벌 대상 위치 노출');}finally{G.seenNow=seen;}
       r.type='courier';r.dest='gangbuk';G.player.questRoute=null;UI.renderGame();
       const map=UI.map,walking=UI.walking={test:true};UI.handle('qr-track','q:102');
-      if(UI.map!==map||UI.walking!==walking)throw Error('추적 변경이 이동 애니메이션을 초기화함');UI.walking=null;
+      if(UI.map!==map||UI.walking!==walking)throw Error('추적 변경이 이동 애니메이션을 초기화함');
+      UI.renderHud();if(!document.querySelector('#hud-tr [data-act="qr-track"][data-v="q:102"]')||UI.map!==map||UI.walking!==walking)throw Error('이동 중 HUD 갱신으로 추적 목록 소실');UI.walking=null;
       const path=UI.map.questRouteData().path;[G.player.x,G.player.y]=WORLD.xy(path[1]);UI.map.refresh();
       const after=UI.map.questRouteData();if(after.path[0]!==path[1]||after.path.length>=path.length)throw Error('이동 후 남은 경로 갱신 실패');
       for(let i=0;i<4;i++)G.player.quests.push({id:200+i,kind:'bounty',type:'courier',title:'추가 의뢰 '+i,from:'gangnam',dest:'gangbuk',status:'active',deadline:G.monthKey()+2});

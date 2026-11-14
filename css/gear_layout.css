@@ -1,0 +1,69 @@
+.gl-body { padding: 14px; min-height: 0; }
+.gl-layout { display: grid; grid-template-columns: minmax(0, 290px) minmax(0, 1fr); gap: 18px; align-items: start; }
+.gl-loadout, .gl-replacements, .gl-stock { min-width: 0; padding: 14px; border: 1px solid #2a394c; border-radius: 10px; background: #0b131f; }
+.gl-loadout { position: sticky; top: 0; }
+.gl-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.gl-heading h3 { margin: 0; font-size: 16px; line-height: 1.4; color: #edf3fc; }
+.gl-heading > span { color: #8c9eb7; font-size: 12px; font-variant-numeric: tabular-nums; }
+.gl-heading > span b { color: #ffbd66; }
+.gl-slot-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+button.gl-slot { display: flex; flex-direction: column; justify-content: center; gap: 3px; width: 100%; min-width: 0; height: 88px; padding: 6px 4px; border: 1px solid #2d3d52; border-radius: 7px; clip-path: none; background: #111e2e; text-align: center; color: #cfdaea; }
+button.gl-slot.empty { background: #0a111c; border-style: dashed; color: #72839b; }
+button.gl-slot.filled { border-bottom: 2px solid var(--slot-color); }
+button.gl-slot.selected { border-color: #ffb547; background: #292216; box-shadow: 0 0 0 1px #ffb54744; }
+.gl-slot-label { font-size: 10.5px; line-height: 13px; color: #98abc3; }
+.gl-slot-art { display: flex; flex-shrink: 0; align-items: center; justify-content: center; height: 36px; }
+.gl-slot-art img { width: 36px; height: 36px; object-fit: contain; }
+.gl-plus { font-size: 23px; font-weight: 300; color: #33455e; }
+.gl-slot-name { display: block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; line-height: 14px; }
+.gl-sub-slot { margin-top: 7px; }
+.gl-sub-slot button.gl-slot { height: 48px; flex-direction: row; justify-content: space-around; }
+.gl-sub-slot .gl-slot-name { width: auto; }
+.gl-selected { margin-top: 10px; padding: 10px 0 0; border-top: 1px solid #29384a; }
+.gl-selected-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; }
+.gl-selected-heading b { min-width: 0; overflow-wrap: anywhere; }
+button.gl-detail-link { min-height: 32px; margin-top: 3px; padding: 0; border: 0; background: transparent; color: #9ac7ee; font-size: 12px; clip-path: none; }
+.gl-bag-tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid #304156; margin-bottom: 10px; }
+.gl-bag-tabs button { border: 0; border-bottom: 2px solid transparent; background: transparent; clip-path: none; border-radius: 0; justify-content: center; min-height: 40px; padding: 7px; color: #8d9fb7; gap: 6px; }
+.gl-bag-tabs button[aria-pressed=true] { border-bottom-color: #ffb547; color: #ffca80; background: #ffb54708; }
+.gl-bag-tabs span { font-size: 11px; color: #8b9eb7; }
+.gl-filters { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+.gl-filters button { min-height: 32px; padding: 4px 10px; border: 1px solid #2b3b50; border-radius: 16px; background: transparent; color: #91a4be; clip-path: none; font-size: 11px; justify-content: center; }
+.gl-filters button[aria-pressed=true] { color: #e8f0fb; background: #23344c; border-color: #526e91; }
+.gl-bag-list { display: grid; gap: 7px; }
+.gl-bag-row { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 9px; align-items: center; padding: 10px; border: 1px solid #26374d; border-radius: 7px; background: #101c2b; min-width: 0; }
+.gl-item-icon { display: flex; align-items: center; justify-content: center; width: 38px; height: 42px; padding: 0; border: 0; background: transparent; clip-path: none; }
+.gl-item-icon img { width: 36px; height: 36px; object-fit: contain; }
+.gl-item-copy { min-width: 0; font-size: 13px; }
+button.gl-item-name { display: block; min-height: 0; max-width: 100%; padding: 0; border: 0; background: transparent; clip-path: none; text-align: left; line-height: 1.4; font-size: 13px; font-weight: 700; overflow-wrap: anywhere; word-break: break-word; }
+.gl-item-meta { font-size: 10.5px; color: #8c9eb5; margin-top: 3px; }
+.gl-item-stats { margin-top: 3px; color: #a7b8cf; font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+.gl-bag-row .gl-item-stats { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.gl-bag-row > button.sm { padding: 6px 9px; min-height: 40px; font-size: 12px; border-radius: 6px; clip-path: none; }
+.gl-quantity { color: #ffcc86; font-size: 11px; }
+.gl-no-items { padding: 24px 8px; text-align: center; font-size: 12px; color: #7e91ac; }
+.gl-extras { grid-column: 1 / -1; padding: 0 4px; min-width: 0; }
+.gl-extras summary { cursor: pointer; min-height: 40px; padding: 10px 0; color: #91a5be; font-size: 12px; }
+.gl-extras .sec { margin-top: 10px; }
+.gl-stock-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 16px; }
+.gl-stock-tabs button { min-width: 0; min-height: 48px; flex-direction: column; justify-content: center; gap: 1px; padding: 6px 4px; clip-path: none; border-radius: 7px; font-size: 13px; background: #101c2b; }
+.gl-stock-tabs button span { color: #8da0b9; font-size: 11px; }
+.gl-stock-tabs button[aria-pressed=true] { color: #ffca80; border-color: #ffb547; background: #292216; }
+.gl-stock-group + .gl-stock-group { margin-top: 20px; }
+.gl-stock-group h4 { display: flex; gap: 7px; align-items: center; margin: 0 0 8px; color: #d7e3f4; font-size: 13px; }
+.gl-stock-group h4 span { font-size: 11px; color: #8da0b9; font-weight: 400; }
+.gl-stock-actions { display: grid; gap: 4px; }
+.gl-stock-actions button.sm { min-height: 32px; padding: 4px 8px; clip-path: none; border-radius: 5px; font-size: 11px; }
+.gl-stock-note { margin-top: 14px; font-size: 11px; color: #8da0b9; }
+@media (max-width: 640px) {
+  .sheet-head .tabs.gl-sheet-tabs { display: flex; flex-wrap: wrap; }
+  .sheet-head .tabs.gl-sheet-tabs button { flex: 0 0 auto; width: auto; min-width: 40px; padding: 6px 8px; }
+  .gl-body { padding: 10px !important; }
+  .gl-layout { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .gl-loadout, .gl-replacements, .gl-stock { padding: 11px; }
+  .gl-loadout { position: static; }
+  .gl-heading { margin-bottom: 9px; }
+  .gl-heading h3 { font-size: 15px; }
+  button.gl-slot { height: 80px; padding-top: 4px; padding-bottom: 4px; gap: 2px; }
+  .gl-bag-row { padding: 9px 7px; gap: 7px; }
+}

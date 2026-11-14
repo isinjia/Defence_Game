@@ -22,7 +22,7 @@ const SOUL_TALK = {
 const DEVOUR_SLOTS = (rankIdx) => 2 + Math.floor(rankIdx / 3);
 
 // 운명 카드에 '포식 회로'를 더한다 (ascend.js)
-if (typeof FATES !== 'undefined') FATES.push({ id: 'devour', name: '포식 회로', mods: { hp: 0.04 }, bad: '보스의 기술을 빼앗는다. 포식 스킬은 강하지만 오염을 쌓는다', rare: true, when: (g, p) => !p.devour });
+if (typeof FATES !== 'undefined') FATES.push({ id: 'devour', name: '포식 회로', mods: { hp: 0.04 }, bad: '보스의 기술을 빼앗는다. 포식 스킬은 위력이 높다', rare: true, when: (g, p) => !p.devour });
 
 Object.assign(Game.prototype, {
   soulInit() { const p = this.player; if (!p) return; p.devour ??= null; },
@@ -145,7 +145,6 @@ Object.assign(Game.prototype, {
   // 포식 스킬은 쓸 때마다 오염
   const CP = Combat.prototype; const baseUse = CP.useSkill;
   CP.useSkill = function (u, skill, target) {
-    if (u.isPlayer && skill && this.game.isDevoured && this.game.isDevoured(skill.id)) this.taintGain = (this.taintGain || 0) + 2;
     return baseUse.call(this, u, skill, target);
   };
 }

@@ -1,10 +1,11 @@
 // ===== 게이트 크로니클: 월드맵 줌 (기본 배율 + 확대/축소) =====
 // 지금 화면(타일 ≈42px)을 기본으로 두고, 버튼·핀치·휠 줌이 리사이즈에 덮이지 않게 한다.
 (() => {
-  const DEF = 42;
-  const MIN = 14;
-  const MAX = 96;
-  const KEY = 'gc_map_tile';
+  // 사용자 요청: 예전 최대 확대(80)를 기본으로 두고, 거기서 더 확대·축소할 수 있게 범위를 다시 잡는다.
+  const DEF = 80;
+  const MIN = 20;
+  const MAX = 140;
+  const KEY = 'gc_map_tile2'; // 기준이 바뀌어 저장 키를 새로 쓴다(모두 새 기본에서 시작)
 
   const loadTile = () => {
     try {
@@ -40,9 +41,12 @@
   const baseZoom = MapView.prototype.zoom;
   MapView.prototype.zoom = function (f, sx, sy) {
     const before = this.tile;
-    baseZoom.call(this, f, sx, sy);
-    // 상한을 조금 넓히고 저장
-    this.tile = Math.max(MIN, Math.min(MAX, this.tile));
+    // 기본 zoom은 12~80으로 막혀 있어 직접 계산한다 (손가락·휠 위치를 중심으로)
+    if (sx == null) sx = this.w / 2; if (sy == null) sy = this.hgt / 2;
+    const wx = (sx - this.w / 2) / this.tile + this.camX, wy = (sy - this.hgt / 2) / this.tile + this.camY;
+    this.tile = Math.max(MIN, Math.min(MAX, this.tile * f));
+    this.camX = wx - (sx - this.w / 2) / this.tile; this.camY = wy - (sy - this.hgt / 2) / this.tile;
+    if (this.clampCam) this.clampCam();
     if (this.tile !== before) saveTile(this.tile);
     syncBtns(this.tile);
   };

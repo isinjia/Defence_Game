@@ -79,6 +79,12 @@ const QuestRoute = (() => {
     else if(current&&UI.map?.reachData&&!UI.map.reachData.dist.has(WORLD.idx(current.x,current.y)))box.insertAdjacentHTML('beforeend','<div class="qr-route-status">목적지까지 육로가 없습니다. 교통수단·출입 자격을 확인하세요.</div>');
     return box.innerHTML;
   };
+  const baseHud=UI.renderHud;
+  UI.renderHud=function(...args){
+    const result=baseHud.apply(this,args), host=document.getElementById('hud-tr');
+    if(host&&G.player&&!G.over){host.innerHTML=fixJosa(this.hudQuests());this.applyFold?.();}
+    return result;
+  };
   const baseQuests=UI.questsHtml;
   UI.questsHtml=function(...args){
     const box=document.createElement('div');box.innerHTML=baseQuests.apply(this,args);

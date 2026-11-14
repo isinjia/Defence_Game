@@ -1,7 +1,7 @@
 // 지도 화면 HUD 정리 (영역 B, 사용자 요청 — A 세션 경유)
 // 1. 위쪽 아이콘 줄 → 메뉴 버튼 하나. 누르면 메뉴 팝업.
 // 2. 현재 상황: 진행도 대신 현재 퀘스트(의뢰·기연 단서) 목록. 누르면 "목적지까지 자동 이동할까요?" → [예] 자동 이동.
-// 3. 지도 +/−·내 위치 버튼 삭제. 내 초상화를 누르면 지도가 내 위치로.
+// 3. 내 초상화를 누르면 캐릭터 정보 창을 연다.
 // 4. 인물 카드 접기·펼치기는 체력·정신력 막대 쪽을 눌러서.
 {
   const MENU_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
@@ -56,9 +56,9 @@
       if (tl) tl.innerHTML = `<button class="menu-btn menu-one" data-act="hud-menu" aria-label="메뉴">${MENU_ICON}<span>메뉴</span></button>`;
       const tr = document.getElementById('hud-tr');
       if (tr) { const fold = tr.querySelector('.fold-obj-btn'); tr.innerHTML = fixJosa(this.hudQuests()); if (fold) tr.prepend(fold); }
-      // 3·4: 초상화 = 내 위치로, 막대 = 카드 접기·펼치기
+      // 초상화 = 캐릭터 정보, 막대 = 카드 접기·펼치기
       const por = document.querySelector('#hud-card .card-portrait');
-      if (por) { por.dataset.act = 'zoom-me'; por.setAttribute('aria-label', '내 위치로'); }
+      if (por) { por.dataset.act = 'sheet'; por.dataset.v = 'char'; por.setAttribute('aria-label', '캐릭터 정보 열기'); }
       const bars = document.querySelector('#hud-card .card-bars');
       if (bars) { bars.dataset.act = 'fold-card'; bars.setAttribute('role', 'button'); bars.setAttribute('aria-label', '인물 카드 접기·펼치기'); }
     } catch (e) { /* 실패하면 기존 HUD 그대로 */ }

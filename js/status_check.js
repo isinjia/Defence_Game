@@ -34,7 +34,7 @@ if (typeof UI !== 'undefined') {
     },
     statusInvHtml() {
       const p = G.player;
-      const gear = ['weapon', 'armor', 'acc'].map((sl) => p.equip[sl]).filter(Boolean).map((it) => `<div class="small"><span class="dim">${this.slotName ? this.slotName(it.slot) : ''}</span> ${it.name}</div>`).join('');
+      const gear = Object.keys(p.equip || {}).map((sl) => p.equip[sl]).filter(Boolean).map((it) => `<div class="small"><span class="dim">${this.slotName ? this.slotName(it.slot) : ''}</span> ${it.name}</div>`).join('');
       const cons = (typeof CONSUMABLES !== 'undefined' ? CONSUMABLES : []).filter((c) => p.items[c.id]).map((c) => `<div class="small"><span class="dim">소모품</span> ${c.name} ×${p.items[c.id]}</div>`).join('');
       return `<div class="small"><span class="dim">돈</span> <b class="num">${fmt(p.money)}</b> 크레딧</div>` + gear + cons;
     },
@@ -61,7 +61,7 @@ if (typeof UI !== 'undefined') {
         <div class="st-t">기술 · 누르면 자세히</div><div class="st-sks">${skills.map((id) => this.statusSkillHtml(id)).join('')}</div>
         <div class="st-t">능력치</div>
         <div class="st-stats">${STAT.map(([key, nm]) => `<span><i>${nm}</i><b class="num">${Math.round(p[key] || 0)}</b></span>`).join('')}</div>
-        <div class="st-t">선천 특성</div><div class="st-traits">${p.traits.map((id) => { const t = traitById(id); return t ? `<div class="st-tr"><b>${t.name}</b> <span class="small dim">${t.desc}</span></div>` : ''; }).join('')}</div>
+        <div class="st-t">특성</div><div class="st-traits">${p.traits.map((id) => { const t = traitById(id); return t ? `<div class="st-tr"><b>${t.name}</b> <span class="small dim">${t.desc}</span></div>` : ''; }).join('')}${(p.ltraits || []).map((id) => { const t = typeof ltraitById === 'function' && ltraitById(id); return t ? `<div class="st-tr"><b class="${t.neg ? 'bad' : ''}">${t.name}</b> <span class="small dim">${typeof modsText === 'function' ? modsText(t.mods) + ' · ' : ''}${t.how}</span></div>` : ''; }).join('')}</div>
         <div class="st-t">소지품</div><div class="st-inv">${this.statusInvHtml()}</div>
         </div>
         <div class="st-foot">${forExam ? '<button class="primary full" data-act="st-go">시험 보러 가기</button>' : '<button class="primary full" data-act="st-back">닫기</button>'}</div></div>`;
@@ -90,7 +90,8 @@ if (typeof UI !== 'undefined') {
   const baseChar = UI.charHtml;
   UI.charHtml = function () {
     const html = baseChar.apply(this, arguments);
-    return html.replace('<div class="sec"><div class="sec-title">직업</div>', '<div class="sec"><button class="full" data-act="st-view">내 상태 한눈에 (직업·기술·상성·상황)</button></div><div class="sec"><div class="sec-title">직업</div>');
+    // 사용자 요청: '내 상태 한눈에' 단추와 직업 칸 삭제(직업은 위 태그로 보인다)
+    return html; // 칸 지우기는 js/char_trim.js(빌드 맨 뒤)에서
   };
 
   const baseHandle = UI.handle;
@@ -101,7 +102,7 @@ if (typeof UI !== 'undefined') {
       try { return this.startExam(); } finally { this._stGo = false; }
     }
     if (act === 'st-sk') { const sk = skillById(v); if (sk) this.statusPop(this.skillHoldHtml(sk, { elem: G.player.element, name: '', mp: G.player.mp })); return; }
-    if (act === 'st-tr') { const t = traitById(v); if (t) this.statusPop(`<div class="skill-hold"><div class="sh-head"><b>${t.name}</b><span class="small dim">선천 특성</span></div><p class="small">${t.desc}</p><div class="small dim sh-tip">아무 곳이나 누르면 닫힙니다.</div></div>`); return; }
+    if (act === 'st-tr') { const t = traitById(v); if (t) this.statusPop(`<div class="skill-hold"><div class="sh-head"><b>${t.name}</b><span class="small dim">특성</span></div><p class="small">${t.desc}</p><div class="small dim sh-tip">아무 곳이나 누르면 닫힙니다.</div></div>`); return; }
     if (act === 'st-view') { this._stFrom = this.sheet; return this.showStatusCheck(false); }
     if (act === 'st-back') { const s = this._stFrom; this._stFrom = null; if (s && this.openSheet) return this.openSheet(s); this.closeModal(); return; }
     // 상태 확인 화면이 떠 있는 동안 '닫기'로 빠져나가면 시험이 사라지지 않게 다시 띄운다
