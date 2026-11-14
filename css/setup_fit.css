@@ -49,3 +49,11 @@
 @media (orientation: portrait), (max-width: 700px) {
   .create.ps-fit .sec .skin-choices .choice { font-size: 0 !important; letter-spacing: 0; padding: 0; }
 }
+
+/* 초상은 항상 정사각형: 칸이 세로로 길어도 그림이 틀 밖으로 늘어나지 않고, 외형 바꾸기 때 크기가 흔들리지 않게 (사용자 요청) */
+@media (orientation: portrait), (max-width: 700px) {
+  .create.ps-fit .id-preview { container-type: size; }
+  .create.ps-fit .id-preview > svg, .create.ps-fit .id-preview > .portrait, .create.ps-fit .id-preview > .portrait-img, .create.ps-fit .id-preview .portrait-swap-slot {
+    width: min(100cqw, 100cqh) !important; height: min(100cqw, 100cqh) !important; max-width: none; max-height: none; flex: none; overflow: hidden; }
+  .create.ps-fit .id-preview .portrait-swap-slot > svg { width: 100% !important; height: 100% !important; }
+}
