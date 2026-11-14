@@ -296,33 +296,3 @@ if (typeof Game !== 'undefined' && Game.prototype.councilOpinion) {
   // 시험 탐색 지도: 셋째 줄 왼쪽 칸은 들어가면 '녹슨 보급 상자'인데 지도·카드에는 '사건(?)'으로 보여, 리더의 "왼쪽은 녹슨 보급 상자" 설명과 어긋났다 → 보물 칸으로 표시
   if (typeof EXAM_MAP !== 'undefined' && EXAM_MAP[2] && EXAM_MAP[2][0] && EXAM_MAP[2][0].node === 'chest') EXAM_MAP[2][0].t = 'treasure';
 }
-// 팀 상의 시작 때 리더의 제안 한마디(js/council_dlg.js)는 기질(다정·냉정·그 밖)로만 말투를 골라,
-// 반말 쓰는 다정한 리더가 갑자기 "의견 있으면 말해 줘요"처럼 존댓말을 했다(사용자 지적). 그 사람의 말투(personaRegister)로 다시 쓴다.
-if (typeof UI !== 'undefined' && UI.talk) {
-  const ro = (w) => { const c = String(w).charCodeAt(String(w).length - 1) - 0xac00; return w + (c >= 0 && c < 11172 && c % 28 !== 0 && c % 28 !== 8 ? '으로' : '로'); };
-  const PROPOSE = {
-    haera: (nm) => `"${ro(nm)} 간다. 반대 있으면 지금 말해."`,
-    banmal: (nm) => `"${nm} 쪽으로 가자. 의견 있으면 말해."`,
-    short: (nm) => `"${nm}. 간다."`,
-    haeyo: (nm) => `"${nm} 쪽으로 가 볼까요? 의견 있으면 말해 줘요."`,
-    hapsyo: (nm) => `"${ro(nm)} 이동하겠습니다. 이견 있으면 말씀하십시오."`,
-    hao: (nm) => `"${ro(nm)} 가겠소. 이견 있으면 말하시오."`,
-    hage: (nm) => `"${ro(nm)} 가세. 할 말 있으면 하게."`,
-  };
-  const PAT = [/^"(.+?)\(으\)로 간다\. 반대 있으면 지금 말해\."$/, /^"(.+?)(?:으로|로) 간다\. 반대 있으면 지금 말해\."$/, /^"(.+?) 쪽으로 가 볼까요\? 의견 있으면 말해 줘요\."$/, /^"(.+?)\. 간다\.(?: 할 말 있으면 해\.)?"$/];
-  const baseTalk = UI.talk;
-  UI.talk = function (lines, ...a) {
-    try {
-      if (Array.isArray(lines)) lines = lines.map((l) => {
-        if (!l || !l.who || typeof l.who !== 'object' || typeof l.text !== 'string' || !G.personaRegister) return l;
-        for (const re of PAT) {
-          const m = re.exec(l.text); if (!m) continue;
-          const reg = G.personaRegister(l.who); const f = PROPOSE[reg] || PROPOSE.haera;
-          return { ...l, text: f(m[1]) };
-        }
-        return l;
-      });
-    } catch (e) { /* 무시 */ }
-    return baseTalk.call(this, lines, ...a);
-  };
-}
