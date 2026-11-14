@@ -82,14 +82,28 @@
   const closeMap = () => {
     document.body.classList.remove('cn-map-on');
     const root = document.querySelector('#modal-box .exploration-layout');
-    if (root) { root.classList.remove('xr-overview', 'xr-cnmap'); root.querySelectorAll('.xr-lead-node').forEach((e) => e.remove()); }
+    if (root) { root.classList.remove('xr-overview', 'xr-cnmap'); root.querySelectorAll('.xr-lead-node, .xr-lead-arrow').forEach((e) => e.remove()); }
   };
   const openMap = () => {
     const root = document.querySelector('#modal-box .exploration-layout'); if (!root) return;
     root.classList.add('xr-overview', 'xr-cnmap'); document.body.classList.add('cn-map-on');
-    root.querySelectorAll('.xr-lead-node').forEach((e) => e.remove());
+    root.querySelectorAll('.xr-lead-node, .xr-lead-arrow').forEach((e) => e.remove());
     const info = leadKey(); const node = info && root.querySelector(`.gnode[data-xr-key="${info.key}"]`);
     if (node && info.L) { node.classList.add('xr-leadnode'); node.insertAdjacentHTML('beforeend', `<span class="xr-lead-node" aria-hidden="true">${face(info.L, 96)}<b class="xr-lead-node-tag">리더 선택</b></span>`); }
+    // 지금 자리 → 리더가 고른 칸: 흐르는 점선 화살표
+    try {
+      const gm = node && node.closest('.gmap'); const tk = gm && gm.querySelector('.gtoken.lead');
+      if (gm && tk) {
+        const g = gm.getBoundingClientRect(); const a = tk.getBoundingClientRect(); const b = node.getBoundingClientRect();
+        const x1 = a.left + a.width / 2 - g.left, y1 = a.top + a.height / 2 - g.top, x2 = b.left + b.width / 2 - g.left, y2 = b.top + b.height / 2 - g.top;
+        const len = Math.hypot(x2 - x1, y2 - y1) || 1; const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
+        const sx = x1 + ux * 18, sy = y1 + uy * 18, ex = x2 - ux * (b.width / 2 + 6), ey = y2 - uy * (b.height / 2 + 6);
+        gm.insertAdjacentHTML('beforeend', `<svg class="xr-lead-arrow" width="${g.width}" height="${g.height}" viewBox="0 0 ${g.width} ${g.height}" aria-hidden="true">
+          <defs><marker id="xrLeadHead" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ffb547"/></marker></defs>
+          <line class="xr-la-glow" x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}"/>
+          <line class="xr-la-line" x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" marker-end="url(#xrLeadHead)"/></svg>`);
+      }
+    } catch (e) { /* 화살표 실패는 지도를 막지 않는다 */ }
     const sc = root.querySelector('.xr-map-scroll'); if (sc && node) sc.scrollTop = Math.max(0, node.offsetTop - sc.clientHeight / 2);
   };
   const dock = () => {

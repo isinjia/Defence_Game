@@ -35,3 +35,9 @@ body.cn-map-on #council-ov { visibility: hidden !important; }
 .xr-lead-node { overflow: visible !important; }
 .xr-lead-node > svg, .xr-lead-node > img, .xr-lead-node .avatar { border-radius: 50% !important; overflow: hidden; }
 .xr-lead-node .xr-lead-node-tag { position: absolute; left: 50%; bottom: -9px; transform: translateX(-50%); padding: 1px 6px; border-radius: 999px; background: #ffb547; color: #1a1205; font-size: 10px; font-weight: 800; line-height: 1.35; white-space: nowrap; box-shadow: 0 0 0 1.5px #05080d; }
+/* 지금 자리 → 리더 선택 칸 화살표: 점선이 칸 쪽으로 흘러간다 */
+.xr-lead-arrow { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 3; overflow: visible; }
+.xr-lead-arrow .xr-la-glow { stroke: #ffb54740; stroke-width: 8; stroke-linecap: round; }
+.xr-lead-arrow .xr-la-line { stroke: #ffb547; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 8 7; animation: xrLeadFlow .9s linear infinite; }
+@keyframes xrLeadFlow { to { stroke-dashoffset: -15; } }
+@media (prefers-reduced-motion: reduce) { .xr-lead-arrow .xr-la-line { animation: none; } }
