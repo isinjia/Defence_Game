@@ -167,6 +167,7 @@
   const want = () => {
     const c = exam(); if (!c || !c.combat || c.combat.result) return [];
     const cb = c.combat; const t = c.tutorial;
+    if (t.lead === 'on') return null; // 지휘 연습 단계는 아래 블록이 반짝임을 맡는다
     if (!cb.waiting || c.playing) return [];
     const p = cb.player; const o = p && p.order;
     // 리더 오더가 있으면 오더대로 누를 것만 반짝인다
@@ -203,9 +204,156 @@
   };
   setInterval(() => {
     try {
-      const sel = want(); const on = new Set(sel.length ? [...document.querySelectorAll(sel.join(','))] : []);
+      const sel = want(); if (sel === null) return; const on = new Set(sel.length ? [...document.querySelectorAll(sel.join(','))] : []);
       for (const el of document.querySelectorAll('.tut-glow')) if (!on.has(el)) el.classList.remove('tut-glow');
       for (const el of on) el.classList.add('tut-glow');
     } catch (e) { /* 무시 */ }
   }, 200);
+}
+
+// 자격 시험 첫 전투 튜토리얼 보강 (사용자 요청: "왜 나 혼자 조종하고 팀원은 오토인지 정확히 알려 주고, 내가 리더가 되어 오더도 내려 보게")
+// - 1단계(게이지): 직접 조종하는 건 나 하나, 동료는 각자 판단으로 자동, 리더는 오더로 동료를 움직인다는 것을 시스템 문구로.
+// - 셋째 내 차례: 선임이 이번 차례 지휘를 나에게 넘긴다 → 동료 누르기 → 행동 고르기 → 대상 누르기 → 오더 전달.
+//   오더를 다 내리면 따르는/무시하는 규칙을 알려 주고 내 행동을 고르게 한다. 내 차례가 끝나면 지휘는 선임에게 돌아간다.
+// - 연습이 끝나기 전에 마지막 적이 쓰러지지 않게(체력 1로 버팀) 한다.
+// - 게이트 탐색에서 전투 전에 나오던 "이제 진짜 전투다. 동료들은 알아서 싸운다" 말은 이동 말로 바꾸고, 설명은 전투 안으로 옮겼다.
+{
+  const exam0 = () => { const c = typeof UI !== 'undefined' ? UI.ctx : null; return c && c.kind === 'exam' && c.tutorial && !c.tutorial.boss ? c : null; };
+  const reg = (L) => { try { return (G.personaRegister && G.personaRegister(L)) || 'haera'; } catch (e) { return 'haera'; } };
+  const V = (h, b, s, y, p, o, g) => ({ haera: h, banmal: b, short: s, haeyo: y, hapsyo: p, hao: o, hage: g });
+  const SAY = {
+    ex1after: V('좋아. 간다. 내 뒤에 붙어.', '좋아, 가자. 내 뒤에 붙어.', '간다.', '좋아요, 가요. 제 뒤로 붙어요.', '좋습니다. 이동합니다. 뒤를 따라오십시오.', '좋소. 갑시다. 내 뒤를 따르시오.', '좋네. 가세. 내 뒤에 붙게.'),
+    leadPick: V('이번 차례는 네가 지휘해 봐. 동료 하나를 골라 오더를 내려.', '이번엔 네가 지휘해 봐. 동료 하나 골라서 오더 내려.', '이번엔 네가 지휘. 오더 내려.',
+      '이번 차례는 {name} 씨가 지휘해 봐요. 동료 한 명을 골라 오더를 내려요.', '이번 차례는 직접 지휘해 보십시오. 동료 한 명을 골라 오더를 내리십시오.',
+      '이번 차례는 그대가 지휘해 보시오. 동료 하나를 골라 오더를 내리시오.', '이번 차례는 자네가 지휘해 보게. 동료 하나를 골라 오더를 내리게.'),
+    leadCmd: V('그 녀석이 뭘 할지 골라.', '뭘 시킬지 골라.', '뭘 시킬지.', '뭘 시킬지 골라요.', '무엇을 시킬지 고르십시오.', '무엇을 시킬지 고르시오.', '무엇을 시킬지 고르게.'),
+    leadAim: V('누구한테 할지 찍어 줘.', '누구한테 할지 찍어 줘.', '대상.', '누구한테 할지 찍어 줘요.', '대상을 지정하십시오.', '대상을 찍어 주시오.', '대상을 찍어 주게.'),
+    leadDone: V('좋아. 오더는 그렇게 내리는 거다. 이제 네 행동을 골라.', '좋아, 그렇게 내리는 거야. 이제 네 거 골라.', '됐다. 네 행동.',
+      '잘했어요. 오더는 그렇게 내리는 거예요. 이제 자기 행동을 골라요.', '좋습니다. 오더는 그렇게 내립니다. 이제 본인 행동을 고르십시오.',
+      '좋소. 오더는 그렇게 내리는 것이오. 이제 그대 행동을 고르시오.', '좋네. 오더는 그렇게 내리는 걸세. 이제 자네 행동을 고르게.'),
+    leadBack: V('지휘는 다시 내가 맡는다.', '지휘는 다시 내가 할게.', '지휘, 다시 내가.', '지휘는 다시 제가 맡을게요.', '지휘는 다시 제가 맡겠습니다.', '지휘는 다시 내가 맡겠소.', '지휘는 다시 내가 맡겠네.'),
+  };
+  const say = (L, k) => { const m = SAY[k]; return String((L && m[reg(L)]) || m.haera).replace(/\{name\}/g, G.player ? G.player.name : ''); };
+  const SYS = {
+    why: '파티 전투에서 직접 조종하는 건 나 한 명입니다. 동료는 각자 성격과 판단으로 자동으로 싸웁니다. 대신 파티 <b>리더</b>는 <b>오더</b>(지시)로 동료에게 무엇을 할지 시킬 수 있습니다.',
+    leadPick: '지금은 내가 리더입니다(초상에 <b>리더</b> 표시). <b>동료를 누르면</b> 그 동료에게 내릴 오더 창이 열리고, 그동안 시간이 멈춥니다.',
+    leadCmd: '아래에서 그 동료가 할 행동(공격·스킬·아이템·방어)을 고르세요.',
+    leadAim: '대상(적 또는 아군)을 누르면 오더가 전달됩니다.',
+    leadDone: '동료는 성격과 나와의 관계에 따라 오더를 <b>따르거나 무시</b>합니다. 상황에 맞는 오더를 따르게 하면 믿음이 쌓이고, 엉터리 오더는 신뢰를 깎습니다. 한 차례에 여러 동료에게 오더를 내릴 수 있습니다. 다 내렸으면 아래에서 <b>내 행동</b>을 고르세요. 오른쪽 위 단추: 배속(전투 속도) · 자동(자동 전투).',
+  };
+  const playerOrdered = (cb) => cb.units.some((u) => u.side === 'ally' && !u.isPlayer && u.order && u.order.by === 'player');
+
+  // 이동 중 말: 전투 설명은 전투 안으로
+  if (typeof PERSONA_VOICE !== 'undefined') PERSONA_VOICE.ex1after = SAY.ex1after;
+  if (typeof PERSONA_VOICE_ALT !== 'undefined') delete PERSONA_VOICE_ALT.ex1after;
+  const baseLead2 = UI.leadSay;
+  UI.leadSay = function (key) {
+    if (key === 'ex1after') { const L = this.examLeader && this.examLeader(); return say(L, 'ex1after'); }
+    return baseLead2.call(this, key);
+  };
+
+  // 셋째 내 차례에 지휘를 넘긴다
+  const baseTurn2 = Combat.prototype.takeTurn;
+  Combat.prototype.takeTurn = function (u) {
+    const r = baseTurn2.call(this, u);
+    try {
+      const c = exam0(); const t = c && c.combat === this && c.tutorial;
+      if (t && r === 'wait' && u.isPlayer && !t.lead && t.acted >= 2) {
+        const L = this.leader && this.leader();
+        if (L && !L.isPlayer) {
+          t.lead = 'on'; t.npcLeader = L.id; this.leaderId = u.id; u.order = null;
+          for (let i = this.log.length - 1; i >= 0 && i >= this.log.length - 6; i--) { const l = this.log[i]; if (l && l.ev && l.ev.k === 'say' && l.ev.src === L.id) { this.log.splice(i, 1); break; } }
+          const s = say(UI.examLeader && UI.examLeader(), 'leadPick');
+          this.push(`${L.name}: "${s}"`, '', { k: 'say', src: L.id, text: s });
+        }
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+  // 내 차례가 끝나면 지휘는 선임에게
+  const baseEnd2 = Combat.prototype.endPlayerTurn;
+  Combat.prototype.endPlayerTurn = function (...a) {
+    try {
+      const c = exam0(); const t = c && c.combat === this && c.tutorial;
+      if (t && t.lead === 'on' && t.npcLeader) {
+        const L = this.units.find((x) => x.id === t.npcLeader && x.alive);
+        t.lead = 'over'; t.leadDone = true;
+        if (L) { this.leaderId = L.id; const s = say(UI.examLeader && UI.examLeader(), 'leadBack'); this.push(`${L.name}: "${s}"`, '', { k: 'say', src: L.id, text: s }); }
+      }
+    } catch (e) { /* 무시 */ }
+    return baseEnd2.apply(this, a);
+  };
+  // 연습이 끝나기 전에는 마지막 적이 쓰러지지 않는다
+  const baseDown = Combat.prototype.down;
+  Combat.prototype.down = function (u, ...a) {
+    try {
+      const c = exam0(); const t = c && c.combat === this && c.tutorial;
+      if (t && !t.leadDone && u && u.side === 'enemy' && !u.summon && this.units.filter((x) => x.side === 'enemy' && x.alive && !x.summon).length <= 1) { u.hp = Math.max(1, u.hp); u.alive = true; return; }
+    } catch (e) { /* 무시 */ }
+    return baseDown.call(this, u, ...a);
+  };
+
+  // 안내 문구
+  const leadKey = (c) => {
+    const t = c.tutorial; if (t.lead !== 'on') return null;
+    if (playerOrdered(c.combat) && !c.orderFor) return 'leadDone';
+    if (!c.orderFor) return 'leadPick';
+    if (c.orderDone) return 'leadDone';
+    if (c.orderSel || c.orderItem) return 'leadAim';
+    return 'leadCmd';
+  };
+  const baseCoach2 = UI.coachHtml;
+  UI.coachHtml = function (...a) {
+    const c = exam0();
+    try {
+      if (c && !c.combat.result) {
+        const k = leadKey(c);
+        if (k) {
+          c.tutorial.key = k;
+          const L = this.examLeader && this.examLeader(); const who = L ? `선임 ${L.name}` : '리더';
+          return `<div class="coach"><span class="eyebrow">${who} · 지휘 연습</span><div>"${say(L, k)}"<div class="small dim coach-sys">조작 · ${SYS[k]}</div></div></div>`;
+        }
+      }
+    } catch (e) { /* 무시 */ }
+    let h = baseCoach2.apply(this, a);
+    try {
+      if (h && c && c.tutorial.key === 'gauge') h = h.replace(/<\/div><\/div>$/, `<div class="small coach-sys coach-ord">${SYS.why}</div></div></div>`);
+      if (h && c && c.tutorial.leadDone && c.tutorial.key === 'tools') h = ''; // 배속·자동은 지휘 연습 끝 안내에 넣었다
+    } catch (e) { /* 무시 */ }
+    return h;
+  };
+  // 말풍선이 가리킬 곳
+  const baseTarget = UI.coachTarget;
+  UI.coachTarget = function (label) {
+    const c = exam0(); const k = c && c.tutorial.key;
+    if (k === 'leadPick') return document.getElementById('allies');
+    if (k === 'leadCmd') return document.querySelector('#cb-ctrl .order-cmd') || document.getElementById('cb-ctrl');
+    if (k === 'leadAim') return document.getElementById(this.orderAim && this.orderAim() === 'ally' ? 'allies' : 'foes');
+    if (k === 'leadDone') return document.querySelector('#cb-ctrl .cmd-main') || document.getElementById('cb-ctrl');
+    return baseTarget ? baseTarget.call(this, label) : null;
+  };
+  // 지휘 연습 중에는 오더부터 (오더를 내리기 전에는 내 행동을 막는다)
+  const baseRule = UI.tutRule;
+  if (baseRule) UI.tutRule = function () {
+    const c = exam0();
+    if (c && c.tutorial.lead === 'on' && c.combat.waiting && !c.playing && !playerOrdered(c.combat)) {
+      const ok = ['c-ally', 'c-target', 'o-cmd', 'o-skill', 'o-item', 'o-cancel', 'o-clear', 'c-speed', 'modal-close'];
+      return { allow: (act) => ok.includes(act), msg: '먼저 동료를 눌러 오더를 내려 보자.' };
+    }
+    return baseRule.call(this);
+  };
+  // 반짝임: 지휘 연습 단계 (위 want() 보다 먼저)
+  setInterval(() => {
+    try {
+      const c = exam0(); if (!c || !c.combat || c.combat.result || c.tutorial.lead !== 'on' || !c.combat.waiting || c.playing) return;
+      const k = leadKey(c); let sel = [];
+      if (k === 'leadPick') sel = ['#allies .ally.fig:not(.me):not(.summon)'];
+      else if (k === 'leadCmd') sel = c.orderCmd === 'skill' ? ['#cb-ctrl .cmd-pop [data-act="o-skill"]'] : c.orderCmd === 'item' ? ['#cb-ctrl .cmd-pop [data-act="o-item"]:not([disabled])'] : ['#cb-ctrl .order-cmd .cmd-main [data-act="o-cmd"][data-v="attack"]'];
+      else if (k === 'leadAim') sel = [UI.orderAim && UI.orderAim() === 'ally' ? '#allies .ally.fig' : '#foes .foe:not(.dead)'];
+      else if (k === 'leadDone') sel = c.sel ? ['#foes .foe:not(.dead)'] : c.cmd === 'skill' ? ['#cb-ctrl .cmd-pop [data-act="c-skill"]'] : ['#cb-ctrl .cmd-main [data-act="c-skill"][data-v="strike"]', '#cb-ctrl .cmd-main [data-act="c-cmd"][data-v="skill"]'];
+      const on = new Set(sel.length ? [...document.querySelectorAll(sel.join(','))] : []);
+      for (const el of document.querySelectorAll('.tut-glow')) if (!on.has(el)) el.classList.remove('tut-glow');
+      for (const el of on) el.classList.add('tut-glow');
+    } catch (e) { /* 무시 */ }
+  }, 150);
 }
