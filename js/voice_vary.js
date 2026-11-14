@@ -199,3 +199,41 @@ if (typeof UI !== 'undefined' && UI.dlgSpeaker) {
     return sp;
   };
 }
+// 팀 상의 의견: 성격 말투 줄(persona_council.js)이 "누가 먼저 잡나 내기!"처럼 싸움 전제라, 사건·보물·휴식 칸에서도 그대로 나와 어색했다(사용자 지적).
+// 싸움이 아닌 칸에서 싸움 말이 나오면, 칸에 맞는 말(말투별)로 바꾼다.
+if (typeof Game !== 'undefined' && Game.prototype.councilOpinion) {
+  const FIGHT = /잡|사냥|싸우|싸움|붙|피 보|센 놈|베어|죽이|때려|패 보|덤벼|박살|부숴|쓰러|내기/;
+  const NEUTRAL = {
+    event: { O: { haera: '뭐가 있는지 보자.', banmal: '뭐가 있나 보러 가자!', short: '본다.', haeyo: '뭐가 있는지 가 봐요.', hapsyo: '확인해 보겠습니다.', hao: '무엇이 있는지 보러 갑시다.', hage: '뭐가 있는지 보러 가세.' },
+             X: { haera: '거긴 꺼림칙하다.', banmal: '거기 좀 찜찜한데.', short: '꺼림칙하다.', haeyo: '거긴 좀 불안해요.', hapsyo: '그쪽은 불확실합니다.', hao: '그쪽은 꺼림칙하오.', hage: '그쪽은 영 꺼림칙하네.' } },
+    treasure: { O: { haera: '챙길 건 챙기자.', banmal: '오, 뭐 있나 보자!', short: '챙긴다.', haeyo: '뭐가 들었는지 봐요!', hapsyo: '회수하겠습니다.', hao: '챙길 것은 챙깁시다.', hage: '챙길 건 챙기세.' },
+                X: { haera: '함정일 수도 있다.', banmal: '함정 아니야?', short: '함정일 수 있다.', haeyo: '함정일까 봐 걱정돼요.', hapsyo: '함정 가능성이 있습니다.', hao: '함정일지도 모르오.', hage: '함정일지도 모르네.' } },
+    rest: { O: { haera: '잠깐 숨 돌리자.', banmal: '좀 쉬었다 가자.', short: '쉰다.', haeyo: '조금 쉬어 가요.', hapsyo: '정비하고 가겠습니다.', hao: '잠시 숨을 돌립시다.', hage: '잠시 쉬어 가세.' },
+            X: { haera: '아직 쉴 때 아니다.', banmal: '벌써 쉬어?', short: '아직이다.', haeyo: '아직 괜찮은데요.', hapsyo: '아직 정비가 필요하지 않습니다.', hao: '아직 쉴 때가 아니오.', hage: '아직 쉴 때가 아닐세.' } },
+  };
+  const neutralFor = (g, n, t, vote) => { const set = NEUTRAL[t]; if (!set) return null; const reg = g.personaRegister ? g.personaRegister(n) : 'haera'; const m = set[vote === 'X' ? 'X' : 'O']; return `"${m[reg] || m.haera}"`; };
+  let curT = null; // 지금 의견을 묻는 칸 종류 (아래 personaCouncil 감싸기가 쓴다)
+  // 시험 탐색(council_exam.js)은 의견 줄이 없으면 personaCouncil 을 직접 불러 성격 말투 줄을 쓴다 → 그 길도 칸에 맞춘다
+  if (typeof personaCouncil === 'function') {
+    const basePC = personaCouncil;
+    personaCouncil = function (n, k) { // eslint-disable-line no-global-assign
+      const s = basePC(n, k);
+      try { if ((k === 0 || k === 1) && s && NEUTRAL[curT] && FIGHT.test(s)) return neutralFor(G, n, curT, k === 1 ? 'X' : 'O'); } catch (e) { /* 무시 */ }
+      return s;
+    };
+  }
+  const baseOp = Game.prototype.councilOpinion;
+  Game.prototype.councilOpinion = function (n, t, hpR, leaderRel) {
+    curT = t;
+    const r = baseOp.call(this, n, t, hpR, leaderRel);
+    try {
+      const set = NEUTRAL[t];
+      if (r && r.line && set && FIGHT.test(r.line)) {
+        const reg = this.personaRegister ? this.personaRegister(n) : 'haera';
+        const s = (set[r.vote === 'X' ? 'X' : 'O'] || {})[reg] || set[r.vote === 'X' ? 'X' : 'O'].haera;
+        return { ...r, line: `"${s}"` };
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+}
