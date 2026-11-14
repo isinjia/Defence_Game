@@ -2,11 +2,18 @@
 const QuestRoute = (() => {
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
   const questKey = q => `q:${q.id}`;
+  const firstSortiePending = () => { const s = G.player?.firstSortie; return !!(s && !s.returned); };
   const selected = () => {
-    const value=typeof G.player?.questRoute==='string'?G.player.questRoute:'main';
-    if(value.startsWith('q:')&&(G.player.quests||[]).some(q=>questKey(q)===value&&q.status!=='claimed'))return value;
-    if(value.startsWith('c:')&&(G.clueList?.()||[]).some(c=>`c:${c.ch}`===value))return value;
-    return 'main';
+    const value=G.player?.questRoute;
+    if(value === 'first-sortie' && firstSortiePending()) return value;
+    if(value === 'main') return value;
+    if(typeof value === 'string' && value.startsWith('nb:') && value === `nb:${G.nbTask?.()?.id}`) return value;
+    if(typeof value === 'string' && value.startsWith('q:')&&(G.player.quests||[]).some(q=>questKey(q)===value&&q.status!=='claimed'))return value;
+    if(typeof value === 'string' && value.startsWith('c:')&&(G.clueList?.()||[]).some(c=>`c:${c.ch}`===value))return value;
+    if(firstSortiePending()) return 'first-sortie';
+    if(UI.mainGoal?.()) return 'main';
+    const task = G.nbTask?.();
+    return task ? `nb:${task.id}` : 'main';
   };
   function city(region, key, title, kind) {
     const pos = WORLD.cityPos[region];
@@ -43,9 +50,37 @@ const QuestRoute = (() => {
     }
     return city(UI.questTarget(q),key,title,'quest');
   }
+  function nearestCity(key, title) {
+    const p = G.player, rd = UI.map?.reachData;
+    const list = Object.entries(WORLD.cityPos).filter(([, [x,y]]) => !rd || rd.dist.has(WORLD.idx(x,y)))
+      .sort(([,a],[,b]) => Math.hypot(a[0]-p.x,a[1]-p.y)-Math.hypot(b[0]-p.x,b[1]-p.y));
+    return list.length ? city(list[0][0],key,title,'quest') : null;
+  }
+  function notebookTarget() {
+    const task=G.nbTask?.(); if(!task)return null;
+    const key=`nb:${task.id}`;
+    if(task.id==='gate') {
+      const s=G.player.firstSortie;
+      const g=G.mapGates.find(g=>g.id===s?.gate&&!g.cleared) || G.mapGates.filter(g=>!g.cleared&&g.tier<=G.player.rankIdx&&G.gateSeen(g))
+        .sort((a,b)=>Math.hypot(a.x-G.player.x,a.y-G.player.y)-Math.hypot(b.x-G.player.x,b.y-G.player.y))[0];
+      return g?{key,title:'첫 게이트 공략',kind:'quest',x:g.x,y:g.y}:{key,title:'첫 게이트 공략',kind:'quest',unlocated:true};
+    }
+    if(task.id==='report') {
+      const q=G.player.quests.find(q=>q.kind==='bounty'&&q.status==='done');
+      if(q)return city(q.from,key,'의뢰 보고','quest');
+    }
+    if(['train','break'].includes(task.id)) return {key,title:task.id==='train'?'수련':'첫 돌파',kind:'quest',x:G.player.x,y:G.player.y};
+    return nearestCity(key,task.id==='craft'?'공방 제작':'협회 의뢰 수락');
+  }
   function target() {
     if (!G.player || G.over) return null;
     const token = selected();
+    if(token === 'first-sortie') {
+      const s=G.player.firstSortie;
+      if(s.status==='done')return nearestCity(token,'도시 복귀');
+      const t=notebookTarget(); return t?{...t,key:token}:null;
+    }
+    if(token.startsWith('nb:')) return notebookTarget();
     if (token.startsWith('q:')) {
       const q = (G.player.quests || []).find(q => questKey(q) === token);
       if (q) return questTarget(q);
@@ -65,8 +100,9 @@ const QuestRoute = (() => {
   const baseHQ = UI.hudQuests;
   UI.hudQuests = function (...args) {
     const box=document.createElement('div');box.innerHTML=baseHQ.apply(this,args);
-    for (const row of box.querySelectorAll('[data-act="hq-go"],[data-act="main-go"]')) {
+    for (const row of box.querySelectorAll('[data-act="hq-go"],[data-act="main-go"],.nb-task')) {
       let key='main';
+      if(row.classList.contains('nb-task')) key=firstSortiePending()?'first-sortie':`nb:${G.nbTask?.()?.id}`;
       if (row.dataset.act==='hq-go') {
         const value=row.dataset.v || '', index=Number(value.slice(1));
         const item=value[0]==='c'?(G.clueList?.()||[])[index]:(G.player.quests||[])[index];
@@ -90,6 +126,9 @@ const QuestRoute = (() => {
     const box=document.createElement('div');box.innerHTML=baseQuests.apply(this,args);
     const panel=[...box.querySelectorAll('.panel')].find(p=>p.querySelector('h3')?.textContent==='진행 중인 일');
     panel?.querySelectorAll('.cards > .item-row').forEach((row,i)=>{const q=G.player.quests[i];if(q)row.insertAdjacentHTML('beforeend',button(questKey(q)));});
+    const notebook=[...box.querySelectorAll('.panel')].find(p=>p.querySelector('h3')?.textContent==='첫 해 수첩');
+    const current=notebook?.querySelector('.item-row.hl');
+    if(current)current.insertAdjacentHTML('beforeend',button(firstSortiePending()?'first-sortie':`nb:${G.nbTask?.()?.id}`));
     return box.innerHTML;
   };
   const baseHandle=UI.handle;

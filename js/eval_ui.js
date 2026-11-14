@@ -38,7 +38,8 @@ if (typeof UI !== 'undefined' && UI.hudQuests) {
     try {
       const t = G.nbTask && G.nbTask(); const nb = G.player && G.player.notebook;
       if (t && nb) {
-        const row = `<button class="obj-link hq nb-task" data-act="sheet" data-v="quest"><span class="hq-mark">◆</span><span class="hq-t">수첩 ${nb.i + 1}/${NB_TASKS.length} · ${t.name}</span></button>`;
+        const short = { gate: '첫 게이트 공략', take: '협회 의뢰 수락', report: '의뢰 완료 보고', craft: '공방 제작', train: '한 달 수련', break: '첫 돌파' };
+        const row = `<button class="obj-link hq nb-task" data-act="sheet" data-v="quest" title="${t.name}"><span class="hq-mark">◆</span><span class="hq-t">${nb.i + 1}/${NB_TASKS.length} · ${G.player.firstSortie?.status === 'done' && !G.player.firstSortie.returned ? '도시 복귀' : short[t.id] || t.name}</span></button>`;
         html = html.replace('<div class="obj-sub">진행 중인 의뢰가 없다. 도시 의뢰소에서 받을 수 있다.</div>', '')
           .replace('<div class="obj-title">현재 퀘스트</div>', `<div class="obj-title">현재 퀘스트</div>${row}`);
       }
