@@ -14,12 +14,40 @@ if (typeof UI !== 'undefined' && UI.hudCard) {
 .hud-quick{position:absolute;right:0;bottom:100%;margin-bottom:6px;display:flex;gap:6px;z-index:3}
 .hud-quick button{width:40px;height:40px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid var(--line,#2a3546);background:rgba(10,16,26,.88);color:var(--ink,#dfe6f0)}
 .hud-quick button:active{transform:translateY(1px)}
-#hud-tl .menu-one{display:none}`;
+#hud-tl .menu-one{display:none}
+.modal-box.quick-sheet .sheet-head .tabs{display:none}
+.modal-box.quick-sheet{position:relative;height:auto !important;min-height:0 !important}
+.modal-box.quick-sheet .sheet-head{position:absolute;top:12px;right:12px;z-index:5;padding:0;margin:0;border:0;min-height:0;background:none;box-shadow:none}
+.modal-box.quick-sheet .sheet-body > .panel > h3:first-child, .modal-box.quick-sheet .gl-loadout > :first-child{padding-right:48px;min-height:36px}
+.modal-box.quick-sheet .sheet-body > .panel, .modal-box.quick-sheet .sheet-body > div > .panel{border:0;background:none;box-shadow:none;padding-left:4px;padding-right:4px}
+.modal-box.quick-sheet .sheet-body > .panel{padding-top:0;margin-top:0}
+.modal-box.quick-sheet .sheet-body > .panel > h3:first-child{margin-top:0}
+.modal-box.quick-sheet .gl-layout > *{border:0 !important;background:none !important;box-shadow:none !important;border-radius:0 !important;padding-left:4px;padding-right:4px}
+.modal-box.quick-sheet .gl-layout > * + *{border-top:1px solid var(--line,#2a3546) !important}
+.modal-box.quick-sheet .sheet-head .icon-btn{width:36px;height:36px;min-height:0}`;
     document.head.appendChild(st);
   }
   const base = UI.hudCard;
   UI.hudCard = function (...a) {
     const html = base.apply(this, a);
-    return html + `<div class="hud-quick">${QUICK.map(([k, n, svg]) => `<button type="button" data-act="sheet" data-v="${k}" aria-label="${n}" title="${n}">${svg}</button>`).join('')}<button type="button" data-act="hud-menu" aria-label="메뉴" title="메뉴">${ic('<path d="M4 6h16M4 12h16M4 18h16"/>')}</button></div>`;
+    return html + `<div class="hud-quick">${QUICK.map(([k, n, svg]) => `<button type="button" data-act="quick-sheet" data-v="${k}" aria-label="${n}" title="${n}">${svg}</button>`).join('')}<button type="button" data-act="hud-menu" aria-label="메뉴" title="메뉴">${ic('<path d="M4 6h16M4 12h16M4 18h16"/>')}</button></div>`;
+  };
+}
+
+// 빠른 단추로 연 창은 위쪽 탭 줄 없이 그 화면만 보인다 (사용자 요청). 창을 닫거나 메뉴에서 열면 원래대로.
+if (typeof UI !== 'undefined') {
+  const baseModal = UI.modal;
+  UI.modal = function (html, cls = '', ...a) {
+    const r = baseModal.call(this, html, cls, ...a);
+    try { const box = document.querySelector('.modal-box'); if (box) box.classList.toggle('quick-sheet', !!this._quickSheet && String(cls).includes('sheet')); } catch (e) { /* 무시 */ }
+    return r;
+  };
+  const baseClose = UI.closeModal;
+  UI.closeModal = function (...a) { this._quickSheet = false; return baseClose.apply(this, a); };
+  const baseH = UI.handle;
+  UI.handle = function (act, v) {
+    if (act === 'quick-sheet') { this._quickSheet = true; return baseH.call(this, 'sheet', v); }
+    if (act === 'hud-menu' || act === 'modal-close') this._quickSheet = false;
+    return baseH.call(this, act, v);
   };
 }
