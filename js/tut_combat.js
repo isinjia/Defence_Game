@@ -5,6 +5,13 @@
 // 3. 보스전에서 상성을 설명하므로, 보스를 플레이어 속성에 약한 속성으로 바꾼다.
 // 4. 보스에 '보스' 꼬리표(css/polish.css).
 // 5. 리더가 오더 대상을 이름으로 콕 집고, 오더를 따르면/안 따르면 어떻게 되는지 안내.
+// 안내 말풍선에 설명 한 줄 더하기. 이미 '조작' 줄(.coach-sys)이 있으면 그 안에 넣는다.
+// (말풍선을 문장 단위로 보여 주는 js/tut_pause.js 는 .coach-sys 를 하나만 떼어 맨 끝에 붙이므로, 둘로 나누면 한 줄이 본문에 섞여 두 번 보였다)
+function tutAddSys(h, text) {
+  if (!h) return h;
+  if (/coach-sys/.test(h) && /<\/div><\/div><\/div>$/.test(h)) return h.replace(/<\/div><\/div><\/div>$/, `<div class="coach-ord">${text}</div></div></div></div>`);
+  return h.replace(/<\/div><\/div>$/, `<div class="small coach-sys coach-ord">${text}</div></div></div>`);
+}
 {
   const exam = () => { const c = typeof UI !== 'undefined' ? UI.ctx : null; return c && c.kind === 'exam' && c.tutorial ? c : null; };
 
@@ -158,7 +165,7 @@
         if (k === 'obey') add = '오더를 따랐습니다 · 전투가 끝나면 리더와의 관계가 오릅니다.';
         else if (k === 'ignore') add = strict(L) ? '오더를 따르지 않았습니다 · 깐깐한 리더라 전투가 끝나면 관계가 떨어집니다.' : '오더를 따르지 않았습니다 · 이번 리더는 너그러워 관계는 그대로입니다. 깐깐한 리더(냉정·호전·정의)는 관계가 떨어집니다.';
       }
-      if (add) h = h.replace(/<\/div><\/div>$/, `<div class="small coach-sys coach-ord">${add}</div></div></div>`);
+      if (add) h = tutAddSys(h, add);
     } catch (e) { /* 무시 */ }
     return h;
   };
@@ -317,7 +324,7 @@
     } catch (e) { /* 무시 */ }
     let h = baseCoach2.apply(this, a);
     try {
-      if (h && c && c.tutorial.key === 'gauge') h = h.replace(/<\/div><\/div>$/, `<div class="small coach-sys coach-ord">${SYS.why}</div></div></div>`);
+      if (h && c && c.tutorial.key === 'gauge') h = tutAddSys(h, SYS.why);
       if (h && c && c.tutorial.leadDone && c.tutorial.key === 'tools') h = ''; // 배속·자동은 지휘 연습 끝 안내에 넣었다
     } catch (e) { /* 무시 */ }
     return h;
