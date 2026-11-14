@@ -37,7 +37,7 @@ class MapView {
     this.w = r.width; this.hgt = r.height;
     this.cv.width = r.width * this.dpr; this.cv.height = r.height * this.dpr;
     this.cv.style.width = r.width + 'px'; this.cv.style.height = r.height + 'px';
-    if (this.w < 600 && this.tile > 40) this.tile = 38;
+    if (this.w < 600 && this.tile > 44) this.tile = 44; // [평가 34] 좁은 화면 기본 배율을 38→44로: 밝혀진 땅과 표식이 너무 작았다
   }
 
   // 타일 좌표 <-> 화면 좌표
@@ -169,36 +169,35 @@ class MapView {
     for (let x = Math.max(0, x0); x <= Math.min(WORLD.COLS, x1 + 1); x++) { const [px] = this.toScreen(x, 0); c.moveTo(px + 0.5, 0); c.lineTo(px + 0.5, this.hgt); }
     for (let y = Math.max(0, y0); y <= Math.min(WORLD.ROWS, y1 + 1); y++) { const [, py] = this.toScreen(0, y); c.moveTo(0, py + 0.5); c.lineTo(this.w, py + 0.5); }
     c.stroke();
-    // 이동 가능 범위
+    // 도달 가능한 목적지의 경로 (거리·스탯에 따른 선택 제한 없음)
     const rd = this.reachData;
     if (rd && !this.moving && !UI.ctx) {
-      const pulse = 0.08 + Math.sin(t / 20) * 0.025;
-      for (const [i] of rd.dist) {
-        if (i === rd.start) continue;
-        const [x, y] = WORLD.xy(i); const [px, py] = this.toScreen(x, y);
-        if (px < -s || py < -s || px > this.w || py > this.hgt) continue;
-        c.fillStyle = `rgba(150,240,230,${pulse})`; c.fillRect(px + 1, py + 1, s - 2, s - 2);
-      }
-      // 범위 외곽선
-      c.strokeStyle = 'rgba(150,240,230,.55)'; c.lineWidth = 1.5; c.beginPath();
-      for (const [i] of rd.dist) {
-        const [x, y] = WORLD.xy(i); const [px, py] = this.toScreen(x, y);
-        const has = (dx, dy) => WORLD.inb(x + dx, y + dy) && rd.dist.has(WORLD.idx(x + dx, y + dy));
-        if (!has(0, -1)) { c.moveTo(px, py); c.lineTo(px + s, py); }
-        if (!has(0, 1)) { c.moveTo(px, py + s); c.lineTo(px + s, py + s); }
-        if (!has(-1, 0)) { c.moveTo(px, py); c.lineTo(px, py + s); }
-        if (!has(1, 0)) { c.moveTo(px + s, py); c.lineTo(px + s, py + s); }
-      }
-      c.stroke();
       // 마우스를 올린 경로
-      if (this.hover >= 0 && rd.dist.has(this.hover) && this.hover !== rd.start) {
-        const path = WORLD.pathTo(rd, this.hover);
+      // 고른 칸(이동 확정 대기)이 있으면 그 경로, 없으면 마우스를 올린 경로
+      const sel = UI._moveSel && WORLD.inb(UI._moveSel[0], UI._moveSel[1]) ? WORLD.idx(UI._moveSel[0], UI._moveSel[1]) : -1;
+      const tgt = sel >= 0 && rd.dist.has(sel) ? sel : this.hover;
+      if (tgt >= 0 && rd.dist.has(tgt) && tgt !== rd.start) {
+        const path = WORLD.pathTo(rd, tgt);
+        const pts = path.map((i) => { const [x, y] = WORLD.xy(i); return this.toScreen(x + 0.5, y + 0.5); });
         c.strokeStyle = '#ffb547'; c.lineWidth = 3; c.setLineDash([6, 5]); c.beginPath();
-        path.forEach((i, k) => { const [x, y] = WORLD.xy(i); const [px, py] = this.toScreen(x + 0.5, y + 0.5); k ? c.lineTo(px, py) : c.moveTo(px, py); });
+        pts.forEach(([px, py], k) => (k ? c.lineTo(px, py) : c.moveTo(px, py)));
         c.stroke(); c.setLineDash([]);
-        const [hx, hy] = WORLD.xy(this.hover); const [px, py] = this.toScreen(hx, hy);
-        const days = WORLD.daysFor(rd.dist.get(this.hover));
-        this.chip(px + s / 2, py - 6, `${days}일`, '#ffb547', '#1a1205');
+        // 끝 화살촉
+        if (pts.length >= 2) {
+          const [ax, ay] = pts[pts.length - 2], [bx, by] = pts[pts.length - 1], an = Math.atan2(by - ay, bx - ax), L = Math.max(8, s * 0.32);
+          c.fillStyle = '#ffb547'; c.beginPath(); c.moveTo(bx, by); c.lineTo(bx - L * Math.cos(an - 0.45), by - L * Math.sin(an - 0.45)); c.lineTo(bx - L * Math.cos(an + 0.45), by - L * Math.sin(an + 0.45)); c.closePath(); c.fill();
+        }
+        // 하루가 차는 칸마다 'N일' (사용자 요청: 화살표 위에 하루 단위로)
+        let acc = G.player ? (G.player.dayFrac || 0) : 0, day = 0;
+        const total = WORLD.formatTravelTime(G.travelPathDays(path.slice(1)));
+        for (let k = 1; k < path.length; k++) {
+          const [x, y] = WORLD.xy(path[k]), [x0, y0] = WORLD.xy(path[k - 1]);
+          acc += G.travelStepDays(x, y, x !== x0 && y !== y0);
+          const d = Math.floor(acc + 1e-9);
+          if (d > day && k < path.length - 1) { day = d; const [px, py] = pts[k]; c.font = `700 ${s > 34 ? 12 : 10}px "IBM Plex Sans KR", sans-serif`; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.lineWidth = 3; c.strokeStyle = 'rgba(8,12,18,.85)'; c.strokeText(`${day}일`, px, py - s * 0.18); c.fillStyle = '#ffe2a8'; c.fillText(`${day}일`, px, py - s * 0.18); }
+        }
+        const [hx, hy] = WORLD.xy(tgt); const [px, py] = this.toScreen(hx, hy);
+        this.chip(px + s / 2, py - 6, `${total}`, '#ffb547', '#1a1205');
       }
     }
     // 남은 경로
@@ -346,9 +345,10 @@ class MapView {
     }
     // 게이트
     for (const g of G.gatesShown()) {
-      c.globalAlpha = vis(g.x, g.y) ? 1 : 0.42; // 시야 밖은 기억 속 모습(흐리게)
       const [px, py] = this.toScreen(g.x + 0.5, g.y + 0.5);
       if (px < -s * 2 || py < -s * 2 || px > this.w + s * 2 || py > this.hgt + s * 2) continue;
+      // 화면 밖 게이트는 상태를 바꾸기 전에 건너뛴다. 뒤에 그리는 NPC·플레이어에 투명도가 새지 않게 한다.
+      c.globalAlpha = vis(g.x, g.y) ? 1 : 0.42; // 시야 밖은 기억 속 모습(흐리게)
       const col = g.final || g.variant === 'red' ? '#ff4f6a' : RANKS[g.tier].color;
       const sc = g.final ? 1.6 : 1;
       const glow = c.createRadialGradient(px, py, 1, px, py, s * 0.8 * sc);
@@ -403,6 +403,8 @@ class MapView {
     c.beginPath(); c.arc(px, py, R + 4 + pulse * 6, 0, Math.PI * 2); c.stroke();
     c.fillStyle = 'rgba(0,0,0,.5)'; c.beginPath(); c.ellipse(px, py + R * 0.95, R * 0.9, R * 0.25, 0, 0, Math.PI * 2); c.fill();
     c.save(); c.beginPath(); c.arc(px, py, R, 0, Math.PI * 2); c.clip();
+    // 원 안 배경: 초상이 투명 배경이라 지도가 비치지 않게 깐다 (사용자 요청)
+    { const g = c.createRadialGradient(px, py - R * 0.3, R * 0.1, px, py, R); g.addColorStop(0, '#3a4a5e'); g.addColorStop(1, '#141c28'); c.fillStyle = g; c.fillRect(px - R, py - R, R * 2, R * 2); }
     if (this.imgs.player && this.imgs.player.complete) c.drawImage(this.imgs.player, px - R, py - R, R * 2, R * 2);
     else { c.fillStyle = '#46e0d0'; c.fill(); }
     c.restore();

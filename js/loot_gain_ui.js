@@ -75,7 +75,7 @@
     const other = parsed.stats.filter((s) => s.key !== 'money' && s.key !== 'ether' && s.key !== 'fame');
     const top = (money || ether || fame)
       ? `<div class="ss-top lg-top">
-          <div class="ss-main"><span class="ss-lab">획득</span>${money ? `<b class="ss-money"><span>${money.v >= 0 ? '+' : ''}${fmt(Math.abs(money.v))}</span><small> 크레딧</small></b>` : `<b class="ss-money" style="font-size:22px">전리품</b>`}</div>
+          <div class="ss-main"><span class="ss-lab">획득</span>${money ? `<b class="ss-money"><span>${money.v >= 0 ? '+' : ''}${fmt(Math.abs(money.v))}</span><small> 크레딧</small></b>` : `<b class="ss-money" style="font-size:22px">결과</b>`}</div>
           <div class="ss-side">${ether ? `<div><span class="ss-lab">에테르</span><b class="ether">+${fmt(ether.v)}</b></div>` : ''}${fame ? `<div><span class="ss-lab">명성</span><b class="amber">${fame > 0 ? '+' : ''}${fame}</b></div>` : ''}</div>
         </div>`
       : '';

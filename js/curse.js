@@ -12,7 +12,7 @@ const CURSE_MODS = { luck: -0.2, social: -0.15, life: -3 };
 const LIMIT_TAINT = 20;
 const stripTags = (s) => String(s || '').replace(/<[^>]+>/g, '');
 
-FACILITIES.push({ id: 'clinic', name: '감정·치료소', desc: '미감정 물건 감정, 저주 해제, 에테르 오염 정화, 상처 치료.' });
+FACILITIES.push({ id: 'clinic', name: '감정·치료소', desc: '미감정 물건 감정, 저주 해제, 상처 치료.' });
 FAC_ICON.clinic = '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M11 8v6M8 11h6"/>';
 
 Object.assign(Game.prototype, {
@@ -22,7 +22,8 @@ Object.assign(Game.prototype, {
   },
   // ---------- 오염 ----------
   addTaint(v, why) {
-    const p = this.player; if (!p || !v) return;
+    // 에테르 오염은 사용자 결정으로 뺐다. 호출부가 남아 있어도 아무 일도 하지 않는다.
+    const p = this.player; if (!p || !v || true) return;
     const before = p.taint;
     p.taint = Math.max(0, Math.min(100, p.taint + v));
     if (v > 0 && before + v > 100) {
@@ -32,7 +33,7 @@ Object.assign(Game.prototype, {
     if (Math.floor(before / 10) !== Math.floor(p.taint / 10)) this.recalc();
   },
   taintLabel() { const t = this.player.taint || 0; return t >= 80 ? '임계' : t >= 60 ? '위험' : t >= 30 ? '짙음' : t > 0 ? '옅음' : '맑음'; },
-  taintMod(key) { return key === 'atk' ? Math.floor((this.player.taint || 0) / 10) * 0.012 : 0; },
+  taintMod() { return 0; },
   purifyCost() { return Math.round(400 * RANKS[this.player.rankIdx].mult); },
   purify() {
     const p = this.player; if (!this.onCity()) return '';
@@ -135,13 +136,8 @@ Object.assign(Game.prototype, {
         if (i >= 0) lines[i] = lines[i].replace(it.name, this.unidLabel(p.unid[p.unid.length - 1]));
       }
     }
-    if ((p.record.red || 0) > red) { this.addTaint(15, '레드 게이트'); lines.push('<span class="bad">레드 게이트의 탁한 에테르가 몸에 스몄다. (오염 +15)</span>'); }
     return lines;
   });
-  // 휴식·숙박·한 달 흐름으로 오염이 빠진다
-  wrap('rest', function (base) { const r = base.call(this); this.addTaint(-15); return r; });
-  wrap('stayInn', function (base) { const r = base.call(this); if (typeof r === 'string' && r.includes('부족')) return r; this.addTaint(-6); return r; });
-  wrap('worldMonthly', function (base) { base.call(this); this.addTaint(-4); });
   // 저주받은 장비는 벗을 수 없다
   wrap('equipItem', function (base, uid) {
     const p = this.player; const it = p.inventory.find((e) => e.uid === uid);
@@ -155,13 +151,12 @@ Object.assign(Game.prototype, {
   const CP = Combat.prototype;
   const baseUse = CP.useSkill;
   CP.useSkill = function (u, skill, target) {
-    if (u.isPlayer && skill && skill.id !== 'strike' && this.game.player && (skill.power >= 2 || skill.awakened)) this.taintGain = (this.taintGain || 0) + 1;
     return baseUse.call(this, u, skill, target);
   };
   const baseTurn = CP.takeTurn;
   CP.takeTurn = function (u) {
     const gp = this.game.player;
-    if (u.isPlayer && gp && (gp.taint || 0) >= 60 && !this.result && u.stun <= 0 && Math.random() < (gp.taint - 50) / 400) {
+    if (false && u.isPlayer && gp && (gp.taint || 0) >= 60 && !this.result && u.stun <= 0 && Math.random() < (gp.taint - 50) / 400) {
       this.actions++; this.active = u;
       const pool = this.units.filter((x) => x.alive && x !== u);
       const t = pool[Math.floor(Math.random() * pool.length)];
@@ -178,7 +173,6 @@ Object.assign(Game.prototype, {
     u.buffs.atk = Math.max(u.buffs.atk, 0.8); u.buffs.atkT = Math.max(u.buffs.atkT, 2);
     u.atb = 0;
     const heal = Math.round(u.maxHp * 0.15); u.hp = Math.min(u.maxHp, u.hp + heal);
-    this.taintGain = (this.taintGain || 0) + LIMIT_TAINT;
     this.push(`${u.name}: 한계 돌파! 혈관에 검은 에테르가 치솟는다.`, 'heal', { k: 'buff', dst: u.id, mp: u.mp });
     return true;
   };
@@ -192,17 +186,7 @@ Object.assign(Game.prototype, {
     const base = UI[fn]; if (!base) continue;
     UI[fn] = function (...a) { flushTaint(this.ctx && this.ctx.combat); return base.apply(this, a); };
   }
-  // 한계 돌파 버튼
-  const baseCtrl = UI.renderControls;
-  UI.renderControls = function () {
-    baseCtrl.call(this);
-    const c = this.ctx; if (!c || !c.combat) return;
-    const cb = c.combat; const row = document.querySelector('#cb-ctrl .ctrl-row'); if (!row || cb.result) return;
-    const ready = cb.waiting && !c.playing && !cb.auto;
-    const low = cb.player.hp <= cb.player.maxHp * 0.5 || cb.limitUsed;
-    if (!low && !cb.limitUsed) return;
-    row.insertAdjacentHTML('afterbegin', `<button class="sm danger" data-act="c-limit" ${!ready || cb.limitUsed ? 'disabled' : ''} title="오염 +${LIMIT_TAINT}, 공격 +80% 2턴, 체력 15% 회복">${cb.limitUsed ? '한계 돌파 사용함' : `한계 돌파 · 오염 +${LIMIT_TAINT}`}</button>`);
-  };
+  // 한계 돌파 버튼은 사용자 결정으로 뺐다 (필살 게이지 js/limit_gauge.js 와 역할이 겹침)
   // 시설: 감정·치료소
   const baseFac = UI.facilityHtml;
   UI.facilityHtml = function (id, reg) {
@@ -214,8 +198,6 @@ Object.assign(Game.prototype, {
     return `<div class="cards">
       <div class="sec-title">감정 · 미감정 ${p.unid.length}점</div>
       ${p.unid.map((u) => `<div class="item-row"><div class="grow"><b>${G.unidLabel(u)}</b> <span class="small dim">정체를 알 수 없다. 저주받았을 수도 있다.</span></div><button class="sm" data-act="appraise" data-v="${u.uid}">${price(G.appraiseCost(u))}</button></div>`).join('') || '<div class="small dim">감정할 물건이 없다. 보스와 숨은 구역에서 미감정 물건이 나온다.</div>'}
-      <div class="sec-title sec">에테르 오염 · <span class="${p.taint >= 60 ? 'bad' : p.taint >= 30 ? 'amber' : ''}">${G.taintLabel()} ${Math.round(p.taint)}</span></div>
-      <div class="item-row"><div class="grow small dim">오염이 짙을수록 공격이 오르지만, 60을 넘으면 전투 중 폭주하고 100을 넘으면 수명이 깎인다.</div><button class="sm" data-act="purify" ${p.taint > 0 ? '' : 'disabled'}>정화 −40 · ${price(G.purifyCost())}</button></div>
       ${p.curses.length || cursedEq.length ? '<div class="sec-title sec bad">저주 해제</div>' : ''}
       ${p.curses.map((c) => `<div class="item-row"><div class="grow"><b class="bad">${relicById(c.id).name}</b> <span class="small dim">${MOD_NAME[c.stat] || c.stat} +${c.stat === 'life' ? Math.round(c.val) + '년' : Math.round(c.val * 100) + '%'} · 운 −20%, 친화 −15%, 수명 −3년</span></div><button class="sm danger" data-act="uncurse" data-v="${c.uid}">해제 ${price(G.uncurseCost('relic'))}</button></div>`).join('')}
       ${cursedEq.map((e) => `<div class="item-row"><div class="grow"><b class="bad">${e.name}</b> <span class="small dim">벗을 수 없음 · 운·친화·회복 감소</span></div><button class="sm danger" data-act="uncurse" data-v="${e.uid}">해제 ${price(G.uncurseCost('equip'))}</button></div>`).join('')}
@@ -227,11 +209,8 @@ Object.assign(Game.prototype, {
   UI.charHtml = function () {
     const html = baseChar.call(this);
     const p = G.player;
-    const t = Math.round(p.taint || 0);
-    const box = `<div class="sec"><div class="sec-title">에테르 오염 · <span class="${t >= 60 ? 'bad' : t >= 30 ? 'amber' : ''}">${G.taintLabel()} ${t}</span></div>
-      <div style="height:6px;border-radius:3px;background:#333;overflow:hidden"><span style="display:block;height:100%;width:${t}%;background:${t >= 60 ? '#c0504d' : t >= 30 ? '#d9a441' : '#6c8'}"></span></div>
-      <div class="small dim">공격 +${Math.round(G.taintMod('atk') * 100)}%${t >= 60 ? ' · 전투 중 폭주 위험' : ''}. 휴식·숙박·감정·치료소 정화로 낮춘다.${p.unid.length ? ` 미감정 물건 ${p.unid.length}점.` : ''}</div>
-      ${p.curses.length ? `<div class="small bad">저주: ${p.curses.map((c) => relicById(c.id).name).join(', ')}</div>` : ''}</div>`;
+    if (!p.curses.length) return html;
+    const box = `<div class="small bad">저주: ${p.curses.map((c) => relicById(c.id).name).join(', ')}</div>`;
     const at = html.indexOf('<div class="sec"><div class="sec-title">선천 특성</div>');
     return at < 0 ? html + box : html.slice(0, at) + box + html.slice(at);
   };

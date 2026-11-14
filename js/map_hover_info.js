@@ -36,7 +36,7 @@
     else if (!G.canJeju() && reg && reg.id === 'jeju') bits.push('관리국 공인 S급만');
     const map = this.map;
     if (map && map.reachData && map.reachData.dist.has(WORLD.idx(x, y)) && WORLD.idx(x, y) !== map.reachData.start) {
-      bits.push(`이동 ${WORLD.daysFor(map.reachData.dist.get(WORLD.idx(x, y)))}일`);
+      bits.push(`이동 ${WORLD.formatTravelTime(G.travelPathDays(WORLD.pathTo(map.reachData, WORLD.idx(x,y)).slice(1)))}`);
     }
     let body = '';
     if (!known) body = '<div class="small dim">신호가 닿지 않는다. 가까이 가면 드러난다.</div>';

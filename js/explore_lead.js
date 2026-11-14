@@ -1,0 +1,69 @@
+// 탐색(게이트 입장 후 길 선택 화면) — 리더가 고른 길과 이동을 눈에 보이게 (영역 F·B, 사용자 요청)
+// 1. 리더가 고른 칸: 목적지 카드와 경로 지도 칸에 리더 얼굴을 크게 붙이고 "○○(리더)의 선택"이라고 쓴다.
+//    (전에는 카드 왼쪽 위의 작은 "✓ 선택한 경로" 글자뿐이라 내가 고른 것인지 리더가 고른 것인지 알 수 없었다)
+// 2. 모바일 이동: 좁은 화면에서는 경로 지도가 "전체 경로 보기" 안에 숨어 있어, 표식이 움직이는 1초 동안 빈 화면만 기다렸다.
+//    이동하는 동안에는 경로 지도를 저절로 펼쳐 표식이 움직이는 것을 보여 준다.
+{
+  const MOBILE = () => window.innerWidth < 1100;
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const face = (L, size) => { try { return (UI.npcBust && UI.npcBust(L, size)) || UI.npcAvatar(L, size); } catch (e) { return ''; } };
+
+  // 지금 리더가 고른 칸과 그 리더
+  const leadInfo = () => {
+    const root = document.querySelector('#modal-box .exploration-layout'); if (!root) return null;
+    if (UI.exam && UI.exam.map) {
+      // 시험: 길은 늘 리더가 정한다. 화면에서 선택된 카드가 리더의 선택이다
+      const L = UI.examLeader && UI.examLeader(); if (!L) return null;
+      const sel = root.querySelector('.xr-card.selected'); return sel ? { key: sel.dataset.v, L } : null;
+    }
+    const c = UI.ctx; const cn = c && c.council;
+    if (cn && cn.leader != null && cn.key) { const L = G.npcById(cn.leader); return L ? { key: cn.key, L } : null; }
+    return null;
+  };
+
+  // 카드·지도 칸에 리더 얼굴 붙이기 (이미 붙어 있으면 그대로)
+  const mark = () => {
+    const root = document.querySelector('#modal-box .exploration-layout'); if (!root) return;
+    const info = leadInfo(); const want = info ? info.key + '@' + info.L.id : '';
+    if (root.dataset.leadMark === want) return;
+    root.dataset.leadMark = want;
+    root.querySelectorAll('.xr-lead-badge, .xr-lead-node').forEach((e) => e.remove());
+    root.querySelectorAll('.xr-card.xr-leadpick').forEach((e) => e.classList.remove('xr-leadpick'));
+    root.querySelectorAll('.gnode.xr-leadnode').forEach((e) => e.classList.remove('xr-leadnode'));
+    if (!info) return;
+    const { key, L } = info;
+    const card = root.querySelector(`.xr-card[data-v="${key}"]`);
+    if (card) {
+      card.classList.add('xr-leadpick');
+      card.insertAdjacentHTML('beforeend', `<span class="xr-lead-badge" aria-label="${esc(L.name)}(리더)의 선택"><span class="xr-lead-face">${face(L, 144)}</span><span class="xr-lead-tag">리더 선택</span><span class="xr-lead-name">${esc(L.name)}</span></span>`);
+    }
+    const node = root.querySelector(`.gnode[data-xr-key="${key}"]`);
+    if (node) { node.classList.add('xr-leadnode'); node.insertAdjacentHTML('beforeend', `<span class="xr-lead-node" aria-hidden="true">${face(L, 96)}</span>`); }
+  };
+
+  const after = (name) => { const base = UI[name]; if (!base) return; UI[name] = function (...a) { const r = base.apply(this, a); try { mark(); } catch (e) { /* 무시 */ } return r; }; };
+  ['renderGateMap', 'renderExamMap', 'renderCouncil', 'councilPanel'].forEach(after);
+  const baseHandle = UI.handle;
+  UI.handle = function (act, v) { const r = baseHandle.call(this, act, v); try { mark(); } catch (e) { /* 무시 */ } return r; };
+  // 상의 창이 나중에 열리거나(대화 뒤) 카드가 다시 그려지는 경우를 위해 가볍게 다시 본다
+  setInterval(() => { try { if (document.querySelector('#modal-box .exploration-layout')) mark(); } catch (e) { /* 무시 */ } }, 300);
+
+  // 이동하는 동안 모바일에서 경로 지도를 펼쳐 표식이 움직이는 것을 보여 준다
+  const baseMove = UI.examMove;
+  if (baseMove) UI.examMove = function (...a) {
+    const r = baseMove.apply(this, a);
+    try {
+      const root = document.querySelector('#modal-box .exploration-layout');
+      if (root && MOBILE()) {
+        root.classList.add('xr-overview', 'xr-moving');
+        const tk = root.querySelector('#gtoken'); const sc = root.querySelector('.xr-map-scroll');
+        if (tk && sc) {
+          // 표식이 지도 가운데쯤 오게 미리 스크롤(움직이는 동안 따라간다)
+          const follow = () => { if (!tk.isConnected) return; const t = tk.offsetTop - sc.clientHeight / 2; sc.scrollTop = Math.max(0, t); };
+          follow(); const id = setInterval(follow, 60); setTimeout(() => clearInterval(id), 1100);
+        }
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+}

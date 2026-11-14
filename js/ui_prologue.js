@@ -29,7 +29,7 @@ Object.assign(UI, {
   // ---------- 이야기 준비: 이름, 성별 ----------
   renderStorySetup() {
     const s = this.pro;
-    $app.innerHTML = `<div class="create story-setup">
+    $app.innerHTML = `<div class="create">
       <div class="create-head"><div class="eyebrow">각성 전야</div><h2>당신은 누구입니까</h2></div>
       <div class="create-grid">
         <div class="panel id-preview">${FX.portrait(s.look, s.gender, null, 0, 240, { age: 19, outfit: 'underwear', ...Wardrobe.appearance(s) })}<button class="ghost full" data-act="ps-look">외형 바꾸기</button></div>
@@ -51,12 +51,25 @@ Object.assign(UI, {
   proLeadElem() { const e = this.pro.sc.e; let best = null, bv = 0; for (const k of ELEMENT_KEYS) if ((e[k] || 0) > bv) { bv = e[k]; best = k; } return best; },
   // {name} {friend} {friendJob} 치환과 앞 선택 기억 {?플래그:있을 때|없을 때} / {?!플래그:없을 때|있을 때}
   proFill(t) { return fixJosa(proText(String(t), this.pro.flags || {}).replace(/\{name\}/g, this.pro.name).replace(/\{friend\}/g, this.pro.friend.name).replace(/\{friendJob\}/g, this.pro.friend.job || '')); },
-  // 프롤로그 본문: 기존 줄바꿈은 문단으로, 마침표·물음표·느낌표 뒤는 문장마다 줄바꿈 (사용자 요청)
+  // 프롤로그 본문: 기존 줄바꿈은 문단으로, 문장마다 줄바꿈하되 짧은 문장은 다음 문장과 잇는다 (사용자 요청)
   proTextHtml(raw) {
     const t = this.proFill(raw);
     return String(t).split(/\n+/).map((para) => {
       const p = para.trim(); if (!p) return '';
-      const lines = p.replace(/([.!?…]+)(["」』'”]*)(?=\s+)/g, '$1$2\n').split(/\n+/).map((s) => s.trim()).filter(Boolean);
+      const sents = p.replace(/([.!?…]+)(["」』'”]*)(?=\s+)/g, '$1$2\n').split(/\n+/).map((s) => s.trim()).filter(Boolean);
+      // 짧은 문장은 줄을 바꾸지 않고 다음 문장과 잇는다. 효과음(콰직. 쾅!)과 대사("…")는 따로 한 줄 (사용자 요청)
+      const SHORT = 14, MAXLINE = 42;
+      const bare = (x) => x.replace(/[.!?…~"「」『』'“”\s]/g, '');
+      const isSfx = (x) => { const b = bare(x); return !/\s/.test(x.trim()) && !/\d/.test(b) && b.length >= 1 && b.length <= 4 && /^[가-힣]+$/.test(b) && !/(다|요|까|지|네|군|나|가|야|어|아|죠|래|해|게|걸|데|니|자|라|냐|오)$/.test(b); };
+      const isLine = (x) => /^["「『“']/.test(x);
+      const lines = []; let buf = '';
+      const flush = () => { if (buf) { lines.push(buf); buf = ''; } };
+      for (const x of sents) {
+        if (isSfx(x) || isLine(x)) { flush(); lines.push(x); continue; }
+        buf = buf ? buf + ' ' + x : x;
+        if (bare(x).length >= SHORT || buf.length >= MAXLINE) flush();
+      }
+      flush();
       return `<p>${lines.join('<br>')}</p>`;
     }).join('');
   },
@@ -183,12 +196,12 @@ Object.assign(UI, {
       case 'name-dice': {
         const inp = document.getElementById('in-name');
         const target = this.screen === 'story-setup' ? this.pro : this.create;
-        target.name = this.randomName(target.gender);
+        target.name = this.randomName(target.gender); target._diced = target.name;
         if (inp) inp.value = target.name;
         const n = document.querySelector('.id-name'); if (n) n.textContent = target.name;
         return;
       }
-      case 'ps-gender': this.pro.gender = v; return this.render();
+      case 'ps-gender': { const s = this.pro; s.gender = v; const inp = document.getElementById('in-name'); if (inp) s.name = inp.value; if (s._diced && s.name === s._diced) s.name = s._diced = this.randomName(v); return this.render(); }
       case 'ps-look': this.pro.look = PortraitParts.newLook(); return this.render();
       case 'ps-start': {
         const s = this.pro; s.name = (s.name || '').trim();

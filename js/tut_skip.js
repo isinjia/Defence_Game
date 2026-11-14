@@ -19,7 +19,7 @@
   window.addEventListener('pointerdown', (e) => {
     const b = e.target && e.target.closest && e.target.closest('#tut-skip'); if (!b) return;
     e.stopPropagation(); e.preventDefault();
-    if (!armed) { b.textContent = '한 번 더 누르면 건너뜁니다'; b.classList.add('armed'); armed = setTimeout(() => { armed = 0; const x = document.getElementById('tut-skip'); if (x) { x.textContent = '튜토리얼 건너뛰기'; x.classList.remove('armed'); } }, 3000); return; }
+    if (!armed) { b.textContent = '한 번 더 누르면 건너뜁니다'; b.classList.add('armed'); armed = setTimeout(() => { armed = 0; const x = document.getElementById('tut-skip'); if (x) { x.textContent = '튜토리얼 건너뛰기'; x.classList.remove('armed'); } }, 6000); return; }
     clearTimeout(armed); armed = 0; b.disabled = true; setTimeout(() => UI.tutSkipNow(), 80); // 손을 뗀 뒤에 넘어간다(뗄 때의 터치가 새 화면의 버튼에 닿지 않게)
   }, true);
   UI.tutSkipNow = function () {

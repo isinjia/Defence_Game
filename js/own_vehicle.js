@@ -2,15 +2,15 @@
 // 구현_대기목록 4-24 ③. 처음은 뚜벅이. 자전거 → 중고 오토바이 → 승용차 → 헌터용 SUV → 개인 헬기.
 // 가격·유지비·수리비·구매·판매·고장 처리는 영역 E의 js/transport_econ.js(OWN_VEHICLES, buyOwnVehicle …)가 맡는다.
 // 여기서는 탈것이 지도 이동에 주는 효과, 닳음·고장·도난·주차 파손 사건, 운전면허 시험, 차고 화면만 맡는다.
-// travel.js 대여(한 달·1회)는 그대로 두고 "사기 전에 빌려 보기" 역할. 대여와 겹치면 이동력은 큰 쪽만.
+// travel.js 대여(한 달·1회)는 그대로 두고 "사기 전에 빌려 보기" 역할. 대여와 소유 차량의 이동 시간은 world_travel_time.js에서 계산한다.
 // 저장: G.player.ownVehicle(E와 같은 필드), G.player.driveLicense (p.license 는 헌터 등록번호라 따로)
 
 const OWN_VEH_FX = {
-  bicycle: { range: 2, desc: '이동력 +2.' },
-  usedbike: { range: 5, desc: '이동력 +5.' },
-  car: { range: 3, road: 0.5, desc: '이동력 +3, 국도 위 이동 날 절반. 운전면허 필요.' },
-  suv: { range: 4, road: 0.5, mountain: 0.67, noAmbush: true, desc: '이동력 +4, 국도 날 절반, 산길 비용 감소, 괴수 기습 무시. C급 이상 장비 허가.' },
-  heli: { range: 14, fly: true, noAmbush: true, desc: '이동력 +14, 산도 평지처럼 넘고 괴수 기습을 받지 않는다. A급 이상 비행 허가.' },
+  bicycle: { desc: '기본 도보(SPD 10) 대비 1.5배 속도.' },
+  usedbike: { desc: '기본 도보(SPD 10) 대비 3배 속도.' },
+  car: { road: 0.5, desc: '기본 도보(SPD 10) 대비 이동 시간 절반, 국도 위에서는 추가 절반. 운전면허 필요.' },
+  suv: { road: 0.5, mountain: 0.67, noAmbush: true, desc: '기본 도보(SPD 10) 대비 이동 시간 절반, 국도 위에서는 추가 절반, 산길 비용 감소, 괴수 기습 무시. C급 이상 장비 허가.' },
+  heli: { fly: true, noAmbush: true, desc: '기본 도보(SPD 10) 대비 10배 속도로 이동, 산도 평지처럼 넘고 괴수 기습을 받지 않는다. A급 이상 비행 허가.' },
 };
 const ownVehFx = (id) => {
   const V = typeof ownVehicleById === 'function' ? ownVehicleById(id) : null;
@@ -58,15 +58,11 @@ Object.assign(Game.prototype, {
     if (V.fly) for (let i = 0; i < WORLD.T_COST.length; i++) if (WORLD.T_COST[i] > 1 && Number.isFinite(WORLD.T_COST[i])) WORLD.T_COST[i] = 1;
     if (V.mountain) WORLD.T_COST[T.MOUNTAIN] = Math.max(1, WORLD.T_COST[T.MOUNTAIN] * V.mountain);
   });
-  // 이동력: 대여와 소유 중 큰 쪽
-  wrap('moveRange', function (base) {
-    const r = base.call(this); const V = this.ownVehicle(); if (!V) return r;
-    const rv = this.player.vehicle && typeof vehicleById === 'function' && vehicleById(this.player.vehicle.id);
-    return r + Math.max(0, V.range - (rv ? rv.range : 0));
-  });
   wrap('walkStep', function (base, x, y, diag) {
     const p = this.player; const V = this.ownVehicle();
-    if (V && V.road && WORLD.isRoad(x, y)) p.dayFrac = (p.dayFrac || 0) - WORLD.stepCostAt(x, y) * (diag ? 1.4 : 1) * WORLD.DAYS_PER_COST * (1 - V.road);
+    // 안쪽 crew_time도 시간을 절반으로 줄인다. 같은 시간 기준에서 국도 보정을 빼야 0분이 되지 않는다.
+    const partyTime = typeof UI !== 'undefined' && UI.crewMarch?.ride === 'truck' ? .5 : 1;
+    if (V && V.road && WORLD.isRoad(x, y)) p.dayFrac = (p.dayFrac || 0) - WORLD.stepCostAt(x, y) * (diag ? 1.4 : 1) * WORLD.DAYS_PER_COST * partyTime * (1 - V.road);
     const res = base.call(this, x, y, diag);
     if (!V) return res;
     if (V.noAmbush) {

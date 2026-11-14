@@ -12,7 +12,8 @@ const BRANDS = {
   kama: { short: '관리국', name: '관리국 지급품', set: { 2: { atk: 0.04, def: 0.04 }, 3: { atk: 0.05, def: 0.05, hp: 0.05 } } },
 };
 const SUB_FAMS = ['shield', 'drone', 'dagger', 'gun'];
-const EXTRA_SLOTS = [{ slot: 'acc2', name: '장신구 2', rank: 4, of: 'acc' }, { slot: 'sub', name: '보조', rank: 5, of: 'weapon' }];
+// 장신구 2·3칸은 equip_slots.js에서 상시 개방. 여기선 A급 보조 칸만 등급으로 연다.
+const EXTRA_SLOTS = [{ slot: 'sub', name: '보조', rank: 5, of: 'weapon' }];
 const UNIQUES = [
   { id: 'u_blackflame', name: '1세대 S급의 흑염검', slot: 'weapon', fam: 'sword', elem: 'fire', mul: { atk: 1.25 }, mods: { atk: 0.06 }, lore: '대붕괴를 막다 사라진 검사의 검. 아직도 불꽃이 꺼지지 않는다.' },
   { id: 'u_gasmask', name: '대붕괴 첫날의 방독면', slot: 'acc', mul: { mp: 1.1 }, mods: { hp: 0.08, heal: 0.15 }, lore: '그날 살아남은 사람 중 하나가 쓰고 있던 것.' },
@@ -38,7 +39,7 @@ const UNIQUES = [
 const uniqById = (id) => UNIQUES.find((u) => u.id === id);
 
 Object.assign(Game.prototype, {
-  gear3Init() { const p = this.player; if (!p) return; p.equip.acc2 ??= null; p.equip.sub ??= null; p.uniqSeen ??= []; },
+  gear3Init() { const p = this.player; if (!p) return; p.equip.acc2 ??= null; p.equip.acc3 ??= null; p.equip.sub ??= null; p.uniqSeen ??= []; },
   slotOpen(slot) { const s = EXTRA_SLOTS.find((x) => x.slot === slot); return !s || this.player.rankIdx >= s.rank; },
   brandCount() { const c = {}; for (const e of Object.values(this.player.equip || {})) if (e && e.brand) c[e.brand] = (c[e.brand] || 0) + 1; return c; },
   brandMod(key) {
@@ -93,7 +94,8 @@ Object.assign(Game.prototype, {
     base.call(this);
     const p = this.player; if (!p || !p.equip) return;
     const inj = p.injured > 0 ? 0.8 : 1;
-    for (const [slot, f] of [['acc2', 1], ['sub', 0.5]]) {
+    // 보조 칸만 50%. 장신구 추가 칸은 equip_slots.js가 처리한다.
+    for (const [slot, f] of [['sub', 0.5]]) {
       const e = p.equip[slot]; if (!e) continue;
       p.maxHp += Math.round((e.hp || 0) * f); p.maxMp += Math.round((e.mp || 0) * f);
       p.atk += Math.round((e.atk || 0) * f * inj); p.def += Math.round((e.def || 0) * f * inj);
@@ -102,7 +104,7 @@ Object.assign(Game.prototype, {
   });
   wrap('unequip', function (base, slot) {
     const p = this.player;
-    if (slot === 'acc2' || slot === 'sub') { const e = p.equip[slot]; if (!e || e.cursed) return; p.inventory.push(e); p.equip[slot] = null; this.recalc(); return; }
+    if (slot === 'sub') { const e = p.equip[slot]; if (!e || e.cursed) return; p.inventory.push(e); p.equip[slot] = null; this.recalc(); return; }
     return base.call(this, slot);
   });
   // 브랜드: 새 장비 일부, 길드 본부 도시 마켓은 그 길드 브랜드
@@ -154,7 +156,6 @@ Object.assign(Game.prototype, {
     const p = G.player;
     if (it && p.inventory.includes(it)) {
       let add = '';
-      if (it.slot === 'acc' && G.slotOpen('acc2')) add += `<button class="sm ghost" data-act="equip-extra" data-v="${it.uid}|acc2">2번 칸</button>`;
       if (it.slot === 'weapon' && G.slotOpen('sub') && SUB_FAMS.includes(G.weaponFam ? G.weaponFam(it) : it.fam)) add += `<button class="sm ghost" data-act="equip-extra" data-v="${it.uid}|sub">보조</button>`;
       if (add && right) right = `<span class="row">${add}${right}</span>`;
     }

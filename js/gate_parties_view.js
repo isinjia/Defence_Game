@@ -98,7 +98,7 @@ Object.assign(UI, {
     const evs = G.gatePartiesStep(g, c.run) || [];
     const closed = evs.find((e) => e.type === 'closed');
     if (closed) {
-      return this.modal(`<div class="eyebrow">${c.run.floor + 1}층 · 경쟁</div><h3>한발 늦었다</h3><p class="event-text">${fixJosa(closed.text || '다른 파티가 먼저 보스를 쓰러뜨렸다.')}</p>
+      return this.modal(`<div class="eyebrow">${c.run.floor + 1}층 · 경쟁</div><h3>선점당했다</h3><p class="event-text">${fixJosa(closed.text || '다른 파티가 먼저 보스를 쓰러뜨렸다.')}</p>
         <ul class="ck-items loss"><li><span class="ck-sign">−</span>게이트가 닫힌다 · 보스 보상 없음</li></ul><ul class="ck-items gain"><li><span class="ck-sign">+</span>지금까지의 전리품은 챙겨 나간다</li></ul>
         <div class="row end"><button class="primary" data-act="gpv-closed">전리품을 챙겨 나간다</button></div>`, 'event-box ck-box');
     }

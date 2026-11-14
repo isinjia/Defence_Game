@@ -94,7 +94,7 @@ const UI = {
 
   helpHtml() {
     return `<h3>게임 안내</h3>
-      <p>귀곡팔황식 자유 성장 헌터 RPG입니다. 모든 행동은 시간을 소모하고, 세계는 당신과 무관하게 흘러갑니다.</p>
+      <p>자유롭게 성장하는 헌터 RPG입니다. 모든 행동은 시간을 소모하고, 세계는 당신과 무관하게 흘러갑니다.</p>
       <ul class="help">
         <li><b>각성 등급</b>: F → E → D → C → B → A → S → SS. 각 등급은 초기·중기·후기로 나뉩니다.</li>
         <li><b>에테르</b>: 수련·게이트·가르침으로 쌓고, 후기를 채우면 <b>돌파</b>를 시도합니다. 실패하면 내상을 입습니다.</li>
@@ -192,7 +192,7 @@ const UI = {
       if (this.map) this.map.destroy();
       $app.innerHTML = `
         <div class="world" id="world">
-          <canvas id="map-cv" aria-label="월드맵. 빛나는 칸을 눌러 이동합니다."></canvas>
+          <canvas id="map-cv" aria-label="월드맵. 목적지를 선택해 이동합니다."></canvas>
           <nav class="hud hud-tl" id="hud-tl"></nav>
           <aside class="hud hud-tr" id="hud-tr"></aside>
           <div class="hud hud-zoom">
@@ -268,7 +268,7 @@ const UI = {
     const req = stageReq(p.rankIdx, p.stage);
     const R = RANKS[p.rankIdx];
     const left = G.maxLife() - G.ageYears();
-    return `<div class="card-portrait" style="--rc:${R.color}">${this.playerAvatar(78)}<span class="card-rank" style="--c:${R.color}"><b>${R.key}</b></span></div>
+    return `<button type="button" class="card-portrait" data-act="sheet" data-v="char" aria-label="캐릭터 정보 열기" style="--rc:${R.color}">${this.playerAvatar(78)}<span class="card-rank" style="--c:${R.color}"><b>${R.key}</b></span></button>
       <div class="card-body">
         <div class="card-name"><b>${p.name}</b> <span class="small dim">${rankLabel(p.rankIdx, p.stage)} · ${className(p.cls, p.clsAdv)}</span> ${FX.elemIcon(p.element, 13)}</div>
         <div class="card-date num">${G.fullDate()} · <span class="${left <= 5 ? 'bad' : ''}">${G.ageYears()}세 / ${G.maxLife()}</span></div>
@@ -297,7 +297,7 @@ const UI = {
         <button data-act="rest">${FX.icon('rest')} 휴식 <span class="dim-in">1개월</span></button>
 
       </div>
-      <div class="act-hint small dim">빛나는 칸을 눌러 이동 · 평지 한 칸 ${WORLD.DAYS_PER_COST}일 · 국도 ${WORLD.DAYS_PER_COST * WORLD.ROAD_COST}일(대각선·산은 더) · 이동력 ${G.moveRange()}</div>`;
+      <div class="act-hint small dim">목적지를 선택해 이동 · 평지 한 칸 ${WORLD.formatTravelTime(G.travelCostDays(1))} · 국도 ${WORLD.formatTravelTime(G.travelCostDays(WORLD.ROAD_COST,true))}(대각선·산은 더)</div>`;
   },
 
   // NPC의 지도 위치 (매달 도시 근처에서 바뀜)
@@ -354,7 +354,7 @@ const UI = {
 
   // 한 칸씩 걸으며 시간이 흐르고, 길 위에서 일이 생기면 멈춘다
   walk(steps) {
-    const w = this.walking = { steps, i: 0, stop: false, days: 0 };
+    const w = this.walking = { steps, i: 0, stop: false, days: 0, elapsedDays: 0 };
     this.map.walkPath = steps.slice();
     const next = () => {
       if (this.walking !== w) return;
@@ -367,8 +367,10 @@ const UI = {
       this.map.tween(from, to, ms, () => {
         if (this.walking !== w) return;
         G._walkLast = w.i >= w.steps.length; // 이 칸이 목적지인가
+        const timeBefore = G.player.dayFrac || 0;
         let res; try { res = G.walkStep(to[0], to[1], diag); } finally { G._walkLast = undefined; }
         w.days += res.days;
+        w.elapsedDays += res.days + (G.player.dayFrac || 0) - timeBefore;
         let stop = res.stop;
         // 길에서 다른 각성자와 마주침
         if (!stop) {
@@ -392,7 +394,7 @@ const UI = {
     const p = G.player;
     G.save();
     this.renderGame();
-    if (w && w.days) this.toast(`${w.days}일 동안 걸었다.${w.i < w.steps.length && !G.over ? ' 걸음을 멈췄다.' : ''}`);
+    if (w && w.elapsedDays > 0) this.toast(`${WORLD.formatTravelTime(w.elapsedDays)} 이동했다.${w.i < w.steps.length && !G.over ? ' 걸음을 멈췄다.' : ''}`);
     if (G.over || G.queue.length) return this.processQueue();
     const obj = G.objAt(p.x, p.y);
     if (obj) return this.encounter(obj);
@@ -1064,7 +1066,7 @@ const UI = {
         return this.modal('<h3>타이틀로 돌아갈까요?</h3><p class="dim">진행 상황은 매달 자동 저장됩니다.</p><div class="row end"><button class="ghost" data-act="modal-close">취소</button><button class="primary" data-act="to-title">타이틀로</button></div>');
       case 'modal-close': this.closeModal(); return this.after();
       // 생성
-      case 'c-gender': c.gender = v; return this.render();
+      case 'c-gender': { c.gender = v; const inp = document.getElementById('in-name'); if (inp) c.name = inp.value; if (c._diced && c.name === c._diced) c.name = c._diced = this.randomName(v); return this.render(); }
       case 'c-bg': c.bg = v; return this.render();
       case 'c-elem': c.element = v; return this.render();
       case 'c-cls': c.cls = v; return this.render();

@@ -10,9 +10,9 @@ const BASE_DAYS_PER_COST = WORLD.DAYS_PER_COST;
 WORLD.daysFor = (cost) => Math.max(1, Math.round(cost * WORLD.DAYS_PER_COST));
 
 const VEHICLES = [
-  { id: 'bike', name: '오토바이', price: 250, desc: '한 달 동안 이동력 +11.', range: 11 },
-  { id: 'truck', name: '장갑차', price: 1200, desc: '한 달 동안 이동에 드는 날이 절반, 괴수 기습을 받지 않는다. 이동력 +7.', range: 7 },
-  { id: 'heli', name: '헬기 대절', price: 4000, desc: '다음 한 번의 이동만. 이동력 +40, 산도 평지처럼 건넌다. 길 위의 일도 피한다.', range: 40, once: true },
+  { id: 'bike', name: '오토바이', price: 250, desc: '한 달 동안 기본 도보(SPD 10) 대비 3배 속도.' },
+  { id: 'truck', name: '장갑차', price: 1200, desc: '한 달 동안 기본 도보(SPD 10) 대비 이동 시간이 절반, 괴수 기습을 받지 않는다.' },
+  { id: 'heli', name: '헬기 대절', price: 4000, desc: '다음 한 번의 이동만 기본 도보(SPD 10) 대비 10배 속도로. 산도 평지처럼 건넌다. 길 위의 일도 피한다.', once: true },
 ];
 const vehicleById = (id) => VEHICLES.find((v) => v.id === id);
 
@@ -145,8 +145,6 @@ Object.assign(Game.prototype, {
     }
   });
   wrap('trainGain', function (base, mult = 1) { return base.call(this, this.player && this.stormAt(this.player.region) && !this.onCity() ? mult * 1.6 : mult); });
-  // 지도가 넓어진 만큼 이동력도 늘린다 (기본 5~9칸 → 11~20칸)
-  wrap('moveRange', function (base) { const v = this.player.vehicle && vehicleById(this.player.vehicle.id); return Math.round(base.call(this) * WORLD.K) + (v ? v.range : 0); });
   wrap('walkStep', function (base, x, y, diag) {
     const res = base.call(this, x, y, diag);
     const v = this.player.vehicle;

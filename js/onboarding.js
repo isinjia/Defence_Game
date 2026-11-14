@@ -89,7 +89,7 @@ Object.assign(Game.prototype, {
   };
   const baseQueue = UI.processQueue;
   UI.processQueue = function () {
-    if (!this.modalOpen() && G.player && !G.over) { const before = G.queue.length; G.menuCheck(); if (G.queue.length > before && this.screen === 'game') document.getElementById('hud-tl') && (document.getElementById('hud-tl').innerHTML = this.hudMenu()); }
+    if (!this.modalOpen() && G.player && !G.over) { G.menuCheck(); } // 위쪽은 '메뉴' 단추 하나(hud_b.js)라 새 메뉴가 열려도 다시 그릴 것이 없다. 전에는 여기서 옛 아이콘 줄로 덮어써 단추가 21px로 찌그러졌다
     return baseQueue.call(this);
   };
 

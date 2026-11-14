@@ -319,7 +319,7 @@ Object.assign(Game.prototype, {
       if (RNG.chance(0.07)) { p.mats.herb = (p.mats.herb || 0) + 1; out.push('숲 속에서 싱싱한 약초를 발견했다.'); }
     }
     // 오염 지대: 드물게 오염이 스민다 (오염 시스템이 있을 때)
-    if (t === T.WASTE && RNG.chance(0.04) && typeof p.taint === 'number') {
+    if (false && t === T.WASTE && RNG.chance(0.04) && typeof p.taint === 'number') {
       p.taint = Math.min(100, (p.taint || 0) + 1);
       out.push('오염된 대기가 피부를 스쳤다. 오염이 조금 쌓였다.');
     }

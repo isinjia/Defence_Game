@@ -31,7 +31,9 @@ const ItemArt = (() => {
       const fam = it.fam || (typeof famOfName === 'function' ? famOfName(it.name || '') : null)
         || (G && typeof G.weaponFam === 'function' ? G.weaponFam(it) : null);
       if (fam && byKindKey['fam:' + fam]) return byKindKey['fam:' + fam];
-      const slot = it.slot === 'acc2' ? 'acc' : (it.slot === 'sub' ? null : it.slot);
+      const slot = (it.slot === 'acc2' || it.slot === 'acc3') ? 'acc'
+        : (it.slot === 'helm' || it.slot === 'gloves' || it.slot === 'boots' || it.slot === 'cloak') ? 'armor'
+        : (it.slot === 'sub' ? null : it.slot);
       if (slot === 'weapon') return byKindKey['fam:sword'] || null;
       if (slot && byKindKey['slot:' + slot]) return byKindKey['slot:' + slot];
       if (it.slot === 'sub') return byKindKey['fam:shield'] || null;
@@ -59,7 +61,8 @@ document.addEventListener('error', (ev) => {
     let ref = { kind: 'slot', key: 'acc' };
     if (slot === 'weapon' || slot === 'sub') ref = { kind: 'fam', key: slot === 'sub' ? 'shield' : 'sword' };
     else if (slot === 'armor') ref = { kind: 'slot', key: 'armor' };
-    else if (slot === 'acc' || slot === 'acc2') ref = { kind: 'slot', key: 'acc' };
+    else if (slot === 'acc' || slot === 'acc2' || slot === 'acc3') ref = { kind: 'slot', key: 'acc' };
+    else if (slot === 'helm' || slot === 'gloves' || slot === 'boots' || slot === 'cloak') ref = { kind: 'slot', key: 'armor' };
     const art = ItemArt.icon(ref, 34);
     if (art) return ItemArt.slotWrap(art, color);
     return baseSlot.call(this, slot, color);

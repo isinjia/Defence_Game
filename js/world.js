@@ -11,7 +11,7 @@ const WORLD = (() => {
   const T = { SEA: 0, PLAIN: 1, MOUNTAIN: 2, RUIN: 3, ETHER: 4, CITY: 5, BRIDGE: 6, NORTH: 7, FOREST: 8, FIELD: 9, WASTE: 10 };
   const T_NAME = ['바다', '황무지', '산악 지대', '폐허', '에테르 농축 지대', '도시', '해상 연결로', '북부 봉쇄 구역', '잔존 숲', '들판', '오염 지대'];
   const T_COST = [0, 1, 2, 1, 1, 1, 1, 0, 1.2, 1, 1.1];
-  const DAYS_PER_COST = 1; // 평지 1일, 산 2일, 국도 0.5일 (넓어진 거리는 이동력·시야로 맞춤)
+  const DAYS_PER_COST = 15 / 1440; // 약 2km 한 칸: 각성자 도보 평지 15분, 산 30분, 국도 7.5분
   const ROAD_COST = 0.5;
 
   const REGION_LL = {

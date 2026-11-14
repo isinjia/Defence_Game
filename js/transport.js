@@ -59,14 +59,15 @@ Object.assign(Game.prototype, {
   // 도착 예정: { text, days } — 그 사이 지나가는 월 정산·계약 분기 마감을 알려 준다
   etaInfo(days) {
     const p = this.player;
-    days = Math.max(0, Math.round(days));
+    const duration = Math.max(0, days);
+    days = Math.floor((p.dayFrac || 0) + duration + 1e-9);
     let d = this.day + days; let m = this.month; let y = this.year; let months = 0;
     while (d > 30) { d -= 30; m++; months++; if (m > 12) { m = 1; y++; } }
     const notes = [];
     if (months) notes.push(months > 1 ? `월 정산 ${months}번(월급·유지비)` : '월 정산(월급·유지비)');
     const c = p.contract;
     if (c && c.duty && c.qStart != null && this.monthKey() + months - c.qStart >= 3 && (c.qDone || 0) < c.duty) notes.push(`계약 분기 마감(의무 게이트 ${c.qDone || 0}/${c.duty})`);
-    const text = `도착 예정 ${y !== this.year ? `${y}년 ` : ''}${m}월 ${d}일 · ${days ? `${days}일 걸림` : '하루 안에'}${notes.length ? ` · 그 사이 ${notes.join(', ')} 지남` : ''}`;
+    const text = `도착 예정 ${y !== this.year ? `${y}년 ` : ''}${m}월 ${d}일 · ${WORLD.formatTravelTime(duration)} 걸림${notes.length ? ` · 그 사이 ${notes.join(', ')} 지남` : ''}`;
     return { text, days, months, warn: notes.length > 0 };
   },
   transportRide(key, mode) {
@@ -97,7 +98,7 @@ Object.assign(Game.prototype, {
         else { const l = Math.min(p.money, Math.round(p.money * 0.06)); p.money -= l; if (l) extra.push(`내리고 보니 지갑이 가벼웠다. 소매치기에게 ${fmt(l)} 크레딧을 털렸다.`); }
       }
     }
-    p.x = opt.st.x; p.y = opt.st.y; p.region = opt.st.region; p.dayFrac = 0;
+    p.x = opt.st.x; p.y = opt.st.y; p.region = opt.st.region;
     this.reveal(p.x, p.y, 5);
     this.syncParty();
     if (opt.st.major) { this.visitCity(opt.st.region); this.questEvent('arrive', { region: opt.st.region }); }
@@ -147,7 +148,7 @@ Object.assign(UI, {
     if (!this.walking && !this.ctx && !this.modalOpen() && this.map && !this.map.moving && !G.over) {
       const rd = this.map.reachData; const i = WORLD.idx(x, y);
       if (rd && rd.dist.has(i) && i !== rd.start) {
-        const eta = G.etaInfo((G.player.dayFrac || 0) + rd.dist.get(i) * WORLD.DAYS_PER_COST);
+        const eta = G.etaInfo(G.travelPathDays(WORLD.pathTo(rd, i).slice(1)));
         if (eta.days >= 4 || eta.months) {
           this.showTip(x, y);
           const tip = document.getElementById('hud-tip');

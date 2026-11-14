@@ -146,7 +146,7 @@ Object.assign(UI, {
     let days = 0; let px = p.x, py = p.y; const regs = new Set(); let mobs = 0;
     for (const i of steps) {
       const [sx, sy] = WORLD.xy(i); const diag = sx !== px && sy !== py;
-      days += WORLD.stepCostAt(sx, sy) * (diag ? 1.4 : 1) * WORLD.DAYS_PER_COST;
+      days += G.travelStepDays(sx, sy, diag);
       const r = WORLD.regionAt(sx, sy); if (r) regs.add(r.id);
       px = sx; py = sy;
     }
@@ -154,7 +154,7 @@ Object.assign(UI, {
     for (const m of G.mobs) for (const i of steps) { const [sx, sy] = WORLD.xy(i); if (Math.max(Math.abs(m.x - sx), Math.abs(m.y - sy)) <= 1) { near.add(m); break; } }
     for (const m of near) if (m.tier > p.rankIdx) mobs++;
     const danger = [...regs].map(regionById).filter((r) => r && r.danger > p.rankIdx + 2);
-    return { steps, days: Math.max(1, Math.round(days)), regs: [...regs], near: near.size, strongMobs: mobs, danger };
+    return { steps, days, regs: [...regs], near: near.size, strongMobs: mobs, danger };
   },
   travelConfirm(x, y, label) {
     const plan = this.travelPlan(x, y);
@@ -167,13 +167,13 @@ Object.assign(UI, {
     if (plan.strongMobs) warn.push(`<span class="bad">경로 근처에 나보다 강한 괴수 무리 ${plan.strongMobs}개</span>`);
     else if (plan.near) warn.push(`경로 근처 괴수 무리 ${plan.near}개`);
     this.modal(`<h3>${label}(으)로 이동</h3>
-      <p>걸어서 약 <b>${plan.days}일</b> · ${plan.steps.length}칸</p>
+      <p>이동 예상 <b>${WORLD.formatTravelTime(plan.days)}</b> · ${plan.steps.length}칸</p>
       <p class="small dim">지나는 지역: ${plan.regs.map((id) => regionById(id).name).join(' → ')}</p>
       ${warn.length ? `<p class="small">${warn.join('<br>')}</p>` : ''}
       <p class="small dim">걷는 동안에도 날짜가 흐르고, 길 위 사건·기습·만남이 생기면 멈춘다. 멈추면 지도 위 [이어서 이동]으로 계속 갈 수 있다.</p>
       <div class="row end"><button class="ghost" data-act="modal-close">그만둔다</button>
       ${canTransit ? `<button data-act="transit" data-v="${dest.id}">고속 이동망 · ${fmt(G.transitCost(dest.id))} 크레딧 · 2일</button>` : ''}
-      <button class="primary" data-act="travel-go" data-v="${x},${y},${encodeURIComponent(label)}">걸어서 간다</button></div>`);
+      <button class="primary" data-act="travel-go" data-v="${x},${y},${encodeURIComponent(label)}">출발한다</button></div>`);
   },
   travelStart(x, y, label) {
     if (!this.map || this.walking || G.over || !G.canAct()) return;
@@ -237,7 +237,7 @@ Object.assign(UI, {
     const t = this.travel;
     if (t && !this.walking) {
       const d = this.travelDaysLeft();
-      if (d) html = html.replace('<div class="obj-goal">', `<button class="obj-link travel-chip" data-act="travel-resume">▶ 이어서 이동 · ${t.label}까지 ${d}일</button><div class="obj-goal">`);
+      if (d) html = html.replace('<div class="obj-goal">', `<button class="obj-link travel-chip" data-act="travel-resume">▶ 이어서 이동 · ${t.label}까지 ${WORLD.formatTravelTime(d)}</button><div class="obj-goal">`);
     }
     return html.replace(/<button class="obj-link" data-act="focus" data-v="(\d+),(\d+)">[\s\S]*?<\/button>/g, (m, x, y) => `<div class="obj-row">${m}<button class="obj-go" data-act="travel-xy" data-v="${x},${y}">이동</button></div>`);
   };

@@ -100,8 +100,8 @@ const CREW_TIME = { dueMin: 7, dueMax: 12, dueLowMin: 4, dueLowMax: 7, firstDue:
   GP.crewRide = function () {
     const L = this.crewLeader(); const r = L ? L.rankIdx : 0;
     if (r >= 4) return { id: 'transit', name: '고속 이동망', days: () => 2 };
-    if (r >= 2) return { id: 'truck', name: '파티 장갑차', days: (d) => Math.max(1, Math.ceil(d / 2)) };
-    return { id: 'walk', name: '도보', days: (d) => Math.max(1, d) };
+    if (r >= 2) return { id: 'truck', name: '파티 장갑차', days: (d) => Math.max(0, d / 2) };
+    return { id: 'walk', name: '도보', days: (d) => Math.max(0, d) };
   };
 
   // 게이트 제안: 게이트마다 한 번
@@ -181,24 +181,24 @@ if (typeof UI !== 'undefined') {
       // 리더는 거점 가까운 일을 고른다: 너무 멀면(편도 8일 넘게) 거점 근처 게이트로 바꾼다
       if (gateId == null && (plan.kind === 'gate' || plan.kind === 'hunt') && this.travelPlan) {
         const t0 = plan.kind === 'gate' ? G.mapGates.find((x) => x.id === plan.gateId) : G.mobs.find((x) => x.id === plan.mobId);
-        const far = !t0 || ride.days(this.travelPlan(t0.x, t0.y).days || 99) > 8;
+        const far = !t0 || ride.days(this.travelPlan(t0.x, t0.y).days ?? 99) > 8;
         if (far) {
           const near = G.mapGates.filter((g) => !g.final && !g.mission && !g.cleared && g.tier <= L.rankIdx && g.tier >= G.crewTier() - 1)
-            .map((g) => ({ g, d: ride.days(this.travelPlan(g.x, g.y).days || 99) })).filter((x) => x.d <= 8).sort((a, b) => a.d - b.d)[0];
+            .map((g) => ({ g, d: ride.days(this.travelPlan(g.x, g.y).days ?? 99) })).filter((x) => x.d <= 8).sort((a, b) => a.d - b.d)[0];
           if (near) plan = { kind: 'gate', gateId: near.g.id };
-          else { let pos = null, best = 99; for (let k = 0; k < 10; k++) { const q = G.randomFreeTile(c.base); if (!q) continue; const d = this.travelPlan(q[0], q[1]).days || 99; if (d < best) { best = d; pos = q; } } if (pos) { const g = { id: G.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: c.base, tier: G.crewTier(), theme: RNG.pick(GATE_THEMES), elem: pickElem(), born: G.monthKey(), crew: true }; G.mapGates.push(g); plan = { kind: 'gate', gateId: g.id }; } }
+          else { let pos = null, best = 99; for (let k = 0; k < 10; k++) { const q = G.randomFreeTile(c.base); if (!q) continue; const d = this.travelPlan(q[0], q[1]).days ?? 99; if (d < best) { best = d; pos = q; } } if (pos) { const g = { id: G.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: c.base, tier: G.crewTier(), theme: RNG.pick(GATE_THEMES), elem: pickElem(), born: G.monthKey(), crew: true }; G.mapGates.push(g); plan = { kind: 'gate', gateId: g.id }; } }
         }
       }
       const tgt = plan.kind === 'gate' ? G.mapGates.find((x) => x.id === plan.gateId) : plan.kind === 'hunt' ? G.mobs.find((x) => x.id === plan.mobId) : null;
       const what = tgt ? (plan.kind === 'gate' ? `${regionById(tgt.region).name}의 ${G.gateName(tgt)}` : `${regionById(tgt.region).name}의 ${tgt.name} 무리 토벌`) : plan.kind === 'escort' ? '운송 차량 호위 의뢰' : '합동 훈련';
       // 팀 집합: 다른 팀원은 알아서 모인다
       c.on = true; G.syncParty(); c.done = (c.done || 0) + 1; G.crewTrust(3);
-      const days = tgt ? ride.days(this.travelPlan ? (this.travelPlan(tgt.x, tgt.y).days || regionDist(p.region, tgt.region) * 2) : regionDist(p.region, tgt.region) * 2) : 0;
+      const days = tgt ? ride.days(this.travelPlan ? (this.travelPlan(tgt.x, tgt.y).days ?? regionDist(p.region, tgt.region) * 2) : regionDist(p.region, tgt.region) * 2) : 0;
       const T = { just: `이번엔 ${what}(으)로 간다. 다들 모였지? 출발한다.`, kind: `이번엔 ${what}(으)로 가요. 다 모였죠? 출발해요!`, cold: `${what}. 출발.` };
       this.talk([
         { narr: `${G.crewMembers().filter((n) => n !== L).map((n) => n.name).join(', ')}이(가) 하나둘 모였다.` },
         { who: L, text: say(L, T) },
-        tgt ? { sys: `${ride.name}(으)로 이동 · 약 ${days}일 · 길은 리더가 정한다 (팀 경비)` } : null,
+        tgt ? { sys: `${ride.name}(으)로 이동 · 약 ${WORLD.formatTravelTime(days)} · 길은 리더가 정한다 (팀 경비)` } : null,
       ].filter(Boolean), () => this.crewDepart(plan, tgt, days));
     },
     crewDepart(plan, tgt, days) {
@@ -255,10 +255,11 @@ if (typeof UI !== 'undefined') {
       const p = G.player;
       if (p.region !== c.base && !G.over) {
         const pos = WORLD.cityPos[c.base]; const ride = G.crewRide();
-        const d = ride.days(regionDist(p.region, c.base) * 2);
-        G._crewBusy = true; try { G.advanceDays(d, { noSave: true }); } finally { G._crewBusy = false; }
+        const plan = pos && this.travelPlan ? this.travelPlan(pos[0], pos[1]) : null;
+        const d = ride.days(plan?.days ?? regionDist(p.region, c.base) * 2);
+        G._crewBusy = true; try { G.advanceTravel(d, { noSave: true }); } finally { G._crewBusy = false; }
         if (pos) { p.x = pos[0]; p.y = pos[1]; } p.region = c.base; G.reveal(p.x, p.y, 4);
-        G.log(`${c.name}와(과) 함께 거점 ${G.crewBaseName()}(으)로 돌아왔다. (${ride.name} ${d}일)`);
+        G.log(`${c.name}와(과) 함께 거점 ${G.crewBaseName()}(으)로 돌아왔다. (${ride.name} ${WORLD.formatTravelTime(d)})`);
       }
       G.queue = G.queue.filter((q) => q.type !== 'crewLate');
       G.crewSetDue(false);
