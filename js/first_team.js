@@ -143,6 +143,8 @@ if (typeof UI !== 'undefined') {
   UI.handle = function (act, v) {
     if (act === 'ft-join') return this.firstTeamDone(+v);
     if (act === 'ft-solo') {
+      // 경고는 위쪽 알림 띠가 아니라 화면 가운데 확인 창으로 (사용자 요청)
+      if (this.confirmOver) return this.confirmOver('혼자 시작할까요?', SOLO_WARN, '혼자 시작한다', () => this.firstTeamDone(null), 'danger');
       if (!this.ftWarned) { this.ftWarned = true; return this.toast(`${SOLO_WARN} 그래도 혼자 시작하려면 한 번 더 누른다.`); }
       this.ftWarned = false; return this.firstTeamDone(null);
     }
