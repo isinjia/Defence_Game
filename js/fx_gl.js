@@ -96,12 +96,11 @@ const FXG = (() => {
       wing: (h) => { soft(h * 0.04, () => { for (let i = 0; i < 9; i++) { g.save(); g.translate(-h * 0.8, h * 0.5); g.rotate(-1.35 + i * 0.16); const L = h * (1.55 - i * 0.09); g.beginPath(); g.moveTo(0, 0); g.bezierCurveTo(L * 0.35, -h * 0.14, L * 0.8, -h * 0.1, L, 0); g.bezierCurveTo(L * 0.8, h * 0.1, L * 0.35, h * 0.1, 0, 0); g.fill(); g.restore(); } }); },
     };
     const big = ['crescent', 'rune', 'bagua', 'clock', 'wing'];
-    let x = 0, y = 0;
+    let x = 0, y = 0, rowH = 0; // 줄 단위로 채운다(줄 높이 = 그 줄에서 가장 큰 칸) — 큰 칸이 아래 줄과 겹치지 않게
     for (const name of Object.keys(M)) {
       const s = big.includes(name) ? 256 : 128;
-      if (x + s > 1024) { x = 0; y += 128; }
-      if (s === 256 && y < 512) { x = 0; y = 512; } // 큰 것은 아래 반쪽
-      if (s === 256 && x + s > 1024) { x = 0; y += 256; }
+      if (x + s > 1024 || (s > rowH && x > 0)) { x = 0; y += rowH; rowH = 0; }
+      rowH = Math.max(rowH, s);
       g.save(); g.beginPath(); g.rect(x, y, s, s); g.clip(); g.translate(x + s / 2, y + s / 2); M[name](s / 2 - 3); g.restore();
       const pad = name === 'line' ? 6 : 1; UV[name] = [(x + pad) / AW, (y + 1) / AH, (x + s - pad) / AW, (y + s - 1) / AH];
       x += s;
