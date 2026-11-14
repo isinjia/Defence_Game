@@ -9,6 +9,8 @@ const root = path.resolve(__dirname, '..');
 const folder = path.join(root, 'assets/monsters');
 const partial = process.argv.includes('--partial');
 const cachePath = path.join(root, 'js/monster_art_data.js');
+const recordPath = path.join(folder, '제작기록.json');
+const previousRecord = fs.existsSync(recordPath) ? JSON.parse(fs.readFileSync(recordPath, 'utf8')) : {};
 const cached = fs.existsSync(cachePath) ? new Function(fs.readFileSync(cachePath, 'utf8') + ';return MONSTER_ART_DATA;')() : {};
 const data = new Function(fs.readFileSync(path.join(root, 'js/data.js'), 'utf8') + ';return MONSTERS;')();
 const extra = fs.readFileSync(path.join(root, 'js/monster_pack.js'), 'utf8').match(/const MON_NEW = (\[[\s\S]*?\n\]);/)[1];
@@ -40,7 +42,7 @@ const special = {
   }
   if (!partial && Object.keys(records).length !== jobs.length) throw new Error('원화 수 불일치');
   fs.writeFileSync(path.join(root, 'js/monster_art_data.js'), '// 종별 원화 연결 정보. 표시 파일을 다시 만들 때 함께 갱신한다.\nconst MONSTER_ART_DATA = ' + JSON.stringify(records, null, 2) + ';\n');
-  fs.writeFileSync(path.join(folder, '제작기록.json'), JSON.stringify({ 제작방식: '내장 이미지 생성 도구', 공통요청: style, 개별요청: jobs.map(({ name, design }) => ({ 이름: name, 외형: design })), 원화: records }, null, 2));
+  fs.writeFileSync(recordPath, JSON.stringify({ ...previousRecord, 제작방식: '내장 이미지 생성 도구', 공통요청: style, 개별요청: jobs.map(({ name, design }) => ({ 이름: name, 외형: design })), 원화: records }, null, 2));
   require('./monster_art_gallery')(records, folder);
   console.log('원화 연결·표시 파일 준비: ' + Object.keys(records).length + '종');
 })().catch((e) => { console.error(e.message); process.exitCode = 1; });
