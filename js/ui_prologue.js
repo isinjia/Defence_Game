@@ -32,7 +32,10 @@ Object.assign(UI, {
     $app.innerHTML = `<div class="create">
       <div class="create-head"><div class="eyebrow">각성 전야</div><h2>당신은 누구입니까</h2></div>
       <div class="create-grid">
-        <div class="panel id-preview">${FX.portrait(s.look, s.gender, null, 0, 240, { age: 19, outfit: 'underwear', ...Wardrobe.appearance(s) })}<button class="ghost full" data-act="ps-look">외형 바꾸기</button></div>
+        <div class="ps-preview-column">
+          <div class="panel id-preview">${FX.portrait(s.look, s.gender, null, 0, 240, { age: 19, outfit: 'underwear', ...Wardrobe.appearance(s) })}</div>
+          <button class="ps-look-button full" data-act="ps-look">외형 바꾸기</button>
+        </div>
         <div class="panel">
           <label class="sec-title" for="in-name">이름</label>
           <div class="name-row"><input id="in-name" type="text" maxlength="8" placeholder="이름을 입력" value="${s.name}"><button class="icon-btn dice" data-act="name-dice" aria-label="무작위 이름">${this.diceIcon()}</button></div>

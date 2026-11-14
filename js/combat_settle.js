@@ -143,7 +143,10 @@
               ${ether != null ? `<div class="sr"><span>에테르</span><b class="ether">+${fmt(ether)}</b></div>` : ''}
               ${kills.length ? `<div class="sr"><span>처치</span><b>${kills.length}마리</b></div>` : ''}
               ${lines.map((l) => `<div class="sr-line">${fixJosa(l)}</div>`).join('') || ''}`;
-            box.insertBefore(loot, board);
+            // 결산 보드는 settle_pop이 옮긴 임시 div 안에 있을 수 있다.
+            // box의 직접 자식이라고 가정하면 실제 처치가 있는 시험 승리에서
+            // 예외가 나 확인 버튼·스크롤 영역 정리까지 실행되지 않는다.
+            board.before(loot);
           }
         }
       }
