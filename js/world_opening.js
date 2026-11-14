@@ -1,5 +1,12 @@
 // 타이틀 전 시네마틱. 설명 패널 없이 장면·카메라·자막의 시간축으로 재생한다.
 const WorldOpening = (() => {
+  // 오른쪽 아래 버전 (사용자 요청). 오프닝 때는 게임 본체(GAME_VERSION)가 아직 안 읽혔으므로 boot 스크립트 주소의 ?v=s2.1.77 에서 꺼낸다
+  const openingVersion = () => {
+    if (typeof GAME_VERSION !== 'undefined') return 'v' + GAME_VERSION;
+    const tag = document.querySelector('script[data-game]') || document.querySelector('script[src*="boot.js"]');
+    const m = tag && /[?&]v=(?:s\d+\.)?([0-9.]+)/.exec(tag.getAttribute('data-game') || tag.src || '');
+    return m ? 'v' + m[1] : '';
+  };
   const shots = [
     {
       "image": "assets/backgrounds/opening-omen.webp",
@@ -255,7 +262,8 @@ const WorldOpening = (() => {
       <div class="opening-subtitles"><p class="opening-caption-space" aria-hidden="true"></p><p class="opening-caption" aria-hidden="true"></p><p class="opening-accessible" aria-live="polite" aria-atomic="true"></p></div>
       <div class="opening-shutter" aria-hidden="true"></div>
       <button type="button" class="opening-skip" data-opening="skip" aria-label="오프닝 건너뛰고 타이틀로">스킵 <span aria-hidden="true">»</span></button>
-      <span class="opening-hint" aria-hidden="true">${manual ? '화면을 눌러 계속' : '화면을 누르면 자막을 넘깁니다'}</span>`;
+      <span class="opening-hint" aria-hidden="true">${manual ? '화면을 눌러 계속' : '화면을 누르면 자막을 넘깁니다'}</span>
+      <span class="opening-ver">${openingVersion()}</span>`;
     // 화면 읽기 도구에는 글자 단위가 아닌 완성된 문장을 전달한다.
     root.querySelector('.opening-accessible').textContent = shots.map(shot => shot.lines.map(line => line[1]).join(' ')).join(' ');
     root.addEventListener('click', (event) => { if (event.target.closest('[data-opening="skip"]')) finish(); else advance(); });
