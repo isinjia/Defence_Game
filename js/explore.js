@@ -474,7 +474,7 @@ Object.assign(UI, {
   UI.showTip = function (x, y) {
     baseTip.call(this, x, y);
     const tip = document.getElementById('hud-tip'); if (!tip || !G.exploreState()) return;
-    const s = G.siteAt(x, y); const reg = WORLD.regionAt(x, y);
+    const s = G.siteAtKnown ? G.siteAtKnown(x, y) : G.siteAt(x, y); const reg = WORLD.regionAt(x, y);
     let add = '';
     if (s && G.siteSeen(s)) {
       if (s.visited || s.known) add += `<div class="tip-obj">${this.siteIcon(s, 22)}<div><b>${SITE_KINDS[s.kind].name}</b><div class="small dim">${G.siteActive(s) ? SITE_KINDS[s.kind].desc : '이미 들른 곳이다.'}</div></div></div>`;
@@ -495,11 +495,11 @@ Object.assign(UI, {
   };
   MP.drawSites = function () {
     const c = this.ctx, s = this.tile, t = this.t;
-    for (const st of G.sites()) {
+    for (const st of (G.sitesShown ? G.sitesShown() : G.sites())) {
       // 밝혀진 칸이거나, 안개 가장자리(이웃 칸이 밝혀짐)면 실루엣이 보인다
       const edge = !G.revealed(st.x, st.y) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => WORLD.inb(st.x + dx, st.y + dy) && G.revealed(st.x + dx, st.y + dy));
       if (!G.siteSeen(st) && !edge) continue;
-      if (G.objAt(st.x, st.y)) continue;
+      if (G.objAtSeen(st.x, st.y)) continue;
       const [px, py] = this.toScreen(st.x + 0.5, st.y + 0.5);
       if (px < -s || py < -s || px > this.w + s || py > this.hgt + s) continue;
       const K = SITE_KINDS[st.kind];
@@ -520,7 +520,7 @@ Object.assign(UI, {
     baseMini.call(this);
     const m = this.mctx; if (!m || !G.player || !G.exploreState()) return;
     const sx = this.mini.width / WORLD.COLS, sy = this.mini.height / WORLD.ROWS;
-    for (const st of G.sites()) {
+    for (const st of (G.sitesShown ? G.sitesShown() : G.sites())) {
       if (!(st.visited || st.known)) continue;
       m.fillStyle = G.siteActive(st) ? SITE_KINDS[st.kind].color : 'rgba(201,206,214,.35)';
       m.fillRect(st.x * sx, st.y * sy, Math.max(2, sx), Math.max(2, sy));

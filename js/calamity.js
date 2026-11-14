@@ -200,7 +200,7 @@ Object.assign(Game.prototype, {
   const MP = MapView.prototype;
   const baseObjs = MP.drawObjects;
   MP.drawObjects = function () {
-    const g = G.calGate && G.world && G.world.calamity ? G.calGate() : null;
+    const g = G.gatesShown ? G.gatesShown().find(o => o.calamity) : (G.calGate && G.world && G.world.calamity ? G.calGate() : null);
     if (g && G.revealed(g.x, g.y)) {
       const c = this.ctx, s = this.tile; const [px, py] = this.toScreen(g.x + 0.5, g.y + 0.5);
       const pr = (this.t % 90) / 90;

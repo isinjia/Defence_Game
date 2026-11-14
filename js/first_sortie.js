@@ -161,9 +161,51 @@
   };
   const baseQuests = UI.questsHtml;
   UI.questsHtml = function () {
-    const html = baseQuests.call(this);
-    if (!pending(G)) return html;
-    return `<div class="panel"><h3>첫 게이트 공략</h3><p class="small">집결 후 첫 게이트 공략에 참여합니다.</p><button class="primary full" data-act="first-sortie-open">집결·공략 계속하기</button></div>` + html;
+    const root = document.createElement('div'); root.innerHTML = baseQuests.call(this);
+    const panels = [...root.querySelectorAll(':scope > .panel')];
+    const notebook = panels.find(p => p.querySelector('h3')?.textContent === '첫 해 수첩');
+    const accepted = panels.find(p => p.querySelector('h3')?.textContent === '진행 중인 일');
+    const clues = panels.find(p => p.querySelector('h3')?.textContent === '기연 단서');
+    const sub = document.createElement('section'); sub.className = 'panel quest-category';
+    sub.innerHTML = '<h3>서브 퀘스트</h3>';
+    // 내부 저장은 그대로 사용하고 화면에는 현재 진행할 활동만 보여 준다.
+    if (notebook) {
+      const current = notebook.querySelector('.item-row.hl');
+      if (G.nbTask()?.id !== 'gate' && current) {
+        current.querySelectorAll('[data-act="qr-track"]').forEach(b => b.remove());
+        current.insertAdjacentHTML('beforeend', QuestRoute.button(`nb:${G.nbTask().id}`));
+        sub.insertAdjacentHTML('beforeend', '<h4>활동 안내</h4>'); sub.append(current);
+      }
+      notebook.remove();
+    }
+    if (accepted) {
+      if (G.player.quests.length) {
+        sub.insertAdjacentHTML('beforeend', '<h4>의뢰·부탁</h4>');
+        const cards = accepted.querySelector('.cards'); if (cards) sub.append(cards);
+      }
+      accepted.remove();
+    }
+    if (clues) {
+      sub.insertAdjacentHTML('beforeend', '<h4>기연 단서</h4>');
+      const cards = clues.querySelector('.cards'); if (cards) sub.append(cards);
+      clues.remove();
+    }
+    if (!sub.querySelector('.item-row')) sub.insertAdjacentHTML('beforeend', '<p class="small dim">진행 중인 서브 퀘스트가 없습니다.</p>');
+    const s = G.player.firstSortie;
+    let main;
+    if (pending(G) || (s?.status === 'done' && !s.returned)) {
+      const returning = s?.status === 'done';
+      main = `<b>${returning ? '도시 복귀' : '첫 게이트 공략'}</b><p class="small">${returning ? '공략을 마쳤다. 도시로 돌아가자.' : '집결 후 첫 게이트 공략에 참여한다.'}</p>
+        <div class="row"><button class="primary" data-act="${returning ? 'first-sortie-return' : 'first-sortie-open'}">${returning ? '도시로 돌아가기' : '집결·공략 계속하기'}</button>${QuestRoute.button('first-sortie')}</div>`;
+    } else {
+      const goal = this.mainGoal();
+      if (goal) {
+        const esc = text => String(text || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        main = `<b>${goal.def.n}장 · ${esc(goal.def.title)}</b><p class="small">${esc(G.mainFill(goal.def.goal || ''))}</p>
+          <div class="row"><button class="primary" data-act="main-go">${goal.wait ? G.mainWaitText() : goal.here ? '이야기 계속하기' : '목적지 확인'}</button>${QuestRoute.button('main')}</div>`;
+      } else main = '<p class="small dim">다음 메인 퀘스트의 시작 조건을 기다리고 있습니다.</p>';
+    }
+    return `<section class="panel quest-category"><h3>메인 퀘스트</h3>${main}</section>${sub.outerHTML}${root.innerHTML}`;
   };
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {

@@ -69,7 +69,7 @@
 // 월드맵 퀘스트는 짧은 목표만 표시한다. 원문은 의뢰 메뉴와 접근성 이름에 유지한다.
 {
   const short = (text) => String(text || '')
-    .replace(/^메인 · (\d+)장 「([^」]+)」 — /, '$1장 $2 · ')
+    .replace(/^메인 · (\d+)장 「([^」]+)」 — /, '메인 · $1장 $2 · ')
     .replace(/^리더 (.+?)에게 말 걸기 · 일하러 간다$/, '$1 · 집결')
     .replace(/에서 리더와 합류$/, ' · 집결')
     .replace(/^팀 호출 · 이 도시로 모은다$/, '팀 호출')
@@ -91,6 +91,13 @@
       if (!row.hasAttribute('title')) row.setAttribute('title', full);
       if (!row.hasAttribute('aria-label')) row.setAttribute('aria-label', full);
     }
+    for (const row of root.content.querySelectorAll('[data-act="hq-go"]')) {
+      const text = row.querySelector('.hq-t');
+      if (text && !text.textContent.startsWith('서브 · ')) text.textContent = '서브 · ' + text.textContent;
+    }
+    const main = root.content.querySelector('.main-q');
+    const title = root.content.querySelector('.obj-title');
+    if (main && title) title.after(main);
     return root.innerHTML;
   };
 }

@@ -38,7 +38,7 @@ const QuestRoute = (() => {
     if (q.status === 'done' || q.type === 'deliver') return city(q.from || UI.questTarget(q),key,title,'quest');
     if (q.type === 'hunt' || q.type === 'gate' || q.type === 'npc_gate') {
       const gates = q.type !== 'hunt';
-      const known = (gates ? G.mapGates : G.mobs).filter(o => o.region === q.region && o.tier >= q.tier && !o.cleared && (gates ? G.gateSeen(o) : G.seenNow(o.x,o.y)));
+      const known = (gates ? G.gatesShown() : (G.mobsShown ? G.mobsShown() : G.mobs)).filter(o => o.region === q.region && o.tier >= q.tier && !o.cleared && (gates ? G.gateSeen(o) : o._mapMemo || G.seenNow(o.x,o.y)));
       const rd = UI.map?.reachData;
       const near = known.filter(o => !rd || rd.dist.has(WORLD.idx(o.x,o.y))).sort((a,b) => (rd?.dist.get(WORLD.idx(a.x,a.y)) ?? Math.hypot(a.x-G.player.x,a.y-G.player.y)) - (rd?.dist.get(WORLD.idx(b.x,b.y)) ?? Math.hypot(b.x-G.player.x,b.y-G.player.y)))[0];
       if (near) return {key,title,kind:'quest',x:near.x,y:near.y};
@@ -61,7 +61,7 @@ const QuestRoute = (() => {
     const key=`nb:${task.id}`;
     if(task.id==='gate') {
       const s=G.player.firstSortie;
-      const g=G.mapGates.find(g=>g.id===s?.gate&&!g.cleared) || G.mapGates.filter(g=>!g.cleared&&g.tier<=G.player.rankIdx&&G.gateSeen(g))
+      const g=G.gatesShown().find(g=>g.id===s?.gate&&!g.cleared) || G.gatesShown().filter(g=>!g.cleared&&g.tier<=G.player.rankIdx&&G.gateSeen(g))
         .sort((a,b)=>Math.hypot(a.x-G.player.x,a.y-G.player.y)-Math.hypot(b.x-G.player.x,b.y-G.player.y))[0];
       return g?{key,title:'첫 게이트 공략',kind:'quest',x:g.x,y:g.y}:{key,title:'첫 게이트 공략',kind:'quest',unlocated:true};
     }
@@ -182,5 +182,5 @@ const QuestRoute = (() => {
   MapView.prototype.drawObjects=function(...args){this.drawQuestRoute();return baseObjects.apply(this,args);};
   const baseCities=MapView.prototype.drawCities;
   MapView.prototype.drawCities=function(...args){const result=baseCities.apply(this,args);this.drawQuestRouteMarker();return result;};
-  return { target, questKey };
+  return { target, questKey, button, selected };
 })();

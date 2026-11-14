@@ -126,7 +126,7 @@ S({ id: 'sys_penalty_kama', trigger: 'system', text: '협회에서 등기 우편
     if (!this.modalOpen() && G.player && !G.over) { if (!G.player.sysTask && G.sysActive()) G.sysNewMonth(); G.sysCheck(); }
     return baseQueue.call(this);
   };
-  // 의뢰 창: 이달의 과제, 보험
+  // 의뢰 창: 이달의 과제 (보험은 내 정보에서 관리)
   const baseQuests = UI.questsHtml;
   UI.questsHtml = function () {
     const html = baseQuests.call(this);
@@ -136,10 +136,7 @@ S({ id: 'sys_penalty_kama', trigger: 'system', text: '협회에서 등기 우편
       const rows = st.tasks.map((t) => { const def = SYS_TASKS.find((x) => x.id === t.id); const v = Math.min(t.need, G.sysVal(def) - t.base); return `<div class="item-row ${t.done ? 'hl' : ''}"><div class="grow"><b>${t.done ? '✔' : '▸'} ${def.name(G, t.need)}</b> <span class="small dim num">${v}/${t.need}</span></div></div>`; }).join('');
       top = `<div class="panel"><h3>${status ? '상태창 · 이달의 과제' : '협회 월간 목표'}</h3><p class="dim small">${status ? '당신에게만 보이는 창. 다 하면 추가 보상, 석 달 내리 무시하면 패널티 구역으로 끌려간다.' : '협회 앱 알림. 다 하면 공적, 석 달 내리 실적이 없으면 재교육 대상이 된다.'}${p.sysIgnored ? ` <span class="bad">(연속 미수행 ${p.sysIgnored}개월)</span>` : ''}</p><div class="cards">${rows}</div></div>`;
     }
-    const ins = p.insurance || { on: false, paid: 0 };
-    const insHtml = `<div class="panel"><h3>협회 헌터 보험</h3><p class="dim small">매달 보험료를 내면, 죽거나 은퇴할 때 쌓인 보험금이 뒤를 잇는 자녀에게 지급된다. 오래 낼수록 더 많이 나온다.</p>
-      <div class="item-row"><div class="grow"><b>${ins.on ? '가입 중' : '미가입'}</b><div class="small dim">월 ${fmt(G.insPremium())} 크레딧 · 낸 돈 ${fmt(ins.paid || 0)} · 예상 지급 ${fmt(G.insPayout())}</div></div><button class="sm ${ins.on ? 'ghost' : ''}" data-act="ins-toggle">${ins.on ? '납입 중지' : '가입'}</button></div></div>`;
-    return top + html + insHtml;
+    return top + html;
   };
   // 헌터 탭: 은퇴
   const baseHunter = UI.hunterHtml;

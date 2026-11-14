@@ -9,6 +9,7 @@
     const box = document.getElementById('modal-box'); if (!box || !G.player) return;
     box.querySelectorAll('.wallet-chip').forEach((x) => x.remove());
     box.classList.remove('has-wallet', 'wallet-shop', 'wallet-in-head');
+    if (this.sheet === 'quest') return; // 의뢰 메뉴에는 보유 크레딧을 표시하지 않는다.
     if (box.querySelector('.settle-sheet, #stage') || box.classList.contains('combat-box')) return; // 전투 화면에는 넣지 않는다
     const shop = !!box.querySelector('.city-hero, .fac-grid, .shop-list');
     // 도시 머리말의 작은 크레딧 글자는 빼고 이 표시 하나만 남긴다
