@@ -208,4 +208,61 @@
     try { if (this.screen === 'game' && document.getElementById('world')) this.renderGame(); } catch (e) { /* 무시 */ }
     return baseExamEnd.apply(this, a);
   };
+
+  // '튜토리얼 건너뛰기' 자리 고정 (사용자 요청): 원래 단추(#tut-skip)는 화면마다 다른 곳으로 옮겨진다(mobile_ux.js·council_dialog.js).
+  // 원래 단추는 숨겨 두고, body 바로 아래 같은 자리의 대리 단추를 보인다. 누르면 원래 단추를 누른 것과 똑같이 처리된다(tut_skip.js 두 번 누르기).
+  let proxy = null; let skipAsk = false;
+  // 확인 창이 떠 있는 동안: 튜토리얼 말풍선의 '화면 아무 데나 누르면 다음'이 창 단추 누르기를 가로채지 않게 하고, 전투 시간도 멈춘다
+  if (UI.tutHeld) { const baseHeld = UI.tutHeld; UI.tutHeld = function (...a) { if (skipAsk) return false; return baseHeld.apply(this, a); }; }
+  if (typeof Combat !== 'undefined') { const baseTick = Combat.prototype.tick; Combat.prototype.tick = function (...a) { if (skipAsk) return null; return baseTick.apply(this, a); }; }
+  const syncSkip = () => {
+    const real = document.getElementById('tut-skip');
+    if (!real || !real.isConnected) { if (proxy) { proxy.remove(); proxy = null; } return; }
+    real.classList.add('tsk-hide');
+    if (!proxy) {
+      proxy = document.createElement('button'); proxy.type = 'button'; proxy.className = 'tsk-proxy'; proxy.setAttribute('aria-label', '튜토리얼 건너뛰기');
+      // 누르면 "한 번 더" 대신 가운데 확인 창으로 묻는다 (사용자 요청)
+      proxy.addEventListener('pointerdown', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const r = document.getElementById('tut-skip'); if (!r || r.disabled || skipAsk) return;
+        skipAsk = true;
+        UI.confirmOver('튜토리얼을 끝낼까요?', '자격 시험을 여기서 끝내고 바로 결과(등급 판정)로 넘어갑니다.', '튜토리얼 끝내기', () => { skipAsk = false; if (UI.tutSkipNow) UI.tutSkipNow(); }, 'primary');
+        // 취소(또는 바깥 누름)로 창이 닫히면 묻는 중 표시를 푼다
+        const watch = setInterval(() => { if (!document.getElementById('pl-confirm')) { skipAsk = false; clearInterval(watch); } }, 100);
+      });
+      proxy.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
+      document.body.appendChild(proxy);
+    }
+    proxy.classList.toggle('armed', real.classList.contains('armed'));
+    proxy.disabled = !!real.disabled;
+  };
+  setInterval(() => { try { syncSkip(); } catch (e) { /* 무시 */ } }, 120);
+}
+
+// 보스 표시: 아군 '리더' 꼬리표와 같은 자리(카드 왼쪽 위)에 '보스' (사용자 요청). 크기는 css/polish.css 에서 1.5배.
+if (typeof UI !== 'undefined' && UI.unitEl) {
+  const baseUnitEl = UI.unitEl;
+  UI.unitEl = function (u, ...a) {
+    const h = baseUnitEl.call(this, u, ...a);
+    try { if (u && u.side === 'enemy' && u.boss && typeof h === 'string' && !h.includes('boss-tag')) { const i = h.indexOf('>'); if (i > 0) return h.slice(0, i + 1) + '<span class="boss-tag">보스</span>' + h.slice(i + 1); } } catch (e) { /* 무시 */ }
+    return h;
+  };
+}
+
+// 기술 상세 창(js/skill_hold.js): 방어·강화·회복처럼 피해를 주지 않는 기술에도 속성만 보고 '상태 이상'·'원소 반응' 줄이 붙었다(사용자 지적).
+// 상태 이상은 맞혀서 피해를 줄 때만 걸리므로(js/status_fx.js dealDamage) 피해 기술에만 보여 준다.
+// 또 자기 강화(방어·강화·회피·회복)는 내가 쓰면 나에게 걸리므로 '대상'을 '자신'으로. 동료에게 오더를 내릴 때만 '아군 하나'.
+if (typeof UI !== 'undefined' && UI.skillHoldHtml) {
+  const DMG_TYPES = ['dmg', 'crit', 'pierce', 'multi', 'dot', 'drain', 'stun', 'aoe'];
+  const SELF_TYPES = ['heal', 'buff', 'shield', 'evade'];
+  const baseHold = UI.skillHoldHtml;
+  UI.skillHoldHtml = function (sk, u, ...a) {
+    let h = baseHold.call(this, sk, u, ...a);
+    try {
+      if (sk && !DMG_TYPES.includes(sk.type)) h = h.replace(/<tr><th>상태 이상<\/th>[\s\S]*?<\/tr>/, '').replace(/<tr><th>원소 반응<\/th>[\s\S]*?<\/tr>/, '');
+      const ordering = this.ctx && this.ctx.orderFor && u && u.id === this.ctx.orderFor;
+      if (sk && SELF_TYPES.includes(sk.type) && !ordering) h = h.replace('<tr><th>대상</th><td>아군 하나</td></tr>', '<tr><th>대상</th><td>자신</td></tr>');
+    } catch (e) { /* 무시 */ }
+    return h;
+  };
 }
