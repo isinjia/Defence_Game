@@ -10,9 +10,11 @@ const FXS = (() => {
   const P = (e) => PALS[e] || el(e);
   const K = {
     // 화면 전체를 잠깐 어둡게 (SS급·큰 연출의 무대)
-    dim(life = 0.9, a = 0.6, c = '#03050a', delay = 0) { add({ life, delay, draw(k) { const al = a * (k < 0.15 ? k / 0.15 : k > 0.7 ? (1 - k) / 0.3 : 1); G.spr('core', W() / 2, H() / 2, W() * 4.5, H() * 4.5, 0, rgb(c), al, false); } }); },
+    // 전투 무대(#stage)만 어둡게 — 아래 명령 버튼·위 머리줄은 가리지 않는다. 무대가 없으면(미리보기) 화면 전체
+    area() { try { const st = typeof document !== 'undefined' && document.getElementById('stage'); if (st) { const r = st.getBoundingClientRect(); if (r.width > 10) return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height }; } } catch (e) { /* 무시 */ } return { x: W() / 2, y: H() / 2, w: W(), h: H() }; },
+    dim(life = 0.9, a = 0.6, c = '#03050a', delay = 0) { add({ life, delay, draw(k) { const al = a * (k < 0.15 ? k / 0.15 : k > 0.7 ? (1 - k) / 0.3 : 1), r = K.area(); G.spr('solid', r.x, r.y, r.w, r.h, 0, rgb(c), al, false); } }); },
     // 화면 전체 섬광
-    wash(E, a = 0.5, life = 0.22, delay = 0) { const aa = Math.min(0.2, a * 0.45); add({ life, delay, draw(k) { G.spr('core', W() / 2, H() / 2, W() * 4.5, H() * 4.5, 0, rgb(E.main), aa * (1 - k) * (1 - k), true); } }); },
+    wash(E, a = 0.5, life = 0.22, delay = 0) { const aa = Math.min(0.2, a * 0.45); add({ life, delay, draw(k) { const r = K.area(); G.spr('solid', r.x, r.y, r.w, r.h, 0, rgb(E.main), aa * (1 - k) * (1 - k), true); } }); },
     // 큰 그림 하나를 띄운다 (문양·눈·해골·시계 등)
     big(tex, x, y, s, E, o = {}) { if (o.back !== false) p(tex, x, y, { s: [s * (o.from ?? 0.6) * 1.12, s * 1.12], asp: o.asp, c: [E.main, E.lo], a: (o.a ?? 0.9) * 0.45, life: o.life || 0.9, vr: -(o.vr || 0) * 0.6, rot: o.rot, pop: true, fin: o.fin ?? 0.12, fout: o.fout ?? 0.6, delay: o.delay, add: o.add }); return p(tex, x, y, { s: [s * (o.from ?? 0.6), s], asp: o.asp, c: [E.hi, E.main], a: o.a ?? 0.9, life: o.life || 0.9, vr: o.vr || 0, rot: o.rot, pop: true, fin: o.fin ?? 0.12, fout: o.fout ?? 0.6, delay: o.delay, add: o.add, vx: o.vx, vy: o.vy, drag: o.drag ?? 1 }); },
     // 기 모으기: 주변 빛이 안으로 빨려 든다
@@ -64,9 +66,10 @@ const FXS = (() => {
   const S = (name, o) => { SIG[name] = o; };
 
   // ===== 전투계 =====
-  S('발도술 · 섬광', { hit: ({ f, t, e, E }) => { // 납도한 채 스쳐 지나간 뒤, 늦게 터지는 별 모양 다섯 줄
-    const a = dirOf(f, t); K.charge(f.x, f.y, P('white'), 0.18, 70); at(0.2, () => { K.line(f.x - Math.cos(a) * 30, f.y - Math.sin(a) * 30, t.x + Math.cos(a) * 220, t.y + Math.sin(a) * 220, P('white'), 1.2); K.wash(P('white'), 0.25, 0.12); });
-    at(0.5, () => { for (let i = 0; i < 5; i++) cut(t.x, t.y, i * TAU / 10 + 0.3, 230, P('white'), i * 0.025, 1.1); flash(t.x, t.y, P('white'), 1.3); K.drift('petal', t.x, t.y, 10, '#ffffff', '#cfe6ff', { add: true, jx: 30, jy: 30 }); hitAt({ el: e }, t.x, t.y, 1.1); }); } });
+  S('발도술 · 섬광', { hit: ({ f, t, e, E }) => { // 납도한 채 스쳐 지나간 뒤, 한 박자 늦게 별 모양 다섯 줄이 터진다
+    const a = dirOf(f, t), Wt = P('white'), Bl = P('cyan'); K.charge(f.x, f.y, Bl, 0.2, 90); p('crescent', f.x, f.y, { rot: a, s: [60, 140], c: [Wt.hi, Bl.main], life: 0.2, pop: true });
+    at(0.2, () => { K.line(f.x - Math.cos(a) * 40, f.y - Math.sin(a) * 40, t.x + Math.cos(a) * 260, t.y + Math.sin(a) * 260, Bl, 2.6, 0, 0.42); K.wash(Bl, 0.3, 0.12); p('star4', f.x, f.y, { s: [40, 180], c: [Wt.hi, Bl.main], life: 0.2, pop: true }); });
+    at(0.48, () => { for (let i = 0; i < 5; i++) cut(t.x, t.y, i * TAU / 10 + 0.3, 300, Bl, i * 0.025, 1.4); flash(t.x, t.y, Bl, 1.2); K.big('star4', t.x, t.y, 300, Bl, { life: 0.4, from: 0.2 }); shock(t.x, t.y, Bl, 110); K.drift('petal', t.x, t.y, 14, '#ffffff', '#cfe6ff', { add: true, jx: 40, jy: 40, vx0: -160, vx1: 160 }); hitAt({ el: e }, t.x, t.y, 1.15); }); } });
   S('검기 폭풍', { aoe: (c) => { const { f, a, e, E } = c, ang = Math.atan2(a.y - f.y, a.x - f.x); // 칼바람 여섯 줄이 연달아 휩쓸고 가운데 회오리
     for (let i = 0; i < 6; i++) crescentFly(f, { x: a.x + (i - 2.5) * a.w * 0.16, y: a.y }, { el: e }, 190, (i % 2 ? 0.5 : -0.5), i * 0.07, 0.22, () => cut(a.x + (i - 2.5) * a.w * 0.16, a.y, ang + 1.57 + (i % 2 ? 0.5 : -0.5), 220, E));
     K.vortex(a.x, a.y, E, Math.max(90, a.w * 0.4), 0.7, 0.3); per(c, 0.05, (s) => at(0.35, () => F.accent(e, s.x, s.y, 0.85))); } });
@@ -174,7 +177,10 @@ const FXS = (() => {
   S('검은 태양', { aoe: (c) => { const { a, e, E } = c, sy = a.y - 190; // 검은 태양이 떠올라 맥박치다 어둠의 빛살을 쏟는다
     K.sun(a.x, sy, 62, E, 1.3, { dark: true, grow: true }); at(0.5, () => { for (let i = 0; i < 3; i++) shock(a.x, sy, E, 120 + i * 60, 1, i * 0.1, 0.5); });
     per(c, 0.07, (s) => at(0.7, () => { G.beam(a.x, sy, s.x, s.y, E, { w: 10, life: 0.4, add: false }); G.beam(a.x, sy, s.x, s.y, P('violet'), { w: 4, life: 0.4 }); F.accent(e, s.x, s.y, 1.1); })); at(0.72, () => K.rain('shard', a, 16, E, { ang: Math.PI / 2, s: 70, asp: 0.3, span: 0.4, v: 1300 })); } });
-  S('절대영역', { sup: ({ t, e, i }) => { const E = P('cyan'); K.big('rune', t.x, by(t), 200, E, { asp: 0.36, life: 1.0 }); SP.shield(t, 'water'); for (let q = 0; q < 4; q++) K.pillar(t.x + (q < 2 ? -1 : 1) * 42, by(t) + (q % 2 ? 8 : -8), E, 8, 0.8, 0.1, { up: true, h: 150 }); at(0.3, () => { G.add({ life: 0.6, draw(k) { const al = k > 0.6 ? (1 - k) / 0.4 : 1; for (const yy of [by(t), by(t) - 150]) G.seg(t.x - 42, yy, t.x + 42, yy, 6, 6, rgb(E.hi), 0.9 * al, true); } }); }); } });
+  S('절대영역', { sup: ({ t, e, i }) => { const E = P('cyan'), g = by(t); // 발밑 결계진에서 육각 판이 솟아 돔을 이루고, 네 기둥이 모서리를 잡는다
+    K.big('rune', t.x, g, 300, E, { asp: 0.36, life: 1.1, vr: 1 }); for (let q = 0; q < 4; q++) K.pillar(t.x + (q < 2 ? -1 : 1) * 64, g + (q % 2 ? 10 : -10), E, 12, 0.9, 0.05 * q, { up: true, h: 210 });
+    for (let r = 0; r < 3; r++) for (let q = 0; q < 6; q++) { const a = -Math.PI + (q + 0.5) / 6 * Math.PI, d = 48 + r * 26; p('hex', t.x + Math.cos(a) * d * 1.2, t.y + 10 + Math.sin(a) * d, { s: [12, 46], rot: Math.PI / 6, c: [E.hi, E.main], life: 0.9, delay: 0.1 + r * 0.08 + q * 0.015, pop: true, fin: 0.2, fout: 0.6, a: 0.85 }); }
+    p('bubble', t.x, t.y - 4, { s: [90, 230], asp: 0.85, c: [E.hi, E.main], life: 1.0, pop: true, fin: 0.25, fout: 0.6, delay: 0.2 }); at(0.35, () => { ringThin(t.x, t.y, E, 120); SP.shield(t, 'water'); }); } });
   S('압축 결계', { hit: ({ f, t, e }) => { const E = P('cyan'); // 육각 결계가 사방에서 조여 눌러 부순다
     add({ life: 0.5, draw(k) { const r = 150 * (1 - ease(Math.min(1, k / 0.8))) + 34, al = Math.min(1, k * 6); for (let i = 0; i < 6; i++) { const a = i * TAU / 6 + k * 2; G.spr('hex', t.x + Math.cos(a) * r, t.y + Math.sin(a) * r, 70, 70, a, rgb(E.hi), al, true); } G.spr('ring', t.x, t.y, r * 2.2, r * 2.2, 0, rgb(E.main), al, true); } });
     at(0.42, () => { flash(t.x, t.y, E, 1.2); burst('shard', t.x, t.y, 20, { v: [240, 640], sz: [18, 34, 5], asp: 0.4, c: [E.hi, E.main], life: [0.3, 0.6], rrot: true, rvr: 14 }); const a = dirOf(f, t); K.line(t.x - Math.cos(a) * 60, t.y - Math.sin(a) * 60, t.x + Math.cos(a) * 220, t.y + Math.sin(a) * 220, E, 1.5); hitAt({ el: 'water' }, t.x, t.y, 1.1); }); } });

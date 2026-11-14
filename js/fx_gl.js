@@ -105,6 +105,8 @@ const FXG = (() => {
       const pad = name === 'line' ? 6 : 1; UV[name] = [(x + pad) / AW, (y + 1) / AH, (x + s - pad) / AW, (y + s - 1) / AH];
       x += s;
     }
+    // 꽉 찬 단색 사각형용: 'core' 칸 한가운데 몇 픽셀 (화면 일부만 어둡게 덮을 때)
+    { const c = UV.core, mu = (c[0] + c[2]) / 2, mv = (c[1] + c[3]) / 2; UV.solid = [mu - 1 / AW, mv - 1 / AH, mu + 1 / AW, mv + 1 / AH]; }
     // 무기 그림: 팔레트별로 색을 입혀 오른쪽 반쪽에 (96px 칸)
     PALS.forEach((pn, j) => HERO.forEach((hn, i) => { const cx = 1024 + i * 96, cy = j * 96; g.save(); g.beginPath(); g.rect(cx, cy, 96, 96); g.clip(); g.translate(cx + 48, cy + 48); g.scale(1.15, 1.15); const E = EL[pn]; try { SHAPE[hn](g, { main: E.main, hi: E.hi, lo: E.lo }, 1); } catch (e) { /* 무시 */ } g.restore(); UV[`h_${hn}_${pn}`] = [(cx + 1) / AW, (cy + 1) / AH, (cx + 95) / AW, (cy + 95) / AH]; }));
     return cv;

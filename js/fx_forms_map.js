@@ -7,6 +7,8 @@ const FXMAP = (() => {
   // 이름 규칙: [정규식, 모양, {덧붙임}] — 위에서부터 먼저 맞는 것. keep: 이 직업 기본 모양이면 규칙을 건너뛴다
   const NAME = [
     [/방패/, 'shield'],
+    [/(의 검|저주의 검|검$)/, 'slash', { keep: ['fist', 'thrust', 'stab', 'claw', 'cleave'] }],
+    [/송곳/, 'ground'],
     [/(화살|삼시|천궁|일제사격)/, 'arrow'],
     [/(저격|헤드샷|일격필살|조준|철갑탄|레일)/, 'bullet', { type: 'crit' }],
     [/(사격|난사|연사|드로우|데스페라도|도탄|[가-힣]탄$|탄 )/, 'bullet', { keep: ['orb', 'spirit', 'bomb', 'shield'] }],
@@ -50,8 +52,8 @@ const FXMAP = (() => {
     index(); const sk = name ? skillByName[name] : null;
     const cn = clsName(sk && sk.cls && sk.cls !== 'monster' ? sk.cls : unit && unit.cls);
     const base = CLS[cn] || (unit && unit.side === 'enemy' && SHAPE[unit.shape]) || (unit && unit.shape && SHAPE[unit.shape]) || null;
-    const out = { form: base || 'orb', type: sk ? sk.type : 'dmg', flask: cn === '연금술사' };
-    if (name) { for (const [re, form, x] of NAME) { if (!re.test(name)) continue; if (x && x.keep && base && x.keep.includes(base)) continue; out.form = form; if (x && x.type && out.type === 'dmg') out.type = x.type; if (x && x.flask) out.flask = true; break; } for (const [re, pal] of PAL) if (re.test(name)) { out.pal = pal; break; } }
+    const out = { form: base || 'orb', type: sk ? sk.type : 'dmg', flask: cn === '연금술사', src: CLS[cn] ? 'class' : base ? 'shape' : 'fallback' };
+    if (name) { for (const [re, form, x] of NAME) { if (!re.test(name)) continue; if (x && x.keep && base && x.keep.includes(base)) continue; out.form = form; out.src = 'name'; if (x && x.type && out.type === 'dmg') out.type = x.type; if (x && x.flask) out.flask = true; break; } for (const [re, pal] of PAL) if (re.test(name)) { out.pal = pal; break; } }
     return out;
   }
 
