@@ -27,3 +27,7 @@ body.cn-map-on #council-ov { visibility: hidden !important; }
 .xr-cnmap .xr-route { z-index: 100 !important; }
 .xr-cnmap .xr-route-head h3::after { content: " · 리더 제안"; color: #ffb547; }
 .xr-cnmap .xr-route [data-act="xr-map-close"] { display: block !important; visibility: visible !important; }
+/* 상의 창에서 연 전체 지도: 지금 있는 자리 표식은 리더 얼굴 대신 '현재 위치' (리더 얼굴은 제안 칸에만) */
+.xr-cnmap .gtoken.lead { width: auto !important; height: auto !important; border-radius: 999px !important; box-shadow: none !important; background: transparent !important; line-height: 1 !important; }
+.xr-cnmap .gtoken.lead > * { display: none !important; }
+.xr-cnmap .gtoken.lead::after { content: "현재 위치"; display: block; padding: 5px 10px; border-radius: 999px; background: #46e0d0; color: #04201d; font-size: 12px; font-weight: 800; white-space: nowrap; box-shadow: 0 0 0 2px #05080d, 0 4px 12px #000a; }
