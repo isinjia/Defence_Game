@@ -188,3 +188,6 @@ body.ctx-gmap #tut-skip { top: calc(env(safe-area-inset-top, 0px) + 40px) !impor
 }
 /* [재평가 P] 도시 각성자 카드 둘째 줄: '처음 / 봄'처럼 한 낱말만 떨어지지 않게 두 줄을 고르게 나눈다 */
 .npc-strip .npc-chip .small { text-wrap: balance; }
+
+/* 월드맵 확대·축소(+/−) 단추 삭제 (사용자 요청, 2026-11-14). 두 손가락 벌리기·마우스 휠 확대는 그대로 */
+html body .hud-zoom [data-act=zoom-in], html body .hud-zoom [data-act=zoom-out] { display: none !important; }
