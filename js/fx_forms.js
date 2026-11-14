@@ -27,7 +27,7 @@ const FXF = (() => {
 
   // ---------- 속성 타격: 맞은 자리에서 속성마다 다른 것이 터진다 ----------
   function accent(e, x, y, sc = 1, delay = 0) {
-    const E = el(e);
+    const E = el(e); sc = Math.min(sc, 1.25);
     if (delay) return at(delay, () => accent(e, x, y, sc));
     if (e === 'fire') {
       flash(x, y, E, sc); shock(x, y, E, 64 * sc);
@@ -484,6 +484,7 @@ const FXF = (() => {
 
   return {
     G, FORM, AOE, SUP, accent, trail, stars,
+    kit: { flash, shock, ringThin, sparks, smoke, rays, cut, thorns, fly, hitAt, crescentFly, dirOf, dist },
     forms: Object.keys(FORM),
     ready: () => G.init(),
     // 단일 대상

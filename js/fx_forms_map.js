@@ -70,17 +70,38 @@ const FXMAP = (() => {
     const hushOld = () => { if (typeof FX3D !== 'undefined' && !FX3D._hushed) { FX3D._hushed = true; const on = FX3D.on; FX3D.on = function () { return active() ? false : on.call(this); }; } if (FXG.S.cv && FXG.S.cv.style.zIndex !== '26') FXG.S.cv.style.zIndex = '26'; };
     const vt = (t) => (t === 'crit' || t === 'pierce' || t === 'multi' || t === 'stun' ? t : 'dmg');
     const base = UI.applyEvent;
+    // 고등급 연출은 맞는 순간이 늦다(A 0.35초·S 0.45초·SS 0.65초쯤). 피해 숫자가 먼저 뜨지 않게 첫 피해 표시를 그만큼 늦추고,
+    // 전투 재생(UI.play)이 다음 사건을 그만큼 기다리게 대기 시간을 돌려준다.
+    const hitMs = (tier) => (tier >= 7 ? 650 : tier >= 6 ? 450 : 350) / Math.max(0.5, FXG.S.speed());
+    const playMul = () => { const c = this.ctx || UI.ctx; return (c && c.combat && c.combat.auto ? 0.55 : 1) * (typeof FX !== 'undefined' && FX.reduced ? 0.6 : 1); };
     UI.applyEvent = function (l) {
+      const ev0 = l && l.ev, c0 = this.ctx, cast0 = this._fxf;
+      if (ev0 && ev0.k === 'dmg' && c0 && c0.combat && cast0 && cast0.sig && !cast0.aoe && !cast0.shots && (ev0.src == null || ev0.src === cast0.src) && active()) {
+        // 연출은 지금 시작하고, 피해 표시(기본 처리)는 맞는 순간에
+        const ms = hitMs(cast0.tier); let done = false;
+        const to = at(unitEl(ev0.dst)), from = at(unitEl(cast0.src));
+        if (to) { cast0.shots = 1; hushOld(); FXS.run(cast0.sig, 'hit', { f: from, t: to, e: ev0.elem || cast0.elem || 'none', tier: cast0.tier }); }
+        setTimeout(() => { if (done || this.ctx !== c0) return; done = true; try { base.call(this, l); } catch (e) { /* 무시 */ } }, ms);
+        return Math.round(ms / playMul()) + 430;
+      }
       const r = base.call(this, l);
       const ev = l && l.ev, c = this.ctx;
       if (!ev || !c || !c.combat) return r;
       try {
         if (!active()) return r; hushOld();
         const unit = (id) => c.combat.units.find((u) => u.id === id);
-        if (ev.k === 'cast') { const rec = recipe(ev.name, unit(ev.src)); this._fxf = { src: ev.src, elem: ev.elem, side: ev.side, rec, type: rec.type, shots: 0, aoe: false }; return r; }
+        if (ev.k === 'cast') {
+          const rec = recipe(ev.name, unit(ev.src)); index(); const sk = ev.name ? skillByName[ev.name] : null;
+          // A급 이상 스킬은 고유 연출(js/fx_sig.js), S·SS 는 시전자 발밑 등급 연출도 붙는다
+          const sig = typeof FXS !== 'undefined' && ev.name && FXS.has(ev.name) ? ev.name : null, tier = sk ? sk.rankReq || 0 : 0;
+          this._fxf = { src: ev.src, elem: ev.elem, side: ev.side, rec, type: rec.type, shots: 0, aoe: false, sig, tier, sups: 0 };
+          if (sig && tier >= 6 && tier < 90) { const f = at(unitEl(ev.src)); if (f) FXS.K.tier(tier, f, FXG.el(ev.elem || 'none')); }
+          return r;
+        }
         const cast = this._fxf || {}; const e = ev.elem || cast.elem || 'none';
         if (ev.k === 'aoe') {
           const tside = ev.side === 'ally' ? 'enemy' : 'ally'; const pts = c.combat.units.filter((u) => u.side === tside && u.alive).map((u) => at(unitEl(u.id))).filter(Boolean);
+          if (cast.sig && FXS.run(cast.sig, 'aoe', { f: at(unitEl(cast.src)), a: sideArea(tside), s: pts, e, tier: cast.tier })) { cast.aoe = true; return r + Math.round(hitMs(cast.tier) / playMul()); } // 피해 숫자는 연출이 떨어진 뒤에
           const rec = cast.rec || { form: 'orb' }; FXF.playAoe(rec.form, at(unitEl(cast.src)), sideArea(tside), pts, { el: e, pal: rec.pal, type: 'aoe', flask: rec.flask }); cast.aoe = true; return r;
         }
         if (ev.k === 'dmg') {
@@ -88,8 +109,13 @@ const FXMAP = (() => {
           if (cast.aoe && cast.src === src) return r; // 전체 공격은 이미 대상마다 터뜨렸다
           const mine = cast.src === src, rec = mine && cast.rec ? cast.rec : recipe('', unit(src)), t = mine ? cast.type : 'dmg';
           const dst = unit(ev.dst), edge = dst && UI.elemEdge ? UI.elemEdge(ev.elem, dst.elem) : 0;
+          if (mine && cast.sig) { // 고유 연출: 첫 타에만 전체 연출, 이어지는 타는 작은 속성 타격
+            if (cast.shots++) { FXF.accent(rec.pal || e, to.x + (Math.random() - 0.5) * 16, to.y + (Math.random() - 0.5) * 16, 0.45); return r; }
+            if (FXS.run(cast.sig, 'hit', { f: from, t: to, e, tier: cast.tier })) return r;
+          }
           if (t === 'multi' && cast.shots++) { FXF.accent(rec.pal || e, to.x + (Math.random() - 0.5) * 16, to.y + (Math.random() - 0.5) * 16, 0.45); return r; }
           FXF.play(rec.form, from || { x: to.x, y: to.y + 240 }, to, { el: e, pal: rec.pal, type: vt(t), big: !!ev.crit, flask: rec.flask });
+          if (ev.crit) FXG.at(0.2, () => FXG.shake(4, 180));
           if (edge > 0) FXG.at(0.25, () => { FXG.p('ring', to.x, to.y, { s: [40, 170], c: ['#fff6c8', '#ffd166'], life: 0.35, pop: true }); FXG.burst('star4', to.x, to.y, 5, { v: [120, 260], sz: [18, 30, 4], c: ['#fff6c8', '#ffd166'], life: [0.3, 0.5] }); });
           if (edge < 0) FXG.at(0.2, () => FXG.burst('spark', to.x, to.y, 8, { v: [200, 420], sz: [12, 20, 2], asp: 0.3, face: true, c: ['#dbe6f5', '#7f8ea6'], life: [0.2, 0.35] }));
           if (t === 'drain') setTimeout(() => FXF.drain(to, from, e), 260);
@@ -98,6 +124,7 @@ const FXMAP = (() => {
           return r;
         }
         const p = at(unitEl(ev.dst)); if (!p) return r; const t = cast.type;
+        if (cast.sig && ev.k !== 'mp' && FXS.run(cast.sig, 'sup', { f: at(unitEl(cast.src)), t: p, e: cast.elem || 'none', i: cast.sups++ })) return r;
         if (ev.k === 'heal') FXF.support(ev.revive ? 'revive' : 'heal', p, cast.elem);
         else if (ev.k === 'mp') FXF.support('mp', p);
         else if (ev.k === 'buff') FXF.support(t === 'taunt' ? 'taunt' : t === 'evade' ? 'evade' : /shield/.test(t || '') ? 'shield' : /debuff/.test(t || '') ? 'debuff' : 'buff', p, cast.elem, { all: /_all/.test(t || '') });
