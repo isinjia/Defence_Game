@@ -238,14 +238,11 @@ Object.assign(UI, {
   },
   renderExamEnd() {
     const ex = this.exam; const mates = ex.ids.map((id) => G.npcById(id)).filter(Boolean);
-    const R = RANKS[G.player.rankIdx];
-    this.modal(`<div class="eyebrow">헌터 자격 시험 · 결과</div><h3><span class="tag rank" style="--c:${R.color}">${R.key}급</span> 헌터 자격증 발급</h3>
-      ${ex.talked ? '' : `<p class="event-text">${fixJosa(ex.text)}</p>`}
-      ${ex.reveal && !ex.talked ? `<div class="sec-title sec">협회 등급 측정</div><p class="event-text">${fixJosa(ex.reveal.text)}</p>` : ''}
-      ${ex.talked ? '' : `<p class="event-text">시험장을 나서자 임시 파티원들이 당신을 바라본다. "…우리, 연락처라도 주고받을까? 어디로 뽑힐지는 모르지만."</p>`}
-      <div class="sec-title sec">연락처를 교환할 동기 <span class="small dim">(눌러서 선택·해제 · 측정 뒤 같은 곳에 뽑히면 첫 파티 후보가 된다)</span></div>
+    this.modal(`<div class="eyebrow">시험 동기</div><h3>연락처 교환</h3>
+      <p class="event-text">시험장을 나서자 임시 파티원들이 당신을 바라본다.<br>"…우리, 연락처라도 주고받을까? 어디로 뽑힐지는 모르지만."</p>
+      <div class="sec-title sec">연락처를 교환할 동기 <span class="small dim">(눌러서 선택·해제)</span></div>
       <div class="cards">${mates.map((n) => `<button class="item-row choice-btn ${ex.pick.has(n.id) ? 'on' : ''}" data-act="exam-pick" data-v="${n.id}">${this.npcAvatar(n, 40)}<div class="grow"><b>${n.name}</b>
-        <div><span class="tag cls tiny" style="--c:${groupColor(classById(n.cls).g)}">${className(n.cls)}</span> <span class="small dim">${persById(n.personality).name}</span></div></div><b class="${ex.pick.has(n.id) ? 'amber' : 'dim'}">${ex.pick.has(n.id) ? '함께' : '각자'}</b></button>`).join('')}</div>
+        <div><span class="tag cls tiny" style="--c:${groupColor(classById(n.cls).g)}">${className(n.cls)}</span> <span class="small dim">${persById(n.personality).name}</span></div></div><b class="${ex.pick.has(n.id) ? 'amber' : 'dim'}">${ex.pick.has(n.id) ? '교환' : '미교환'}</b></button>`).join('')}</div>
       <div class="row end"><button class="ghost" data-act="exam-solo">교환하지 않는다</button><button class="primary" data-act="exam-party" ${ex.pick.size ? '' : 'disabled'}>${`${ex.pick.size}명과 연락처 교환`}</button></div>`, 'event-box');
   },
   endExam(ids) {
