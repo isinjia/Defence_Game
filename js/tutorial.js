@@ -243,7 +243,7 @@ Object.assign(UI, {
       <div class="sec-title sec">연락처를 교환할 동기 <span class="small dim">(눌러서 선택·해제)</span></div>
       <div class="cards">${mates.map((n) => `<button class="item-row choice-btn ${ex.pick.has(n.id) ? 'on' : ''}" data-act="exam-pick" data-v="${n.id}">${this.npcAvatar(n, 40)}<div class="grow"><b>${n.name}</b>
         <div><span class="tag cls tiny" style="--c:${groupColor(classById(n.cls).g)}">${className(n.cls)}</span> <span class="small dim">${persById(n.personality).name}</span></div></div><b class="${ex.pick.has(n.id) ? 'amber' : 'dim'}">${ex.pick.has(n.id) ? '교환' : '미교환'}</b></button>`).join('')}</div>
-      <div class="row end"><button class="ghost" data-act="exam-solo">교환하지 않는다</button><button class="primary" data-act="exam-party" ${ex.pick.size ? '' : 'disabled'}>${`${ex.pick.size}명과 연락처 교환`}</button></div>`, 'event-box');
+      <div class="row end"><button class="ghost" data-act="exam-solo">교환하지 않는다</button><button class="primary" data-act="exam-party" ${ex.pick.size ? '' : 'disabled'}>${`${ex.pick.size}명과 연락처 교환`}</button></div>`, 'event-box fit-box');
   },
   endExam(ids) {
     const p = G.player; const ex = this.exam || { ids: [] };
