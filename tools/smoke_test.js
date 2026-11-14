@@ -813,15 +813,13 @@ const { chromium, devices } = require('playwright');
         UI.sheet = 'gear';
         const root = document.createElement('template'); root.innerHTML = UI.sheetHtml();
         const body = root.content.querySelector('.sheet-body');
-        const panel = body && body.querySelector(':scope > .panel');
-        if (!panel || body.children.length !== 1) throw new Error('장비 패널 밖으로 구역이 빠짐');
-        const sections = [...panel.querySelectorAll(':scope > .sec')];
-        const section = title => sections.find(s => s.querySelector(':scope > .sec-title')?.textContent.trim() === title);
-        for (const [title, count] of [['장착 장비', 1], ['방어구 · 5칸', 5], ['장신구 · 3칸', 3]]) {
-          if (section(title)?.querySelectorAll(':scope > .cards > .item-row').length !== count) throw new Error('장비 칸 누락: ' + title);
+        const layout = body && body.querySelector(':scope > .gl-layout');
+        if (!layout || body.children.length !== 1) throw new Error('장비 패널 밖으로 구역이 빠짐');
+        for (const slot of ['weapon', ...ARMOR_SLOT_IDS, ...ACC_SLOT_IDS]) {
+          if (layout.querySelectorAll(`[data-act="gear-slot"][data-v="${slot}"]`).length !== 1) throw new Error('장비 칸 누락: ' + slot);
         }
-        if (!section('가방') || !section('소모품')) throw new Error('인벤토리 누락');
-        if (!sections.some(s => s.textContent.includes('테마 세트 도감'))) throw new Error('확장 장비 구역 누락');
+        if (!layout.querySelector('.gl-inventory [data-v="equip"]') || !layout.querySelector('.gl-inventory [data-v="cons"]')) throw new Error('인벤토리 누락');
+        if (!layout.textContent.includes('테마 세트 도감')) throw new Error('확장 장비 구역 누락');
       } finally { UI.sheet = sheet; p.equip = equip; p.inventory = inventory; }
     });
   });
