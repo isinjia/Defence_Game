@@ -16,7 +16,7 @@ if (typeof UI !== 'undefined' && UI.hudCard) {
 .hud-quick button:active{transform:translateY(1px)}
 #hud-tl .menu-one{display:none}
 .modal-box.quick-sheet .sheet-head .tabs{display:none}
-.modal-box.quick-sheet{position:relative;height:auto !important;min-height:0 !important}
+.modal-box.quick-sheet{position:relative}
 .modal-box.quick-sheet .sheet-head{position:absolute;top:12px;right:12px;z-index:5;padding:0;margin:0;border:0;min-height:0;background:none;box-shadow:none}
 .modal-box.quick-sheet .sheet-body > .panel > h3:first-child, .modal-box.quick-sheet .gl-loadout > :first-child{padding-right:48px;min-height:36px}
 .modal-box.quick-sheet .sheet-body > .panel, .modal-box.quick-sheet .sheet-body > div > .panel{border:0;background:none;box-shadow:none;padding-left:4px;padding-right:4px}
