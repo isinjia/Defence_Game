@@ -191,3 +191,17 @@ body.ctx-gmap #tut-skip { top: calc(env(safe-area-inset-top, 0px) + 40px) !impor
 
 /* 월드맵 확대·축소(+/−) 단추 삭제 (사용자 요청, 2026-11-14). 두 손가락 벌리기·마우스 휠 확대는 그대로 */
 html body .hud-zoom [data-act=zoom-in], html body .hud-zoom [data-act=zoom-out] { display: none !important; }
+
+/* 월드맵의 '튜토리얼 건너뛰기': +/− 단추가 빠진 뒤 지도 한가운데쯤에 떠 있었다(사용자 지적).
+   위쪽 줄(날짜 칩과 설정 단추 사이, 튜토리얼 중 비어 있는 크레딧 칸 자리)에 같은 높이로 붙인다 */
+html body:not(.ctx-combat):not(.ctx-gmap) > #tut-skip {
+  top: calc(env(safe-area-inset-top, 0px) + 8px) !important; bottom: auto !important; right: 64px; left: auto; transform: none;
+  height: 44px; line-height: 42px; padding: 0 14px; font-size: 13px; border-radius: 4px;
+  background: #0d1520ee; border: 1px solid #3a4a62; color: #e8eef6; box-shadow: 0 2px 10px #0008;
+}
+@media (max-width: 350px) { html body:not(.ctx-combat):not(.ctx-gmap) > #tut-skip { right: 60px; padding: 0 10px; font-size: 12px; } }
+
+/* 팀 상의 응답 단추 글자 가운데 정렬 (사용자 요청) */
+html body #council-ov .cv-actions.cn-btns button, html body #council-ov .cn-btns button { justify-content: center; text-align: center; }
+/* 팀 상의 창 안의 '튜토리얼 건너뛰기'는 응답 단추 아래 작은 글씨(council_dialog.css) — 탐색 지도용 위치 규칙(ctx-gmap)이 끼어들어 위 안내 글과 겹쳤다 */
+html body #council-ov #tut-skip { top: auto !important; bottom: auto !important; left: auto; right: auto; transform: none !important; height: auto; line-height: 1.5; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
