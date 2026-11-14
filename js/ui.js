@@ -296,8 +296,7 @@ const UI = {
         <button data-act="train">${FX.icon('train')} 수련 <span class="dim-in">1개월 +${fmt(est)}</span></button>
         <button data-act="rest">${FX.icon('rest')} 휴식 <span class="dim-in">1개월</span></button>
 
-      </div>
-      <div class="act-hint small dim">목적지를 선택해 이동 · 평지 한 칸 ${WORLD.formatTravelTime(G.travelCostDays(1))} · 국도 ${WORLD.formatTravelTime(G.travelCostDays(WORLD.ROAD_COST,true))}(대각선·산은 더)</div>`;
+      </div>`;
   },
 
   // NPC의 지도 위치 (매달 도시 근처에서 바뀜)
@@ -451,7 +450,7 @@ const UI = {
       case 'log': body = `<div class="panel">${this.rightHtml()}</div>`; break;
       default: body = this.charHtml();
     }
-    return `<div class="sheet-head"><nav class="tabs">${tabs.map(([k, n]) => `<button class="${name === k ? 'on' : ''}" data-act="sheet" data-v="${k}">${n}</button>`).join('')}</nav>
+    return `<div class="sheet-head">${name === 'quest' ? '<h3>의뢰</h3>' : `<nav class="tabs">${tabs.map(([k, n]) => `<button class="${name === k ? 'on' : ''}" data-act="sheet" data-v="${k}">${n}</button>`).join('')}</nav>`}
       <button class="icon-btn" data-act="modal-close" aria-label="닫기">×</button></div><div class="sheet-body">${body}</div>`;
   },
 

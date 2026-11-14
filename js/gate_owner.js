@@ -204,7 +204,8 @@ Object.assign(UI, {
   UI.showTip = function (x, y) {
     baseTip.call(this, x, y);
     const tip = document.getElementById('hud-tip'); if (!tip) return;
-    const g = G.objAt(x, y); if (!g || g.kind !== 'gate' || !G.gateSeen(g)) return;
+    const g = G.objAtSeen(x, y); if (!g || g.kind !== 'gate' || !G.gateSeen(g)) return;
+    if (g._mapMemo) { tip.insertAdjacentHTML('beforeend', `<div class="small dim">마지막 확인 관리 주체: ${G.ownerName(g.owner)}</div>`); return; }
     tip.insertAdjacentHTML('beforeend', fixJosa(this.gateAccessHtml(g)));
   };
   // 지도: 게이트 옆 관리 깃발
@@ -214,7 +215,7 @@ Object.assign(UI, {
     baseObjs.call(this);
     if (!G.mapGates) return;
     const c = this.ctx, s = this.tile;
-    for (const g of G.mapGates) {
+    for (const g of G.gatesShown()) {
       if (!G.gateSeen(g) || !g.owner || g.north || g.final) continue;
       const [px, py] = this.toScreen(g.x + 0.5, g.y + 0.5);
       if (px < -s || py < -s || px > this.w + s || py > this.hgt + s) continue;

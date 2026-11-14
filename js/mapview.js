@@ -316,7 +316,7 @@ class MapView {
     const c = this.ctx, s = this.tile, t = this.t;
     const vis = (x, y) => G.seenNow(x, y); // 지금 시야 (sight_now.js)
     // NPC 표식
-    for (const n of G.npcs) {
+    for (const n of (G._mapFacesOnly ? [] : G.npcs)) {
       if (!n.alive || n.isCompanion) continue;
       const [x, y] = UI.npcPos(n);
       if (!vis(x, y) || G.objAt(x, y)) continue;
@@ -330,7 +330,7 @@ class MapView {
       c.restore();
     }
     // 괴수 무리
-    for (const m of G.mobs) {
+    for (const m of (G._mapFacesOnly ? [] : G.mobs)) {
       if (!vis(m.x, m.y)) continue;
       const [px, py] = this.toScreen(m.x + 0.5, m.y + 0.5);
       if (px < -s || py < -s || px > this.w + s || py > this.hgt + s) continue;

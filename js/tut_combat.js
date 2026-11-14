@@ -46,6 +46,29 @@ function tutAddSys(h, text) {
           }
         }
       }
+      // 보스 상성 학습 중에는 일반 AI의 무작위 오더 대신 안내와 같은 공격을 지시한다.
+      if (r === 'wait' && t && t.boss && t.acted < 2 && u.isPlayer) {
+        const L = this.leader && this.leader();
+        const boss = this.units.find((x) => x.boss && x.alive && x.side === 'enemy');
+        if (L && !L.isPlayer && boss) {
+          const skills = this.skillsOf(u).filter((sk) => sk.mp <= u.mp &&
+            ['dmg', 'crit', 'pierce', 'dot', 'drain', 'stun'].includes(sk.type) &&
+            (SKILL_AIM[sk.type] || 'none') === 'enemy' &&
+            elemEdge(sk.elem === 'self' ? u.elem : sk.elem, boss.elem) > 0);
+          const sk = skills.sort((a, b) => b.power - a.power)[0];
+          // 이미 기록된 일반 AI 오더도 지워 말풍선과 표식이 서로 다른 대상을 가리키지 않게 한다.
+          for (let i = this.log.length - 1; i >= 0 && i >= this.log.length - 6; i--) {
+            const l = this.log[i];
+            if (l && l.ev && l.ev.k === 'say' && l.ev.src === L.id) { this.log.splice(i, 1); break; }
+          }
+          u.order = null;
+          if (sk) {
+            const say = `${sk.name}! ${boss.name}!`;
+            u.order = { skill: sk.id, target: boss.id, by: L.id, rate: 1, say };
+            this.push(`${L.name}: "${u.name}, ${say}"`, '', { k: 'say', src: L.id, text: `${u.name}, ${say}` });
+          }
+        }
+      }
       const o = u && u.isPlayer && u.order;
       if (t && o && o.act === 'item' && o.item === 'potion' && o.say === '회복약!') {
         if (t.potionOrdered) {
@@ -183,7 +206,7 @@ function tutAddSys(h, text) {
       if (c.cmd === 'item') return [`#cb-ctrl .cmd-pop [data-act="c-item"][data-v="${o.item}"]`];
       return ['#cb-ctrl .cmd-main [data-act="c-cmd"][data-v="item"]'];
     }
-    if (o && !o.vague && o.skill && !t.boss) {
+    if (o && !o.vague && o.skill) {
       if (c.sel === o.skill && o.target) return [`#u-${o.target}`];
       if (c.sel) return [];
       const main = o.skill === 'strike' ? '#cb-ctrl .cmd-main [data-act="c-skill"][data-v="strike"]' : '#cb-ctrl .cmd-main [data-act="c-cmd"][data-v="skill"]';

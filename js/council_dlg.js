@@ -3,7 +3,20 @@
 //   리더 제안(대화) → 상의 창 → 내가 고르면 창이 사라지고 → 내 한마디·리더의 화답(대화) → 이동
 // 판정·관계 변화는 council.js · council_exam.js 의 함수를 그대로 쓰고, 그 안의 알림(toast)·패널·지연 이동만 대화로 옮긴다.
 {
-  const say = (L, T) => { const k = L ? (L.personality === 'cold' ? 'cold' : L.personality === 'kind' ? 'kind' : 'just') : 'just'; return T[k] || T.just; };
+  // 전투 안내와 같은 인물 말투를 사용한다. 성격만 보고 존댓말로 바꾸지 않는다.
+  const proposal = (L, nm) => {
+    const r = G.personaRegister ? G.personaRegister(L) : 'haera';
+    const lines = {
+      haera: `${nm} 쪽으로 간다. 반대 있으면 지금 말해라.`,
+      banmal: `${nm} 쪽으로 가자. 다른 생각 있으면 말해.`,
+      short: `${nm}. 간다. 의견은?`,
+      haeyo: `${nm} 쪽으로 가 볼까요? 의견 있으면 말해 줘요.`,
+      hapsyo: `${nm} 쪽으로 가겠습니다. 의견이 있으면 말씀해 주십시오.`,
+      hao: `${nm} 쪽으로 가겠소. 의견이 있으면 말하시오.`,
+      hage: `${nm} 쪽으로 가세. 다른 생각 있으면 말하게.`,
+    };
+    return `"${lines[r] || lines.haera}"`;
+  };
   // 알림 문장 "이름: "말"" 을 그 사람의 대사로
   const toLine = (msg) => {
     const s = String(msg || ''); const m = /^(.+?): (["“].*)$/.exec(s);
@@ -35,7 +48,7 @@
     if (cn && L && cn.stage === 'vote' && !cn.leadSaid) {
       cn.leadSaid = true; closeOv();
       const nm = GNODE[this.nodeOf(cn.key).t].name;
-      return this.talk([{ who: L, text: say(L, { just: `"${nm}(으)로 간다. 반대 있으면 지금 말해."`, kind: `"${nm} 쪽으로 가 볼까요? 의견 있으면 말해 줘요."`, cold: `"${nm}. 간다. 할 말 있으면 해."` }) }], () => { if (this.ctx === c && c.council === cn) { baseRender0.apply(this, a); stripLead(); } });
+      return this.talk([{ who: L, text: proposal(L, nm) }], () => { if (this.ctx === c && c.council === cn) { baseRender0.apply(this, a); stripLead(); } });
     }
     const r = baseRender0.apply(this, a); stripLead(); return r;
   };
@@ -67,7 +80,7 @@
     const cap = capture(this, () => baseLead.apply(this, a));
     const t = this.councilLead; if (!t || !cap.panel) return;
     const L = this.examLeader(); const nm = GNODE[t.nd.t].name; const ctx = this.ctx;
-    this.talk([{ who: L || '리더', text: say(L, { just: `"${nm}(으)로 간다. 반대 있으면 지금 말해."`, kind: `"${nm} 쪽으로 가 볼까요? 의견 있으면 말해 줘요."`, cold: `"${nm}. 간다."` }) }],
+    this.talk([{ who: L || '리더', text: proposal(L, nm) }],
       () => { if (this.ctx !== ctx || this.councilLead !== t) return; this.councilPanel(cap.panel.replace(/<p class="small dim">정하는 건 리더다[^<]*<\/p>/, '')); stripLead(); /* [사용자 요청] '정하는 건 리더다' 문구 삭제 */ if (window.TUT_AUTO_TAP) this.autoFollow(document.querySelector('#council-ov [data-act="cn-lead"][data-v="O"]'), 1); });
   };
   const baseRes = UI.councilLeadResolve;
