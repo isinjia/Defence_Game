@@ -151,7 +151,7 @@ const PROLOGUE = {
       { text: '무시하고 412번 표를 꼭 쥔 채 다시 줄을 선다', talent: 1, t: { iron_body: 1 }, flag: 'hope_kama', next: null },
       { text: '"얼마예요?" 일단 조건부터 듣는다', t: { merchant: 2 }, luck: 1, flag: ['hope_free', 'broker'], next: null },
       { text: '브로커의 손목 문신을 기억해 둔다. 언젠가 쓸모가 있겠지', t: { quick: 1, lucky: 1 }, flag: ['hope_free', 'broker'], next: null },
-      { text: '{friend}에게 전화한다. "나 오늘 늦어. 그래도 정식으로 할게."', t: { charisma: 1 }, friend: 15, flag: 'hope_free', next: null },
+      { text: '브로커를 등지고 {friend}에게 전화한다. "줄이 길어서 오늘 늦겠어. 등록 끝나면 우리 같이 팀 짜자."', t: { charisma: 1 }, friend: 15, flag: 'hope_free', next: null },
       { text: '브로커의 멱살을 잡고 관리국 경비를 부른다', t: { berserk: 1, reckless: 1 }, talent: 1, flag: 'hope_kama', next: null },
     ] },
 };
