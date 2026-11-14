@@ -248,3 +248,21 @@ if (typeof UI !== 'undefined' && UI.unitEl) {
     return h;
   };
 }
+
+// 기술 상세 창(js/skill_hold.js): 방어·강화·회복처럼 피해를 주지 않는 기술에도 속성만 보고 '상태 이상'·'원소 반응' 줄이 붙었다(사용자 지적).
+// 상태 이상은 맞혀서 피해를 줄 때만 걸리므로(js/status_fx.js dealDamage) 피해 기술에만 보여 준다.
+// 또 자기 강화(방어·강화·회피·회복)는 내가 쓰면 나에게 걸리므로 '대상'을 '자신'으로. 동료에게 오더를 내릴 때만 '아군 하나'.
+if (typeof UI !== 'undefined' && UI.skillHoldHtml) {
+  const DMG_TYPES = ['dmg', 'crit', 'pierce', 'multi', 'dot', 'drain', 'stun', 'aoe'];
+  const SELF_TYPES = ['heal', 'buff', 'shield', 'evade'];
+  const baseHold = UI.skillHoldHtml;
+  UI.skillHoldHtml = function (sk, u, ...a) {
+    let h = baseHold.call(this, sk, u, ...a);
+    try {
+      if (sk && !DMG_TYPES.includes(sk.type)) h = h.replace(/<tr><th>상태 이상<\/th>[\s\S]*?<\/tr>/, '').replace(/<tr><th>원소 반응<\/th>[\s\S]*?<\/tr>/, '');
+      const ordering = this.ctx && this.ctx.orderFor && u && u.id === this.ctx.orderFor;
+      if (sk && SELF_TYPES.includes(sk.type) && !ordering) h = h.replace('<tr><th>대상</th><td>아군 하나</td></tr>', '<tr><th>대상</th><td>자신</td></tr>');
+    } catch (e) { /* 무시 */ }
+    return h;
+  };
+}
