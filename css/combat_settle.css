@@ -1,7 +1,13 @@
 /* 전투 결산: 획득 → MVP → 파티 피해/치유/피격 · 확인은 스크롤 밖 하단 고정 */
+.settle-pop.combat {
+  /* 전투창이 화면보다 짧아도 정산 내용이 격자 행을 밀어 늘리지 않게 한다. */
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+}
 .settle-pop.combat .settle-box {
   width: min(460px, 100%);
-  max-height: min(88dvh, 640px);
+  max-height: min(100%, 88dvh, 640px);
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
