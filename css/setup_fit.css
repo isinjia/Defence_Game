@@ -62,3 +62,7 @@
   .create.ps-fit .id-preview .portrait-swap-hold { inset: 0; width: 100%; height: 100%; }
   .create.ps-fit .id-preview .portrait-swap-hold > svg, .create.ps-fit .id-preview .portrait-swap-hold > .portrait-img { width: 100% !important; height: 100% !important; max-width: none; }
 }
+
+/* 프롤로그 장면: 위쪽 인물 정보(초상·이름·출신·속성·진행 점)를 없애고 장면을 맨 위로 (사용자 요청) */
+.prologue .pro-side { display: none !important; }
+.prologue .pro-inner { grid-template-columns: 1fr !important; grid-template-rows: auto !important; align-content: start !important; }
