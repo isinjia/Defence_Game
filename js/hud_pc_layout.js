@@ -65,3 +65,39 @@
     t = setTimeout(() => { try { UI.placeHudPc(); } catch (e) { /* 무시 */ } }, 80);
   });
 }
+
+// 월드맵 퀘스트는 짧은 목표만 표시한다. 원문은 의뢰 메뉴와 접근성 이름에 유지한다.
+{
+  const short = (text) => String(text || '')
+    .replace(/^메인 · (\d+)장 「([^」]+)」 — /, '메인 · $1장 $2 · ')
+    .replace(/^리더 (.+?)에게 말 걸기 · 일하러 간다$/, '$1 · 집결')
+    .replace(/에서 리더와 합류$/, ' · 집결')
+    .replace(/^팀 호출 · 이 도시로 모은다$/, '팀 호출')
+    .replace(/^팀 호출 \(도시에서\)$/, '도시에서 팀 호출')
+    .replace(/\s*· 만료까지 /g, ' · 기한 ')
+    .replace(/가까운 게이트 하나 공략하기/g, '첫 게이트 공략')
+    .replace(/도시에 들어간다/g, '도시 방문')
+    .replace(/의뢰소에 보고하기/g, '의뢰 보고')
+    .replace(/공략하기/g, '공략').replace(/수락하기/g, '수락')
+    .replace(/진행 중인 의뢰가 없다. 도시 의뢰소에서 받을 수 있다./g, '의뢰 없음');
+  const base = UI.hudQuests;
+  UI.hudQuests = function (...args) {
+    const root = document.createElement('template'); root.innerHTML = base.apply(this, args);
+    for (const el of root.content.querySelectorAll('.hq-t, .obj-sub, .travel-chip')) {
+      const full = el.textContent; const compact = short(full);
+      if (full === compact) continue;
+      el.textContent = compact;
+      const row = el.closest('button') || el;
+      if (!row.hasAttribute('title')) row.setAttribute('title', full);
+      if (!row.hasAttribute('aria-label')) row.setAttribute('aria-label', full);
+    }
+    for (const row of root.content.querySelectorAll('[data-act="hq-go"]')) {
+      const text = row.querySelector('.hq-t');
+      if (text && !text.textContent.startsWith('서브 · ')) text.textContent = '서브 · ' + text.textContent;
+    }
+    const main = root.content.querySelector('.main-q');
+    const title = root.content.querySelector('.obj-title');
+    if (main && title) title.after(main);
+    return root.innerHTML;
+  };
+}

@@ -97,11 +97,10 @@ function mapDrawGuildBadge(c, px, py, R, guild) {
   const MP = MapView.prototype;
   const baseObjs = MP.drawObjects;
   MP.drawObjects = function () {
-    const npcs = G.npcs, mobs = G.mobs;
+    const npcs = G.npcs, mobs = G.mobsShown ? G.mobsShown() : G.mobs;
     // 마름모·발톱 그리기를 건너뛰고 게이트 등만 그린다
-    G.npcs = []; G.mobs = [];
-    baseObjs.call(this);
-    G.npcs = npcs; G.mobs = mobs;
+    const old = G._mapFacesOnly; G._mapFacesOnly = true;
+    try { baseObjs.call(this); } finally { G._mapFacesOnly = old; }
     if (!G.player) return;
 
     const c = this.ctx, s = this.tile, t = this.t;
@@ -132,16 +131,18 @@ function mapDrawGuildBadge(c, px, py, R, guild) {
     }
 
     for (const m of mobs || []) {
-      if (!vis(m.x, m.y)) continue;
+      if (!m._mapMemo && !vis(m.x, m.y)) continue;
       const [px, py0] = this.toScreen(m.x + 0.5, m.y + 0.5);
       if (px < -s || py0 < -s || px > this.w + s || py0 > this.hgt + s) continue;
       const bob = Math.sin(t / 18 + (m.id || 0)) * 1.5;
       const py = py0 + bob;
       const R = Math.max(10, s * 0.3);
       const col = elemColor(m.elem);
+      c.save(); if (m._mapMemo) c.globalAlpha = 0.55;
       mapDrawCircleArt(c, px, py, R, mapMobImage(m), '#1d0e12');
       mapMarkerRing(c, px, py, R, col, 2.4);
       this.chip(px, py + R + 8, `${RANKS[m.tier].key}·${m.count}`, RANKS[m.tier].color);
+      c.restore();
     }
   };
 

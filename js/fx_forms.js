@@ -355,7 +355,22 @@ const FXF = (() => {
     },
   };
   // 머리 위를 도는 별 (기절)
-  function stars(to) { const y0 = to.y - (to.h || 60) * 0.62; add({ life: 1.1, draw(k) { const al = k > 0.75 ? (1 - k) / 0.25 : Math.min(1, k * 8); for (let i = 0; i < 4; i++) { const a = k * 11 + i * TAU / 4; G.spr('star5', to.x + Math.cos(a) * 30, y0 + Math.sin(a) * 9, 22, 22, a, rgb(Math.sin(a) > 0 ? '#fff3a0' : '#ffd23f'), al, true); } } }); }
+  function stars(to, follow) {
+    return add({ life: follow ? Infinity : 1.1, draw(k, self) {
+      const t = follow ? follow() : to;
+      if (!t) { self.life = 0; return; }
+      const y0 = t.y - (t.h || 60) * 0.62;
+      const al = follow ? Math.min(1, self.t * 8) : k > 0.75 ? (1 - k) / 0.25 : Math.min(1, k * 8);
+      const radius = follow ? Math.max(18, Math.min(40, t.w * 0.42)) : 30;
+      const size = follow ? Math.max(10, Math.min(18, t.w * 0.2)) : 22;
+      const angle = follow ? (typeof FX !== 'undefined' && FX.reduced ? 0 : self.t * 5) : k * 11;
+      for (let i = 0; i < 4; i++) {
+        const a = angle + i * TAU / 4;
+        G.spr('star5', t.x + Math.cos(a) * radius, y0 + Math.sin(a) * 7, size, size, a,
+          rgb(Math.sin(a) > 0 ? '#fff3a0' : '#ffd23f'), al, true);
+      }
+    } });
+  }
 
   // ---------- 전체 공격 ----------
   // from 시전자, area {x, y, w, h} 상대 진영, spots 실제 대상 자리

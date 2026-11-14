@@ -245,3 +245,6 @@ html body #coach-pop .coach-arrow { display: none !important; }
 .foe.boss > .boss-tag { position: absolute; top: -2px; left: -2px; z-index: 3; font-size: 11px; font-weight: 800; line-height: 1.4; color: #fff; background: #c0392b; padding: 0 5px; border-radius: 3px; pointer-events: none; box-shadow: 0 1px 4px #0008; }
 #modal-box.cu-v2 .foe.foe-card.boss > .fx-host { width: calc(var(--fs, 72px) * 1.5); height: calc(var(--fs, 72px) * 1.5); }
 #modal-box.cu-v2 .foe.foe-card.boss .fx-host > .foe-name { max-width: calc(var(--fs, 72px) * 1.5 + 14px); }
+
+/* 튜토리얼 안내: '조작' 줄 안에 더한 설명 (js/tut_combat.js tutAddSys) */
+.coach-sys .coach-ord { margin-top: 5px; padding-top: 5px; border-top: 1px dashed #8a7a5a55; }

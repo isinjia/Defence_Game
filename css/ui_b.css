@@ -451,9 +451,9 @@
 .hud-zoom [data-act=zoom-out]:disabled { opacity: .35; }
 .hud-zoom.hud-zoom-on { gap: 6px; }
 @media (max-width: 640px) {
-  .hud-tr { top: calc(60px + env(safe-area-inset-top, 0px)) !important; left: 12px !important; right: auto !important; width: min(300px, 64vw) !important; } /* 메뉴 아래 왼쪽 (사용자 요청) */
+  .hud-tr { top: calc(60px + env(safe-area-inset-top, 0px)) !important; left: 12px !important; right: auto !important; width: min(240px, 54vw) !important; } /* 메뉴 아래 왼쪽 (사용자 요청) */
   .hud-zoom { top: calc(8px + env(safe-area-inset-top, 0px)) !important; }
-  #world.fold-obj .hud-tr { left: 12px !important; width: max-content !important; max-width: min(300px, 64vw); }
+  #world.fold-obj .hud-tr { left: 12px !important; width: max-content !important; max-width: min(240px, 54vw); }
 }
 .modal-box.menu-pop { width: min(420px, 100%); }
 .menu-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 8px 0; }
@@ -589,9 +589,9 @@ body.tut-hold #coach-pop { z-index: 60; }
     top: calc(60px + env(safe-area-inset-top, 0px)) !important;
     left: max(12px, env(safe-area-inset-left, 0px)) !important;
     right: auto !important;
-    width: min(320px, 36vw) !important;
+    width: min(260px, 30vw) !important;
   }
-  #world.fold-obj .hud-tr { left: max(12px, env(safe-area-inset-left, 0px)) !important; width: max-content !important; max-width: min(320px, 36vw); }
+  #world.fold-obj .hud-tr { left: max(12px, env(safe-area-inset-left, 0px)) !important; width: max-content !important; max-width: min(260px, 30vw); }
   body.st-open #hud-top-res #hud-money { display: none !important; }
 }
 .hm-d.up { color: #5fe08a; } .hm-d.down { color: #ff6b6b; }

@@ -5,6 +5,13 @@
 // 3. 보스전에서 상성을 설명하므로, 보스를 플레이어 속성에 약한 속성으로 바꾼다.
 // 4. 보스에 '보스' 꼬리표(css/polish.css).
 // 5. 리더가 오더 대상을 이름으로 콕 집고, 오더를 따르면/안 따르면 어떻게 되는지 안내.
+// 안내 말풍선에 설명 한 줄 더하기. 이미 '조작' 줄(.coach-sys)이 있으면 그 안에 넣는다.
+// (말풍선을 문장 단위로 보여 주는 js/tut_pause.js 는 .coach-sys 를 하나만 떼어 맨 끝에 붙이므로, 둘로 나누면 한 줄이 본문에 섞여 두 번 보였다)
+function tutAddSys(h, text) {
+  if (!h) return h;
+  if (/coach-sys/.test(h) && /<\/div><\/div><\/div>$/.test(h)) return h.replace(/<\/div><\/div><\/div>$/, `<div class="coach-ord">${text}</div></div></div></div>`);
+  return h.replace(/<\/div><\/div>$/, `<div class="small coach-sys coach-ord">${text}</div></div></div>`);
+}
 {
   const exam = () => { const c = typeof UI !== 'undefined' ? UI.ctx : null; return c && c.kind === 'exam' && c.tutorial ? c : null; };
 
@@ -35,6 +42,29 @@
             const sk = skillById(o.skill); const tg = this.units.find((x) => x.id === o.target);
             const say = `${sk.name}! ${tg.name}!`;
             u.order = { ...o, by: L.id, rate: this.rateOrder ? this.rateOrder(u, sk, tg) : 1, say };
+            this.push(`${L.name}: "${u.name}, ${say}"`, '', { k: 'say', src: L.id, text: `${u.name}, ${say}` });
+          }
+        }
+      }
+      // 보스 상성 학습 중에는 일반 AI의 무작위 오더 대신 안내와 같은 공격을 지시한다.
+      if (r === 'wait' && t && t.boss && t.acted < 2 && u.isPlayer) {
+        const L = this.leader && this.leader();
+        const boss = this.units.find((x) => x.boss && x.alive && x.side === 'enemy');
+        if (L && !L.isPlayer && boss) {
+          const skills = this.skillsOf(u).filter((sk) => sk.mp <= u.mp &&
+            ['dmg', 'crit', 'pierce', 'dot', 'drain', 'stun'].includes(sk.type) &&
+            (SKILL_AIM[sk.type] || 'none') === 'enemy' &&
+            elemEdge(sk.elem === 'self' ? u.elem : sk.elem, boss.elem) > 0);
+          const sk = skills.sort((a, b) => b.power - a.power)[0];
+          // 이미 기록된 일반 AI 오더도 지워 말풍선과 표식이 서로 다른 대상을 가리키지 않게 한다.
+          for (let i = this.log.length - 1; i >= 0 && i >= this.log.length - 6; i--) {
+            const l = this.log[i];
+            if (l && l.ev && l.ev.k === 'say' && l.ev.src === L.id) { this.log.splice(i, 1); break; }
+          }
+          u.order = null;
+          if (sk) {
+            const say = `${sk.name}! ${boss.name}!`;
+            u.order = { skill: sk.id, target: boss.id, by: L.id, rate: 1, say };
             this.push(`${L.name}: "${u.name}, ${say}"`, '', { k: 'say', src: L.id, text: `${u.name}, ${say}` });
           }
         }
@@ -158,7 +188,7 @@
         if (k === 'obey') add = '오더를 따랐습니다 · 전투가 끝나면 리더와의 관계가 오릅니다.';
         else if (k === 'ignore') add = strict(L) ? '오더를 따르지 않았습니다 · 깐깐한 리더라 전투가 끝나면 관계가 떨어집니다.' : '오더를 따르지 않았습니다 · 이번 리더는 너그러워 관계는 그대로입니다. 깐깐한 리더(냉정·호전·정의)는 관계가 떨어집니다.';
       }
-      if (add) h = h.replace(/<\/div><\/div>$/, `<div class="small coach-sys coach-ord">${add}</div></div></div>`);
+      if (add) h = tutAddSys(h, add);
     } catch (e) { /* 무시 */ }
     return h;
   };
@@ -176,7 +206,7 @@
       if (c.cmd === 'item') return [`#cb-ctrl .cmd-pop [data-act="c-item"][data-v="${o.item}"]`];
       return ['#cb-ctrl .cmd-main [data-act="c-cmd"][data-v="item"]'];
     }
-    if (o && !o.vague && o.skill && !t.boss) {
+    if (o && !o.vague && o.skill) {
       if (c.sel === o.skill && o.target) return [`#u-${o.target}`];
       if (c.sel) return [];
       const main = o.skill === 'strike' ? '#cb-ctrl .cmd-main [data-act="c-skill"][data-v="strike"]' : '#cb-ctrl .cmd-main [data-act="c-cmd"][data-v="skill"]';
@@ -317,7 +347,7 @@
     } catch (e) { /* 무시 */ }
     let h = baseCoach2.apply(this, a);
     try {
-      if (h && c && c.tutorial.key === 'gauge') h = h.replace(/<\/div><\/div>$/, `<div class="small coach-sys coach-ord">${SYS.why}</div></div></div>`);
+      if (h && c && c.tutorial.key === 'gauge') h = tutAddSys(h, SYS.why);
       if (h && c && c.tutorial.leadDone && c.tutorial.key === 'tools') h = ''; // 배속·자동은 지휘 연습 끝 안내에 넣었다
     } catch (e) { /* 무시 */ }
     return h;
@@ -356,4 +386,19 @@
       for (const el of on) el.classList.add('tut-glow');
     } catch (e) { /* 무시 */ }
   }, 150);
+}
+
+// 자격 시험 첫인사: 성격별 리더 첫인사(leadGreet)는 "우리 팀은 언젠가 길드가 돼", "우린 더 높이 간다"처럼 오래 함께할 팀을 전제한 말이 많아
+// 하루짜리 임시 파티의 선임이 하기엔 거창했다(사용자 지적). 시험을 시작할 때는 빼고, 짧은 인사 + "내 오더 잘 들어라"(brief)만 쓴다.
+{
+  const baseStart = UI.startExam;
+  if (baseStart) UI.startExam = function (...a) {
+    this._examGreeting = true;
+    try { return baseStart.apply(this, a); } finally { this._examGreeting = false; }
+  };
+  const GP = Game.prototype; const baseLine = GP.personaLine;
+  if (baseLine) GP.personaLine = function (n, key, ...a) {
+    if ((key === 'leadGreet' || key === 'leadBrief') && typeof UI !== 'undefined' && UI._examGreeting) return null; // 출발 전 한마디(leadBrief)도 "우리 이름을 알릴 첫걸음" 같은 장기 팀 말이 섞여 있어 같이 뺀다
+    return baseLine.call(this, n, key, ...a);
+  };
 }

@@ -266,3 +266,30 @@ if (typeof UI !== 'undefined' && UI.skillHoldHtml) {
     return h;
   };
 }
+
+// 팝업 높이 다시 재기 (사용자 지적: 탐사 지점 팝업 아래가 잘림)
+// js/popup_size.js 는 팝업을 여는 순간 내용 높이를 재서 고정하는데, 그때 위쪽 그림(img)이 아직 안 읽혀 높이 0으로 계산됐다.
+// 그림이 다 읽히거나 팝업 안 내용이 늦게 붙으면 한 번 더 재게 한다(popup_size.js 의 resize 처리로 다시 잰다).
+if (typeof UI !== 'undefined' && UI.modal) {
+  const refit = () => { try { window.dispatchEvent(new Event('resize')); } catch (e) { /* 무시 */ } };
+  let mo = null, moT = 0;
+  const baseModalFit = UI.modal;
+  UI.modal = function (...a) {
+    const r = baseModalFit.apply(this, a);
+    try {
+      const box = document.getElementById('modal-box');
+      if (box) {
+        for (const img of box.querySelectorAll('img')) if (!img.complete) { img.addEventListener('load', refit, { once: true }); img.addEventListener('error', refit, { once: true }); }
+        // 다른 파일이 팝업을 연 뒤에 그림·내용을 붙이는 경우: 잠깐 동안 바뀌면 다시 잰다
+        if (mo) mo.disconnect(); clearTimeout(moT);
+        mo = new MutationObserver((list) => {
+          for (const m of list) for (const n of m.addedNodes) if (n.querySelectorAll) for (const img of [n, ...n.querySelectorAll('img')]) if (img.tagName === 'IMG' && !img.complete) img.addEventListener('load', refit, { once: true });
+          refit();
+        });
+        mo.observe(box, { childList: true, subtree: true });
+        moT = setTimeout(() => { if (mo) { mo.disconnect(); mo = null; } }, 1500);
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+}

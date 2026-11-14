@@ -280,10 +280,7 @@ Object.assign(Game.prototype, {
     let html = baseFac.call(this, id, reg);
     if (id !== 'board') return html;
     const p = G.player; const r = p.risk; const k = G.payKind(p.guild);
-    html += `<div class="sec-title sec">무소속 헌터 보험</div><div class="item-row"><div class="grow"><b>${r.insured ? '가입 중' : '미가입'}</b> <span class="small">월 ${fmt(G.insurePremium())} 크레딧</span>
-      <div class="small dim">${k ? '소속이 있으면 가입할 수 없다(소속이 보호한다).' : `패배 때 구조 확률 +${Math.round(RISK.insure.rescue * 100)}%, 병원비 ${Math.round(RISK.insure.self * 100)}%만 본인 부담. 레드 게이트는 면책.`}</div></div>
-      ${k ? '' : `<button class="sm ${r.insured ? 'ghost' : 'primary'}" data-act="insure">${r.insured ? '해지' : '가입'}</button>`}</div>
-      ${r.debt ? `<div class="small bad">빚 ${fmt(r.debt)} 크레딧 · 월 ${Math.round(RISK.debtRate * 100)}% 이자, 수입의 ${Math.round(RISK.repay * 100)}%씩 자동 상환 <button class="sm" data-act="debt-pay">지금 갚기</button></div>` : ''}`;
+    if (r.debt) html += `<div class="small bad">빚 ${fmt(r.debt)} 크레딧 · 월 ${Math.round(RISK.debtRate * 100)}% 이자, 수입의 ${Math.round(RISK.repay * 100)}%씩 자동 상환 <button class="sm" data-act="debt-pay">지금 갚기</button></div>`;
     return html;
   };
   const baseChar = UI.charHtml;

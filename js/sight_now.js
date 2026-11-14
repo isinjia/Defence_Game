@@ -94,9 +94,8 @@ if (typeof UI !== 'undefined' && typeof MapView !== 'undefined') {
     baseTip.call(this, x, y);
     try {
       const tip = document.getElementById('hud-tip'); if (!tip || tip.classList.contains('hidden') || !G.revealed(x, y) || G.seenNow(x, y)) return;
-      const o = G.objAt(x, y); const m = G.gateMemoAt(x, y);
-      if (o && o.kind === 'gate' && m) tip.insertAdjacentHTML('beforeend', '<div class="small dim">마지막으로 본 모습이다. 지금은 달라졌을 수 있다.</div>');
-      else if (m) tip.insertAdjacentHTML('beforeend', `<div class="small dim">전에 ${m.final ? '원초의' : RANKS[m.tier].key + '급'} 게이트를 본 자리다. 아직 있는지는 가 봐야 안다.</div>`);
+      const m = G.mapMemoAt ? G.mapMemoAt(x,y) : G.gateMemoAt(x,y);
+      if (m) tip.insertAdjacentHTML('beforeend', `<div class="small dim">마지막 확인 정보${m.date ? ' · ' + m.date : ''}${m.source ? ' · ' + m.source : ''}. 변경 여부는 직접 확인하거나 새 정보를 받아야 알 수 있습니다.</div>`);
       else tip.insertAdjacentHTML('beforeend', '<div class="small dim">지금은 시야 밖이다. 무엇이 있는지는 가까이 가야 보인다.</div>');
     } catch (e) { /* 안내 실패는 무시 */ }
   };

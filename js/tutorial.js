@@ -93,8 +93,8 @@ Object.assign(UI, {
       done: { just: '좋아. 다치면 바로 약 먹고, 버거우면 막으면서 버텨. 무리하지 마.', kind: '잘했어요! 아프면 바로 약 먹고, 힘들면 막으면서 버텨요.', cold: '됐다. 아프면 약. 버거우면 막아.' },
       boss: { just: '보스다. 속성 상성을 봐라. 상성이면 피해가 크게 들어간다.', kind: '보스예요! 속성 상성을 노려 보세요. 잘 맞으면 훨씬 아프게 들어가요.', cold: '상성 노려.' },
       tools: { just: '전투가 답답하면 위에서 속도를 올려. 손에 익으면 자동으로 맡겨도 된다.', kind: '전투가 답답하면 위에서 속도를 바꿔도 돼요. 익숙해지면 자동으로 맡겨도 괜찮고요.', cold: '느리면 올려. 익으면 자동.' },
-      win: { just: '"수고했다. 처음치곤 나쁘지 않았어. 밖에선 내가 없다. 오늘 한 순서, 잊지 마라."', kind: '"다들 정말 잘했어요. 오늘 순서대로만 하면 쉽게 안 죽어요. 무슨 일 있으면 연락해요."', cold: '"합격. …살아서 또 보자."' },
-      lose: { just: '"내가 끼어든 건 이번이 마지막이다. 밖에서는 아무도 대신 안 싸워 준다."', kind: '"괜찮아요, 다들 처음이니까. 그래도 밖에서는 제가 없어요. 꼭 기억해요."', cold: '"구해 주는 건 오늘뿐이다."' },
+      win: { just: '"수고했다. 시험은 여기까지다."', kind: '"수고했어요. 시험은 여기까지예요."', cold: '"수고했다. 시험 끝이다."' },
+      lose: { just: '"여기서 중단한다. 다친 사람부터 확인하자."', kind: '"여기서 멈출게요. 다친 분은 없나요?"', cold: '"중단한다. 다친 사람은?"' },
     };
     return ((T[key] || {})[pers] || (T[key] || {}).just || '').replace(/\{name\}/g, G.player ? G.player.name : '');
   },
@@ -212,25 +212,20 @@ Object.assign(UI, {
       : `파티가 밀리자 ${L ? L.name : '시험관'}이(가) 봉인을 풀고 앞으로 나섰다. 보스가 한 번에 갈라졌다. ${L ? this.leadSay('lose') : ''} 합격은 합격이다.`;
     this.examResultTalk(win);
   },
-  // 시험이 끝난 뒤: 리더의 말 → 측정실 → 동기들 (대화창으로)
+  // 시험이 끝난 뒤: 리더의 말 → 기존 측정 기록과 실기 결과 확인 → 동기들 (대화창으로)
   examResultTalk(win) {
     const ex = this.exam; const L = this.examLeader(); const p = G.player;
     const mates = ex.ids.map((id) => G.npcById(id)).filter(Boolean);
-    const meter = { name: '측정관', sub: '헌터 협회' }; const chief = { name: '지부장', sub: '헌터 협회' };
+    const meter = { name: '등록 담당자', sub: '헌터 협회' }; 
     const r = ex.reveal ? ex.reveal.rank : p.rankIdx;
-    const RANK_TALK = [
-      [{ who: meter, text: 'F급. 대부분 여기서 시작합니다.' }, { who: meter, text: '실망할 것 없어요. S급도 처음엔 다 F였으니까.' }],
-      [{ who: meter, text: '…E급이네요. 신규 각성자 중엔 위쪽입니다.' }, { narr: '대기실의 동기들이 수군거린다.' }],
-      [{ narr: '측정기가 두 번 울린다. 측정관이 기록을 다시 확인하고 자리에서 일어난다.' }, { who: meter, text: 'D급. 신규 등록으로 D급은 이 지부에서 올해 처음입니다.' }],
-      [{ narr: '측정실 문이 열리고 협회 지부장이 직접 들어온다.' }, { who: chief, text: 'C급 신인이라… 오늘 오후부터 길드들 전화가 빗발칠 겁니다.' }, { who: chief, text: '몸조심하세요. 좋은 뜻으로든, 나쁜 뜻으로든.' }],
-      [{ narr: '측정기 화면이 붉게 깜빡인다. 아무도 말을 하지 않는다.' }, { who: chief, text: '본부죠? …B급입니다. 신규 각성자가요. 네, 지금 당장요.' }],
-    ][Math.max(0, Math.min(4, r))];
+    const rankName = RANKS[Math.max(0, Math.min(RANKS.length - 1, r))].key;
+    const RANK_TALK = [{ who: meter, text: `기존 측정 기록과 실기 결과를 확인했습니다. 등록 등급은 ${rankName}급입니다.` }];
     const speaker = mates.find((n) => n.personality === 'kind') || mates[0];
     ex.talked = true;
     this.talk([
       win ? { narr: '마지막 괴수가 쓰러지자 훈련용 게이트가 닫혔다.' } : { narr: `파티가 밀리자 ${L ? L.name : '시험관'}이(가) 봉인을 풀고 앞으로 나섰다. 보스가 한 번에 갈라졌다.` },
       L ? { who: L, text: this.leadSay(win ? 'win' : 'lose').replace(/^"|"$/g, '') } : null,
-      { narr: '협회 측정실. 원통형 측정기 안에 들어선다.' },
+      { narr: '협회 등록 창구에서 시험 결과를 확인한다.' },
       ...RANK_TALK,
       { narr: '시험장을 나서자 임시 파티원들이 기다리고 있다.' },
       speaker ? { who: speaker, text: '…우리, 연락처라도 주고받을까? 어디로 뽑힐지는 모르지만.' } : null,

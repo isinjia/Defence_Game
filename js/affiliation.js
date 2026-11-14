@@ -271,8 +271,8 @@ Object.assign(Game.prototype, {
     if (this.nbDone(t)) {
       nb.i++; nb.at = this.monthKey(); nb.nagAt = nb.at;
       const r = this.nbReward();
-      this.log(`첫 해 수첩: [${t.name}] 완료.${r}`, 'good');
-      if (nb.i >= NB_TASKS.length) { this.lifeEvent('첫 해 수첩의 과제를 모두 마쳤다.'); this.queue.push({ type: 'story', id: 'nb_end', npc: nb.mentor }); }
+      this.log(`${t.id === 'gate' ? '메인' : '서브'} 퀘스트: [${t.name}] 완료.${r}`, 'good');
+      if (nb.i >= NB_TASKS.length) { this.lifeEvent('기본 활동 안내를 모두 마쳤다.'); this.queue.push({ type: 'story', id: 'nb_end', npc: nb.mentor }); }
       else this.queue.push({ type: 'story', id: 'nb_msg', npc: nb.mentor });
       return;
     }
@@ -289,10 +289,10 @@ Object.assign(Game.prototype, {
 S({ id: 'nb_msg', trigger: 'system', npc: 'here',
   text: (g, c) => { const t = g.nbTask(); const nb = g.player.notebook; const v = NB_VOICE[nb.voice] || NB_VOICE.free; const first = nb.i === 0;
     return `${first ? `${c.npc ? c.npc.name : v.who}에게서 메시지가 왔다. ${nb.voice === 'free' ? '' : `${v.who}(으)로 배정된 사람이다.`}\n\n` : `${c.npc ? c.npc.name : v.who}: ${v.done}\n\n`}${v.give(t ? t.name : '')}\n\n${t ? `(${t.why})` : ''}`; },
-  choices: [{ text: '알겠다고 답한다', do: (g) => '첫 해 수첩에 적어 두었다. 의뢰 창에서 언제든 다시 볼 수 있다.' }] });
+  choices: [{ text: '알겠다고 답한다', do: (g) => '서브 퀘스트에 등록했다. 의뢰 메뉴에서 확인할 수 있다.' }] });
 S({ id: 'nb_end', trigger: 'system', npc: 'here',
   text: (g, c) => { const v = g.player.notebook.voice; return v === 'free' ? `${c.npc ? c.npc.name : '친구'}이(가) 치킨을 사 들고 왔다. "야, 너 진짜 헌터 다 됐다. 이제 내가 알려 줄 게 없네."` : v === 'kama' ? '담당 주무관이 수료증을 건넨다. "연수 과정 수료를 축하드립니다. 이제부터는 정식 현장 요원입니다."' : `${c.npc ? c.npc.name : '사수'}이(가) 어깨를 툭 친다. "수습 딱지 뗄 때 됐네. 이제부터는 네가 알아서 해."`; },
-  choices: [{ text: '고개를 숙여 인사한다', do: (g, c) => { const p = g.player; if (c.npc) g.changeRel(c.npc, 10); if (p.guild && p.guildRank < 1 && (p.origin || {}).aff !== 'free') { p.contrib = Math.max(p.contrib || 0, GUILD_RANKS[1].req); g.checkGuildRank && g.checkGuildRank([]); } return '첫 해 수첩을 덮었다. 이제 정해진 과제는 없다.' + g.gain({ fame: 3, ether: 30 }); } }] });
+  choices: [{ text: '고개를 숙여 인사한다', do: (g, c) => { const p = g.player; if (c.npc) g.changeRel(c.npc, 10); if (p.guild && p.guildRank < 1 && (p.origin || {}).aff !== 'free') { p.contrib = Math.max(p.contrib || 0, GUILD_RANKS[1].req); g.checkGuildRank && g.checkGuildRank([]); } return '기본 활동 안내를 마쳤다. 이후에는 의뢰 메뉴에서 활동을 선택할 수 있다.' + g.gain({ fame: 3, ether: 30 }); } }] });
 
 // ---------- 연결 ----------
 (() => {
