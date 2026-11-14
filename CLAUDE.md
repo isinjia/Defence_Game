@@ -23,7 +23,8 @@
 - `dist/`는 커밋하지 않는다(배포 때 GitHub Actions가 빌드). 커밋 전에 `git diff --cached --name-only | grep '^dist/'`로 확인.
 - 새 시스템은 `js/` 아래 새 파일 + `tools/build.sh`의 `SRC`에 추가. 기존 함수는 감싸기(wrap)로 확장하고, 남의 코드는 되돌리지 않는다.
 - 옛 저장 호환: 새 필드는 `initSandbox` 감싸기에서 `??=`로 채운다.
-- 항목마다: 빌드·연기 시험 → **원격 버전 확인** → `git pull --rebase` → `python3 tools/bump_version.py`(**0.01씩**) → 커밋(`vX.YY: [영역] 내용`) → 푸시.
+- **연기 시험(`node tools/smoke_test.js`)은 사용자가 따로 하라고 할 때까지 돌리지 않는다**(사용자 결정, 2026-11-14). 평소 확인은 `bash tools/build.sh`(빌드 성공)까지.
+- 항목마다: 빌드 → **원격 버전 확인** → `git pull --rebase` → `python3 tools/bump_version.py`(**0.01씩**) → 커밋(`vX.YY: [영역] 내용`) → 푸시.
 - 푸시 번호가 겹치거나 거절되면: 다시 rebase → 버전 줄은 상대 것을 받고 `bump_version.py`를 **한 번 더**(+0.01) → 다시 푸시. 자세한 절차는 `docs/구현_대기목록.md` §0-3.
 - rebase 시 `tools/build.sh` 파일 목록은 양쪽을 모두 남긴다.
 - 밸런스에 닿는 변경은 `node tools/balance_sim.js 4 70` 전후 결과를 보고에 남긴다.
