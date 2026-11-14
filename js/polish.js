@@ -208,4 +208,27 @@
     try { if (this.screen === 'game' && document.getElementById('world')) this.renderGame(); } catch (e) { /* 무시 */ }
     return baseExamEnd.apply(this, a);
   };
+
+  // '튜토리얼 건너뛰기' 자리 고정 (사용자 요청): 원래 단추(#tut-skip)는 화면마다 다른 곳으로 옮겨진다(mobile_ux.js·council_dialog.js).
+  // 원래 단추는 숨겨 두고, body 바로 아래 같은 자리의 대리 단추를 보인다. 누르면 원래 단추를 누른 것과 똑같이 처리된다(tut_skip.js 두 번 누르기).
+  let proxy = null;
+  const syncSkip = () => {
+    const real = document.getElementById('tut-skip');
+    if (!real || !real.isConnected) { if (proxy) { proxy.remove(); proxy = null; } return; }
+    real.classList.add('tsk-hide');
+    if (!proxy) {
+      proxy = document.createElement('button'); proxy.type = 'button'; proxy.className = 'tsk-proxy'; proxy.setAttribute('aria-label', '튜토리얼 건너뛰기');
+      proxy.addEventListener('pointerdown', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const r = document.getElementById('tut-skip'); if (!r || r.disabled) return;
+        r.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+        setTimeout(syncSkip, 0);
+      });
+      proxy.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
+      document.body.appendChild(proxy);
+    }
+    proxy.classList.toggle('armed', real.classList.contains('armed'));
+    proxy.disabled = !!real.disabled;
+  };
+  setInterval(() => { try { syncSkip(); } catch (e) { /* 무시 */ } }, 120);
 }
