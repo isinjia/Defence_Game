@@ -68,3 +68,40 @@
     return r;
   };
 }
+
+// 팀 상의 창: 위쪽 '의견 확인 중' 자리에 [전체 맵 보기] (사용자 요청)
+// 누르면 상의 창을 잠시 숨기고 경로 지도를 펼친다. 이 지도에서는 리더가 제안한 칸 위에 리더 얼굴을 붙인다.
+// 지도를 닫으면 상의 창으로 돌아온다.
+{
+  const face = (L, size) => { try { return (UI.npcBust && UI.npcBust(L, size)) || UI.npcAvatar(L, size); } catch (e) { return ''; } };
+  const leadKey = () => {
+    if (UI.councilLead && UI.councilLead.key) return { key: UI.councilLead.key, L: UI.examLeader && UI.examLeader() };
+    const cn = UI.ctx && UI.ctx.council; if (cn && cn.key) return { key: cn.key, L: cn.leader != null ? G.npcById(cn.leader) : null };
+    return null;
+  };
+  const closeMap = () => {
+    document.body.classList.remove('cn-map-on');
+    const root = document.querySelector('#modal-box .exploration-layout');
+    if (root) { root.classList.remove('xr-overview', 'xr-cnmap'); root.querySelectorAll('.xr-lead-node').forEach((e) => e.remove()); }
+  };
+  const openMap = () => {
+    const root = document.querySelector('#modal-box .exploration-layout'); if (!root) return;
+    root.classList.add('xr-overview', 'xr-cnmap'); document.body.classList.add('cn-map-on');
+    root.querySelectorAll('.xr-lead-node').forEach((e) => e.remove());
+    const info = leadKey(); const node = info && root.querySelector(`.gnode[data-xr-key="${info.key}"]`);
+    if (node && info.L) { node.classList.add('xr-leadnode'); node.insertAdjacentHTML('beforeend', `<span class="xr-lead-node" aria-hidden="true">${face(info.L, 96)}</span>`); }
+    const sc = root.querySelector('.xr-map-scroll'); if (sc && node) sc.scrollTop = Math.max(0, node.offsetTop - sc.clientHeight / 2);
+  };
+  const dock = () => {
+    const st = document.querySelector('#council-ov .cv-header .cv-state'); if (!st || !document.querySelector('#modal-box .exploration-layout')) return;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'cv-mapbtn'; b.textContent = '전체 맵 보기';
+    b.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); openMap(); });
+    st.replaceWith(b);
+  };
+  setInterval(() => { try { dock(); if (document.body.classList.contains('cn-map-on') && !document.getElementById('council-ov')) closeMap(); } catch (e) { /* 무시 */ } }, 150);
+  const baseHandle2 = UI.handle;
+  UI.handle = function (act, v) {
+    if (act === 'xr-map-close' && document.body.classList.contains('cn-map-on')) { closeMap(); return; }
+    return baseHandle2.call(this, act, v);
+  };
+}

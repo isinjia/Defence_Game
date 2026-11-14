@@ -21,3 +21,9 @@
 /* 탐색 화면에서는 튜토리얼 건너뛰기 손잡이가 머리글 제목·경로 보기 단추를 덮었다: 아래쪽 안내 줄 오른쪽으로 */
 body:has(#modal-box.xr-box) #tut-skip { top: auto !important; bottom: calc(env(safe-area-inset-bottom, 0px) + 104px); right: 12px; left: auto; transform: none; border-radius: 999px; border-top: 1px solid rgba(255, 255, 255, .18); height: 28px; line-height: 26px; }
 body:has(#modal-box.xr-box .xr-overview) #tut-skip { bottom: calc(env(safe-area-inset-bottom, 0px) + 56px); }
+/* 팀 상의 창의 [전체 맵 보기] 와 그때 펼친 지도 */
+#council-ov .cv-mapbtn { flex: none; min-height: 40px; padding: 0 14px; border-radius: 999px; background: #46e0d0; border: 1px solid #8ff3e8; color: #04201d; font-size: 13px; font-weight: 800; white-space: nowrap; cursor: pointer; }
+body.cn-map-on #council-ov { visibility: hidden !important; }
+.xr-cnmap .xr-route { z-index: 100 !important; }
+.xr-cnmap .xr-route-head h3::after { content: " · 리더 제안"; color: #ffb547; }
+.xr-cnmap .xr-route [data-act="xr-map-close"] { display: block !important; visibility: visible !important; }
