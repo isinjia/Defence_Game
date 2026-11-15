@@ -19,7 +19,7 @@ const MONSTER_ART_DATA = {
     "shape": "swarm",
     "tier": 0,
     "special": false,
-    "rev": "d05d11d3bd"
+    "rev": "ae79502489"
   },
   "빛무리 드론": {
     "elem": "holy",
@@ -40,7 +40,7 @@ const MONSTER_ART_DATA = {
     "shape": "golem",
     "tier": 2,
     "special": false,
-    "rev": "8302a659a0"
+    "rev": "d68e66594c"
   },
   "서리 늑대": {
     "elem": "water",
@@ -68,7 +68,7 @@ const MONSTER_ART_DATA = {
     "shape": "slime",
     "tier": 3,
     "special": false,
-    "rev": "7da4d78dd4"
+    "rev": "99d71c19dd"
   },
   "가시 거미 여왕": {
     "elem": "wood",
@@ -89,7 +89,7 @@ const MONSTER_ART_DATA = {
     "shape": "flyer",
     "tier": 5,
     "special": false,
-    "rev": "f7caed0317"
+    "rev": "501c6de462"
   },
   "심판의 눈": {
     "elem": "holy",
@@ -103,14 +103,14 @@ const MONSTER_ART_DATA = {
     "shape": "dragon",
     "tier": 6,
     "special": false,
-    "rev": "e7c5831793"
+    "rev": "a7d48d9599"
   },
   "폭풍 와이번": {
     "elem": "bolt",
     "shape": "dragon",
     "tier": 6,
     "special": false,
-    "rev": "ba1ec26b66"
+    "rev": "948a2dc450"
   },
   "고목 거신": {
     "elem": "wood",
@@ -138,21 +138,21 @@ const MONSTER_ART_DATA = {
     "shape": "core",
     "tier": 7,
     "special": false,
-    "rev": "dc89097a3f"
+    "rev": "2a9cbf1eb5"
   },
   "하수구 고블린": {
     "elem": "dark",
     "shape": "humanoid",
     "tier": 0,
     "special": false,
-    "rev": "7e0336f489"
+    "rev": "53d1532bc9"
   },
   "잿불 임프": {
     "elem": "fire",
     "shape": "humanoid",
     "tier": 0,
     "special": false,
-    "rev": "c1e669c961"
+    "rev": "4759bbef1f"
   },
   "성광 반딧불": {
     "elem": "holy",
@@ -180,14 +180,14 @@ const MONSTER_ART_DATA = {
     "shape": "ghost",
     "tier": 1,
     "special": false,
-    "rev": "f313973068"
+    "rev": "52a4531e73"
   },
   "오크 약탈자": {
     "elem": "fire",
     "shape": "humanoid",
     "tier": 2,
     "special": false,
-    "rev": "7a0dc4b66d"
+    "rev": "5749035179"
   },
   "리자드맨 창병": {
     "elem": "water",
@@ -201,7 +201,7 @@ const MONSTER_ART_DATA = {
     "shape": "flyer",
     "tier": 2,
     "special": false,
-    "rev": "431d22cfb2"
+    "rev": "5f1a408aac"
   },
   "병동의 그림자": {
     "elem": "dark",
@@ -229,7 +229,7 @@ const MONSTER_ART_DATA = {
     "shape": "ghost",
     "tier": 3,
     "special": false,
-    "rev": "1e2b3fb0f0"
+    "rev": "c0330c9edd"
   },
   "언데드 기사": {
     "elem": "dark",
@@ -243,14 +243,14 @@ const MONSTER_ART_DATA = {
     "shape": "beast",
     "tier": 4,
     "special": false,
-    "rev": "6530379d0e"
+    "rev": "709ea28fb4"
   },
   "오크 주술사": {
     "elem": "wood",
     "shape": "humanoid",
     "tier": 4,
     "special": false,
-    "rev": "e087863a2f"
+    "rev": "15d1b94719"
   },
   "성역 수호상": {
     "elem": "holy",
@@ -285,14 +285,14 @@ const MONSTER_ART_DATA = {
     "shape": "humanoid",
     "tier": 6,
     "special": false,
-    "rev": "dd999d3094"
+    "rev": "a7614a23a2"
   },
   "타락 천사": {
     "elem": "holy",
     "shape": "flyer",
     "tier": 6,
     "special": false,
-    "rev": "a6fed0ee4f"
+    "rev": "ff2989ddf7"
   },
   "공허 키메라": {
     "elem": "dark",
@@ -327,7 +327,7 @@ const MONSTER_ART_DATA = {
     "shape": "beast",
     "tier": 0,
     "special": false,
-    "rev": "049d508d0b"
+    "rev": "837fa8445d"
   },
   "심연의 군주": {
     "elem": "dark",
@@ -341,7 +341,7 @@ const MONSTER_ART_DATA = {
     "shape": "beast",
     "tier": 7,
     "special": true,
-    "rev": "b42bae8505"
+    "rev": "82dce94634"
   },
   "뇌운의 왕": {
     "elem": "bolt",
@@ -362,7 +362,7 @@ const MONSTER_ART_DATA = {
     "shape": "eye",
     "tier": 7,
     "special": true,
-    "rev": "e3ca48adc1"
+    "rev": "106868b62c"
   },
   "그림자 군주": {
     "elem": "dark",
@@ -383,14 +383,14 @@ const MONSTER_ART_DATA = {
     "shape": "flyer",
     "tier": 0,
     "special": false,
-    "rev": "302bc12d16"
+    "rev": "fd49bd8b6a"
   },
   "지하상가 구더기": {
     "elem": "wood",
     "shape": "slime",
     "tier": 0,
     "special": false,
-    "rev": "89ca245ce6"
+    "rev": "a1a958ef93"
   },
   "담벼락 이끼괴": {
     "elem": "wood",
@@ -418,14 +418,14 @@ const MONSTER_ART_DATA = {
     "shape": "mimic",
     "tier": 2,
     "special": false,
-    "rev": "1a83f089d8"
+    "rev": "3382b6c5f0"
   },
   "폐교 운동장 개": {
     "elem": "wood",
     "shape": "beast",
     "tier": 1,
     "special": false,
-    "rev": "cb9f7a6d31"
+    "rev": "2122b72d19"
   },
   "공사장 크레인령": {
     "elem": "bolt",
@@ -453,14 +453,14 @@ const MONSTER_ART_DATA = {
     "shape": "ghost",
     "tier": 3,
     "special": false,
-    "rev": "5170ce8949"
+    "rev": "1747c4370b"
   },
   "옥상정원 덩굴": {
     "elem": "wood",
     "shape": "spider",
     "tier": 3,
     "special": false,
-    "rev": "881254a698"
+    "rev": "d12b6711d0"
   },
   "골목상인 꼭두": {
     "elem": "holy",
@@ -474,7 +474,7 @@ const MONSTER_ART_DATA = {
     "shape": "golem",
     "tier": 4,
     "special": false,
-    "rev": "a9270a4ff6"
+    "rev": "44800ee073"
   },
   "야간순찰 로봇잔해": {
     "elem": "bolt",
@@ -495,7 +495,7 @@ const MONSTER_ART_DATA = {
     "shape": "beast",
     "tier": 3,
     "special": false,
-    "rev": "c21772961d"
+    "rev": "58a1184c9f"
   },
   "아파트 층간괴": {
     "elem": "water",
@@ -516,7 +516,7 @@ const MONSTER_ART_DATA = {
     "shape": "beast",
     "tier": 0,
     "special": false,
-    "rev": "584553a7f1"
+    "rev": "0693fae764"
   },
   "안개 독수리": {
     "elem": "bolt",
@@ -579,21 +579,21 @@ const MONSTER_ART_DATA = {
     "shape": "ghost",
     "tier": 4,
     "special": false,
-    "rev": "4eaed0a26d"
+    "rev": "5d30abd96d"
   },
   "지리산 나무정령": {
     "elem": "wood",
     "shape": "golem",
     "tier": 3,
     "special": false,
-    "rev": "e8733f0ed3"
+    "rev": "c03d12ab10"
   },
   "한라 용암도롱뇽": {
     "elem": "fire",
     "shape": "slime",
     "tier": 3,
     "special": false,
-    "rev": "f60a44093c"
+    "rev": "de1727137b"
   },
   "설악 얼음거미": {
     "elem": "water",
@@ -635,7 +635,7 @@ const MONSTER_ART_DATA = {
     "shape": "ghost",
     "tier": 3,
     "special": false,
-    "rev": "30b79bcd95"
+    "rev": "44be09aeb9"
   },
   "암반 분쇄자": {
     "elem": "wood",
@@ -649,7 +649,7 @@ const MONSTER_ART_DATA = {
     "shape": "eye",
     "tier": 6,
     "special": false,
-    "rev": "dac894a894"
+    "rev": "1db218956e"
   },
   "갯벌 게무리": {
     "elem": "water",
@@ -684,28 +684,28 @@ const MONSTER_ART_DATA = {
     "shape": "ghost",
     "tier": 2,
     "special": false,
-    "rev": "04f3bb8c3a"
+    "rev": "b33e595cd5"
   },
   "해무 세이렌": {
     "elem": "water",
     "shape": "ghost",
     "tier": 3,
     "special": false,
-    "rev": "4556b65b3e"
+    "rev": "c1d2ee457d"
   },
   "조개껍질 골렘": {
     "elem": "water",
     "shape": "golem",
     "tier": 2,
     "special": false,
-    "rev": "38e9a69939"
+    "rev": "74d1611edc"
   },
   "해협 번개장어": {
     "elem": "bolt",
     "shape": "beast",
     "tier": 3,
     "special": false,
-    "rev": "6ede7db308"
+    "rev": "d60272685d"
   },
   "심해 아귀": {
     "elem": "dark",
@@ -726,7 +726,7 @@ const MONSTER_ART_DATA = {
     "shape": "flyer",
     "tier": 4,
     "special": false,
-    "rev": "3e5315e96b"
+    "rev": "af7a5319fe"
   },
   "등대지기 미믹": {
     "elem": "bolt",
@@ -747,21 +747,21 @@ const MONSTER_ART_DATA = {
     "shape": "spider",
     "tier": 1,
     "special": false,
-    "rev": "43aa231b08"
+    "rev": "4483652282"
   },
   "조류 소용돌이핵": {
     "elem": "water",
     "shape": "core",
     "tier": 5,
     "special": false,
-    "rev": "b8025c02b3"
+    "rev": "7ea261bff2"
   },
   "잠수함 잔해령": {
     "elem": "bolt",
     "shape": "drone",
     "tier": 5,
     "special": false,
-    "rev": "1e138b41a9"
+    "rev": "6643f7b2cd"
   },
   "동해 심연왕자": {
     "elem": "water",
@@ -775,7 +775,7 @@ const MONSTER_ART_DATA = {
     "shape": "dragon",
     "tier": 7,
     "special": false,
-    "rev": "9df2168788"
+    "rev": "c42eeac1c8"
   },
   "어부의 원한": {
     "elem": "water",
@@ -789,21 +789,21 @@ const MONSTER_ART_DATA = {
     "shape": "slime",
     "tier": 5,
     "special": false,
-    "rev": "0261c37b7f"
+    "rev": "5e08db06df"
   },
   "포자 다람쥐": {
     "elem": "wood",
     "shape": "beast",
     "tier": 0,
     "special": false,
-    "rev": "8fa66db4b7"
+    "rev": "141dbe7f6c"
   },
   "에테르 반딧불": {
     "elem": "holy",
     "shape": "swarm",
     "tier": 0,
     "special": false,
-    "rev": "256f5b8452"
+    "rev": "ab858c0c1f"
   },
   "뿌리 포식자": {
     "elem": "wood",
@@ -817,7 +817,7 @@ const MONSTER_ART_DATA = {
     "shape": "slime",
     "tier": 1,
     "special": false,
-    "rev": "3653ba08e5"
+    "rev": "c8626ae3de"
   },
   "고목 올빼미": {
     "elem": "wood",
@@ -852,14 +852,14 @@ const MONSTER_ART_DATA = {
     "shape": "beast",
     "tier": 2,
     "special": false,
-    "rev": "2a9caa3019"
+    "rev": "2f4c564b7c"
   },
   "오염 꽃정령": {
     "elem": "fire",
     "shape": "ghost",
     "tier": 3,
     "special": false,
-    "rev": "87cc44e53a"
+    "rev": "e95e2c59f8"
   },
   "세계수 수액정": {
     "elem": "wood",
@@ -901,7 +901,7 @@ const MONSTER_ART_DATA = {
     "shape": "beast",
     "tier": 5,
     "special": false,
-    "rev": "86d4052363"
+    "rev": "a97c24c59e"
   },
   "뿌리왕관": {
     "elem": "wood",
@@ -922,28 +922,28 @@ const MONSTER_ART_DATA = {
     "shape": "spider",
     "tier": 7,
     "special": false,
-    "rev": "3d52e71ad0"
+    "rev": "e10d58f74f"
   },
   "태고 수호룡": {
     "elem": "wood",
     "shape": "dragon",
     "tier": 7,
     "special": false,
-    "rev": "a7621b1c12"
+    "rev": "427f311b1f"
   },
   "용접불티 쥐": {
     "elem": "fire",
     "shape": "beast",
     "tier": 0,
     "special": false,
-    "rev": "1a3eb2aaee"
+    "rev": "fc952cc8be"
   },
   "컨베이어 톱니벌레": {
     "elem": "bolt",
     "shape": "swarm",
     "tier": 0,
     "special": false,
-    "rev": "c1428fc6cd"
+    "rev": "c3effff0bf"
   },
   "냉각수 슬라임": {
     "elem": "water",
@@ -978,7 +978,7 @@ const MONSTER_ART_DATA = {
     "shape": "humanoid",
     "tier": 2,
     "special": false,
-    "rev": "072db726c0"
+    "rev": "93d8d5d509"
   },
   "서버랙 거미": {
     "elem": "bolt",
@@ -999,14 +999,14 @@ const MONSTER_ART_DATA = {
     "shape": "mimic",
     "tier": 3,
     "special": false,
-    "rev": "7906288b12"
+    "rev": "c82f903baa"
   },
   "용암주조 골렘": {
     "elem": "fire",
     "shape": "golem",
     "tier": 4,
     "special": false,
-    "rev": "200aa76af5"
+    "rev": "d47490c397"
   },
   "과부하 코어": {
     "elem": "bolt",
@@ -1020,7 +1020,7 @@ const MONSTER_ART_DATA = {
     "shape": "drone",
     "tier": 3,
     "special": false,
-    "rev": "37e4f79010"
+    "rev": "3c4bb43540"
   },
   "산업폐기 키메라": {
     "elem": "fire",
@@ -1055,7 +1055,7 @@ const MONSTER_ART_DATA = {
     "shape": "core",
     "tier": 6,
     "special": false,
-    "rev": "1537010816"
+    "rev": "1da12ccba9"
   },
   "블랙아웃 군주": {
     "elem": "dark",
@@ -1104,7 +1104,7 @@ const MONSTER_ART_DATA = {
     "shape": "mimic",
     "tier": 2,
     "special": false,
-    "rev": "03de3069ec"
+    "rev": "90de51c5fb"
   },
   "간호 드론": {
     "elem": "holy",
@@ -1132,14 +1132,14 @@ const MONSTER_ART_DATA = {
     "shape": "swarm",
     "tier": 1,
     "special": false,
-    "rev": "c8504ae735"
+    "rev": "a0262ad14e"
   },
   "의사가운 기사": {
     "elem": "dark",
     "shape": "humanoid",
     "tier": 4,
     "special": false,
-    "rev": "e9e0ac059d"
+    "rev": "7186f9dc03"
   },
   "격리실 독무": {
     "elem": "wood",
@@ -1160,14 +1160,14 @@ const MONSTER_ART_DATA = {
     "shape": "beast",
     "tier": 4,
     "special": false,
-    "rev": "541666e65d"
+    "rev": "66c063e477"
   },
   "영안실 세이렌": {
     "elem": "water",
     "shape": "ghost",
     "tier": 3,
     "special": false,
-    "rev": "14a45b4ed8"
+    "rev": "76dd8395e0"
   },
   "백의의 타락자": {
     "elem": "holy",
@@ -1181,7 +1181,7 @@ const MONSTER_ART_DATA = {
     "shape": "core",
     "tier": 5,
     "special": false,
-    "rev": "9295ee76ce"
+    "rev": "49656da33d"
   },
   "심판 의무관": {
     "elem": "holy",
@@ -1195,7 +1195,7 @@ const MONSTER_ART_DATA = {
     "shape": "choir",
     "tier": 6,
     "special": false,
-    "rev": "c09c354dd8"
+    "rev": "57840bafe5"
   },
   "불멸 실험체": {
     "elem": "dark",
@@ -1209,7 +1209,7 @@ const MONSTER_ART_DATA = {
     "shape": "humanoid",
     "tier": 7,
     "special": false,
-    "rev": "36fa871f68"
+    "rev": "cb60469e93"
   },
   "성수 비둘기": {
     "elem": "holy",
@@ -1223,7 +1223,7 @@ const MONSTER_ART_DATA = {
     "shape": "ghost",
     "tier": 1,
     "special": false,
-    "rev": "4be9713841"
+    "rev": "679b858a69"
   },
   "돌사자": {
     "elem": "holy",
@@ -1237,7 +1237,7 @@ const MONSTER_ART_DATA = {
     "shape": "core",
     "tier": 2,
     "special": false,
-    "rev": "e5093070ea"
+    "rev": "4936472a78"
   },
   "기도하는 석상": {
     "elem": "holy",
@@ -1251,7 +1251,7 @@ const MONSTER_ART_DATA = {
     "shape": "choir",
     "tier": 3,
     "special": false,
-    "rev": "ae19c3b161"
+    "rev": "788e527513"
   },
   "성물 미믹": {
     "elem": "holy",
@@ -1286,7 +1286,7 @@ const MONSTER_ART_DATA = {
     "shape": "humanoid",
     "tier": 3,
     "special": false,
-    "rev": "7f0facaa92"
+    "rev": "d958de7187"
   },
   "금빛 가고일": {
     "elem": "holy",
@@ -1307,7 +1307,7 @@ const MONSTER_ART_DATA = {
     "shape": "core",
     "tier": 5,
     "special": false,
-    "rev": "c9e88a617e"
+    "rev": "6f60013f8d"
   },
   "광휘 세라프": {
     "elem": "holy",
@@ -1335,7 +1335,7 @@ const MONSTER_ART_DATA = {
     "shape": "dragon",
     "tier": 7,
     "special": false,
-    "rev": "6ecba28e7c"
+    "rev": "861b0abe90"
   },
   "성역의 군주": {
     "elem": "holy",
@@ -1363,14 +1363,14 @@ const MONSTER_ART_DATA = {
     "shape": "beast",
     "tier": 0,
     "special": false,
-    "rev": "d87336e285"
+    "rev": "9143e16b70"
   },
   "폐허초소 유령": {
     "elem": "dark",
     "shape": "ghost",
     "tier": 2,
     "special": false,
-    "rev": "fc4ec6035c"
+    "rev": "ee8a098499"
   },
   "동결 드론": {
     "elem": "bolt",
@@ -1412,7 +1412,7 @@ const MONSTER_ART_DATA = {
     "shape": "choir",
     "tier": 4,
     "special": false,
-    "rev": "768f643d8b"
+    "rev": "24702f4a29"
   },
   "백두 재 늑대": {
     "elem": "fire",
@@ -1426,7 +1426,7 @@ const MONSTER_ART_DATA = {
     "shape": "mimic",
     "tier": 3,
     "special": false,
-    "rev": "1ea53693c0"
+    "rev": "fb6b2849c2"
   },
   "개마 설랑군주": {
     "elem": "water",
@@ -1468,7 +1468,7 @@ const MONSTER_ART_DATA = {
     "shape": "humanoid",
     "tier": 7,
     "special": false,
-    "rev": "92f2012054"
+    "rev": "639e9b902a"
   },
   "동토 성역수호": {
     "elem": "holy",
@@ -1517,7 +1517,7 @@ const MONSTER_ART_DATA = {
     "shape": "ghost",
     "tier": 2,
     "special": false,
-    "rev": "f2ece6ce46"
+    "rev": "efe965a0dd"
   },
   "등급위조 드론": {
     "elem": "bolt",
@@ -1531,14 +1531,14 @@ const MONSTER_ART_DATA = {
     "shape": "mimic",
     "tier": 3,
     "special": false,
-    "rev": "ca2b99c027"
+    "rev": "54d580de27"
   },
   "적신호 골렘": {
     "elem": "fire",
     "shape": "golem",
     "tier": 3,
     "special": false,
-    "rev": "86c57a8437"
+    "rev": "7efc87a180"
   },
   "변이 키메라": {
     "elem": "fire",
@@ -1566,14 +1566,14 @@ const MONSTER_ART_DATA = {
     "shape": "dragon",
     "tier": 5,
     "special": false,
-    "rev": "1ec4268088"
+    "rev": "98c4e22d35"
   },
   "원초의 파편": {
     "elem": "dark",
     "shape": "core",
     "tier": 6,
     "special": false,
-    "rev": "3773498cc9"
+    "rev": "6d034cf7fa"
   },
   "심연 열쇠지기": {
     "elem": "dark",
@@ -1601,14 +1601,14 @@ const MONSTER_ART_DATA = {
     "shape": "eye",
     "tier": 7,
     "special": false,
-    "rev": "f907d4f27e"
+    "rev": "28844a3576"
   },
   "원초 감시자": {
     "elem": "dark",
     "shape": "eye",
     "tier": 7,
     "special": false,
-    "rev": "f432f8c120"
+    "rev": "99401bc7e9"
   },
   "심연의 파편룡": {
     "elem": "dark",
@@ -1643,7 +1643,7 @@ const MONSTER_ART_DATA = {
     "shape": "slime",
     "tier": 2,
     "special": false,
-    "rev": "7c91befe17"
+    "rev": "cbe5a58189"
   },
   "둥지 새끼거미": {
     "elem": "wood",
@@ -1657,6 +1657,6 @@ const MONSTER_ART_DATA = {
     "shape": "flyer",
     "tier": 3,
     "special": false,
-    "rev": "465fc24283"
+    "rev": "70790b24f3"
   }
 };
