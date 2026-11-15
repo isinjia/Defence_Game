@@ -66,3 +66,55 @@
     ], () => baseNotice.apply(this, a));
   };
 }
+
+// 4. 일반 탐색에도 튜토리얼처럼 이동 장면: 길을 정하면 경로 지도를 펼쳐 표식이 그 칸으로 1초 움직인 뒤 칸의 일(전투·사건·휴식·보물)이 열린다 (사용자 제보)
+//    gate_run.js 의 enterNode 는 표식을 옮기자마자 바로 칸을 열었다. 팀 상의가 끝나 실제로 이동할 때만(맨 바깥 enterNode 호출 안) 보여 준다.
+{
+  const baseEnter = UI.enterNode;
+  if (baseEnter) UI.enterNode = function (key, ...a) {
+    const prev = this._xrEnterKey; this._xrEnterKey = key;
+    try { return baseEnter.call(this, key, ...a); } finally { this._xrEnterKey = prev; }
+  };
+  const H = 100, PADB = 7, PADT = 8;
+  const at = (m, pos) => {
+    if (!pos) return { x: 50, y: H - PADB };
+    const nd = m.rows[pos[0]][pos[1]];
+    return { x: nd.x * 100, y: H - PADB - (pos[0] / Math.max(1, m.rows.length - 1)) * (H - PADB - PADT) };
+  };
+  const wrapOpen = (name) => {
+    const base = UI[name]; if (!base) return;
+    UI[name] = function (...a) {
+      const c = this.ctx; const m = c && c.run && c.run.map;
+      const key = m && m.pos && m.pos.join(':');
+      if (!m || this.exam || this._xrAnimating || !key || this._xrEnterKey !== key || m.done[m.done.length - 1] !== key) return base.apply(this, a);
+      const prevKey = m.done[m.done.length - 2];
+      const from = prevKey ? prevKey.split(':').map(Number) : (m.rows[0] && m.rows[0][0] && m.rows[0][0].t === 'start' ? [0, 0] : null);
+      if (from && from.join(':') === key) return base.apply(this, a);
+      try {
+        this.renderGateMap();
+        const tk = document.querySelector('#modal-box .gtoken.lead');
+        if (!tk) return base.apply(this, a);
+        const s = at(m, from), t = at(m, m.pos);
+        tk.style.transition = 'none'; tk.style.left = s.x + '%'; tk.style.top = s.y + '%';
+        void tk.offsetWidth; tk.style.transition = '';
+        const root = document.querySelector('#modal-box .exploration-layout');
+        if (root && window.innerWidth < 1100) root.classList.add('xr-overview', 'xr-moving');
+        const sc = root && root.querySelector('.xr-map-scroll');
+        const follow = () => { if (tk.isConnected && sc) sc.scrollTop = Math.max(0, tk.offsetTop - sc.clientHeight / 2); };
+        requestAnimationFrame(() => requestAnimationFrame(() => { tk.style.left = t.x + '%'; tk.style.top = t.y + '%'; }));
+        const fid = sc ? setInterval(follow, 60) : null;
+        this._xrAnimating = true;
+        const ctx = c; const ms = 1000 * (FX.reduced ? 0.5 : 1);
+        setTimeout(() => {
+          if (fid) clearInterval(fid);
+          this._xrAnimating = false;
+          if (this.ctx !== ctx) return;
+          if (root) root.classList.remove('xr-overview', 'xr-moving');
+          base.apply(this, a);
+        }, ms);
+        return undefined;
+      } catch (e) { this._xrAnimating = false; return base.apply(this, a); }
+    };
+  };
+  ['gateFight', 'gateRest', 'gateTreasure', 'gateEvent'].forEach(wrapOpen);
+}
