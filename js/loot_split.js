@@ -130,7 +130,7 @@ const LOOT_SPLIT = { bidStep: 0.1, npcWant: { fit: 0.75, any: 0.4 }, giftRel: 4,
 // ---------- 화면: 정산서 안의 "팀 정산" (사용자 확정 규칙, 2026-11-15) ----------
 // 장비·재료는 하나씩 파티원(나 포함) 중 한 명에게 똑같은 확률(1/인원)로 무작위로 돌아간다.
 // 꼭 가져가고 싶으면 입찰만 할 수 있다. NPC 팀원도 입찰한다. 최소가는 시세의 80%, 더 높이 부른 쪽이 가져가고
-// 낙찰금은 그 물건을 받았던 사람에게 간다. [확인]을 누르면 굴린 결과대로(진행 중인 입찰은 그때 최고가로) 끝난다.
+// 낙찰금은 낙찰자를 뺀 나머지 파티원이 똑같이 나눈다(n빵). 입찰이 걸리면 받은 사람도 거부할 수 없고, 지키려면 같이 입찰한다. [확인]을 누르면 굴린 결과대로(진행 중인 입찰은 그때 최고가로) 끝난다.
 const LOOT_ROLL = { minRate: 0.8, step: 0.1, npcOpen: 0.55 };
 {
   const dropGear = (it) => { const p = G.player; p.inventory = p.inventory.filter((e) => e !== it); };
@@ -146,9 +146,12 @@ const LOOT_ROLL = { minRate: 0.8, step: 0.1, npcOpen: 0.55 };
     return Math.min(purse, Math.round(priceOf(lot) * (0.7 + want * 0.6) * (0.9 + (n.rankIdx || 0) * 0.04)));
   };
   const rivals = (lot, S, except) => S.rows.map((r) => r.n).filter((n) => n !== except).map((n) => ({ n, max: npcMax(n, lot) })).filter((x) => x.max >= lot.min).sort((a, b) => b.max - a.max);
-  const pay = (from, to, amt) => {
+  // 낙찰금: 낙찰자가 내고, 낙찰자를 뺀 나머지가 똑같이 나눈다
+  const payOut = (from, amt, S) => {
     if (from === 'me') G.player.money -= amt; else if (typeof from.money === 'number') from.money = Math.max(0, from.money - amt);
-    if (to === 'me') G.player.money += amt; else if (typeof to.money === 'number') to.money += amt;
+    const others = ['me', ...S.rows.map((r) => r.n)].filter((x) => x !== from); const each = Math.floor(amt / Math.max(1, others.length));
+    let mine = 0; for (const o of others) { if (o === 'me') { G.player.money += each; mine = each; } else if (typeof o.money === 'number') o.money += each; }
+    return mine;
   };
 
   UI.lootSplitStart = function () {
@@ -186,13 +189,13 @@ const LOOT_ROLL = { minRate: 0.8, step: 0.1, npcOpen: 0.55 };
         h += `<div class="ls-bid"><span>입찰 최고가 <b>${fmt(b.price)}</b> · ${who(b.top)}</span></div>`;
         h += meTop
           ? `<div class="ls-btns"><button class="primary sm" data-act="ls-win" data-v="${i}">${fmt(b.price)}에 낙찰</button><button class="sm ghost" data-act="ls-cancel" data-v="${i}">그만둔다</button></div></div>`
-          : `<div class="ls-btns"><button class="primary sm" data-act="ls-raise" data-v="${i}" ${G.player.money < b.next ? 'disabled' : ''}>${fmt(b.next)}에 부른다</button><button class="sm ghost" data-act="ls-fold" data-v="${i}">${lot.owner === 'me' ? `넘긴다 · +${fmt(b.price)}` : '포기'}</button></div></div>`;
+          : `<div class="ls-btns"><button class="primary sm" data-act="ls-raise" data-v="${i}" ${G.player.money < b.next ? 'disabled' : ''}>${fmt(b.next)}에 부른다</button><button class="sm ghost" data-act="ls-fold" data-v="${i}">${lot.owner === 'me' ? '넘긴다' : '포기'} · 내 몫 +${fmt(Math.floor(b.price / Math.max(1, L.S.rows.length)))}</button></div></div>`;
         return;
       }
       h += lot.owner === 'me' ? '</div>'
         : `<div class="ls-btns"><button class="primary sm" data-act="ls-bid" data-v="${i}" ${G.player.money < lot.min ? 'disabled' : ''}>입찰한다 · ${fmt(lot.min)}부터</button></div></div>`;
     });
-    return h + '<div class="small dim ls-foot">꼭 가져가야 하는 것만 입찰한다. 낙찰금은 그 물건을 받았던 사람에게 간다. 확인을 누르면 나눔(진행 중인 입찰은 그때 최고가) 그대로 끝난다.</div></div>';
+    return h + '<div class="small dim ls-foot">꼭 가져가야 하는 것만 입찰한다. 낙찰금은 낙찰자를 뺀 파티원이 똑같이 나눈다. 입찰이 걸리면 받은 사람도 거부할 수 없다. 확인을 누르면 나눔(진행 중인 입찰은 그때 최고가) 그대로 끝난다.</div></div>';
   };
   UI.lootRender = function () {
     const box = document.getElementById('modal-box'); if (!box || !this._loot) return;
@@ -205,27 +208,27 @@ const LOOT_ROLL = { minRate: 0.8, step: 0.1, npcOpen: 0.55 };
     if (this.walletChip) try { this.walletChip(); } catch (e) { /* 무시 */ }
   };
   // 한 덩어리를 끝낸다: 최종 주인에게 넘기고, 입찰이면 낙찰금을 받았던 사람에게 준다
-  const settle = (lot) => {
+  const settle = (lot, S) => {
     const b = lot.bid; const final = b ? b.top : lot.owner;
-    if (b && final !== lot.owner) pay(final, lot.owner, b.price);
+    const share = b ? payOut(final, b.price, S) : 0; const n1 = S.rows.length;
     if (final !== 'me') {
       if (lot.kind === 'gear') { dropGear(lot.it); G.npcGiveGear(final, lot.it); }
       else if (lot.kind === 'core') { const k = 'c' + lot.key; G.player.mats[k] = Math.max(0, (G.player.mats[k] || 0) - lot.n); }
       else G.player.parts[lot.key] = Math.max(0, (G.player.parts[lot.key] || 0) - lot.n);
     }
     lot.final = final; lot.bid = null;
-    lot.done = b && final !== lot.owner
-      ? (final === 'me' ? `내가 ${fmt(b.price)}에 낙찰. ${who(lot.owner)}에게 냈다.` : `${who(final)}이(가) ${fmt(b.price)}에 가져갔다.${lot.owner === 'me' ? ` 나에게 +${fmt(b.price)}` : ''}`)
+    lot.done = b
+      ? (final === 'me' ? `내가 ${fmt(b.price)}에 낙찰. 나머지 ${n1}명이 나눠 가졌다.` : `${who(final)}이(가) ${fmt(b.price)}에 가져갔다. 내 몫 +${fmt(share)}`)
       : (final === 'me' ? '내 것' : `${who(final)}의 것`);
   };
   UI.lootFinish = function () {
     const L = this._loot; if (!L) return; this._loot = null;
-    for (const lot of L.lots) if (!lot.done) settle(lot);
+    for (const lot of L.lots) if (!lot.done) settle(lot, L.S);
     G.save();
   };
   // NPC가 내 값에 응한다
   const npcAnswer = (lot, S) => {
-    const b = lot.bid; const r = rivals(lot, S, lot.owner).find((x) => x.max > b.price); // 받은 사람은 자기 물건에 입찰하지 않는다
+    const b = lot.bid; const r = rivals(lot, S, null).find((x) => x.max > b.price); // 받은 사람도 지키려면 같이 입찰한다
     if (r) { b.price = Math.min(r.max, Math.round(b.price * (1 + LOOT_ROLL.step))); b.top = r.n; }
     b.next = Math.round(b.price * (1 + LOOT_ROLL.step));
   };
@@ -245,11 +248,11 @@ const LOOT_ROLL = { minRate: 0.8, step: 0.1, npcOpen: 0.55 };
           const b = lot.bid; if (!b || G.player.money < b.next) return;
           b.price = b.next; b.top = 'me'; npcAnswer(lot, S); break;
         }
-        case 'ls-win': case 'ls-fold': if (lot.bid) settle(lot); break;
+        case 'ls-win': case 'ls-fold': if (lot.bid) settle(lot, S); break;
         case 'ls-cancel': {
           // 내가 그만두면 다음으로 많이 부른 사람이 그 값에, 없으면 나눔 그대로
-          const r = rivals(lot, S, lot.owner)[0];
-          if (r) { lot.bid = { top: r.n, price: Math.min(r.max, lot.min), next: lot.min }; settle(lot); } else lot.bid = null;
+          const r = rivals(lot, S, null)[0];
+          if (r) { lot.bid = { top: r.n, price: Math.min(r.max, lot.min), next: lot.min }; settle(lot, S); } else lot.bid = null;
           break;
         }
       }
