@@ -402,3 +402,25 @@ function tutAddSys(h, text) {
     return baseLine.call(this, n, key, ...a);
   };
 }
+
+// 자격 시험: 신입들은 협회가 붙여 준 선임의 오더를 거의 따른다 (사용자 지적: 신입들이 리더 말을 너무 안 듣는다)
+// 평소 규칙(orders.js obeys)은 성격·오더 질에 따라 25~90%라, 엉성한 오더나 방어·아이템 오더를 자주 무시했다.
+// 시험장에서는 선임(NPC 리더)의 오더를 95% 따른다. 또 선임이 정신력이 모자란 기술을 시키면 기본 공격으로 바꿔 준다("정신력이 없어서 못 써요!" 방지).
+{
+  const examOn = () => { const c = typeof UI !== 'undefined' ? UI.ctx : null; return !!(c && c.kind === 'exam'); };
+  const C = Combat.prototype;
+  const baseObeys = C.obeys;
+  if (baseObeys) C.obeys = function (u, o, ...a) {
+    if (examOn() && u && !u.isPlayer && o && o.by !== 'player') return Math.random() < 0.95;
+    return baseObeys.call(this, u, o, ...a);
+  };
+  const baseAi = C.aiAct;
+  if (baseAi) C.aiAct = function (u, ...a) {
+    try {
+      if (examOn() && u && u.order && u.order.skill && u.order.by !== 'player') {
+        const sk = skillById(u.order.skill); if (sk && sk.mp > u.mp) u.order = { ...u.order, skill: 'strike' };
+      }
+    } catch (e) { /* 무시 */ }
+    return baseAi.call(this, u, ...a);
+  };
+}
