@@ -225,8 +225,7 @@ Object.assign(UI, {
     this.talk([
       win ? { narr: '마지막 괴수가 쓰러지자 훈련용 게이트가 닫혔다.' } : { narr: `파티가 밀리자 ${L ? L.name : '시험관'}이(가) 봉인을 풀고 앞으로 나섰다. 보스가 한 번에 갈라졌다.` },
       L ? { who: L, text: this.leadSay(win ? 'win' : 'lose').replace(/^"|"$/g, '') } : null,
-      { narr: '협회 등록 창구에서 시험 결과를 확인한다.' },
-      ...RANK_TALK,
+      // 등록 등급 확인은 연락처 교환 뒤, 판정 통지서 직전으로 옮겼다(js/play_fixes.js · 사용자 요청)
       { narr: '시험장을 나서자 임시 파티원들이 기다리고 있다.' },
       speaker ? { who: speaker, text: '…우리, 연락처라도 주고받을까? 어디로 뽑힐지는 모르지만.' } : null,
     ], () => this.renderExamEnd());

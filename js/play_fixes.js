@@ -47,3 +47,22 @@
     ], () => baseShow.apply(this, a));
   };
 }
+
+// 3. 시험 뒤 순서: 연락처 교환 → 등록 창구에서 등급 판정 대화 → (선임의 연락처) → 판정 통지서 → 헌터 카드 발급 (사용자 요청)
+//    예전엔 등급을 알려 주는 대사가 연락처 교환 앞에 나왔다(js/tutorial.js examResultTalk 에서 뺌).
+{
+  const baseNotice = UI.showNotice;
+  if (baseNotice) UI.showNotice = function (...a) {
+    const f = G.flags || (G.flags = {});
+    if (f.rankTalkDone || !this.talk || !G.player) return baseNotice.apply(this, a);
+    f.rankTalkDone = true;
+    const rk = RANKS[Math.max(0, Math.min(RANKS.length - 1, G.player.rankIdx))].key;
+    const meter = { name: '등록 담당자', sub: '헌터 협회' };
+    this.closeModal();
+    this.talk([
+      { narr: '동기들과 헤어진 뒤, 협회 등록 창구에서 시험 결과를 확인한다.' },
+      { who: meter, text: `기존 측정 기록과 실기 결과를 확인했습니다. 등록 등급은 ${rk}급입니다.` },
+      { who: meter, text: '정식 판정 통지서와 헌터 카드는 발급 창구에서 받으시면 됩니다. 수고하셨습니다.' },
+    ], () => baseNotice.apply(this, a));
+  };
+}
