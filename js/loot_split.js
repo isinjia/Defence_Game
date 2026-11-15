@@ -1,5 +1,6 @@
 // ===== 게이트 크로니클: 얻은 물건의 팀 정산 (영역 A, 사용자 확정) =====
 // 파티로 싸워 얻은 물건을 혼자 다 가져가던 것을, 크레딧과 같은 몫으로 나눈다. (소속 길드·보호국은 전리품이 귀속되므로 해당 없음, 혼자면 전부 내 것)
+// ※ 2026-11-15 사용자 확정으로 바뀜: 아래 화면 부분 머리말(나눔 1/인원 무작위 + 입찰만, 최소가 시세 80%) 참고. 이 머리말은 옛 규칙.
 //  1) 코어·부산물: 기본은 그 자리에서 협회 시세로 팔아 몫대로 나눈다(즉시 정산).
 //     [내가 산다]를 고르면 남의 몫만큼 내고 실물을 가져간다.
 //  2) 장비: 하나씩
@@ -126,56 +127,72 @@ const LOOT_SPLIT = { bidStep: 0.1, npcWant: { fit: 0.75, any: 0.4 }, giftRel: 4,
   };
 }
 
-// ---------- 화면: 정산서 안의 "팀 정산" ----------
+// ---------- 화면: 정산서 안의 "팀 정산" (사용자 확정 규칙, 2026-11-15) ----------
+// 장비·재료는 하나씩 파티원(나 포함) 중 한 명에게 똑같은 확률(1/인원)로 무작위로 돌아간다.
+// 꼭 가져가고 싶으면 입찰만 할 수 있다. NPC 팀원도 입찰한다. 최소가는 시세의 80%, 더 높이 부른 쪽이 가져가고
+// 낙찰금은 그 물건을 받았던 사람에게 간다. [확인]을 누르면 굴린 결과대로(진행 중인 입찰은 그때 최고가로) 끝난다.
+const LOOT_ROLL = { minRate: 0.8, step: 0.1, npcOpen: 0.55 };
 {
-  const take = (bag) => {
-    const p = G.player;
-    for (const [t, n] of Object.entries(bag.cores)) p.mats['c' + t] = Math.max(0, (p.mats['c' + t] || 0) - n);
-    for (const [k, n] of Object.entries(bag.parts)) p.parts[k] = Math.max(0, (p.parts[k] || 0) - n);
-  };
   const dropGear = (it) => { const p = G.player; p.inventory = p.inventory.filter((e) => e !== it); };
+  const mineOf = (lot) => (lot.bid ? lot.bid.top : lot.owner) === 'me';
+  const who = (x) => (x === 'me' ? '나' : x ? x.name : '');
+  const priceOf = (lot) => (lot.kind === 'gear' ? (lot.it.value || 0)
+    : lot.kind === 'core' ? G.corePrice(+lot.key) * lot.n : Math.round(25 * RANKS[+lot.key.split(':')[1]].mult ** 1.5) * lot.n);
+  const nameOf = (lot) => (lot.kind === 'gear' ? lot.it.name : lot.kind === 'core' ? `${coreName(+lot.key)} ×${lot.n}` : (() => { const [id, t] = lot.key.split(':'); return `${G.partLabel(id, +t)} ×${lot.n}`; })());
+  // NPC가 이 물건에 쓸 수 있는 최고가
+  const npcMax = (n, lot) => {
+    const want = lot.kind === 'gear' ? G.lootWant(n, lot.it) : 0.5;
+    const purse = typeof n.money === 'number' ? n.money : Infinity;
+    return Math.min(purse, Math.round(priceOf(lot) * (0.7 + want * 0.6) * (0.9 + (n.rankIdx || 0) * 0.04)));
+  };
+  const rivals = (lot, S, except) => S.rows.map((r) => r.n).filter((n) => n !== except).map((n) => ({ n, max: npcMax(n, lot) })).filter((x) => x.max >= lot.min).sort((a, b) => b.max - a.max);
+  const pay = (from, to, amt) => {
+    if (from === 'me') G.player.money -= amt; else if (typeof from.money === 'number') from.money = Math.max(0, from.money - amt);
+    if (to === 'me') G.player.money += amt; else if (typeof to.money === 'number') to.money += amt;
+  };
 
   UI.lootSplitStart = function () {
     const bag = G._lootPend; G._lootPend = null;
     if (!bag || (!Object.keys(bag.cores).length && !Object.keys(bag.parts).length && !bag.gear.length)) return;
     const S = G.lootShares(); if (!S) return;
-    const L = { bag, S, mat: Object.keys(bag.cores).length || Object.keys(bag.parts).length ? { v: G.lootMatValue(bag), done: null } : null, gear: bag.gear.map((it) => ({ it, done: null, bid: null, pick: S.npcLead ? G.lootLeaderPick(it, S) : null })) };
-    this._loot = L; this.lootRender();
+    const pool = ['me', ...S.rows.map((r) => r.n)];
+    const roll = () => RNG.pick(pool);
+    const lots = [];
+    for (const it of bag.gear) lots.push({ kind: 'gear', it, owner: roll() });
+    const stack = (kind, key, n) => { const by = new Map(); for (let i = 0; i < n; i++) { const o = roll(); by.set(o, (by.get(o) || 0) + 1); } for (const [o, k] of by) lots.push({ kind, key, n: k, owner: o }); };
+    for (const [t, n] of Object.entries(bag.cores)) stack('core', t, n);
+    for (const [k, n] of Object.entries(bag.parts)) stack('part', k, n);
+    for (const lot of lots) {
+      lot.min = Math.max(1, Math.round(priceOf(lot) * LOOT_ROLL.minRate));
+      // 다른 사람에게 간 물건을 NPC가 꼭 갖고 싶으면 입찰을 건다
+      const r = rivals(lot, S, lot.owner).filter((x) => lot.kind !== 'gear' || G.lootWant(x.n, lot.it) >= LOOT_ROLL.npcOpen)[0];
+      if (r && RNG.chance(lot.kind === 'gear' ? 0.6 : 0.2)) lot.bid = { top: r.n, price: lot.min, next: Math.round(lot.min * (1 + LOOT_ROLL.step)) };
+    }
+    this._loot = { S, lots }; this.lootRender();
   };
-  const who = (x) => (x === 'me' ? '나' : x ? x.name : '');
+  UI.lootMine = function (uid) { const L = this._loot; if (!L) return true; const lot = L.lots.find((x) => x.kind === 'gear' && String(x.it.uid) === String(uid)); return !lot || (lot.done ? lot.final === 'me' : lot.owner === 'me' && !lot.bid); };
   UI.lootHtml = function () {
     const L = this._loot; if (!L) return '';
-    const S = L.S; const me = Math.round(S.me * 100);
-    let h = `<div class="ss-sec loot-split"><div class="ss-h"><span>팀 정산 · 얻은 물건</span><span class="dim">내 몫 ${me}%${S.npcLead ? ` · 리더 ${S.npcLead.name}` : ''}</span></div>`;
-    if (L.mat) {
-      const mine = Math.round(L.mat.v * S.me); const pay = L.mat.v - mine;
-      const list = [...Object.entries(L.bag.cores).map(([t, n]) => `${coreName(+t)} ×${n}`), ...Object.entries(L.bag.parts).map(([k, n]) => { const [id, t] = k.split(':'); return `${G.partLabel(id, +t)} ×${n}`; })].join(' · ');
-      h += `<div class="ls-row"><div class="ls-name"><b>코어·부산물</b><span class="small dim">${list}</span><span class="small">시세 ${fmt(L.mat.v)} 크레딧</span></div>`;
-      if (L.mat.done) h += `<div class="ls-done">${L.mat.done}</div>`;
-      else h += `<div class="ls-btns"><button class="primary sm" data-act="ls-mat" data-v="sell">즉시 정산 <b>+${fmt(mine)}</b></button><button class="sm" data-act="ls-mat" data-v="buy" ${G.player.money < pay ? 'disabled' : ''}>내가 산다 <b>−${fmt(pay)}</b></button></div>`;
-      h += '</div>';
-    }
-    L.gear.forEach((g, i) => {
-      const it = g.it; const sale = Math.round(it.value * LOOT_SPLIT.saleRate);
-      const col = RARITY[it.rarity] ? RARITY[it.rarity].color : '#ccc';
-      h += `<div class="ls-row"><div class="ls-name"><b style="color:${col}">${it.name}</b><span class="small dim">${UI.equipStats ? UI.equipStats(it) : ''}</span><span class="small">매입가 ${fmt(sale)} 크레딧</span></div>`;
-      if (g.done) { h += `<div class="ls-done">${g.done}</div></div>`; return; }
-      if (g.bid) {
-        const top = g.bid.top;
-        h += `<div class="ls-bid"><span>최고가 <b>${fmt(g.bid.price)}</b> · ${who(top)}</span>${top === 'me' ? '<span class="small ok">아무도 더 부르지 않는다</span>' : ''}</div>`;
-        h += top === 'me'
-          ? `<div class="ls-btns"><button class="primary sm" data-act="ls-win" data-v="${i}">${fmt(g.bid.price)}에 낙찰 <b>(실제 −${fmt(Math.round(g.bid.price * (1 - S.me)))})</b></button><button class="sm ghost" data-act="ls-cancel" data-v="${i}">그만둔다</button></div></div>`
-          : `<div class="ls-btns"><button class="primary sm" data-act="ls-raise" data-v="${i}" ${G.player.money < g.bid.next ? 'disabled' : ''}>${fmt(g.bid.next)}에 부른다</button><button class="sm ghost" data-act="ls-fold" data-v="${i}">포기 · ${who(top)}에게</button></div></div>`;
+    const n = L.S.rows.length + 1;
+    let h = `<div class="ss-sec loot-split"><div class="ss-h"><span>팀 정산 · 얻은 물건</span><span class="dim">${n}명이 하나씩 무작위로 나눔</span></div>`;
+    L.lots.forEach((lot, i) => {
+      const col = lot.kind === 'gear' && RARITY[lot.it.rarity] ? RARITY[lot.it.rarity].color : '#cfd8e3';
+      const stats = lot.kind === 'gear' && UI.equipStats ? `<span class="small dim">${UI.equipStats(lot.it)}</span>` : '';
+      h += `<div class="ls-row"><div class="ls-name"><b style="color:${col}">${nameOf(lot)}</b>${stats}<span class="small">시세 ${fmt(priceOf(lot))} · 최소 입찰 ${fmt(lot.min)}</span></div>`;
+      if (lot.done) { h += `<div class="ls-done">${lot.done}</div></div>`; return; }
+      h += `<div class="small ls-lead">나눔: <b class="${lot.owner === 'me' ? 'ok' : ''}">${who(lot.owner)}</b>에게</div>`;
+      if (lot.bid) {
+        const b = lot.bid; const meTop = b.top === 'me';
+        h += `<div class="ls-bid"><span>입찰 최고가 <b>${fmt(b.price)}</b> · ${who(b.top)}</span></div>`;
+        h += meTop
+          ? `<div class="ls-btns"><button class="primary sm" data-act="ls-win" data-v="${i}">${fmt(b.price)}에 낙찰</button><button class="sm ghost" data-act="ls-cancel" data-v="${i}">그만둔다</button></div></div>`
+          : `<div class="ls-btns"><button class="primary sm" data-act="ls-raise" data-v="${i}" ${G.player.money < b.next ? 'disabled' : ''}>${fmt(b.next)}에 부른다</button><button class="sm ghost" data-act="ls-fold" data-v="${i}">${lot.owner === 'me' ? `넘긴다 · +${fmt(b.price)}` : '포기'}</button></div></div>`;
         return;
       }
-      const pickTxt = S.npcLead ? `<div class="small ls-lead">리더 결정: ${g.pick === 'me' ? '<b class="ok">나에게</b>' : `<b>${who(g.pick)}</b>에게`}</div>` : '';
-      const best = !S.npcLead ? G.lootBidders(it, S)[0] : null;
-      h += `${pickTxt}<div class="ls-btns">
-        ${g.pick === 'me' ? '' : `<button class="primary sm" data-act="ls-bid" data-v="${i}">입찰한다</button>`}
-        ${S.npcLead ? '' : `${best ? `<button class="sm" data-act="ls-give" data-v="${i}">${best.n.name}에게 준다</button>` : ''}<button class="sm" data-act="ls-sell" data-v="${i}">팔아서 나눈다 <b>+${fmt(Math.round(sale * S.me))}</b></button><button class="sm ghost" data-act="ls-keep" data-v="${i}">내가 갖는다 <b>−${fmt(Math.round(sale * (1 - S.me)))}</b></button>`}
-      </div></div>`;
+      h += lot.owner === 'me' ? '</div>'
+        : `<div class="ls-btns"><button class="primary sm" data-act="ls-bid" data-v="${i}" ${G.player.money < lot.min ? 'disabled' : ''}>입찰한다 · ${fmt(lot.min)}부터</button></div></div>`;
     });
-    return h + '<div class="small dim ls-foot">고르지 않고 확인을 누르면 재료는 즉시 정산, 장비는 ' + (S.npcLead ? '리더 결정대로' : '팔아서 나눈다') + '.</div></div>';
+    return h + '<div class="small dim ls-foot">꼭 가져가야 하는 것만 입찰한다. 낙찰금은 그 물건을 받았던 사람에게 간다. 확인을 누르면 나눔(진행 중인 입찰은 그때 최고가) 그대로 끝난다.</div></div>';
   };
   UI.lootRender = function () {
     const box = document.getElementById('modal-box'); if (!box || !this._loot) return;
@@ -187,72 +204,53 @@ const LOOT_SPLIT = { bidStep: 0.1, npcWant: { fit: 0.75, any: 0.4 }, giftRel: 4,
     else { const row = box.querySelector('.row.end'); if (row) row.before(node); else box.appendChild(node); }
     if (this.walletChip) try { this.walletChip(); } catch (e) { /* 무시 */ }
   };
-  // 남은 것은 기본 처리
+  // 한 덩어리를 끝낸다: 최종 주인에게 넘기고, 입찰이면 낙찰금을 받았던 사람에게 준다
+  const settle = (lot) => {
+    const b = lot.bid; const final = b ? b.top : lot.owner;
+    if (b && final !== lot.owner) pay(final, lot.owner, b.price);
+    if (final !== 'me') {
+      if (lot.kind === 'gear') { dropGear(lot.it); G.npcGiveGear(final, lot.it); }
+      else if (lot.kind === 'core') { const k = 'c' + lot.key; G.player.mats[k] = Math.max(0, (G.player.mats[k] || 0) - lot.n); }
+      else G.player.parts[lot.key] = Math.max(0, (G.player.parts[lot.key] || 0) - lot.n);
+    }
+    lot.final = final; lot.bid = null;
+    lot.done = b && final !== lot.owner
+      ? (final === 'me' ? `내가 ${fmt(b.price)}에 낙찰. ${who(lot.owner)}에게 냈다.` : `${who(final)}이(가) ${fmt(b.price)}에 가져갔다.${lot.owner === 'me' ? ` 나에게 +${fmt(b.price)}` : ''}`)
+      : (final === 'me' ? '내 것' : `${who(final)}의 것`);
+  };
   UI.lootFinish = function () {
     const L = this._loot; if (!L) return; this._loot = null;
-    const S = L.S;
-    if (L.mat && !L.mat.done) { take(L.bag); G.lootPayOut(L.mat.v, S); }
-    for (const g of L.gear) {
-      if (g.done) continue;
-      if (g.bid) { lootSettleBid(g, S); continue; }
-      if (S.npcLead && g.pick && g.pick !== 'me') { dropGear(g.it); G.npcGiveGear(g.pick, g.it); }
-      else if (!S.npcLead) { dropGear(g.it); G.lootPayOut(Math.round(g.it.value * LOOT_SPLIT.saleRate), S); }
-    }
+    for (const lot of L.lots) if (!lot.done) settle(lot);
     G.save();
   };
-  const lootSettleBid = (g, S) => {
-    const b = g.bid; if (!b) return;
-    if (b.top === 'me') { G.player.money -= b.price; G.lootPayOut(b.price, S); g.done = `내가 ${fmt(b.price)}에 낙찰. 내 몫 ${fmt(Math.round(b.price * S.me))}은 돌려받았다.`; }
-    else { dropGear(g.it); G.npcGiveGear(b.top, g.it); G.lootPayOut(b.price, S, b.top); g.done = `${b.top.name}이(가) ${fmt(b.price)}에 가져갔다. 내 몫 +${fmt(Math.round(b.price * S.me))}`; }
-    g.bid = null;
-  };
   // NPC가 내 값에 응한다
-  const npcAnswer = (g, S) => {
-    const b = g.bid; const rival = G.lootBidders(g.it, S).find((x) => x.max > b.price);
-    if (rival) { b.price = Math.min(rival.max, Math.round(b.price * (1 + LOOT_SPLIT.bidStep))); b.top = rival.n; }
-    b.next = Math.round(b.price * (1 + LOOT_SPLIT.bidStep));
+  const npcAnswer = (lot, S) => {
+    const b = lot.bid; const r = rivals(lot, S, lot.owner).find((x) => x.max > b.price); // 받은 사람은 자기 물건에 입찰하지 않는다
+    if (r) { b.price = Math.min(r.max, Math.round(b.price * (1 + LOOT_ROLL.step))); b.top = r.n; }
+    b.next = Math.round(b.price * (1 + LOOT_ROLL.step));
   };
 
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
     const L = this._loot;
     if (L && /^ls-/.test(act)) {
-      const S = L.S; const g = L.gear[+v];
+      const S = L.S; const lot = L.lots[+v]; if (!lot || lot.done) return;
       switch (act) {
-        case 'ls-mat': {
-          const mine = Math.round(L.mat.v * S.me); const pay = L.mat.v - mine;
-          if (v === 'buy') { if (G.player.money < pay) return; G.player.money -= pay; for (const r of S.rows) if (typeof r.n.money === 'number') r.n.money += Math.round(L.mat.v * r.f); L.mat.done = `실물을 가져왔다. 팀에 ${fmt(pay)} 크레딧을 냈다.`; }
-          else { take(L.bag); G.lootPayOut(L.mat.v, S); L.mat.done = `협회 시세로 넘기고 내 몫 +${fmt(mine)} 크레딧.`; }
-          break;
-        }
         case 'ls-bid': {
-          const base = Math.round(g.it.value * LOOT_SPLIT.saleRate);
-          const rival = G.lootBidders(g.it, S).find((x) => x.max >= base);
-          g.bid = rival ? { price: base, top: rival.n, next: Math.round(base * (1 + LOOT_SPLIT.bidStep)) } : { price: base, top: 'me', next: base };
-          break;
+          if (G.player.money < lot.min) return;
+          lot.bid = { top: 'me', price: lot.min, next: Math.round(lot.min * (1 + LOOT_ROLL.step)) };
+          npcAnswer(lot, S); break;
         }
         case 'ls-raise': {
-          const b = g.bid; if (!b || G.player.money < b.next) return;
-          b.price = b.next; b.top = 'me'; npcAnswer(g, S);
-          break;
+          const b = lot.bid; if (!b || G.player.money < b.next) return;
+          b.price = b.next; b.top = 'me'; npcAnswer(lot, S); break;
         }
-        case 'ls-win': case 'ls-fold': if (g.bid) lootSettleBid(g, S); break;
+        case 'ls-win': case 'ls-fold': if (lot.bid) settle(lot); break;
         case 'ls-cancel': {
-          // 내가 그만두면 다음으로 많이 부른 팀원이 가져간다(없으면 원래 선택으로)
-          const rival = G.lootBidders(g.it, S)[0];
-          if (rival && g.bid) { g.bid.top = rival.n; g.bid.price = Math.min(rival.max, Math.round(g.it.value * LOOT_SPLIT.saleRate)); lootSettleBid(g, S); } else g.bid = null;
+          // 내가 그만두면 다음으로 많이 부른 사람이 그 값에, 없으면 나눔 그대로
+          const r = rivals(lot, S, lot.owner)[0];
+          if (r) { lot.bid = { top: r.n, price: Math.min(r.max, lot.min), next: lot.min }; settle(lot); } else lot.bid = null;
           break;
-        }
-        case 'ls-give': {
-          const best = G.lootBidders(g.it, S)[0]; if (!best) break;
-          dropGear(g.it); G.npcGiveGear(best.n, g.it); G.changeRel(best.n, LOOT_SPLIT.giftRel, '전리품을 양보받았다');
-          g.done = `${best.n.name}에게 줬다. 고마워한다. (관계 +${LOOT_SPLIT.giftRel})`; break;
-        }
-        case 'ls-sell': { dropGear(g.it); const mine = G.lootPayOut(Math.round(g.it.value * LOOT_SPLIT.saleRate), S); g.done = `팔아서 나눴다. 내 몫 +${fmt(mine)}`; break; }
-        case 'ls-keep': {
-          const sale = Math.round(g.it.value * LOOT_SPLIT.saleRate); const pay = Math.round(sale * (1 - S.me)); if (G.player.money < pay) return;
-          G.player.money -= pay; for (const r of S.rows) if (typeof r.n.money === 'number') r.n.money += Math.round(sale * r.f);
-          g.done = `내가 갖는다. 팀에 ${fmt(pay)} 크레딧을 냈다.`; break;
         }
       }
       G.save(); this.lootRender(); return;

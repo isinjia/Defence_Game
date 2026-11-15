@@ -210,17 +210,14 @@ body.reduced #modal-box .gnode.pf-reveal { animation: none; }`;
     return base.apply(this, a);
   };
 }
-//    정산 중인 장비는 결과 창 아래 '얻은 장비'의 [바로 장착]을 막는다(정산 전에 끼워 가져가지 못하게). 내 것으로 정해지면 가방에서 장착한다.
+//    정산 중인 장비는 결과 창 아래 '얻은 장비'의 [바로 장착]을 막는다(정산 전에 끼워 가져가지 못하게). 정산이 끝나 내 것이 되면 가방에서 장착한다.
 {
   const lock = () => {
-    const L = UI._loot; const box = document.getElementById('modal-box'); if (!L || !box) return;
-    const uids = new Set((L.gear || []).map((g) => String(g.it && g.it.uid)));
+    const L = UI._loot; const box = document.getElementById('modal-box'); if (!L || !box || !UI.lootMine) return;
     for (const b of box.querySelectorAll('[data-act="quick-equip"]')) {
-      if (!uids.has(String(b.dataset.v))) continue;
-      const g = L.gear.find((x) => String(x.it && x.it.uid) === String(b.dataset.v));
-      const mine = g && g.done && /내가 갖는다|낙찰|나에게/.test(g.done);
-      if (mine) { b.disabled = false; b.textContent = '바로 장착'; continue; }
-      b.disabled = true; b.textContent = '팀 정산 중'; b.classList.remove('primary');
+      const lot = (L.lots || []).find((x) => x.kind === 'gear' && String(x.it.uid) === String(b.dataset.v)); if (!lot) continue;
+      if (UI.lootMine(b.dataset.v)) { b.disabled = false; b.textContent = '바로 장착'; continue; }
+      b.disabled = true; b.textContent = lot.done ? '내 것 아님' : '팀 정산 중'; b.classList.remove('primary');
     }
   };
   for (const name of ['lootSplitStart', 'lootRender']) {
@@ -229,7 +226,7 @@ body.reduced #modal-box .gnode.pf-reveal { animation: none; }`;
   }
   const baseH = UI.handle;
   UI.handle = function (act, v) {
-    if (act === 'quick-equip' && UI._loot && (UI._loot.gear || []).some((g) => String(g.it && g.it.uid) === String(v) && !(g.done && /내가 갖는다|낙찰|나에게/.test(g.done)))) { this.toast('팀 정산이 끝나야 가져갈 수 있다.'); return; }
+    if (act === 'quick-equip' && UI._loot && UI.lootMine && !UI.lootMine(v)) { this.toast('팀 정산이 끝나 내 것이 되어야 장착할 수 있다.'); return; }
     return baseH.call(this, act, v);
   };
 }
