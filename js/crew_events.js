@@ -209,3 +209,32 @@
     };
   }
 }
+
+// 내가 리더인 파티 (사용자 요청 2-⑥)
+// - 팀 호출에 늦는 확률·불이익을 소속 파티처럼 완화: 늦을 확률 기본 3%(전 6%)·관계 낮음 +8%(전 12%)·게으른 성격 +10%(전 15%),
+//   늦으면 관계 −2(전 −3)·명성 −1(전 −2), 다섯 번(전 세 번) 늦으면 내보낸다.
+// - 해산 중 팀원이 뭘 하는지 파티 화면에 한 줄씩(성격별).
+{
+  if (typeof LEAD_TIME !== 'undefined') Object.assign(LEAD_TIME, { lateBase: 0.03, lateLowRel: 0.08, lateLazy: 0.10, missRel: 2, missFame: 1, kickAfter: 5 });
+  const GP = Game.prototype; const baseTick = GP.leadTick;
+  if (baseTick) GP.leadTick = function (...a) {
+    const n0 = this.queue.length; const r = baseTick.apply(this, a);
+    for (let i = n0; i < this.queue.length; i++) { const q = this.queue[i]; if (q && q.type === 'toast' && typeof q.text === 'string') q.text = q.text.replace('세 번째로 늦었다', '다섯 번째로 늦었다'); }
+    return r;
+  };
+  const DOING = { kind: '동네 사람들 일을 도와주는 중', warlike: '혼자 근처 괴수를 사냥하는 중', greedy: '부업으로 돈을 버는 중', just: '훈련장에서 수련하는 중', cold: '장비를 손보며 쉬는 중' };
+  if (typeof UI !== 'undefined' && UI.partyHtml) {
+    const basePH = UI.partyHtml;
+    UI.partyHtml = function (...a) {
+      let h = basePH.apply(this, a);
+      try {
+        const p = G.player; const L = p && !p.crew ? p.lead : null;
+        if (L && L.state === 'free') {
+          const ms = G.leadMembers ? G.leadMembers() : [];
+          if (ms.length) h = h.replace(/(팀은 해산 중[^<]*)/, `$1</p><ul class="small dim lead-doing">${ms.map((n) => `<li>${n.name} · ${regionById(n.region || L.base).name}에서 ${DOING[n.personality] || '쉬는 중'}</li>`).join('')}</ul><p class="small">`);
+        }
+      } catch (e) { /* 무시 */ }
+      return h;
+    };
+  }
+}
