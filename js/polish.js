@@ -293,3 +293,71 @@ if (typeof UI !== 'undefined' && UI.modal) {
     return r;
   };
 }
+
+// 월드맵 게이트는 2×2 칸(게이트 칸 + 오른쪽·아래)으로 그린다(js/mapview.js). 네 칸 중 어디를 눌러도 게이트 칸을 누른 것으로.
+if (typeof UI !== 'undefined' && UI.onTap) {
+  const baseTap = UI.onTap;
+  UI.onTap = function (x, y, ...a) {
+    try {
+      const has = (gx, gy) => G.gatesShown && G.gatesShown().find((g) => g.x === gx && g.y === gy && !g.gone);
+      if (!has(x, y) && !(G.objAt && G.objAt(x, y))) {
+        const g = has(x - 1, y) || has(x, y - 1) || has(x - 1, y - 1);
+        if (g) return baseTap.call(this, g.x, g.y, ...a);
+      }
+    } catch (e) { /* 무시 */ }
+    return baseTap.call(this, x, y, ...a);
+  };
+}
+
+// 추적 경로(노란 선, js/quest_route.js) 끝에 깃발 (사용자 요청)
+// - 목적지가 게이트면 게이트를 2×2로 그리므로(js/mapview.js) 선 끝·네모 표시·깃발을 2×2 한가운데로 맞춘다.
+// - 깃발을 세우고, 목적지 이름표는 깃발 위로 올려 겹치지 않게 한다.
+if (typeof MapView !== 'undefined' && MapView.prototype.drawQuestRouteMarker) {
+  const MP = MapView.prototype;
+  const gateAt = (x, y) => (G.mapGates || []).find((g) => g.x === x && g.y === y && !g.cleared);
+  const endOf = (mv, dest) => (gateAt(dest.x, dest.y) ? { x: dest.x + 1, y: dest.y + 1, big: true } : { x: dest.x + 0.5, y: dest.y + 0.5, big: false });
+  // 노란 선: 원래 그리기와 같되, 목적지가 게이트면 마지막 점을 2×2 한가운데로 옮긴다
+  MP.drawQuestRoute = function () {
+    if (typeof UI !== 'undefined' && UI.ctx) return;
+    const route = this.questRouteData && this.questRouteData(); if (!route || !route.path) return;
+    const { path, dest } = route; const c = this.ctx;
+    const pts = path.map((i) => { const [x, y] = WORLD.xy(i); return this.toScreen(x + 0.5, y + 0.5); });
+    if (this.token && this.token.walking) pts[0] = this.toScreen(this.token.x + 0.5, this.token.y + 0.5);
+    const e = endOf(this, dest); if (e.big) pts[pts.length - 1] = this.toScreen(e.x, e.y);
+    if (pts.length < 2) return;
+    c.save(); c.setLineDash([]); c.lineJoin = 'round'; c.lineCap = 'round';
+    for (const [w, col] of [[8, '#11170be8'], [4.5, '#ffe23b']]) { c.lineWidth = w; c.strokeStyle = col; c.beginPath(); pts.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.stroke(); }
+    c.restore();
+  };
+  MP.drawQuestRouteMarker = function () {
+    try {
+      if (typeof UI !== 'undefined' && UI.ctx) return;
+      const route = this.questRouteData && this.questRouteData(); if (!route || !route.path) return;
+      const { dest, path, days } = route; const c = this.ctx, s = this.tile; const e = endOf(this, dest);
+      const [x, y] = this.toScreen(e.x, e.y);
+      if (x < -s * 2 || y < -s * 2 || x > this.w + s * 2 || y > this.hgt + s * 2) return;
+      c.save(); c.lineCap = 'round'; c.lineJoin = 'round';
+      // 목적지 네모 (게이트면 2×2)
+      const half = e.big ? s * 0.96 : s * 0.43;
+      c.strokeStyle = 'rgba(17,23,11,.9)'; c.lineWidth = 5; c.strokeRect(x - half, y - half, half * 2, half * 2);
+      c.strokeStyle = '#ffe23b'; c.lineWidth = 3; c.strokeRect(x - half, y - half, half * 2, half * 2);
+      // 깃발
+      const H = Math.max(28, s * (e.big ? 1.25 : 0.95)), W = Math.max(18, s * 0.62), wave = Math.sin((this.t || 0) / 9) * W * 0.08; const top = y - H;
+      c.fillStyle = 'rgba(5,8,13,.55)'; c.beginPath(); c.ellipse(x, y, W * 0.32, W * 0.12, 0, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = 'rgba(5,8,13,.95)'; c.lineWidth = 6; c.beginPath(); c.moveTo(x, y); c.lineTo(x, top); c.stroke();
+      c.strokeStyle = '#f2f4f7'; c.lineWidth = 2.8; c.beginPath(); c.moveTo(x, y); c.lineTo(x, top); c.stroke();
+      c.beginPath(); c.moveTo(x + 1, top + 1);
+      c.quadraticCurveTo(x + W * 0.5, top - W * 0.08 + wave, x + W, top + W * 0.12);
+      c.lineTo(x + W * 0.78, top + W * 0.36); c.lineTo(x + W, top + W * 0.6);
+      c.quadraticCurveTo(x + W * 0.5, top + W * 0.48 - wave, x + 1, top + W * 0.62); c.closePath();
+      c.shadowColor = '#ffe23b'; c.shadowBlur = 12; c.fillStyle = '#ffe23b'; c.fill(); c.shadowBlur = 0;
+      c.strokeStyle = 'rgba(17,23,11,.95)'; c.lineWidth = 3; c.stroke(); c.strokeStyle = 'rgba(255,255,255,.8)'; c.lineWidth = 1; c.stroke();
+      c.fillStyle = '#f2f4f7'; c.beginPath(); c.arc(x, top, 3.4, 0, Math.PI * 2); c.fill();
+      // 이름표: 깃발 위
+      const text = `${dest.kind === 'main' ? '메인' : '추적'} · ${String(dest.title || '').slice(0, this.w < 600 ? 10 : 17)}${path.length === 1 ? ' · 도착' : ` · ${WORLD.formatTravelTime(days)}`}`;
+      c.font = '700 12px "IBM Plex Sans KR", sans-serif'; const hw = Math.min(this.w / 2 - 8, c.measureText(text).width / 2 + 10);
+      c.restore();
+      this.chip(Math.max(hw + 4, Math.min(this.w - hw - 4, x + W * 0.3)), Math.max(16, top - 14), text, '#ffe23b', '#171b0bf2');
+    } catch (e) { /* 표시 실패는 지도를 막지 않는다 */ }
+  };
+}

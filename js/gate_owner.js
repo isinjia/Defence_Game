@@ -213,20 +213,30 @@ Object.assign(UI, {
   const baseObjs = MP.drawObjects;
   MP.drawObjects = function () {
     baseObjs.call(this);
+    // 사용자 요청: 지도 위 관리 깃발은 숨긴다(추적 깃발과 헷갈림). 관리 주체·출입 규칙은 게이트를 눌렀을 때 정보 창에서 본다.
+    if (MP.showOwnerFlags !== true) return;
     if (!G.mapGates) return;
     const c = this.ctx, s = this.tile;
     for (const g of G.gatesShown()) {
       if (!G.gateSeen(g) || !g.owner || g.north || g.final) continue;
-      const [px, py] = this.toScreen(g.x + 0.5, g.y + 0.5);
-      if (px < -s || py < -s || px > this.w + s || py > this.hgt + s) continue;
-      const col = G.ownerColor(g.owner); const fx = px + s * 0.32, fy = py - s * 0.46;
-      c.strokeStyle = '#05080d'; c.lineWidth = 3; c.beginPath(); c.moveTo(fx, fy); c.lineTo(fx, fy + s * 0.42); c.stroke();
-      c.strokeStyle = '#c9ced6'; c.lineWidth = 1.4; c.beginPath(); c.moveTo(fx, fy); c.lineTo(fx, fy + s * 0.42); c.stroke();
-      c.fillStyle = col; c.beginPath();
-      if (g.owner === OWNER_KAMA) { c.moveTo(fx, fy); c.lineTo(fx + s * 0.22, fy + s * 0.02); c.lineTo(fx + s * 0.22, fy + s * 0.14); c.lineTo(fx + s * 0.11, fy + s * 0.22); c.lineTo(fx, fy + s * 0.14); }
-      else { c.moveTo(fx, fy); c.lineTo(fx + s * 0.26, fy + s * 0.07); c.lineTo(fx, fy + s * 0.15); }
-      c.closePath(); c.fill(); c.strokeStyle = '#05080d'; c.lineWidth = 1; c.stroke();
-      if (g.policy === 'closed') { c.strokeStyle = '#ff4f6a'; c.lineWidth = 1.6; c.beginPath(); c.arc(fx + s * 0.11, fy + s * 0.08, s * 0.13, 0, Math.PI * 2); c.stroke(); }
+      // 게이트를 2×2 칸 한가운데에 크게 그리므로(js/mapview.js) 깃발도 그 중심 오른쪽 위에, 2배 크기·진한 테두리로 (사용자 요청: 잘 안 보임)
+      const [px, py] = this.toScreen(g.x + 1, g.y + 1);
+      if (px < -s * 2 || py < -s * 2 || px > this.w + s * 2 || py > this.hgt + s * 2) continue;
+      const col = G.ownerColor(g.owner); const k = s * 2; const fx = px + s * 0.88, fy = py - s * 0.92; // 추적 깃발(2×2 한가운데)과 겹치지 않게 오른쪽 위 모서리
+      const pole = k * 0.42;
+      c.save(); c.lineCap = 'round'; c.lineJoin = 'round';
+      c.strokeStyle = 'rgba(5,8,13,.9)'; c.lineWidth = 6; c.beginPath(); c.moveTo(fx, fy); c.lineTo(fx, fy + pole); c.stroke();
+      c.strokeStyle = '#e8ecf2'; c.lineWidth = 2.6; c.beginPath(); c.moveTo(fx, fy); c.lineTo(fx, fy + pole); c.stroke();
+      c.fillStyle = '#e8ecf2'; c.beginPath(); c.arc(fx, fy, 3.2, 0, Math.PI * 2); c.fill();
+      c.beginPath();
+      if (g.owner === OWNER_KAMA) { c.moveTo(fx, fy + 2); c.lineTo(fx + k * 0.22, fy + 2 + k * 0.02); c.lineTo(fx + k * 0.22, fy + 2 + k * 0.14); c.lineTo(fx + k * 0.11, fy + 2 + k * 0.22); c.lineTo(fx, fy + 2 + k * 0.14); }
+      else { c.moveTo(fx, fy + 2); c.lineTo(fx + k * 0.26, fy + 2 + k * 0.07); c.lineTo(fx, fy + 2 + k * 0.15); }
+      c.closePath();
+      c.shadowColor = col; c.shadowBlur = 10; c.fillStyle = col; c.fill(); c.shadowBlur = 0;
+      c.strokeStyle = 'rgba(5,8,13,.95)'; c.lineWidth = 3; c.stroke();
+      c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1.2; c.stroke();
+      if (g.policy === 'closed') { c.strokeStyle = '#ff4f6a'; c.lineWidth = 2.6; c.beginPath(); c.arc(fx + k * 0.11, fy + 2 + k * 0.08, k * 0.13, 0, Math.PI * 2); c.stroke(); }
+      c.restore();
     }
   };
 }
