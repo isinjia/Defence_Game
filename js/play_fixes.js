@@ -91,9 +91,14 @@
       const from = prevKey ? prevKey.split(':').map(Number) : (m.rows[0] && m.rows[0][0] && m.rows[0][0].t === 'start' ? [0, 0] : null);
       if (from && from.join(':') === key) return base.apply(this, a);
       try {
+        // 이동 장면 동안 지도를 다시 그리면 NPC 리더가 '다음 길' 상의를 예약해, 전투가 열리기 전에 상의가 떠서
+        // 다른 칸으로 가 버렸다(사용자 제보: 전투 스킵). 장면 동안은 상의 예약을 막고, 칸이 열린 뒤 풀어 준다.
+        const reachNow = this.reachable ? this.reachable() : [];
+        c.run.leadAsked = `${c.run.floor}|${reachNow.map((x) => x.join(':')).join(',')}`;
+        this._xrAnimating = true;
         this.renderGateMap();
         const tk = document.querySelector('#modal-box .gtoken.lead');
-        if (!tk) return base.apply(this, a);
+        if (!tk) { this._xrAnimating = false; c.run.leadAsked = null; return base.apply(this, a); }
         const s = at(m, from), t = at(m, m.pos);
         tk.style.transition = 'none'; tk.style.left = s.x + '%'; tk.style.top = s.y + '%';
         void tk.offsetWidth; tk.style.transition = '';
@@ -110,10 +115,11 @@
           this._xrAnimating = false;
           if (this.ctx !== ctx) return;
           if (root) root.classList.remove('xr-overview', 'xr-moving');
+          if (c.run) c.run.leadAsked = null; // 칸의 일이 끝나 지도로 돌아오면 리더가 다음 길을 정한다
           base.apply(this, a);
         }, ms);
         return undefined;
-      } catch (e) { this._xrAnimating = false; return base.apply(this, a); }
+      } catch (e) { this._xrAnimating = false; if (c.run) c.run.leadAsked = null; return base.apply(this, a); }
     };
   };
   ['gateFight', 'gateRest', 'gateTreasure', 'gateEvent'].forEach(wrapOpen);
