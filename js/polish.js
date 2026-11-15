@@ -260,7 +260,7 @@ if (typeof UI !== 'undefined' && UI.unitEl) {
 // 또 자기 강화(방어·강화·회피·회복)는 내가 쓰면 나에게 걸리므로 '대상'을 '자신'으로. 동료에게 오더를 내릴 때만 '아군 하나'.
 if (typeof UI !== 'undefined' && UI.skillHoldHtml) {
   const DMG_TYPES = ['dmg', 'crit', 'pierce', 'multi', 'dot', 'drain', 'stun', 'aoe'];
-  const SELF_TYPES = ['heal', 'buff', 'shield', 'evade'];
+  const SELF_TYPES = ['evade']; // 회복·강화·보호는 아래(동료에게도 쓰기)에서 동료를 고를 수 있게 바꿨다
   const baseHold = UI.skillHoldHtml;
   UI.skillHoldHtml = function (sk, u, ...a) {
     let h = baseHold.call(this, sk, u, ...a);
@@ -268,6 +268,7 @@ if (typeof UI !== 'undefined' && UI.skillHoldHtml) {
       if (sk && !DMG_TYPES.includes(sk.type)) h = h.replace(/<tr><th>상태 이상<\/th>[\s\S]*?<\/tr>/, '').replace(/<tr><th>원소 반응<\/th>[\s\S]*?<\/tr>/, '');
       const ordering = this.ctx && this.ctx.orderFor && u && u.id === this.ctx.orderFor;
       if (sk && SELF_TYPES.includes(sk.type) && !ordering) h = h.replace('<tr><th>대상</th><td>아군 하나</td></tr>', '<tr><th>대상</th><td>자신</td></tr>');
+      if (sk && ['heal', 'buff', 'shield'].includes(sk.type)) h = h.replace('<tr><th>대상</th><td>아군 하나</td></tr>', '<tr><th>대상</th><td>아군 하나 (자신 포함)</td></tr>').replace(/(<tr><th>효과<\/th><td>)자신의 /, '$1대상의 ').replace(/(<tr><th>효과<\/th><td>)체력을/, '$1대상의 체력을');
     } catch (e) { /* 무시 */ }
     return h;
   };
@@ -408,5 +409,27 @@ if (typeof UI !== 'undefined' && UI.openCombat) {
     const r = baseOpenFit.apply(this, a);
     try { if (this.refreshUnits) this.refreshUnits(); if (this.combatFit) this.combatFit(); } catch (e) { /* 무시 */ }
     return r;
+  };
+}
+
+// 회복·강화·보호 기술은 동료에게도 쓸 수 있게 (사용자 지적: 사제의 '치유의 빛' 같은 회복·버프 기술이 자기 자신에게만 걸림)
+// 종류 heal(회복)·buff(공격 강화)·shield(방어 강화)는 내가 쓸 때 대상을 고른다: 동료를 누르면 그 동료에게, 나를 누르면 나에게.
+// (회피 태세 evade 는 자기 몸으로 피하는 기술이라 그대로 자신)
+if (typeof SKILL_AIM !== 'undefined') for (const k of ['heal', 'buff', 'shield']) SKILL_AIM[k] = 'ally';
+if (typeof Combat !== 'undefined' && Combat.prototype.useSkillOn) {
+  const ALLY_TYPES = ['heal', 'buff', 'shield'];
+  const basePS = Combat.prototype.playerSkill;
+  Combat.prototype.playerSkill = function (id, targetId, ...a) {
+    try {
+      const p = this.player; const sk0 = skillById(id); const skill = this.game && this.game.skillEff ? this.game.skillEff(sk0) : sk0;
+      const t = targetId != null ? this.units.find((u) => u.id === targetId && u.alive) : null;
+      if (this.waiting && !this.result && skill && ALLY_TYPES.includes(skill.type) && t && t !== p && t.side === p.side) {
+        if (skill.mp > p.mp) { this.push('정신력이 부족하다.', 'bad'); return; }
+        this.useSkillOn(p, skill, t);
+        this.endPlayerTurn();
+        return;
+      }
+    } catch (e) { /* 실패하면 원래 처리 */ }
+    return basePS.call(this, id, targetId, ...a);
   };
 }
