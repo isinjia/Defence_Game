@@ -97,13 +97,15 @@
   // 창 위에 뜨는 작은 확인 창 (전투·게이트 창을 갈아 끼우지 않고 그 위에 띄운다)
   UI.confirmOver = function (title, text, okLabel, onOk, okCls = 'danger') {
     const old = document.getElementById('pl-confirm'); if (old) old.remove();
-    const el = document.createElement('div'); el.id = 'pl-confirm'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
+    let fresh = false; const el = document.createElement('div'); el.id = 'pl-confirm'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
     el.innerHTML = `<div class="plc-box"><h3>${title}</h3><p>${text}</p><div class="plc-row"><button class="ghost" data-plc="no">취소</button><button class="${okCls}" data-plc="ok">${okLabel}</button></div></div>`;
     el.addEventListener('click', (e) => {
       e.stopPropagation();
       const b = e.target.closest('[data-plc]'); if (!b && e.target !== el) return;
+      if (!fresh) return; // 창을 띄운 누름을 뗄 때 바로 닫히지 않게: 창이 뜬 뒤 새로 누른 것만 받는다
       el.remove(); if (b && b.dataset.plc === 'ok') onOk();
     });
+    el.addEventListener('pointerdown', () => { fresh = true; });
     document.body.appendChild(el);
   };
   // [평가 27] 도주·철수는 한 번 누르면 바로 게이트 밖이었다: 잃는 것을 알리고 한 번 더 묻는다
@@ -226,6 +228,8 @@
     if (!proxy) {
       proxy = document.createElement('button'); proxy.type = 'button'; proxy.className = 'tsk-proxy'; proxy.setAttribute('aria-label', '튜토리얼 건너뛰기');
       // 누르면 "한 번 더" 대신 가운데 확인 창으로 묻는다 (사용자 요청)
+      // 손가락을 대는 순간 창을 띄운다. 손을 뗄 때 창이 닫히지 않게 하는 것은 confirmOver 가 맡는다(창 안에서 새로 누른 것만 받는다)
+      proxy.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
       proxy.addEventListener('pointerdown', (e) => {
         e.preventDefault(); e.stopPropagation();
         const r = document.getElementById('tut-skip'); if (!r || r.disabled || skipAsk) return;
@@ -234,7 +238,6 @@
         // 취소(또는 바깥 누름)로 창이 닫히면 묻는 중 표시를 푼다
         const watch = setInterval(() => { if (!document.getElementById('pl-confirm')) { skipAsk = false; clearInterval(watch); } }, 100);
       });
-      proxy.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
       document.body.appendChild(proxy);
     }
     proxy.classList.toggle('armed', real.classList.contains('armed'));

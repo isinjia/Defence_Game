@@ -51,3 +51,7 @@ middle-aged korean man, short hair, scar across eyebrow, heavy armor plate, stee
 
 - 실제 웹소설·웹툰 표지 이미지를 그대로 쓰면 저작권 침해입니다. 직접 생성했거나 사용 허락을 받은 그림만 넣으세요.
 - 생성 도구의 상업적 이용 약관도 확인하세요.
+
+## 직업복 목선
+
+직업복의 목·턱이 옷깃과 안 맞을 때(목이 뜸, 턱 밑 살색 네모, 체형마다 목 위치가 다름)는 [docs/직업복_목선_맞춤.md](../../docs/직업복_목선_맞춤.md)의 순서로 맞춘다. 도구: `tools/outfit_neck_line.py`.
