@@ -445,7 +445,7 @@ if (typeof UI !== 'undefined') {
   // 접사마다 태그 하나 (숨은 접사 + 일반 접사면 둘)
   const affTags = (id, cls = '') => {
     const a = G.player && G.player.skillAffix && G.player.skillAffix[id]; if (!a || typeof affixById !== 'function') return '';
-    return [a.h, a.a].map((x) => x && affixById(x)).filter((x) => x && x.name).map((x) => `<span class="tag sk-affix${cls}${x.id === a.h ? ' hid' : ''}" data-sk="${id}" data-af="${x.id}">${x.name}</span>`).join(' ');
+    return [a.a, a.h].map((x) => x && affixById(x)).filter((x) => x && x.name).map((x) => `<span class="tag sk-affix${cls}${x.id === a.h ? ' hid' : ''}" data-sk="${id}" data-af="${x.id}">${x.name}</span>`).join(' ');
   };
   UI.affTags = affTags;
   // 스킬 레벨·숙련 (hunter.js SKILL_LV_REQ: Lv2~5에 필요한 누적 사용 8·24·50·90회)

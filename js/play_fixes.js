@@ -123,16 +123,16 @@
 
 // 6. 스킬 정보 팝업 (사용자 요청)
 //    ① '대상' 칸 아래에 붙던 긴 설명(대상 수 배율 등)을 뺀다.
-//    ② 맨 마지막에 이 스킬에 붙은 접사 태그(거친·예리한 등)가 무슨 뜻인지 적는다(사용자 요청: 접사만).
+//    ② 맨 마지막에 이 스킬에 붙은 접사 태그(거친·예리한 등)가 무슨 뜻인지 붙은 순서대로 적는다(사용자 요청: 접사만, '숨은 접사' 글자 없이).
 {
   const fmtK = (v) => (Math.round(v * 100) / 100).toString();
   const tagRows = (sk) => {
     const rows = []; const p = G.player; const mine = p && (p.skills || []).includes(sk.id) && sk.id !== 'strike';
     const a = mine && p.skillAffix && p.skillAffix[sk.id];
     if (a && typeof affixById === 'function') {
-      for (const x of [a.h, a.a].map((k) => k && affixById(k)).filter((x) => x && x.name)) {
+      for (const x of [a.a, a.h].map((k) => k && affixById(k)).filter((x) => x && x.name)) {
         const parts = []; if (x.power !== 1) parts.push(`위력 ×${fmtK(x.power)}`); if (x.mp !== 1) parts.push(`정신력 소모 ×${fmtK(x.mp)}`);
-        rows.push([x.name, `${x.id === a.h ? '숨은 접사 · ' : ''}${parts.join(' · ') || '변화 없음'}`]);
+        rows.push([x.name, parts.join(' · ') || '변화 없음']);
       }
     }
     return rows;
