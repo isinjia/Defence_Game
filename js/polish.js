@@ -217,7 +217,11 @@
   if (typeof Combat !== 'undefined') { const baseTick = Combat.prototype.tick; Combat.prototype.tick = function (...a) { if (skipAsk) return null; return baseTick.apply(this, a); }; }
   const syncSkip = () => {
     const real = document.getElementById('tut-skip');
-    if (!real || !real.isConnected) { if (proxy) { proxy.remove(); proxy = null; } return; }
+    // 원래 단추는 화면을 다시 그릴 때마다 지워졌다 새로 붙는다. 그때마다 대리 단추를 지웠다 만들면 깜빡이며 자리가 흔들렸다(사용자 지적).
+    // 원래 단추가 0.8초 넘게 없을 때만 대리 단추를 지운다.
+    const now = Date.now();
+    if (!real || !real.isConnected) { if (proxy && now - (syncSkip.seen || 0) > 800) { proxy.remove(); proxy = null; } return; }
+    syncSkip.seen = now;
     real.classList.add('tsk-hide');
     if (!proxy) {
       proxy = document.createElement('button'); proxy.type = 'button'; proxy.className = 'tsk-proxy'; proxy.setAttribute('aria-label', '튜토리얼 건너뛰기');
@@ -237,6 +241,8 @@
     proxy.disabled = !!real.disabled;
   };
   setInterval(() => { try { syncSkip(); } catch (e) { /* 무시 */ } }, 120);
+  // 새로 붙은 원래 단추를 다음 확인(0.12초) 전에도 바로 숨긴다
+  try { new MutationObserver(() => { const r = document.getElementById('tut-skip'); if (r && !r.classList.contains('tsk-hide')) { r.classList.add('tsk-hide'); syncSkip.seen = Date.now(); } }).observe(document.body, { childList: true, subtree: true }); } catch (e) { /* 무시 */ }
 }
 
 // 보스 표시: 아군 '리더' 꼬리표와 같은 자리(카드 왼쪽 위)에 '보스' (사용자 요청). 크기는 css/polish.css 에서 1.5배.
@@ -392,4 +398,15 @@ if (typeof UI !== 'undefined' && UI.showStory) {
   if (baseEnd) UI.endWalk = function (...a) { release(); return baseEnd.apply(this, a); };
   const baseCity = UI.openCity;
   if (baseCity) UI.openCity = function (...a) { release(); return baseCity.apply(this, a); };
+}
+
+// 전투를 연 첫 화면부터 적 줄을 모아 붙이고(js/combat_ui.js) 그 상태로 괴수 크기를 잰다.
+// 전에는 처음엔 넓은 칸으로 그렸다가 1~2초 뒤 칸을 모으며 크기를 다시 줄여, 처음 나올 때와 싸울 때 크기가 달랐다(사용자 지적).
+if (typeof UI !== 'undefined' && UI.openCombat) {
+  const baseOpenFit = UI.openCombat;
+  UI.openCombat = function (...a) {
+    const r = baseOpenFit.apply(this, a);
+    try { if (this.refreshUnits) this.refreshUnits(); if (this.combatFit) this.combatFit(); } catch (e) { /* 무시 */ }
+    return r;
+  };
 }

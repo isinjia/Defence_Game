@@ -258,3 +258,29 @@ html body #coach-pop .coach-arrow { display: none !important; }
 .crew-split .row.dim span, .crew-split .row.dim b { color: var(--dim, #8a94a6); }
 .crew-split hr { border: 0; border-top: 1px dashed #3a4658; margin: 4px 0; }
 .crew-split .row.good b { color: #6bdc8b; font-size: 1.05em; }
+
+/* 헌터 일보 (js/hunter_paper.js) */
+.paper { background: #efe9dc; color: #1d1a14; border-radius: 6px; padding: 14px 14px 12px; font-family: "Noto Serif KR", "IBM Plex Sans KR", serif; box-shadow: inset 0 0 0 1px #c9bfa8; }
+.paper-mast { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px double #1d1a14; padding-bottom: 6px; margin-bottom: 10px; }
+.paper-mast b { font-size: 22px; letter-spacing: 2px; font-weight: 900; }
+.paper-mast span { font-size: 12px; color: #4a4434; }
+.paper-head { font-size: 19px; line-height: 1.35; font-weight: 900; margin: 6px 0 10px; color: #120f0a; }
+.paper-sub { font-size: 14px; color: #3a3426; }
+.paper-me { border: 1px solid #b08a2a; background: #f7e9bf; padding: 6px 8px; margin-bottom: 10px; }
+.paper-me h4, .paper-sec h4 { font-size: 12px; letter-spacing: 1px; margin: 0 0 4px; color: #6b5a2a; border-bottom: 1px solid #c9bfa8; padding-bottom: 2px; }
+.paper-sec { margin-bottom: 8px; } .paper-sec p, .paper-me p { font-size: 13.5px; line-height: 1.5; margin: 3px 0; }
+.paper-stat { border-top: 1px solid #1d1a14; padding-top: 6px; font-size: 12.5px; color: #3a3426; } .paper-stat .bad { color: #b3261e; }
+.paper.extra { background: #f3e2dc; box-shadow: inset 0 0 0 2px #b3261e; }
+.paper-extra-tag { display: inline-block; background: #b3261e; color: #fff; font-weight: 900; font-size: 22px; padding: 2px 10px; letter-spacing: 4px; }
+.paper-box .paper { margin-bottom: 10px; }
+.paper-btn { margin-left: 6px; vertical-align: middle; }
+.paper-body { font-size: 14px; line-height: 1.6; color: #2a251b; margin: 0 0 10px; }
+.paper-body.lead::first-letter { font-size: 1.6em; font-weight: 900; }
+.paper-art { margin: 4px 0 8px; } .paper-art b { display: block; font-size: 14px; line-height: 1.4; color: #15120c; }
+.paper-art p { font-size: 13px; line-height: 1.55; color: #3a3426; margin: 2px 0 0; }
+.paper-weather p.small { font-size: 12.5px; margin: 1px 0; color: #4a4434; }
+.paper-col p { font-style: italic; }
+.paper-ads { border: 1px dashed #8a7d5e; padding: 6px 8px; margin: 6px 0 8px; } .paper-ads p { font-size: 12.5px; margin: 2px 0; color: #3a3426; }
+.paper-box { max-height: 100%; } .paper-box .paper { max-height: none; }
+/* 원래 건너뛰기 단추는 늘 숨긴다(자리는 대리 단추 .tsk-proxy 가 맡는다). 새로 붙는 순간에도 헤더 자리를 밀지 않게 */
+html body #tut-skip { display: none !important; }
