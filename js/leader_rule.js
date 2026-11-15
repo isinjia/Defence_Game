@@ -44,7 +44,8 @@ if (typeof UI !== 'undefined') {
       c.run.leadAsked = tag; const ctx = c;
       setTimeout(() => {
         if (this.ctx !== ctx || ctx.council || this.dlg || ctx.run.scoutPending || !document.getElementById('modal-box') || document.getElementById('council-ov')) return;
-        if (reach.length > 1) { const k = this.councilLeaderPick(L); if (k) this.councilStart(k, null); return; }
+        // 길이 하나여도 팀 상의(리더 제안 + 팀원 의견, 지도에 리더 표시)로 (사용자 제보: 하나뿐일 땐 리더 제안·팀원 의견이 안 보임)
+        { const k = reach.length > 1 ? this.councilLeaderPick(L) : reach[0].join(':'); if (k) { this.councilStart(k, null); return; } }
         // 길이 하나뿐: 리더가 앞장선다. [잠깐]을 누르면 멈춘다(가방·귀환을 쓰고 싶을 때)
         const k = reach[0].join(':'); const N = GNODE[this.nodeOf(k).t];
         this.councilPanel(`<div class="cn-card"><b>${L.name}(리더) · <span style="color:${N.color}">${N.name}</span>(으)로 간다</b>
