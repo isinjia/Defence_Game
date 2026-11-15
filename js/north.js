@@ -22,7 +22,7 @@ const NORTH = (() => {
   const set = new Set(tiles);
   return { tiles, terrain, region, has: (i) => set.has(i) };
 })();
-SITE_KINDS.oldcity = { name: '대붕괴 이전 도시 잔해', icon: '▦', color: '#ffd84d', desc: '20년 전 그날 멈춘 도시. 간판도, 신호등도, 사람만 빼고 그대로다.' };
+SITE_KINDS.oldcity = { name: '대붕괴 이전 도시 잔해', icon: '▦', color: '#ffd84d', desc: '대붕괴 그날 멈춘 도시. 간판도, 신호등도, 사람만 빼고 그대로다.' };
 SITE_KINDS.truth = { name: '봉쇄선 관측소', icon: '◉', color: '#ff4f6a', desc: '봉쇄 직후 관리국이 세운 비밀 관측소. 원초의 게이트를 향한 장비가 아직 돌아간다.' };
 
 Object.assign(Game.prototype, {
@@ -101,7 +101,7 @@ Object.assign(Game.prototype, {
       if (this._ckOut) { this._ckOut.gains.push(...out); this._ckOut.losses.push('3일 소요'); }
       if (!ok) { if (who) { if (this._ckOut) this._ckOut.losses.push(`${who.name} 부상 (체력 -20%)`); } else { const d = Math.round(p.maxHp * 0.2); p.hp = Math.max(1, p.hp - d); if (this._ckOut) this._ckOut.losses.push(`체력 -${fmt(d)}`); } }
       const lore = RNG.pick([
-        '멈춘 시계탑은 20년 전 그날 오전 9시 14분을 가리킨다.',
+        `멈춘 시계탑은 ${G.eraYears()}년 전 그날 오전 9시 14분을 가리킨다.`,
         '학교 칠판에 아이들 글씨가 남아 있다. "내일은 소풍".',
         '은행 금고는 열려 있고 돈은 그대로다. 아무도 가지러 오지 않았다.',
       ]);
@@ -178,7 +178,7 @@ Object.assign(Game.prototype, {
     if (id !== 'northgate') return baseFac.call(this, id, reg);
     const p = G.player; const s = G.northState(); const c = G.northPermitCost();
     if (s.open) return `<div class="panel"><p>차단기는 올라가 있다. 초소 병사가 ${s.how === 'permit' ? '허가증을 확인하고 경례한다' : '당신을 못 본 척한다'}.</p><p class="small dim">북부는 안개가 짙어 한 칸 앞밖에 보이지 않는다. 지도에 없는 고등급 게이트와 대붕괴 이전 도시의 잔해가 있다.</p></div>`;
-    return `<div class="panel"><p>철조망과 지뢰 표지판 너머로 20년째 아무도 돌아오지 않은 땅이 펼쳐져 있다. 관리국은 이 선을 넘는 것을 허가하지 않는다. 거의.</p>
+    return `<div class="panel"><p>철조망과 지뢰 표지판 너머로 ${G.eraYears()}년째 아무도 돌아오지 않은 땅이 펼쳐져 있다. 관리국은 이 선을 넘는 것을 허가하지 않는다. 거의.</p>
       <div class="cards">
         <div class="item-row"><div class="grow"><b>관리국 특별 허가</b><div class="small dim">공식 S급 등록 필요 · 협회 공적 ${c.merit} · 보증금 ${fmt(c.money)} 크레딧${G.canPermit() ? '' : ' · <span class="bad">공식 등급 부족</span>'}</div></div><button class="sm primary" data-act="north-open" data-v="permit">신청</button></div>
         <div class="item-row"><div class="grow"><b>봉쇄선 브로커</b><div class="small dim">실력 A급 이상 · ${fmt(G.smuggleCost())} 크레딧 · 무법 성향이 오른다</div></div><button class="sm danger" data-act="north-open" data-v="smuggle">밀입</button></div>
