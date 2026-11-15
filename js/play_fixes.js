@@ -278,3 +278,14 @@ body.reduced #modal-box .gnode.pf-reveal { animation: none; }`;
     ].filter(Boolean), () => { if (this.ctx === c) baseFinish.call(this, result, ...a); });
   };
 }
+
+// 11. 메인 이야기 단역(전용 그림이 없는 이름만 있는 인물: '아이' 등)은 일러스트를 띄우지 않는다 (사용자 요청)
+//     예전엔 이름으로 무작위 성인 얼굴을 만들어 띄워, 아이가 어른 얼굴로 나왔다. 전용 그림(main_cast_art)이 있으면 그대로.
+if (typeof Game !== 'undefined' && Game.prototype.mainWho) {
+  const base = Game.prototype.mainWho;
+  Game.prototype.mainWho = function (who, ...a) {
+    const r = base.call(this, who, ...a);
+    if (r && typeof r === 'object' && r.id == null && r.seed === undefined && r.name && !(UI.mainArt && UI.mainArt(r.name))) return { ...r, seed: false };
+    return r;
+  };
+}
