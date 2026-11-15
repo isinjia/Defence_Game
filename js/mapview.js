@@ -422,14 +422,25 @@ class MapView {
   drawMini() {
     const m = this.mctx; if (!m || !G.player) return;
     const W = this.mini.width, H = this.mini.height, sx = W / WORLD.COLS, sy = H / WORLD.ROWS, T = WORLD.T;
-    m.fillStyle = '#04060a'; m.fillRect(0, 0, W, H);
+    // 5만여 칸을 매 걸음마다 다시 칠하지 않고 지형·발견 상태가 바뀐 칸만 갱신한다.
+    let cache = this._miniTerrain;
+    if (!cache || cache.canvas.width !== W || cache.canvas.height !== H || cache.cols !== WORLD.COLS || cache.rows !== WORLD.ROWS) {
+      const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext('2d'); ctx.fillStyle = '#04060a'; ctx.fillRect(0, 0, W, H);
+      cache = this._miniTerrain = { canvas, ctx, cols: WORLD.COLS, rows: WORLD.ROWS, states: new Int16Array(WORLD.COLS * WORLD.ROWS).fill(-1) };
+    }
     for (let y = 0; y < WORLD.ROWS; y++) for (let x = 0; x < WORLD.COLS; x++) {
       const i = WORLD.idx(x, y), ty = WORLD.tiles[i];
-      if (ty === T.SEA) continue;
       const known = G.fog[i];
-      m.fillStyle = ty === T.NORTH ? '#121722' : !known ? '#141b26' : ty === T.CITY ? '#46e0d0' : ty === T.MOUNTAIN ? '#2f4258' : ty === T.ETHER ? '#5a3a80' : ty === T.BRIDGE ? '#1f5a5a' : ty === T.FOREST ? '#1e3a30' : ty === T.FIELD ? '#3a4a32' : ty === T.WASTE ? '#3a2a48' : ty === T.RUIN ? '#2a3038' : '#22303f';
-      m.fillRect(x * sx, y * sy, Math.ceil(sx), Math.ceil(sy));
+      const state = ty * 2 + (known ? 1 : 0);
+      if (cache.states[i] === state) continue;
+      cache.states[i] = state;
+      cache.ctx.fillStyle = ty === T.SEA ? '#04060a' : ty === T.NORTH ? '#121722' : !known ? '#141b26' : ty === T.CITY ? '#46e0d0' : ty === T.MOUNTAIN ? '#2f4258' : ty === T.ETHER ? '#5a3a80' : ty === T.BRIDGE ? '#1f5a5a' : ty === T.FOREST ? '#1e3a30' : ty === T.FIELD ? '#3a4a32' : ty === T.WASTE ? '#3a2a48' : ty === T.RUIN ? '#2a3038' : '#22303f';
+      // 타일보다 작은 미니맵에서도 갱신한 칸이 이웃의 픽셀을 덮지 않게 경계를 맞춘다.
+      const left = Math.floor(x * sx), top = Math.floor(y * sy);
+      cache.ctx.fillRect(left, top, Math.floor((x + 1) * sx) - left, Math.floor((y + 1) * sy) - top);
     }
+    m.clearRect(0, 0, W, H); m.drawImage(cache.canvas, 0, 0);
     for (const g of G.gatesShown()) { m.fillStyle = g.final ? '#ff4f6a' : '#d65cff'; m.fillRect(g.x * sx - 1, g.y * sy - 1, sx + 2, sy + 2); }
     m.fillStyle = '#ffb547'; m.fillRect(G.player.x * sx - 2, G.player.y * sy - 2, sx + 4, sy + 4);
     // 현재 시야
