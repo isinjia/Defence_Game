@@ -318,3 +318,20 @@ if (typeof Game !== 'undefined' && Game.prototype.mainWho) {
     }
   };
 }
+
+// 13. 월드맵 자동 이동이 끊기던 문제 (사용자 제보: "이동할 때 렉 걸리듯")
+//     한 칸 갈 때마다 여러 화면(이어서 이동 칩·퀘스트 길·이동 계획)이 같은 자리에서 월드맵 전체 길찾기(WORLD.reach)를 따로 돌렸다.
+//     결과는 출발 칸·이동력·제주 출입·지형 비용표(계절·탈것)에만 달려 있으므로, 같은 조건이면 기억해 둔 결과를 다시 쓴다.
+if (typeof WORLD !== 'undefined' && WORLD.reach) {
+  const base = WORLD.reach; const memo = new Map(); const MAX = 12;
+  let costSig = '', costRef = null;
+  WORLD.reach = function (sx, sy, mp, canJeju) {
+    if (!(mp < 1e5)) mp = Infinity; // 1e6 과 Infinity 는 같은 결과(지도 전체): 한 번만 계산
+    if (costRef !== WORLD.T_COST.join()) { costRef = WORLD.T_COST.join(); costSig = costRef; }
+    const key = `${sx},${sy}|${mp}|${canJeju ? 1 : 0}|${costSig}`;
+    const hit = memo.get(key); if (hit) return hit;
+    const r = base.call(this, sx, sy, mp, canJeju);
+    memo.set(key, r); if (memo.size > MAX) memo.delete(memo.keys().next().value);
+    return r;
+  };
+}
