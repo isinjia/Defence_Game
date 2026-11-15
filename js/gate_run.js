@@ -6,7 +6,7 @@ const GNODE = {
   start: { name: '입구', desc: '게이트에 들어선 자리', color: '#46e0d0', svg: '<path d="M5 21V8a7 7 0 0 1 14 0v13"/><path d="M3 21h18"/><path d="M12 21v-6"/>' },
   fight: { name: '전투', desc: '괴수 무리', color: '#ff8a6c', svg: '<path d="M5 19 19 5M14 5h5v5M5 14l5 5M3 21l3-3"/>' },
   elite: { name: '정예', desc: '강한 괴수. 보상이 크다', color: '#ff4f6a', svg: '<path d="M12 3c-4 0-7 3-7 7 0 2.5 1.2 4 2.5 5v3h9v-3c1.3-1 2.5-2.5 2.5-5 0-4-3-7-7-7z"/><circle cx="9.5" cy="10.5" r="1.4"/><circle cx="14.5" cy="10.5" r="1.4"/><path d="M10 21v-3M14 21v-3"/>' },
-  event: { name: '사건', desc: '무슨 일이 일어날지 모른다', color: '#6fb8ff', svg: '<path d="M9 9a3 3 0 1 1 4.5 2.6c-.9.5-1.5 1.2-1.5 2.4M12 18h.01"/>' },
+  event: { name: '미지', desc: '무슨 일이 일어날지 모른다', color: '#6fb8ff', svg: '<path d="M9 9a3 3 0 1 1 4.5 2.6c-.9.5-1.5 1.2-1.5 2.4M12 18h.01"/>' },
   rest: { name: '휴식', desc: '에테르 샘. 숨을 고른다', color: '#7be0a0', svg: '<path d="M12 3c2 3 5 5 5 9a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-8z"/>' },
   treasure: { name: '보물', desc: '방치된 보급품이나 결정', color: '#ffd84d', svg: '<rect x="3" y="9" width="18" height="11" rx="1"/><path d="M3 13h18M12 11v4M5 9c0-3 3-5 7-5s7 2 7 5"/>' },
   boss: { name: '층 보스', desc: '이 층의 주인', color: '#c58cff', svg: '<path d="M3 18 5 7l4.5 5L12 5l2.5 7L19 7l2 11z"/><path d="M4 21h16"/>' },
@@ -212,7 +212,7 @@ Object.assign(UI, {
     const c = this.ctx;
     const ev = RNG.pick(GATE_EVENTS.filter((e) => !(c.run.seen || []).includes(e.id))) || RNG.pick(GATE_EVENTS);
     (c.run.seen ||= []).push(ev.id); c.run.ev = ev;
-    this.modal(`<div class="eyebrow">${c.run.floor + 1}층 · 사건</div><h3>${ev.title}</h3><p class="event-text">${ev.text}</p>
+    this.modal(`<div class="eyebrow">${c.run.floor + 1}층 · 미지</div><h3>${ev.title}</h3><p class="event-text">${ev.text}</p>
       <div class="cards">${ev.choices.map((ch, i) => `<button class="choice-btn" data-act="g-ev" data-v="${i}">${ch.text}</button>`).join('')}</div>`, 'event-box');
   },
 

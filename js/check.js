@@ -212,7 +212,7 @@ Object.assign(UI, {
   ckGateTier() { const c = this.ctx; return c && c.gate ? GateRun.tier(c.gate) : G.player.rankIdx; },
   ckGateEventHtml(ev) {
     const c = this.ctx; const tier = this.ckGateTier();
-    return `<div class="eyebrow">${c.run.floor + 1}층 · 사건</div><h3>${ev.title}</h3><p class="event-text">${ev.text}</p>
+    return `<div class="eyebrow">${c.run.floor + 1}층 · 미지</div><h3>${ev.title}</h3><p class="event-text">${ev.text}</p>
       <div class="cards">${ev.choices.map((ch, i) => { const mt = this.ckGateMeta(ev, i);
         return `<button class="choice-btn" data-act="ck-ev" data-v="${i}">${ch.text}${mt ? this.ckPreview(mt.stat, mt.base, tier) : '<span class="ck-tag safe">판정 없음</span>'}</button>`; }).join('')}</div>`;
   },
