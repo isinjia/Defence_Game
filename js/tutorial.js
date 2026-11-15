@@ -80,10 +80,10 @@ Object.assign(UI, {
     const L = this.examLeader(); const pers = L ? voiceCol(L) : 'just'; // 실제 줄은 C의 persona_voice.js 감싸기가 말투별로 낸다. 여기는 리더가 없을 때의 바탕
     const T = {
       brief: { just: '오늘 너희 임시 파티 리더를 맡은 선임이다. 게이트는 문 열자마자 싸우는 곳이 아니야. 먼저 살피고, 고르고, 그다음에 싸운다. 순서 틀리면 죽는다.', kind: '오늘 여러분을 이끌 선임이에요. 긴장되죠? 저도 처음엔 그랬어요. 게이트는 들어가자마자 싸우는 곳이 아니에요. 먼저 둘러보고, 판단하고, 그다음에 싸워요.', cold: '리더다. 말은 한 번만 한다. 게이트에선 먼저 본다. 고른다. 그다음에 싸운다. 이상.' },
-      ex1: { just: '갈림길이다. 탐색에선 고른 행동이 다음 전투를 바꾼다. 정찰하면 적이 약해지고, 욕심내면 적이 늘어난다. 정답은 없어. 결과를 감당하는 게 헌터다.', kind: '갈림길이네요. 여기서 고르는 길에 따라 다음 싸움이 쉬워지기도, 어려워지기도 해요. 정찰은 안전하게, 욕심은 보상을, 대신 대가가 있어요.', cold: '갈림길. 고른 길이 다음 전투를 바꾼다. 정찰, 욕심, 우회. 골라.' },
+      ex1: { just: '갈림길이다. 탐색에선 고른 행동이 다음 전투를 바꾼다. 정찰하면 적이 약해지고, 욕심내면 적이 늘어난다. 정답은 없어. 결과를 감당하는 게 헌터다.', kind: '갈림길이네요. 여기서 고르는 길에 따라 다음 싸움이 쉬워지기도, 어려워지기도 해요. 주변을 살피면 위험을 줄일 수 있어요. 보상을 노리다 위험해질 수도 있고요.', cold: '갈림길. 고른 길이 다음 전투를 바꾼다. 정찰, 욕심, 우회. 골라.' },
       ex1after: { just: '좋아. 이제 진짜 전투다. 동료들은 각자 알아서 싸운다. 넌 네 몫만 해.', kind: '잘했어요. 이제 싸움이에요. 동료들은 알아서 움직이니까, 자기 몫만 챙기면 돼요.', cold: '됐다. 전투 준비.' },
-      ex2: { just: '보급 상자다. 게이트 안의 상자는 반은 선물, 반은 함정이야. 열기 전에 확인하는 방법도 있다. 그리고 이 앞이 보스 구역이다.', kind: '상자가 있네요. 게이트 상자는 반쯤은 함정이에요. 돌을 던져 보는 것도 방법이고요. 이 앞이 보스예요.', cold: '상자. 절반은 함정. 이 앞이 보스.' },
-      ex2after: { just: '보스는 체력이 많고 한 방이 세다. 막는 사람이 끌고, 치는 사람이 약점을 노린다. 위험하면 회복약을 아끼지 마.', kind: '보스는 오래 버티고 세게 때려요. 무리하지 말고, 위험하면 회복약 꼭 쓰세요.', cold: '보스는 세다. 아프면 약 먹어. 죽지 마.' },
+      ex2: { just: '보급 상자다. 게이트 안의 상자에는 물건이 들어 있지만 함정이 있을 수도 있다. 열기 전에 확인하는 방법도 있다. 그리고 이 앞이 보스 구역이다.', kind: '상자가 있네요. 게이트 안의 상자에는 함정이 있을 수도 있어요. 돌을 던져 보는 것도 방법이고요. 이 앞이 보스예요.', cold: '상자다. 함정이 있는지 살펴라. 이 앞이 보스.' },
+      ex2after: { just: '보스는 체력이 많고 한 방이 세다. 방어 담당이 적의 주의를 끌면, 나머지는 약점을 공격한다. 위험하면 회복약을 아끼지 마.', kind: '보스는 오래 버티고 세게 때려요. 무리하지 말고, 위험하면 회복약 꼭 쓰세요.', cold: '보스는 세다. 아프면 약 먹어. 죽지 마.' },
       // 전투 중 리더의 말 (세계 안의 말만 한다. 조작 방법은 따로 작은 글씨로 붙인다)
       gauge: { just: '다들 움직이는 속도가 달라. 빠른 놈이 먼저 친다. 동료들은 알아서 싸우니까 넌 네 몫만 해.', kind: '사람마다 움직이는 속도가 달라요. 빠른 쪽이 먼저 쳐요. 동료들은 알아서 싸우니까 {name} 씨는 자기 몫만 챙겨요.', cold: '빠른 놈이 먼저 친다. 네 몫만 해.' },
       turn: { just: '{name}, 지금이다. 서두르지 말고 판단해.', kind: '{name} 씨, 지금이에요. 침착하게요.', cold: '지금.' },
@@ -91,7 +91,7 @@ Object.assign(UI, {
       aimAlly: { just: '누굴 돌볼 거야?', kind: '누굴 도와줄 거예요?', cold: '누구.' },
       aimNone: { just: '그건 겨눌 필요 없는 기술이다. 바로 써.', kind: '그건 겨누지 않아도 되는 기술이에요. 바로 써요.', cold: '바로 써.' },
       done: { just: '좋아. 다치면 바로 약 먹고, 버거우면 막으면서 버텨. 무리하지 마.', kind: '잘했어요! 아프면 바로 약 먹고, 힘들면 막으면서 버텨요.', cold: '됐다. 아프면 약. 버거우면 막아.' },
-      boss: { just: '보스다. 속성 상성을 봐라. 상성이면 피해가 크게 들어간다.', kind: '보스예요! 속성 상성을 노려 보세요. 잘 맞으면 훨씬 아프게 들어가요.', cold: '상성 노려.' },
+      boss: { just: '보스다. 속성 상성을 봐라. 적의 약점 속성으로 공격하면 피해가 커진다.', kind: '보스예요! 속성 상성을 노려 보세요. 적의 약점 속성으로 공격하면 피해가 커져요.', cold: '상성 노려.' },
       tools: { just: '전투가 답답하면 위에서 속도를 올려. 손에 익으면 자동으로 맡겨도 된다.', kind: '전투가 답답하면 위에서 속도를 바꿔도 돼요. 익숙해지면 자동으로 맡겨도 괜찮고요.', cold: '느리면 올려. 익으면 자동.' },
       win: { just: '"수고했다. 시험은 여기까지다."', kind: '"수고했어요. 시험은 여기까지예요."', cold: '"수고했다. 시험 끝이다."' },
       lose: { just: '"여기서 중단한다. 다친 사람부터 확인하자."', kind: '"여기서 멈출게요. 다친 분은 없나요?"', cold: '"중단한다. 다친 사람은?"' },
@@ -137,8 +137,8 @@ Object.assign(UI, {
     const seen = G.personaGreetScene ? G.personaGreetScene() : null; const pl = (n, k) => (n && G.personaLine ? G.personaLine(n, k, {}, seen) : null);
     const intro = { kind: (n) => `${yo(n.name)}. ${yo(className(n.cls))}. 잘 부탁해요.`, just: (n) => `${n.name}. ${da(className(n.cls))}. 등 맡길 수 있게 해 줘.`, warlike: (n) => `${n.name}. ${className(n.cls)}. 괴수는 내가 먼저 친다.`, cold: (n) => `…${n.name}. ${className(n.cls)}.` };
     this.talk([
-      { narr: `${G.region().name}, 헌터 협회 시험장. 로비엔 오늘 처음 각성한 사람들이 긴장한 얼굴로 앉아 있다. 전광판에 ${p.name}의 이름이 뜬다.` },
-      { who: examiner, text: `실기는 임시 파티 단위로 본다. 훈련용 게이트를 끝까지 통과하면 합격이다. 각 파티엔 협회가 위촉한 현역 헌터가 리더로 붙는다. ${p.name}, 네 파티 리더는 ${L.name}. ${L.guild && GUILDS[L.guild] ? `${GUILDS[L.guild].name} 소속이다.` : `${L.crewName || '자기 파티'}를 꾸리는 파티장이다.`}` },
+      { art: 'cut-exam-lobby', narr: `${G.region().name}, 헌터 협회 시험장. 로비엔 오늘 처음 각성한 사람들이 긴장한 얼굴로 앉아 있다. 전광판에 ${p.name}의 이름이 뜬다.` },
+      { art: false, who: examiner, text: `실기는 임시 파티 단위로 본다. 훈련용 게이트를 끝까지 통과하면 합격이다. 각 파티엔 협회가 위촉한 현역 헌터가 리더로 붙는다. ${p.name}, 네 파티 리더는 ${L.name}. ${L.guild && GUILDS[L.guild] ? `${GUILDS[L.guild].name} 소속이다.` : `${L.crewName || '자기 파티'}를 꾸리는 파티장이다.`}` },
       { who: L, text: [pl(L, 'leadGreet'), this.leadSay('brief')].filter(Boolean).join(' ') },
       { narr: '임시 파티원들이 차례로 인사한다.', group: mates.map((n) => ({ who: n, text: pl(n, 'greet') || (intro[n.personality] || intro.kind)(n) })) },
       { who: L, text: pl(L, 'leadBrief') || voicePick({ just: '인사는 됐다. 들어간다. 내 뒤에 붙어.', kind: '자, 그럼 들어가 볼까요? 제 뒤로 따라오세요.', cold: '간다.' }, L, VOICE_EXTRA.go) || '간다.' },
@@ -227,13 +227,13 @@ Object.assign(UI, {
       L ? { who: L, text: this.leadSay(win ? 'win' : 'lose').replace(/^"|"$/g, '') } : null,
       // 등록 등급 확인은 연락처 교환 뒤, 판정 통지서 직전으로 옮겼다(js/play_fixes.js · 사용자 요청)
       { narr: '시험장을 나서자 임시 파티원들이 기다리고 있다.' },
-      speaker ? { who: speaker, text: '…우리, 연락처라도 주고받을까? 어디로 뽑힐지는 모르지만.' } : null,
+      speaker ? { who: speaker, text: '…우리, 연락처라도 주고받을까? 앞으로 어디서 활동할지는 모르지만.' } : null,
     ], () => this.renderExamEnd());
   },
   renderExamEnd() {
     const ex = this.exam; const mates = ex.ids.map((id) => G.npcById(id)).filter(Boolean);
     this.modal(`<div class="eyebrow">시험 동기</div><h3>연락처 교환</h3>
-      <p class="event-text">시험장을 나서자 임시 파티원들이 당신을 바라본다.<br>"…우리, 연락처라도 주고받을까? 어디로 뽑힐지는 모르지만."</p>
+      <p class="event-text">시험장을 나서자 임시 파티원들이 당신을 바라본다.<br>"…우리, 연락처라도 주고받을까? 앞으로 어디서 활동할지는 모르지만."</p>
       <div class="sec-title sec">연락처를 교환할 동기 <span class="small dim">(눌러서 선택·해제)</span></div>
       <div class="cards">${mates.map((n) => `<button class="item-row choice-btn ${ex.pick.has(n.id) ? 'on' : ''}" data-act="exam-pick" data-v="${n.id}">${this.npcAvatar(n, 40)}<div class="grow"><b>${n.name}</b>
         <div><span class="tag cls tiny" style="--c:${groupColor(classById(n.cls).g)}">${className(n.cls)}</span> <span class="small dim">${persById(n.personality).name}</span></div></div><b class="${ex.pick.has(n.id) ? 'amber' : 'dim'}">${ex.pick.has(n.id) ? '교환' : '미교환'}</b></button>`).join('')}</div>

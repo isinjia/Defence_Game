@@ -97,13 +97,15 @@
   // 창 위에 뜨는 작은 확인 창 (전투·게이트 창을 갈아 끼우지 않고 그 위에 띄운다)
   UI.confirmOver = function (title, text, okLabel, onOk, okCls = 'danger') {
     const old = document.getElementById('pl-confirm'); if (old) old.remove();
-    const el = document.createElement('div'); el.id = 'pl-confirm'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
+    let fresh = false; const el = document.createElement('div'); el.id = 'pl-confirm'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
     el.innerHTML = `<div class="plc-box"><h3>${title}</h3><p>${text}</p><div class="plc-row"><button class="ghost" data-plc="no">취소</button><button class="${okCls}" data-plc="ok">${okLabel}</button></div></div>`;
     el.addEventListener('click', (e) => {
       e.stopPropagation();
       const b = e.target.closest('[data-plc]'); if (!b && e.target !== el) return;
+      if (!fresh) return; // 창을 띄운 누름을 뗄 때 바로 닫히지 않게: 창이 뜬 뒤 새로 누른 것만 받는다
       el.remove(); if (b && b.dataset.plc === 'ok') onOk();
     });
+    el.addEventListener('pointerdown', () => { fresh = true; });
     document.body.appendChild(el);
   };
   // [평가 27] 도주·철수는 한 번 누르면 바로 게이트 밖이었다: 잃는 것을 알리고 한 번 더 묻는다
@@ -226,6 +228,8 @@
     if (!proxy) {
       proxy = document.createElement('button'); proxy.type = 'button'; proxy.className = 'tsk-proxy'; proxy.setAttribute('aria-label', '튜토리얼 건너뛰기');
       // 누르면 "한 번 더" 대신 가운데 확인 창으로 묻는다 (사용자 요청)
+      // 손가락을 대는 순간 창을 띄운다. 손을 뗄 때 창이 닫히지 않게 하는 것은 confirmOver 가 맡는다(창 안에서 새로 누른 것만 받는다)
+      proxy.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
       proxy.addEventListener('pointerdown', (e) => {
         e.preventDefault(); e.stopPropagation();
         const r = document.getElementById('tut-skip'); if (!r || r.disabled || skipAsk) return;
@@ -234,7 +238,6 @@
         // 취소(또는 바깥 누름)로 창이 닫히면 묻는 중 표시를 푼다
         const watch = setInterval(() => { if (!document.getElementById('pl-confirm')) { skipAsk = false; clearInterval(watch); } }, 100);
       });
-      proxy.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
       document.body.appendChild(proxy);
     }
     proxy.classList.toggle('armed', real.classList.contains('armed'));
@@ -268,6 +271,7 @@ if (typeof UI !== 'undefined' && UI.skillHoldHtml) {
       if (sk && !DMG_TYPES.includes(sk.type)) h = h.replace(/<tr><th>상태 이상<\/th>[\s\S]*?<\/tr>/, '').replace(/<tr><th>원소 반응<\/th>[\s\S]*?<\/tr>/, '');
       const ordering = this.ctx && this.ctx.orderFor && u && u.id === this.ctx.orderFor;
       if (sk && SELF_TYPES.includes(sk.type) && !ordering) h = h.replace('<tr><th>대상</th><td>아군 하나</td></tr>', '<tr><th>대상</th><td>자신</td></tr>');
+      if (sk && sk.type === 'heal_ally') h = h.replace('<tr><th>대상</th><td>아군 하나</td></tr>', '<tr><th>대상</th><td>아군 하나 (자신 포함)</td></tr>');
     } catch (e) { /* 무시 */ }
     return h;
   };
@@ -408,5 +412,136 @@ if (typeof UI !== 'undefined' && UI.openCombat) {
     const r = baseOpenFit.apply(this, a);
     try { if (this.refreshUnits) this.refreshUnits(); if (this.combatFit) this.combatFit(); } catch (e) { /* 무시 */ }
     return r;
+  };
+}
+
+// 남을 치료하는 회복 기술은 동료에게도 쓸 수 있게 (사용자 지적: 사제의 '치유의 빛' 같은 회복 기술이 자기 자신에게만 걸림)
+// 회복(heal)·강화(buff)·보호(shield) 기술 39개 중 대부분은 "몸을 키워", "제 피를 끓여", "자신의 공격을 올린다"처럼 자기에게 거는 기술이다.
+// 설명에 자기 몸·자신 이야기가 없는 회복 기술만(치유의 빛·환생) '아군 하나 회복'(heal_ally)으로 바꾼다: 기술을 고른 뒤 동료나 나를 눌러 대상을 정한다.
+// NPC 동료도 이 기술을 가지고 있으면 체력이 가장 낮은 동료를 치료한다(combat.js heal_ally).
+if (typeof SKILLS !== 'undefined') {
+  const SELF = /(몸|자신|스스로|제 |살갗|자세|호흡|숨|마음|맹세|변신|뿌리|분노|기를|의지|고요히|채찍|갑주|피를|살기|총|검에|괴수와|계율|혈관|빗장|땅에)/;
+  for (const sk of SKILLS) if (sk.type === 'heal' && !SELF.test(`${sk.name} ${sk.desc || ''}`)) { sk.type = 'heal_ally'; sk.allyHeal = true; }
+}
+
+// 기술 접사(예리한·묵직한·절약의 등, js/bonds.js)는 이름 앞에 붙이지 않고 이름 옆 태그로 통일 (사용자 요청)
+// 전에는 "예리한 치유의 빛"처럼 이름이 바뀌어 같은 기술이 화면마다 다른 이름으로 보였다. 이름은 원래 이름, 접사는 태그.
+if (typeof Game !== 'undefined' && Game.prototype.skillEff && Game.prototype.affixLabel) {
+  const baseEff = Game.prototype.skillEff;
+  Game.prototype.skillEff = function (sk, ...a) {
+    const r = baseEff.call(this, sk, ...a);
+    try {
+      if (r && sk && r.name !== sk.name) {
+        // 접사는 태그로, 각성(·각성)은 레벨 태그 '각성'으로 보여 주므로 이름에서 뗀다
+        const lb = this.affixLabel ? this.affixLabel(r.id) : '';
+        let nm = r.name; if (lb && nm.startsWith(lb + ' ')) nm = nm.slice(lb.length + 1); nm = nm.replace(/·각성$/, '');
+        if (nm !== r.name) return { ...r, name: nm, affix: lb || r.affix };
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+}
+if (typeof UI !== 'undefined') {
+  // 접사마다 태그 하나 (숨은 접사 + 일반 접사면 둘)
+  const affTags = (id, cls = '') => {
+    const a = G.player && G.player.skillAffix && G.player.skillAffix[id]; if (!a || typeof affixById !== 'function') return '';
+    return [a.h, a.a].map((x) => x && affixById(x)).filter((x) => x && x.name).map((x) => `<span class="tag sk-affix${cls}${x.id === a.h ? ' hid' : ''}" data-sk="${id}" data-af="${x.id}">${x.name}</span>`).join(' ');
+  };
+  UI.affTags = affTags;
+  // 스킬 레벨·숙련 (hunter.js SKILL_LV_REQ: Lv2~5에 필요한 누적 사용 8·24·50·90회)
+  const lvInfo = (id) => {
+    if (!G.skillLv || typeof SKILL_LV_REQ === 'undefined' || !G.player) return null;
+    const lv = G.skillLv(id); const xp = (G.player.skillXp || {})[id] || 0; const next = SKILL_LV_REQ[lv]; const prev = SKILL_LV_REQ[lv - 1] || 0;
+    return { lv, xp, next, pct: next ? Math.max(0, Math.min(100, Math.round(((xp - prev) / (next - prev)) * 100))) : 100 };
+  };
+  const lvTag = (id, cls = '') => { const L = lvInfo(id); if (!L) return ''; return `<span class="tag sk-lv${cls}${L.lv >= 5 ? ' awake' : ''}">${L.lv >= 5 ? '각성' : `Lv${L.lv}`}</span>`; };
+  // 숙련 막대: 레벨 태그를 막대 왼쪽에 두고, 숫자(숙련 n/n)는 뺀다 (사용자 요청)
+  const xpBar = (id) => { const L = lvInfo(id); if (!L) return ''; return `${lvTag(id, ' xl')}<span class="sk-xp" title="${L.next ? `숙련 ${L.xp}/${L.next}` : '숙련 최대'}"><i style="width:${L.pct}%"></i></span>`; };
+  UI.skLvTag = lvTag; UI.skXpBar = xpBar;
+  const tagAffix = (root) => {
+    if (!root || !G.player) return;
+    for (const el of root.querySelectorAll('[data-act="c-skill"][data-v], [data-act="st-sk"][data-v]')) {
+      const id = el.dataset.v; if (!id || id === 'strike' || el.querySelector('.sk-lv')) continue;
+      const b = el.querySelector('b'); if (!b) continue;
+      const inC = el.dataset.act === 'c-skill' ? ' in' : '';
+      const html = `${lvTag(id, inC)}${affTags(id, inC) ? ' ' + affTags(id, inC) : ''}`;
+      if (inC) b.insertAdjacentHTML('beforeend', ` ${html}`); else b.insertAdjacentHTML('afterend', html);
+    }
+  };
+  const wrapR = (name) => { const base = UI[name]; if (!base) return; UI[name] = function (...a) { const r = base.apply(this, a); try { tagAffix(document.getElementById('modal-box')); tagAffix(document.getElementById('app')); } catch (e) { /* 무시 */ } return r; }; };
+  ['renderControls', 'showStatusCheck', 'render'].forEach(wrapR);
+  // 기술 상세 창 머리
+  if (UI.skillHoldHtml) {
+    const baseHold2 = UI.skillHoldHtml;
+    UI.skillHoldHtml = function (sk, u, ...a) {
+      let h = baseHold2.call(this, sk, u, ...a);
+      try {
+        const lb = sk && (sk.affix || (u && u.isPlayer !== false && G.affixLabel && G.player && (G.player.skills || []).includes(sk.id) ? G.affixLabel(sk.id) : ''));
+        const mine = sk && G.player && (G.player.skills || []).includes(sk.id) && (!u || u.isPlayer !== false) && sk.id !== 'strike';
+        if (lb && !/sk-affix/.test(h)) h = h.replace(/(<div class="sh-head">[\s\S]*?<b>[^<]*<\/b>(?:<span class="tag sk-lv[^>]*>[^<]*<\/span>)?)/, `$1${UI.affTags ? UI.affTags(sk.id) : ''}`);
+        if (mine && UI.skXpBar && !/sk-xp/.test(h)) h = h.replace(/(<table class="sh-table">)/, `<div class="sh-xp">${UI.skXpBar(sk.id)}</div>$1`);
+      } catch (e) { /* 무시 */ }
+      return h;
+    };
+  }
+}
+
+// 접사 태그를 누르면 어디서든 그 접사의 효과를 작은 창으로 (사용자 요청)
+// 태그는 기술 단추 안에 있으므로 단추가 눌리거나(기술 고르기) 길게 누르기(기술 상세)가 시작되지 않게 가장 먼저 가로챈다.
+if (typeof UI !== 'undefined' && typeof affixById === 'function') {
+  const pct = (v) => { const d = Math.round((v - 1) * 100); return d ? `${d > 0 ? '+' : ''}${d}%` : '변화 없음'; };
+  UI.showAffixPop = function (id, af) {
+    const a = G.player && G.player.skillAffix && G.player.skillAffix[id]; if (!a) return;
+    const x = affixById(af || a.a); if (!x || !x.name) return;
+    document.getElementById('affix-pop')?.remove();
+    document.body.insertAdjacentHTML('beforeend', `<div id="affix-pop" role="dialog" aria-label="접사 효과"><div class="ap-box"><div class="ap-head">${x.name}${x.id === a.h ? ' <span class="small amber">숨은 접사</span>' : ''}</div><div>위력 ${pct(x.power)} · 정신력 소모 ${pct(x.mp)}</div></div></div>`);
+  };
+  const close = () => { const e = document.getElementById('affix-pop'); if (e) { e.remove(); return true; } return false; };
+  const grab = (e) => {
+    const pop = document.getElementById('affix-pop');
+    if (pop) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); if (e.type === 'click') close(); return; }
+    const t = e.target && e.target.closest && e.target.closest('.sk-affix[data-sk]'); if (!t) return;
+    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+    if (e.type === 'click') UI.showAffixPop(t.dataset.sk, t.dataset.af);
+  };
+  for (const ev of ['pointerdown', 'pointerup', 'touchstart', 'mousedown', 'click']) window.addEventListener(ev, grab, { capture: true, passive: false });
+}
+
+// 스킬 창: 접사(bonds.js)는 효과 글자까지 붙고, 레벨(hunter.js)은 "숙련 13/24" 글자뿐이었다 → 다른 화면과 같은 태그 + 숙련 막대
+if (typeof UI !== 'undefined' && UI.skillsHtml) {
+  const baseSk = UI.skillsHtml;
+  UI.skillsHtml = function (...a) {
+    let h = baseSk.apply(this, a);
+    try {
+      for (const id of (G.player && G.player.skills) || []) {
+        if (id === 'strike') continue; const sk = skillById(id); if (!sk) continue;
+        const nm = sk.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(`<b>${nm}</b>((?:\\s*<span class="tag[^"]*"(?: title="[^"]*")?>[^<]*</span>\\s*<span class="small dim">[^<]*</span>)+)`);
+        h = h.replace(re, `<b>${sk.name}</b>${UI.affTags && UI.affTags(id) ? ' ' + UI.affTags(id) : ''} <span class="sk-xp-wrap">${UI.skXpBar ? UI.skXpBar(id) : ''}</span>`);
+      }
+    } catch (e) { /* 무시 */ }
+    return h;
+  };
+}
+
+// 시험 탐색 첫 설명(사용자 요청): 리더가 "위로 올라가는 구조야, 맨 위에는 보스" 하고 말할 때, 모바일은 경로 지도가 "전체 경로 보기" 안에 숨어 있어
+// 말하는 것을 볼 수 없었다. 그 말이 나오는 동안 전체 경로 지도를 펼치고, 대화창은 아래쪽에 작게(얼굴 그림 없이) 띄워 지도를 가리지 않는다.
+if (typeof UI !== 'undefined' && UI.examLeadTalk) {
+  const baseLeadTalk = UI.examLeadTalk;
+  UI.examLeadTalk = function (...a) {
+    const m = this.exam && this.exam.map;
+    if (!m || m.step !== 'intro' || window.innerWidth >= 1100 || !this.talk) return baseLeadTalk.apply(this, a);
+    const talk = this.talk;
+    this.talk = function (lines, done) {
+      UI.talk = talk;
+      try { UI.handle('xr-map'); } catch (e) { /* 무시 */ }
+      document.body.classList.add('dlg-mapview');
+      return talk.call(UI, lines, (...r) => {
+        document.body.classList.remove('dlg-mapview');
+        try { UI.handle('xr-map-close'); } catch (e) { /* 무시 */ }
+        if (done) return done(...r);
+      });
+    };
+    try { return baseLeadTalk.apply(this, a); } finally { if (this.talk !== talk) this.talk = talk; }
   };
 }

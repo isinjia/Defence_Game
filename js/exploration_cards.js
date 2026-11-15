@@ -5,7 +5,7 @@ const ExplorationCards = (() => {
     start: ['게이트 입구', '탐색을 시작한 곳', 'fork'],
     fight: ['괴수 무리', '등장 괴수 미확인', null],
     elite: ['정예 전투', '강한 괴수의 기척', null],
-    event: ['사건', '무슨 일이 있을지 살펴보세요', 'fork'],
+    event: ['미지', '무슨 일이 있을지 살펴보세요', 'fork'],
     rest: ['휴식 지점', '잠시 숨을 고를 장소', 'camp'],
     treasure: ['보물', '내용물 미확인', 'chest'],
     boss: ['층 보스', '이 층의 마지막 관문', 'boss_door'],

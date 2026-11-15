@@ -284,3 +284,39 @@ html body #coach-pop .coach-arrow { display: none !important; }
 .paper-box { max-height: 100%; } .paper-box .paper { max-height: none; }
 /* 원래 건너뛰기 단추는 늘 숨긴다(자리는 대리 단추 .tsk-proxy 가 맡는다). 새로 붙는 순간에도 헤더 자리를 밀지 않게 */
 html body #tut-skip { display: none !important; }
+/* 기술 접사 태그 (js/polish.js): 이름 옆 */
+.tag.sk-affix { margin-left: 4px; color: #ffcf7a; border-color: #ffcf7a66; background: #ffcf7a14; font-weight: 700; }
+.sh-head .tag.sk-affix { font-size: 11px; vertical-align: middle; }
+.tag.sk-affix.in { font-size: 10.5px; padding: 0 5px; line-height: 16px; vertical-align: 1px; margin-left: 3px; }
+/* 전투 기술 목록: 접사 태그가 이름 옆 한 줄에 붙게(줄이 늘어 이름이 잘리지 않게) */
+html body .combat-box .cmd-list .skill-btn b { white-space: nowrap; }
+html body .combat-box .skill-btn b .tag.sk-affix.in { display: inline; padding: 0 4px; font-size: 10px; line-height: 1; border-width: 1px; vertical-align: 1px; }
+/* 접사 효과 창 (js/polish.js showAffixPop) */
+#affix-pop { position: fixed; inset: 0; z-index: 9600; display: grid; place-items: center; background: rgba(4,7,12,.45); }
+#affix-pop .ap-box { width: min(300px, calc(100vw - 40px)); background: #0f1520; border: 1px solid #ffcf7a88; border-radius: 12px; padding: 14px 16px; box-shadow: 0 10px 30px #000a; }
+#affix-pop .ap-head { font-weight: 800; margin-bottom: 8px; color: #ffcf7a; }
+#affix-pop .ap-row { padding: 6px 0; border-bottom: 1px dashed #2a3446; }
+#affix-pop .ap-sum { margin-top: 6px; }
+#affix-pop .ap-tip { text-align: center; margin-top: 8px; }
+.tag.sk-affix { cursor: pointer; }
+#affix-pop .ap-box { width: auto; min-width: 180px; max-width: calc(100vw - 40px); text-align: center; }
+#affix-pop .ap-head { margin-bottom: 4px; }
+.tag.sk-affix.hid { color: #ffd98a; border-color: #ffb547aa; }
+/* 스킬 레벨 태그·숙련 막대 (js/polish.js) */
+.tag.sk-lv { margin-left: 4px; font-weight: 700; color: #9fd3ff; border-color: #9fd3ff66; background: #9fd3ff12; }
+.tag.sk-lv.awake { color: #ffb547; border-color: #ffb54788; background: #ffb54718; }
+html body .combat-box .skill-btn b .tag.sk-lv.in { display: inline; padding: 0 4px; font-size: 10px; line-height: 1; vertical-align: 1px; margin-left: 3px; }
+.sk-xp { display: inline-block; width: 64px; height: 6px; border-radius: 3px; background: #1d2636; overflow: hidden; vertical-align: middle; margin-right: 6px; }
+.sk-xp > i { display: block; height: 100%; background: linear-gradient(90deg, #4fb3ff, #9fd3ff); }
+.sk-xp-wrap { display: inline-block; white-space: nowrap; margin-left: 2px; }
+.sh-xp { margin: 4px 0 6px; } .sh-xp .sk-xp { width: 120px; }
+.sk-xp-wrap, .sh-xp { display: flex; align-items: center; gap: 6px; }
+.tag.sk-lv.xl { margin-left: 0; }
+.sk-xp-wrap .sk-xp { width: 96px; margin-right: 0; } .sh-xp .sk-xp { width: 140px; margin-right: 0; }
+
+/* 시험 탐색 첫 설명: 전체 경로 지도를 펼친 채 대화창을 아래에 작게 */
+body.dlg-mapview #dlg .dlg-face { display: none !important; }
+body.dlg-mapview #dlg .dlg-box { background: linear-gradient(180deg, transparent, #050a12f0 30%) !important; }
+body.dlg-mapview #dlg .dlg-text { min-height: 0 !important; }
+body.dlg-mapview .xr-overview .xr-route { bottom: 200px !important; }
+body.dlg-mapview .xr-overview .xr-route .gmap.gmap-fit { height: calc(100vh - 330px) !important; min-height: 300px !important; }

@@ -47,9 +47,9 @@
 .reg-sig-name{flex:none;font-size:16px;font-weight:700;color:#344d40;letter-spacing:.02em;line-height:1.2;padding-bottom:4px}
 /* 서명은 밑줄 칸이 아니라 '(서명)' 글자 위에 겹쳐 쓴다 (사용자 요청) */
 .reg-sig-spot{position:relative;flex:none;display:inline-flex;align-items:flex-end;justify-content:center;min-width:72px;height:34px}
-.reg-sig-ink{position:absolute;left:50%;bottom:0;margin:0;font-family:"Black Han Sans",var(--font-display),sans-serif;font-style:italic;font-size:20px;line-height:1;color:#1c2a38;transform:translateX(-50%) rotate(-4deg);transform-origin:center bottom;opacity:0;clip-path:inset(0 100% 0 0);pointer-events:none;white-space:nowrap}
+.reg-sig-ink{position:relative;display:block;margin:0 0 2px;padding:0 .25em;font-family:"Black Han Sans",var(--font-display),sans-serif;font-style:italic;font-size:20px;line-height:1;color:#1c2a38;transform:rotate(-4deg);transform-origin:center bottom;opacity:0;clip-path:inset(-30% 100% -30% -10%);pointer-events:none;white-space:nowrap}
 .registration.reg-signing .reg-sig-ink.on{animation:reg-sign-write .9s cubic-bezier(.2,.7,.2,1) forwards}
-@keyframes reg-sign-write{0%{opacity:0;clip-path:inset(0 100% 0 0)}12%{opacity:1}100%{opacity:1;clip-path:inset(0 0 0 0)}}
+@keyframes reg-sign-write{0%{opacity:0;clip-path:inset(-30% 100% -30% -10%)}12%{opacity:1}100%{opacity:1;clip-path:inset(-30% -15% -30% -10%)}}
 .reg-sign small{flex:none;font-size:11px;color:#59665e;padding-bottom:4px}
 .registration .reg-action{padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid #c0c8b6;background:#e9e9dc;margin:0}
 .registration .reg-action button{background:#294f40;color:#faf7ed;border:1px solid #294f40;min-height:48px;border-radius:2px;box-shadow:none;font-size:14px;display:flex;justify-content:space-between;padding:10px 14px;clip-path:none;letter-spacing:0}
@@ -59,3 +59,6 @@
 .reg-veil.out{opacity:0;pointer-events:none}
 @media(prefers-reduced-motion:reduce){.registration.reg-signing .reg-sig-ink.on{animation-duration:.12s}.reg-veil{transition-duration:.08s}}
 @media(max-width:350px){.registration .reg-paper{padding:17px 14px}.registration h2{font-size:20px}.reg-stamp{padding:5px 7px}.reg-applicant{grid-template-columns:minmax(0,1fr) 82px;gap:9px}.reg-photo{height:123px}.reg-field{grid-template-columns:56px minmax(0,1fr);font-size:11px}.reg-field dd strong{font-size:13px}}
+
+.reg-sig-spot small{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);white-space:nowrap}
+.registration.reg-signing .reg-sig-spot small{opacity:0;transition:opacity .2s}

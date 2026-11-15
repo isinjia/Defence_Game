@@ -635,6 +635,126 @@ const PortraitParts = (() => {
       "mouthY": 161,
       "skinMask": "face-m-32-skin.webp",
       "registrationVersion": 3
+    },
+    {
+      "file": "face-m-33.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        226.0,
+        194.0,
+        179.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-33-skin.webp",
+      "registrationVersion": 3,
+      "rev": "74b3bc5c36"
+    },
+    {
+      "file": "face-m-34.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        226.0,
+        194.0,
+        180.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-34-skin.webp",
+      "registrationVersion": 3,
+      "rev": "f8723a67d3"
+    },
+    {
+      "file": "face-m-35.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        226.0,
+        193.0,
+        179.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-35-skin.webp",
+      "registrationVersion": 3,
+      "rev": "0310fbca72"
+    },
+    {
+      "file": "face-m-36.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        223.0,
+        190.0,
+        175.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-36-skin.webp",
+      "registrationVersion": 3,
+      "rev": "4561a16dc0"
+    },
+    {
+      "file": "face-m-37.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        226.0,
+        194.0,
+        180.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-37-skin.webp",
+      "registrationVersion": 3,
+      "rev": "3d214a0c55"
     }
   ],
   "face-f": [
@@ -1270,6 +1390,126 @@ const PortraitParts = (() => {
       "mouthY": 171,
       "skinMask": "face-f-32-skin.webp",
       "registrationVersion": 3
+    },
+    {
+      "file": "face-f-33.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        221.0,
+        191.0,
+        181.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-33-skin.webp",
+      "registrationVersion": 3,
+      "rev": "e0a4cff447"
+    },
+    {
+      "file": "face-f-34.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        219.0,
+        186.0,
+        174.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-34-skin.webp",
+      "registrationVersion": 3,
+      "rev": "e11fe48d74"
+    },
+    {
+      "file": "face-f-35.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        219.0,
+        188.0,
+        177.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-35-skin.webp",
+      "registrationVersion": 3,
+      "rev": "d50d8e3d80"
+    },
+    {
+      "file": "face-f-36.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        218.0,
+        186.0,
+        173.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-36-skin.webp",
+      "registrationVersion": 3,
+      "rev": "a6f98bbb6e"
+    },
+    {
+      "file": "face-f-37.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        218.0,
+        186.0,
+        174.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-37-skin.webp",
+      "registrationVersion": 3,
+      "rev": "5ece0d2225"
     }
   ],
   "hair-m": [
@@ -3003,10 +3243,11 @@ const PortraitParts = (() => {
   const FACE_ADULT = 15;
   const FACE_YOUTH = 3;
   // 저장된 외형은 기존 풀로 해석하고, 새 외형만 확장 풀을 사용한다.
-  const LOOK_PREFIX = 'look5:';
-  const isExpandedLook = seed => /^look[345]:/.test(String(seed));
+  const LOOK_PREFIX = 'look6:';
+  const isExpandedLook = seed => /^look[3456]:/.test(String(seed));
   const ADULT_FACES = [0,1,2,5,7,8,10,11,13,14,18,19,20,21,22,23,24,25,26,27];
   const NEW_ADULT_FACES = [...ADULT_FACES,28,29,30,31,32];
+  const EXPANDED_ADULT_FACES = [...NEW_ADULT_FACES,33,34,35,36,37];
   const newLook = () => LOOK_PREFIX + Math.random().toString(36).slice(2);
   function portraitYears(age) {
     const y = age == null ? 25 : age;
@@ -3029,15 +3270,18 @@ const PortraitParts = (() => {
     // 별도 화풍으로 제작된 성인 파츠만 같은 시드의 웹툰풍 얼굴로 대체한다.
     if (!young) face = ({3:0,4:1,6:2,9:5,12:1})[face] ?? face;
     if (expanded && !young) {
-      // look3 저장 외형의 추첨 순서·개수는 보존하고 새 외형만 미형 얼굴을 포함한다.
-      const pool = /^look[45]:/.test(String(seed)) ? NEW_ADULT_FACES : ADULT_FACES;
+      // look3/4/5 저장 외형의 추첨 순서·개수를 보존한다. 새 성인 외형에만 추가 얼굴의 이전 시안 10종을 더한다.
+      const pool = String(seed).startsWith(LOOK_PREFIX) && stage === 'adult'
+        ? EXPANDED_ADULT_FACES
+        : /^look[456]:/.test(String(seed)) ? NEW_ADULT_FACES : ADULT_FACES;
       face = pool[hash % pool.length];
     }
     // 사용자 삭제 지정: 남성 19·23번만 대체한다. 풀을 줄이면 다른 저장 외형까지 바뀐다.
     if (g === 'm') face = ({19:29,23:30})[face] ?? face;
     // 얼굴과 헤어에 같은 비트를 나눠 쓰면 특정 조합이 나오지 않는다. 새 풀은 따로 추첨한다.
-    // look3/4 저장 외형의 헤어 추첨 폭은 30으로 고정한다.
-    const hairCount = String(seed).startsWith(LOOK_PREFIX) ? hairs.length : Math.min(30, hairs.length);
+    // look3/4는 30종, look5는 당시 34종을 유지해 얼굴 확장으로 저장 헤어가 바뀌지 않게 한다.
+    const hairCount = String(seed).startsWith('look5:') ? Math.min(34, hairs.length)
+      : String(seed).startsWith(LOOK_PREFIX) ? hairs.length : Math.min(30, hairs.length);
     let hair = expanded ? Math.floor(FX.rng(hash ^ 0x9e3779b9)() * hairCount)
       : (hash >>> 4) % Math.min(20, hairs.length);
     // 선택 풀의 길이·순서를 보존하고 품질 기준에서 제외한 헤어만 대체한다.
@@ -3118,7 +3362,7 @@ const PortraitParts = (() => {
     const fitHead = markup => headScale === 1 ? markup : `<g data-proportion="head" transform="${headTransform}">${markup}</g>`;
     const cardHeight = underwear ? 440 : 480;
     const view = avatar ? `72 ${pose} 256 256` : `0 0 400 ${cardHeight}`;
-    const source = part => root + part.file + '?v=12';
+    const source = part => root + part.file + '?v=' + (part.rev || 12);
     const image = (part, attrs = '') => {
       const [x,y,w,h] = part.rect, src = source(part);
       const sideFit = part.file === 'hair-m-20.webp' ? ` data-hair-source="${src}" data-hair-rect="${part.rect.join(',')}" data-head-source="${source(base)}" data-head-chin="${chin}" data-hair-side-fit="true"` : '';
@@ -3127,7 +3371,7 @@ const PortraitParts = (() => {
     const palette = { fair:[246,218,200], medium:[220,180,150], tan:[182,133,95], deep:[133,88,65] };
     const target = palette[selection.skinTone] || face.skinRgb || [230,195,180];
     // 피부 마스크 안의 색만 바꿔 흰자·입술·검은 선·속옷 색은 보존한다.
-    const skinImage = (part, name, attrs = '', feature = false) => `<g${attrs}>${image(part, ` data-skin-source="${source(part)}" data-skin-mask="${root+part.skinMask}?v=9" data-skin-rgb="${part.skinRgb.join(',')}" data-skin-target="${target.join(',')}" data-skin-race="${selection.race}"${feature ? ` data-face-feature="${female ? 'f' : 'm'}" data-feature-offset="${featureOffset}"` : ''}${name === 'base' ? ` data-body-scale="${headScale}" data-body-pivot="${chin+24}"` : ''}`)}</g>`;
+    const skinImage = (part, name, attrs = '', feature = false) => `<g${attrs}>${image(part, ` data-skin-source="${source(part)}" data-skin-mask="${root+part.skinMask}?v=${part.rev || 9}" data-skin-rgb="${part.skinRgb.join(',')}" data-skin-target="${target.join(',')}" data-skin-race="${selection.race}"${feature ? ` data-face-feature="${female ? 'f' : 'm'}" data-feature-offset="${featureOffset}"` : ''}${name === 'base' ? ` data-body-scale="${headScale}" data-body-pivot="${chin+24}"` : ''}`)}</g>`;
     const fit = integrated ? { thin:.9, normal:1, strong:1.04, heavy:1.24 }[selection.bodyType] : 1; // 통통 1.12 는 깃이 목보다 작아 옷을 키움 (사용자 지적)
     // 여자 옷 원화는 몸통 중심(x≈199)보다 1.5~8px 오른쪽에 그려져 있어 목이 왼쪽으로 치우쳐 보였다 (사용자 지적). 깃 중심을 몸에 맞춘다.
     const shiftX = female && !underwear ? [-2, -2.5, -4.5, -4, -3, -8][style] || 0 : 0;

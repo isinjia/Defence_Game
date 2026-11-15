@@ -1,6 +1,7 @@
 // 메인 컷신 그림 (assets/main_cut/cut-*.webp, 1536×1024). 목록·장면은 docs/메인_컷신_목록.md.
 // 메인 서술 줄에 art:'cut-…'가 있으면 대화창 뒤에 장면 그림을 띄운다. 그 장면이 끝날 때까지 남고,
 // 다음 장면으로 넘어가거나 대화가 닫히면 내린다. 선택 뒤 이어지는 짧은 대사 동안에는 그대로 둔다.
+// art:false는 해당 줄에서 컷신을 내리고 인물 대화로 돌아간다.
 // 인물 키(main_cast_art.js)와 겹치지 않게 'cut-'로 시작하는 키만 다룬다. 그림 로딩 실패는 대화를 막지 않는다.
 if (typeof UI !== 'undefined') {
   const ROOT = 'assets/main_cut/';
@@ -26,6 +27,7 @@ if (typeof UI !== 'undefined') {
       if (d && !d._cutPre) { d._cutPre = true; for (const l of d.lines) if (isCut(l.art)) new Image().src = src(l.art); } // 미리 받아 둔다
       const line = d && d.lines[d.i];
       if (line && isCut(line.art)) this.mainCutShow(line.art);
+      else if (line && line.art === false) this.mainCutClear();
     } catch (e) { /* 그림 실패는 대화를 막지 않는다 */ }
     return baseShow.apply(this, a);
   };
