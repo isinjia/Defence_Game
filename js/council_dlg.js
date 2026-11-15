@@ -68,7 +68,8 @@
       this.talk(lines, () => { if (cap.go || cap.move || cap.timer) return cap.run(); if (this.ctx && this.ctx.council) this.renderCouncil(); });
     };
   };
-  wrapSay('councilNpcDecide', (v) => ({ mine: { who: 'player', text: v === 'B' ? '"잠깐. 거긴 안 돼. 내가 막겠어."' : v === 'O' ? '"좋아, 따를게."' : v === 'X!' ? '"저쪽이 낫지 않아?"' : '"난 반대야."' } }));
+  // 사용자 결정(2026-11-15): 찬성·반대할 때 주인공이 말하는 줄은 넣지 않는다. 리더의 결정만 나온다.
+  wrapSay('councilNpcDecide', () => ({}));
   // 내가 리더일 때(강행·다른 칸·설득)는 리더의 화답이 없으므로 원래 상의 창 그대로 둔다
   // 설득 뒤 다시 그릴 때는 의견을 또 읊지 않는다(cn.talked 유지). 대화 중에 원래 함수가 창을 다시 그리지 않게 막는다
   const baseRC = UI.renderCouncil;
