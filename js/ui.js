@@ -685,7 +685,7 @@ const UI = {
   },
   showVictory() {
     this.modal(`<div class="ending win-end">${UI.playerPortrait(160)}<div class="eyebrow">${G.dateStr()}</div><h2>원초의 게이트 봉인</h2>
-      <p>심연의 군주가 쓰러지고, 20년간 한반도를 뒤덮었던 에테르 폭풍이 잦아들었다. 사람들은 ${G.player.name}의 이름을 영웅으로 기억할 것이다.</p></div>${this.lifeSummary()}
+      <p>심연의 군주가 쓰러지고, ${G.eraYears()}년간 한반도를 뒤덮었던 에테르 폭풍이 잦아들었다. 사람들은 ${G.player.name}의 이름을 영웅으로 기억할 것이다.</p></div>${this.lifeSummary()}
       <p class="dim">남은 수명 동안 계속 살아갈 수 있습니다.</p>
       <div class="row end"><button class="primary" data-act="modal-close">계속하기</button></div>`);
   },
