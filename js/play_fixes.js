@@ -199,3 +199,37 @@ body.pf-scout-reveal #modal-box .xr-route .gnode:not(.pf-reveal):not(.done) { tr
 body.reduced #modal-box .gnode.pf-reveal { animation: none; }`;
   document.head.appendChild(css);
 }
+
+// 9. 팀(소속 파티)으로 깬 게이트의 전리품이 정산 없이 전부 내 것이 되던 문제 (사용자 제보: 파티원인데 바로 장착해 가질 수 있음)
+//    게이트가 끝나면 팀 일이 먼저 끝나(c.on=false) party()가 팀원을 빼고 돌려준다 → 정산할 팀원이 0명 → 정산을 건너뛰었다.
+//    정산 몫을 셀 때는 팀원을 포함한다(withCrew).
+{
+  const base = Game.prototype.lootShares;
+  if (base) Game.prototype.lootShares = function (...a) {
+    if (this.crew && this.crew() && this.withCrew) return this.withCrew(() => base.apply(this, a));
+    return base.apply(this, a);
+  };
+}
+//    정산 중인 장비는 결과 창 아래 '얻은 장비'의 [바로 장착]을 막는다(정산 전에 끼워 가져가지 못하게). 내 것으로 정해지면 가방에서 장착한다.
+{
+  const lock = () => {
+    const L = UI._loot; const box = document.getElementById('modal-box'); if (!L || !box) return;
+    const uids = new Set((L.gear || []).map((g) => String(g.it && g.it.uid)));
+    for (const b of box.querySelectorAll('[data-act="quick-equip"]')) {
+      if (!uids.has(String(b.dataset.v))) continue;
+      const g = L.gear.find((x) => String(x.it && x.it.uid) === String(b.dataset.v));
+      const mine = g && g.done && /내가 갖는다|낙찰|나에게/.test(g.done);
+      if (mine) { b.disabled = false; b.textContent = '바로 장착'; continue; }
+      b.disabled = true; b.textContent = '팀 정산 중'; b.classList.remove('primary');
+    }
+  };
+  for (const name of ['lootSplitStart', 'lootRender']) {
+    const base = UI[name]; if (!base) continue;
+    UI[name] = function (...a) { const r = base.apply(this, a); try { lock(); } catch (e) { /* 무시 */ } return r; };
+  }
+  const baseH = UI.handle;
+  UI.handle = function (act, v) {
+    if (act === 'quick-equip' && UI._loot && (UI._loot.gear || []).some((g) => String(g.it && g.it.uid) === String(v) && !(g.done && /내가 갖는다|낙찰|나에게/.test(g.done)))) { this.toast('팀 정산이 끝나야 가져갈 수 있다.'); return; }
+    return baseH.call(this, act, v);
+  };
+}
