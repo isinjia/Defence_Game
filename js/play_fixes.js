@@ -176,3 +176,26 @@ body.reduced #main-cut .mc-img { animation: pfCutIn .3s ease-out both !important
   if (baseShow) UI.mainCutShow = function (key, ...a) { const r = baseShow.call(this, key, ...a); if (this._cut) document.body.dataset.cut = this._cut; return r; };
   if (baseClear) UI.mainCutClear = function (...a) { delete document.body.dataset.cut; return baseClear.apply(this, a); };
 }
+
+// 8. 첫 게이트 정찰 설명 연출 (js/leader_rule.js 4번과 짝, 사용자 요청)
+//    설명하는 동안(run.scoutHide) 정찰로 본 칸도 '미확인'으로 보였다가, 설명이 끝나면 물음표가 스르륵 걷히며 칸 종류가 드러난다.
+{
+  if (typeof GateScout !== 'undefined') {
+    const baseShown = GateScout.shown;
+    GateScout.shown = function (m, r, i) {
+      const s = baseShown.call(this, m, r, i);
+      const run = typeof UI !== 'undefined' && UI.ctx && UI.ctx.run;
+      if (run && run.scoutHide && run.map === m && s.t !== 'start' && s.t !== 'boss' && !(m.done || []).includes(r + ':' + i)) return { t: 'unknown' };
+      return s;
+    };
+  }
+  const css = document.createElement('style');
+  css.textContent = `
+@keyframes pfReveal { 0% { filter: blur(5px) brightness(.35) saturate(0); transform: scale(.82); } 55% { filter: blur(0) brightness(1.5); transform: scale(1.14); } 100% { filter: none; transform: scale(1); } }
+@keyframes pfRevealRing { 0% { box-shadow: 0 0 0 0 #7fe3ffcc; } 100% { box-shadow: 0 0 0 16px #7fe3ff00; } }
+#modal-box .gnode.pf-reveal { animation: pfReveal 1.3s ease-out both, pfRevealRing 1.3s ease-out .4s both; }
+body.pf-scout-reveal #modal-box .xr-route .gnode:not(.pf-reveal):not(.done) { transition: opacity .6s; }
+@media (prefers-reduced-motion: reduce) { #modal-box .gnode.pf-reveal { animation: none; } }
+body.reduced #modal-box .gnode.pf-reveal { animation: none; }`;
+  document.head.appendChild(css);
+}

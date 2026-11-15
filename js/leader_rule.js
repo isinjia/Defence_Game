@@ -224,13 +224,39 @@ if (typeof UI !== 'undefined') {
     const sc = G.partyScout(); if (!sc || !sc.who) return r;
     p.scoutTaught = true; c.run.scoutPending = true;
     const R = typeof GateScout !== 'undefined' ? GateScout.range(sc.power) : 2;
+    // 연출 (사용자 요청): 지도가 펼쳐지고 인물은 빠진다 → 정찰 계열이 있으면 어떻게 되는지 설명 → 물음표 칸이 스르륵 정체를 드러낸다
+    c.run.scoutHide = true; this.renderGateMap();
+    const voice = { name: sc.who.name, sub: sc.who.cls ? className(sc.who.cls) : '정찰', seed: false, elem: sc.who.element };
+    const openMap = () => { try { if (this.ctx === c && document.querySelector('#modal-box .exploration-layout')) this.handle('xr-map'); } catch (e) { /* 무시 */ } };
+    const reveal = () => {
+      const m = c.run.map; const keys = new Set(Object.keys(m.seen || {}).filter((k) => !(m.done || []).includes(k)));
+      c.run.scoutHide = false; this.renderGateMap(); openMap();
+      document.body.classList.add('pf-scout-reveal');
+      for (const el of document.querySelectorAll('#modal-box .gnode[data-xr-key]')) if (keys.has(el.dataset.xrKey)) el.classList.add('pf-reveal');
+      setTimeout(() => document.body.classList.remove('pf-scout-reveal'), 1800);
+    };
     setTimeout(() => {
       if (this.ctx !== c || !this.talk) return;
       this.talk([
-        { who: sc.who, text: `잠깐. 정찰은 내 담당이야. 지도에 물음표로 보이는 칸은 아직 아무도 확인 못 한 "미확인" 칸이야.` },
-        { who: sc.who, text: `나는 지금 ${R}칸 앞까지 볼 수 있어. 등급이 오르면 더 멀리 보이고.` },
-        { who: sc.who, text: '멀리 볼수록 틀릴 수도 있어. 정예를 그냥 괴수로 볼 때도 있고. 가까운 칸일수록 믿어도 돼.' },
-      ], () => { c.run.scoutPending = false; c.run.leadAsked = null; if (this.ctx === c && c.run) this.renderGateMap(); });
+        { who: sc.who, text: '잠깐. 들어가기 전에 지도부터 같이 보자.' },
+      ], () => {
+        if (this.ctx !== c) return;
+        openMap();
+        this.talk([
+          { who: voice, text: '물음표로 보이는 칸은 아직 아무도 확인 못 한 "미확인" 칸이야. 원래는 직접 가 봐야 뭐가 있는지 알 수 있어.' },
+          { who: voice, text: '근데 파티에 나 같은 정찰 직업이 있으면 얘기가 달라. 앞길을 먼저 살펴서 어떤 칸인지 미리 알려 줄 수 있거든. 봐.' },
+        ], () => {
+          if (this.ctx !== c) return;
+          reveal();
+          setTimeout(() => {
+            if (this.ctx !== c) return;
+            this.talk([
+              { who: voice, text: `지금 내 눈으론 ${R}칸 앞까지 보여. 등급이 오르면 더 멀리 볼 수 있고.` },
+              { who: voice, text: '대신 멀리 있는 칸일수록 잘못 볼 수도 있어. 정예를 그냥 괴수로 볼 때도 있으니까, 가까운 칸일수록 믿어도 돼.' },
+            ], () => { c.run.scoutPending = false; c.run.leadAsked = null; if (this.ctx === c && c.run) { try { this.handle('xr-map-close'); } catch (e) { /* 무시 */ } this.renderGateMap(); } });
+          }, FX.reduced ? 400 : 1700);
+        });
+      });
     }, FX.reduced ? 300 : 1200);
     return r;
   };
