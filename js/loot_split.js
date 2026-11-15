@@ -134,6 +134,8 @@ const LOOT_SPLIT = { bidStep: 0.1, npcWant: { fit: 0.75, any: 0.4 }, giftRel: 4,
 const LOOT_ROLL = { minRate: 0.8, step: 0.1, npcOpen: 0.55 };
 {
   const dropGear = (it) => { const p = G.player; p.inventory = p.inventory.filter((e) => e !== it); };
+  // 입찰은 장비와 B급 이상 재료만 (사용자 결정). F~C급 재료는 무작위 나눔만
+  const biddable = (lot) => lot.kind === 'gear' || (lot.kind === 'core' ? +lot.key : +String(lot.key).split(':')[1]) >= 4;
   const mineOf = (lot) => (lot.bid ? lot.bid.top : lot.owner) === 'me';
   const who = (x) => (x === 'me' ? '나' : x ? x.name : '');
   const priceOf = (lot) => (lot.kind === 'gear' ? (lot.it.value || 0)
@@ -168,7 +170,7 @@ const LOOT_ROLL = { minRate: 0.8, step: 0.1, npcOpen: 0.55 };
     for (const lot of lots) {
       lot.min = Math.max(1, Math.round(priceOf(lot) * LOOT_ROLL.minRate));
       // 다른 사람에게 간 물건을 NPC가 꼭 갖고 싶으면 입찰을 건다
-      const r = rivals(lot, S, lot.owner).filter((x) => lot.kind !== 'gear' || G.lootWant(x.n, lot.it) >= LOOT_ROLL.npcOpen)[0];
+      const r = !biddable(lot) ? null : rivals(lot, S, lot.owner).filter((x) => lot.kind !== 'gear' || G.lootWant(x.n, lot.it) >= LOOT_ROLL.npcOpen)[0];
       if (r && RNG.chance(lot.kind === 'gear' ? 0.6 : 0.2)) lot.bid = { top: r.n, price: lot.min, next: Math.round(lot.min * (1 + LOOT_ROLL.step)) };
     }
     this._loot = { S, lots }; this.lootRender();
@@ -181,7 +183,7 @@ const LOOT_ROLL = { minRate: 0.8, step: 0.1, npcOpen: 0.55 };
     L.lots.forEach((lot, i) => {
       const col = lot.kind === 'gear' && RARITY[lot.it.rarity] ? RARITY[lot.it.rarity].color : '#cfd8e3';
       const stats = lot.kind === 'gear' && UI.equipStats ? `<span class="small dim">${UI.equipStats(lot.it)}</span>` : '';
-      h += `<div class="ls-row"><div class="ls-name"><b style="color:${col}">${nameOf(lot)}</b>${stats}<span class="small">시세 ${fmt(priceOf(lot))} · 최소 입찰 ${fmt(lot.min)}</span></div>`;
+      h += `<div class="ls-row"><div class="ls-name"><b style="color:${col}">${nameOf(lot)}</b>${stats}<span class="small">시세 ${fmt(priceOf(lot))}${biddable(lot) ? ` · 최소 입찰 ${fmt(lot.min)}` : ''}</span></div>`;
       if (lot.done) { h += `<div class="ls-done">${lot.done}</div></div>`; return; }
       h += `<div class="small ls-lead">나눔: <b class="${lot.owner === 'me' ? 'ok' : ''}">${who(lot.owner)}</b>에게</div>`;
       if (lot.bid) {
@@ -192,10 +194,10 @@ const LOOT_ROLL = { minRate: 0.8, step: 0.1, npcOpen: 0.55 };
           : `<div class="ls-btns"><button class="primary sm" data-act="ls-raise" data-v="${i}" ${G.player.money < b.next ? 'disabled' : ''}>${fmt(b.next)}에 부른다</button><button class="sm ghost" data-act="ls-fold" data-v="${i}">${lot.owner === 'me' ? '넘긴다' : '포기'} · 내 몫 +${fmt(Math.floor(b.price / Math.max(1, L.S.rows.length)))}</button></div></div>`;
         return;
       }
-      h += lot.owner === 'me' ? '</div>'
+      h += lot.owner === 'me' || !biddable(lot) ? '</div>'
         : `<div class="ls-btns"><button class="primary sm" data-act="ls-bid" data-v="${i}" ${G.player.money < lot.min ? 'disabled' : ''}>입찰한다 · ${fmt(lot.min)}부터</button></div></div>`;
     });
-    return h + '<div class="small dim ls-foot">꼭 가져가야 하는 것만 입찰한다. 낙찰금은 낙찰자를 뺀 파티원이 똑같이 나눈다. 입찰이 걸리면 받은 사람도 거부할 수 없다. 확인을 누르면 나눔(진행 중인 입찰은 그때 최고가) 그대로 끝난다.</div></div>';
+    return h + '<div class="small dim ls-foot">꼭 가져가야 하는 것만 입찰한다(장비·B급 이상 재료). 낙찰금은 낙찰자를 뺀 파티원이 똑같이 나눈다. 입찰이 걸리면 받은 사람도 거부할 수 없다. 확인을 누르면 나눔(진행 중인 입찰은 그때 최고가) 그대로 끝난다.</div></div>';
   };
   UI.lootRender = function () {
     const box = document.getElementById('modal-box'); if (!box || !this._loot) return;
@@ -240,7 +242,7 @@ const LOOT_ROLL = { minRate: 0.8, step: 0.1, npcOpen: 0.55 };
       const S = L.S; const lot = L.lots[+v]; if (!lot || lot.done) return;
       switch (act) {
         case 'ls-bid': {
-          if (G.player.money < lot.min) return;
+          if (!biddable(lot) || G.player.money < lot.min) return;
           lot.bid = { top: 'me', price: lot.min, next: Math.round(lot.min * (1 + LOOT_ROLL.step)) };
           npcAnswer(lot, S); break;
         }
