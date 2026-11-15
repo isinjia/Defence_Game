@@ -231,13 +231,18 @@
         vis.push({ u, el, s: u.slot });
       }
       if (!vis.length) return r;
-      const minC = Math.min(...vis.map((x) => x.s.c));
-      const maxC = Math.max(...vis.map((x) => x.s.c + x.s.w));
-      const cols = Math.max(2, maxC - minC);
-      fz.style.gridTemplateColumns = `repeat(${cols}, minmax(48px, 54px))`;
+      // 쓰는 칸만 모은다: 적 사이의 빈 칸까지 세면 칸 수가 늘어 칸이 좁아지고, 괴수를 다시 줄였다(사용자 지적: 처음 나올 때와 싸울 때 크기가 다름)
+      const used = [...new Set(vis.flatMap((x) => Array.from({ length: x.s.w }, (_, k) => x.s.c + k)))].sort((a, b) => a - b);
+      const idx = new Map(used.map((c, i) => [c, i]));
+      const cols = Math.max(2, used.length);
+      // 칸 너비는 괴수 그림 크기(--fs)를 따라간다(이름 칸까지 들어가게). 보스는 그림이 1.5배라 한 칸짜리 보스 자리는 넓힌다
+      // 칸 하나는 반 마리 너비다(보통 적은 두 칸을 쓴다, js/battle_layout.js FOE_COLS 8)
+      const colW = Array.from({ length: cols }, () => 'calc((var(--fs, 72px) + 24px) / 2)');
+      for (const x of vis) if (x.u.boss && x.s.w <= 2) { for (let k = 0; k < x.s.w; k++) colW[idx.get(x.s.c + k)] = `calc((var(--fs, 72px) * 1.5 + 24px) / ${x.s.w})`; }
+      fz.style.gridTemplateColumns = colW.join(' '); fz.dataset.cols = cols;
       fz.classList.add('cu-foe-pack');
       for (const x of vis) {
-        const col = `${x.s.c - minC + 1} / span ${x.s.w}`;
+        const col = `${idx.get(x.s.c) + 1} / span ${x.s.w}`;
         if (x.el.style.gridColumn !== col) x.el.style.gridColumn = col;
       }
     } catch (e) { /* 무시 */ }

@@ -393,3 +393,14 @@ if (typeof UI !== 'undefined' && UI.showStory) {
   const baseCity = UI.openCity;
   if (baseCity) UI.openCity = function (...a) { release(); return baseCity.apply(this, a); };
 }
+
+// 전투를 연 첫 화면부터 적 줄을 모아 붙이고(js/combat_ui.js) 그 상태로 괴수 크기를 잰다.
+// 전에는 처음엔 넓은 칸으로 그렸다가 1~2초 뒤 칸을 모으며 크기를 다시 줄여, 처음 나올 때와 싸울 때 크기가 달랐다(사용자 지적).
+if (typeof UI !== 'undefined' && UI.openCombat) {
+  const baseOpenFit = UI.openCombat;
+  UI.openCombat = function (...a) {
+    const r = baseOpenFit.apply(this, a);
+    try { if (this.refreshUnits) this.refreshUnits(); if (this.combatFit) this.combatFit(); } catch (e) { /* 무시 */ }
+    return r;
+  };
+}
