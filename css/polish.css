@@ -299,3 +299,6 @@ html body .combat-box .skill-btn b .tag.sk-affix.in { display: inline; padding: 
 #affix-pop .ap-sum { margin-top: 6px; }
 #affix-pop .ap-tip { text-align: center; margin-top: 8px; }
 .tag.sk-affix { cursor: pointer; }
+#affix-pop .ap-box { width: auto; min-width: 180px; max-width: calc(100vw - 40px); text-align: center; }
+#affix-pop .ap-head { margin-bottom: 4px; }
+.tag.sk-affix.hid { color: #ffd98a; border-color: #ffb547aa; }
