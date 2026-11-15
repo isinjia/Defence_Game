@@ -105,6 +105,8 @@ const FXG = (() => {
       const pad = name === 'line' ? 6 : 1; UV[name] = [(x + pad) / AW, (y + 1) / AH, (x + s - pad) / AW, (y + s - 1) / AH];
       x += s;
     }
+    // 꽉 찬 단색 사각형용: 'core' 칸 한가운데 몇 픽셀 (화면 일부만 어둡게 덮을 때)
+    { const c = UV.core, mu = (c[0] + c[2]) / 2, mv = (c[1] + c[3]) / 2; UV.solid = [mu - 1 / AW, mv - 1 / AH, mu + 1 / AW, mv + 1 / AH]; }
     // 무기 그림: 팔레트별로 색을 입혀 오른쪽 반쪽에 (96px 칸)
     PALS.forEach((pn, j) => HERO.forEach((hn, i) => { const cx = 1024 + i * 96, cy = j * 96; g.save(); g.beginPath(); g.rect(cx, cy, 96, 96); g.clip(); g.translate(cx + 48, cy + 48); g.scale(1.15, 1.15); const E = EL[pn]; try { SHAPE[hn](g, { main: E.main, hi: E.hi, lo: E.lo }, 1); } catch (e) { /* 무시 */ } g.restore(); UV[`h_${hn}_${pn}`] = [(cx + 1) / AW, (cy + 1) / AH, (cx + 95) / AW, (cy + 95) / AH]; }));
     return cv;
@@ -126,6 +128,9 @@ const FXG = (() => {
         'precision mediump float; uniform sampler2D tex; varying vec2 vt; varying vec4 vc; varying float vk; void main(){ vec4 s=texture2D(tex, vt); gl_FragColor=vec4(s.rgb*vc.rgb*vc.a, s.a*vc.a*vk); }');
       S.pPost = prog(gl, 'attribute vec2 p; varying vec2 vt; void main(){ vt=p*0.5+0.5; gl_Position=vec4(p,0.0,1.0); }',
         'precision mediump float; uniform sampler2D tex; uniform vec2 dir; uniform float gain; uniform float keep; varying vec2 vt; void main(){ vec4 s=texture2D(tex,vt)*0.227; s+=(texture2D(tex,vt+dir*1.385)+texture2D(tex,vt-dir*1.385))*0.316; s+=(texture2D(tex,vt+dir*3.231)+texture2D(tex,vt-dir*3.231))*0.07; gl_FragColor=vec4(s.rgb*gain, s.a*keep); }');
+      // 합성: 장면 + 번짐을 더한 뒤 톤 매핑(빛이 겹쳐도 흰색으로 날아가지 않고 색이 남는다)
+      S.pComb = prog(gl, 'attribute vec2 p; varying vec2 vt; void main(){ vt=p*0.5+0.5; gl_Position=vec4(p,0.0,1.0); }',
+        'precision mediump float; uniform sampler2D sc; uniform sampler2D bl; uniform float bg; varying vec2 vt; void main(){ vec4 a=texture2D(sc,vt); vec4 b=texture2D(bl,vt); vec3 c=a.rgb+b.rgb*bg; vec3 t=vec3(1.0)-exp(-c*1.35); float al=max(a.a, max(t.r, max(t.g, t.b))); gl_FragColor=vec4(t, al); }');
       S.vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, S.vb); gl.bufferData(gl.ARRAY_BUFFER, buf.byteLength, gl.DYNAMIC_DRAW);
       const idx = new Uint16Array(MAXQ * 6); for (let i = 0; i < MAXQ; i++) idx.set([i * 4, i * 4 + 1, i * 4 + 2, i * 4, i * 4 + 2, i * 4 + 3], i * 6);
       S.ib = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, S.ib); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
@@ -172,7 +177,7 @@ const FXG = (() => {
   }
   function render() {
     const gl = S.gl; if (!gl) return;
-    const pw = S.cv.width, ph = S.cv.height, bloom = S.bloom() && S.n > 0;
+    const pw = S.cv.width, ph = S.cv.height, bloom = S.bloom() && S.auto > 0.6 && S.n > 0;
     gl.disable(gl.DEPTH_TEST); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.bindFramebuffer(gl.FRAMEBUFFER, bloom ? S.scene.f : null); gl.viewport(0, 0, pw, ph); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
     if (S.n) {
@@ -192,16 +197,21 @@ const FXG = (() => {
     pass(S.b1.t, S.b2.f, S.b2.w, S.b2.h, 0, 1.6 / S.b2.h, 1, 1, false);
     pass(S.b2.t, S.b1.f, S.b1.w, S.b1.h, 3.2 / S.b1.w, 0, 1, 1, false);
     pass(S.b1.t, S.b2.f, S.b2.w, S.b2.h, 0, 3.2 / S.b2.h, 1, 1, false);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, pw, ph); gl.clear(gl.COLOR_BUFFER_BIT);
-    pass(S.scene.t, null, pw, ph, 0, 0, 1 / 0.859, 1 / 0.859, true); // 원본(흐림 0 → 가중치 합 0.859 보정)
-    pass(S.b2.t, null, pw, ph, 0, 0, 0.95, 0, true);                  // 번짐은 빛만 더한다
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, pw, ph); gl.disable(gl.BLEND); gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.useProgram(S.pComb); const lc = gl.getAttribLocation(S.pComb, 'p'); gl.enableVertexAttribArray(lc); gl.vertexAttribPointer(lc, 2, gl.FLOAT, false, 0, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, S.b2.t); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, S.scene.t);
+    gl.uniform1i(gl.getUniformLocation(S.pComb, 'sc'), 0); gl.uniform1i(gl.getUniformLocation(S.pComb, 'bl'), 1); gl.uniform1f(gl.getUniformLocation(S.pComb, 'bg'), 0.9);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); gl.enable(gl.BLEND);
   }
 
   // ---------- 입자·항목 ----------
   function add(it) { it.t = -(it.delay || 0); S.items.push(it); kick(); return it; }
   const at = (delay, fn) => add({ delay, life: 0.001, once: fn });
   function kick() { if (S.manual || S.raf || !init()) return; S.last = performance.now(); S.raf = requestAnimationFrame(frame); }
-  function frame(now) { const dt = Math.min(0.05, (now - S.last) / 1000) * S.speed(); S.last = now; step(dt); S.raf = S.items.length ? requestAnimationFrame(frame) : 0; if (!S.raf) { S.n = 0; render(); } }
+  // 자동 품질: 최근 프레임 시간이 길면(느린 기기) 입자를 줄이고 번짐을 끈다. 빨라지면 천천히 되돌린다
+  S.auto = 1; S.slow = 0; S.ft = 16;
+  const autoQ = (ms) => { S.ft = S.ft * 0.9 + ms * 0.1; if (S.ft > 26) { if (++S.slow > 20 && S.auto > 0.45) { S.auto = Math.max(0.45, S.auto - 0.15); S.slow = 0; } } else if (S.ft < 18) { if (--S.slow < -90 && S.auto < 1) { S.auto = Math.min(1, S.auto + 0.15); S.slow = 0; } } else S.slow = 0; };
+  function frame(now) { const raw = now - S.last; if (raw > 0 && raw < 200) autoQ(raw); const dt = Math.min(0.05, raw / 1000) * S.speed(); S.last = now; step(dt); S.raf = S.items.length ? requestAnimationFrame(frame) : 0; if (!S.raf) { S.n = 0; render(); } }
   function step(dt) {
     if (!init()) return; S.n = 0;
     const arr = S.items; S.items = [];
@@ -226,7 +236,7 @@ const FXG = (() => {
     if (it.face) { rot = Math.atan2(it.vy, it.vx); if (it.stretch) w = s + Math.hypot(it.vx, it.vy) * it.stretch; }
     spr(it.tex, x, y, w, h, rot, c, al, it.add);
   }
-  const N = (n) => Math.max(1, Math.round(n * S.quality()));
+  const N = (n) => Math.max(1, Math.round(n * S.quality() * S.auto));
   // 입자 추가. o: vx vy ax ay drag life delay s|[s0,s1] asp rot vr face stretch c|[c0,c1] a fin fout add pop wob wf
   function p(tex, x, y, o = {}) {
     if (S.items.length > 5200) return null;
@@ -264,8 +274,13 @@ const FXG = (() => {
     const w = o.w || 16, life = o.life || 0.45, cm = rgb(E.main), ch = rgb(E.hi), cl = rgb(E.lo);
     add({ life, delay: o.delay, draw(k) { const g = Math.min(1, k / 0.14), al = k > 0.5 ? 1 - (k - 0.5) / 0.5 : 1, ww = w * (k > 0.5 ? 1 - (k - 0.5) : 1) * (0.9 + 0.1 * Math.sin(k * 70)), ex = x1 + (x2 - x1) * g, ey = y1 + (y2 - y1) * g; seg(x1, y1, ex, ey, ww * 4, ww * 4, cl, 0.45 * al, o.add !== false); seg(x1, y1, ex, ey, ww * 2, ww * 2, cm, 0.9 * al, true); seg(x1, y1, ex, ey, ww * 0.8, ww * 0.8, ch, al, true); spr('glow', x1, y1, ww * 5, ww * 5, 0, ch, 0.8 * al, true); spr('glow', ex, ey, ww * 6, ww * 6, 0, cm, 0.9 * al, true); } });
   }
+  // 화면 흔들림: 전투 무대(#stage)만 잠깐 흔든다. 동작 줄이기면 하지 않는다
+  let shakeT = 0;
+  function shake(power = 6, ms = 220) {
+    try { if (typeof FX !== 'undefined' && FX.reduced) return; const el = document.getElementById('stage'); if (!el || !el.animate) return; const now = performance.now(); if (now < shakeT) return; shakeT = now + ms * 0.6;
+      const k = [], n = 7; for (let i = 0; i <= n; i++) { const d = power * (1 - i / n); k.push({ transform: i === n ? 'translate(0,0)' : `translate(${(Math.random() * 2 - 1) * d}px,${(Math.random() * 2 - 1) * d}px)` }); } el.animate(k, { duration: ms / Math.max(1, S.speed()), easing: 'linear' }); } catch (e) { /* 무시 */ } }
   // 무기 그림을 띄운다 (맞는 순간 꽂힌 채 사라지는 것 등)
   const hero = (shape, pal) => `h_${shape}_${EL[pal] ? pal : 'none'}`;
 
-  return { S, EL, el, UV, R, TAU, rgb, ease, N, init, resize, add, at, step, p, burst, spr, seg, ribbon, bolt, beam, hero, lerp3 };
+  return { S, EL, el, UV, R, TAU, rgb, ease, N, init, resize, add, at, step, p, burst, spr, seg, ribbon, bolt, beam, hero, lerp3, shake };
 })();
