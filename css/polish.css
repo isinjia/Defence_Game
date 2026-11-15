@@ -291,3 +291,11 @@ html body #tut-skip { display: none !important; }
 /* 전투 기술 목록: 접사 태그가 이름 옆 한 줄에 붙게(줄이 늘어 이름이 잘리지 않게) */
 html body .combat-box .cmd-list .skill-btn b { white-space: nowrap; }
 html body .combat-box .skill-btn b .tag.sk-affix.in { display: inline; padding: 0 4px; font-size: 10px; line-height: 1; border-width: 1px; vertical-align: 1px; }
+/* 접사 효과 창 (js/polish.js showAffixPop) */
+#affix-pop { position: fixed; inset: 0; z-index: 9600; display: grid; place-items: center; background: rgba(4,7,12,.45); }
+#affix-pop .ap-box { width: min(300px, calc(100vw - 40px)); background: #0f1520; border: 1px solid #ffcf7a88; border-radius: 12px; padding: 14px 16px; box-shadow: 0 10px 30px #000a; }
+#affix-pop .ap-head { font-weight: 800; margin-bottom: 8px; color: #ffcf7a; }
+#affix-pop .ap-row { padding: 6px 0; border-bottom: 1px dashed #2a3446; }
+#affix-pop .ap-sum { margin-top: 6px; }
+#affix-pop .ap-tip { text-align: center; margin-top: 8px; }
+.tag.sk-affix { cursor: pointer; }

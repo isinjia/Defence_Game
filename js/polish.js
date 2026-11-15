@@ -441,7 +441,7 @@ if (typeof UI !== 'undefined') {
       const lb = G.affixLabel(id); if (!lb) continue;
       const b = el.querySelector('b'); if (!b) continue;
       // 전투 기술 단추는 이름 줄 안에 붙여야 줄이 늘지 않는다
-      if (el.dataset.act === 'c-skill') b.insertAdjacentHTML('beforeend', ` <span class="tag sk-affix in">${lb}</span>`); else b.insertAdjacentHTML('afterend', `<span class="tag sk-affix">${lb}</span>`);
+      if (el.dataset.act === 'c-skill') b.insertAdjacentHTML('beforeend', ` <span class="tag sk-affix in" data-sk="${id}">${lb}</span>`); else b.insertAdjacentHTML('afterend', `<span class="tag sk-affix" data-sk="${id}">${lb}</span>`);
     }
   };
   const wrapR = (name) => { const base = UI[name]; if (!base) return; UI[name] = function (...a) { const r = base.apply(this, a); try { tagAffix(document.getElementById('modal-box')); tagAffix(document.getElementById('app')); } catch (e) { /* 무시 */ } return r; }; };
@@ -453,9 +453,34 @@ if (typeof UI !== 'undefined') {
       let h = baseHold2.call(this, sk, u, ...a);
       try {
         const lb = sk && (sk.affix || (u && u.isPlayer !== false && G.affixLabel && G.player && (G.player.skills || []).includes(sk.id) ? G.affixLabel(sk.id) : ''));
-        if (lb && !/sk-affix/.test(h)) h = h.replace(/(<div class="sh-head">[\s\S]*?<b>[^<]*<\/b>)/, `$1<span class="tag sk-affix">${lb}</span>`);
+        if (lb && !/sk-affix/.test(h)) h = h.replace(/(<div class="sh-head">[\s\S]*?<b>[^<]*<\/b>)/, `$1<span class="tag sk-affix" data-sk="${sk.id}">${lb}</span>`);
       } catch (e) { /* 무시 */ }
       return h;
     };
   }
+}
+
+// 접사 태그를 누르면 어디서든 그 접사의 효과를 작은 창으로 (사용자 요청)
+// 태그는 기술 단추 안에 있으므로 단추가 눌리거나(기술 고르기) 길게 누르기(기술 상세)가 시작되지 않게 가장 먼저 가로챈다.
+if (typeof UI !== 'undefined' && typeof affixById === 'function') {
+  const pct = (v) => { const d = Math.round((v - 1) * 100); return d ? `${d > 0 ? '+' : ''}${d}%` : '변화 없음'; };
+  UI.showAffixPop = function (id) {
+    const a = G.player && G.player.skillAffix && G.player.skillAffix[id]; const sk = skillById(id); if (!a || !sk) return;
+    const list = [a.h && affixById(a.h), affixById(a.a)].filter((x) => x && x.name);
+    const rows = list.map((x) => `<div class="ap-row"><b>${x.name}</b>${a.h && x.id === a.h ? ' <span class="small amber">숨은 접사</span>' : ''}<div class="small">위력 ${pct(x.power)} · 정신력 소모 ${pct(x.mp)}</div></div>`).join('');
+    const pw = list.reduce((m, x) => m * x.power, 1), mp = list.reduce((m, x) => m * x.mp, 1);
+    document.getElementById('affix-pop')?.remove();
+    document.body.insertAdjacentHTML('beforeend', `<div id="affix-pop" role="dialog" aria-label="접사 효과"><div class="ap-box"><div class="ap-head">${sk.name} · 접사</div>${rows}
+      ${list.length > 1 ? `<div class="small dim ap-sum">합쳐서 위력 ${pct(pw)} · 소모 ${pct(mp)}</div>` : ''}
+      <p class="small dim">접사는 기술을 익힐 때 무작위로 붙는다. 재능이 높거나 기술이 각성(Lv5)하면 숨은 접사가 열린다.</p><div class="small dim ap-tip">아무 곳이나 누르면 닫힙니다.</div></div></div>`);
+  };
+  const close = () => { const e = document.getElementById('affix-pop'); if (e) { e.remove(); return true; } return false; };
+  const grab = (e) => {
+    const pop = document.getElementById('affix-pop');
+    if (pop) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); if (e.type === 'click') close(); return; }
+    const t = e.target && e.target.closest && e.target.closest('.sk-affix[data-sk]'); if (!t) return;
+    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+    if (e.type === 'click') UI.showAffixPop(t.dataset.sk);
+  };
+  for (const ev of ['pointerdown', 'pointerup', 'touchstart', 'mousedown', 'click']) window.addEventListener(ev, grab, { capture: true, passive: false });
 }
