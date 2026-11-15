@@ -80,3 +80,69 @@
     return r;
   };
 }
+
+// ---------- 큐(밀린 사건·알림) 저장 ----------
+// G.queue 는 저장되지 않아(load 때 비움) 사건·부탁·깨달음·신의 선택·대회 초대 같은 것이 처리 전에 껐다 켜면 사라졌다.
+// 저장할 수 있는 항목만 따로 남긴다. 빼는 것: 토스트·게임오버(일시적), 함수가 든 항목(이야기 전투 후처리 등 · 직렬화 불가),
+// 이미 다른 복구 장치가 있는 것(인연 bond_*, 데뷔 debut_*, 첫 파티·소속 흐름).
+{
+  const QKEY = typeof SAVE_KEY !== 'undefined' ? SAVE_KEY + '_queue' : 'gate_chronicle_queue';
+  const hasFn = (o, d = 0) => { if (typeof o === 'function') return true; if (!o || typeof o !== 'object' || d > 6) return false; for (const k in o) if (hasFn(o[k], d + 1)) return true; return false; };
+  const keep = (q) => q && q.type && !['toast', 'gameover', 'firstParty', 'affStep'].includes(q.type)
+    && !(q.type === 'story' && /^(bond_|debut_)/.test(q.id || '')) && !hasFn(q);
+  const baseSave = Game.prototype.save;
+  Game.prototype.save = function (...a) {
+    const r = baseSave.apply(this, a);
+    try {
+      if (this.over) localStorage.removeItem(QKEY);
+      else {
+        const q = (this.queue || []).filter(keep);
+        // 화면에 띄운 채 아직 고르지 않은 항목(큐에서는 이미 빠졌다)도 맨 앞에 남긴다
+        const cur = typeof UI !== 'undefined' && UI._curQ; if (cur && keep(cur) && !q.includes(cur)) q.unshift(cur);
+        localStorage.setItem(QKEY, JSON.stringify({ mk: this.monthKey(), day: this.day, q }));
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+  const baseLoad = Game.prototype.load;
+  Game.prototype.load = function (...a) {
+    const ok = baseLoad.apply(this, a);
+    if (!ok) return ok;
+    try {
+      const d = JSON.parse(localStorage.getItem(QKEY) || 'null');
+      // 같은 날짜에 저장된 큐일 때만 되살린다(다른 판·옛 저장의 큐가 섞이지 않게)
+      if (d && d.mk === this.monthKey() && d.day === this.day && Array.isArray(d.q) && d.q.length) {
+        const sig = (q) => q.type + ':' + (q.id || '') + ':' + (q.npc ?? q.npcId ?? '');
+        const have = new Set((this.queue || []).map(sig));
+        for (const q of d.q) if (!have.has(sig(q))) this.queue.push(q);
+      }
+    } catch (e) { /* 무시 */ }
+    return ok;
+  };
+  // 띄운 항목 기억: processQueue 가 꺼낸 항목이 창으로 떠 있는 동안. 무엇이든 누르면(고르면) 잊는다(중복 보상 방지)
+  const baseQ = UI.processQueue;
+  UI.processQueue = function (...a) {
+    const q = G.queue && G.queue[0];
+    if (!this.modalOpen() && !this.dlg) this._curQ = null; // 창이 떠 있으면 base 가 아무것도 안 꺼낸다: 기억 유지
+    const r = baseQ.apply(this, a);
+    try { if (q && G.queue[0] !== q && (this.modalOpen() || this.dlg)) this._curQ = q; } catch (e) { /* 무시 */ }
+    return r;
+  };
+  // 되살린 큐는 이어하기 직후 처리한다
+  const baseHandle = UI.handle;
+  UI.handle = function (act, v) {
+    if (act !== 'continue') this._curQ = null;
+    const r = baseHandle.call(this, act, v);
+    if (act === 'continue' && this.screen === 'game' && G.queue && G.queue.length) setTimeout(() => { try { if (!this.modalOpen() && !this.dlg && !this.ctx) this.processQueue(); } catch (e) { /* 무시 */ } }, 600);
+    return r;
+  };
+}
+
+// ---------- 위기 뒤 깨달음 보너스 표시(G._afterCrisis)도 저장 ----------
+{
+  Object.defineProperty(Game.prototype, '_afterCrisis', {
+    configurable: true,
+    get() { return !!(this.flags && this.flags.afterCrisis); },
+    set(v) { if (this.flags) this.flags.afterCrisis = !!v; },
+  });
+}
