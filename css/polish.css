@@ -254,3 +254,7 @@ html body #coach-pop .coach-arrow { display: none !important; }
 .crew-jobs .crew-job.rec { border-color: #ffb547; box-shadow: 0 0 0 1px #ffb54755 inset; }
 .crew-jobs .crew-job.rec .row b::after { content: " · 리더 추천"; color: #ffb547; font-size: 12px; }
 .crew-jobs .crew-job .choice-btn { margin-top: 4px; }
+.crew-split { display: flex; flex-direction: column; gap: 6px; }
+.crew-split .row.dim span, .crew-split .row.dim b { color: var(--dim, #8a94a6); }
+.crew-split hr { border: 0; border-top: 1px dashed #3a4658; margin: 4px 0; }
+.crew-split .row.good b { color: #6bdc8b; font-size: 1.05em; }

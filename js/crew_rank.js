@@ -70,3 +70,37 @@ const CREW_RANKS = [
     };
   }
 }
+
+// 일이 끝난 뒤 분배 내역 (사용자 요청 2-③): 게이트 전리품을 어떻게 나눴는지 한 화면에.
+// 총수입 → 리더 몫(LEADER_CUT) → 팀원 몫·공용 경비 → 내 몫(단계 보너스 포함). 숫자는 실제로 나눈 값 그대로다.
+if (typeof UI !== 'undefined' && UI.finishGate) {
+  const baseFG = UI.finishGate;
+  UI.finishGate = function (result, ...a) {
+    const c = this.ctx; const crew = G.crew && G.crew();
+    const raid = !!(c && c.crewRaid && crew && result !== 'lose' && c.loot);
+    const total = raid ? c.loot.money || 0 : 0; const rate = raid && G.crewShareRate ? G.crewShareRate() : 0;
+    const L = raid && G.crewLeader ? G.crewLeader() : null; const rank = raid && G.crewRankOf ? G.crewRankOf() : null;
+    const r = baseFG.call(this, result, ...a);
+    try {
+      if (raid && total > 0) {
+        const mine = Math.round(total * rate); const lead = Math.round(total * (typeof LEADER_CUT !== 'undefined' ? LEADER_CUT : 0.1)); const rest = Math.max(0, total - mine - lead);
+        G.queue.push({ type: 'crewSplit', total, mine, lead, rest, rate, leader: L ? L.name : '리더', rank: rank ? rank.name : '', bonus: rank ? rank.share : 0, crew: crew.name, result });
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+  const baseQ = UI.processQueue;
+  UI.processQueue = function (...a) {
+    if (this.modalOpen && this.modalOpen()) return;
+    const q = G.queue && G.queue[0];
+    if (q && q.type === 'crewSplit' && !this.ctx && !this.dlg) {
+      G.queue.shift();
+      const row = (k, v, cls = '') => `<div class="row between ${cls}"><span>${k}</span><b class="num">${fmt(v)} 크레딧</b></div>`;
+      return this.modal(`<div class="eyebrow">${q.crew} · 분배 내역</div><h3>${q.result === 'clear' ? '게이트 공략 완료' : '철수'}</h3>
+        <div class="panel crew-split">${row('총수입 (전리품 크레딧)', q.total)}${row(`리더 몫 (${q.leader} · ${Math.round((typeof LEADER_CUT !== 'undefined' ? LEADER_CUT : 0.1) * 100)}%)`, q.lead, 'dim')}${row('팀원 몫·공용 경비', q.rest, 'dim')}
+        <hr>${row(`내 몫 ${Math.round(q.rate * 100)}%${q.bonus ? ` (${q.rank} 보너스 +${Math.round(q.bonus * 100)}%p 포함)` : ''}`, q.mine, 'good')}</div>
+        <div class="row end"><button class="primary" data-act="modal-close">확인</button></div>`, 'event-box fit-box');
+    }
+    return baseQ.apply(this, a);
+  };
+}
