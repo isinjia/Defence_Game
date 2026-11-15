@@ -318,6 +318,8 @@ function tutAddSys(h, text) {
   Combat.prototype.down = function (u, ...a) {
     try {
       const c = exam0(); const t = c && c.combat === this && c.tutorial;
+      // 자동 전투를 켜면 직접 조작 연습(acted)이 오르지 않아 마지막 적이 체력 1로 끝없이 버텼다(전투가 끝나지 않음). 자동이면 연습을 건너뛴 것으로 본다.
+      if (t && !t.leadDone && this.auto) { t.leadDone = true; t.acted = Math.max(t.acted || 0, 3); }
       if (t && !t.leadDone && u && u.side === 'enemy' && !u.summon && this.units.filter((x) => x.side === 'enemy' && x.alive && !x.summon).length <= 1) { u.hp = Math.max(1, u.hp); u.alive = true; return; }
     } catch (e) { /* 무시 */ }
     return baseDown.call(this, u, ...a);

@@ -253,7 +253,7 @@ if (typeof UI !== 'undefined') {
             M.pending = next === 'end' ? '__end' : next; G.save();
             const spec = typeof c.fight === 'function' ? c.fight(G, M) : c.fight;
             const done = (ok) => { M.flags[`fight_${sc.id}`] = ok ? 'win' : 'lose'; };
-            G.storyFight({ ...spec, win: { ...(spec.win || {}), after: (g2) => { done(true); if (spec.win && spec.win.after) spec.win.after(g2); } }, lose: { ...(spec.lose || {}), after: (g2) => { done(false); if (spec.lose && spec.lose.after) spec.lose.after(g2); } } });
+            G.storyFight({ ...spec, resume: spec.win && spec.win.after || spec.lose && spec.lose.after ? null : ['main', sc.id], win: { ...(spec.win || {}), after: (g2) => { done(true); if (spec.win && spec.win.after) spec.win.after(g2); } }, lose: { ...(spec.lose || {}), after: (g2) => { done(false); if (spec.lose && spec.lose.after) spec.lose.after(g2); } } });
             if (after.length) return this.talk(after, () => this.processQueue());
             return this.processQueue();
           }

@@ -209,7 +209,7 @@ Object.assign(Game.prototype, {
     const p = G.player; p.hp = p.maxHp; p.mp = p.maxMp;
     this.trialSel = this.btSel || [];
     this.closeModal();
-    G.storyFight({ title: '에테르 역류 시련', mirror: true, solo: true, trial: true, fear: f.id,
+    G.storyFight({ resume: ['trial'], title: '에테르 역류 시련', mirror: true, solo: true, trial: true, fear: f.id,
       win: { text: "그림자가 산산이 흩어졌다. 두려움이 길이 되었다.", after: (g) => { g.trialWin(); g.queue.unshift({ type: 'bt-resume' }); } },
       lose: { text: '', gain: {}, after: (g) => { UI.trialLoseMsg = g.trialLose(UI.trialFled); } } });
     this.toast(f.shadow);

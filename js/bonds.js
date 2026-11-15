@@ -150,7 +150,7 @@ Object.assign(Game.prototype, {
         const n = G.npcById(q.npc); if (!n || !n.alive) return this.processQueue();
         if (v !== '1') { G.changeRel(n, -20); if (n.relation < 70) { G.player.sworn = G.player.sworn.filter((x) => x !== n.id); n.sworn = false; G.lifeEvent(`${n.name}의 부름을 외면했다. 결의는 깨졌다.`); return this.after(`${n.name}과(와)의 결의가 깨졌다.`); } return this.after(`${n.name}이(가) 실망한 목소리로 전화를 끊었다.`); }
         G.advanceDays(5, { eventChance: 0 });
-        G.storyFight({ title: `${n.name} 구출`, mobs: { tier: Math.min(7, Math.max(n.rankIdx, G.player.rankIdx)), n: 3 }, ally: { name: n.name, rank: n.rankIdx, elem: n.element },
+        G.storyFight({ resume: ['sworn', n.id], title: `${n.name} 구출`, mobs: { tier: Math.min(7, Math.max(n.rankIdx, G.player.rankIdx)), n: 3 }, ally: { name: n.name, rank: n.rankIdx, elem: n.element },
           win: { text: `${n.name}을(를) 구해 냈다. "역시 너밖에 없다."`, gain: { fame: 5 }, after: (g) => { g.changeRel(n, 10); } },
           lose: { text: `둘 다 간신히 빠져나왔다. ${n.name}은(는) 그래도 와 준 것을 고마워한다.`, gain: { injure: 2 }, after: (g) => g.changeRel(n, 5) } });
         return this.processQueue();

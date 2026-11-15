@@ -154,7 +154,7 @@ Object.assign(Game.prototype, {
     this.closeModal();
     if (!t.guard) { const msg = G.hiddenGrant(h); G.advanceDays(7, { eventChance: 0 }); G.save(); this.renderGame(); return this.modal(`<div class="eyebrow">히든 피스</div><h3>${t.name}</h3><p class="event-text">${msg}</p><div class="row end"><button class="primary" data-act="modal-close">확인</button></div>`, 'event-box'); }
     const tier = Math.min(7, Math.max(t.minRank, p.rankIdx) + (h.clues >= 3 ? 0 : 1));
-    G.storyFight({ title: `${t.name}의 수호자`, mobs: { tier, n: 1, boss: true, name: `[수호자] ${t.name}` },
+    G.storyFight({ resume: ['hidden', h.id], title: `${t.name}의 수호자`, mobs: { tier, n: 1, boss: true, name: `[수호자] ${t.name}` },
       win: { text: '수호자가 무너지고 길이 열렸다.', after: (g) => { UI.hiddenMsg = g.hiddenGrant(h); g.queue.push({ type: 'hidden-done', name: t.name }); } },
       lose: { text: '수호자에게 밀려났다. 다시 올 수 있다. 다른 누군가가 먼저 오지 않는다면.', gain: { injure: 1 } } });
     this.processQueue();

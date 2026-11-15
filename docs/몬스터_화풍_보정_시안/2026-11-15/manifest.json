@@ -1,0 +1,779 @@
+[
+  {
+    "name": "지하주차장 하이에나",
+    "path": "candidates/지하주차장 하이에나.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      5.7,
+      8.6,
+      3.7,
+      6.1
+    ],
+    "margin_review": "재보정 필요",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "천둥 기수",
+    "path": "candidates/천둥 기수.png",
+    "size": [
+      1312,
+      1199
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      10.7,
+      15.1,
+      11.1,
+      12.1
+    ],
+    "margin_review": "재보정 필요",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "철근 골렘",
+    "path": "candidates/철근 골렘.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      16.4,
+      9.1,
+      16.3,
+      8.6
+    ],
+    "margin_review": "재보정 필요",
+    "note": "원본 대비 체구와 팔다리 비율 추가 검토",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "출구없는 미믹",
+    "path": "candidates/출구없는 미믹.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      18.9,
+      13.4,
+      19.2,
+      11.4
+    ],
+    "margin_review": "재보정 필요",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "침몰선 선원령",
+    "path": "candidates/침몰선 선원령.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "alpha": [
+      0,
+      254
+    ],
+    "margins_percent": [
+      22.5,
+      16.8,
+      25.5,
+      16.8
+    ],
+    "margin_review": "12% 이상",
+    "note": "원본 쇠사슬·닻 소품의 보존 여부 확대 검토",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "침수 해파리",
+    "path": "candidates/침수 해파리.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      21.5,
+      19.3,
+      21.5,
+      15.2
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "컨베이어 톱니벌레",
+    "path": "candidates/컨베이어 톱니벌레.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      13.7,
+      13.5,
+      14.1,
+      13.1
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "키메라",
+    "path": "candidates/키메라.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "alpha": [
+      0,
+      254
+    ],
+    "margins_percent": [
+      19.4,
+      16.5,
+      19.6,
+      12.8
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "타락 성배",
+    "path": "candidates/타락 성배.png",
+    "size": [
+      1199,
+      1312
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      22.3,
+      9.2,
+      22.2,
+      10.6
+    ],
+    "margin_review": "재보정 필요",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "타락 세계수",
+    "path": "candidates/타락 세계수.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      13.0,
+      33.4,
+      13.0,
+      22.5
+    ],
+    "margin_review": "12% 이상",
+    "note": "v1의 새 수관 제거. v2 낮은 몸통과 갈고리 가지로 재생성; 원본 대비 형태 추가 검토",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "타락 천사",
+    "path": "candidates/타락 천사.png",
+    "size": [
+      1230,
+      1278
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      12.4,
+      11.5,
+      12.7,
+      8.8
+    ],
+    "margin_review": "재보정 필요",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "타락한 성가대",
+    "path": "candidates/타락한 성가대.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      19.5,
+      8.9,
+      19.5,
+      8.1
+    ],
+    "margin_review": "재보정 필요",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "타락한 성기사",
+    "path": "candidates/타락한 성기사.png",
+    "size": [
+      1219,
+      1290
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      12.8,
+      12.6,
+      13.8,
+      12.1
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "태고 수호룡",
+    "path": "candidates/태고 수호룡.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      14.8,
+      10.4,
+      15.7,
+      7.6
+    ],
+    "margin_review": "재보정 필요",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "태백 설녀",
+    "path": "candidates/태백 설녀.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "alpha": [
+      0,
+      254
+    ],
+    "margins_percent": [
+      21.1,
+      16.5,
+      16.8,
+      15.5
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "태양로 잔해",
+    "path": "candidates/태양로 잔해.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      20.1,
+      12.5,
+      22.0,
+      11.2
+    ],
+    "margin_review": "재보정 필요",
+    "note": "원본 큰 가슴 핵이 작아져 보임; 핵 비율 추가 검토",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "태양의 잔해",
+    "path": "candidates/태양의 잔해.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      14.6,
+      16.2,
+      13.1,
+      15.7
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "파도 기수",
+    "path": "candidates/파도 기수.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      16.1,
+      14.7,
+      20.7,
+      12.5
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "평양 지하 미믹",
+    "path": "candidates/평양 지하 미믹.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      20.8,
+      15.9,
+      20.7,
+      17.0
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "폐교 운동장 개",
+    "path": "candidates/폐교 운동장 개.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      16.5,
+      17.5,
+      15.6,
+      14.0
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "폐허초소 유령",
+    "path": "candidates/폐허초소 유령.png",
+    "size": [
+      1247,
+      1261
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      28.4,
+      8.5,
+      29.8,
+      9.2
+    ],
+    "margin_review": "재보정 필요",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "포자 다람쥐",
+    "path": "candidates/포자 다람쥐.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      17.6,
+      17.5,
+      17.9,
+      20.1
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "폭풍 와이번",
+    "path": "candidates/폭풍 와이번.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "alpha": [
+      0,
+      254
+    ],
+    "margins_percent": [
+      15.3,
+      14.7,
+      15.5,
+      14.1
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "하수구 고블린",
+    "path": "candidates/하수구 고블린.png",
+    "size": [
+      1230,
+      1278
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      13.0,
+      11.6,
+      13.2,
+      11.1
+    ],
+    "margin_review": "재보정 필요",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "하피",
+    "path": "candidates/하피.png",
+    "size": [
+      1217,
+      1293
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      11.3,
+      13.0,
+      11.3,
+      10.0
+    ],
+    "margin_review": "재보정 필요",
+    "note": "날개 깃털 층과 조류 발톱 보존 확대 검토",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "한라 용암도롱뇽",
+    "path": "candidates/한라 용암도롱뇽.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "alpha": [
+      0,
+      254
+    ],
+    "margins_percent": [
+      17.9,
+      27.0,
+      17.3,
+      24.0
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "해무 세이렌",
+    "path": "candidates/해무 세이렌.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "alpha": [
+      0,
+      254
+    ],
+    "margins_percent": [
+      18.6,
+      11.0,
+      18.2,
+      9.0
+    ],
+    "margin_review": "재보정 필요",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "해상도시 부유괴",
+    "path": "candidates/해상도시 부유괴.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      20.0,
+      11.3,
+      20.4,
+      10.0
+    ],
+    "margin_review": "재보정 필요",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "해안 가시불가사리",
+    "path": "candidates/해안 가시불가사리.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      13.4,
+      16.7,
+      13.7,
+      13.6
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "해협 뇌룡",
+    "path": "candidates/해협 뇌룡.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      16.5,
+      16.3,
+      13.9,
+      14.5
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "해협 번개장어",
+    "path": "candidates/해협 번개장어.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      16.5,
+      20.6,
+      16.9,
+      19.9
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "향로 연기령",
+    "path": "candidates/향로 연기령.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      29.3,
+      9.6,
+      29.9,
+      8.6
+    ],
+    "margin_review": "재보정 필요",
+    "note": "v1 웃는 얼굴 같은 향로 문양 제거; v2 추상 식물 문양으로 재생성",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "협곡 메아리령",
+    "path": "candidates/협곡 메아리령.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      20.3,
+      10.0,
+      21.2,
+      10.9
+    ],
+    "margin_review": "재보정 필요",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "화산 군주",
+    "path": "candidates/화산 군주.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "alpha": [
+      0,
+      254
+    ],
+    "margins_percent": [
+      14.3,
+      14.2,
+      13.9,
+      10.4
+    ],
+    "margin_review": "재보정 필요",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "황금 코어 도마뱀",
+    "path": "candidates/황금 코어 도마뱀.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "alpha": [
+      0,
+      254
+    ],
+    "margins_percent": [
+      17.0,
+      17.3,
+      16.9,
+      19.5
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "회로기판 미믹",
+    "path": "candidates/회로기판 미믹.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      22.9,
+      17.0,
+      27.0,
+      12.3
+    ],
+    "margin_review": "12% 이상",
+    "note": "",
+    "status": "미승인·미적용"
+  },
+  {
+    "name": "흑사 대주교",
+    "path": "candidates/흑사 대주교.png",
+    "size": [
+      1199,
+      1312
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "margins_percent": [
+      25.4,
+      8.7,
+      25.7,
+      9.5
+    ],
+    "margin_review": "재보정 필요",
+    "note": "",
+    "status": "미승인·미적용"
+  }
+]

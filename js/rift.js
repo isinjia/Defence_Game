@@ -110,7 +110,7 @@ Object.assign(Game.prototype, {
     const p = G.player; const ev = this.riftEv; const r = G.riftActive(); if (!ev || !r || !p.riftRun) return;
     const tier = Math.min(7, Math.max(r.tier, p.rankIdx));
     this.closeModal();
-    const fightOn = (spec) => { G.storyFight({ ...spec, lose: { text: '균열 밖으로 튕겨 나왔다. 몸이 성치 않다.', gain: { injure: 2 }, after: (g) => { UI.riftLostMsg = g.riftLeave('부상'); } } }); return this.processQueue(); };
+    const fightOn = (spec) => { G.storyFight({ resume: ['rift', ev.kind, ev.npc ?? null], ...spec, lose: { text: '균열 밖으로 튕겨 나왔다. 몸이 성치 않다.', gain: { injure: 2 }, after: (g) => { UI.riftLostMsg = g.riftLeave('부상'); } } }); return this.processQueue(); };
     if (ev.kind === 'core') {
       return fightOn({ title: '균열핵의 수호자', mobs: { tier: Math.min(7, tier + 1), n: 1, boss: true, shape: 'eye', elem: 'dark', name: '[균열핵] 수호자' },
         win: { text: '균열핵이 깨지며 응축된 에테르가 쏟아졌다.', gain: { ether: 200, relic: 2, catalyst: 1, fame: 20 }, after: (g) => { g.lifeEvent('대균열의 핵을 깨뜨렸다.'); g.rumor(`${g.player.name}이(가) 대균열의 핵을 깨뜨렸다!`); g.player.riftRun.step++; g.queue.unshift({ type: 'riftEnd' }); } } });
