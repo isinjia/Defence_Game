@@ -642,9 +642,9 @@
         250
       ],
       "skinRgb": [
-        222.0,
-        187.0,
-        169.0
+        226.0,
+        194.0,
+        179.0
       ],
       "chinY": 251,
       "eyeCenters": [
@@ -655,10 +655,7 @@
       "mouthY": 161,
       "skinMask": "face-m-33-skin.webp",
       "registrationVersion": 3,
-      "appearanceAge": [
-        33,
-        36
-      ]
+      "rev": "74b3bc5c36"
     },
     {
       "file": "face-m-34.webp",
@@ -669,9 +666,9 @@
         250
       ],
       "skinRgb": [
-        223.0,
-        188.0,
-        171.0
+        226.0,
+        194.0,
+        180.0
       ],
       "chinY": 251,
       "eyeCenters": [
@@ -682,10 +679,7 @@
       "mouthY": 161,
       "skinMask": "face-m-34-skin.webp",
       "registrationVersion": 3,
-      "appearanceAge": [
-        33,
-        36
-      ]
+      "rev": "f8723a67d3"
     },
     {
       "file": "face-m-35.webp",
@@ -696,9 +690,9 @@
         250
       ],
       "skinRgb": [
-        222.0,
-        186.0,
-        168.0
+        226.0,
+        193.0,
+        179.0
       ],
       "chinY": 251,
       "eyeCenters": [
@@ -709,10 +703,7 @@
       "mouthY": 161,
       "skinMask": "face-m-35-skin.webp",
       "registrationVersion": 3,
-      "appearanceAge": [
-        33,
-        36
-      ]
+      "rev": "0310fbca72"
     },
     {
       "file": "face-m-36.webp",
@@ -723,9 +714,9 @@
         250
       ],
       "skinRgb": [
-        219.0,
-        182.0,
-        164.0
+        223.0,
+        190.0,
+        175.0
       ],
       "chinY": 251,
       "eyeCenters": [
@@ -736,10 +727,7 @@
       "mouthY": 161,
       "skinMask": "face-m-36-skin.webp",
       "registrationVersion": 3,
-      "appearanceAge": [
-        33,
-        36
-      ]
+      "rev": "4561a16dc0"
     },
     {
       "file": "face-m-37.webp",
@@ -750,9 +738,9 @@
         250
       ],
       "skinRgb": [
-        222.0,
-        187.0,
-        170.0
+        226.0,
+        194.0,
+        180.0
       ],
       "chinY": 251,
       "eyeCenters": [
@@ -763,10 +751,7 @@
       "mouthY": 161,
       "skinMask": "face-m-37-skin.webp",
       "registrationVersion": 3,
-      "appearanceAge": [
-        33,
-        36
-      ]
+      "rev": "3d214a0c55"
     }
   ],
   "face-f": [
@@ -1412,9 +1397,9 @@
         250
       ],
       "skinRgb": [
-        217.0,
-        184.0,
-        171.0
+        221.0,
+        191.0,
+        181.0
       ],
       "chinY": 261,
       "eyeCenters": [
@@ -1425,10 +1410,7 @@
       "mouthY": 171,
       "skinMask": "face-f-33-skin.webp",
       "registrationVersion": 3,
-      "appearanceAge": [
-        33,
-        36
-      ]
+      "rev": "e0a4cff447"
     },
     {
       "file": "face-f-34.webp",
@@ -1439,9 +1421,9 @@
         250
       ],
       "skinRgb": [
-        214.0,
-        181.0,
-        166.0
+        219.0,
+        186.0,
+        174.0
       ],
       "chinY": 261,
       "eyeCenters": [
@@ -1452,10 +1434,7 @@
       "mouthY": 171,
       "skinMask": "face-f-34-skin.webp",
       "registrationVersion": 3,
-      "appearanceAge": [
-        33,
-        36
-      ]
+      "rev": "e11fe48d74"
     },
     {
       "file": "face-f-35.webp",
@@ -1466,9 +1445,9 @@
         250
       ],
       "skinRgb": [
-        216.0,
-        183.0,
-        169.0
+        219.0,
+        188.0,
+        177.0
       ],
       "chinY": 261,
       "eyeCenters": [
@@ -1479,10 +1458,7 @@
       "mouthY": 171,
       "skinMask": "face-f-35-skin.webp",
       "registrationVersion": 3,
-      "appearanceAge": [
-        33,
-        36
-      ]
+      "rev": "d50d8e3d80"
     },
     {
       "file": "face-f-36.webp",
@@ -1493,9 +1469,9 @@
         250
       ],
       "skinRgb": [
-        213.0,
-        178.5,
-        164.0
+        218.0,
+        186.0,
+        173.0
       ],
       "chinY": 261,
       "eyeCenters": [
@@ -1506,10 +1482,7 @@
       "mouthY": 171,
       "skinMask": "face-f-36-skin.webp",
       "registrationVersion": 3,
-      "appearanceAge": [
-        33,
-        36
-      ]
+      "rev": "a6f98bbb6e"
     },
     {
       "file": "face-f-37.webp",
@@ -1520,9 +1493,9 @@
         250
       ],
       "skinRgb": [
-        215.0,
-        182.5,
-        168.0
+        218.0,
+        186.0,
+        174.0
       ],
       "chinY": 261,
       "eyeCenters": [
@@ -1533,10 +1506,7 @@
       "mouthY": 171,
       "skinMask": "face-f-37-skin.webp",
       "registrationVersion": 3,
-      "appearanceAge": [
-        33,
-        36
-      ]
+      "rev": "5ece0d2225"
     }
   ],
   "hair-m": [

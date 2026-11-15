@@ -1,6 +1,6 @@
 {
   "date": "2026-11-15",
-  "request": "30대 초중반 위주 얼굴 확장. 20대처럼 보인다는 지적 후 보정하고 남녀 모두 기존 외형에 추가·푸시.",
+  "request": "이전 시안과 보정본 모두 푸시. 보정본은 일단 사용하지 않고 에셋에만 보관.",
   "styleSkill": ".agents/skills/enforce-defence-visual-style/SKILL.md",
   "references": [
     "assets/portraits/main/seoyun-suit.png",
@@ -31,7 +31,9 @@
   },
   "registration": "144×250 투명 WebP·피부 마스크, 눈높이·입술 위치는 기존 얼굴 파츠와 맞춤. 기존 0~32번 보존.",
   "selection": "look6 새 성인 외형에서 기존 얼굴 풀+신규 5종씩 선택. look3/4/5 저장 선택 결과·제외 파츠 대체 보존. 아동·청소년은 신규 30대 인상 얼굴 제외.",
-  "review": "기존 헤어·보통 체형·전술복 합성으로 남녀 10종 직접 비교. 이전 시안보다 눈 밑·볼·입 주변의 성숙한 형태 보강. 체감 나이를 객관 점수로 보장하지 않음.",
+  "review": "현재 활성: 최초 생성 남녀 각 5종. 보정본: 별도 reserved 폴더. 각 버전 생성 시 실제 승인 원화·장면 참조, 미리보기 확인.",
   "verification": "기존 외형 8000개 조합 결과 일치, 남녀 신규 5종씩 선택 도달 및 아동·청소년 분리 확인, 새 파일·피부 마스크 규격 확인.",
-  "smokeTest": "사용자 지시 없음, 실행하지 않음"
+  "smokeTest": "사용자 지시 없음, 실행하지 않음",
+  "status": "이전 시안 10종 활성. 보정본 10종은 assets/portraits/reserved/faces-30s-revised/에만 보관하며 게임 미사용.",
+  "reservedPath": "assets/portraits/reserved/faces-30s-revised/"
 }
