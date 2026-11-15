@@ -236,3 +236,36 @@ body.reduced #modal-box .gnode.pf-reveal { animation: none; }`;
     return baseH.call(this, act, v);
   };
 }
+
+// 10. NPC 리더 팀으로 게이트를 클리어하면 정산 창 전에: 리더가 수고했다고 하고 → 팀원들이 차례로 한마디(튜토리얼 인사처럼) → 리더가 정산하자고 한 뒤 정산 창 (사용자 요청)
+{
+  const LEAD_THANKS = {
+    kind: ['다들 수고 많았어요. 다친 사람 없죠?', '오늘 정말 잘해 줬어요. 다들 고마워요.'],
+    just: ['수고했다. 다들 제 몫 이상 해 줬다.', '끝났다. 누구 하나 빠짐없이 잘 버텼다.'],
+    cold: ['끝. 수고했다.', '정리됐다. 다들 수고.'],
+    warlike: ['좋았어! 이게 우리 팀이지. 다들 수고했다!', '한 판 시원하게 했다. 수고했어!'],
+    greedy: ['수고들 했어. 오늘 건 수지가 맞겠는데?', '다들 수고. 전리품도 쏠쏠하다.'],
+  };
+  const LEAD_SETTLE = {
+    kind: '자, 그럼 얻은 거 나눠 볼까요? 정산해요.', just: '그럼 정산하자. 규칙대로 나눈다.', cold: '정산한다.',
+    warlike: '자, 이제 나눠 먹자! 정산 간다!', greedy: '자, 정산하자. 꼭 갖고 싶은 건 입찰로.',
+  };
+  const pers = (n) => (n && LEAD_THANKS[n.personality] ? n.personality : 'just');
+  const baseFinish = UI.finishGate;
+  if (baseFinish) UI.finishGate = function (result, ...a) {
+    const c = this.ctx;
+    const L = G.crewLeader && G.crewLeader();
+    if (result !== 'clear' || !c || c.kind !== 'gate' || !L || L === G.player || !this.talk || this._clearTalked === c) return baseFinish.call(this, result, ...a);
+    this._clearTalked = c;
+    const mates = (G.withCrew ? G.withCrew(() => G.party()) : G.party()).filter((n) => n && n.alive && n !== L);
+    const used = new Set();
+    const line = (n) => (G.personaLine && G.personaLine(n, 'win', {}, used)) || RNG.pick(['수고했어요.', '다들 무사해서 다행이다.', '오늘 호흡 좋았어.', '휴, 끝났다.']);
+    const p = pers(L);
+    this.talk([
+      { narr: '마지막 괴수가 쓰러지고, 게이트가 서서히 닫히기 시작한다.' },
+      { who: L, text: RNG.pick(LEAD_THANKS[p]) },
+      mates.length ? { narr: '팀원들이 차례로 한마디씩 건넨다.', group: mates.map((n) => ({ who: n, text: line(n) })) } : null,
+      { who: L, text: LEAD_SETTLE[p] },
+    ].filter(Boolean), () => { if (this.ctx === c) baseFinish.call(this, result, ...a); });
+  };
+}
