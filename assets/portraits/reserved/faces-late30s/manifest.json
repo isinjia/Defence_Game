@@ -1,0 +1,2094 @@
+{
+  "status": "asset-only-unused",
+  "appearanceAge": [
+    36,
+    39
+  ],
+  "counts": {
+    "maleTargets": 28,
+    "femaleTargets": 30,
+    "totalTargets": 58,
+    "uniqueArt": 44,
+    "skinVariants": 14
+  },
+  "faces": {
+    "m": [
+      {
+        "file": "face-m-0.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          221.0,
+          184.0,
+          167.5
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-0-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 0,
+        "originalFile": "face-m-0.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-m.png",
+        "rev": "57988e077e",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-1.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          220.0,
+          182.0,
+          165.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-1-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 1,
+        "originalFile": "face-m-1.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-m.png",
+        "rev": "f4b10c395d",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-2.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          220.0,
+          183.0,
+          166.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-2-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 2,
+        "originalFile": "face-m-2.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-m.png",
+        "rev": "b0c016c002",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-0.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          221.0,
+          184.0,
+          167.5
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-0-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 5,
+        "originalFile": "face-m-5.webp",
+        "kind": "skin-variant",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-m.png",
+        "variantOf": 0,
+        "displaySkinRgb": [
+          255.0,
+          201.0,
+          168.5
+        ],
+        "rev": "57988e077e",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-1.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          220.0,
+          182.0,
+          165.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-1-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 7,
+        "originalFile": "face-m-7.webp",
+        "kind": "skin-variant",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-m.png",
+        "variantOf": 1,
+        "displaySkinRgb": [
+          226.0,
+          197.5,
+          195.0
+        ],
+        "rev": "f4b10c395d",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-2.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          220.0,
+          183.0,
+          166.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-2-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 8,
+        "originalFile": "face-m-8.webp",
+        "kind": "skin-variant",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-m.png",
+        "variantOf": 2,
+        "displaySkinRgb": [
+          226.0,
+          195.5,
+          192.0
+        ],
+        "rev": "b0c016c002",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-1.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          220.0,
+          182.0,
+          165.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-1-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 10,
+        "originalFile": "face-m-10.webp",
+        "kind": "skin-variant",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-m.png",
+        "variantOf": 1,
+        "displaySkinRgb": [
+          200.0,
+          160.0,
+          139.5
+        ],
+        "rev": "f4b10c395d",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-2.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          220.0,
+          183.0,
+          166.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-2-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 11,
+        "originalFile": "face-m-11.webp",
+        "kind": "skin-variant",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-m.png",
+        "variantOf": 2,
+        "displaySkinRgb": [
+          199.0,
+          159.0,
+          137.0
+        ],
+        "rev": "b0c016c002",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-1.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          220.0,
+          182.0,
+          165.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-1-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 13,
+        "originalFile": "face-m-13.webp",
+        "kind": "skin-variant",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-m.png",
+        "variantOf": 1,
+        "displaySkinRgb": [
+          254.5,
+          222.0,
+          199.0
+        ],
+        "rev": "f4b10c395d",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-2.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          220.0,
+          183.0,
+          166.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-2-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 14,
+        "originalFile": "face-m-14.webp",
+        "kind": "skin-variant",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-m.png",
+        "variantOf": 2,
+        "displaySkinRgb": [
+          254.5,
+          221.0,
+          196.0
+        ],
+        "rev": "b0c016c002",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-18.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          220.0,
+          185.0,
+          171.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-18-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 18,
+        "originalFile": "face-m-18.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-1-m.png",
+        "sourceCell": 0,
+        "rev": "07930ca9ee",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-20.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          216.0,
+          180.0,
+          165.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-20-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 20,
+        "originalFile": "face-m-20.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-1-m.png",
+        "sourceCell": 1,
+        "rev": "f7b1883e40",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-21.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          221.0,
+          187.0,
+          173.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-21-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 21,
+        "originalFile": "face-m-21.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-1-m.png",
+        "sourceCell": 2,
+        "rev": "9077a51116",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-22.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          218.0,
+          182.0,
+          167.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-22-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 22,
+        "originalFile": "face-m-22.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-1-m.png",
+        "sourceCell": 3,
+        "rev": "ddff169a07",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-24.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          220.0,
+          185.0,
+          170.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-24-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 24,
+        "originalFile": "face-m-24.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-1-m.png",
+        "sourceCell": 4,
+        "rev": "a49291b513",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-25.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          222.0,
+          186.0,
+          169.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-25-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 25,
+        "originalFile": "face-m-25.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-2-m.png",
+        "sourceCell": 0,
+        "rev": "ceaa1eab8c",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-26.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          221.0,
+          185.0,
+          168.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-26-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 26,
+        "originalFile": "face-m-26.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-2-m.png",
+        "sourceCell": 1,
+        "rev": "50008cdf85",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-27.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          221.0,
+          186.0,
+          170.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-27-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 27,
+        "originalFile": "face-m-27.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-2-m.png",
+        "sourceCell": 2,
+        "rev": "1f31ffc596",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-28.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          223.0,
+          188.0,
+          172.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-28-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 28,
+        "originalFile": "face-m-28.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-2-m.png",
+        "sourceCell": 3,
+        "rev": "7959c890f3",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-29.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          224.0,
+          189.0,
+          173.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-29-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 29,
+        "originalFile": "face-m-29.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-2-m.png",
+        "sourceCell": 4,
+        "rev": "1787817144",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-30.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          224.0,
+          188.0,
+          173.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-30-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 30,
+        "originalFile": "face-m-30.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-3-m.png",
+        "sourceCell": 0,
+        "rev": "2781d54ee1",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-31.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          226.0,
+          192.0,
+          179.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-31-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 31,
+        "originalFile": "face-m-31.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-3-m.png",
+        "sourceCell": 1,
+        "rev": "bf14e401d0",
+        "reviewStatus": "추가 나이 보정 권장·생성 한도로 후속 보정 미실행"
+      },
+      {
+        "file": "face-m-32.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          226.0,
+          189.0,
+          174.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-32-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 32,
+        "originalFile": "face-m-32.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-3-m.png",
+        "sourceCell": 2,
+        "rev": "e7f70b1a66",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-33.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          224.0,
+          186.0,
+          170.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-33-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 33,
+        "originalFile": "face-m-33.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-3-m.png",
+        "sourceCell": 3,
+        "rev": "d411f2f833",
+        "reviewStatus": "추가 나이 보정 권장·생성 한도로 후속 보정 미실행"
+      },
+      {
+        "file": "face-m-34.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          226.0,
+          189.0,
+          174.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-34-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 34,
+        "originalFile": "face-m-34.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-3-m.png",
+        "sourceCell": 4,
+        "rev": "b015ab4654",
+        "reviewStatus": "추가 나이 보정 권장·생성 한도로 후속 보정 미실행"
+      },
+      {
+        "file": "face-m-35.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          222.0,
+          185.0,
+          169.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-35-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 35,
+        "originalFile": "face-m-35.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-4-m.png",
+        "sourceCell": 0,
+        "rev": "5014c61c61",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-36.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          221.0,
+          183.0,
+          167.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-36-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 36,
+        "originalFile": "face-m-36.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-4-m.png",
+        "sourceCell": 1,
+        "rev": "19589e6760",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-m-37.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          223.0,
+          186.0,
+          170.0
+        ],
+        "chinY": 251,
+        "eyeCenters": [
+          43,
+          101
+        ],
+        "eyeY": 104,
+        "mouthY": 161,
+        "skinMask": "face-m-37-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 37,
+        "originalFile": "face-m-37.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-4-m.png",
+        "sourceCell": 2,
+        "rev": "c8aeb3932f",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      }
+    ],
+    "f": [
+      {
+        "file": "face-f-0.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          220.0,
+          189.0,
+          178.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-0-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 0,
+        "originalFile": "face-f-0.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-f.png",
+        "rev": "ee96fbb0c8",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-1.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          218.5,
+          187.0,
+          177.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-1-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 1,
+        "originalFile": "face-f-1.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-f.png",
+        "rev": "d9ca55460f",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-2.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          219.0,
+          188.0,
+          178.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-2-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 2,
+        "originalFile": "face-f-2.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-f.png",
+        "rev": "c5c894dc03",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-0.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          220.0,
+          189.0,
+          178.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-0-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 5,
+        "originalFile": "face-f-5.webp",
+        "kind": "skin-variant",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-f.png",
+        "variantOf": 0,
+        "displaySkinRgb": [
+          251.0,
+          199.0,
+          176.0
+        ],
+        "rev": "ee96fbb0c8",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-1.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          218.5,
+          187.0,
+          177.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-1-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 7,
+        "originalFile": "face-f-7.webp",
+        "kind": "skin-variant",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-f.png",
+        "variantOf": 1,
+        "displaySkinRgb": [
+          219.0,
+          197.0,
+          207.0
+        ],
+        "rev": "d9ca55460f",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-2.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          219.0,
+          188.0,
+          178.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-2-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 8,
+        "originalFile": "face-f-8.webp",
+        "kind": "skin-variant",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-f.png",
+        "variantOf": 2,
+        "displaySkinRgb": [
+          219.0,
+          197.0,
+          207.0
+        ],
+        "rev": "c5c894dc03",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-1.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          218.5,
+          187.0,
+          177.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-1-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 10,
+        "originalFile": "face-f-10.webp",
+        "kind": "skin-variant",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-f.png",
+        "variantOf": 1,
+        "displaySkinRgb": [
+          196.0,
+          161.0,
+          148.0
+        ],
+        "rev": "d9ca55460f",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-2.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          219.0,
+          188.0,
+          178.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-2-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 11,
+        "originalFile": "face-f-11.webp",
+        "kind": "skin-variant",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-f.png",
+        "variantOf": 2,
+        "displaySkinRgb": [
+          195.0,
+          161.0,
+          148.0
+        ],
+        "rev": "c5c894dc03",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-1.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          218.5,
+          187.0,
+          177.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-1-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 13,
+        "originalFile": "face-f-13.webp",
+        "kind": "skin-variant",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-f.png",
+        "variantOf": 1,
+        "displaySkinRgb": [
+          254.0,
+          222.0,
+          210.0
+        ],
+        "rev": "d9ca55460f",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-2.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          219.0,
+          188.0,
+          178.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-2-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 14,
+        "originalFile": "face-f-14.webp",
+        "kind": "skin-variant",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/approved-f.png",
+        "variantOf": 2,
+        "displaySkinRgb": [
+          254.0,
+          221.5,
+          210.0
+        ],
+        "rev": "c5c894dc03",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-18.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          219.0,
+          187.0,
+          176.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-18-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 18,
+        "originalFile": "face-f-18.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-5-f.png",
+        "sourceCell": 0,
+        "rev": "e7eaedf80c",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-19.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          218.0,
+          187.0,
+          176.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-19-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 19,
+        "originalFile": "face-f-19.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-5-f.png",
+        "sourceCell": 1,
+        "rev": "d9450a3cc0",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-20.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          218.0,
+          187.0,
+          175.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-20-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 20,
+        "originalFile": "face-f-20.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-5-f.png",
+        "sourceCell": 2,
+        "rev": "20acb69adc",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-21.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          216.0,
+          184.0,
+          173.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-21-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 21,
+        "originalFile": "face-f-21.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-5-f.png",
+        "sourceCell": 3,
+        "rev": "71f5231aa6",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-22.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          217.0,
+          186.0,
+          175.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-22-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 22,
+        "originalFile": "face-f-22.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-5-f.png",
+        "sourceCell": 4,
+        "rev": "a65c132bf3",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-23.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          220.0,
+          188.0,
+          178.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-23-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 23,
+        "originalFile": "face-f-23.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-6-f.png",
+        "sourceCell": 0,
+        "rev": "f78837ec24",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-24.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          219.0,
+          185.0,
+          173.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-24-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 24,
+        "originalFile": "face-f-24.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-6-f.png",
+        "sourceCell": 1,
+        "rev": "b8153a3927",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-25.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          219.0,
+          186.0,
+          174.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-25-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 25,
+        "originalFile": "face-f-25.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-6-f.png",
+        "sourceCell": 2,
+        "rev": "2ffed1f8fa",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-26.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          221.0,
+          187.0,
+          176.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-26-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 26,
+        "originalFile": "face-f-26.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-6-f.png",
+        "sourceCell": 3,
+        "rev": "68f5ed0cd8",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-27.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          220.0,
+          186.5,
+          175.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-27-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 27,
+        "originalFile": "face-f-27.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-6-f.png",
+        "sourceCell": 4,
+        "rev": "2a18c0afac",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-28.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          219.0,
+          187.0,
+          176.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-28-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 28,
+        "originalFile": "face-f-28.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-7-f.png",
+        "sourceCell": 0,
+        "rev": "7249f9e2b5",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-29.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          218.0,
+          186.0,
+          175.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-29-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 29,
+        "originalFile": "face-f-29.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-7-f.png",
+        "sourceCell": 1,
+        "rev": "1e7b2bb201",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-30.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          217.0,
+          186.0,
+          175.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-30-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 30,
+        "originalFile": "face-f-30.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-7-f.png",
+        "sourceCell": 2,
+        "rev": "be31deebee",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-31.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          219.0,
+          187.0,
+          176.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-31-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 31,
+        "originalFile": "face-f-31.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-7-f.png",
+        "sourceCell": 3,
+        "rev": "f6cb77f269",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-32.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          217.0,
+          185.0,
+          174.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-32-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 32,
+        "originalFile": "face-f-32.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-7-f.png",
+        "sourceCell": 4,
+        "rev": "f61385e55d",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-33.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          219.0,
+          186.0,
+          172.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-33-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 33,
+        "originalFile": "face-f-33.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-8-f.png",
+        "sourceCell": 0,
+        "rev": "a3bb5af254",
+        "reviewStatus": "추가 나이 보정 권장·생성 한도로 후속 보정 미실행"
+      },
+      {
+        "file": "face-f-34.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          217.0,
+          183.0,
+          170.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-34-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 34,
+        "originalFile": "face-f-34.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-8-f.png",
+        "sourceCell": 1,
+        "rev": "cee4d471e8",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      },
+      {
+        "file": "face-f-35.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          219.0,
+          187.0,
+          173.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-35-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 35,
+        "originalFile": "face-f-35.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-8-f.png",
+        "sourceCell": 2,
+        "rev": "85ad6bb907",
+        "reviewStatus": "추가 나이 보정 권장·생성 한도로 후속 보정 미실행"
+      },
+      {
+        "file": "face-f-36.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          216.0,
+          182.0,
+          167.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-36-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 36,
+        "originalFile": "face-f-36.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-8-f.png",
+        "sourceCell": 3,
+        "rev": "481b7b7fdd",
+        "reviewStatus": "추가 나이 보정 권장·생성 한도로 후속 보정 미실행"
+      },
+      {
+        "file": "face-f-37.webp",
+        "rect": [
+          128,
+          55,
+          144,
+          250
+        ],
+        "skinRgb": [
+          218.0,
+          184.0,
+          170.0
+        ],
+        "chinY": 261,
+        "eyeCenters": [
+          42,
+          102
+        ],
+        "eyeY": 114,
+        "mouthY": 171,
+        "skinMask": "face-f-37-skin.webp",
+        "registrationVersion": 3,
+        "originalIndex": 37,
+        "originalFile": "face-f-37.webp",
+        "kind": "unique",
+        "appearanceAge": [
+          36,
+          39
+        ],
+        "sourceSheet": "sources/batch-8-f.png",
+        "sourceCell": 4,
+        "rev": "81415eb952",
+        "reviewStatus": "원본·승인 기준·동일 헤어 합성 비교 확인"
+      }
+    ]
+  },
+  "excluded": {
+    "m": [
+      3,
+      4,
+      6,
+      9,
+      12,
+      15,
+      16,
+      17,
+      19,
+      23
+    ],
+    "f": [
+      3,
+      4,
+      6,
+      9,
+      12,
+      15,
+      16,
+      17
+    ]
+  },
+  "note": "게임 미사용 보관. 피부색 변형 14종은 같은 원화와 피부 마스크를 참조하며 displaySkinRgb로 원본 고유색을 보존한다. 고유 원화 44종, 대상 등록 58종을 구분한다.",
+  "followUp": {
+    "m": [
+      31,
+      33,
+      34
+    ],
+    "f": [
+      33,
+      35,
+      36
+    ]
+  },
+  "generationLimit": "전체 생성·비교 후 약한 2개 묶음의 추가 보정 호출에서 usage_limit_reached. 재시도하지 않음."
+}
