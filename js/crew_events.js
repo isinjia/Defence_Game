@@ -129,3 +129,83 @@
     if (baseWork) UI.crewWork = function (...a) { const c = npcLed(G); const r = baseWork.apply(this, a); if (c && c.actingLead) { c.actingLead = false; G.crewTrust(5); const L = G.crewLeader(); if (L) L.injured = 0; } return r; };
   }
 }
+
+// 리더 교대 장면·독립 (사용자 요청 2-⑤)
+// - 리더보다 두 등급 강해지면 오던 "리더 교대" 제안 창 앞에 장면(리더의 고백, 팀원 반응)을 넣는다.
+// - 받아들이면 축하 장면 뒤 내가 리더인 파티가 된다(팀원 그대로, 팀과 함께 움직이는 상태로 시작).
+// - 교대 제안에 "독립한다"를 더한다. 파티 화면에서도 고참 이상이면 언제든 [독립해서 내 파티 만들기].
+//   독립하면 불이익 없이 나오고, 나와 사이가 좋은 팀원(관계 50 이상)은 확률로 따라 나온다.
+{
+  const npcLed = (g) => { const c = g.player && g.player.crew; if (!c) return null; const L = g.npcById(c.leader); return L && L.alive ? c : null; };
+  const col = (L) => { try { return typeof voiceCol === 'function' ? voiceCol(L) : 'just'; } catch (e) { return 'just'; } };
+  GP_indep: {
+    if (typeof UI === 'undefined') break GP_indep;
+    // 독립
+    UI.crewIndependent = function () {
+      const c = npcLed(G); const L = G.crewLeader(); if (!c) return;
+      const ms = G.withCrew(() => G.party()).filter((n) => n && n.alive && n !== L && n.crewOf === c.id);
+      const follow = ms.filter((n) => (n.relation || 0) >= 50 && Math.random() < 0.35 + ((n.relation || 0) - 50) / 100);
+      const name = c.name;
+      for (const n of G.npcs) if (n.crewOf === c.id) { n.crewOf = null; n.isCompanion = false; }
+      G.player.crew = null; G.player.party = [];
+      for (const n of follow) { n.isCompanion = true; n.region = G.player.region; G.player.party.push(n.id); }
+      G.player.lead = follow.length ? { state: 'on', base: G.player.region } : null;
+      if (L) G.changeRel(L, 2, '좋게 독립해 나갔다');
+      G.lifeEvent(`${name}에서 독립했다.${follow.length ? ` ${follow.map((n) => n.name).join(', ')}이(가) 따라왔다.` : ''}`);
+      const k = col(L);
+      const T = { just: '언젠가 그럴 줄 알았다. 잘 해라. 막히면 연락하고.', kind: '아쉽지만… 응원할게요! 가끔 같이 일해요.', cold: '…가라. 잘 해.' };
+      this.closeModal();
+      this.talk([L ? { who: L, text: T[k] || T.just } : null, ...follow.map((n) => ({ who: n, text: '나도 같이 갈게. 너랑 하는 게 더 재밌을 것 같아.' })),
+        { sys: `${name}에서 독립했다 · ${follow.length ? `따라온 팀원 ${follow.length}명 · 이제 내가 리더다(도시에서 [팀 호출])` : '혼자 시작한다 · 관계 50 이상인 인물에게 합류를 청할 수 있다'}` }].filter(Boolean),
+        () => { this.renderGame(); this.processQueue(); });
+    };
+    // 교대 제안 장면
+    const baseShow = UI.showCrewPlan;
+    UI.showCrewPlan = function (...a) {
+      const c = G.crew(); const L = G.crewLeader();
+      if (c && L && c.plan && c.plan.kind === 'handover' && !c._hoScene) {
+        c._hoScene = true;
+        const ms = G.withCrew(() => G.party()).filter((n) => n && n !== L && n.crewOf === c.id);
+        const k = col(L);
+        const T = { just: '요즘 게이트에서 앞에 서는 건 네가 됐다. 다들 네 판단을 기다리더군.', kind: '요즘 다들 저보다 당신을 먼저 봐요. 눈치챘죠?', cold: '…이제 네가 더 강하다.' };
+        return this.talk([{ narr: '거점 숙소 옥상. 리더가 할 말이 있다며 불러냈다.' }, { who: L, text: T[k] || T.just }, ms[0] ? { who: ms[0], text: '솔직히 우리도 그렇게 생각했어.' } : null].filter(Boolean),
+          () => { const r = baseShow.apply(this, a); this.crewHandoverExtra(); return r; });
+      }
+      const r = baseShow.apply(this, a); this.crewHandoverExtra(); return r;
+    };
+    UI.crewHandoverExtra = function () {
+      const c = G.crew(); if (!c || !c.plan || c.plan.kind !== 'handover') return;
+      const cards = document.querySelector('#modal-box .cards'); if (!cards || cards.querySelector('[data-act="crew-indep"]')) return;
+      cards.insertAdjacentHTML('beforeend', '<button class="choice-btn" data-act="crew-indep">독립해서 내 파티를 따로 만든다 <span class="dim-in">불이익 없음 · 사이 좋은 팀원은 따라올 수 있다</span></button>');
+    };
+    // 교대를 받아들인 뒤 축하 장면, 팀과 함께 움직이는 상태로
+    const baseAns = UI.answerCrewPlan;
+    UI.answerCrewPlan = function (v, ...a) {
+      const c = G.crew(); const ho = c && c.plan && c.plan.kind === 'handover'; const L = G.crewLeader(); const name = c && c.name;
+      const r = baseAns.call(this, v, ...a);
+      try {
+        if (ho && v === '1' && !G.player.crew) {
+          G.player.lead = { state: 'on', base: G.player.region };
+          const ms = G.party().filter((n) => n !== L);
+          setTimeout(() => this.talk([L ? { who: L, text: '이제 네 팀이다. 난 뒤에서 받쳐 주지.' } : null, ...ms.slice(0, 2).map((n) => ({ who: n, text: '잘 부탁해, 리더.' })), { sys: `${name}의 리더가 되었다 · 일은 내가 고르고, 오더도 내가 내린다` }].filter(Boolean), () => this.processQueue()), 50);
+        }
+      } catch (e) { /* 무시 */ }
+      return r;
+    };
+    // 파티 화면: 고참 이상이면 독립 단추
+    const baseHtml = UI.crewHtml;
+    if (baseHtml) UI.crewHtml = function (...a) {
+      let h = baseHtml.apply(this, a);
+      try {
+        const c = npcLed(G); const r = c && G.crewRankOf && G.crewRankOf();
+        if (c && r && (r.id === 'vet' || r.id === 'sub') && !c.on) h = h.replace('<button class="sm ghost" data-act="crew-leave">파티 탈퇴</button>', '<button class="sm" data-act="crew-indep">독립해서 내 파티 만들기</button> <button class="sm ghost" data-act="crew-leave">파티 탈퇴</button>');
+      } catch (e) { /* 무시 */ }
+      return h;
+    };
+    const baseH = UI.handle;
+    UI.handle = function (act, v) {
+      if (act === 'crew-indep') { const c = G.crew(); if (c) c.plan = null; return this.crewIndependent(); }
+      return baseH.call(this, act, v);
+    };
+  }
+}
