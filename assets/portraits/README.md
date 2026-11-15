@@ -55,3 +55,7 @@ middle-aged korean man, short hair, scar across eyebrow, heavy armor plate, stee
 ## 직업복 목선
 
 직업복의 목·턱이 옷깃과 안 맞을 때(목이 뜸, 턱 밑 살색 네모, 체형마다 목 위치가 다름)는 [docs/직업복_목선_맞춤.md](../../docs/직업복_목선_맞춤.md)의 순서로 맞춘다. 도구: `tools/outfit_neck_line.py`.
+
+## 30대 중후반 얼굴 보관본
+
+[reserved/faces-late30s/](reserved/faces-late30s/README.md)에 현재 성인 얼굴 58종 대응본(고유 원화 44종·피부색 변형 연결 14종)을 보관한다. 게임에서는 아직 사용하지 않는다. 나이 표현 추가 보정 대상 6종은 해당 문서와 manifest에 표시했다.
