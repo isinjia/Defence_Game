@@ -282,3 +282,5 @@ html body #coach-pop .coach-arrow { display: none !important; }
 .paper-col p { font-style: italic; }
 .paper-ads { border: 1px dashed #8a7d5e; padding: 6px 8px; margin: 6px 0 8px; } .paper-ads p { font-size: 12.5px; margin: 2px 0; color: #3a3426; }
 .paper-box { max-height: 100%; } .paper-box .paper { max-height: none; }
+/* 원래 건너뛰기 단추는 늘 숨긴다(자리는 대리 단추 .tsk-proxy 가 맡는다). 새로 붙는 순간에도 헤더 자리를 밀지 않게 */
+html body #tut-skip { display: none !important; }
