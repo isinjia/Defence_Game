@@ -361,3 +361,35 @@ if (typeof MapView !== 'undefined' && MapView.prototype.drawQuestRouteMarker) {
     } catch (e) { /* 표시 실패는 지도를 막지 않는다 */ }
   };
 }
+
+// 도시·거점 사건은 도시에 있을 때만 (사용자 지적: 들판에 있는데 도시 안 사건처럼 나옴)
+// 사건은 달이 바뀔 때 뽑아 큐에 넣고, 이동이 멈춘 곳에서 보여 준다. 그래서 도시를 지나며 뽑힌 도시 사건(city)이
+// 도시 밖에서 뜨기도 했다. 보여 주는 순간 다시 확인해서, 도시가 아니면 미뤄 두었다가 그 지역(지역 사건이면 그 지역) 도시에 들어갈 때 띄운다.
+if (typeof UI !== 'undefined' && UI.showStory) {
+  const evOf = (id) => (typeof STORY !== 'undefined' ? STORY.find((e) => e.id === id) : null);
+  const fits = (ev) => !ev || !ev.city || (G.onCity() && (!ev.region || ev.region === G.player.region));
+  const baseShow = UI.showStory;
+  UI.showStory = function (q, ...a) {
+    try {
+      const ev = q && evOf(q.id);
+      if (ev && !fits(ev)) {
+        const p = G.player; p.cityStoryWait = (p.cityStoryWait || []).filter((x) => x.id !== q.id).concat([{ ...q }]).slice(-3);
+        return this.processQueue();
+      }
+    } catch (e) { /* 무시 */ }
+    return baseShow.call(this, q, ...a);
+  };
+  // 도시에 들어가면 미뤄 둔 사건을 띄운다
+  const release = () => {
+    try {
+      const p = G.player; if (!p || !p.cityStoryWait || !p.cityStoryWait.length || !G.onCity()) return;
+      const keep = [];
+      for (const q of p.cityStoryWait) { const ev = evOf(q.id); if (fits(ev)) G.queue.push(q); else keep.push(q); }
+      p.cityStoryWait = keep;
+    } catch (e) { /* 무시 */ }
+  };
+  const baseEnd = UI.endWalk;
+  if (baseEnd) UI.endWalk = function (...a) { release(); return baseEnd.apply(this, a); };
+  const baseCity = UI.openCity;
+  if (baseCity) UI.openCity = function (...a) { release(); return baseCity.apply(this, a); };
+}
