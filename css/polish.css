@@ -248,3 +248,9 @@ html body #coach-pop .coach-arrow { display: none !important; }
 
 /* 튜토리얼 안내: '조작' 줄 안에 더한 설명 (js/tut_combat.js tutAddSys) */
 .coach-sys .coach-ord { margin-top: 5px; padding-top: 5px; border-top: 1px dashed #8a7a5a55; }
+
+/* 소속 파티: 리더가 보여 주는 일 후보 (js/crew_jobs.js) */
+.crew-jobs .crew-job { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid var(--line, #2a3446); border-radius: 10px; background: #0f1520; }
+.crew-jobs .crew-job.rec { border-color: #ffb547; box-shadow: 0 0 0 1px #ffb54755 inset; }
+.crew-jobs .crew-job.rec .row b::after { content: " · 리더 추천"; color: #ffb547; font-size: 12px; }
+.crew-jobs .crew-job .choice-btn { margin-top: 4px; }
