@@ -14,7 +14,7 @@ const isSupport = (cls) => !!cls && classById(cls) && classById(cls).role === 's
 Object.assign(Game.prototype, {
   originInit() {
     const p = this.player; if (!p) return;
-    p.guides ??= []; p.firstClear ??= {};
+    p.guides = []; p.firstClear ??= {}; // 공략 정보 시스템 삭제(사용자 요청): 옛 저장의 정보도 비운다
   },
   // ---------- 공략 정보 ----------
   guideValue(g) {
@@ -84,18 +84,8 @@ Object.assign(Game.prototype, {
   wrap('finishGate', function (base, gate, result, loot, ...rest) {
     const p = this.player;
     const t = gate.realTier ?? gate.tier;
-    if (result !== 'lose' && loot) { const b = this.guideBonus(t); if (b) loot.money = Math.round((loot.money || 0) * (1 + b)); }
     const lines = base.call(this, gate, result, loot, ...rest);
-    if (result === 'clear' && !gate.final && !(loot && loot.sweep)) {
-      const v = gate.variant && gate.variant !== 'normal' ? gate.variant : 'normal';
-      const key = `${t}:${v}`;
-      if (!p.firstClear[key]) {
-        p.firstClear[key] = true;
-        const g = { uid: Math.random().toString(36).slice(2, 9), tier: t, variant: v, mk: this.monthKey() };
-        p.guides.push(g); if (p.guides.length > 6) p.guides.shift();
-        lines.push(`처음 깬 ${this.guideName(g)}를 정리했다. 의뢰소에 팔거나, 숨겨서 1년간 독점할 수 있다(같은 등급 크레딧 +${Math.round(GUIDE_BONUS * 100)}%).`);
-      }
-    }
+    // 공략 정보(처음 깬 게이트 정보 판매·독점) 시스템은 삭제(사용자 요청)
     return lines;
   });
   wrap('mercFee', function (base, n) { const v = base.call(this, n); return isSupport(n.cls) ? Math.round(v * SUPPORT_FEE) : v; });
@@ -113,7 +103,7 @@ Object.assign(Game.prototype, {
   UI.facilityHtml = function (id, reg) {
     let html = baseFac.call(this, id, reg);
     const p = G.player;
-    if (id === 'board' && p.guides.length) {
+    if (false && id === 'board' && p.guides.length) { // 공략 정보 판매 삭제(사용자 요청)
       html += `<div class="sec-title sec">공략 정보 판매</div><div class="small dim">팔면 크레딧·공적·평판, 들고 있으면 1년간 같은 등급 게이트 크레딧 +${Math.round(GUIDE_BONUS * 100)}%. 정보는 1년이 지나면 값이 떨어진다.</div>
         <div class="cards">${p.guides.map((g) => { const age = G.monthKey() - g.mk; return `<div class="item-row"><div class="grow"><b>${G.guideName(g)}</b> <span class="small dim">${age < GUIDE_KEEP_MONTHS ? `독점 ${GUIDE_KEEP_MONTHS - age}개월 남음` : '낡은 정보'}</span></div>
           <button class="sm" data-act="sell-guide" data-v="${g.uid}">${FX.icon('coin', 13)} <span class="num">${fmt(G.guideValue(g))}</span></button></div>`; }).join('')}</div>`;
