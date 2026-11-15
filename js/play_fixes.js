@@ -153,3 +153,15 @@
     return h;
   };
 }
+
+// 7. 자격 시험 시작 대화: 시험장 로비 그림을 게이트에 들어가기 전까지 띄워 둔다 (사용자 요청)
+//    컷신 그림이 떠 있으면 인물 얼굴을 숨기게 되어 있어(css/dlg_vn.css), 이 그림일 때만 얼굴을 그림 위에 세운다.
+{
+  const KEEP_FACE = ['cut-exam-lobby'];
+  const css = document.createElement('style');
+  css.textContent = KEEP_FACE.map((k) => `html body.main-cut-on[data-cut="${k}"] #dlg .dlg-face { display: block; }`).join('\n');
+  document.head.appendChild(css);
+  const baseShow = UI.mainCutShow, baseClear = UI.mainCutClear;
+  if (baseShow) UI.mainCutShow = function (key, ...a) { const r = baseShow.call(this, key, ...a); if (this._cut) document.body.dataset.cut = this._cut; return r; };
+  if (baseClear) UI.mainCutClear = function (...a) { delete document.body.dataset.cut; return baseClear.apply(this, a); };
+}
