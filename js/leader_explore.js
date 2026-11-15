@@ -32,7 +32,7 @@ if (typeof UI !== 'undefined') {
     const say = (q >= 50 ? SAY.good : SAY.poor)[L.personality] || '이렇게 하자.';
     const cards = pick.closest('.cards') || pick.parentElement;
     cards.insertAdjacentHTML('afterend', `<div class="cn-card lead-dec"><b>${L.name}(리더)의 결정</b> <span class="small">· ${label}</span>
-      <p class="small">"${say}"</p><div class="cn-btns"><button class="primary" data-act="lsite-ok">따른다</button><button class="danger" data-act="lsite-no">반대한다</button></div></div>`);
+      <p class="small">"${typeof LEAD_REASON === 'function' ? LEAD_REASON(L, label) : say}"</p><div class="cn-btns"><button class="primary" data-act="lsite-ok">따른다</button><button class="danger" data-act="lsite-no">반대한다</button></div></div>`);
     if (UI.autoFollow) UI.autoFollow(box.querySelector('[data-act="lsite-ok"]'), 6);
   };
   const after = (name) => { const base = UI[name]; if (!base) return; UI[name] = function (...a) { const r = base.apply(this, a); decide(); return r; }; };
