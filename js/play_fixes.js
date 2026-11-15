@@ -118,3 +118,5 @@
   };
   ['gateFight', 'gateRest', 'gateTreasure', 'gateEvent'].forEach(wrapOpen);
 }
+
+// 5. 초상 옷·몸이 사라지던 문제는 js/job_outfits.js mintIds · js/bust_portrait.js remint 에서 <use href="#…"> 참조를 함께 바꿔 고쳤다.

@@ -17,7 +17,8 @@
     };
     return String(html)
       .replace(/\bid="([^"]+)"/g, (_, id) => `id="${rename(id)}"`)
-      .replace(/url\(#([^)]+)\)/g, (_, id) => `url(#${rename(id)})`);
+      .replace(/url\(#([^)]+)\)/g, (_, id) => `url(#${rename(id)})`)
+      .replace(/\b((?:xlink:)?href)="#([^"]+)"/g, (_, a, id) => `${a}="#${rename(id)}"`); // <use href="#…"> 직접 참조도 함께
   }
 
   /** 포트레이트 HTML → 상반신 크롭 SVG 문자열 */

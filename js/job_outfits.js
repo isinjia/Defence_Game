@@ -797,7 +797,9 @@ const HunterOutfits = (() => {
     };
     return String(html)
       .replace(/\bid="([^"]+)"/g,(_,id)=>`id="${rename(id)}"`)
-      .replace(/url\(#([^)]+)\)/g,(_,id)=>`url(#${rename(id)})`);
+      .replace(/url\(#([^)]+)\)/g,(_,id)=>`url(#${rename(id)})`)
+      // <use href="#…gimg"> 같은 직접 참조도 함께 바꾼다(빠뜨리면 옷이 없는 이름을 가리켜 얼굴만 남는다 · 사용자 제보)
+      .replace(/\b((?:xlink:)?href)="#([^"]+)"/g,(_,a,id)=>`${a}="#${rename(id)}"`);
   }
   const node=(doc,name,attrs)=>{const e=doc.createElementNS(ns,name);for(const[k,v]of Object.entries(attrs||{}))e.setAttribute(k,v);return e;};
   // 승인 시안: 남성 흑염 코트는 어깨 폭 +14% 뒤 +20%, 세로 축척 .82→.94.
