@@ -313,3 +313,10 @@ html body .combat-box .skill-btn b .tag.sk-lv.in { display: inline; padding: 0 4
 .sk-xp-wrap, .sh-xp { display: flex; align-items: center; gap: 6px; }
 .tag.sk-lv.xl { margin-left: 0; }
 .sk-xp-wrap .sk-xp { width: 96px; margin-right: 0; } .sh-xp .sk-xp { width: 140px; margin-right: 0; }
+
+/* 시험 탐색 첫 설명: 전체 경로 지도를 펼친 채 대화창을 아래에 작게 */
+body.dlg-mapview #dlg .dlg-face { display: none !important; }
+body.dlg-mapview #dlg .dlg-box { background: linear-gradient(180deg, transparent, #050a12f0 30%) !important; }
+body.dlg-mapview #dlg .dlg-text { min-height: 0 !important; }
+body.dlg-mapview .xr-overview .xr-route { bottom: 200px !important; }
+body.dlg-mapview .xr-overview .xr-route .gmap.gmap-fit { height: calc(100vh - 330px) !important; min-height: 300px !important; }

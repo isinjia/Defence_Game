@@ -523,3 +523,25 @@ if (typeof UI !== 'undefined' && UI.skillsHtml) {
     return h;
   };
 }
+
+// 시험 탐색 첫 설명(사용자 요청): 리더가 "위로 올라가는 구조야, 맨 위에는 보스" 하고 말할 때, 모바일은 경로 지도가 "전체 경로 보기" 안에 숨어 있어
+// 말하는 것을 볼 수 없었다. 그 말이 나오는 동안 전체 경로 지도를 펼치고, 대화창은 아래쪽에 작게(얼굴 그림 없이) 띄워 지도를 가리지 않는다.
+if (typeof UI !== 'undefined' && UI.examLeadTalk) {
+  const baseLeadTalk = UI.examLeadTalk;
+  UI.examLeadTalk = function (...a) {
+    const m = this.exam && this.exam.map;
+    if (!m || m.step !== 'intro' || window.innerWidth >= 1100 || !this.talk) return baseLeadTalk.apply(this, a);
+    const talk = this.talk;
+    this.talk = function (lines, done) {
+      UI.talk = talk;
+      try { UI.handle('xr-map'); } catch (e) { /* 무시 */ }
+      document.body.classList.add('dlg-mapview');
+      return talk.call(UI, lines, (...r) => {
+        document.body.classList.remove('dlg-mapview');
+        try { UI.handle('xr-map-close'); } catch (e) { /* 무시 */ }
+        if (done) return done(...r);
+      });
+    };
+    try { return baseLeadTalk.apply(this, a); } finally { if (this.talk !== talk) this.talk = talk; }
+  };
+}
