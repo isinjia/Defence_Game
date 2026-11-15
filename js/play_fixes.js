@@ -20,3 +20,30 @@
     return baseBoss.call(this, gate, pt);
   };
 }
+
+// 2. 솔로를 고른 신입에게 '공략대 모집' 창이 갑자기 뜨던 것: 그 전에 협회 담당자가 의무 동행 규정을 설명한다(사용자 요청).
+//    실전 경험 없는 신규 헌터는 첫 게이트 한 번을 경험 있는 리더의 공략대와 함께 들어가야 한다. 끝나면 다시 솔로.
+{
+  const baseShow = UI.showFirstSortie;
+  if (baseShow) UI.showFirstSortie = function (...a) {
+    const p = G.player;
+    const pending = p && p.notebook && G.nbTask && G.nbTask()?.id === 'gate' && p.firstSortie?.status !== 'done';
+    const solo = !(G.crew && G.crew()) && !G.party().length;
+    if (!pending || !solo || this.dlg || (p.firstSortie && (p.firstSortie.status === 'active' || p.firstSortie.briefed))) return baseShow.apply(this, a);
+    const s = G.firstSortieOffer();
+    s.briefed = true; G.save();
+    const L = s.listing && G.npcById(s.listing.leader);
+    const staff = { name: '협회 활동 지원 담당자', sub: '헌터 협회', seed: 'nb-free-staff', elem: 'holy' };
+    const rk = RANKS[p.rankIdx].key;
+    this.talk([
+      { narr: '협회 지부 창구. 활동 지원 담당자가 서류 한 장을 내민다. 맨 위에 굵은 글씨로 "신규 헌터 실전 동행 확인서".' },
+      { who: staff, text: '솔로로 활동하시겠다고요. 그건 존중합니다. 다만 그 전에 꼭 거쳐야 하는 규정이 하나 있어요.' },
+      { who: staff, text: '실전 경험이 없는 신규 헌터는 첫 게이트 한 번을, 경험 있는 리더의 공략대와 함께 들어가야 합니다. 협회 의무 동행이에요.' },
+      { who: staff, text: '첫 게이트에 혼자 들어갔다가 못 나오는 신입이 해마다 나옵니다. 그래서 생긴 규정이에요. 예외는 없습니다.' },
+      { who: 'player', text: '한 번만 다녀오면 되는 거죠?' },
+      { who: staff, text: '네, 이번 한 번입니다. 정산이 끝나면 다시 솔로로 돌아가시면 되고, 첫 공략 입장료는 협회가 냅니다.' },
+      L ? { who: staff, text: `마침 ${RANKS[L.rankIdx].key}급 리더 ${L.name} 씨 공략대가 ${rk}급 인원을 찾고 있어요. 바로 연결해 드릴게요.` }
+        : { who: staff, text: `${rk}급 인원을 찾는 공략대가 있는지 바로 알아봐 드릴게요.` },
+    ], () => baseShow.apply(this, a));
+  };
+}
