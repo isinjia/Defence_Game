@@ -123,28 +123,18 @@
 
 // 6. 스킬 정보 팝업 (사용자 요청)
 //    ① '대상' 칸 아래에 붙던 긴 설명(대상 수 배율 등)을 뺀다.
-//    ② 맨 마지막에 이 스킬에 붙은 태그(레벨·접사·범위·성격)가 무슨 뜻인지 적는다.
+//    ② 맨 마지막에 이 스킬에 붙은 접사 태그(거친·예리한 등)가 무슨 뜻인지 적는다(사용자 요청: 접사만).
 {
-  const SCOPE_TXT = { '단일': '적 하나를 노린다', '전체': '적 전체에 한꺼번에 쓴다', '아군 1': '아군 하나에게 쓴다', '아군 전체': '아군 전체에 한꺼번에 쓴다', '자신': '나에게 쓴다', '무작위': '적 여럿을 무작위로 여러 번 친다' };
-  const KIND_TXT = { '치명': '치명타가 잘 터진다', '관통': '방어를 일부 무시한다', '연타': '여러 번 나눠 친다', '중독': '맞힌 적에게 지속 피해', '기절': '맞힌 적의 차례를 늦춘다', '흡혈': '준 피해 일부로 체력을 회복한다', '약화': '적의 능력을 떨어뜨린다', '도발': '적의 공격을 나에게 끈다', '회복': '체력을 회복한다', '치유': '아군의 체력을 회복한다', '부활': '쓰러진 아군을 일으킨다', '강화': '능력을 올린다', '방어': '받는 피해를 줄인다', '회피': '공격을 피하기 쉬워진다', '소환': '싸울 소환수를 부른다' };
   const fmtK = (v) => (Math.round(v * 100) / 100).toString();
   const tagRows = (sk) => {
     const rows = []; const p = G.player; const mine = p && (p.skills || []).includes(sk.id) && sk.id !== 'strike';
-    if (mine && G.skillLv) {
-      const lv = G.skillLv(sk.id);
-      rows.push(lv >= 5 ? ['각성', '숙련이 끝까지 올라 각성한 스킬. 두 갈래 진화 중 하나를 골라 바뀐다']
-        : [`Lv${lv}`, '숙련 레벨. 쓸수록 숙련이 쌓여 오르고, 오를 때마다 위력·절약·예리함 중 하나를 골라 키운다. Lv5에서 각성']);
-    }
     const a = mine && p.skillAffix && p.skillAffix[sk.id];
     if (a && typeof affixById === 'function') {
       for (const x of [a.h, a.a].map((k) => k && affixById(k)).filter((x) => x && x.name)) {
         const parts = []; if (x.power !== 1) parts.push(`위력 ×${fmtK(x.power)}`); if (x.mp !== 1) parts.push(`정신력 소모 ×${fmtK(x.mp)}`);
-        rows.push([x.name, `${x.id === a.h ? '숨은 접사. ' : '접사(스킬마다 무작위로 붙음). '}${parts.join(' · ') || '변화 없음'}`]);
+        rows.push([x.name, `${x.id === a.h ? '숨은 접사 · ' : ''}${parts.join(' · ') || '변화 없음'}`]);
       }
     }
-    if (typeof TYPE_NAME !== 'undefined' && TYPE_NAME[sk.type]) rows.push([TYPE_NAME[sk.type], '스킬 종류' + (typeof SKILL_EFFECT !== 'undefined' && SKILL_EFFECT[sk.type] ? ` · ${SKILL_EFFECT[sk.type]}` : '')]);
-    if (typeof SKILL_SCOPE === 'function') { const [sc] = SKILL_SCOPE(sk); if (sc && SCOPE_TXT[sc] && sc !== TYPE_NAME[sk.type]) rows.push([sc, `범위 · ${SCOPE_TXT[sc]}`]); }
-    if (typeof SKILL_KIND !== 'undefined') { const k = SKILL_KIND[sk.type]; if (k && KIND_TXT[k] && k !== TYPE_NAME[sk.type]) rows.push([k, `성격 · ${KIND_TXT[k]}`]); }
     return rows;
   };
   const base = UI.skillHoldHtml;
