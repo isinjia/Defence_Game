@@ -262,3 +262,88 @@
     return r;
   };
 }
+
+// ---------- 자격 시험 도중 ----------
+// 시험 중에 끄면 player.onboard === 'exam' 만 남아, 다시 켤 때마다 시험이 맨 처음 대사부터 다시 시작했다(탐색 지도·첫 전투를 지나도).
+// 시험 지도를 그릴 때마다 시험 상태(동기·리더·괴수·지도 단계)를 남기고, 이어하면 그 단계의 지도로 돌아간다.
+// 전투 도중이었다면 그 칸에 들어가기 전 지도로 돌아온다. 지도 안내(intro/pick1)였다면 그 지도의 처음 안내부터.
+{
+  const clone = (o) => { try { return JSON.parse(JSON.stringify(o)); } catch (e) { return null; } };
+  const baseRender = UI.renderExamMap;
+  if (baseRender) UI.renderExamMap = function (opts = {}, ...a) {
+    const r = baseRender.call(this, opts, ...a);
+    try {
+      const ex = this.exam; const p = G.player;
+      if (ex && ex.map && p && p.onboard === 'exam' && !opts.move) {
+        const s = clone({ ids: ex.ids, leader: ex.leader, gate: ex.gate, loot: ex.loot, stage: ex.stage, rooms: ex.rooms, firstWin: ex.firstWin, map: ex.map });
+        if (s) { s.map.asked = null; p.examSave = s; G.save(); }
+      }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+  const baseStart = UI.startExam;
+  if (baseStart) UI.startExam = function (...a) { if (G.player && !this._examResuming) G.player.examSave = null; return baseStart.apply(this, a); };
+  const baseEnd = UI.endExam;
+  if (baseEnd) UI.endExam = function (...a) { if (G.player) G.player.examSave = null; return baseEnd.apply(this, a); };
+  const baseResume = UI.resumeOnboard;
+  if (baseResume) UI.resumeOnboard = function (...a) {
+    const p = G.player; const s = p && p.examSave;
+    if (p && p.onboard === 'exam' && s && s.map && s.ids && s.ids.every((id) => G.npcById(id)) && G.npcById(s.leader)) {
+      try {
+        this.closeModal();
+        this.exam = { ids: s.ids, leader: s.leader, gate: s.gate, loot: s.loot || { money: 0, ether: 0, kills: 0 }, stage: s.stage || 0, rooms: s.rooms, firstWin: s.firstWin, map: s.map };
+        const m = this.exam.map;
+        if (m.step === 'pick1') m.step = 'intro'; // 리더가 고르던 장면이었다면 그 상의부터 다시
+        m.asked = null;
+        const stage = m.step === 'your2' || m.step === 'boss' ? 1 : 0;
+        this.screen = 'game'; this.render();
+        this.ctx = this.examGateCtx ? this.examGateCtx(stage) : this.ctx;
+        this.renderExamMap();
+        if (this.tutSkipBtn) this.tutSkipBtn(true);
+        this.toast('자격 시험을 이어 갑니다.');
+        return true;
+      } catch (e) { /* 실패하면 처음부터 */ }
+    }
+    return baseResume.apply(this, a);
+  };
+}
+
+// ---------- 각성 이야기(프롤로그) 도중 ----------
+// 프롤로그는 게임 저장이 생기기 전이라 아무것도 남지 않았다. 도중에 끄면 이름 정하기부터 다시였다.
+// 장면을 그릴 때마다 진행을 따로 남기고, 타이틀에 [각성 이야기 이어하기]를 띄운다. 게임이 시작되면(newGame) 지운다.
+{
+  const PRO_KEY = 'gate_chronicle_prologue';
+  const read = () => { try { const d = JSON.parse(localStorage.getItem(PRO_KEY) || 'null'); return d && d.pro && d.pro.id && typeof PROLOGUE !== 'undefined' && PROLOGUE[d.pro.id] ? d : null; } catch (e) { return null; } };
+  const clear = () => { try { localStorage.removeItem(PRO_KEY); } catch (e) { /* 무시 */ } };
+  const baseRender = UI.renderPrologue;
+  if (baseRender) UI.renderPrologue = function (...a) {
+    const r = baseRender.apply(this, a);
+    try { if (this.pro && this.pro.id) localStorage.setItem(PRO_KEY, JSON.stringify({ at: Date.now(), pro: this.pro })); } catch (e) { /* 무시 */ }
+    return r;
+  };
+  const baseNew = Game.prototype.newGame;
+  if (baseNew) Game.prototype.newGame = function (...a) { clear(); return baseNew.apply(this, a); };
+  // 타이틀은 부팅 단계(boot.js)가 먼저 그리기도 해서 renderTitle 감싸기만으로는 안 붙는다: 타이틀이 보이면 붙인다
+  const addBtn = () => {
+    try {
+      const d = read(); const box = document.querySelector('.title-screen .btns');
+      if (d && box && !box.querySelector('[data-act="pro-resume"]')) {
+        const step = (d.pro.step || 0) + 1;
+        box.insertAdjacentHTML('afterbegin', `<button class="primary big" data-act="pro-resume"><span class="tc-main">각성 이야기 이어하기</span><span class="tc-sub">${String(d.pro.name || '').replace(/[<>&"]/g, '')} · 장면 ${step}</span></button>`);
+        for (const b of box.querySelectorAll('[data-act="continue"], [data-act="new"]')) b.classList.remove('primary');
+      }
+    } catch (e) { /* 무시 */ }
+  };
+  const baseTitle = UI.renderTitle;
+  if (baseTitle) UI.renderTitle = function (...a) { const r = baseTitle.apply(this, a); addBtn(); return r; };
+  setInterval(() => { if (document.querySelector('.title-screen .btns') && !document.querySelector('[data-act="pro-resume"]')) addBtn(); }, 500);
+  const baseHandle = UI.handle;
+  UI.handle = function (act, v) {
+    if (act === 'pro-resume') {
+      const d = read(); if (!d) { clear(); return this.render(); }
+      this.pro = d.pro; this.screen = 'prologue';
+      return this.render();
+    }
+    return baseHandle.call(this, act, v);
+  };
+}
