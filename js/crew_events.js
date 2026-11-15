@@ -238,3 +238,57 @@
     };
   }
 }
+
+// 파티 게시판 비교·이적 (사용자 요청 2-⑦)
+// - 모집 게시판 각 파티에 비교 정보를 더한다: 방침, 리더 등급, 팀 전력(나 포함), 분배율, 지원 합격 확률.
+// - 소속 파티가 있어도 도시에서 [다른 파티 둘러보기]로 게시판을 볼 수 있고, [이 파티로 옮긴다]로 이적한다.
+//   이적은 지금 파티를 나가는 것이라 지금 팀원과의 관계가 조금 떨어진다(−8, 기존 탈퇴와 같음). 지원에 떨어지면 지금 파티에 그대로 남는다.
+{
+  if (typeof UI !== 'undefined') {
+    const share = (L) => Math.round(((typeof L.share === 'number' ? L.share * (1 - (typeof LEADER_CUT !== 'undefined' ? LEADER_CUT : 0.1)) : (typeof CREW_SHARE !== 'undefined' ? CREW_SHARE : 0.75))) * 100);
+    const odds = (L) => { const p = G.player; const leader = G.npcById(L.leader); if (!leader) return 0; if (p.rankIdx < L.minRank) return 0; const fit = classById(p.cls).g === L.want; return Math.round(Math.max(0, Math.min(1, (fit ? 0.9 : 0.55) + (leader.relation || 0) / 200 + Math.min(p.fame || 0, 100) / 400)) * 100); };
+    const info = (L) => {
+      const n = G.npcById(L.leader); const mem = L.members.map((id) => G.npcById(id)).filter(Boolean);
+      const tp = G.teamPower ? G.teamPower([n, ...mem]) : null;
+      return `<div class="small crew-cmp">팀 전력 <b>${tp ? tp.label : '-'}</b> · 분배율 <b>${share(L)}%</b> · ${G.player.rankIdx < L.minRank ? `<b class="bad">등급 미달 · ${RANKS[L.minRank].key}급부터</b>` : `합격 확률 <b class="${odds(L) >= 70 ? 'good' : odds(L) >= 40 ? '' : 'bad'}">${odds(L)}%</b>`}</div>`;
+    };
+    const baseHtml = UI.crewHtml;
+    UI.crewHtml = function (...a) {
+      let h = baseHtml.apply(this, a);
+      try {
+        if (!G.crew()) {
+          const list = G.crewBoard(G.region().id);
+          let i = 0; h = h.replace(/(<button class="sm primary" data-act="crew-apply" data-v="(\d+)">지원<\/button>)/g, (m, btn, idx) => { const L = list[+idx]; return L ? `${info(L)}${btn}` : m; });
+        } else if (G.onCity && G.onCity()) {
+          h = h.replace('<button class="sm ghost" data-act="crew-leave">파티 탈퇴</button>', '<button class="sm ghost" data-act="crew-browse">다른 파티 둘러보기</button> <button class="sm ghost" data-act="crew-leave">파티 탈퇴</button>');
+        }
+      } catch (e) { /* 무시 */ }
+      return h;
+    };
+    UI.crewBrowse = function () {
+      const reg = G.region(); const list = G.crewBoard(reg.id); const cur = G.crew();
+      const row = (L, i) => {
+        const n = G.npcById(L.leader); const st = CREW_STYLES[L.style];
+        return `<div class="item-row">${this.npcAvatar(n, 40)}<div class="grow"><b>${L.name}</b> <span class="small dim">리더 ${n.name}</span> ${this.rankTag(n.rankIdx, n.stage)}
+          <div class="small dim">${st.name} · ${st.desc}</div>${info(L)}</div><button class="sm" data-act="crew-move" data-v="${i}" ${odds(L) ? '' : 'disabled'}>이 파티로 옮긴다</button></div>`;
+      };
+      this.modal(fixJosa(`<div class="eyebrow">파티 모집 게시판 · ${reg.name}</div><h3>다른 파티 둘러보기</h3>
+        <p class="small dim">지금 소속: ${cur.name} (분배율 ${Math.round((G.crewShareRate ? G.crewShareRate() : 0.75) * 100)}%). 옮기면 지금 팀원과의 관계가 조금 떨어진다(−8). 지원에 떨어지면 지금 파티에 그대로 남는다.</p>
+        <div class="cards">${list.map(row).join('') || '<div class="dim small">이 지역에는 지금 모집 중인 파티가 없다.</div>'}</div>
+        <div class="row end"><button class="ghost" data-act="modal-close">닫기</button></div>`), 'event-box');
+    };
+    const baseH = UI.handle;
+    UI.handle = function (act, v) {
+      if (act === 'crew-browse') return this.crewBrowse();
+      if (act === 'crew-move') {
+        const L = G.crewBoard(G.region().id)[+v]; if (!L) return;
+        const leader = G.npcById(L.leader); if (!leader) return;
+        if (Math.random() * 100 >= odds(L)) { L.tried = G.monthKey(); this.closeModal(); return this.after(`${leader.name}: "미안해요. 이번엔 ${CLASS_GROUPS[L.want].name} 계열을 찾고 있어서요." (불합격 · 지금 파티에 남는다)`); }
+        const old = G.crew().name; const out = G.crewLeave('quit'); const msg = G.crewJoin(L);
+        this.closeModal(); G.lifeEvent(`${old}에서 ${L.name}(으)로 옮겼다.`);
+        return this.after(`${out} ${msg}`);
+      }
+      return baseH.call(this, act, v);
+    };
+  }
+}
