@@ -428,7 +428,12 @@ if (typeof Game !== 'undefined' && Game.prototype.skillEff && Game.prototype.aff
   Game.prototype.skillEff = function (sk, ...a) {
     const r = baseEff.call(this, sk, ...a);
     try {
-      if (r && r._aff && sk && r.name !== sk.name) { const lb = this.affixLabel(r.id); if (lb && r.name === `${lb} ${sk.name}`) return { ...r, name: sk.name, affix: lb }; }
+      if (r && sk && r.name !== sk.name) {
+        // 접사는 태그로, 각성(·각성)은 레벨 태그 '각성'으로 보여 주므로 이름에서 뗀다
+        const lb = this.affixLabel ? this.affixLabel(r.id) : '';
+        let nm = r.name; if (lb && nm.startsWith(lb + ' ')) nm = nm.slice(lb.length + 1); nm = nm.replace(/·각성$/, '');
+        if (nm !== r.name) return { ...r, name: nm, affix: lb || r.affix };
+      }
     } catch (e) { /* 무시 */ }
     return r;
   };
@@ -440,15 +445,23 @@ if (typeof UI !== 'undefined') {
     return [a.h, a.a].map((x) => x && affixById(x)).filter((x) => x && x.name).map((x) => `<span class="tag sk-affix${cls}${x.id === a.h ? ' hid' : ''}" data-sk="${id}" data-af="${x.id}">${x.name}</span>`).join(' ');
   };
   UI.affTags = affTags;
+  // 스킬 레벨·숙련 (hunter.js SKILL_LV_REQ: Lv2~5에 필요한 누적 사용 8·24·50·90회)
+  const lvInfo = (id) => {
+    if (!G.skillLv || typeof SKILL_LV_REQ === 'undefined' || !G.player) return null;
+    const lv = G.skillLv(id); const xp = (G.player.skillXp || {})[id] || 0; const next = SKILL_LV_REQ[lv]; const prev = SKILL_LV_REQ[lv - 1] || 0;
+    return { lv, xp, next, pct: next ? Math.max(0, Math.min(100, Math.round(((xp - prev) / (next - prev)) * 100))) : 100 };
+  };
+  const lvTag = (id, cls = '') => { const L = lvInfo(id); if (!L) return ''; return `<span class="tag sk-lv${cls}${L.lv >= 5 ? ' awake' : ''}">${L.lv >= 5 ? '각성' : `Lv${L.lv}`}</span>`; };
+  const xpBar = (id) => { const L = lvInfo(id); if (!L) return ''; return `<span class="sk-xp" title="숙련"><i style="width:${L.pct}%"></i></span><span class="small dim sk-xp-t">${L.next ? `숙련 ${L.xp}/${L.next}` : '숙련 최대'}</span>`; };
+  UI.skLvTag = lvTag; UI.skXpBar = xpBar;
   const tagAffix = (root) => {
-    if (!root || !G.player || !G.affixLabel) return;
+    if (!root || !G.player) return;
     for (const el of root.querySelectorAll('[data-act="c-skill"][data-v], [data-act="st-sk"][data-v]')) {
-      const id = el.dataset.v; if (!id || id === 'strike' || el.querySelector('.sk-affix')) continue;
-      const lb = G.affixLabel(id); if (!lb) continue;
+      const id = el.dataset.v; if (!id || id === 'strike' || el.querySelector('.sk-lv')) continue;
       const b = el.querySelector('b'); if (!b) continue;
-      const tags = affTags(id, el.dataset.act === 'c-skill' ? ' in' : '');
-      // 전투 기술 단추는 이름 줄 안에 붙여야 줄이 늘지 않는다
-      if (el.dataset.act === 'c-skill') b.insertAdjacentHTML('beforeend', ` ${tags}`); else b.insertAdjacentHTML('afterend', tags);
+      const inC = el.dataset.act === 'c-skill' ? ' in' : '';
+      const html = `${lvTag(id, inC)}${affTags(id, inC) ? ' ' + affTags(id, inC) : ''}`;
+      if (inC) b.insertAdjacentHTML('beforeend', ` ${html}`); else b.insertAdjacentHTML('afterend', html);
     }
   };
   const wrapR = (name) => { const base = UI[name]; if (!base) return; UI[name] = function (...a) { const r = base.apply(this, a); try { tagAffix(document.getElementById('modal-box')); tagAffix(document.getElementById('app')); } catch (e) { /* 무시 */ } return r; }; };
@@ -460,7 +473,10 @@ if (typeof UI !== 'undefined') {
       let h = baseHold2.call(this, sk, u, ...a);
       try {
         const lb = sk && (sk.affix || (u && u.isPlayer !== false && G.affixLabel && G.player && (G.player.skills || []).includes(sk.id) ? G.affixLabel(sk.id) : ''));
-        if (lb && !/sk-affix/.test(h)) h = h.replace(/(<div class="sh-head">[\s\S]*?<b>[^<]*<\/b>)/, `$1${UI.affTags ? UI.affTags(sk.id) : ''}`);
+        const mine = sk && G.player && (G.player.skills || []).includes(sk.id) && (!u || u.isPlayer !== false) && sk.id !== 'strike';
+        if (mine && !/sk-lv/.test(h)) h = h.replace(/(<div class="sh-head">[\s\S]*?<b>[^<]*<\/b>)/, `$1${UI.skLvTag ? UI.skLvTag(sk.id) : ''}`);
+        if (lb && !/sk-affix/.test(h)) h = h.replace(/(<div class="sh-head">[\s\S]*?<b>[^<]*<\/b>(?:<span class="tag sk-lv[^>]*>[^<]*<\/span>)?)/, `$1${UI.affTags ? UI.affTags(sk.id) : ''}`);
+        if (mine && UI.skXpBar && !/sk-xp/.test(h)) h = h.replace(/(<table class="sh-table">)/, `<div class="sh-xp">${UI.skXpBar(sk.id)}</div>$1`);
       } catch (e) { /* 무시 */ }
       return h;
     };
@@ -486,4 +502,21 @@ if (typeof UI !== 'undefined' && typeof affixById === 'function') {
     if (e.type === 'click') UI.showAffixPop(t.dataset.sk, t.dataset.af);
   };
   for (const ev of ['pointerdown', 'pointerup', 'touchstart', 'mousedown', 'click']) window.addEventListener(ev, grab, { capture: true, passive: false });
+}
+
+// 스킬 창: 접사(bonds.js)는 효과 글자까지 붙고, 레벨(hunter.js)은 "숙련 13/24" 글자뿐이었다 → 다른 화면과 같은 태그 + 숙련 막대
+if (typeof UI !== 'undefined' && UI.skillsHtml) {
+  const baseSk = UI.skillsHtml;
+  UI.skillsHtml = function (...a) {
+    let h = baseSk.apply(this, a);
+    try {
+      for (const id of (G.player && G.player.skills) || []) {
+        if (id === 'strike') continue; const sk = skillById(id); if (!sk) continue;
+        const nm = sk.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(`<b>${nm}</b>((?:\\s*<span class="tag[^"]*"(?: title="[^"]*")?>[^<]*</span>\\s*<span class="small dim">[^<]*</span>)+)`);
+        h = h.replace(re, `<b>${sk.name}</b> ${UI.skLvTag ? UI.skLvTag(id) : ''}${UI.affTags && UI.affTags(id) ? ' ' + UI.affTags(id) : ''} <span class="sk-xp-wrap">${UI.skXpBar ? UI.skXpBar(id) : ''}</span>`);
+      }
+    } catch (e) { /* 무시 */ }
+    return h;
+  };
 }
