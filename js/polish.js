@@ -452,7 +452,8 @@ if (typeof UI !== 'undefined') {
     return { lv, xp, next, pct: next ? Math.max(0, Math.min(100, Math.round(((xp - prev) / (next - prev)) * 100))) : 100 };
   };
   const lvTag = (id, cls = '') => { const L = lvInfo(id); if (!L) return ''; return `<span class="tag sk-lv${cls}${L.lv >= 5 ? ' awake' : ''}">${L.lv >= 5 ? '각성' : `Lv${L.lv}`}</span>`; };
-  const xpBar = (id) => { const L = lvInfo(id); if (!L) return ''; return `<span class="sk-xp" title="숙련"><i style="width:${L.pct}%"></i></span><span class="small dim sk-xp-t">${L.next ? `숙련 ${L.xp}/${L.next}` : '숙련 최대'}</span>`; };
+  // 숙련 막대: 레벨 태그를 막대 왼쪽에 두고, 숫자(숙련 n/n)는 뺀다 (사용자 요청)
+  const xpBar = (id) => { const L = lvInfo(id); if (!L) return ''; return `${lvTag(id, ' xl')}<span class="sk-xp" title="${L.next ? `숙련 ${L.xp}/${L.next}` : '숙련 최대'}"><i style="width:${L.pct}%"></i></span>`; };
   UI.skLvTag = lvTag; UI.skXpBar = xpBar;
   const tagAffix = (root) => {
     if (!root || !G.player) return;
@@ -474,7 +475,6 @@ if (typeof UI !== 'undefined') {
       try {
         const lb = sk && (sk.affix || (u && u.isPlayer !== false && G.affixLabel && G.player && (G.player.skills || []).includes(sk.id) ? G.affixLabel(sk.id) : ''));
         const mine = sk && G.player && (G.player.skills || []).includes(sk.id) && (!u || u.isPlayer !== false) && sk.id !== 'strike';
-        if (mine && !/sk-lv/.test(h)) h = h.replace(/(<div class="sh-head">[\s\S]*?<b>[^<]*<\/b>)/, `$1${UI.skLvTag ? UI.skLvTag(sk.id) : ''}`);
         if (lb && !/sk-affix/.test(h)) h = h.replace(/(<div class="sh-head">[\s\S]*?<b>[^<]*<\/b>(?:<span class="tag sk-lv[^>]*>[^<]*<\/span>)?)/, `$1${UI.affTags ? UI.affTags(sk.id) : ''}`);
         if (mine && UI.skXpBar && !/sk-xp/.test(h)) h = h.replace(/(<table class="sh-table">)/, `<div class="sh-xp">${UI.skXpBar(sk.id)}</div>$1`);
       } catch (e) { /* 무시 */ }
@@ -514,7 +514,7 @@ if (typeof UI !== 'undefined' && UI.skillsHtml) {
         if (id === 'strike') continue; const sk = skillById(id); if (!sk) continue;
         const nm = sk.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const re = new RegExp(`<b>${nm}</b>((?:\\s*<span class="tag[^"]*"(?: title="[^"]*")?>[^<]*</span>\\s*<span class="small dim">[^<]*</span>)+)`);
-        h = h.replace(re, `<b>${sk.name}</b> ${UI.skLvTag ? UI.skLvTag(id) : ''}${UI.affTags && UI.affTags(id) ? ' ' + UI.affTags(id) : ''} <span class="sk-xp-wrap">${UI.skXpBar ? UI.skXpBar(id) : ''}</span>`);
+        h = h.replace(re, `<b>${sk.name}</b>${UI.affTags && UI.affTags(id) ? ' ' + UI.affTags(id) : ''} <span class="sk-xp-wrap">${UI.skXpBar ? UI.skXpBar(id) : ''}</span>`);
       }
     } catch (e) { /* 무시 */ }
     return h;

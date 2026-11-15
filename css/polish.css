@@ -310,3 +310,6 @@ html body .combat-box .skill-btn b .tag.sk-lv.in { display: inline; padding: 0 4
 .sk-xp > i { display: block; height: 100%; background: linear-gradient(90deg, #4fb3ff, #9fd3ff); }
 .sk-xp-wrap { display: inline-block; white-space: nowrap; margin-left: 2px; }
 .sh-xp { margin: 4px 0 6px; } .sh-xp .sk-xp { width: 120px; }
+.sk-xp-wrap, .sh-xp { display: flex; align-items: center; gap: 6px; }
+.tag.sk-lv.xl { margin-left: 0; }
+.sk-xp-wrap .sk-xp { width: 96px; margin-right: 0; } .sh-xp .sk-xp { width: 140px; margin-right: 0; }
