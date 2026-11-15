@@ -289,3 +289,32 @@ if (typeof Game !== 'undefined' && Game.prototype.mainWho) {
     return r;
   };
 }
+
+// 12. 게이트 공략 뒤 강제 복귀 없애기 (사용자 요청: "강제로 돌아가지 않도록 · 돌아가라는 팝업 계속 뜸")
+//     ① 첫 공략을 마친 뒤 '도시로 복귀' 창이 대기열을 처리할 때마다 다시 떴다(닫기 없음). → 창 없이 알림 한 번, 복귀한 것으로 친다.
+//        메인 1장은 '도시'에서만 열리므로(where: city) 아무 도시에 들어가면 시작된다.
+//     ② 팀(소속 파티) 일이 끝나면 거점으로 자동 이동(날짜도 흐름)하던 것을 하지 않는다. 다음 집결 기한은 그대로 잡힌다.
+{
+  const baseRet = UI.firstSortieReturn;
+  if (baseRet) UI.firstSortieReturn = function (...a) {
+    const s = G.player && G.player.firstSortie;
+    if (s && s.status === 'done' && !s.returned && !G.onCity()) {
+      // 도시까지 끌고 가거나 창을 반복해 띄우지 않는다. 복귀한 것으로 치고, 메인 1장은 아무 도시에 들어가면 열린다.
+      s.returned = true; G.mainCheck(); G.save();
+      this.toast('첫 공략 완료. 아무 도시에 들어가면 다음 이야기가 이어진다.');
+      return this.processQueue();
+    }
+    return baseRet.apply(this, a);
+  };
+  // ② 팀 일이 끝나도 거점으로 끌고 가지 않는다
+  const baseDone = UI.crewJobDone;
+  if (baseDone) UI.crewJobDone = function (...a) {
+    const p = G.player; const keep = p ? { x: p.x, y: p.y, region: p.region } : null;
+    const baseTravel = G.advanceTravel; G.advanceTravel = function () { /* 자동 귀환 이동 시간 없음 */ };
+    try { return baseDone.apply(this, a); } finally {
+      G.advanceTravel = baseTravel;
+      if (keep && p) { p.x = keep.x; p.y = keep.y; p.region = keep.region; G.syncParty && G.syncParty(); }
+      if (G.logs && G.logs[0] && /거점 .*돌아왔다/.test(G.logs[0].text || '')) G.logs.shift(); // '거점으로 돌아왔다' 기록은 실제로 안 갔으니 지운다
+    }
+  };
+}
