@@ -88,8 +88,33 @@
 {
   const QKEY = typeof SAVE_KEY !== 'undefined' ? SAVE_KEY + '_queue' : 'gate_chronicle_queue';
   const hasFn = (o, d = 0) => { if (typeof o === 'function') return true; if (!o || typeof o !== 'object' || d > 6) return false; for (const k in o) if (hasFn(o[k], d + 1)) return true; return false; };
+  // 이야기 전투(후처리 함수가 든 것)는 spec.resume(재구성 키)가 있으면 저장한다. 함수는 JSON 에서 빠지고, 불러올 때 다시 붙인다.
+  const fightOk = (q) => q.type === 'storyfight' && q.spec && Array.isArray(q.spec.resume);
   const keep = (q) => q && q.type && !['toast', 'gameover', 'firstParty', 'affStep'].includes(q.type)
-    && !(q.type === 'story' && /^(bond_|debut_)/.test(q.id || '')) && !hasFn(q);
+    && !(q.type === 'story' && /^(bond_|debut_)/.test(q.id || '')) && (fightOk(q) || !hasFn(q));
+  // 이야기 전투 후처리 다시 붙이기 (각 파일의 storyFight 호출과 같은 내용)
+  const riftNext = (g) => { const p = g.player; if (p.riftRun) p.riftRun.step++; g.queue.unshift({ type: 'rift' }); };
+  const AFTER = {
+    trial: () => ({ win: (g) => { g.trialWin(); g.queue.unshift({ type: 'bt-resume' }); }, lose: (g) => { UI.trialLoseMsg = g.trialLose(UI.trialFled); } }),
+    sworn: (id) => ({ win: (g) => { const n = g.npcById(id); if (n) g.changeRel(n, 10); }, lose: (g) => { const n = g.npcById(id); if (n) g.changeRel(n, 5); } }),
+    escort: () => ({ win: (g) => { g.crewTrust && g.crewTrust(4); for (const n of g.party()) g.changeRel(n, 2); }, lose: (g) => { g.crewTrust && g.crewTrust(-3); } }),
+    break: (rid, i, last) => ({ win: last ? (g) => { const t = g.resolveBreak(rid); g.queue.push({ type: 'toast', text: t }); } : () => { setTimeout(() => { if (!UI.ctx) UI.breakDefense(rid, i + 1); }, 50); } }),
+    hidden: (hid) => ({ win: (g) => { const h = g.hiddenList().find((x) => x.id === hid); if (!h) return; const t = typeof hiddenTpl === 'function' ? hiddenTpl(h.id) : { name: '히든 피스' }; UI.hiddenMsg = g.hiddenGrant(h); g.queue.push({ type: 'hidden-done', name: t.name }); } }),
+    main: (scId) => ({ win: (g) => { g.mainState().flags[`fight_${scId}`] = 'win'; }, lose: (g) => { g.mainState().flags[`fight_${scId}`] = 'lose'; } }),
+    rift: (kind, npcId) => ({
+      lose: (g) => { UI.riftLostMsg = g.riftLeave('부상'); },
+      win: kind === 'core' ? (g) => { g.lifeEvent('대균열의 핵을 깨뜨렸다.'); g.rumor(`${g.player.name}이(가) 대균열의 핵을 깨뜨렸다!`); g.player.riftRun.step++; g.queue.unshift({ type: 'riftEnd' }); }
+        : ['monster', 'treasure', 'coop'].includes(kind) ? (g) => riftNext(g)
+        : (g) => { const n = g.npcById(npcId); if (n) g.rumor(`대균열 안에서 ${g.player.name}이(가) ${n.name}의 파티를 습격했다는 이야기가 돈다.`); riftNext(g); },
+    }),
+    clsAdv: () => ({ win: (gg) => { gg.player.clsAdv = Math.min(2, gg.player.clsAdv + 1); gg.recalc(); gg.lifeEvent(`전직 시험에 합격해 [${className(gg.player.cls, gg.player.clsAdv)}]이(가) 되었다.`); }, lose: (gg) => gg.queue.push({ type: 'story', id: 'class_advance_retry' }) }),
+  };
+  const fightRebuild = (spec) => {
+    const [k, ...args] = spec.resume; const f = AFTER[k] && AFTER[k](...args); if (!f) return false;
+    if (f.win) spec.win = { ...(spec.win || {}), after: f.win };
+    if (f.lose) spec.lose = { ...(spec.lose || {}), after: f.lose };
+    return true;
+  };
   const baseSave = Game.prototype.save;
   Game.prototype.save = function (...a) {
     const r = baseSave.apply(this, a);
@@ -114,7 +139,7 @@
       if (d && d.mk === this.monthKey() && d.day === this.day && Array.isArray(d.q) && d.q.length) {
         const sig = (q) => q.type + ':' + (q.id || '') + ':' + (q.npc ?? q.npcId ?? '');
         const have = new Set((this.queue || []).map(sig));
-        for (const q of d.q) if (!have.has(sig(q))) this.queue.push(q);
+        for (const q of d.q) if (!have.has(sig(q))) { if (q.type === 'storyfight' && q.spec && q.spec.resume) { if (!fightRebuild(q.spec)) continue; } this.queue.push(q); }
       }
     } catch (e) { /* 무시 */ }
     return ok;
@@ -131,7 +156,7 @@
   // 되살린 큐는 이어하기 직후 처리한다
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
-    if (act !== 'continue') this._curQ = null;
+    if (act !== 'continue' && !(this._curQ && this._curQ.type === 'storyfight' && this.ctx && this.ctx.kind === 'story')) this._curQ = null;
     const r = baseHandle.call(this, act, v);
     if (act === 'continue' && this.screen === 'game' && G.queue && G.queue.length) setTimeout(() => { try { if (!this.modalOpen() && !this.dlg && !this.ctx) this.processQueue(); } catch (e) { /* 무시 */ } }, 600);
     return r;
@@ -145,4 +170,95 @@
     get() { return !!(this.flags && this.flags.afterCrisis); },
     set(v) { if (this.flags) this.flags.afterCrisis = !!v; },
   });
+}
+
+// 이야기 전투가 끝나면 '띄운 항목' 기억을 지운다(도중에 껐다 켜면 그 전투를 다시 한다)
+{
+  const baseFin = UI.finishStoryFight;
+  if (baseFin) UI.finishStoryFight = function (...a) { this._curQ = null; return baseFin.apply(this, a); };
+}
+
+// ---------- 괴수 토벌 도중(특히 리더가 이끈 팀 토벌) ----------
+// 팀 토벌은 도착하면 crewMarch 를 비우고 전투를 연다. 전투 중에 끄면 팀 일(c.job)은 남았는데 전투도 이동도 없어 결정권이 플레이어에게 왔다.
+// 전투를 시작할 때 무리 id 를 남기고, 이어하면 그 무리와 다시 붙는다. 끝나면(finishMob) 지운다.
+{
+  const baseStart = UI.startMob;
+  if (baseStart) UI.startMob = function (id, ...a) {
+    const r = baseStart.call(this, id, ...a);
+    setTimeout(() => { try { const c = this.ctx; if (c && c.kind === 'mob' && c.mob && G.player) { G.player.mobFightSave = { id: c.mob.id, crewRaid: !!c.crewRaid }; G.save(); } } catch (e) { /* 무시 */ } }, 0);
+    return r;
+  };
+  const baseFinish = Game.prototype.finishMob;
+  if (baseFinish) Game.prototype.finishMob = function (...a) { if (this.player) this.player.mobFightSave = null; return baseFinish.apply(this, a); };
+}
+
+// ---------- 전국 헌터 대회 진행 ----------
+// 대진(UI.tourney)이 화면에만 있어, 라운드 사이에 끄면 대회가 사라졌다. 입장한 대회만 남기고, 이어하면 다음 라운드부터.
+{
+  let tour = UI.tourney || null;
+  Object.defineProperty(UI, 'tourney', {
+    configurable: true, enumerable: true,
+    get() { return tour; },
+    set(v) { tour = v || null; try { if (G && G.player) G.player.tourneySave = v && v.started ? clone2(v) : null; } catch (e) { /* 무시 */ } },
+  });
+  function clone2(o) { try { return JSON.parse(JSON.stringify(o)); } catch (e) { return null; } }
+  const baseHandle = UI.handle;
+  UI.handle = function (act, v) {
+    if (act === 'tourney-go' && tour) { tour.started = true; if (G.player) { G.player.tourneySave = clone2(tour); } }
+    return baseHandle.call(this, act, v);
+  };
+  const baseFin = UI.finishTourney;
+  if (baseFin) UI.finishTourney = function (...a) {
+    const t = tour; const won = this.ctx && this.ctx.combat && this.ctx.combat.result === 'win';
+    const r = baseFin.apply(this, a);
+    try { if (!won || (t && t.round >= 3)) { tour = null; if (G.player) G.player.tourneySave = null; } else if (G.player) { G.player.tourneySave = clone2(t); G.save(); } } catch (e) { /* 무시 */ }
+    return r;
+  };
+}
+
+// 이어하기: 괴수 토벌·대회도 되살린다 (게이트·리더 이동 다음 순서)
+{
+  const baseResume = UI.resumeRun;
+  UI.resumeRun = function () {
+    if (baseResume.call(this)) return true;
+    const p = G.player; if (!p || G.over || this.ctx || this.dlg) return false;
+    const mf = p.mobFightSave;
+    if (mf) {
+      const mob = G.mobs.find((m) => m.id === mf.id);
+      if (!mob) { p.mobFightSave = null; return false; }
+      this.startMob(mob.id); if (this.ctx && this.ctx.kind === 'mob' && mf.crewRaid) this.ctx.crewRaid = true;
+      this.toast('하던 토벌을 이어 갑니다.');
+      return true;
+    }
+    const ts = p.tourneySave;
+    if (ts && ts.started && ts.round < 3) {
+      this.tourney = ts;
+      const n = G.npcById(ts.foes[ts.round]);
+      if (!n) { this.tourney = null; return false; }
+      this.modal(`<div class="eyebrow">${G.year}년 전국 헌터 대회 · 이어서</div><h3>${['1회전', '준결승', '결승'][ts.round]} · ${n.name}</h3><p class="event-text">대기실. 다음 상대가 기다린다.</p>
+        <div class="row end"><button class="primary" data-act="tourney-go">입장한다</button></div>`, 'event-box');
+      return true;
+    }
+    return false;
+  };
+}
+
+// ---------- 지도 이동 목적지 ----------
+// UI.travel(가던 곳)이 화면에만 있어 껐다 켜면 '▶ 이어서 이동' 버튼이 사라졌다. 남겨 두고 이어하기 때 되살린다(이동 자체는 버튼으로 이어 간다).
+{
+  let trav = UI.travel || null;
+  Object.defineProperty(UI, 'travel', {
+    configurable: true, enumerable: true,
+    get() { return trav; },
+    set(v) { trav = v || null; try { if (G && G.player) G.player.travelSave = v && v.x != null ? { x: v.x, y: v.y, label: v.label } : null; } catch (e) { /* 무시 */ } },
+  });
+  const baseHandle = UI.handle;
+  UI.handle = function (act, v) {
+    const r = baseHandle.call(this, act, v);
+    if (act === 'continue' && this.screen === 'game') {
+      const s = G.player && G.player.travelSave;
+      if (s && !trav && !(G.player.x === s.x && G.player.y === s.y)) { trav = { ...s }; try { this.renderGame(); } catch (e) { /* 무시 */ } }
+    }
+    return r;
+  };
 }

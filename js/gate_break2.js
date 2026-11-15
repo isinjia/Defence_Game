@@ -137,6 +137,7 @@ const BREAK2 = { omenLeft: 1, spill: 4, spillMax: 8, omenMerit: 5, omenFame: 2 }
       const w = WAVES[i]; const last = i === WAVES.length - 1;
       const reg = regionById(rid);
       const next = () => G.storyFight({
+        resume: ['break', rid, i, last ? 1 : 0],
         title: `${reg.name} 브레이크 방어전 · ${w.title}`,
         mobs: w.mob(b.tier),
         win: last

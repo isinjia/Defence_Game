@@ -313,7 +313,7 @@ Object.assign(UI, {
     if (plan.kind === 'escort') {
       const pay = G.crewPay ? G.crewPay(plan.pay) : plan.pay; // 의뢰 보수도 리더 몫·배당대로 나눈다(payroll.js)
       G.advanceDays(Math.max(1, plan.day - G.day), { noSave: true });
-      G.storyFight({ title: `${c.name} · 운송 차량 호위`, mobs: { tier: plan.tier, n: 2, human: true }, spar: false,
+      G.storyFight({ resume: ['escort'], title: `${c.name} · 운송 차량 호위`, mobs: { tier: plan.tier, n: 2, human: true }, spar: false,
         win: { text: `약탈 헌터들을 쫓아냈다. 화물은 무사히 도착했다. (의뢰 보수 분배: 내 몫 ${fmt(pay)} 크레딧)`, gain: { money: pay, fame: 1 }, after: (g) => { g.crewTrust(4); for (const n of g.party()) g.changeRel(n, 2); } },
         lose: { text: '화물 일부를 빼앗겼다. 리더가 보수를 깎았다.', gain: { money: Math.round(pay * 0.2), injure: 1 }, after: (g) => g.crewTrust(-3) } });
       return this.after();
