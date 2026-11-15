@@ -635,6 +635,141 @@ const PortraitParts = (() => {
       "mouthY": 161,
       "skinMask": "face-m-32-skin.webp",
       "registrationVersion": 3
+    },
+    {
+      "file": "face-m-33.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        222.0,
+        187.0,
+        169.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-33-skin.webp",
+      "registrationVersion": 3,
+      "appearanceAge": [
+        33,
+        36
+      ]
+    },
+    {
+      "file": "face-m-34.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        223.0,
+        188.0,
+        171.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-34-skin.webp",
+      "registrationVersion": 3,
+      "appearanceAge": [
+        33,
+        36
+      ]
+    },
+    {
+      "file": "face-m-35.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        222.0,
+        186.0,
+        168.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-35-skin.webp",
+      "registrationVersion": 3,
+      "appearanceAge": [
+        33,
+        36
+      ]
+    },
+    {
+      "file": "face-m-36.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        219.0,
+        182.0,
+        164.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-36-skin.webp",
+      "registrationVersion": 3,
+      "appearanceAge": [
+        33,
+        36
+      ]
+    },
+    {
+      "file": "face-m-37.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        222.0,
+        187.0,
+        170.0
+      ],
+      "chinY": 251,
+      "eyeCenters": [
+        43,
+        101
+      ],
+      "eyeY": 104,
+      "mouthY": 161,
+      "skinMask": "face-m-37-skin.webp",
+      "registrationVersion": 3,
+      "appearanceAge": [
+        33,
+        36
+      ]
     }
   ],
   "face-f": [
@@ -1270,6 +1405,141 @@ const PortraitParts = (() => {
       "mouthY": 171,
       "skinMask": "face-f-32-skin.webp",
       "registrationVersion": 3
+    },
+    {
+      "file": "face-f-33.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        217.0,
+        184.0,
+        171.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-33-skin.webp",
+      "registrationVersion": 3,
+      "appearanceAge": [
+        33,
+        36
+      ]
+    },
+    {
+      "file": "face-f-34.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        214.0,
+        181.0,
+        166.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-34-skin.webp",
+      "registrationVersion": 3,
+      "appearanceAge": [
+        33,
+        36
+      ]
+    },
+    {
+      "file": "face-f-35.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        216.0,
+        183.0,
+        169.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-35-skin.webp",
+      "registrationVersion": 3,
+      "appearanceAge": [
+        33,
+        36
+      ]
+    },
+    {
+      "file": "face-f-36.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        213.0,
+        178.5,
+        164.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-36-skin.webp",
+      "registrationVersion": 3,
+      "appearanceAge": [
+        33,
+        36
+      ]
+    },
+    {
+      "file": "face-f-37.webp",
+      "rect": [
+        128,
+        55,
+        144,
+        250
+      ],
+      "skinRgb": [
+        215.0,
+        182.5,
+        168.0
+      ],
+      "chinY": 261,
+      "eyeCenters": [
+        42,
+        102
+      ],
+      "eyeY": 114,
+      "mouthY": 171,
+      "skinMask": "face-f-37-skin.webp",
+      "registrationVersion": 3,
+      "appearanceAge": [
+        33,
+        36
+      ]
     }
   ],
   "hair-m": [
@@ -3003,10 +3273,11 @@ const PortraitParts = (() => {
   const FACE_ADULT = 15;
   const FACE_YOUTH = 3;
   // 저장된 외형은 기존 풀로 해석하고, 새 외형만 확장 풀을 사용한다.
-  const LOOK_PREFIX = 'look5:';
-  const isExpandedLook = seed => /^look[345]:/.test(String(seed));
+  const LOOK_PREFIX = 'look6:';
+  const isExpandedLook = seed => /^look[3456]:/.test(String(seed));
   const ADULT_FACES = [0,1,2,5,7,8,10,11,13,14,18,19,20,21,22,23,24,25,26,27];
   const NEW_ADULT_FACES = [...ADULT_FACES,28,29,30,31,32];
+  const EXPANDED_ADULT_FACES = [...NEW_ADULT_FACES,33,34,35,36,37];
   const newLook = () => LOOK_PREFIX + Math.random().toString(36).slice(2);
   function portraitYears(age) {
     const y = age == null ? 25 : age;
@@ -3029,15 +3300,18 @@ const PortraitParts = (() => {
     // 별도 화풍으로 제작된 성인 파츠만 같은 시드의 웹툰풍 얼굴로 대체한다.
     if (!young) face = ({3:0,4:1,6:2,9:5,12:1})[face] ?? face;
     if (expanded && !young) {
-      // look3 저장 외형의 추첨 순서·개수는 보존하고 새 외형만 미형 얼굴을 포함한다.
-      const pool = /^look[45]:/.test(String(seed)) ? NEW_ADULT_FACES : ADULT_FACES;
+      // look3/4/5 저장 외형의 추첨 순서·개수를 보존한다. 새 성인 외형에만 30대 인상 얼굴을 더한다.
+      const pool = String(seed).startsWith(LOOK_PREFIX) && stage === 'adult'
+        ? EXPANDED_ADULT_FACES
+        : /^look[456]:/.test(String(seed)) ? NEW_ADULT_FACES : ADULT_FACES;
       face = pool[hash % pool.length];
     }
     // 사용자 삭제 지정: 남성 19·23번만 대체한다. 풀을 줄이면 다른 저장 외형까지 바뀐다.
     if (g === 'm') face = ({19:29,23:30})[face] ?? face;
     // 얼굴과 헤어에 같은 비트를 나눠 쓰면 특정 조합이 나오지 않는다. 새 풀은 따로 추첨한다.
-    // look3/4 저장 외형의 헤어 추첨 폭은 30으로 고정한다.
-    const hairCount = String(seed).startsWith(LOOK_PREFIX) ? hairs.length : Math.min(30, hairs.length);
+    // look3/4는 30종, look5는 당시 34종을 유지해 얼굴 확장으로 저장 헤어가 바뀌지 않게 한다.
+    const hairCount = String(seed).startsWith('look5:') ? Math.min(34, hairs.length)
+      : String(seed).startsWith(LOOK_PREFIX) ? hairs.length : Math.min(30, hairs.length);
     let hair = expanded ? Math.floor(FX.rng(hash ^ 0x9e3779b9)() * hairCount)
       : (hash >>> 4) % Math.min(20, hairs.length);
     // 선택 풀의 길이·순서를 보존하고 품질 기준에서 제외한 헤어만 대체한다.

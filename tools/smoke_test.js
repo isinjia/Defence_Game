@@ -247,7 +247,7 @@ const { chromium, devices } = require('playwright');
           if(/href="assets\//.test(svg))throw Error('외부 파츠 경로 남음');
         }
       }
-      if(!PortraitParts.newLook().startsWith('look5:'))throw Error('새 외형 시드 형식');
+      if(!PortraitParts.newLook().startsWith('look6:'))throw Error('새 외형 시드 형식');
     });
   });
   await step('미형 얼굴 추가: 남녀 각 5종·신규 추첨·기존 외형 보존', async () => {
