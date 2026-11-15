@@ -420,3 +420,42 @@ if (typeof SKILLS !== 'undefined') {
   const SELF = /(몸|자신|스스로|제 |살갗|자세|호흡|숨|마음|맹세|변신|뿌리|분노|기를|의지|고요히|채찍|갑주|피를|살기|총|검에|괴수와|계율|혈관|빗장|땅에)/;
   for (const sk of SKILLS) if (sk.type === 'heal' && !SELF.test(`${sk.name} ${sk.desc || ''}`)) { sk.type = 'heal_ally'; sk.allyHeal = true; }
 }
+
+// 기술 접사(예리한·묵직한·절약의 등, js/bonds.js)는 이름 앞에 붙이지 않고 이름 옆 태그로 통일 (사용자 요청)
+// 전에는 "예리한 치유의 빛"처럼 이름이 바뀌어 같은 기술이 화면마다 다른 이름으로 보였다. 이름은 원래 이름, 접사는 태그.
+if (typeof Game !== 'undefined' && Game.prototype.skillEff && Game.prototype.affixLabel) {
+  const baseEff = Game.prototype.skillEff;
+  Game.prototype.skillEff = function (sk, ...a) {
+    const r = baseEff.call(this, sk, ...a);
+    try {
+      if (r && r._aff && sk && r.name !== sk.name) { const lb = this.affixLabel(r.id); if (lb && r.name === `${lb} ${sk.name}`) return { ...r, name: sk.name, affix: lb }; }
+    } catch (e) { /* 무시 */ }
+    return r;
+  };
+}
+if (typeof UI !== 'undefined') {
+  const tagAffix = (root) => {
+    if (!root || !G.player || !G.affixLabel) return;
+    for (const el of root.querySelectorAll('[data-act="c-skill"][data-v], [data-act="st-sk"][data-v]')) {
+      const id = el.dataset.v; if (!id || id === 'strike' || el.querySelector('.sk-affix')) continue;
+      const lb = G.affixLabel(id); if (!lb) continue;
+      const b = el.querySelector('b'); if (!b) continue;
+      // 전투 기술 단추는 이름 줄 안에 붙여야 줄이 늘지 않는다
+      if (el.dataset.act === 'c-skill') b.insertAdjacentHTML('beforeend', ` <span class="tag sk-affix in">${lb}</span>`); else b.insertAdjacentHTML('afterend', `<span class="tag sk-affix">${lb}</span>`);
+    }
+  };
+  const wrapR = (name) => { const base = UI[name]; if (!base) return; UI[name] = function (...a) { const r = base.apply(this, a); try { tagAffix(document.getElementById('modal-box')); tagAffix(document.getElementById('app')); } catch (e) { /* 무시 */ } return r; }; };
+  ['renderControls', 'showStatusCheck', 'render'].forEach(wrapR);
+  // 기술 상세 창 머리
+  if (UI.skillHoldHtml) {
+    const baseHold2 = UI.skillHoldHtml;
+    UI.skillHoldHtml = function (sk, u, ...a) {
+      let h = baseHold2.call(this, sk, u, ...a);
+      try {
+        const lb = sk && (sk.affix || (u && u.isPlayer !== false && G.affixLabel && G.player && (G.player.skills || []).includes(sk.id) ? G.affixLabel(sk.id) : ''));
+        if (lb && !/sk-affix/.test(h)) h = h.replace(/(<div class="sh-head">[\s\S]*?<b>[^<]*<\/b>)/, `$1<span class="tag sk-affix">${lb}</span>`);
+      } catch (e) { /* 무시 */ }
+      return h;
+    };
+  }
+}

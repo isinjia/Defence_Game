@@ -284,3 +284,10 @@ html body #coach-pop .coach-arrow { display: none !important; }
 .paper-box { max-height: 100%; } .paper-box .paper { max-height: none; }
 /* 원래 건너뛰기 단추는 늘 숨긴다(자리는 대리 단추 .tsk-proxy 가 맡는다). 새로 붙는 순간에도 헤더 자리를 밀지 않게 */
 html body #tut-skip { display: none !important; }
+/* 기술 접사 태그 (js/polish.js): 이름 옆 */
+.tag.sk-affix { margin-left: 4px; color: #ffcf7a; border-color: #ffcf7a66; background: #ffcf7a14; font-weight: 700; }
+.sh-head .tag.sk-affix { font-size: 11px; vertical-align: middle; }
+.tag.sk-affix.in { font-size: 10.5px; padding: 0 5px; line-height: 16px; vertical-align: 1px; margin-left: 3px; }
+/* 전투 기술 목록: 접사 태그가 이름 옆 한 줄에 붙게(줄이 늘어 이름이 잘리지 않게) */
+html body .combat-box .cmd-list .skill-btn b { white-space: nowrap; }
+html body .combat-box .skill-btn b .tag.sk-affix.in { display: inline; padding: 0 4px; font-size: 10px; line-height: 1; border-width: 1px; vertical-align: 1px; }
