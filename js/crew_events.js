@@ -18,7 +18,7 @@
     const sour = ms.find((n) => (n.links && n.links[L.id] != null ? n.links[L.id] : 30) < 10 || (n.relation || 0) < 5);
     if (sour || (ms.length >= 2 && Math.random() < 0.25)) list.push(['leave', 2]);
     if (ms.length <= 2) list.push(['recruit', 3]);
-    if (!(L.injured > 0) && !c.actingLead) list.push(['injury', 1.5]);
+    if (!(L.injured > 0) && !(G.npcHurt && G.npcHurt(L)) && !c.actingLead) list.push(['injury', 1.5]);
     if (!list.length) return null;
     const pool = list.filter((x) => x[0] !== c.lastEv); if (pool.length) list.splice(0, list.length, ...pool); // 같은 사건이 연달아 나오지 않게
     let tot = list.reduce((a, b) => a + b[1], 0), r = Math.random() * tot;
@@ -68,7 +68,7 @@
     }
     // 리더 부상
     const sub = G.crewRankOf && G.crewRankOf().id === 'sub';
-    L.injured = Math.max(L.injured || 0, 1);
+    L.injured = Math.max(L.injured || 0, 1); if (G.hurtNpc) G.hurtNpc(L, 7); // 실제 부상(전투력 감소, js/party_life.js)
     if (sub) {
       c.actingLead = true;
       const T = { just: '팔이 이래서 다음 일은 못 고르겠다. 이번엔 네가 정해라. 부리더잖아.', kind: '저 당분간 무리예요… 다음 일은 부리더가 골라 줘요.', cold: '다쳤다. 다음 건 네가 정해.' };
