@@ -168,9 +168,8 @@ Object.assign(UI, {
   UI.renderCouncil = function () {
     baseRender.call(this);
     const c = this.ctx; const cn = c.council;
-    if (cn && cn.leader != null && cn.stage === 'vote' && !c.run.blocked) {
-      const row = document.querySelector('#council-ov .cn-btns'); if (row) row.insertAdjacentHTML('beforeend', '<button class="sm danger" data-act="cn-vote" data-v="B">막아선다</button>');
-    }
+    // '막아선다' 버튼은 일단 뺀다(사용자 요청, 탐색 상의 방식 재검토 중). 처리 코드(councilNpcDecide 'B')는 남겨 둔다.
+    void cn; void c;
   };
   // 지도: 변이 조짐·귀환석
   const baseMap = UI.renderGateMap;

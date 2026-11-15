@@ -94,7 +94,7 @@ Object.assign(UI, {
         : `<div class="cn-btns"><button class="primary" data-act="cn-go">진행</button><button class="sm ghost" data-act="cn-back">다시 고른다</button></div>`;
     } else {
       foot = `<p class="small">${L.name}(리더)이(가) 이 길을 골랐다.${cn.clicked && cn.clicked !== cn.key ? ` 당신이 가리킨 곳은 ${GNODE[this.nodeOf(cn.clicked).t].name} 칸이었다.` : ''} 당신의 의견은?</p>
-        <div class="cn-btns"><button class="primary" data-act="cn-vote" data-v="O">O 찬성</button><button class="danger" data-act="cn-vote" data-v="X">X 반대</button><button class="sm ghost" data-act="cn-vote" data-v="X!">X · "${cn.clicked && cn.clicked !== cn.key ? '저쪽이 낫지 않아?' : '좀 더 생각해 보자'}"</button></div>`;
+        <div class="cn-btns"><button class="primary" data-act="cn-vote" data-v="O">O 찬성</button><button class="danger" data-act="cn-vote" data-v="X">X 반대</button></div>`;
     }
     this.councilPanel(`<div class="cn-card"><div class="row between"><b>팀 상의 · <span style="color:${N.color}">${N.name}</span></b></div>
       ${L ? `<div class="small dim">제안: ${L.name}(리더)</div>` : '<div class="small dim">제안: 나(리더)</div>'}
