@@ -173,6 +173,15 @@ html body[data-cut="${k}"] #main-cut .mc-img { top: 0; left: 0; width: 100vw; he
 html body[data-cut="${k}"] #main-cut .mc-img.out { animation: mcOut .7s ease-in both; }
 html body[data-cut="${k}"] #main-cut::after { content: ''; position: absolute; inset: 0; pointer-events: none;
   background: radial-gradient(ellipse at 50% 38%, transparent 45%, #04060a8c 100%), linear-gradient(to bottom, #04060a59 0%, transparent 18%, transparent 46%, #04060ab3 74%, #04060af2 100%); }`).join('\n') + `
+/* 모바일(좁은 화면)에서는 모든 메인 컷신 그림을 시험장 로비처럼: 화면 전체 · 아래만 어둡게 · 천천히 다가감 (사용자 요청) */
+@media (max-width: 760px) {
+  html body #main-cut { background: #04060a; }
+  html body #main-cut .mc-img { top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; transform: none; object-fit: cover; object-position: 50% 36%;
+    -webkit-mask-image: none; mask-image: none; transform-origin: 50% 40%; animation: pfCutIn .9s ease-out both, pfCutPush 26s ease-out both; }
+  html body #main-cut .mc-img.out { animation: mcOut .7s ease-in both; }
+  html body #main-cut::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 38%, transparent 45%, #04060a8c 100%), linear-gradient(to bottom, #04060a59 0%, transparent 18%, transparent 46%, #04060ab3 74%, #04060af2 100%); }
+}
 @keyframes pfCutIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes pfCutPush { from { transform: scale(1); } to { transform: scale(1.09); } }
 @media (prefers-reduced-motion: reduce) { #main-cut .mc-img { animation: pfCutIn .3s ease-out both !important; } }
