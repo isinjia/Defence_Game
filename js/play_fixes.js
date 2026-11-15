@@ -159,7 +159,18 @@
 {
   const KEEP_FACE = ['cut-exam-lobby'];
   const css = document.createElement('style');
-  css.textContent = KEEP_FACE.map((k) => `html body.main-cut-on[data-cut="${k}"] #dlg .dlg-face { display: block; }`).join('\n');
+  // 연출: 그림을 화면 전체에 깔고(가운데 기준으로 잘라 채움) 아주 천천히 다가간다. 아래쪽만 어둡게 눌러 대사가 읽히게 한다.
+  css.textContent = KEEP_FACE.map((k) => `html body.main-cut-on[data-cut="${k}"] #dlg .dlg-face { display: block; }
+html body[data-cut="${k}"] #main-cut { background: #04060a; }
+html body[data-cut="${k}"] #main-cut .mc-img { top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; transform: none; object-fit: cover; object-position: 50% 36%;
+  -webkit-mask-image: none; mask-image: none; transform-origin: 50% 40%; animation: pfCutIn .9s ease-out both, pfCutPush 26s ease-out both; }
+html body[data-cut="${k}"] #main-cut .mc-img.out { animation: mcOut .7s ease-in both; }
+html body[data-cut="${k}"] #main-cut::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 38%, transparent 45%, #04060a8c 100%), linear-gradient(to bottom, #04060a59 0%, transparent 18%, transparent 46%, #04060ab3 74%, #04060af2 100%); }`).join('\n') + `
+@keyframes pfCutIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pfCutPush { from { transform: scale(1); } to { transform: scale(1.09); } }
+@media (prefers-reduced-motion: reduce) { #main-cut .mc-img { animation: pfCutIn .3s ease-out both !important; } }
+body.reduced #main-cut .mc-img { animation: pfCutIn .3s ease-out both !important; }`;
   document.head.appendChild(css);
   const baseShow = UI.mainCutShow, baseClear = UI.mainCutClear;
   if (baseShow) UI.mainCutShow = function (key, ...a) { const r = baseShow.call(this, key, ...a); if (this._cut) document.body.dataset.cut = this._cut; return r; };
