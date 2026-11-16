@@ -341,9 +341,14 @@ if (typeof WORLD !== 'undefined' && WORLD.reach) {
 //     ② 칸 사이 이동을 일정한 속도로(예전: 칸마다 가속·감속해서 여러 칸을 갈 때 멈칫멈칫).
 if (typeof MapView !== 'undefined') {
   const MP = MapView.prototype;
-  const WALK_SLOW = 3; // 이동 속도 1/3 (사용자 요청: 너무 빠름)
+  const WALK_SLOW = 2; // 도보 연출 속도: 원래의 1/2 (사용자 요청: 1/3은 너무 느림 → 1.5배 빠르게)
+  // 탈것을 타면 도보 대비 실제 이동 속도 비율만큼 빠르게(하루 칸 수 비율, 연출이 너무 빨라지지 않게 최대 8배)
+  const rideRatio = () => {
+    try { const ride = G.travelRidePace ? G.travelRidePace() : 0; if (!ride) return 1; const walk = G.travelWalkPace ? G.travelWalkPace() : 4; return Math.max(1, Math.min(8, ride / walk)); } catch (e) { return 1; }
+  };
+  MP.walkRideRatio = rideRatio;
   MP.tween = function (from, to, ms, done) {
-    this.moving = true; this.reachData = null; ms *= WALK_SLOW;
+    this.moving = true; this.reachData = null; ms = ms * WALK_SLOW / rideRatio();
     const t0 = performance.now();
     const step = (now) => {
       const k = ms <= 0 ? 1 : Math.min(1, (now - t0) / ms);
@@ -478,6 +483,72 @@ if (typeof MapView !== 'undefined') {
         c.restore();
       } catch (e) { /* 무시 */ }
     }
+    return r;
+  };
+}
+
+// 17. 탈것 연출 (사용자 요청)
+//   ① 이동 연출 속도: 도보는 기본, 탈것은 도보 대비 실제 속도 비율만큼 빠르게(위 14의 MP.tween). 팀 이동도 같은 속도(따로 빨리 감기 없음).
+//   ② 탈것을 타고 있으면 지도 위 내 초상 아래에 탈것 그림을 붙인다. 지금은 임시 도형. 그림이 생기면 VEHICLE_ART에 경로만 넣으면 된다.
+const VEHICLE_ART = { bicycle: null, usedbike: null, bike: null, car: null, suv: null, truck: null, heli: null }; // 예: 'assets/vehicles/car.png'
+{
+  // 팀 이동(crew_time.js)이 지도 연출을 0.4~0.7배로 빨리 감던 것을 끈다
+  const baseMarch = UI.crewMarchStep;
+  if (baseMarch) UI.crewMarchStep = function (...a) { const m = this.map; if (m && !m._baseTween) m._baseTween = MapView.prototype.tween; return baseMarch.apply(this, a); };
+
+  // 지금 탄 탈것 종류 (대여 > 내 차 > 팀 장갑차)
+  const rideId = () => {
+    const p = G.player; if (!p) return null;
+    if (p.vehicle && p.vehicle.id) return p.vehicle.id;
+    try { const o = G.ownVehicle && G.ownVehicle(); if (o) return o.id; } catch (e) { /* 무시 */ }
+    if (typeof UI !== 'undefined' && UI.crewMarch && UI.crewMarch.ride === 'truck') return 'truck';
+    return null;
+  };
+  Game.prototype.rideIdNow = rideId;
+  const imgs = {};
+  const artOf = (id) => {
+    const src = VEHICLE_ART[id]; if (!src) return null;
+    let im = imgs[id]; if (!im) { im = imgs[id] = new Image(); im.src = src; }
+    return im.complete && im.naturalWidth ? im : null;
+  };
+  // 임시 도형: 두 바퀴(자전거·오토바이), 차체(차·SUV·장갑차), 헬기
+  const drawTemp = (c, id, x, y, w) => {
+    const h = w * 0.42; c.save(); c.translate(x, y);
+    c.lineJoin = 'round'; c.lineCap = 'round'; c.strokeStyle = '#0a0e14'; c.lineWidth = Math.max(2, w * 0.06);
+    const body = { bicycle: '#7fd0ff', usedbike: '#ff9a5a', bike: '#ff7a45', car: '#d9dde4', suv: '#6c7a5a', truck: '#56604c', heli: '#3c4a5c' }[id] || '#ccc';
+    const wheel = (wx, r) => { c.fillStyle = '#1b2029'; c.beginPath(); c.arc(wx, h * 0.3, r, 0, Math.PI * 2); c.fill(); c.stroke(); };
+    if (id === 'bicycle' || id === 'usedbike' || id === 'bike') {
+      wheel(-w * 0.3, h * 0.38); wheel(w * 0.3, h * 0.38);
+      c.strokeStyle = body; c.lineWidth = Math.max(2.5, w * 0.08);
+      c.beginPath(); c.moveTo(-w * 0.3, h * 0.3); c.lineTo(-w * 0.02, -h * 0.25); c.lineTo(w * 0.3, h * 0.3); c.moveTo(-w * 0.12, -h * 0.25); c.lineTo(w * 0.14, -h * 0.25); c.stroke();
+    } else if (id === 'heli') {
+      c.fillStyle = body; c.beginPath(); c.ellipse(-w * 0.05, 0, w * 0.32, h * 0.42, 0, 0, Math.PI * 2); c.fill(); c.stroke();
+      c.beginPath(); c.moveTo(w * 0.25, -h * 0.05); c.lineTo(w * 0.55, -h * 0.2); c.stroke();
+      c.strokeStyle = '#cfd6df'; c.beginPath(); c.moveTo(-w * 0.55, -h * 0.62); c.lineTo(w * 0.45, -h * 0.62); c.stroke();
+      c.fillStyle = '#9fd8ff'; c.beginPath(); c.ellipse(-w * 0.2, -h * 0.05, w * 0.1, h * 0.2, 0, 0, Math.PI * 2); c.fill();
+    } else {
+      c.fillStyle = body; c.beginPath();
+      c.moveTo(-w * 0.5, h * 0.25); c.lineTo(-w * 0.5, -h * 0.1); c.lineTo(-w * 0.28, -h * 0.5); c.lineTo(w * 0.24, -h * 0.5); c.lineTo(w * 0.5, -h * 0.05); c.lineTo(w * 0.5, h * 0.25); c.closePath(); c.fill(); c.stroke();
+      c.fillStyle = '#9fd8ff'; c.fillRect(-w * 0.22, -h * 0.4, w * 0.36, h * 0.28);
+      wheel(-w * 0.28, h * 0.24); wheel(w * 0.28, h * 0.24);
+    }
+    c.restore();
+  };
+  const MP = MapView.prototype; const baseDP = MP.drawPlayer;
+  MP.drawPlayer = function (...a) {
+    const id = rideId();
+    if (!id) return baseDP.apply(this, a);
+    // 탈것을 타면 걷는 들썩임 없이 미끄러지듯
+    const tk = this.token; let saved = null;
+    if (tk && tk.walking) { saved = tk; this.token = { x: tk.x, y: tk.y }; }
+    let r; try { r = baseDP.apply(this, a); } finally { if (saved) this.token = saved; }
+    try {
+      const c = this.ctx, s = this.tile; const pos = this.token || { x: G.player.x, y: G.player.y };
+      const [px, py] = this.toScreen(pos.x + 0.5, pos.y + 0.5); const R = s * 0.42; const w = R * 1.7;
+      const im = artOf(id);
+      if (im) { const ih = w * im.naturalHeight / im.naturalWidth; c.drawImage(im, px - w / 2, py + R * 0.55, w, ih); }
+      else drawTemp(c, id, px, py + R * 0.95, w);
+    } catch (e) { /* 무시 */ }
     return r;
   };
 }
