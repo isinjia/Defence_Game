@@ -115,6 +115,7 @@
     if (f.lose) spec.lose = { ...(spec.lose || {}), after: f.lose };
     return true;
   };
+  UI._fightRebuild = fightRebuild; // 전투 도중 이어하기(combat_resume.js)도 이야기 전투 후처리를 다시 붙인다
   const baseSave = Game.prototype.save;
   Game.prototype.save = function (...a) {
     const r = baseSave.apply(this, a);
