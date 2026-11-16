@@ -79,7 +79,7 @@ if (typeof UI !== 'undefined') {
   UI.paperHtml = function (pp) {
     if (pp.kind === 'extra') {
       return `<div class="paper extra"><div class="paper-mast"><b>헌터 일보</b><span>호외 · ${esc(pp.date || '')}</span></div>
-        <div class="paper-extra-tag">號外</div><h2 class="paper-head">${esc(pp.head)}</h2>${pp.sub ? `<p class="paper-sub">${esc(pp.sub)}</p>` : ''}</div>`;
+        <div class="paper-extra-tag">호외</div><h2 class="paper-head">${esc(pp.head)}</h2>${pp.sub ? `<p class="paper-sub">${esc(pp.sub)}</p>` : ''}</div>`;
     }
     const secs = Object.entries(pp.secs || {}).filter(([, a]) => a.length).map(([k, a]) => `<div class="paper-sec"><h4>${SEC[k]}</h4>${a.map((t) => `<p>${esc(t)}</p>`).join('')}</div>`).join('');
     const st = pp.stat || {};

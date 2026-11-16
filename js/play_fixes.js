@@ -561,3 +561,31 @@ const VEHICLE_ART = { usedbike: null, bike: null, car: null, suv: null, truck: n
     return r;
   };
 }
+
+// 19. 데뷔 첫 사건(자격증 받은 날)은 헌터 카드가 나온 직후 바로 (사용자 요청)
+//     전에는 첫 공략 안내(first_sortie.js)가 사건 큐보다 먼저 끼어들어, 팀을 꾸려 이동하는 중에야 떴다.
+//     주목받는 유망주의 기자회견 사건은 헌터 일보 호외(내 얼굴이 실린 기사)를 먼저 보여 준 뒤에 띄운다.
+{
+  const isDebut0 = (q) => q && q.type === 'story' && /^debut_[a-z]+_0$/.test(q.id || '');
+  const baseQ = UI.processQueue;
+  UI.processQueue = function (...a) {
+    try {
+      if (this.screen === 'game' && G.player && !G.over && !this.ctx && !this.dlg && !this.walking && !this.modalOpen() && !this._pfHold) {
+        const i = G.queue.findIndex(isDebut0);
+        if (i >= 0) {
+          const q = G.queue[i]; const p = G.player;
+          if (q.id === 'debut_star_0' && !q.newsShown && G.paperExtra) {
+            q.newsShown = true;
+            const pp = G.paperExtra(`${RANKS[p.rankIdx].key}급 신규 각성자 ${p.name}, 올해 최대어`, '헌터 자격 시험 측정 결과 공개 · 협회, 내일 아침 기자회견 예정');
+            if (p.paperInbox) p.paperInbox = p.paperInbox.filter((n) => n !== pp.no);
+            G.save();
+            return this.showPaper(pp.no, true);
+          }
+          G.queue.splice(i, 1);
+          return this.showStory(q);
+        }
+      }
+    } catch (e) { /* 실패하면 원래 순서대로 */ }
+    return baseQ.apply(this, a);
+  };
+}
