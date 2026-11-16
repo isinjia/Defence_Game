@@ -53,7 +53,7 @@ if (typeof UI !== 'undefined') {
   let back = null; // 돌아올 사람
   const goHome = () => {
     if (!back) return; const s = back; back = null;
-    s.classList.add('melee-back'); s.style.transform = '';
+    s.classList.add('melee-back'); s.style.transform = ''; s._dashHome = null;
     setTimeout(() => s.classList.remove('melee-dashing', 'melee-back'), 240);
   };
   const baseApply = UI.applyEvent;
@@ -66,7 +66,9 @@ if (typeof UI !== 'undefined') {
         if (!s || !ts.length || (FX && FX.reduced)) return 0;
         if (back && back !== s) goHome();
         s.classList.remove('lunge-up', 'lunge-down', 'melee-back');
-        const prev = s.style.transform; s.style.transform = ''; const a = s.getBoundingClientRect(); s.style.transform = prev;
+        // 제자리 위치는 처음 달려갈 때 한 번만 잰다. 움직이는 중(전환 애니메이션 도중)에 재면 위치가 틀어져 다음 대상에서 크게 벗어난다
+        if (!s._dashHome || back !== s) { s.classList.remove('melee-dashing'); s.style.transform = ''; const h = s.getBoundingClientRect(); s._dashHome = { left: h.left, top: h.top, width: h.width, height: h.height }; }
+        const a = s._dashHome;
         // 한 대상이면 그 바로 앞(거리의 약 80%), 여럿이면 그 무리의 한가운데로
         const cs = ts.map((t) => { const b = t.getBoundingClientRect(); return [b.left + b.width / 2, b.top + b.height / 2]; });
         const cx = cs.reduce((v, c) => v + c[0], 0) / cs.length; const cy = cs.reduce((v, c) => v + c[1], 0) / cs.length;
