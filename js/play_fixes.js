@@ -335,3 +335,42 @@ if (typeof WORLD !== 'undefined' && WORLD.reach) {
     return r;
   };
 }
+
+// 14. 월드맵 이동을 부드럽게 (사용자 요청: "캐릭터 초상화가 가운데 있고 지도가 움직여야")
+//     ① 걷는 동안 카메라를 캐릭터에 딱 붙인다(예전: 매 프레임 남은 거리의 10%씩 늦게 따라가 초상이 가운데서 밀렸다 돌아옴).
+//     ② 칸 사이 이동을 일정한 속도로(예전: 칸마다 가속·감속해서 여러 칸을 갈 때 멈칫멈칫).
+if (typeof MapView !== 'undefined') {
+  const MP = MapView.prototype;
+  MP.tween = function (from, to, ms, done) {
+    this.moving = true; this.reachData = null;
+    const t0 = performance.now();
+    const step = (now) => {
+      const k = ms <= 0 ? 1 : Math.min(1, (now - t0) / ms);
+      this.token = { x: from[0] + (to[0] - from[0]) * k, y: from[1] + (to[1] - from[1]) * k, walking: true };
+      if (k < 1) requestAnimationFrame(step); else done();
+    };
+    requestAnimationFrame(step);
+  };
+  const baseDraw = MP.draw;
+  MP.draw = function (...a) {
+    if (this.token && this.token.walking) { this.camX = this.token.x + 0.5; this.camY = this.token.y + 0.5; if (this.clampCam) this.clampCam(); }
+    return baseDraw.apply(this, a);
+  };
+}
+//     ③ 걷는 동안에는 위쪽 정보(HUD)를 칸마다 다시 그리지 않고 0.4초에 한 번만(칸 사이 멈칫 줄이기). 멈추거나 도착하면 바로 그린다.
+{
+  const baseHud = UI.renderHud;
+  if (baseHud) {
+    let last = 0, timer = 0;
+    UI.renderHud = function (...a) {
+      const w = this.walking;
+      if (w && !w.stop && w.i < w.steps.length) {
+        const now = performance.now();
+        if (now - last < 400) { if (!timer) timer = setTimeout(() => { timer = 0; last = performance.now(); baseHud.apply(UI, a); }, 400 - (now - last)); return; }
+        last = now;
+      }
+      if (timer) { clearTimeout(timer); timer = 0; }
+      return baseHud.apply(this, a);
+    };
+  }
+}
