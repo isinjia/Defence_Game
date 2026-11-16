@@ -25,6 +25,7 @@
   const mark = () => {
     const root = document.querySelector('#modal-box .exploration-layout'); if (!root) return;
     const info = leadInfo(); const want = info ? info.key + '@' + info.L.id : '';
+    root.classList.toggle('xr-has-lead', !!info || !!(UI.ctx && UI.councilLeader && UI.councilLeader()) || !!(UI.exam && UI.exam.map));
     if (root.dataset.leadMark === want) return;
     root.dataset.leadMark = want;
     root.querySelectorAll('.xr-lead-badge, .xr-lead-node').forEach((e) => e.remove());

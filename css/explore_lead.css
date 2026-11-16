@@ -44,3 +44,11 @@ body.cn-map-on #council-ov { display: none !important; backdrop-filter: none !im
 
 /* 좁은 화면은 지도 안의 복귀 버튼을 쓴다. */
 @media(max-width:1099px){.xr-cnmap [data-act="cn-map-return"]{display:none}}
+
+/* 넓은 화면(세로 카드): 리더 카드 오른쪽을 비우면 일러스트가 잘린다(사용자 제보). 그림은 카드 폭 그대로 두고 얼굴은 그림 오른쪽 위에 얹는다 */
+@media (min-width: 760px) and (min-height: 601px), (min-width: 1100px) {
+  .xr-card.xr-leadpick { padding-right: 0 !important; }
+  .xr-card.xr-leadpick .xr-lead-badge { top: 12px; transform: none; right: 12px; }
+}
+/* 리더가 길을 정하는 동안에는 내가 고른 카드의 '✓ 선택한 경로' 표시를 감춘다 (사용자 요청) */
+.exploration-layout.xr-has-lead .xr-picked { display: none !important; }
