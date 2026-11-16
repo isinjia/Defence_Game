@@ -36,7 +36,7 @@
     const card = root.querySelector(`.xr-card[data-v="${key}"]`);
     if (card) {
       card.classList.add('xr-leadpick');
-      card.insertAdjacentHTML('beforeend', `<span class="xr-lead-badge" aria-label="${esc(L.name)}(리더)의 선택"><span class="xr-lead-face">${face(L, 144)}</span><span class="xr-lead-tag">리더 선택</span><span class="xr-lead-name">${esc(L.name)}</span></span>`);
+      (card.querySelector('.xr-art') || card).insertAdjacentHTML('beforeend', `<span class="xr-lead-badge" aria-label="${esc(L.name)}(리더)의 선택"><span class="xr-lead-face">${face(L, 144)}</span><span class="xr-lead-tag">리더 선택</span><span class="xr-lead-name">${esc(L.name)}</span></span>`);
     }
     // 경로 지도 칸 위의 리더 얼굴은 뺐다(사용자 요청: 움직이는 표식과 얼굴이 겹쳐 보임). 칸 테두리 강조만 남긴다
     const node = root.querySelector(`.gnode[data-xr-key="${key}"]`);

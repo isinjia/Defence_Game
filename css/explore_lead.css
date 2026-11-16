@@ -45,10 +45,16 @@ body.cn-map-on #council-ov { display: none !important; backdrop-filter: none !im
 /* 좁은 화면은 지도 안의 복귀 버튼을 쓴다. */
 @media(max-width:1099px){.xr-cnmap [data-act="cn-map-return"]{display:none}}
 
-/* 넓은 화면(세로 카드): 리더 카드 오른쪽을 비우면 일러스트가 잘린다(사용자 제보). 그림은 카드 폭 그대로 두고 얼굴은 그림 오른쪽 위에 얹는다 */
-@media (min-width: 760px) and (min-height: 601px), (min-width: 1100px) {
-  .xr-card.xr-leadpick { padding-right: 0 !important; }
-  .xr-card.xr-leadpick .xr-lead-badge { top: 12px; transform: none; right: 12px; }
-}
+/* 리더 선택 얼굴은 카드 그림 한가운데에 (사용자 요청). 그림을 좁히지 않으므로 카드 오른쪽 여백도 두지 않는다 */
+.xr-card.xr-leadpick { padding-right: 0 !important; }
+.xr-art { position: relative; }
+.xr-card.xr-leadpick .xr-art > .xr-lead-badge { top: 50%; left: 50%; right: auto; transform: translate(-50%, -50%); }
+.xr-card.xr-leadpick .xr-unknown-icon { display: none; } /* 미확인 물음표와 겹치지 않게 (종류 표시 '미확인'은 그대로) */
 /* 리더가 길을 정하는 동안에는 내가 고른 카드의 '✓ 선택한 경로' 표시를 감춘다 (사용자 요청) */
 .exploration-layout.xr-has-lead .xr-picked { display: none !important; }
+/* 좁은 화면(가로 카드, 그림 칸 112px): 얼굴을 조금 작게, 이름은 빼서 '미확인' 같은 종류 표시와 겹치지 않게 */
+@media (max-width: 759px), (max-width: 1099px) and (max-height: 600px) {
+  .xr-card.xr-leadpick .xr-art > .xr-lead-badge { top: 44%; width: 70px; }
+  .xr-card.xr-leadpick .xr-lead-face { width: 56px; height: 56px; }
+  .xr-card.xr-leadpick .xr-lead-name { display: none; }
+}
