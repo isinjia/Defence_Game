@@ -49,7 +49,10 @@
       const mark = Math.floor(cum[k] / unit + 1e-9) * unit; next = mark + unit;
       if (k - lastK < minGap || total - mark < unit * 0.35) continue; // 끝 표시와 너무 가까우면 생략
       lastK = k;
-      this.chip(pts[k][0], pts[k][1] - s * 0.5 + 2, label(mark, unit), '#ffe2a8', 'rgba(12,16,24,.88)');
+      // 테두리 상자 없이 어두운 외곽선만 두른 글자(사용자 요청: 그쪽이 보기 좋음)
+      c.save(); c.font = `700 ${s > 34 ? 12 : 10}px "IBM Plex Sans KR", sans-serif`; c.textAlign = 'center'; c.textBaseline = 'bottom';
+      c.lineWidth = 3; c.strokeStyle = 'rgba(8,12,18,.85)'; c.strokeText(label(mark, unit), pts[k][0], pts[k][1] - s * 0.18);
+      c.fillStyle = '#ffe2a8'; c.fillText(label(mark, unit), pts[k][0], pts[k][1] - s * 0.18); c.restore();
     }
   };
 
