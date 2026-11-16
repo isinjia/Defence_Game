@@ -31,7 +31,7 @@
     const eta = G.etaInfo(days);
     tip.querySelectorAll('.tp-eta, .tp-go').forEach((el) => el.remove());
     tip.insertAdjacentHTML('beforeend',
-      `<div class="small ${eta.warn ? 'amber' : 'dim'} tp-eta">${eta.text} · 경로 ${WORLD.formatTravelTime(days)}</div>` +
+      `<div class="small ${eta.warn ? 'amber' : 'dim'} tp-eta">${eta.text}</div>` +
       `<div class="row end tp-go"><button class="primary sm" data-act="walk-go">출발</button></div>`);
   };
 

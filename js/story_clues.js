@@ -167,7 +167,7 @@ Object.assign(UI, {
     if (plan.strongMobs) warn.push(`<span class="bad">경로 근처에 나보다 강한 괴수 무리 ${plan.strongMobs}개</span>`);
     else if (plan.near) warn.push(`경로 근처 괴수 무리 ${plan.near}개`);
     this.modal(`<h3>${label}(으)로 이동</h3>
-      <p>이동 예상 <b>${WORLD.formatTravelTime(plan.days)}</b> · ${plan.steps.length}칸</p>
+      <p>이동 예상 <b>${WORLD.formatTravelTime(plan.days)}</b>${(() => { try { const e = G.etaInfo(plan.days); const m = e.text.match(/^도착 예정 ([^·]+?)\s*·/); return m ? ` · ${m[1].trim()} 도착` : ''; } catch (er) { return ''; } })()} · ${plan.steps.length}칸</p>
       <p class="small dim">지나는 지역: ${plan.regs.map((id) => regionById(id).name).join(' → ')}</p>
       ${warn.length ? `<p class="small">${warn.join('<br>')}</p>` : ''}
       <p class="small dim">걷는 동안에도 날짜가 흐르고, 길 위 사건·기습·만남이 생기면 멈춘다. 멈추면 지도 위 [이어서 이동]으로 계속 갈 수 있다.</p>

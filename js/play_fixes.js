@@ -375,3 +375,29 @@ if (typeof MapView !== 'undefined') {
     };
   }
 }
+
+// 15. 이동 시간 표시 통일 (사용자 결정: 귀곡팔황처럼 깔끔하게)
+//     ① 모든 이동 시간: 하루 이상 'N일', 하루 안 'N시간'(반올림). 시간·분까지 늘어놓지 않는다.
+//     ② 도착 시점은 날짜 + 하루 중 때(새벽·오전·오후·저녁·밤)로 알려 준다.
+{
+  if (typeof WORLD !== 'undefined') {
+    WORLD.formatTravelTime = (days) => {
+      if (!(days > 0)) return '바로';
+      return days >= 1 ? `${Math.max(1, Math.round(days))}일` : `${Math.max(1, Math.round(days * 24))}시간`;
+    };
+  }
+  const partOfDay = (f) => { const h = ((f % 1) + 1) % 1 * 24; return h < 5 ? '새벽' : h < 11 ? '오전' : h < 17 ? '오후' : h < 21 ? '저녁' : '밤'; };
+  if (typeof Game !== 'undefined' && Game.prototype.etaInfo) {
+    const base = Game.prototype.etaInfo;
+    Game.prototype.etaInfo = function (days) {
+      const r = base.call(this, days);
+      try {
+        const dur = Math.max(0, days); const p = this.player;
+        const when = partOfDay((p.dayFrac || 0) + dur);
+        r.when = when;
+        r.text = r.text.replace(/^(도착 예정 [^·]*?\d+일)/, `$1 ${when}`);
+      } catch (e) { /* 무시 */ }
+      return r;
+    };
+  }
+}
