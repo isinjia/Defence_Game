@@ -2,7 +2,7 @@
 (() => {
   let timer = null;
   UI.showLeaderToast = function (leader, text, subject, detail = '') {
-    clearTimeout(timer);
+    cancelAnimationFrame(timer);
     document.getElementById('leader-reply-toast')?.remove();
     const box = document.createElement('aside'); box.id = 'leader-reply-toast';
     box.setAttribute('role', 'status'); box.setAttribute('aria-live', 'polite'); box.setAttribute('aria-atomic', 'true');
@@ -12,11 +12,23 @@
     box.querySelector('.lrt-heading span').textContent = `리더 · ${subject}`;
     box.querySelector('p').textContent = text;
     const sub = box.querySelector('small'); sub.textContent = detail; sub.hidden = !detail;
-    const close = () => { clearTimeout(timer); box.remove(); };
-    const later = () => { clearTimeout(timer); timer = setTimeout(close, Math.min(10000, Math.max(5000, (text.length + detail.length) * 90))); };
+    const close = () => { cancelAnimationFrame(timer); box.remove(); };
+    // 초상 준비 등으로 프레임이 늦어져도 읽기 전에 사라지지 않게, 실제 표시한 시간을 센다.
+    const later = () => {
+      cancelAnimationFrame(timer);
+      const duration = Math.min(10000, Math.max(5000, (text.length + detail.length) * 90));
+      let elapsed = 0, last = null;
+      const tick = now => {
+        if (!box.isConnected) return;
+        if (last !== null && !document.hidden) elapsed += Math.min(100, Math.max(0, now - last));
+        last = now;
+        if (elapsed >= duration) close(); else timer = requestAnimationFrame(tick);
+      };
+      timer = requestAnimationFrame(tick);
+    };
     box.querySelector('button').addEventListener('click', event => { event.stopPropagation(); close(); });
-    box.addEventListener('mouseenter', () => clearTimeout(timer)); box.addEventListener('mouseleave', later);
-    box.addEventListener('focusin', () => clearTimeout(timer)); box.addEventListener('focusout', later);
+    box.addEventListener('mouseenter', () => cancelAnimationFrame(timer)); box.addEventListener('mouseleave', later);
+    box.addEventListener('focusin', () => cancelAnimationFrame(timer)); box.addEventListener('focusout', later);
     box.addEventListener('keydown', event => { if (event.key === 'Escape') { event.stopPropagation(); close(); } });
     document.body.appendChild(box); later();
   };
