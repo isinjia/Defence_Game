@@ -9,9 +9,9 @@
 //          선임 NPC(내 등급 +2)가 붙어 수련 +15%, 내 등급 +1 이상 게이트에 동행. 내 등급 +2 이상 게이트는 선임이 있어야 들어간다.
 //          내 등급이 선임을 따라잡으면 독립.
 //  - 관리국: 구조 확정, 공상 처리(본인 부담 0), 부상 1개월 단축.
-//  - 무소속: 구조는 확률(등급·도시/오지·공적·명성·브레이크 상황·보험·남의 파티). 안 오면 자력 탈출 판정.
+//  - 무소속: 구조는 확률(등급·도시/오지·공적·명성·브레이크 상황·남의 파티). 안 오면 자력 탈출 판정.
 //          실패하면 수명 −3년·부상 8개월·장비 하나 상실, 두 번째부터는 낮은 확률로 사망(첫 번째는 경고).
-//          병원비는 청구서(등급·부상 정도). 모자라면 빚(월 2% 이자, 수입에서 자동 상환). 헌터 보험(월 보험료)으로 구조 +25%·청구서 30%만(레드 게이트 면책).
+//          병원비는 청구서(등급·부상 정도). 모자라면 빚(월 2% 이자, 수입에서 자동 상환).
 //          내 등급 +2 이상 게이트는 관리국 입장 허가가 안 나온다.
 //  - C의 solo_relief.js 연패 치료비 환급은 이 규칙으로 대체된다(벼랑 끝 집중 버프는 그대로).
 
@@ -19,7 +19,6 @@ const RISK = {
   spot: { cityR: 3, city: 0.1, midR: 3, mid: 0.07, townR: 2, town: 0.04, remoteR: 8, remote: -0.1 }, // 게이트 위치 보정(한 차례 확률): 광역·중도시 3칸, 읍 2칸 이내 ↑, 어디서든 8칸 이상(육지의 약 6%) ↓
   bill: 260,            // 청구서 기준(등급 배율^1.3)
   guildSelf: { big: 0.1, minor: 0.2, prospect: 0 },
-  insure: { premium: 70, rescue: 0.25, self: 0.3 },
   failLife: 3, failInjury: 8, deathChance: 0.12,
   debtRate: 0.02, repay: 0.3,
   rescueLife: 1,         // 4-19 사용자 결정: 구출 성공 시 수명 손상 −1년(길드원 수명 소진 방지)
@@ -75,7 +74,6 @@ Object.assign(Game.prototype, {
     if (harsh) c -= 0.2;
     { const sp = this.rescueSpot(gate); if (sp.bonus > 0 || !harsh) c += sp.bonus; } // 도시 인근 ↑, 오지 ↓ (험지 감점과 오지 감점은 겹치지 않음)
     if (this.world.breaks && this.world.breaks.length) c -= 0.15;
-    if (p.risk.insured && !(this.payKind && this.payKind(p.guild)) && gate.variant !== 'red') c += RISK.insure.rescue;
     if (this.seniorNpc && this.seniorNpc() && (gate.realTier ?? gate.tier) >= p.rankIdx + 1) c += 0.1;
     if (this.crewRescue) c += 0.15;
     if (this.gateRescueBonus) c += this.gateRescueBonus(gate) || 0; // gate_parties.js: 같은 게이트 다른 팀 +15%, 우호 파티 +25%
@@ -93,7 +91,6 @@ Object.assign(Game.prototype, {
     this.log(`${why}을(를) 다 못 내 ${fmt(short)} 크레딧 빚이 생겼다. (월 ${Math.round(RISK.debtRate * 100)}% 이자)`, 'bad');
     return `${why} ${fmt(v)} 크레딧 중 ${fmt(short)}은(는) 빚으로 남았다.`;
   },
-  insurePremium() { return Math.round(RISK.insure.premium * RANKS[this.player.rankIdx].mult ** 1.2); },
   // ---------- 패배 처리: 구출 판정 하나 ----------
   loseOutcome(gate) {
     const p = this.player; const k = this.payKind ? this.payKind(p.guild) : null;
@@ -132,10 +129,9 @@ Object.assign(Game.prototype, {
       const s = this.seniorNpc && this.seniorNpc(); if (s) { this.changeRel(s, 3, '구조하러 와 줬다'); out.push(`선임 ${s.name}: "살아 있으면 된 거야. 다음엔 내 말 들어."`); }
       return out;
     }
-    const ins = p.risk.insured && !k && gate.variant !== 'red';
     const bill = this.medicalBill(gate, true);
-    out.push(`병원비 청구서 ${fmt(bill)} 크레딧.${ins ? ' 보험 처리.' : ''}`);
-    out.push(this.payBill(ins ? Math.round(bill * RISK.insure.self) : bill, ins ? '보험 처리 뒤 본인 부담' : '병원비'));
+    out.push(`병원비 청구서 ${fmt(bill)} 크레딧.`);
+    out.push(this.payBill(bill, '병원비'));
     return out;
   },
   // ---------- 선임 ----------
@@ -168,10 +164,7 @@ Object.assign(Game.prototype, {
   },
   riskMonthly() {
     const p = this.player; const r = p.risk;
-    if (r.insured) {
-      if (this.payKind && this.payKind(p.guild)) { r.insured = false; this.log('소속이 생겨 무소속 헌터 보험을 해지했다.'); }
-      else { const v = this.insurePremium(); if (p.money >= v) p.money -= v; else { r.insured = false; this.log('보험료를 못 내 헌터 보험이 해지됐다.', 'bad'); } }
-    }
+    r.insured = false; // 보험 삭제(사용자 결정, 2026-11-16)
     if (r.debt > 0) {
       // 이자는 원금의 2배까지만 붙는다
       r.debt = Math.min(Math.round((r.debtBase || r.debt) * 2), Math.round(r.debt * (1 + RISK.debtRate)));
@@ -222,7 +215,7 @@ Object.assign(Game.prototype, {
   // 권유 장면·조건 표시에 보호·성장 조건
   if (GP.payTermsText) wrap('payTermsText', function (base, gid) {
     const r = base.call(this, gid); const k = this.payKind(gid);
-    if (!k) return `${r} <span class="bad">지면 구출 30~60%(실패하면 사망) · 병원비 본인 부담(보험 선택) · 두 등급 위 게이트 입장 불가</span>`;
+    if (!k) return `${r} <span class="bad">지면 구출 30~60%(실패하면 사망) · 병원비 본인 부담 · 두 등급 위 게이트 입장 불가</span>`;
     if (k === 'kama') return `${r} · 구출 70~90% · 치료비 국가 부담`;
     return `${r} · 선임 배정(두 등급 위 게이트 동행) · 구출 60~95%(자기 길드 게이트 95%) · 의료 지원(본인 ${Math.round(RISK.guildSelf[k] * 100)}%)`;
   });
@@ -263,7 +256,7 @@ Object.assign(Game.prototype, {
       row.insertAdjacentHTML('beforebegin', `<p class="small bad">${why}</p>`);
     } else if (row) {
       const rc = G.rescueChance(obj);
-      row.insertAdjacentHTML('beforebegin', `<p class="small ${rc < 0.5 ? 'bad' : 'dim'}">지면 구출 확률 <b>${Math.round(rc * 100)}%</b> (${G.rescueBase(obj).who}${(() => { const sp = G.rescueSpot(obj); return sp.label ? ` · ${sp.label}` : ''; })()}). 구출되지 못하면 죽는다.${!k ? ` 병원비 본인 부담${p.risk.insured ? ' · 보험 가입 중' : ''}.` : ''}${G.seniorNpc() && (obj.realTier ?? obj.tier) >= p.rankIdx + 1 ? ` 선임 ${G.seniorNpc().name}이(가) 함께 들어간다.` : ''}</p>`);
+      row.insertAdjacentHTML('beforebegin', `<p class="small ${rc < 0.5 ? 'bad' : 'dim'}">지면 구출 확률 <b>${Math.round(rc * 100)}%</b> (${G.rescueBase(obj).who}${(() => { const sp = G.rescueSpot(obj); return sp.label ? ` · ${sp.label}` : ''; })()}). 구출되지 못하면 죽는다.${!k ? ` 병원비 본인 부담.` : ''}${G.seniorNpc() && (obj.realTier ?? obj.tier) >= p.rankIdx + 1 ? ` 선임 ${G.seniorNpc().name}이(가) 함께 들어간다.` : ''}</p>`);
     }
     return r;
   };
@@ -274,7 +267,7 @@ Object.assign(Game.prototype, {
     if (why) return this.toast(why);
     return baseStart.call(this, id);
   };
-  // 보험: 협회 의뢰소
+  // 협회 의뢰소: 빚 갚기
   const baseFac = UI.facilityHtml;
   UI.facilityHtml = function (id, reg) {
     let html = baseFac.call(this, id, reg);
@@ -288,14 +281,13 @@ Object.assign(Game.prototype, {
     const html = baseChar.call(this); const p = G.player; const s = G.seniorNpc(); const k = G.payKind(p.guild);
     const bits = [];
     if (s) bits.push(`선임 ${s.name}(${RANKS[s.rankIdx].key}급) · 수련 +${Math.round(SENIOR_TRAIN * 100)}%`);
-    if (!k) bits.push(`보호: 무소속(구출 30~60%${p.risk.insured ? ', 보험 +25%' : ''})`);
+    if (!k) bits.push(`보호: 무소속(구출 30~60%)`);
     else bits.push(k === 'kama' ? '보호: 관리국(구출 70~90%·공상)' : '보호: 길드(구출 60~95%·의료 지원)');
     if (p.risk.debt) bits.push(`<span class="bad">빚 ${fmt(p.risk.debt)}</span>`);
     return html.replace('<div class="sec"><div class="sec-title">선천 특성</div>', `<div class="small dim">${bits.join(' · ')}</div><div class="sec"><div class="sec-title">선천 특성</div>`);
   };
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
-    if (act === 'insure') { const r = G.player.risk; if (!G.payKind(G.player.guild)) r.insured = !r.insured; G.save(); return this.afterCity(r.insured ? '무소속 헌터 보험에 가입했다.' : '보험을 해지했다.'); }
     if (act === 'debt-pay') { const p = G.player; const v = Math.min(p.money, p.risk.debt); p.money -= v; p.risk.debt -= v; p.risk.debtBase = Math.max(0, (p.risk.debtBase || 0) - v); if (!p.risk.debt) p.risk.debtSince = null; G.save(); return this.afterCity(`빚 ${fmt(v)} 크레딧을 갚았다.`); }
     return baseHandle.call(this, act, v);
   };

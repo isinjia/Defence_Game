@@ -202,7 +202,7 @@ if (typeof UI !== 'undefined') {
         // 모집 광고
         const board = this.crewBoard ? this.crewBoard(this.player.region) : [];
         pp.ads = board.slice(0, 2).map((L) => { const n = this.npcById(L.leader); return `[모집] ${L.name} — 리더 ${n ? n.name : ''}(${n ? RANKS[n.rankIdx].key : '?'}급) · ${RANKS[L.minRank].key}급 이상 · ${CLASS_GROUPS[L.want] ? CLASS_GROUPS[L.want].name + ' 계열 우대' : ''}`; });
-        pp.ads.push(pick(['[광고] 응급 회복제 1+1 — 협회 매점, 이번 달 한정', '[광고] 장비 수리 당일 완료 — 도시 공방 거리', '[광고] 헌터 전용 보험 "살아서 돌아오세요" — 입장 전 가입 필수'], String(pp.no)));
+        pp.ads.push(pick(['[광고] 응급 회복제 1+1 — 협회 매점, 이번 달 한정', '[광고] 장비 수리 당일 완료 — 도시 공방 거리', '[광고] 헌터 전용 방어구 "살아서 돌아오세요" — 협회 매점 입고'], String(pp.no)));
         pp.tip = TIPS[pp.no % TIPS.length];
       } catch (e) { /* 읽을거리 실패는 신문을 막지 않는다 */ }
       return pp;

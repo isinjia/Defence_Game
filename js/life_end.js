@@ -1,7 +1,6 @@
-// ===== 게이트 크로니클: 월간 과제 · 협회 보험 · 은퇴 =====
+// ===== 게이트 크로니클: 월간 과제 · 은퇴 =====
 // - 월간 과제: 매달 짧은 목표 3개. 회귀자·후원자 계약자에게는 "상태창"으로, 나머지에게는 "협회 월간 목표" 알림으로 온다.
 //   완수하면 보상, 석 달 내리 하나도 안 하면 패널티(비치명 전투). 첫 해 수첩을 쓰는 동안에는 나오지 않는다.
-// - 협회 보험: 매달 보험료를 내면 죽거나 은퇴할 때 쌓인 보험금이 자녀(계승자)에게 간다.
 // - 은퇴: 50세 이상 또는 명성 300 이상. 교관·길드 고문·가게 주인·관리국 간부 중 하나를 골라 스스로 마침표를 찍는다.
 
 const SYS_TASKS = [
@@ -66,20 +65,9 @@ Object.assign(Game.prototype, {
     }
   },
 
-  // ---------- 보험 ----------
-  insPremium() { return Math.round(25 * RANKS[this.player.rankIdx].mult ** 0.8); },
-  insToggle() {
-    const p = this.player; p.insurance ??= { on: false, paid: 0, months: 0 };
-    p.insurance.on = !p.insurance.on;
-    return p.insurance.on ? `협회 헌터 보험에 가입했다. 매달 ${fmt(this.insPremium())} 크레딧이 빠져나간다.` : '보험 납입을 멈췄다. 지금까지 쌓인 보험금은 남는다.';
-  },
-  insMonthly() {
-    const p = this.player; const ins = p.insurance; if (!ins || !ins.on) return;
-    const c = this.insPremium();
-    if (p.money < c) { ins.on = false; this.log('보험료를 내지 못해 협회 보험이 정지됐다.', 'bad'); return; }
-    p.money -= c; ins.paid += c; ins.months++;
-  },
-  insPayout() { const ins = this.player.insurance; if (!ins || !ins.paid) return 0; return Math.round(ins.paid * (1.5 + Math.min(1, ins.months / 120))); },
+  // ---------- 보험: 삭제(사용자 결정, 2026-11-16 — 너무 현실적). 관리국 연금(civil.js)만 insPayout에 더해진다. ----------
+  insMonthly() {},
+  insPayout() { return 0; },
 
   // ---------- 은퇴 ----------
   canRetire() { const p = this.player; return !this.over && (this.ageYears() >= 50 || p.fame >= 300); },
@@ -117,7 +105,7 @@ S({ id: 'sys_penalty_kama', trigger: 'system', text: '협회에서 등기 우편
   const baseMonthly = P.storyMonthly;
   P.storyMonthly = function () { baseMonthly.call(this); this.insMonthly(); this.sysNewMonth(); };
   const baseInit = P.initSandbox;
-  P.initSandbox = function () { baseInit.call(this); const p = this.player; p.sysCnt ??= {}; p.sysTask ??= null; p.insurance ??= { on: false, paid: 0, months: 0 }; };
+  P.initSandbox = function () { baseInit.call(this); const p = this.player; p.sysCnt ??= {}; p.sysTask ??= null; if (p.insurance) p.insurance.on = false; };
 })();
 
 (() => {
@@ -126,7 +114,7 @@ S({ id: 'sys_penalty_kama', trigger: 'system', text: '협회에서 등기 우편
     if (!this.modalOpen() && G.player && !G.over) { if (!G.player.sysTask && G.sysActive()) G.sysNewMonth(); G.sysCheck(); }
     return baseQueue.call(this);
   };
-  // 의뢰 창: 이달의 과제 (보험은 내 정보에서 관리)
+  // 의뢰 창: 이달의 과제
   const baseQuests = UI.questsHtml;
   UI.questsHtml = function () {
     const html = baseQuests.call(this);
@@ -158,7 +146,7 @@ S({ id: 'sys_penalty_kama', trigger: 'system', text: '협회에서 등기 우편
       const end = $box.querySelector('.ending'); if (end) end.classList.remove('dead-end');
       const p = $box.querySelector('.ending p'); if (p && job) p.insertAdjacentHTML('afterend', `<p class="small">${job.desc}</p>`);
     }
-    if (pay) { const life = $box.querySelector('.sec-title'); if (life) life.insertAdjacentHTML('beforebegin', `<p class="small good">협회 보험금 ${fmt(pay)} 크레딧이 유족에게 지급된다. 뒤를 잇는 자녀가 있으면 그 자녀가 받는다.</p>`); }
+    if (pay) { const life = $box.querySelector('.sec-title'); if (life) life.insertAdjacentHTML('beforebegin', `<p class="small good">관리국 연금 ${fmt(pay)} 크레딧이 유족에게 지급된다. 뒤를 잇는 자녀가 있으면 그 자녀가 받는다.</p>`); }
   };
   const baseSucceed = UI.succeed;
   UI.succeed = function (id) {
@@ -166,12 +154,11 @@ S({ id: 'sys_penalty_kama', trigger: 'system', text: '협회에서 등기 우편
     baseSucceed.call(this, id);
     const p = G.player;
     p.insurance = { on: false, paid: 0, months: 0 }; p.sysTask = null; p.sysIgnored = 0; p.sysCnt = {};
-    if (pay) { p.money += pay; G.lifeEvent(`부모의 협회 보험금 ${fmt(pay)} 크레딧을 받았다.`); G.save(); }
+    if (pay) { p.money += pay; G.lifeEvent(`부모의 관리국 연금 ${fmt(pay)} 크레딧을 받았다.`); G.save(); }
   };
   const baseHandle = UI.handle;
   UI.handle = function (act, v) {
     switch (act) {
-      case 'ins-toggle': return this.after(G.insToggle());
       case 'retire': { const j = RETIRE_JOBS.find((x) => x.id === v); if (!j) return; return this.modal(`<h3>${j.name}(으)로 은퇴</h3><p>${j.desc}</p><p class="small bad">은퇴하면 이 삶은 끝난다. 자녀가 있으면 뒤를 이을 수 있고, 회귀할 수도 있다.</p><div class="row end"><button class="ghost" data-act="modal-close">아직은</button><button class="danger" data-act="retire-go" data-v="${j.id}">은퇴한다</button></div>`); }
       case 'retire-go': { this.closeModal(); G.retire(v); this.renderGame(); return this.processQueue(); }
       default: return baseHandle.call(this, act, v);

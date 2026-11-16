@@ -34,7 +34,7 @@ const SOLO_ROLE = {
     const lines = base.call(this, gate, result, loot, hpLeft, mpLeft);
     if (result !== 'lose') { if (result === 'clear') p.loseStreak = 0; return lines; }
     p.loseStreak = (p.loseStreak || 0) + 1;
-    // 치료비·부상은 E의 js/affil_risk.js(소속별 의료 지원·무소속 청구서·헌터 보험)가 맡는다. 여기서는 안내와 벼랑 끝 집중만.
+    // 치료비·부상은 E의 js/affil_risk.js(소속별 의료 지원·무소속 청구서)가 맡는다. 여기서는 안내와 벼랑 끝 집중만.
     if (p.loseStreak >= 2) {
       const tip = '연패 중이다. 벼랑 끝 집중: 다음 공략 성공까지 공격·방어가 오른다. 한 단계 낮은 게이트나 용병·임시 파티를 고려하자.';
       if (Array.isArray(lines)) lines.push(tip);
