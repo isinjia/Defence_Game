@@ -306,15 +306,23 @@
   grid-template-rows: repeat(2, calc(var(--fs, 72px) * 1.05 + 28px));
 }
 
-/* 내가 노리는 적 표시 (사용자 요청: 조준 표시가 안 보임). 새 전투 화면은 사각 조준틀을 감췄으므로
-   초상 위에 아래를 가리키는 표식 + 초상 둘레 빛으로 보여 준다. 다른 적을 누르면 그쪽으로 옮겨 간다 */
+/* 내가 노리는 적 표시 (사용자 요청: 조준 표시가 안 보임 → 네모 조준틀로). 새 전투 화면은 옛 사각 조준틀(.reticle)을 감췄으므로
+   초상 둘레에 네 모서리 꺾쇠로 된 네모 조준틀을 그린다. 다른 적을 누르면 그쪽으로 옮겨 간다 */
 #modal-box.cu-v2 .foe.target:not(.dead) .fx-host::before {
-  content: ""; position: absolute; left: 50%; top: -16px; width: 0; height: 0; z-index: 4;
-  border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 11px solid #ff5a4f;
-  transform: translateX(-50%); filter: drop-shadow(0 0 4px #ff5a4fcc) drop-shadow(0 1px 0 #000);
-  animation: cuTargetBob 1s ease-in-out infinite; pointer-events: none;
+  --tc: #ff5a4f; --tl: 16px; --tw: 3px;
+  content: ""; position: absolute; inset: -8px; z-index: 4; pointer-events: none;
+  background:
+    linear-gradient(var(--tc), var(--tc)) left top / var(--tl) var(--tw) no-repeat,
+    linear-gradient(var(--tc), var(--tc)) left top / var(--tw) var(--tl) no-repeat,
+    linear-gradient(var(--tc), var(--tc)) right top / var(--tl) var(--tw) no-repeat,
+    linear-gradient(var(--tc), var(--tc)) right top / var(--tw) var(--tl) no-repeat,
+    linear-gradient(var(--tc), var(--tc)) left bottom / var(--tl) var(--tw) no-repeat,
+    linear-gradient(var(--tc), var(--tc)) left bottom / var(--tw) var(--tl) no-repeat,
+    linear-gradient(var(--tc), var(--tc)) right bottom / var(--tl) var(--tw) no-repeat,
+    linear-gradient(var(--tc), var(--tc)) right bottom / var(--tw) var(--tl) no-repeat;
+  filter: drop-shadow(0 0 3px #ff5a4fcc) drop-shadow(0 1px 0 #000);
+  animation: cuTargetPulse 1.1s ease-in-out infinite;
 }
-#modal-box.cu-v2 .foe.target:not(.dead) .sprite { filter: drop-shadow(0 0 7px #ff5a4fcc) drop-shadow(0 0 2px #ff5a4f); }
 #modal-box.cu-v2 .foe.target:not(.dead) .foe-name { color: #ffb0a8; }
-@keyframes cuTargetBob { 50% { transform: translate(-50%, 4px); } }
+@keyframes cuTargetPulse { 50% { transform: scale(1.06); opacity: .75; } }
 @media (prefers-reduced-motion: reduce) { #modal-box.cu-v2 .foe.target .fx-host::before { animation: none; } }
