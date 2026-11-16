@@ -212,7 +212,7 @@
     return r;
   };
 
-  // 적: 비는 양쪽 칸을 접어 좌우로 모아 누르기 쉽게 (자리 배정·상대 간격은 유지)
+  // 적: 빈 칸을 포함한 고정 배치를 가운데 정렬한다(소환·퇴장 시 기존 위치 유지).
   const baseRefreshFoes = UI.refreshUnits;
   UI.refreshUnits = function (...a) {
     let r;
@@ -231,14 +231,13 @@
         vis.push({ u, el, s: u.slot });
       }
       if (!vis.length) return r;
-      // 쓰는 칸만 모은다: 적 사이의 빈 칸까지 세면 칸 수가 늘어 칸이 좁아지고, 괴수를 다시 줄였다(사용자 지적: 처음 나올 때와 싸울 때 크기가 다름)
-      const used = [...new Set(vis.flatMap((x) => Array.from({ length: x.s.w }, (_, k) => x.s.c + k)))].sort((a, b) => a - b);
-      const idx = new Map(used.map((c, i) => [c, i]));
-      const cols = Math.max(2, used.length);
-      // 칸 너비는 괴수 그림 크기(--fs)를 따라간다(이름 칸까지 들어가게). 보스는 그림이 1.5배라 한 칸짜리 보스 자리는 넓힌다
+      // 빈 칸도 처음부터 유지한다. 소환·퇴장 때 사용 중인 칸만 다시 압축하면
+      // slot이 그대로여도 그리드 전체가 가운데로 이동해 기존 괴수가 자리를 바꾼다.
+      const cols = FOE_COLS;
+      const idx = new Map(Array.from({ length: cols }, (_, i) => [i, i]));
+      // 칸 너비는 괴수 그림 크기(--fs)를 따른다. 큰 괴수는 slot.w만큼 차지한다.
       // 칸 하나는 반 마리 너비다(보통 적은 두 칸을 쓴다, js/battle_layout.js FOE_COLS 8)
       const colW = Array.from({ length: cols }, () => 'calc((var(--fs, 72px) + 24px) / 2)');
-      for (const x of vis) if (x.u.boss && x.s.w <= 2) { for (let k = 0; k < x.s.w; k++) colW[idx.get(x.s.c + k)] = `calc((var(--fs, 72px) * 1.5 + 24px) / ${x.s.w})`; }
       fz.style.gridTemplateColumns = colW.join(' '); fz.dataset.cols = cols;
       fz.classList.add('cu-foe-pack');
       for (const x of vis) {

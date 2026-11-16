@@ -52,7 +52,7 @@
 #modal-box.cu-v2.combat-box.fit #foes {
   border-bottom: 1px solid #2a3a5288; padding-bottom: 6px;
 }
-/* 적 좌우 모아 배치: 쓰는 칸만 두고 가운데 정렬 */
+/* 적 고정 배치: 빈 칸도 유지한 채 전체를 가운데 정렬 */
 #modal-box.cu-v2.combat-box.fit #foes.foe-grid.cu-foe-pack {
   width: max-content;
   max-width: 100%;
