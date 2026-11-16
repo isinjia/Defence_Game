@@ -361,7 +361,7 @@ const UI = {
       const p = G.player;
       const from = [p.x, p.y]; const to = WORLD.xy(w.steps[w.i++]);
       const diag = from[0] !== to[0] && from[1] !== to[1];
-      const ms = (WORLD.type(to[0], to[1]) === WORLD.T.MOUNTAIN ? 200 : 125) * (diag ? 1.25 : 1) * (FX.reduced ? 0.5 : 1);
+      const ms = this.map.walkDuration(from, to);
       this.map.walkPath = w.steps.slice(w.i);
       this.map.tween(from, to, ms, () => {
         if (this.walking !== w) return;

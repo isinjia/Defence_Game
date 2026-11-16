@@ -3633,7 +3633,13 @@ const PortraitParts = (() => {
     const src=await skinBitmap(node);node.setAttribute('href',src);node.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',src);
   }));
   // 초상이 DOM에 붙으면 피부·머리·파츠를 한꺼번에 구운 뒤에만 보여 준다 (하나씩 뜨는 깜빡임 방지)
-  const prepareElement = async (svg) => {
+  const pending = new Set();
+  const track = fn => (...args) => {
+    const job = fn(...args); pending.add(job);
+    job.then(() => pending.delete(job), () => pending.delete(job));
+    return job;
+  };
+  const prepareElement = track(async (svg) => {
     if (!svg || svg.getAttribute('data-parts-ready') === '1') return svg;
     await Promise.all([bakeSkins(svg), bakeHairs(svg)]);
     await Promise.all([...svg.querySelectorAll('image')].map(async (node) => {
@@ -3648,7 +3654,7 @@ const PortraitParts = (() => {
     svg.setAttribute('data-parts-ready', '1');
     svg.removeAttribute('data-parts-pending');
     return svg;
-  };
+  });
   let scanQueued = false;
   new MutationObserver(() => {
     if (scanQueued) return;
@@ -3674,7 +3680,7 @@ const PortraitParts = (() => {
     if (embeddedImages.size >= 192) embeddedImages.delete(embeddedImages.keys().next().value);
     embeddedImages.set(source,promise); promise.catch(() => embeddedImages.delete(source)); return promise;
   };
-  const rasterize = source => {
+  const rasterize = track(source => {
     if (cache.has(source)) return cache.get(source);
     const promise = (async () => {
       const doc = new DOMParser().parseFromString(source, 'image/svg+xml');
@@ -3690,7 +3696,7 @@ const PortraitParts = (() => {
     })();
     if (cache.size >= 48) cache.delete(cache.keys().next().value);
     cache.set(source,promise); promise.catch(() => cache.delete(source)); return promise;
-  };
+  });
   const baseMapImage = MapView.prototype.setPlayerImage;
   MapView.prototype.setPlayerImage = function (source) {
     if (!source.includes('data-portrait-parts=')) { this._partsSource = null; return baseMapImage.call(this, source); }
@@ -3698,5 +3704,8 @@ const PortraitParts = (() => {
     this._partsSource = source;
     rasterize(source).then(url => { if (this._partsSource === source) baseMapImage.call(this, url); }).catch(() => { if (this._partsSource === source) this._partsSource = null; });
   };
-  return { select, rasterize, prepareElement, HEAD_SCALE, newLook };
+  return { select, rasterize, prepareElement, HEAD_SCALE, newLook,
+    async whenReady() { while (pending.size) await Promise.all([...pending]); },
+    get pendingCount() { return pending.size; },
+  };
 })();

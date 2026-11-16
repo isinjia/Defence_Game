@@ -79,14 +79,30 @@
     const cn = UI.ctx && UI.ctx.council; if (cn && cn.key) return { key: cn.key, L: cn.leader != null ? G.npcById(cn.leader) : null };
     return null;
   };
+  let returnFocus = null;
   const closeMap = () => {
     document.body.classList.remove('cn-map-on');
     const root = document.querySelector('#modal-box .exploration-layout');
-    if (root) { root.classList.remove('xr-overview', 'xr-cnmap'); root.querySelectorAll('.xr-lead-node, .xr-lead-arrow').forEach((e) => e.remove()); }
+    if (root) {
+      root.classList.remove('xr-overview', 'xr-cnmap');
+      root.querySelectorAll('.xr-lead-node, .xr-lead-arrow, [data-act="cn-map-return"]').forEach((e) => e.remove());
+      const close = root.querySelector('[data-act="xr-map-close"]'); if (close) close.textContent = '닫기';
+    }
+    const ov = document.getElementById('council-ov');
+    if (ov) { ov.inert = false; ov.removeAttribute('aria-hidden'); }
+    ExplorationCards.refresh();
+    if (ov && returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
+    returnFocus = null;
   };
   const openMap = () => {
     const root = document.querySelector('#modal-box .exploration-layout'); if (!root) return;
+    returnFocus = document.activeElement;
     root.classList.add('xr-overview', 'xr-cnmap'); document.body.classList.add('cn-map-on');
+    const ov = document.getElementById('council-ov'); if (ov) { ov.inert = true; ov.setAttribute('aria-hidden', 'true'); }
+    const close = root.querySelector('[data-act="xr-map-close"]'); if (close) close.textContent = '상의 창으로 돌아가기';
+    if (!root.querySelector('[data-act="cn-map-return"]')) root.querySelector('.xr-header-actions')?.insertAdjacentHTML('afterbegin', '<button data-act="cn-map-return">상의 창으로 돌아가기</button>');
+    ExplorationCards.refresh();
+    root.querySelector(window.innerWidth < 1100 ? '[data-act="xr-map-close"]' : '[data-act="cn-map-return"]')?.focus({ preventScroll: true });
     root.querySelectorAll('.xr-lead-node, .xr-lead-arrow').forEach((e) => e.remove());
     const info = leadKey(); const node = info && root.querySelector(`.gnode[data-xr-key="${info.key}"]`);
     if (node && info.L) { node.classList.add('xr-leadnode'); node.insertAdjacentHTML('beforeend', `<span class="xr-lead-node" aria-hidden="true">${face(info.L, 96)}<b class="xr-lead-node-tag">리더 선택</b></span>`); }
@@ -115,7 +131,12 @@
   setInterval(() => { try { dock(); if (document.body.classList.contains('cn-map-on') && !document.getElementById('council-ov')) closeMap(); } catch (e) { /* 무시 */ } }, 150);
   const baseHandle2 = UI.handle;
   UI.handle = function (act, v) {
-    if (act === 'xr-map-close' && document.body.classList.contains('cn-map-on')) { closeMap(); return; }
+    if (['xr-map-close', 'cn-map-return', 'xr-go'].includes(act) && document.body.classList.contains('cn-map-on')) { closeMap(); return; }
     return baseHandle2.call(this, act, v);
   };
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && document.body.classList.contains('cn-map-on')) {
+      event.preventDefault(); event.stopImmediatePropagation(); closeMap();
+    }
+  }, true);
 }

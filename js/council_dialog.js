@@ -75,7 +75,7 @@ const CouncilDialog = (() => {
   const base=UI.councilPanel;
   UI.councilPanel=function(...args){const result=base.apply(this,args);decorate();return result;};
   document.addEventListener('keydown',e=>{
-    const root=document.querySelector('#council-ov.council-dialog');if(!root||UI.dlg||document.getElementById('skill-hold')||UI.tutHeld?.())return;
+    const root=document.querySelector('#council-ov.council-dialog');if(!root||document.body.classList.contains('cn-map-on')||UI.dlg||document.getElementById('skill-hold')||UI.tutHeld?.())return;
     const buttons=[...root.querySelectorAll('button:not(:disabled)')].filter(n=>n.getClientRects().length),first=buttons[0],last=buttons[buttons.length-1];
     if(e.key==='Tab'){
       if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}
