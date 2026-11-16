@@ -769,7 +769,8 @@ const HunterOutfits = (() => {
   const NECK_SINK={m:{necromancer:12,assassin:16},f:{necromancer:16,assassin:16}};
   // 같은 옷이면 체형이 달라도 턱과 앞깃의 관계가 같아야 한다(사용자 지적: 마름·보통에서 목 자르는 위치가 달랐다).
   // 목을 깃 속에 넣는 옷은 '앞깃 가운데 윗선 = 턱끝 + FRONT_AT' 로 옷 높이를 정한다(체형별 어깨 보정 대신).
-  const FRONT_AT={m:{necromancer:3,assassin:3},f:{necromancer:3,assassin:3}};
+  // 승려복(남성)은 앞깃을 턱 아래 12px에 고정해 보통·마름에서 목이 길게 뜨지 않게 한다.
+  const FRONT_AT={m:{necromancer:3,assassin:3,monk:12},f:{necromancer:3,assassin:3}};
   const lockBack=(part,female,actualChin,prof,gy)=>{const k=(FRONT_AT[female?'f':'m']||{})[part.familyId];if(k==null||!prof)return null;return actualChin+k-Math.max(...prof)*gy;};
   // 마른 남자는 이미 THIN_UP 만큼 올라가 있고, 더 올리면 턱 아래에 띠가 생긴다 → 내리지 않는다
   const sinkOf=(part,female,type)=>{if(!female&&type==='thin')return 0;const t=(typeof window!=='undefined'&&window.__neckSink)||NECK_SINK;return (t[female?'f':'m']||{})[part.familyId]||0;};
