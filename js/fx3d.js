@@ -243,7 +243,8 @@ Object.assign(FX3D, {
         if (cast.aoe && cast.src === src) { if (to) FX3D.burst(to.x, to.y, e, 0.6); return r; }
         const t = cast.src === src ? cast.type : 'dmg';
         const opts = { big: !!ev.crit, pierce: t === 'pierce', edge };
-        if (t === 'multi') { if (!cast.shots++) FX3D.multi(from, to, e, opts); else if (to) FX3D.burst(to.x, to.y, e, 0.5); }
+        // 연타는 타격마다 한 발(첫 타에 multi 몰아치면 이후 타가 안 보임)
+        if (t === 'multi') { FX3D.proj(from, to, e, opts); cast.shots = (cast.shots || 0) + 1; }
         else FX3D.proj(from, to, e, opts);
         if (t === 'drain') setTimeout(() => FX3D.drain(to, from, e), 200);
         if (t === 'dot' || t === 'debuff') setTimeout(() => FX3D.linger(to, e), 200);

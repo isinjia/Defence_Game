@@ -3,14 +3,31 @@
 // 적·아군 원형 초상 + 속성 배지, 전열·후열 2줄, 커맨드 2×2.
 // 리더는 따로 줄을 만들지 않고 전열·후열 진형 칸에 그대로 둔다.
 {
-  // 이름 옆 속성 아이콘 (원형 글자 배지 대신) — 이름은 중앙, 아이콘은 CSS로 오른쪽에
+  // 이름 옆 속성 아이콘 — 이름은 중앙, 아이콘은 CSS로 오른쪽에
   const ensureNameIcon = (nameEl, u) => {
     if (!nameEl) return;
     nameEl.querySelectorAll('.elem-badge').forEach((n) => n.remove());
-    if (!nameEl.querySelector('.cu-elem')) {
-      const ico = (typeof FX !== 'undefined' && FX.elemIcon) ? FX.elemIcon(u && u.elem, 14) : '';
-      if (ico) nameEl.insertAdjacentHTML('beforeend', `<span class="cu-elem">${ico}</span>`);
+    // 본문에 끼어 있는 옛 svg.ico 는 잘리거나 이웃 카드에 가려지므로 떼고 cu-elem 으로 다시 붙인다
+    nameEl.querySelectorAll(':scope > svg.ico, :scope > .ico').forEach((n) => n.remove());
+    let wrap = nameEl.querySelector('.cu-elem');
+    const ico = (typeof FX !== 'undefined' && FX.elemIcon) ? FX.elemIcon(u && u.elem, 14) : '';
+    if (!ico) { if (wrap) wrap.remove(); return; }
+    if (!wrap) {
+      nameEl.insertAdjacentHTML('beforeend', `<span class="cu-elem">${ico}</span>`);
+    } else if (!wrap.querySelector('svg')) {
+      wrap.innerHTML = ico;
     }
+  };
+  // 몬스터 초상 왼쪽 위 속성 뱃지 (원형 글자 배지 자리에 아이콘) — 이름 옆만 쓰면 뭉친 적 줄에서 사라짐
+  const ensureFoeElemBadge = (host, u) => {
+    if (!host) return;
+    host.querySelectorAll('.elem-badge, .cu-elem-badge').forEach((n) => n.remove());
+    const e = u && u.elem; const E = e && ELEMENTS[e];
+    const ico = (typeof FX !== 'undefined' && FX.elemIcon) ? FX.elemIcon(e, 12) : '';
+    if (!ico) return;
+    const c = E ? E.color : '#c9a84a';
+    const label = E ? E.name : '무속성';
+    host.insertAdjacentHTML('beforeend', `<i class="cu-elem-badge" style="--ec:${c}" title="${label}" aria-label="${label}">${ico}</i>`);
   };
 
   // 상반신 초상 (공통 UI.toBustHtml / playerBust / npcBust 사용)
@@ -103,7 +120,8 @@
     if (el.classList.contains('foe')) {
       const nm = el.querySelector('.foe-name');
       if (nm && nm.parentNode !== host) host.appendChild(nm);
-      // 이름 옆 SVG 아이콘이 중앙 정렬을 밀지 않게 절대 배치용 클래스 유지
+      ensureNameIcon(nm, u);
+      ensureFoeElemBadge(host, u);
       if (!el.classList.contains('cu-ord')) {
         const hp = el.querySelector(':scope > .bar.hp');
         const brk = el.querySelector(':scope > .brk');

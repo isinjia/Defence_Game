@@ -132,12 +132,25 @@ const FXMAP = (() => {
           if (cast.aoe && cast.src === src) return r; // 전체 공격은 이미 대상마다 터뜨렸다
           const mine = cast.src === src, rec = mine && cast.rec ? cast.rec : recipe('', unit(src)), t = mine ? cast.type : 'dmg';
           const dst = unit(ev.dst), edge = dst && UI.elemEdge ? UI.elemEdge(ev.elem, dst.elem) : 0;
-          if (mine && cast.sig) { // 고유 연출: 첫 타에만 전체 연출, 이어지는 타는 작은 속성 타격
-            if (cast.shots++) { FXF.accent(rec.pal || e, to.x + (Math.random() - 0.5) * 16, to.y + (Math.random() - 0.5) * 16, 0.45); return r; }
+          const origin = from || { x: to.x, y: to.y + 240 };
+          // 연타·고유 연출의 이어지는 타: 타격마다 한 발씩 쏜다.
+          // (예전: 첫 타에 type:multi로 몰아치고 이후는 accent만 → 2·3타가 안 나가는 것처럼 보임, 사용자 제보)
+          const followHit = () => {
+            FXF.play(rec.form, origin, to, { el: e, pal: rec.pal, type: 'dmg', big: !!ev.crit, flask: rec.flask });
+            if (ev.crit) FXG.at(0.2, () => FXG.shake(4, 180));
+          };
+          if (mine && cast.sig) {
+            if (cast.shots++) { followHit(); return r; }
             if (FXS.run(cast.sig, 'hit', { f: from, t: to, e, tier: cast.tier })) return r;
           }
-          if (t === 'multi' && cast.shots++) { FXF.accent(rec.pal || e, to.x + (Math.random() - 0.5) * 16, to.y + (Math.random() - 0.5) * 16, 0.45); return r; }
-          FXF.play(rec.form, from || { x: to.x, y: to.y + 240 }, to, { el: e, pal: rec.pal, type: vt(t), big: !!ev.crit, flask: rec.flask });
+          if (t === 'multi') {
+            cast.shots = (cast.shots || 0) + 1;
+            followHit();
+            if (edge > 0) FXG.at(0.25, () => { FXG.p('ring', to.x, to.y, { s: [40, 170], c: ['#fff6c8', '#ffd166'], life: 0.35, pop: true }); FXG.burst('star4', to.x, to.y, 5, { v: [120, 260], sz: [18, 30, 4], c: ['#fff6c8', '#ffd166'], life: [0.3, 0.5] }); });
+            if (edge < 0) FXG.at(0.2, () => FXG.burst('spark', to.x, to.y, 8, { v: [200, 420], sz: [12, 20, 2], asp: 0.3, face: true, c: ['#dbe6f5', '#7f8ea6'], life: [0.2, 0.35] }));
+            return r;
+          }
+          FXF.play(rec.form, origin, to, { el: e, pal: rec.pal, type: vt(t), big: !!ev.crit, flask: rec.flask });
           if (ev.crit) FXG.at(0.2, () => FXG.shake(4, 180));
           if (edge > 0) FXG.at(0.25, () => { FXG.p('ring', to.x, to.y, { s: [40, 170], c: ['#fff6c8', '#ffd166'], life: 0.35, pop: true }); FXG.burst('star4', to.x, to.y, 5, { v: [120, 260], sz: [18, 30, 4], c: ['#fff6c8', '#ffd166'], life: [0.3, 0.5] }); });
           if (edge < 0) FXG.at(0.2, () => FXG.burst('spark', to.x, to.y, 8, { v: [200, 420], sz: [12, 20, 2], asp: 0.3, face: true, c: ['#dbe6f5', '#7f8ea6'], life: [0.2, 0.35] }));
