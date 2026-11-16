@@ -320,3 +320,17 @@ body.dlg-mapview #dlg .dlg-box { background: linear-gradient(180deg, transparent
 body.dlg-mapview #dlg .dlg-text { min-height: 0 !important; }
 body.dlg-mapview .xr-overview .xr-route { bottom: 200px !important; }
 body.dlg-mapview .xr-overview .xr-route .gmap.gmap-fit { height: calc(100vh - 330px) !important; min-height: 300px !important; }
+
+/* 기존 좌측 사진·우측 글 배치를 유지하고 사진 윗선을 맞춘다. */
+.crew-departure-view .crew-departure-head { align-items: flex-start; gap: 14px; }
+.crew-departure-view .crew-departure-face { flex: 0 0 auto; }
+.crew-departure-view .crew-departure-face > svg,
+.crew-departure-view .crew-departure-face > img { display: block; max-width: 100%; }
+.crew-departure-view .crew-departure-copy { min-width: 0; }
+.crew-departure-view .crew-departure-head .event-text { margin: 8px 0 0; }
+.crew-departure-view .crew-destination { margin-bottom: 12px; }
+.crew-departure-view .crew-destination p { margin-bottom: 0; }
+
+/* 공통 팝업 제목은 사진·본문보다 먼저 표시한다. */
+.modal-box > .popup-heading { margin: 0 0 14px; padding: 0 0 10px; border-bottom: 1px solid var(--line, #2a3446); }
+.modal-box > .popup-heading > h2 { margin: 0; font-size: 19px; line-height: 1.4; color: var(--text, #e6edf3); }
