@@ -75,10 +75,9 @@ const FXMAP = (() => {
       const r = baseBreaks.apply(this, args); const c = this.ctx;
       if (!c || !c.combat) return r;
       for (const u of c.combat.units) {
-        if (u.side !== 'enemy') continue;
         const el = unitEl(u.id); if (!el) continue;
         const visible = () => this.ctx === c && el.isConnected && u.alive &&
-          c.dispBrk?.[u.id]?.groggy && mode() !== 'off';
+          el.classList.contains('groggy') && mode() !== 'off';
         if (!visible()) {
           if (el._groggyStars) el._groggyStars.life = 0;
           el._groggyStars = null;
