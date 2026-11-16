@@ -198,7 +198,7 @@ if (typeof UI !== 'undefined') {
       this.talk([
         { narr: `${G.crewMembers().filter((n) => n !== L).map((n) => n.name).join(', ')}이(가) 하나둘 모였다.` },
         { who: L, text: say(L, T) },
-        tgt ? { sys: `${ride.name}(으)로 이동 · 약 ${WORLD.formatTravelTime(days)} · 길은 리더가 정한다 (팀 경비)` } : null,
+        tgt ? { sys: `${ride.name}(으)로 이동 · 약 ${WORLD.formatTravelTime(days)} (팀 경비)` } : null,
       ].filter(Boolean), () => this.crewDepart(plan, tgt, days));
     },
     crewDepart(plan, tgt, days) {

@@ -401,3 +401,83 @@ if (typeof MapView !== 'undefined') {
     };
   }
 }
+
+// 16. 이동 중 표시 (사용자 요청)
+//   ① 리더가 팀을 이끌고 이동하는 동안 지도 위에 "리더를 따라 이동 중입니다." 띠를 띄운다.
+//   ② 걷다가 사건(노상 사건·날짜가 넘어가며 온 소식·숨은 탐사 지점·폐허·괴수 기습·각성자 조우)으로 멈추면
+//      아무 표시 없이 창이 뜨지 않게: 내 자리 위에 "!" 말풍선과 이유를 먼저 보여 주고 잠깐 뒤에 사건을 연다.
+{
+  // ① 리더 따라 이동 띠
+  const band = () => {
+    let el = document.getElementById('pf-follow');
+    const on = !!(UI.crewMarch && UI.screen === 'game' && !UI.ctx && !G.over);
+    if (!on) { if (el) el.remove(); return; }
+    if (!el) {
+      el = document.createElement('div'); el.id = 'pf-follow';
+      el.textContent = '리더를 따라 이동 중입니다.';
+      el.style.cssText = 'position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 120px);transform:translateX(-50%);z-index:40;pointer-events:none;'
+        + 'padding:6px 14px;border-radius:999px;background:rgba(10,14,20,.82);border:1px solid rgba(255,181,71,.55);color:#ffe2a8;font-size:13px;font-weight:700;white-space:nowrap;';
+      document.body.appendChild(el);
+    }
+    el.style.display = UI.modalOpen() || UI.dlg ? 'none' : '';
+  };
+  setInterval(band, 300);
+
+  // ② 사건으로 멈출 때 "!" 표시와 이유
+  const why = (items) => {
+    const t = (q) => q.type;
+    if (items.some((q) => t(q) === 'mobAmbush')) return '근처 괴수 무리가 덮쳐 왔다!';
+    if (items.some((q) => t(q) === 'ambush')) return '누군가 길을 막아선다!';
+    if (items.some((q) => t(q) === 'story' && q.id === 'road_meet')) return '길에서 다른 각성자와 마주쳤다.';
+    if (items.some((q) => t(q) === 'site')) return '근처에서 무언가 눈에 띈다.';
+    if (items.some((q) => t(q) === 'ruinScav')) return '무너진 건물 더미가 눈에 띈다.';
+    if (items.some((q) => t(q) === 'story')) {
+      const ev = items.find((q) => t(q) === 'story'); const def = G.storyById && G.storyById(ev.id);
+      return def && def.trigger === 'road' ? '길에서 무슨 일이 생겼다.' : '날이 바뀌며 소식이 들어왔다.';
+    }
+    return '길에서 무슨 일이 생겼다.';
+  };
+  const baseWalk = UI.walk;
+  UI.walk = function (steps) { this._pfQ0 = new Set(G.queue); return baseWalk.call(this, steps); };
+  const baseEnd = UI.endWalk;
+  UI.endWalk = function (...a) {
+    const q0 = this._pfQ0; this._pfQ0 = null;
+    const fresh = q0 ? G.queue.filter((q) => !q0.has(q) && q.type !== 'toast') : [];
+    if (fresh.length && !G.over) {
+      const p = G.player; const text = why(fresh);
+      this._pfAlert = { x: p.x, y: p.y, until: Date.now() + 1100 };
+      this._pfHold = text;
+    }
+    try { return baseEnd.apply(this, a); } finally { this._pfHold = null; }
+  };
+  const baseQ = UI.processQueue;
+  UI.processQueue = function (...a) {
+    if (this._pfHold) {
+      const text = this._pfHold; this._pfHold = null;
+      this.toast(text);
+      try { this.map && this.map.draw(); } catch (e) { /* 무시 */ }
+      setTimeout(() => { this._pfAlert = null; try { this.map && this.map.draw(); } catch (e) { /* 무시 */ } baseQ.apply(this, a); }, FX.reduced ? 300 : 900);
+      return;
+    }
+    return baseQ.apply(this, a);
+  };
+  const MP = MapView.prototype; const baseDraw = MP.draw;
+  MP.draw = function (...a) {
+    const r = baseDraw.apply(this, a);
+    const al = UI._pfAlert;
+    if (al && this === UI.map && Date.now() < al.until) {
+      try {
+        const c = this.ctx, s = this.tile; const [px, py] = this.toScreen(al.x + 0.5, al.y + 0.5);
+        const R = Math.max(11, s * 0.32); const cy = py - s * 0.62 - R;
+        c.save();
+        c.fillStyle = '#ffb547'; c.strokeStyle = 'rgba(8,10,14,.9)'; c.lineWidth = 2.5;
+        c.beginPath(); c.arc(px, cy, R, 0, Math.PI * 2); c.moveTo(px - R * 0.35, cy + R * 0.8); c.lineTo(px, cy + R * 1.45); c.lineTo(px + R * 0.35, cy + R * 0.8);
+        c.fill(); c.stroke();
+        c.fillStyle = '#1a1205'; c.font = `900 ${Math.round(R * 1.35)}px "IBM Plex Sans KR", sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.fillText('!', px, cy + 1);
+        c.restore();
+      } catch (e) { /* 무시 */ }
+    }
+    return r;
+  };
+}
