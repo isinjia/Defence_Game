@@ -600,3 +600,37 @@ const VEHICLE_ART = { usedbike: null, bike: null, car: null, suv: null, truck: n
 @media (prefers-reduced-motion: reduce) { :where(.foe) .fx-host { animation: none; } }`;
   document.head.appendChild(css);
 }
+
+// 21. 자동 전투 (사용자 요청)
+//   ① 자동을 켜면 다음 전투에서도 켜진 채로 시작한다(끄면 계속 꺼짐). 이 기기에만 기억. 자격 시험·튜토리얼 전투는 제외.
+//   ② 자동일 때 내 차례에 리더 오더가 있으면 오더대로 행동한다(정신력이 모자라거나 대상이 없으면 원래 자동 판단).
+{
+  const KEY = 'gc_auto_battle';
+  const pref = () => { try { return localStorage.getItem(KEY) === '1'; } catch (e) { return false; } };
+  const save = (on) => { try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (e) { /* 무시 */ } };
+  const skip = (c) => !c || c.tutorial || c.kind === 'exam' || (c.gate && (c.gate.exam || c.gate.tutorial)) || (G.player && G.player.onboard);
+  const baseLoop = UI.combatLoop;
+  UI.combatLoop = function (...a) {
+    try { const c = this.ctx; const cb = c && c.combat; if (cb && !cb._autoInit) { cb._autoInit = true; if (!skip(c) && pref()) { cb.auto = true; this.renderControls(); } } } catch (e) { /* 무시 */ }
+    return baseLoop.apply(this, a);
+  };
+  const baseHandle = UI.handle;
+  UI.handle = function (act, ...a) {
+    const r = baseHandle.call(this, act, ...a);
+    if (act === 'c-auto') { try { const c = this.ctx; if (c && c.combat && !skip(c)) save(!!c.combat.auto); } catch (e) { /* 무시 */ } }
+    return r;
+  };
+  const baseAuto = Combat.prototype.autoStep;
+  Combat.prototype.autoStep = function (...a) {
+    try {
+      const p = this.player; const o = p && p.order;
+      if (this.waiting && !this.result && o && !o.vague && o.skill && !o.act) {
+        const sk = skillById(o.skill); const eff = sk && this.game.skillEff ? this.game.skillEff(sk) : sk;
+        const tOk = !o.target || this.units.some((u) => u.id === o.target && u.alive);
+        if (eff && eff.mp <= p.mp && tOk) { this.playerSkill(o.skill, o.target || null); if (!this.waiting) return; }
+      }
+      if (p && p.order && this.waiting) { if (!p.order.vague && this.noteOrder) this.noteOrder('ignore', p, p.order); p.order = null; }
+    } catch (e) { /* 실패하면 원래 자동 */ }
+    return baseAuto.apply(this, a);
+  };
+}
