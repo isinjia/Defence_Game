@@ -16,7 +16,8 @@
     }
     return out;
   };
-  const fmt = (d) => (WORLD.formatTravelTime ? WORLD.formatTravelTime(d) : `${Math.max(1, Math.round(d))}일`);
+  // 끝 표시는 깔끔하게: 하루 이상이면 'N일', 하루 안이면 'N시간' (반올림, 사용자 요청)
+  const fmt = (d) => (d >= 1 ? `${Math.max(1, Math.round(d))}일` : `${Math.max(1, Math.round(d * 24))}시간`);
   // 표시 간격: 경로가 하루를 넘으면 1일마다, 아니면 길이에 맞춰 1·2·3·6시간마다
   const stepOf = (total) => (total >= 1 ? 1 : total >= 12 / 24 ? 3 / 24 : total >= 6 / 24 ? 2 / 24 : 1 / 24);
   const label = (v, unit) => (unit >= 1 ? `${Math.round(v)}일` : `${Math.round(v * 24)}시간`);
