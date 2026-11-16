@@ -693,6 +693,25 @@ const VEHICLE_ART = { usedbike: null, bike: null, car: null, suv: null, truck: n
   UI.renderControls = function (...a) { const r = baseCtl.apply(this, a); setTimeout(decide, 0); return r; };
   const baseHandle = UI.handle;
   UI.handle = function (act, ...a) {
+    // 반대한다: 리더의 대답을 결정 카드에 보여 준다. 받아들이면 원래 버튼으로, 거절하면 잠깐 보여 준 뒤 리더 결정대로 (사용자 제보: 아무 반응 없이 넘어감)
+    if (act === 'lead-no' && this._floorDec && this.leadDecision) {
+      const fd0 = this._floorDec; const d = this.leadDecision; this._floorDec = null; this.leadDecision = null;
+      const L = G.npcById(d.L); const card = document.querySelector('#modal-box .lead-dec');
+      const chance = 0.25 + ((L && L.relation) || 0) / 200 + (L && (L.personality === 'kind' || L.personality === 'just') ? 0.15 : L && L.personality === 'cold' ? -0.1 : 0);
+      const ok = RNG.chance(Math.max(0.05, Math.min(0.85, chance)));
+      const say = (t, cls) => { if (card) card.innerHTML = `<b>${L ? L.name : '리더'}(리더)</b><p class="small ${cls}" style="margin:4px 0 0">"${t}"</p>`; };
+      if (ok) {
+        say(L && L.personality === 'cold' ? '…좋다. 네 판단에 맡긴다.' : '…그래, 네 생각대로 해 보자.', 'good');
+        for (const x of fd0) { if (!x.isConnected || !x.dataset.oAct) continue; x.dataset.act = x.dataset.oAct; if (x.dataset.oV) x.dataset.v = x.dataset.oV; x.innerHTML = x.dataset.oText; x.className = x.dataset.oCls; x.disabled = false; }
+        const c = this.ctx; if (c && c._floorDecided) c._floorDecided.free = true;
+        return;
+      }
+      if (L) G.changeRel(L, -1, '결정에 반대했다');
+      say(L && L.personality === 'cold' ? '내가 정한다.' : L && L.personality === 'warlike' ? '시끄러워. 내 말대로 한다.' : '미안, 이번엔 내 판단대로 갈게.', 'bad');
+      for (const x of fd0) x.disabled = true;
+      setTimeout(() => { if (document.querySelector('#modal-box .lead-dec')) baseHandle.call(this, d.act, d.pick); }, 1600);
+      return;
+    }
     const fd = (act === 'lead-no' || act === 'lead-ok') ? this._floorDec : null;
     const r = baseHandle.call(this, act, ...a);
     if (fd) {
