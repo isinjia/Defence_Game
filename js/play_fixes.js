@@ -634,3 +634,70 @@ const VEHICLE_ART = { usedbike: null, bike: null, car: null, suv: null, truck: n
     return baseAuto.apply(this, a);
   };
 }
+
+// 22. 층 보스를 잡은 뒤 '다음 층으로 / 철수·보상 챙기기'(마지막 층의 '클리어 / 숨겨진 구역')도 리더가 정한다 (사용자 요청)
+//     다른 리더 결정과 같은 방식: 선택지를 잠그고 리더 결정 카드(따른다·반대한다)를 붙인다. 반대가 받아들여지면 내가 고른다.
+//     리더 판단: 파티의 남은 체력(평균)이 성격별 기준보다 낮으면 철수, 아니면 계속 간다.
+{
+  const GO_ON = { warlike: 0.2, greedy: 0.3, just: 0.35, cold: 0.4, kind: 0.5 };
+  const LINE = {
+    go: { warlike: '이제 몸 풀렸다. 내려간다.', greedy: '여기서 나가면 남는 게 없어. 더 간다.', just: '아직 버틸 만하다. 다음 층으로 간다.', cold: '다음 층.', kind: '다들 괜찮죠? 조금만 더 가 봐요.' },
+    back: { warlike: '…쳇. 오늘은 여기까지다.', greedy: '본전은 건졌어. 챙겨서 빠지자.', just: '여기까지다. 더 가면 누가 다친다. 철수한다.', cold: '철수.', kind: '무리하지 말아요. 챙겨서 돌아가요.' },
+    hidden: { warlike: '숨은 구역? 당연히 간다.', greedy: '숨겨진 데엔 숨겨진 보물이 있지. 간다.', just: '아직 여력이 있다. 들어가 보자.', cold: '들어간다.', kind: '조심해서… 들어가 봐요.' },
+    clear: { warlike: '…아깝지만 여기서 끝낸다.', greedy: '이 정도면 충분해. 나가자.', just: '욕심내지 말자. 클리어하고 나간다.', cold: '나간다.', kind: '여기까지 온 것만으로도 충분해요. 나가요.' },
+  };
+  const hpRatio = () => {
+    const c = UI.ctx; const cb = c && c.combat;
+    const us = cb && cb.units ? cb.units.filter((u) => u.side === 'ally' && !u.summon) : [];
+    if (!us.length) return G.player.maxHp ? G.player.hp / G.player.maxHp : 1;
+    return us.reduce((v, u) => v + (u.alive ? u.hp / Math.max(1, u.maxHp) : 0), 0) / us.length;
+  };
+  const decide = () => {
+    const c = UI.ctx; if (!c || c.kind !== 'gate' || !UI.councilLeader) return;
+    const L = UI.councilLeader(); if (!L || G.over) return;
+    const box = document.getElementById('modal-box'); if (!box || box.querySelector('.lead-dec')) return;
+    const ret = box.querySelector('[data-act="g-finish"][data-v="retreat"]:not([disabled])');
+    const go = box.querySelector('[data-act="g-floor"]:not([disabled]), [data-act="g-next"]:not([disabled])');
+    const clr = box.querySelector('[data-act="g-finish"][data-v="clear"]:not([disabled])');
+    const hid = box.querySelector('[data-act="g-hidden"]:not([disabled])');
+    let pair = null;
+    if (ret && go) pair = { a: go, b: ret, ka: 'go', kb: 'back' };
+    else if (clr && hid) pair = { a: hid, b: clr, ka: 'hidden', kb: 'clear' };
+    if (!pair) return;
+    // 같은 승리 창이 다시 그려져도 결정은 한 번만 (반대가 받아들여졌으면 다시 잠그지 않는다)
+    const tag = `${c.run ? c.run.floor : c.roomIdx}|${pair.ka}`;
+    const prev = c._floorDecided && c._floorDecided.tag === tag ? c._floorDecided : null;
+    if (prev && prev.free) return;
+    const key = L.personality in GO_ON ? L.personality : 'just';
+    const need = GO_ON[key] + (pair.ka === 'hidden' ? 0.15 : 0);
+    const pickA = prev ? prev.pickA : hpRatio() >= need;
+    c._floorDecided = { tag, pickA };
+    const btn = pickA ? pair.a : pair.b; const k = pickA ? pair.ka : pair.kb;
+    for (const b of [pair.a, pair.b]) { b.disabled = true; b.classList.toggle('lead-pick', b === btn); }
+    UI._floorDec = [pair.a, pair.b];
+    UI.leadDecision = { act: btn.dataset.act, pick: btn.dataset.v || '', L: L.id };
+    const html = `<div class="cn-card lead-dec" style="margin:8px 0"><b>${L.name}(리더)의 결정</b> <span class="small">· ${btn.textContent.trim()}</span>
+      <p class="small">"${LINE[k][key]}"</p><div class="cn-btns"><button class="primary" data-act="lead-ok">따른다</button><button class="danger" data-act="lead-no">반대한다</button></div></div>`;
+    const row = btn.closest('.row') || btn.parentElement;
+    row.insertAdjacentHTML('beforebegin', html);
+  };
+  const baseModal = UI.modal;
+  UI.modal = function (...a) { const r = baseModal.apply(this, a); setTimeout(decide, 0); return r; };
+  // 전투 승리 결산 창은 전투 조작 칸(renderControls)으로 그려진다
+  const baseCtl = UI.renderControls;
+  UI.renderControls = function (...a) { const r = baseCtl.apply(this, a); setTimeout(decide, 0); return r; };
+  const baseHandle = UI.handle;
+  UI.handle = function (act, ...a) {
+    const fd = (act === 'lead-no' || act === 'lead-ok') ? this._floorDec : null;
+    const r = baseHandle.call(this, act, ...a);
+    if (fd) {
+      this._floorDec = null;
+      // 반대가 받아들여져 결정 카드가 사라졌으면 두 선택지를 모두 다시 연다
+      if (act === 'lead-no' && !document.querySelector('#modal-box .lead-dec')) {
+        for (const b of fd) { if (b.isConnected) { b.disabled = false; b.classList.remove('lead-pick'); } }
+        const c = this.ctx; if (c && c._floorDecided) c._floorDecided.free = true;
+      }
+    }
+    return r;
+  };
+}
