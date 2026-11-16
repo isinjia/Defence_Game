@@ -187,17 +187,7 @@ class MapView {
           const [ax, ay] = pts[pts.length - 2], [bx, by] = pts[pts.length - 1], an = Math.atan2(by - ay, bx - ax), L = Math.max(8, s * 0.32);
           c.fillStyle = '#ffb547'; c.beginPath(); c.moveTo(bx, by); c.lineTo(bx - L * Math.cos(an - 0.45), by - L * Math.sin(an - 0.45)); c.lineTo(bx - L * Math.cos(an + 0.45), by - L * Math.sin(an + 0.45)); c.closePath(); c.fill();
         }
-        // 하루가 차는 칸마다 'N일' (사용자 요청: 화살표 위에 하루 단위로)
-        let acc = G.player ? (G.player.dayFrac || 0) : 0, day = 0;
-        const total = WORLD.formatTravelTime(G.travelPathDays(path.slice(1)));
-        for (let k = 1; k < path.length; k++) {
-          const [x, y] = WORLD.xy(path[k]), [x0, y0] = WORLD.xy(path[k - 1]);
-          acc += G.travelStepDays(x, y, x !== x0 && y !== y0);
-          const d = Math.floor(acc + 1e-9);
-          if (d > day && k < path.length - 1) { day = d; const [px, py] = pts[k]; c.font = `700 ${s > 34 ? 12 : 10}px "IBM Plex Sans KR", sans-serif`; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.lineWidth = 3; c.strokeStyle = 'rgba(8,12,18,.85)'; c.strokeText(`${day}일`, px, py - s * 0.18); c.fillStyle = '#ffe2a8'; c.fillText(`${day}일`, px, py - s * 0.18); }
-        }
-        const [hx, hy] = WORLD.xy(tgt); const [px, py] = this.toScreen(hx, hy);
-        this.chip(px + s / 2, py - 6, `${total}`, '#ffb547', '#1a1205');
+        // 'N일'·끝 시간 표시는 js/map_day_marks.js 한 곳에서만 그린다(두 계산이 달라 표시가 두 번 나왔다 · 사용자 제보)
       }
     }
     // 남은 경로

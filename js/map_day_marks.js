@@ -70,7 +70,7 @@
       if (UI._moveSel) target = WORLD.idx(UI._moveSel[0], UI._moveSel[1]);
       else if (this.hover >= 0) { target = this.hover; hov = true; }
       // 마우스를 올린 경로는 mapview.js 가 끝에 걸리는 시간을 이미 붙이므로 끝 표시는 빼고 그린다
-      if (target >= 0 && target !== rd.start && rd.dist.has(target)) this.drawDayPath(WORLD.pathTo(rd, target), { endChip: !hov });
+      if (target >= 0 && target !== rd.start && rd.dist.has(target)) this.drawDayPath(WORLD.pathTo(rd, target), {}); // 끝 시간도 여기서만(mapview.js 쪽 표시는 뺐다)
     } catch (e) { /* 표시 실패는 이동을 막지 않는다 */ }
     return r;
   };
