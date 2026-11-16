@@ -66,7 +66,7 @@
   min-width: 52px;
 }
 
-/* 옛 글자 배지·무리형(무)·적 타겟 조준·의도 타겟 얼굴·아군 위협(!) 숨김 (속성 아이콘 뱃지 cu-elem-badge 는 유지) */
+/* 옛 글자 배지·무리형(무)·적 타겟 조준·의도 타겟 얼굴·아군 위협(!) 숨김 */
 #modal-box.cu-v2 .elem-badge,
 #modal-box.cu-v2 .mtype,
 #modal-box.cu-v2 .stfx,
@@ -77,26 +77,6 @@
 #modal-box.cu-v2 .intent .intent-face,
 #modal-box.cu-v2 .intent > b { display: none !important; }
 
-/* 몬스터 초상 왼쪽 위 속성 아이콘 — 이름 옆만 쓰면 적 줄이 뭉칠 때 가려짐 */
-#modal-box.cu-v2 .cu-elem-badge {
-  position: absolute; left: -2px; top: -2px; z-index: 6;
-  width: 20px; height: 20px; border-radius: 50%;
-  display: grid; place-items: center;
-  margin: 0; padding: 0; font-style: normal; line-height: 0;
-  background: color-mix(in srgb, var(--ec, #c9a84a) 88%, #0b0f17);
-  box-shadow: 0 0 0 1.5px #05080d, 0 0 6px color-mix(in srgb, var(--ec, #c9a84a) 45%, transparent);
-  pointer-events: none;
-}
-#modal-box.cu-v2 .cu-elem-badge svg {
-  width: 12px !important; height: 12px !important; display: block;
-}
-/* 보스는 왼쪽 위 「보스」 태그와 겹치지 않게 오른쪽 */
-#modal-box.cu-v2 .foe.foe-card.boss .cu-elem-badge {
-  width: 22px; height: 22px; left: auto; right: -2px; top: -2px;
-}
-#modal-box.cu-v2 .foe.foe-card.boss .cu-elem-badge svg {
-  width: 13px !important; height: 13px !important;
-}
 #modal-box.cu-v2 .ally.threatened .fx-host::before {
   display: none !important; content: none !important; opacity: 0 !important; width: 0 !important; height: 0 !important;
 }

@@ -18,18 +18,6 @@
       wrap.innerHTML = ico;
     }
   };
-  // 몬스터 초상 왼쪽 위 속성 뱃지 (원형 글자 배지 자리에 아이콘) — 이름 옆만 쓰면 뭉친 적 줄에서 사라짐
-  const ensureFoeElemBadge = (host, u) => {
-    if (!host) return;
-    host.querySelectorAll('.elem-badge, .cu-elem-badge').forEach((n) => n.remove());
-    const e = u && u.elem; const E = e && ELEMENTS[e];
-    const ico = (typeof FX !== 'undefined' && FX.elemIcon) ? FX.elemIcon(e, 12) : '';
-    if (!ico) return;
-    const c = E ? E.color : '#c9a84a';
-    const label = E ? E.name : '무속성';
-    host.insertAdjacentHTML('beforeend', `<i class="cu-elem-badge" style="--ec:${c}" title="${label}" aria-label="${label}">${ico}</i>`);
-  };
-
   // 상반신 초상 (공통 UI.toBustHtml / playerBust / npcBust 사용)
   const allyBustHtml = (u) => {
     try {
@@ -101,8 +89,8 @@
     if (!el || !u) return;
     const host = el.querySelector('.fx-host'); if (!host) return;
     // 원형 글자·무리형(무)·타겟 조준 표시는 쓰지 않는다
-    host.querySelectorAll('.elem-badge, .mtype, .reticle').forEach((n) => n.remove());
-    el.querySelectorAll('.elem-badge, .mtype').forEach((n) => n.remove());
+    host.querySelectorAll('.elem-badge, .cu-elem-badge, .mtype, .reticle').forEach((n) => n.remove());
+    el.querySelectorAll('.elem-badge, .cu-elem-badge, .mtype').forEach((n) => n.remove());
     el.classList.remove('threatened');
     // 이름은 초상(.fx-host) 하단 테두리에 겹침, 속성 아이콘은 이름 옆
     if (el.classList.contains('ally')) {
@@ -121,7 +109,6 @@
       const nm = el.querySelector('.foe-name');
       if (nm && nm.parentNode !== host) host.appendChild(nm);
       ensureNameIcon(nm, u);
-      ensureFoeElemBadge(host, u);
       if (!el.classList.contains('cu-ord')) {
         const hp = el.querySelector(':scope > .bar.hp');
         const brk = el.querySelector(':scope > .brk');
