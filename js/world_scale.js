@@ -53,7 +53,7 @@ Object.assign(Game.prototype, {
       const gCount = this.mapGates.filter((g) => g.region === reg.id && !g.final && !g.mission && !g.calamity && !g.north).length;
       if (gCount >= 2 && gCount < gCap && RNG.chance(0.3 + reg.danger * 0.08)) {
         const pos = this.randomFreeTile(reg.id);
-        if (pos) this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: reg.id, tier: RNG.int(lo, hi), theme: RNG.pick(GATE_THEMES), elem: typeof pickElem === 'function' ? pickElem() : RNG.pick(ELEMENT_KEYS), born: key });
+        if (pos) this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: reg.id, tier: this.gateDistanceTier ? this.gateDistanceTier(pos[0], pos[1], reg.id) : RNG.int(lo, hi), theme: RNG.pick(GATE_THEMES), elem: typeof pickElem === 'function' ? pickElem() : RNG.pick(ELEMENT_KEYS), born: key });
       }
       const base = 2 + Math.floor(reg.danger / 2);
       const cap = Math.round(base * Math.min(4, size / 180));

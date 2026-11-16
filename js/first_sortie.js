@@ -35,7 +35,7 @@
       gate = this.mapGates.filter((g) => g.region === p.region && !g.cleared && !g.final && !g.mission && !g.variant && g.tier <= p.rankIdx && this.ensureOwner(g) === 'kama')
         .sort((a, b) => dist(a) - dist(b))[0];
       if (!gate) {
-        const pos = this.randomFreeTile(p.region);
+        const pos = this.nearbyStarterGateTile ? this.nearbyStarterGateTile() : this.randomFreeTile(p.region);
         if (pos) {
           gate = { id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: p.region,
             tier: Math.min(6, p.rankIdx), theme: RNG.pick(GATE_THEMES), elem: pickElem(), born: this.monthKey() };

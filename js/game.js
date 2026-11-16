@@ -420,7 +420,7 @@ class Game {
       const gCount = this.mapGates.filter((g) => g.region === reg.id && !g.final && !g.mission).length;
       if (gCount < 2 && RNG.chance(0.35 + reg.danger * 0.1)) {
         const pos = this.randomFreeTile(reg.id);
-        if (pos) this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: reg.id, tier: RNG.int(lo, hi), theme: RNG.pick(GATE_THEMES), elem: pickElem(), born: key });
+        if (pos) this.mapGates.push({ id: this.nextObjId++, kind: 'gate', x: pos[0], y: pos[1], region: reg.id, tier: this.gateDistanceTier ? this.gateDistanceTier(pos[0], pos[1], reg.id) : RNG.int(lo, hi), theme: RNG.pick(GATE_THEMES), elem: pickElem(), born: key });
       }
       const cap = 2 + Math.floor(reg.danger / 2);
       const mCount = this.mobs.filter((m) => m.region === reg.id).length;
