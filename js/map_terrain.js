@@ -214,13 +214,24 @@ const MapTerrain = (() => {
 
   return {
     colors, ready, TYPE_COUNT, load,
+    async prepareEntry() {
+      await load();
+      const complete = () => tileImg.every(Boolean) && NAMES.filter(n => n !== 'plain')
+        .every(n => sideImg[n] && cornerImg[n].every(Boolean));
+      if (!complete()) { loading = null; await load(); }
+      if (!complete()) throw new Error('지도 이미지 로드 실패');
+    },
     get whenReady() { load(); return whenReady; },
     get readyAssets() { return assetsReady; },
-    draw(c, type, px, py, s, x, y, frame) {
+    drawStatic(c, type, px, py, s, x, y) {
       load();
       if (type < 0 || type >= TYPE_COUNT) return false;
       const variant = Math.floor(WORLD.h2(x, y, 73) * VARIANTS);
       drawGround(c, type, variant, px, py, s, x, y);
+      return true;
+    },
+    drawMotion(c, type, px, py, s, x, y, frame) {
+      const variant = Math.floor(WORLD.h2(x, y, 73) * VARIANTS);
       if ((type === WORLD.T.SEA || type === WORLD.T.ETHER || type === WORLD.T.WASTE) && s >= 30) {
         const phase = FX.reduced ? 0.5 : (Math.sin(frame / 42 + variant) + 1) / 2;
         const col = type === WORLD.T.SEA ? `rgba(151,207,207,${0.07 + phase * 0.1})`
@@ -237,11 +248,50 @@ const MapTerrain = (() => {
       }
       return true;
     },
+    draw(c, type, px, py, s, x, y, frame) {
+      if (!this.drawStatic(c, type, px, py, s, x, y)) return false;
+      this.drawMotion(c, type, px, py, s, x, y, frame);
+      return true;
+    },
     get bytes() { return (atlas ? atlas.width * atlas.height * 4 : 0) + composedBytes; },
   };
 })();
 
 {
+  // 카메라가 같은 타일 구역 안을 이동할 때는 정지 배경을 한 장 옮겨 그린다.
+  MapView.prototype.drawTerrainLayer = function (x0, y0, x1, y1) {
+    MapTerrain.load();
+    if (!MapTerrain.readyAssets) return false;
+    const left = Math.max(0, x0), top = Math.max(0, y0);
+    const right = Math.min(WORLD.COLS - 1, x1), bottom = Math.min(WORLD.ROWS - 1, y1);
+    if (right < left || bottom < top) return false;
+    const s = this.tile, dpr = this.dpr;
+    const types = [];
+    // 경계 바깥 이웃까지 검사해 화면 안 전환 이미지의 변경도 놓치지 않는다.
+    for (let y = Math.max(0, top - 1); y <= Math.min(WORLD.ROWS - 1, bottom + 1); y++) {
+      for (let x = Math.max(0, left - 1); x <= Math.min(WORLD.COLS - 1, right + 1); x++) types.push(WORLD.type(x, y));
+    }
+    const key = `${left}:${top}:${right}:${bottom}:${s}:${dpr}:${types.join(',')}`;
+    let cache = this._terrainSurface;
+    if (!cache || cache.key !== key) {
+      const canvas = cache ? cache.canvas : document.createElement('canvas');
+      const w = Math.ceil(((right - left + 1) * s + 0.3) * dpr);
+      const h = Math.ceil(((bottom - top + 1) * s + 0.3) * dpr);
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+      const c = canvas.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, w, h);
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      for (let y = top; y <= bottom; y++) for (let x = left; x <= right; x++) {
+        MapTerrain.drawStatic(c, WORLD.type(x, y), (x - left) * s, (y - top) * s, s, x, y);
+      }
+      cache = this._terrainSurface = { key, canvas };
+    }
+    const [px, py] = this.toScreen(left, top);
+    this.ctx.drawImage(cache.canvas, px, py, cache.canvas.width / dpr, cache.canvas.height / dpr);
+    return true;
+  };
+  MapView.prototype.drawTileMotion = function (type, px, py, s, x, y) {
+    MapTerrain.drawMotion(this.ctx, type, px, py, s, x, y, this.t);
+  };
   const baseTile = MapView.prototype.drawTile;
   MapView.prototype.drawTile = function (type, px, py, s, x, y) {
     if (!MapTerrain.draw(this.ctx, type, px, py, s, x, y, this.t)) return baseTile.apply(this, arguments);

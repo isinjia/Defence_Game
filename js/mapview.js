@@ -17,10 +17,17 @@ class MapView {
     this.resize();
     this.ro = new ResizeObserver(() => this.resize());
     this.ro.observe(this.cv.parentElement);
-    const loop = () => { if (!this.alive) return; this.t += 1; this.draw(); this.raf = requestAnimationFrame(loop); };
+    const loop = (now) => {
+      if (!this.alive) return;
+      const arrived = this.advanceWalk(now);
+      this.t += 1; this.draw();
+      this.raf = requestAnimationFrame(loop);
+      // 도착 위치를 먼저 화면에 내보낸 뒤 날짜·HUD 등 다음 칸 처리를 한다.
+      if (arrived) requestAnimationFrame(() => { if (this.alive) arrived(); });
+    };
     this.raf = requestAnimationFrame(loop);
   }
-  destroy() { this.alive = false; cancelAnimationFrame(this.raf); this.ro.disconnect(); }
+  destroy() { this.alive = false; this._walkAnimation = null; this._terrainSurface = null; this._miniTerrain = null; cancelAnimationFrame(this.raf); this.ro.disconnect(); }
 
   makeFogPattern() {
     const c = document.createElement('canvas'); c.width = c.height = 64;
@@ -118,17 +125,31 @@ class MapView {
     });
   }
 
-  // 한 칸 사이를 부드럽게 이동 (걷기 연출)
+  // 화면 연출 시간이다. 실제 이동 날짜·지형 비용은 G.walkStep에서 그대로 계산한다.
+  walkDuration(from, to) {
+    const distance = Math.hypot(to[0] - from[0], to[1] - from[1]);
+    return (WORLD.type(to[0], to[1]) === WORLD.T.MOUNTAIN ? 650 : 450) * distance;
+  }
+
+  // 지도 렌더 루프 하나에서 위치·카메라를 함께 갱신한다.
   tween(from, to, ms, done) {
     this.moving = true; this.reachData = null;
-    const t0 = performance.now();
-    const step = (now) => {
-      const k = ms <= 0 ? 1 : Math.min(1, (now - t0) / ms);
-      const e = k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
-      this.token = { x: from[0] + (to[0] - from[0]) * e, y: from[1] + (to[1] - from[1]) * e, walking: true };
-      if (k < 1) requestAnimationFrame(step); else done();
-    };
-    requestAnimationFrame(step);
+    this.token = { x: from[0], y: from[1], walking: true };
+    this._walkAnimation = { from: from.slice(), to: to.slice(), ms, done, elapsed: 0, last: performance.now(), camX: this.camX, camY: this.camY };
+  }
+  advanceWalk(now) {
+    const a = this._walkAnimation; if (!a) return null;
+    if (a.last != null) a.elapsed += Math.max(0, Math.min(34, now - a.last));
+    a.last = now;
+    // 느린 프레임 뒤에 밀린 거리를 한꺼번에 뛰어넘지 않는다. 칸마다 가속·감속도 하지 않는다.
+    const k = a.ms <= 0 ? 1 : Math.min(1, a.elapsed / a.ms);
+    this.token = { x: a.from[0] + (a.to[0] - a.from[0]) * k, y: a.from[1] + (a.to[1] - a.from[1]) * k, walking: true };
+    this.camX = a.camX + (a.to[0] + 0.5 - a.camX) * k;
+    this.camY = a.camY + (a.to[1] + 0.5 - a.camY) * k;
+    this.clampCam();
+    if (k < 1) return null;
+    this._walkAnimation = null;
+    return a.done;
   }
 
   // 경로를 따라 토큰을 움직인다
@@ -136,13 +157,12 @@ class MapView {
     this.moving = true; this.reachData = null;
     const pts = path.map(WORLD.xy);
     let i = 0;
-    const stepMs = FX.reduced ? 0 : 85;
+    let from = this.token ? [this.token.x, this.token.y] : [G.player.x, G.player.y];
     const step = () => {
+      if (!this.alive) return;
       if (i >= pts.length) { this.token = null; this.moving = false; done(); return; }
-      this.token = { x: pts[i][0], y: pts[i][1] };
-      this.camX += (pts[i][0] + 0.5 - this.camX) * 0.35; this.camY += (pts[i][1] + 0.5 - this.camY) * 0.35;
-      i++;
-      setTimeout(step, stepMs);
+      const to = pts[i++];
+      this.tween(from, to, this.walkDuration(from, to), () => { from = to; step(); });
     };
     step();
   }
@@ -151,16 +171,17 @@ class MapView {
   draw() {
     const c = this.ctx, s = this.tile, t = this.t;
     if (!G.player) return;
-    if (this.token && this.token.walking) { this.camX += (this.token.x + 0.5 - this.camX) * 0.1; this.camY += (this.token.y + 0.5 - this.camY) * 0.1; }
     c.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     c.fillStyle = '#05080d'; c.fillRect(0, 0, this.w, this.hgt);
     const [x0, y0] = this.toTile(0, 0), [x1, y1] = this.toTile(this.w, this.hgt);
     const T = WORLD.T;
+    const terrainLayer = this.drawTerrainLayer && this.drawTerrainLayer(x0, y0, x1, y1);
     for (let y = Math.max(0, y0); y <= Math.min(WORLD.ROWS - 1, y1); y++) {
       for (let x = Math.max(0, x0); x <= Math.min(WORLD.COLS - 1, x1); x++) {
         const [px, py] = this.toScreen(x, y);
         const i = WORLD.idx(x, y), ty = WORLD.tiles[i];
-        this.drawTile(ty, px, py, s, x, y);
+        if (terrainLayer) this.drawTileMotion(ty, px, py, s, x, y);
+        else this.drawTile(ty, px, py, s, x, y);
         if (!G.fog[i]) { c.globalAlpha = 0.86; this.drawFog(px, py, s, x, y); c.globalAlpha = 1; }
       }
     }
@@ -387,7 +408,7 @@ class MapView {
     const c = this.ctx, s = this.tile, p = G.player;
     const pos = this.token || { x: p.x, y: p.y };
     let [px, py] = this.toScreen(pos.x + 0.5, pos.y + 0.5);
-    if (pos.walking) py -= Math.abs(Math.sin(((pos.x + pos.y) % 1) * Math.PI)) * s * 0.12;
+    if (pos.walking && !FX.reduced) py -= Math.abs(Math.sin(((pos.x + pos.y) % 1) * Math.PI)) * s * 0.025;
     const R = s * 0.42;
     const ring = RANKS[p.rankIdx].color;
     const pulse = (Math.sin(this.t / 15) + 1) / 2;

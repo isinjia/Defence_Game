@@ -35,7 +35,8 @@
       return loading;
     },
   };
-  const prepare = () => GateBoot.load().catch(error => window.dispatchEvent(new ErrorEvent('error', { message: error.message })));
+  // 백그라운드 준비 실패는 실제 진입 때 로딩 화면에서 재시도한다.
+  const prepare = () => GateBoot.load().catch(() => {});
   // 첫 장면의 그림을 먼저 전달하고, 다음 장면부터 본편을 캐시에 준비한다.
   // 실행은 첫 조작/오프닝 종료까지 미뤄 자막과 카메라 이동을 막지 않는다.
   document.addEventListener('gate-opening-scene', event => {
@@ -55,13 +56,20 @@
     event.preventDefault(); event.stopImmediatePropagation();
     if (actionPending) return;
     actionPending = true;
-    const label = target.textContent;
-    target.disabled = true; target.textContent = '준비 중…';
     const action = target.dataset.act, value = target.dataset.v;
-    GateBoot.load().then(() => { actionPending = false; UI.handle(action, value); }).catch(error => {
-      actionPending = false;
-      target.disabled = false; target.textContent = label;
-      window.dispatchEvent(new ErrorEvent('error', { message: error.message }));
-    });
+    const enter = async () => {
+      GateEntryLoading.show();
+      await GateEntryLoading.paint();
+      try {
+        await GateBoot.load();
+        actionPending = false;
+        await UI.handle(action, value);
+        // 도움말처럼 게임 진입이 아닌 타이틀 동작도 초기 로딩을 닫는다.
+        if (!UI.entryLoading) GateEntryLoading.hide();
+      } catch (error) {
+        GateEntryLoading.fail(enter);
+      }
+    };
+    enter();
   }, true);
 })();

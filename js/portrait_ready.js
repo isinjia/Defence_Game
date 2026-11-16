@@ -29,6 +29,7 @@
     const N = 10; let i = 0;
     const idle = (fn) => (typeof requestIdleCallback === 'function' ? requestIdleCallback(fn, { timeout: 600 }) : setTimeout(fn, 60));
     const step = () => {
+      if (window.GateEntryLoading && GateEntryLoading.active) { setTimeout(step, 300); return; }
       if (i++ >= N) return;
       try {
         const html = FX.portrait(PortraitParts.newLook(), gender === 'F' ? 'F' : 'M', 'fire', 0, 160, { age: 19, outfit: 'underwear' });

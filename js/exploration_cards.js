@@ -39,10 +39,11 @@ const ExplorationCards = (() => {
   }
   function details(v) {
     const p=v.selected ? info(v,v.selected) : null, L=v.exam ? UI.examLeader?.() : UI.councilLeader?.();
+    const mapReview=document.body.classList.contains('cn-map-on') && !!document.getElementById('council-ov');
     const locked=v.exam || !!v.ctx.run?.scoutPending || !!v.ctx.council;
-    const label=!p ? '이동 가능한 경로를 확인하고 있습니다' : v.exam ? '리더가 경로를 결정합니다' : locked ? '팀 안내·상의를 기다려 주세요' : L ? '이 경로로 의견 내기' : '이 경로로 이동';
+    const label=mapReview ? '상의 창으로 돌아가기' : !p ? '이동 가능한 경로를 확인하고 있습니다' : v.exam ? '리더가 경로를 결정합니다' : locked ? '팀 안내·상의를 기다려 주세요' : L ? '팀 상의 열기' : '이 경로로 이동';
     const body=!p ? '현재 진행 중인 안내가 끝나면 다음 경로가 표시됩니다.' : p.type === 'unknown' ? '아직 어떤 장소인지 확인하지 못했습니다. 이 경로로 들어가면 종류가 드러납니다.' : p.type === 'fight' || p.type === 'elite' ? '전투로 보이는 경로입니다. 등장 괴수의 종류와 보상은 진입 후 확인합니다.' : (GNODE[p.type]?.desc || p.description);
-    v.details.innerHTML=`<div class="xr-detail-head"><h3>선택한 목적지</h3>${p?'<span>선택됨</span>':''}</div><div class="xr-detail-title">${p ? `<span class="xr-detail-kind xr-${p.type}">${esc(p.label)}</span>` : ''}<h2>${esc(p?.title || '경로 확인 중')}</h2><p>${esc(v.title)} · ${esc(v.floor)}</p></div><p class="xr-description">${esc(body)}</p>${p?`<dl class="xr-info"><div><dt>장소 유형</dt><dd>${esc(p.label)}</dd></div><div><dt>정찰 정보</dt><dd>${esc(intel(v,p))}</dd></div><div><dt>예상 보상</dt><dd>미확인</dd></div></dl>`:''}<div class="xr-action-area"><p class="xr-selection-summary" aria-live="polite">${p?`선택: ${esc(p.title)}`:'다음 목적지를 기다리고 있습니다.'}</p><button class="xr-go" data-act="xr-go" ${!p||locked?'disabled':''}><span>${esc(label)}</span>${!v.exam&&p&&!locked?'<span aria-hidden="true">→</span>':''}</button><small>${v.exam ? '경로 선택과 이동은 시험 리더가 진행합니다.' : L ? '경로에 대한 의견을 팀 상의에 전달합니다.' : '이동 전 다른 목적지로 변경할 수 있습니다.'}</small></div>`;
+    v.details.innerHTML=`<div class="xr-detail-head"><h3>선택한 목적지</h3>${p?'<span>선택됨</span>':''}</div><div class="xr-detail-title">${p ? `<span class="xr-detail-kind xr-${p.type}">${esc(p.label)}</span>` : ''}<h2>${esc(p?.title || '경로 확인 중')}</h2><p>${esc(v.title)} · ${esc(v.floor)}</p></div><p class="xr-description">${esc(body)}</p>${p?`<dl class="xr-info"><div><dt>장소 유형</dt><dd>${esc(p.label)}</dd></div><div><dt>정찰 정보</dt><dd>${esc(intel(v,p))}</dd></div><div><dt>예상 보상</dt><dd>미확인</dd></div></dl>`:''}<div class="xr-action-area"><p class="xr-selection-summary" aria-live="polite">${p?`선택: ${esc(p.title)}`:'다음 목적지를 기다리고 있습니다.'}</p><button class="xr-go" data-act="xr-go" ${!mapReview&&(!p||locked)?'disabled':''}><span>${esc(label)}</span>${!v.exam&&p&&!locked?'<span aria-hidden="true">→</span>':''}</button><small>${mapReview ? '열려 있던 팀 상의를 계속합니다.' : v.exam ? '경로 선택과 이동은 시험 리더가 진행합니다.' : L ? '팀 상의에서 경로에 대한 의견을 확인합니다.' : '이동 전 다른 목적지로 변경할 수 있습니다.'}</small></div>`;
   }
   function select(key, focus = false) {
     if (!valid() || !reachable(view).includes(key)) return;
@@ -94,7 +95,7 @@ const ExplorationCards = (() => {
   UI.renderExamMap=function(opts={}){const result=baseExam.apply(this,arguments);enhance(true,opts);return result;};
   const baseHandle=UI.handle;
   UI.handle=function(act,value){
-    if(act==='xr-select'){select(value);if(valid()&&view.root.classList.contains('xr-overview'))overview(false);return;}
+    if(act==='xr-select'){select(value);if(valid()&&view.root.classList.contains('xr-overview')&&!document.body.classList.contains('cn-map-on'))overview(false);return;}
     if(act==='xr-map'){overview(true);return;}
     if(act==='xr-map-close'){overview(false);return;}
     if(act==='xr-go'){
@@ -106,6 +107,7 @@ const ExplorationCards = (() => {
     return result;
   };
   document.addEventListener('keydown',event=>{
+    if(document.body.classList.contains('cn-map-on'))return;
     if(!valid()||window.innerWidth>=1100||!view.root.classList.contains('xr-overview'))return;
     if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();overview(false);}
     if(event.key==='Tab'){
