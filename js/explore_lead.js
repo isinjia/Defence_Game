@@ -18,6 +18,10 @@
     }
     const c = UI.ctx; const cn = c && c.council;
     if (cn && cn.leader != null && cn.key) { const L = G.npcById(cn.leader); return L ? { key: cn.key, L } : null; }
+    // 갈 수 있는 길이 하나뿐이면 상의 전이라도 리더가 갈 길은 그 하나다 (사용자 제보: 리더 표시가 없음)
+    const L1 = c && c.run && UI.councilLeader ? UI.councilLeader() : null;
+    const cards = root.querySelectorAll('.xr-card');
+    if (L1 && cards.length === 1) return { key: cards[0].dataset.v, L: L1 };
     return null;
   };
 
