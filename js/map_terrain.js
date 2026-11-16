@@ -14,6 +14,10 @@ const MapTerrain = (() => {
   const sideImg = Object.create(null); // name → Image (N-edge)
   const cornerImg = Object.create(null); // name → [NE,SE,SW,NW]
   let assetsReady = false;
+  // 정지 지형·경계만 재사용한다. 빛·다리 이동 효과는 매 프레임 별도로 그린다.
+  const composed = new Map();
+  const MAX_COMPOSED_BYTES = 12 * 1024 * 1024;
+  let composedBytes = 0;
   let resolveReady = null;
   const whenReady = new Promise((r) => { resolveReady = r; });
 
@@ -43,6 +47,7 @@ const MapTerrain = (() => {
     assetsReady = tileImg.every(Boolean);
     ready.clear();
     atlas = null;
+    composed.clear(); composedBytes = 0;
     resolveReady(assetsReady);
     return assetsReady;
   })());
@@ -180,6 +185,33 @@ const MapTerrain = (() => {
     softSeam(c, px, py, s, seamMask);
   };
 
+  const drawGround = (c, type, variant, px, py, s, x, y) => {
+    // 이웃 지형까지 키에 넣어 북부 개방 등 제자리 지형 변경도 즉시 반영한다.
+    const neighbors = [];
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      if (dx || dy) neighbors.push(WORLD.inb(x + dx, y + dy) ? WORLD.type(x + dx, y + dy) : -1);
+    }
+    const dpr = Math.min(2, Math.max(1, Math.abs(c.getTransform().a)));
+    const key = `${type}:${variant}:${s}:${dpr}:${neighbors.join(',')}`;
+    let cached = composed.get(key);
+    if (cached) {
+      composed.delete(key); composed.set(key, cached);
+    } else {
+      const tile = document.createElement('canvas');
+      tile.width = tile.height = Math.ceil((s + 0.3) * dpr);
+      const tc = tile.getContext('2d'); tc.setTransform(dpr, 0, 0, dpr, 0, 0);
+      sprite(tc, type, variant, 0, 0, s);
+      drawTransitions(tc, type, 0, 0, s, x, y);
+      cached = { tile, bytes: tile.width * tile.height * 4 };
+      while (composed.size && composedBytes + cached.bytes > MAX_COMPOSED_BYTES) {
+        const oldest = composed.keys().next().value;
+        composedBytes -= composed.get(oldest).bytes; composed.delete(oldest);
+      }
+      if (cached.bytes <= MAX_COMPOSED_BYTES) { composed.set(key, cached); composedBytes += cached.bytes; }
+    }
+    c.drawImage(cached.tile, px, py, cached.tile.width / dpr, cached.tile.height / dpr);
+  };
+
   return {
     colors, ready, TYPE_COUNT, load,
     get whenReady() { load(); return whenReady; },
@@ -188,8 +220,7 @@ const MapTerrain = (() => {
       load();
       if (type < 0 || type >= TYPE_COUNT) return false;
       const variant = Math.floor(WORLD.h2(x, y, 73) * VARIANTS);
-      sprite(c, type, variant, px, py, s);
-      drawTransitions(c, type, px, py, s, x, y);
+      drawGround(c, type, variant, px, py, s, x, y);
       if ((type === WORLD.T.SEA || type === WORLD.T.ETHER || type === WORLD.T.WASTE) && s >= 30) {
         const phase = FX.reduced ? 0.5 : (Math.sin(frame / 42 + variant) + 1) / 2;
         const col = type === WORLD.T.SEA ? `rgba(151,207,207,${0.07 + phase * 0.1})`
@@ -206,7 +237,7 @@ const MapTerrain = (() => {
       }
       return true;
     },
-    get bytes() { return atlas ? atlas.width * atlas.height * 4 : 0; },
+    get bytes() { return (atlas ? atlas.width * atlas.height * 4 : 0) + composedBytes; },
   };
 })();
 

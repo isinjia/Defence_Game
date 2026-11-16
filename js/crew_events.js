@@ -258,7 +258,8 @@
       try {
         if (!G.crew()) {
           const list = G.crewBoard(G.region().id);
-          let i = 0; h = h.replace(/(<button class="sm primary" data-act="crew-apply" data-v="(\d+)">지원<\/button>)/g, (m, btn, idx) => { const L = list[+idx]; return L ? `${info(L)}${btn}` : m; });
+          // 비교 줄은 글자 칸(.grow) 안에 넣는다. 줄 밖(버튼 앞)에 두면 가로 배치의 칸이 하나 더 생겨 글자 칸이 한 글자 폭으로 찌그러졌다(사용자 지적)
+          h = h.replace(/<\/div>(\s*<button class="sm primary" data-act="crew-apply" data-v="(\d+)">지원<\/button>)/g, (m, btn, idx) => { const L = list[+idx]; return L ? `${info(L)}</div>${btn}` : m; });
         } else if (G.onCity && G.onCity()) {
           h = h.replace('<button class="sm ghost" data-act="crew-leave">파티 탈퇴</button>', '<button class="sm ghost" data-act="crew-browse">다른 파티 둘러보기</button> <button class="sm ghost" data-act="crew-leave">파티 탈퇴</button>');
         }
