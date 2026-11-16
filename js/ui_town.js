@@ -53,7 +53,7 @@ Object.assign(UI, {
       <button class="icon-btn city-close" data-act="modal-close" aria-label="도시에서 나가기">×</button></div>
       ${brk ? `<div class="break-banner"><b>게이트 브레이크 발생</b> · 괴수가 시내로 쏟아지고 있다. <button class="danger sm" data-act="break-fight">방어전 참가</button></div>` : ''}`;
     if (!this.cityFac) {
-      const npcs = G.npcsHere().filter((n) => !n.isCompanion);
+      const npcs = this.settlementNpcs ? this.settlementNpcs() : G.npcsHere().filter((n) => !n.isCompanion);
       return `${head}<div class="city-body">
         <div class="fac-grid">${facs.map((f) => `<button class="fac-tile" data-act="city-fac" data-v="${f.id}">${facIcon(f.id, 26)}<b>${f.id === 'guild' ? GUILDS[reg.guild].name : f.name}</b><span class="small dim">${f.desc}</span></button>`).join('')}</div>
         <div class="sec-title sec">이 도시의 각성자 · ${npcs.length}명</div>
