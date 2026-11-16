@@ -589,3 +589,14 @@ const VEHICLE_ART = { usedbike: null, bike: null, car: null, suv: null, truck: n
     return baseQ.apply(this, a);
   };
 }
+
+// 20. 괴수 숨쉬기(위아래 흔들림)를 그림만이 아니라 턴 게이지 고리·조준 표시까지 같이 (사용자 요청: 고리가 그림에 가렸다 말았다 함)
+//     그림(.sprite) 대신 둘을 함께 담은 .fx-host 를 흔든다. 맞기·돌진·쓰러짐 같은 연출이 걸리면 그쪽이 우선(:where 로 우선순위를 낮춤).
+{
+  const css = document.createElement('style');
+  css.textContent = `.foe .sprite { animation: none; }
+:where(.foe:not(.dead)) .fx-host { animation: bob 2.6s ease-in-out infinite; }
+.foe.groggy .sprite { animation: groggy-sway 1.1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { :where(.foe) .fx-host { animation: none; } }`;
+  document.head.appendChild(css);
+}
