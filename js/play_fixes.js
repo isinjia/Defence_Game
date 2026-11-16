@@ -341,8 +341,9 @@ if (typeof WORLD !== 'undefined' && WORLD.reach) {
 //     ② 칸 사이 이동을 일정한 속도로(예전: 칸마다 가속·감속해서 여러 칸을 갈 때 멈칫멈칫).
 if (typeof MapView !== 'undefined') {
   const MP = MapView.prototype;
+  const WALK_SLOW = 3; // 이동 속도 1/3 (사용자 요청: 너무 빠름)
   MP.tween = function (from, to, ms, done) {
-    this.moving = true; this.reachData = null;
+    this.moving = true; this.reachData = null; ms *= WALK_SLOW;
     const t0 = performance.now();
     const step = (now) => {
       const k = ms <= 0 ? 1 : Math.min(1, (now - t0) / ms);
