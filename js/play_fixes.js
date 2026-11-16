@@ -636,7 +636,7 @@ const VEHICLE_ART = { usedbike: null, bike: null, car: null, suv: null, truck: n
 }
 
 // 22. 층 보스를 잡은 뒤 '다음 층으로 / 철수·보상 챙기기'(마지막 층의 '클리어 / 숨겨진 구역')도 리더가 정한다 (사용자 요청)
-//     다른 리더 결정과 같은 방식: 선택지를 잠그고 리더 결정 카드(따른다·반대한다)를 붙인다. 반대가 받아들여지면 내가 고른다.
+//     두 버튼을 그대로 '따른다 · (리더가 고른 쪽)' / '반대한다'로 바꿔 쓴다(사용자 요청). 위에는 리더의 한마디만. 반대가 받아들여지면 원래 버튼으로 돌아와 내가 고른다.
 //     리더 판단: 파티의 남은 체력(평균)이 성격별 기준보다 낮으면 철수, 아니면 계속 간다.
 {
   const GO_ON = { warlike: 0.2, greedy: 0.3, just: 0.35, cold: 0.4, kind: 0.5 };
@@ -673,11 +673,16 @@ const VEHICLE_ART = { usedbike: null, bike: null, car: null, suv: null, truck: n
     const pickA = prev ? prev.pickA : hpRatio() >= need;
     c._floorDecided = { tag, pickA };
     const btn = pickA ? pair.a : pair.b; const k = pickA ? pair.ka : pair.kb;
-    for (const b of [pair.a, pair.b]) { b.disabled = true; b.classList.toggle('lead-pick', b === btn); }
-    UI._floorDec = [pair.a, pair.b];
-    UI.leadDecision = { act: btn.dataset.act, pick: btn.dataset.v || '', L: L.id };
-    const html = `<div class="cn-card lead-dec" style="margin:8px 0"><b>${L.name}(리더)의 결정</b> <span class="small">· ${btn.textContent.trim()}</span>
-      <p class="small">"${LINE[k][key]}"</p><div class="cn-btns"><button class="primary" data-act="lead-ok">따른다</button><button class="danger" data-act="lead-no">반대한다</button></div></div>`;
+    // 버튼 두 개를 그대로 바꿔 쓴다: 리더가 고른 쪽 → '따른다 · ○○', 다른 쪽 → '반대한다'. 위에는 리더의 한마디만
+    const other = btn === pair.a ? pair.b : pair.a;
+    for (const x of [btn, other]) { x.dataset.oAct = x.dataset.act; x.dataset.oV = x.dataset.v || ''; x.dataset.oText = x.innerHTML; x.dataset.oCls = x.className; }
+    const label = btn.textContent.trim();
+    btn.dataset.act = 'lead-ok'; delete btn.dataset.v; btn.className = 'primary'; btn.innerHTML = `따른다 · ${label}`;
+    other.dataset.act = 'lead-no'; delete other.dataset.v; other.className = 'danger'; other.innerHTML = '반대한다';
+    UI._floorDec = [btn, other];
+    UI.leadDecision = { act: btn.dataset.oAct, pick: btn.dataset.oV, L: L.id };
+    const html = `<div class="cn-card lead-dec" style="margin:8px 0;padding:8px 10px"><b>${L.name}(리더)의 결정</b> <span class="small">· ${label}</span>
+      <p class="small" style="margin:4px 0 0">"${LINE[k][key]}"</p></div>`;
     const row = btn.closest('.row') || btn.parentElement;
     row.insertAdjacentHTML('beforebegin', html);
   };
@@ -694,7 +699,8 @@ const VEHICLE_ART = { usedbike: null, bike: null, car: null, suv: null, truck: n
       this._floorDec = null;
       // 반대가 받아들여져 결정 카드가 사라졌으면 두 선택지를 모두 다시 연다
       if (act === 'lead-no' && !document.querySelector('#modal-box .lead-dec')) {
-        for (const b of fd) { if (b.isConnected) { b.disabled = false; b.classList.remove('lead-pick'); } }
+        // 원래 버튼(철수 · 보상 챙기기 / 2층으로 등)으로 되돌린다
+        for (const b of fd) { if (!b.isConnected || !b.dataset.oAct) continue; b.dataset.act = b.dataset.oAct; if (b.dataset.oV) b.dataset.v = b.dataset.oV; b.innerHTML = b.dataset.oText; b.className = b.dataset.oCls; b.disabled = false; }
         const c = this.ctx; if (c && c._floorDecided) c._floorDecided.free = true;
       }
     }
