@@ -180,6 +180,7 @@
       const d = this.dlg; const line = d && d.lines[d.i]; const c = line && line.choices && line.choices[+v];
       if (c && c.info && c.info.type === 'guild' && /들어간다/.test(c.text || '') && typeof GUILDS !== 'undefined') {
         const id = c.info.id; const name = id === 'kama' ? '관리국 보호국' : (GUILDS[id] ? GUILDS[id].name : '이 소속');
+        if (this.confirmAffiliation) return this.confirmAffiliation(id, () => { this._dlgOk = true; try { this.handle(act, v); } finally { this._dlgOk = false; } });
         let terms = ''; try { terms = G.payTermsText ? G.payTermsText(id) : ''; } catch (e) { terms = ''; }
         return this.confirmOver(`${name}에 들어갈까요?`, `${terms ? terms + '<br><br>' : ''}소속은 나중에 쉽게 바꾸기 어렵습니다. 조건을 확인하고 정하세요.`, '들어간다', () => { this._dlgOk = true; try { this.handle(act, v); } finally { this._dlgOk = false; } }, 'primary');
       }
