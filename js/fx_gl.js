@@ -141,7 +141,8 @@ const FXG = (() => {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
       document.body.appendChild(cv); S.cv = cv; S.gl = gl; S.ok = true; resize();
-      window.addEventListener('resize', resize);
+      // resize 이벤트 객체가 폭 인수로 들어가면 NaN이 되어 캔버스 폭이 0이 된다.
+      window.addEventListener('resize', () => resize());
       cv.addEventListener('webglcontextlost', (e) => { e.preventDefault(); S.ok = false; S.items = []; });
     } catch (e) { S.ok = false; }
     return S.ok;
