@@ -360,20 +360,26 @@ class MapView {
       const [px, py] = this.toScreen(g.x + 1, g.y + 1);
       if (px < -s * 2 || py < -s * 2 || px > this.w + s * 2 || py > this.hgt + s * 2) continue;
       // 화면 밖 게이트는 상태를 바꾸기 전에 건너뛴다. 뒤에 그리는 NPC·플레이어에 투명도가 새지 않게 한다.
-      c.globalAlpha = vis(g.x, g.y) ? 1 : 0.42; // 시야 밖은 기억 속 모습(흐리게)
+      c.globalAlpha = vis(g.x, g.y) ? 1 : 0.8; // 시야 밖은 기억 속 모습(흐리게)
       const col = g.final || g.variant === 'red' ? '#ff4f6a' : RANKS[g.tier].color;
       // 게이트는 한 칸 크기라 잘 안 보였다(사용자 요청) → 가로세로 2배, 2×2 네 칸을 차지하게 그린다.
       const sc = (g.final ? 1.6 : 1) * 2.1; const wx = 1.35; // 고리를 가로로도 넓혀 2×2(가로세로 2칸)를 꽉 채운다
       const glow = c.createRadialGradient(px, py, 1, px, py, s * 0.55 * sc);
-      glow.addColorStop(0, g.final ? 'rgba(255,79,106,.55)' : 'rgba(214,92,255,.5)'); glow.addColorStop(1, 'rgba(214,92,255,0)');
+      glow.addColorStop(0, g.final || g.variant === 'red' ? 'rgba(255,40,90,.85)' : 'rgba(156,38,255,.85)'); glow.addColorStop(0.55, 'rgba(126,28,220,.38)'); glow.addColorStop(1, 'rgba(126,28,220,0)');
       c.fillStyle = glow; c.beginPath(); c.arc(px, py, s * 0.55 * sc, 0, Math.PI * 2); c.fill();
       for (let k = 0; k < 3; k++) {
         c.save(); c.translate(px, py); c.rotate((t / (40 + k * 15)) * (k % 2 ? -1 : 1));
-        c.strokeStyle = k === 1 ? '#d65cff' : col; c.lineWidth = 3 - k * 0.6; c.setLineDash([s * 0.25, s * 0.12]);
-        c.beginPath(); c.ellipse(0, 0, s * (0.2 + k * 0.07) * sc * wx, s * (0.32 + k * 0.07) * sc, 0, 0, Math.PI * 2); c.stroke(); c.restore();
+        c.strokeStyle = k === 1 ? '#dc75ff' : col; c.lineWidth = 3.8 - k * 0.5; c.setLineDash([s * 0.25, s * 0.12]);
+        c.beginPath(); c.ellipse(0, 0, s * (0.2 + k * 0.07) * sc * wx, s * (0.32 + k * 0.07) * sc, 0, 0, Math.PI * 2);
+        const ringColor = c.strokeStyle, ringWidth = c.lineWidth;
+        c.strokeStyle = '#140923'; c.lineWidth = ringWidth + 3; c.stroke();
+        c.strokeStyle = ringColor; c.lineWidth = ringWidth; c.stroke(); c.restore();
       }
       c.setLineDash([]);
-      c.fillStyle = '#fff'; c.beginPath(); c.ellipse(px, py, s * 0.08 * sc, s * 0.2 * sc, 0, 0, Math.PI * 2); c.fill();
+      // 지형이 비치지 않는 어두운 균열과 밝은 중심으로 밝은 지형에서도 구분한다.
+      c.fillStyle = '#180a30'; c.strokeStyle = g.final || g.variant === 'red' ? '#ff5078' : '#d65cff'; c.lineWidth = 3;
+      c.beginPath(); c.ellipse(px, py, s * 0.15 * sc, s * 0.3 * sc, 0, 0, Math.PI * 2); c.fill(); c.stroke();
+      c.fillStyle = '#f5dfff'; c.beginPath(); c.ellipse(px, py, s * 0.055 * sc, s * 0.22 * sc, 0, 0, Math.PI * 2); c.fill();
       this.chip(px, py + s * 0.5 * sc + 4, g.final ? '원초' : g.mission ? `임무·${RANKS[g.tier].key}` : g.bid ? `낙찰·${RANKS[g.tier].key}` : g.variant === 'red' ? `레드·${RANKS[g.tier].key}` : `${RANKS[g.tier].key}급`, g.mission || g.bid ? '#ffb547' : col);
       c.globalAlpha = 1;
     }
