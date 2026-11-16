@@ -1,0 +1,13 @@
+/* 리더 응답은 게임 조작을 잠그지 않는 중앙 알림이다. */
+#leader-reply-toast{position:fixed;inset:0;z-index:160;display:flex;align-items:center;justify-content:center;pointer-events:none;padding:18px}
+#leader-reply-toast .lrt-card{position:relative;display:flex;align-items:flex-start;gap:16px;width:min(540px,100%);padding:23px 44px 23px 22px;background:#101c28f5;border:1px solid #bd9656;border-left:4px solid #ffc35c;border-radius:12px;box-shadow:0 12px 50px #0009;pointer-events:auto;animation:lrt-enter .16s ease-out;box-sizing:border-box}
+#leader-reply-toast .lrt-face{flex:none;width:64px;height:64px;overflow:hidden;border:2px solid #bd9656;border-radius:50%;background:#213341;line-height:0}
+#leader-reply-toast .lrt-face>svg,#leader-reply-toast .lrt-face>img{display:block;width:100%!important;height:100%!important}
+#leader-reply-toast .lrt-body{min-width:0;flex:1}.lrt-heading{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+#leader-reply-toast strong{font-size:17px;color:#fff0d3}#leader-reply-toast .lrt-heading span{font-size:12px;color:#d3b980}
+#leader-reply-toast p{font-size:17px;line-height:1.75;color:#edf3f9;word-break:keep-all;overflow-wrap:anywhere;margin:9px 0 0}
+#leader-reply-toast small{display:block;font-size:12px;line-height:1.7;color:#b8c9d8;margin-top:9px}#leader-reply-toast small[hidden]{display:none}
+#leader-reply-toast button{position:absolute;right:8px;top:8px;display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;background:transparent;color:#b8c9d8;font-size:23px;border-radius:5px;cursor:pointer}
+@keyframes lrt-enter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:480px){#leader-reply-toast{padding:14px}#leader-reply-toast .lrt-card{gap:11px;padding:18px 34px 18px 14px}#leader-reply-toast .lrt-face{width:48px;height:48px}#leader-reply-toast strong{font-size:15px}#leader-reply-toast p{font-size:15px;margin-top:7px}#leader-reply-toast .lrt-heading span{font-size:11px}}
+@media(prefers-reduced-motion:reduce){#leader-reply-toast .lrt-card{animation:none}}

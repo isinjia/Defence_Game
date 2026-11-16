@@ -105,7 +105,10 @@
     const t = e.target && e.target.closest ? e.target.closest('.coach-spot, #cb-ctrl [data-act], #foes .foe, #allies .ally.fig, .stage .ally.fig') : null;
     return !!(t && !t.disabled);
   };
+  // 건너뛰기와 그 확인 창은 안내를 닫는 터치로 소비하지 않는다.
+  const skipControl = e => !!e.target?.closest?.('.tsk-proxy, #tut-skip, #pl-confirm');
   window.addEventListener('click', (e) => {
+    if (skipControl(e)) return;
     if (typeof ExploreCinema !== 'undefined' && ExploreCinema.active) return;
     if (!UI.tutHeld()) return;
     // [평가 28] 말풍선이 시킨 조작(명령 버튼·적·아군)을 바로 누르면 말풍선만 닫히고 조작이 삼켜져 두 번 눌러야 했다.
@@ -114,7 +117,7 @@
     e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
     UI.tutNext();
   }, true);
-  window.addEventListener('pointerdown', (e) => { if (typeof ExploreCinema !== 'undefined' && ExploreCinema.active) return; if (UI._hold && !passThrough(e)) e.stopPropagation(); }, true); // 길게 누르기 등도 막는다
+  window.addEventListener('pointerdown', (e) => { if (skipControl(e)) return; if (typeof ExploreCinema !== 'undefined' && ExploreCinema.active) return; if (UI._hold && UI.tutHeld() && !passThrough(e)) e.stopPropagation(); }, true); // 길게 누르기 등도 막는다
 
   // 전투 시간 정지
   const baseTick = Combat.prototype.tick;
