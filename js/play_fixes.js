@@ -342,10 +342,9 @@ if (typeof WORLD !== 'undefined' && WORLD.reach) {
 if (typeof MapView !== 'undefined') {
   const MP = MapView.prototype;
   const WALK_SLOW = 2; // 도보 연출 속도: 원래의 1/2 (사용자 요청: 1/3은 너무 느림 → 1.5배 빠르게)
-  // 탈것을 타면 도보 대비 실제 이동 속도 비율만큼 빠르게(하루 칸 수 비율, 연출이 너무 빨라지지 않게 최대 8배)
-  const rideRatio = () => {
-    try { const ride = G.travelRidePace ? G.travelRidePace() : 0; if (!ride) return 1; const walk = G.travelWalkPace ? G.travelWalkPace() : 4; return Math.max(1, Math.min(8, ride / walk)); } catch (e) { return 1; }
-  };
+  // 탈것 연출 속도(도보 대비, 사용자 결정): 오토바이 1.5배 · 승용차·SUV·장갑차 2배 · 헬기 3배
+  const RIDE_ANIM = { usedbike: 1.5, bike: 1.5, car: 2, suv: 2, truck: 2, heli: 3 };
+  const rideRatio = () => { try { const id = G.rideIdNow && G.rideIdNow(); return (id && RIDE_ANIM[id]) || 1; } catch (e) { return 1; } };
   MP.walkRideRatio = rideRatio;
   MP.tween = function (from, to, ms, done) {
     this.moving = true; this.reachData = null; ms = ms * WALK_SLOW / rideRatio();
@@ -490,7 +489,7 @@ if (typeof MapView !== 'undefined') {
 // 17. 탈것 연출 (사용자 요청)
 //   ① 이동 연출 속도: 도보는 기본, 탈것은 도보 대비 실제 속도 비율만큼 빠르게(위 14의 MP.tween). 팀 이동도 같은 속도(따로 빨리 감기 없음).
 //   ② 탈것을 타고 있으면 지도 위 내 초상 아래에 탈것 그림을 붙인다. 지금은 임시 도형. 그림이 생기면 VEHICLE_ART에 경로만 넣으면 된다.
-const VEHICLE_ART = { bicycle: null, usedbike: null, bike: null, car: null, suv: null, truck: null, heli: null }; // 예: 'assets/vehicles/car.png'
+const VEHICLE_ART = { usedbike: null, bike: null, car: null, suv: null, truck: null, heli: null }; // 예: 'assets/vehicles/car.png'
 {
   // 팀 이동(crew_time.js)이 지도 연출을 0.4~0.7배로 빨리 감던 것을 끈다
   const baseMarch = UI.crewMarchStep;
@@ -515,9 +514,9 @@ const VEHICLE_ART = { bicycle: null, usedbike: null, bike: null, car: null, suv:
   const drawTemp = (c, id, x, y, w) => {
     const h = w * 0.42; c.save(); c.translate(x, y);
     c.lineJoin = 'round'; c.lineCap = 'round'; c.strokeStyle = '#0a0e14'; c.lineWidth = Math.max(2, w * 0.06);
-    const body = { bicycle: '#7fd0ff', usedbike: '#ff9a5a', bike: '#ff7a45', car: '#d9dde4', suv: '#6c7a5a', truck: '#56604c', heli: '#3c4a5c' }[id] || '#ccc';
+    const body = { usedbike: '#ff9a5a', bike: '#ff7a45', car: '#d9dde4', suv: '#6c7a5a', truck: '#56604c', heli: '#3c4a5c' }[id] || '#ccc';
     const wheel = (wx, r) => { c.fillStyle = '#1b2029'; c.beginPath(); c.arc(wx, h * 0.3, r, 0, Math.PI * 2); c.fill(); c.stroke(); };
-    if (id === 'bicycle' || id === 'usedbike' || id === 'bike') {
+    if (id === 'usedbike' || id === 'bike') {
       wheel(-w * 0.3, h * 0.38); wheel(w * 0.3, h * 0.38);
       c.strokeStyle = body; c.lineWidth = Math.max(2.5, w * 0.08);
       c.beginPath(); c.moveTo(-w * 0.3, h * 0.3); c.lineTo(-w * 0.02, -h * 0.25); c.lineTo(w * 0.3, h * 0.3); c.moveTo(-w * 0.12, -h * 0.25); c.lineTo(w * 0.14, -h * 0.25); c.stroke();
@@ -549,6 +548,16 @@ const VEHICLE_ART = { bicycle: null, usedbike: null, bike: null, car: null, suv:
       if (im) { const ih = w * im.naturalHeight / im.naturalWidth; c.drawImage(im, px - w / 2, py + R * 0.55, w, ih); }
       else drawTemp(c, id, px, py + R * 0.95, w);
     } catch (e) { /* 무시 */ }
+    return r;
+  };
+}
+
+// 18. 자전거 삭제(사용자 결정): 옛 저장에 자전거가 있으면 되판 값(구매가의 절반)을 돌려주고 없앤다.
+{
+  const baseInit = Game.prototype.initSandbox;
+  Game.prototype.initSandbox = function (...a) {
+    const r = baseInit.apply(this, a); const p = this.player;
+    if (p && p.ownVehicle && p.ownVehicle.id === 'bicycle') { p.ownVehicle = null; p.money = (p.money || 0) + 75; this.log && this.log('자전거는 처분했다. (75 크레딧)'); }
     return r;
   };
 }

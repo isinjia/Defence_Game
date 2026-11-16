@@ -9,7 +9,6 @@ const FARE = {
   disc: { guild: 0.2, kama: 0.5 },         // 소속 할인
 };
 const OWN_VEHICLES = [
-  { id: 'bicycle', name: '자전거', price: 150, upkeep: 0, repair: 20 },
   { id: 'usedbike', name: '중고 오토바이', price: 1200, upkeep: 30, repair: 150 },
   { id: 'car', name: '승용차', price: 6000, upkeep: 120, repair: 600, needLicense: true },
   { id: 'suv', name: '헌터용 SUV·장갑차', price: 30000, upkeep: 500, repair: 3000, minRank: 3 },

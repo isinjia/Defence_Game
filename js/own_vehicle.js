@@ -1,12 +1,11 @@
 // ===== 게이트 크로니클: 내 이동 수단 (구매·소유) — 효과와 화면 =====
-// 구현_대기목록 4-24 ③. 처음은 뚜벅이. 자전거 → 중고 오토바이 → 승용차 → 헌터용 SUV → 개인 헬기.
+// 구현_대기목록 4-24 ③. 처음은 뚜벅이. 중고 오토바이 → 승용차 → 헌터용 SUV → 개인 헬기.
 // 가격·유지비·수리비·구매·판매·고장 처리는 영역 E의 js/transport_econ.js(OWN_VEHICLES, buyOwnVehicle …)가 맡는다.
 // 여기서는 탈것이 지도 이동에 주는 효과, 닳음·고장·도난·주차 파손 사건, 운전면허 시험, 차고 화면만 맡는다.
 // travel.js 대여(한 달·1회)는 그대로 두고 "사기 전에 빌려 보기" 역할. 대여와 소유 차량의 이동 시간은 world_travel_time.js에서 계산한다.
 // 저장: G.player.ownVehicle(E와 같은 필드), G.player.driveLicense (p.license 는 헌터 등록번호라 따로)
 
 const OWN_VEH_FX = {
-  bicycle: { desc: '기본 도보(SPD 10) 대비 1.5배 속도.' },
   usedbike: { desc: '기본 도보(SPD 10) 대비 3배 속도.' },
   car: { road: 0.5, desc: '기본 도보(SPD 10) 대비 이동 시간 절반, 국도 위에서는 추가 절반. 운전면허 필요.' },
   suv: { road: 0.5, mountain: 0.67, noAmbush: true, desc: '기본 도보(SPD 10) 대비 이동 시간 절반, 국도 위에서는 추가 절반, 산길 비용 감소, 괴수 기습 무시. C급 이상 장비 허가.' },
