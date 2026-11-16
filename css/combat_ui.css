@@ -353,3 +353,13 @@
 #modal-box.cu-v2 .foe.target:not(.dead) .foe-name { color: #ffb0a8; }
 @keyframes cuTargetPulse { 50% { transform: scale(1.06); opacity: .75; } }
 @media (prefers-reduced-motion: reduce) { #modal-box.cu-v2 .foe.target .fx-host::before { animation: none; } }
+/* 아군 소환수도 초상 둘레에 원형 행동 게이지를 표시한다. */
+.ally.summon .fx-host > .turn-ring {
+  position: absolute; inset: -3px; border-radius: 50%; z-index: 2; pointer-events: none;
+  background: conic-gradient(#ffc857 calc(var(--atb, 0) * 360deg), #ffffff1c 0);
+  -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  mask: radial-gradient(closest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+}
+.ally.summon .fx-host > .turn-ring.turn-ready {
+  background: conic-gradient(#fff3c4, #ffc857, #fff3c4); filter: drop-shadow(0 0 3px #ffc857);
+}

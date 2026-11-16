@@ -889,7 +889,7 @@ html body .cmd-main .cmd.ordered::after { top: -5px; }
 html body .ally .fx-host .ult-aura::before { background: conic-gradient(from 0deg, #ffc857 calc(var(--atb, 0) * 360deg), #ffffff1c 0); opacity: .9; filter: none; }
 html body .ally .fx-host .ult-aura.turn-ready::before { background: conic-gradient(#fff3c4, #ffc857, #fff3c4); opacity: 1; filter: drop-shadow(0 0 3px #ffc857); }
 /* 고리가 턴 게이지를 맡으므로 아군의 가는 행동 막대는 숨긴다 */
-html body .combat-box .ally.fig:not(.summon) .bar.atb { display: none; }
+html body .combat-box .ally.fig .bar.atb { display: none; }
 /* 상태·버프 줄: 비어 있어도 자리를 차지한다 (초상화가 위아래로 움직이지 않게) */
 html body .combat-box.fit .ally .status, html body .combat-box.fit .ally .status:empty { display: flex; flex-wrap: nowrap; justify-content: center; gap: 2px; min-height: 14px; height: 14px; overflow: hidden; }
 html body .combat-box.fit .foe .status, html body .combat-box.fit .foe .status:empty { display: flex; flex-wrap: nowrap; justify-content: center; gap: 2px; min-height: 14px; height: 14px; overflow: hidden; }

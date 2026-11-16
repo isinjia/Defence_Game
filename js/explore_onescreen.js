@@ -21,6 +21,8 @@
     const body = document.createElement('div'); body.className = 'ex-body';
     const foot = document.createElement('div'); foot.className = 'ex-foot';
     if (art) {
+      wrap.classList.add('ex-cinematic');
+      box.classList.add('ex-cinematic-box');
       const b = art.querySelector('button'); const id = b && b.dataset.v; if (b) b.remove();
       art.classList.add('ex-art'); wrap.appendChild(art);
       // 컷씬의 장면 문장을 본문 앞에 한 번에
@@ -48,6 +50,7 @@
     const wrap = document.createElement('div'); wrap.className = 'ex-one';
     const foot = document.createElement('div'); foot.className = 'ex-foot ex-pick';
     while (box.firstChild) foot.appendChild(box.firstChild);
+    if (sc.art) { wrap.classList.add('ex-cinematic'); box.classList.add('ex-cinematic-box'); }
     wrap.innerHTML = `${sc.art}<div class="ex-body">${sc.body}</div>`;
     wrap.appendChild(foot); box.appendChild(wrap); box.classList.add('ex-box');
   };

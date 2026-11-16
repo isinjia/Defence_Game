@@ -99,7 +99,7 @@ if (typeof UI !== 'undefined') {
     UI.leadDecision = { act, pick, L: L.id };
     const say = { cold: '이걸로 간다.', just: '이렇게 하자.', kind: '이렇게 해 보는 게 어때요?', warlike: '고민할 거 없어. 이거다.', greedy: '남는 쪽으로 가자.', ...VOICE_EXTRA.decide }[voiceKey(L)] || '이렇게 하자.';
     btns[btns.length - 1].closest('.cards').insertAdjacentHTML('afterend', `<div class="cn-card lead-dec"><b>${L.name}(리더)의 결정</b> <span class="small">· ${picked.text}</span>
-      <p class="small">"${typeof LEAD_REASON === 'function' ? LEAD_REASON(L, picked.text) : say}"</p><div class="cn-btns"><button class="primary" data-act="lead-ok">따른다</button><button class="danger" data-act="lead-no">반대한다</button></div></div>`);
+      <p class="small">"${typeof LEAD_REASON === 'function' ? LEAD_REASON(L, picked.text) : say}"</p><div class="cn-btns"><button class="danger" data-act="lead-no">반대한다</button><button class="primary" data-act="lead-ok">따른다</button></div></div>`);
     UI.autoFollow(box.querySelector('[data-act="lead-ok"]'), 5);
   };
   UI.leaderGate = leaderGate; // 팀 이동 중 길 사건에도 쓴다 (crew_time.js)

@@ -227,11 +227,11 @@ Object.assign(Combat.prototype, {
   UI.drawTurnRing = function () {
     const c = this.ctx; const cb = c && c.combat; if (!cb || !cb.units) return;
     for (const u of cb.units) {
-      if (u.side === 'ally' && u.summon) continue;
       const el = document.getElementById('u-' + u.id); if (!el) continue;
-      let au = el.querySelector(u.side === 'ally' ? '.fx-host > .ult-aura' : '.fx-host > .turn-ring');
+      const allyAura = u.side === 'ally' && !u.summon;
+      let au = el.querySelector(allyAura ? '.fx-host > .ult-aura' : '.fx-host > .turn-ring');
       // 적도 아군과 같은 모양: 그림 둘레 고리가 턴 게이지
-      if (!au && u.side === 'enemy') { const host = el.querySelector('.fx-host'); if (!host) continue; host.insertAdjacentHTML('afterbegin', '<i class="turn-ring" aria-hidden="true"></i>'); au = host.querySelector('.turn-ring'); el.classList.add('foe-card'); }
+      if (!au && !allyAura) { const host = el.querySelector('.fx-host'); if (!host) continue; host.insertAdjacentHTML('afterbegin', '<i class="turn-ring" aria-hidden="true"></i>'); au = host.querySelector('.turn-ring'); if (u.side === 'enemy') el.classList.add('foe-card'); }
       if (!au) continue;
       const v = !u.alive ? 0 : cb.waiting && u.isPlayer ? 1 : Math.max(0, Math.min(1, (u.atb || 0) / 100));
       const k = Math.round(v * 200);
