@@ -6,7 +6,8 @@
 .ck-list { gap: 6px; }
 .ck-who { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 8px 10px; text-align: left; background: #0e1622; border: 1px solid var(--line, #24324a); border-radius: 10px; color: inherit; }
 .ck-who .grow { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.ck-who.on { border-color: rgba(70, 224, 208, .45); margin: 8px 0; }
+/* 좌우 여백은 부모 장면의 중앙 정렬을 유지한다. */
+.ck-who.on { border-color: rgba(70, 224, 208, .45); margin-top: 8px; margin-bottom: 8px; }
 button.ck-who:active { transform: translateY(1px); }
 .ck-pct { font-size: 20px; font-weight: 800; color: var(--amber, #ffb547); flex: none; }
 .ck-lead { display: flex; gap: 10px; align-items: flex-start; margin: 4px 0 6px; }

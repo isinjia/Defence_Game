@@ -32,3 +32,5 @@
 .exploration-layout .xr-card:hover:not(:disabled){background:#294753;border-color:#b8d8d1}.exploration-layout .xr-card.selected:hover:not(:disabled){background:#3d3e39;border-color:#ffe0c2}
 .xr-route .gnode:disabled{opacity:1;cursor:default}
 @media(max-height:500px) and (min-width:600px) and (max-width:1099px){.xr-header{grid-template-columns:1fr auto 290px;padding:8px 12px;gap:12px}.xr-header h2{font-size:15px}.xr-vitals.gmap-stat{grid-column:auto;gap:14px}.xr-header-actions{max-width:160px}.xr-location{padding:6px 10px;min-height:0}.xr-location .xr-face,.xr-location p{display:none}.xr-location span,.xr-location h3{display:inline;font-size:12px}.xr-location h3{margin-left:9px}.xr-messages>div{padding:4px 8px;max-height:36px;overflow:auto;margin-top:6px}.xr-heading{margin:8px 0}.xr-details{padding:8px 12px}.xr-action-area small{display:none}.xr-go{min-height:48px}.xr-selection-summary{margin-bottom:4px}}
+/* 목적지가 하나인 넓은 카드에서도 괴수 그림은 일러스트 영역 가운데에 둔다. */
+@media(min-width:760px){.xr-cards>.xr-card:only-child .xr-art>.xr-monster{left:50%;transform:translateX(-50%)}}
