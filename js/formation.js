@@ -89,7 +89,9 @@ Object.assign(Game.prototype, {
   Base.prototype.calcDamage = function (att, def, skill, opt = {}) {
     const r = baseCalc.call(this, att, def, skill, opt);
     // 후열에 선 근접 직업은 제 힘을 다 못 낸다
-    if (att.side === 'ally' && att.row === 'back' && MELEE_ROLES.includes(roleOf(att.cls))) r.dmg = Math.max(1, Math.round(r.dmg * 0.75));
+    // 후열에서 근접 공격(장착 무기의 일반 공격·근접 스킬)을 하면 제 힘을 다 못 낸다. 암살자는 파고들어 예외 (js/attack_range.js)
+    const melee = typeof G !== 'undefined' && G.skillRange ? G.skillRange(skill, att) === 'melee' && roleOf(att.cls) !== 'assassin' : MELEE_ROLES.includes(roleOf(att.cls));
+    if (att.side === 'ally' && att.row === 'back' && melee) r.dmg = Math.max(1, Math.round(r.dmg * 0.75));
     return r;
   };
 }
@@ -98,7 +100,7 @@ Object.assign(UI, {
   formationHtml() {
     const units = G.formUnits(); const rows = G.formation(); const sel = this.formSel;
     const chip = (u) => {
-      const role = roleOf(u.cls); const warn = (rows[u.id] === 'back' && MELEE_ROLES.includes(role)) ? ' <span class="tag tiny bad">근접 −25%</span>' : '';
+      const role = roleOf(u.cls); const mel = G.unitWeaponRange ? G.unitWeaponRange({ isPlayer: u.id === 'player', cls: u.cls }) === 'melee' && role !== 'assassin' : MELEE_ROLES.includes(role); const warn = (rows[u.id] === 'back' && mel) ? ' <span class="tag tiny bad">근접 공격 −25%</span>' : '';
       return `<button class="form-chip ${sel === u.id ? 'sel' : ''}" data-act="form-pick" data-v="${u.id}">${u.id === 'player' ? this.playerAvatar(30) : this.npcAvatar(u.npc, 30)}<span><b>${u.name}</b><span class="small dim">${className(u.cls)}${warn}</span></span></button>`;
     };
     const row = (r) => {
