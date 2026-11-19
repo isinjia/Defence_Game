@@ -1,0 +1,1246 @@
+{
+  "status": "검토용 연결 계획. 모든 후보 미승인·게임 미연결.",
+  "total": 177,
+  "unique_paths": 177,
+  "rows": [
+    {
+      "id": "chaebol_1",
+      "title": "강남, 펜트하우스",
+      "path": "assets/prologue/penthouse.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "orphan_1",
+      "title": "희망의 집",
+      "path": "assets/prologue/courtyard.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "soldier_1",
+      "title": "전역 신고",
+      "path": "assets/prologue/checkpoint.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "subject_1",
+      "title": "하얀 방",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "student_1",
+      "title": "편의점 야간",
+      "path": "assets/prologue/store.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "gate_break",
+      "title": "게이트 브레이크",
+      "path": "assets/prologue/gate-break.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "gear",
+      "title": "쓰러진 헌터",
+      "path": "assets/prologue/fallen-gear.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "voice",
+      "title": "어둠",
+      "path": "assets/prologue/dream.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "awaken",
+      "title": "각성",
+      "path": "assets/prologue/awakening.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "first_fight",
+      "title": "첫 싸움",
+      "path": "assets/prologue/first-fight.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "night_dream",
+      "title": "병실의 밤",
+      "path": "artwork/drafts/2026-11-19/prologue/night_dream.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "rooftop",
+      "title": "병원 옥상",
+      "path": "assets/prologue/rooftop.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "verdict",
+      "title": "관리국 판정",
+      "path": "assets/prologue/laboratory.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "verdict_guild",
+      "title": "길드 면접",
+      "path": "assets/prologue/office.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "verdict_street",
+      "title": "미등록 각성자",
+      "path": "assets/prologue/street.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "chaebol_2",
+      "title": "귀국",
+      "path": "assets/prologue/airport.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "chaebol_3",
+      "title": "에테르 경매장",
+      "path": "assets/prologue/auction.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "chaebol_4",
+      "title": "한강 요트 파티",
+      "path": "assets/prologue/yacht.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "chaebol_5",
+      "title": "후계 구도",
+      "path": "artwork/drafts/2026-11-19/prologue/chaebol_5.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "chaebol_6",
+      "title": "재단 봉사",
+      "path": "artwork/drafts/2026-11-19/prologue/chaebol_6.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "chaebol_7",
+      "title": "비밀 훈련장",
+      "path": "assets/prologue/training.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "chaebol_8",
+      "title": "상견례",
+      "path": "assets/prologue/restaurant.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "chaebol_9",
+      "title": "압류 딱지",
+      "path": "artwork/drafts/2026-11-19/prologue/chaebol_9.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "chaebol_10",
+      "title": "창업주의 유언",
+      "path": "artwork/drafts/2026-11-19/prologue/chaebol_10.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "orphan_2",
+      "title": "배달 라이더",
+      "path": "artwork/drafts/2026-11-19/prologue/orphan_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "orphan_3",
+      "title": "고물상",
+      "path": "assets/prologue/workshop.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "orphan_4",
+      "title": "퇴소하는 날",
+      "path": "assets/prologue/bedroom.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "orphan_5",
+      "title": "한옥마을 기념품 가게",
+      "path": "assets/prologue/market.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "orphan_6",
+      "title": "친부모의 소식",
+      "path": "artwork/drafts/2026-11-19/prologue/orphan_6.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "orphan_7",
+      "title": "태권도장",
+      "path": "artwork/drafts/2026-11-19/prologue/orphan_7.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "orphan_8",
+      "title": "병원비",
+      "path": "artwork/drafts/2026-11-19/prologue/orphan_8.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "orphan_9",
+      "title": "뒷골목",
+      "path": "assets/prologue/alley.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "orphan_10",
+      "title": "원장 할머니",
+      "path": "assets/prologue/memorial.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "soldier_2",
+      "title": "UDT의 바다",
+      "path": "assets/prologue/sea.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "soldier_3",
+      "title": "고공 강하",
+      "path": "assets/prologue/sky.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "soldier_4",
+      "title": "의무 부사관",
+      "path": "artwork/drafts/2026-11-19/prologue/soldier_4.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "soldier_5",
+      "title": "인질 구출",
+      "path": "assets/prologue/subway.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "soldier_6",
+      "title": "경비업체",
+      "path": "artwork/drafts/2026-11-19/prologue/soldier_6.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "soldier_7",
+      "title": "탐색 구조대",
+      "path": "assets/prologue/mountain.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "soldier_8",
+      "title": "차이나타운 주방",
+      "path": "assets/prologue/kitchen.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "soldier_9",
+      "title": "저격 교관",
+      "path": "artwork/drafts/2026-11-19/prologue/soldier_9.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "soldier_10",
+      "title": "징계",
+      "path": "artwork/drafts/2026-11-19/prologue/soldier_10.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "subject_2",
+      "title": "지하 7층",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "subject_3",
+      "title": "13번과의 약속",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_3.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "subject_4",
+      "title": "도와준 연구원",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_4.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "subject_5",
+      "title": "위탁 가정",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_5.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "subject_6",
+      "title": "감시 요원",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_6.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "subject_7",
+      "title": "0시 축제",
+      "path": "assets/prologue/festival.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "subject_8",
+      "title": "잃어버린 일기장",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_8.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "subject_9",
+      "title": "정기 검진",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_9.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "subject_10",
+      "title": "책임자",
+      "path": "assets/prologue/auditorium.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "student_2",
+      "title": "육상부",
+      "path": "assets/prologue/stadium.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "student_3",
+      "title": "졸업 전시",
+      "path": "assets/prologue/studio.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "student_4",
+      "title": "에테르 공학 동아리",
+      "path": "artwork/drafts/2026-11-19/prologue/student_4.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "student_5",
+      "title": "복학생",
+      "path": "artwork/drafts/2026-11-19/prologue/student_5.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "student_6",
+      "title": "휴학, 그리고 카페",
+      "path": "assets/prologue/cafe.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "student_7",
+      "title": "간호 실습",
+      "path": "artwork/drafts/2026-11-19/prologue/student_7.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "student_8",
+      "title": "옆집",
+      "path": "assets/prologue/cat-alley.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "student_9",
+      "title": "밴드 공연",
+      "path": "artwork/drafts/2026-11-19/prologue/student_9.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "student_10",
+      "title": "각성 준비반",
+      "path": "artwork/drafts/2026-11-19/prologue/student_10.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "gb_subway",
+      "title": "지하철역 게이트 브레이크",
+      "path": "assets/prologue/gate-subway.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "gb_school",
+      "title": "학교 게이트 브레이크",
+      "path": "assets/prologue/gate-school.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "gb_market",
+      "title": "시장 게이트 브레이크",
+      "path": "assets/prologue/gate-market.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "gb_hospital",
+      "title": "병원 게이트 브레이크",
+      "path": "assets/prologue/gate-hospital.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "gb_festival",
+      "title": "축제 게이트 브레이크",
+      "path": "assets/prologue/gate-festival.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "gb_apartment",
+      "title": "아파트 단지 게이트 브레이크",
+      "path": "assets/prologue/gate-apartment.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "ill_1",
+      "title": "원인 불명",
+      "path": "artwork/drafts/2026-11-19/prologue/ill_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "ill_2",
+      "title": "7층 격리 병동",
+      "path": "artwork/drafts/2026-11-19/prologue/ill_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "ill_3",
+      "title": "42도",
+      "path": "artwork/drafts/2026-11-19/prologue/ill_3.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "ill_4",
+      "title": "같은 병의 아이",
+      "path": "artwork/drafts/2026-11-19/prologue/ill_4.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "ill_5",
+      "title": "퇴원하는 날",
+      "path": "artwork/drafts/2026-11-19/prologue/ill_5.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "relic_1",
+      "title": "벼룩시장",
+      "path": "artwork/drafts/2026-11-19/prologue/relic_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "relic_2",
+      "title": "구슬의 주인",
+      "path": "assets/prologue/relic.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "relic_3",
+      "title": "스며들다",
+      "path": "artwork/drafts/2026-11-19/prologue/relic_3.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "relic_4",
+      "title": "찾아온 사람들",
+      "path": "assets/prologue/apartment.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "relic_5",
+      "title": "구슬의 유언",
+      "path": "artwork/drafts/2026-11-19/prologue/relic_5.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "dream_1",
+      "title": "같은 꿈",
+      "path": "artwork/drafts/2026-11-19/prologue/dream_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "dream_2",
+      "title": "신병",
+      "path": "assets/prologue/shrine.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "dream_3",
+      "title": "굿판",
+      "path": "artwork/drafts/2026-11-19/prologue/dream_3.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "dream_4",
+      "title": "첫 손님",
+      "path": "artwork/drafts/2026-11-19/prologue/dream_4.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "dream_5",
+      "title": "강 건너의 이름",
+      "path": "artwork/drafts/2026-11-19/prologue/dream_5.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "storm_1",
+      "title": "폭풍 예보",
+      "path": "artwork/drafts/2026-11-19/prologue/storm_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "storm_2",
+      "title": "정전된 도시",
+      "path": "artwork/drafts/2026-11-19/prologue/storm_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "storm_3",
+      "title": "낙뢰",
+      "path": "artwork/drafts/2026-11-19/prologue/storm_3.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "storm_4",
+      "title": "무너지는 육교",
+      "path": "assets/prologue/bridge.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "storm_5",
+      "title": "폭풍이 지나간 뒤",
+      "path": "assets/prologue/river.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "dseer_2",
+      "title": "꿈이 먼저 본다",
+      "path": "artwork/drafts/2026-11-19/prologue/dseer_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "dseer_3",
+      "title": "꿈과 같은 시각",
+      "path": "artwork/drafts/2026-11-19/prologue/dseer_3.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "dsleep_2",
+      "title": "수면 클리닉",
+      "path": "artwork/drafts/2026-11-19/prologue/dsleep_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "dsleep_3",
+      "title": "깨어나지 않는 밤",
+      "path": "artwork/drafts/2026-11-19/prologue/dsleep_3.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "crime_1",
+      "title": "은행 창구 번호표 47번",
+      "path": "artwork/drafts/2026-11-19/prologue/crime_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "crime_2",
+      "title": "셔터 안쪽",
+      "path": "artwork/drafts/2026-11-19/prologue/crime_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "crime_3",
+      "title": "터진 금고",
+      "path": "artwork/drafts/2026-11-19/prologue/crime_3.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "crime_4",
+      "title": "진압팀보다 먼저",
+      "path": "artwork/drafts/2026-11-19/prologue/crime_4.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "crime_5",
+      "title": "뉴스 속보",
+      "path": "artwork/drafts/2026-11-19/prologue/crime_5.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "drug_1",
+      "title": "파란 캡슐",
+      "path": "artwork/drafts/2026-11-19/prologue/drug_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "drug_2",
+      "title": "지하 클럽",
+      "path": "assets/prologue/club.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "drug_3",
+      "title": "깨진 캡슐",
+      "path": "artwork/drafts/2026-11-19/prologue/drug_3.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "drug_4",
+      "title": "조직의 문",
+      "path": "artwork/drafts/2026-11-19/prologue/drug_4.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "drug_5",
+      "title": "블루의 뒤끝",
+      "path": "artwork/drafts/2026-11-19/prologue/drug_5.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "duel_1",
+      "title": "보호비",
+      "path": "artwork/drafts/2026-11-19/prologue/duel_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "duel_2",
+      "title": "공터로 나와",
+      "path": "artwork/drafts/2026-11-19/prologue/duel_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "duel_3",
+      "title": "세 번째 주먹",
+      "path": "artwork/drafts/2026-11-19/prologue/duel_3.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "duel_4",
+      "title": "흑사회 셋",
+      "path": "artwork/drafts/2026-11-19/prologue/duel_4.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "duel_5",
+      "title": "공터의 소문",
+      "path": "artwork/drafts/2026-11-19/prologue/duel_5.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "wild_1",
+      "title": "지리산 종주",
+      "path": "artwork/drafts/2026-11-19/prologue/wild_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "wild_2",
+      "title": "사흘째 밤",
+      "path": "assets/prologue/tiger.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "wild_3",
+      "title": "산신",
+      "path": "artwork/drafts/2026-11-19/prologue/wild_3.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "wild_4",
+      "title": "하산",
+      "path": "artwork/drafts/2026-11-19/prologue/wild_4.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "wild_5",
+      "title": "닷새 만의 귀환",
+      "path": "artwork/drafts/2026-11-19/prologue/wild_5.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "tour_1",
+      "title": "게이트 체험 관광",
+      "path": "assets/prologue/gatehall.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "tour_2",
+      "title": "닫힌 출구",
+      "path": "assets/prologue/forest.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "tour_3",
+      "title": "숲의 주인",
+      "path": "assets/prologue/stag.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "tour_4",
+      "title": "첫 사냥",
+      "path": "artwork/drafts/2026-11-19/prologue/tour_4.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "tour_5",
+      "title": "구조 헬기",
+      "path": "artwork/drafts/2026-11-19/prologue/tour_5.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "friend_1",
+      "title": "먼저 깨어난 쪽",
+      "path": "artwork/drafts/2026-11-19/prologue/friend_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "friend_2",
+      "title": "봉쇄선",
+      "path": "artwork/drafts/2026-11-19/prologue/friend_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "friend_3",
+      "title": "맞닿은 손",
+      "path": "assets/prologue/friend-surge.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "friend_4",
+      "title": "진압탄",
+      "path": "artwork/drafts/2026-11-19/prologue/friend_4.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "friend_5",
+      "title": "두 사람의 기록",
+      "path": "artwork/drafts/2026-11-19/prologue/friend_5.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "late_1",
+      "title": "국민 에테르 정기 검진",
+      "path": "artwork/drafts/2026-11-19/prologue/late_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "late_2",
+      "title": "잠재 각성자 판정",
+      "path": "artwork/drafts/2026-11-19/prologue/late_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "late_3",
+      "title": "유도 시술실",
+      "path": "artwork/drafts/2026-11-19/prologue/late_3.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "late_4",
+      "title": "적성 실기",
+      "path": "artwork/drafts/2026-11-19/prologue/late_4.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "late_5",
+      "title": "비고란",
+      "path": "artwork/drafts/2026-11-19/prologue/late_5.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "nest_1",
+      "title": "포터 아르바이트",
+      "path": "assets/prologue/rest-stop.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "nest_2",
+      "title": "무너진 파티",
+      "path": "assets/prologue/cave.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "nest_3",
+      "title": "어미",
+      "path": "artwork/drafts/2026-11-19/prologue/nest_3.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "nest_4",
+      "title": "짐꾼의 싸움",
+      "path": "artwork/drafts/2026-11-19/prologue/nest_4.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "nest_5",
+      "title": "귀환한 짐꾼",
+      "path": "artwork/drafts/2026-11-19/prologue/nest_5.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "idle_1",
+      "title": "취준 3년 차의 오후",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "idle_2",
+      "title": "편의점 야간",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "idle_3",
+      "title": "공시생의 독서실",
+      "path": "assets/prologue/study.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "idle_4",
+      "title": "퇴사 첫 주",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_4.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "idle_5",
+      "title": "랭크전",
+      "path": "assets/prologue/pcbang.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "idle_6",
+      "title": "치킨집 뒷주방",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_6.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "idle_7",
+      "title": "방구석 홈트",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_7.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "idle_8",
+      "title": "서른둘의 동창회",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_8.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "nap_1",
+      "title": "낮잠에서 깨어나니",
+      "path": "artwork/drafts/2026-11-19/prologue/nap_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "cvs_1",
+      "title": "삼각김밥의 다음 날",
+      "path": "artwork/drafts/2026-11-19/prologue/cvs_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "game_1",
+      "title": "부서진 마우스",
+      "path": "artwork/drafts/2026-11-19/prologue/game_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "bloom_1",
+      "title": "서른둘의 밤",
+      "path": "artwork/drafts/2026-11-19/prologue/bloom_1.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "quest_1",
+      "title": "일일 수련 달성",
+      "path": "assets/prologue/garden.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "nap_2",
+      "title": "느긋한 각성자",
+      "path": "artwork/drafts/2026-11-19/prologue/nap_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "cvs_2",
+      "title": "야간 알바 헌터",
+      "path": "artwork/drafts/2026-11-19/prologue/cvs_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "game_2",
+      "title": "현실 랭크전",
+      "path": "artwork/drafts/2026-11-19/prologue/game_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "bloom_2",
+      "title": "늦깎이 등록",
+      "path": "artwork/drafts/2026-11-19/prologue/bloom_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "quest_2",
+      "title": "하루치의 끝",
+      "path": "artwork/drafts/2026-11-19/prologue/quest_2.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "nap_odd",
+      "title": "그날 이후 이상한 일",
+      "path": "artwork/drafts/2026-11-19/prologue/nap_odd.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "cvs_odd",
+      "title": "그날 이후 이상한 일",
+      "path": "artwork/drafts/2026-11-19/prologue/cvs_odd.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "game_odd",
+      "title": "그날 이후 이상한 일",
+      "path": "artwork/drafts/2026-11-19/prologue/game_odd.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "bloom_odd",
+      "title": "그날 이후 이상한 일",
+      "path": "artwork/drafts/2026-11-19/prologue/bloom_odd.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "quest_odd",
+      "title": "그날 이후 이상한 일",
+      "path": "artwork/drafts/2026-11-19/prologue/quest_odd.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "idle_9",
+      "title": "성당 봉사 토요일",
+      "path": "assets/prologue/church.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "idle_10",
+      "title": "새벽 108배",
+      "path": "assets/prologue/temple.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "idle_11",
+      "title": "장례식장 야간 알바",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_11.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "idle_12",
+      "title": "폐병원 탐방",
+      "path": "assets/prologue/abandoned-hospital.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "idle_13",
+      "title": "할머니 약초밭",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_13.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "idle_14",
+      "title": "주말 등산",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_14.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_net",
+      "title": "헌터넷 첫 로그인",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_net.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_shop",
+      "title": "장비점 \"대장간 김씨\"",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_shop.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_dinner",
+      "title": "등록 전날 저녁",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_dinner.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_line",
+      "title": "봉쇄선 앞",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_line.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_bath",
+      "title": "새벽 목욕탕",
+      "path": "assets/prologue/bathhouse.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_pcbang",
+      "title": "PC방 밤샘",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_pcbang.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_checkup",
+      "title": "관리국 의무실",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_checkup.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_rooftop",
+      "title": "밤의 뒷산",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_rooftop.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_lastshift",
+      "title": "알바 마지막 날",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_lastshift.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_karaoke",
+      "title": "송별회 노래방",
+      "path": "assets/prologue/karaoke.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_fortune",
+      "title": "골목 점집",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_fortune.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_subway",
+      "title": "막차",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_subway.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_loan",
+      "title": "각성자 대출 창구",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_loan.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_cat",
+      "title": "길고양이 밥 주기",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_cat.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_teacher",
+      "title": "옛 담임의 전화",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_teacher.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_run",
+      "title": "강변 새벽 러닝",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_run.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_secondhand",
+      "title": "중고 거래",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_secondhand.webp",
+      "source": "unapproved_candidate",
+      "status": "연결 계획만 작성; 게임 미변경"
+    },
+    {
+      "id": "eve_memorial",
+      "title": "대붕괴 추모비",
+      "path": "assets/prologue/monument.webp",
+      "source": "existing_original",
+      "status": "연결 계획만 작성; 게임 미변경"
+    }
+  ]
+}

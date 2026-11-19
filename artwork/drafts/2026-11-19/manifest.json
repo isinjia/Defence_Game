@@ -1,0 +1,2773 @@
+{
+  "status": "사용자 지시로 후보 에셋 커밋·푸시. 게임 이미지 연결 미변경.",
+  "images": [
+    {
+      "id": "ill_1",
+      "title": "원인 불명",
+      "prompt": "close overhead view of a fever thermometer, unopened antipyretics, referral envelope and damp cooling cloth on a modest clinic desk in winter, frosted side window. Thermometer is key focus, not a generic bed or hospital room.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/ill_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-f008566a-8b43-445d-8c04-0d20cd71d1c2.png",
+      "source_sha256": "f4b13d2d0084e15ae89d78447ecf8e2cffab8b9742446e9c1f86fad23b664447",
+      "references": []
+    },
+    {
+      "id": "ill_2",
+      "title": "7층 격리 병동",
+      "prompt": "deep diagonal view of a six-bed isolation ward at night with six distinct empty bed stations separated by curtains, prayer beads on the window-side cabinet, small child's slippers and a toy beside opposite bed, one red call lamp. NO occupants or body-shaped blankets.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/ill_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-c69e7fdc-78f5-4dc7-8707-e07f62aaf060.png",
+      "source_sha256": "494af46b189cb69fa1cdc3c8b3b5fbf20a8a598bd7d9ed1ce3a620ce3be4cbb1",
+      "references": []
+    },
+    {
+      "id": "ill_3",
+      "title": "42도",
+      "prompt": "extreme close-up bedside high-temperature digital thermometer with a red hot warning light, tangled monitoring leads and a sweating water glass, blank cropped monitor whose line runs almost flat, alarming cold blue 3am bedside environment; no numerals or text. No patient or body.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/ill_3.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-37f670ba-af08-4d7d-bf8b-a7b123f37d60.png",
+      "source_sha256": "f307b311e286794dce561369ebfd1ecd4153202337caebe73b894a852cd4b90d",
+      "references": []
+    },
+    {
+      "id": "ill_4",
+      "title": "같은 병의 아이",
+      "prompt": "view from beside an adult bed toward the opposite child-sized medical bed, tiny folded patient gown and child's slippers, monitoring machine with red alarm light beside the CHILD'S station. Pale new dawn and faint ambiguous ether shimmer in foreground. No child, no patient-shaped bedding.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/ill_4.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-ec29c06f-c422-4c02-8e63-b8e5de409c76.png",
+      "source_sha256": "412244cd40b8ff10093b4dc2122e8193ecaaa7c61de4d7fb75f1abe4805d332b",
+      "references": []
+    },
+    {
+      "id": "ill_5",
+      "title": "퇴원하는 날",
+      "prompt": "bright restrained hospital discharge still life, small travel bag packed open on bed-end bench, folded hospital pajamas beside ordinary jacket, a string of wooden prayer beads lies on a neighboring empty bedside table, corridor exit light beyond. Morning relief; no people.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/ill_5.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-d01044c2-8c69-4ffd-b669-26ff08f2bf19.png",
+      "source_sha256": "e9b2b828c97075f172a439bf94459d6f2a0dbe552392680cde0b63fc98d91c96",
+      "references": []
+    },
+    {
+      "id": "subject_1",
+      "title": "하얀 방",
+      "prompt": "claustrophobic empty white experimental treatment room, low view toward a narrow examination cot, abandoned barcode wristband and capped injection tubing in foreground, flickering fluorescent light, small observation mirror high on wall. NOT giant cylindrical capsule. No humans.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-a30523c4-7c89-4fbf-b382-b76f5e9cbe77.png",
+      "source_sha256": "09b439ae12951be13809acf03f40809a4c1be7ddf5461a17d42ebe55d405cfd8",
+      "references": []
+    },
+    {
+      "id": "subject_2",
+      "title": "지하 7층",
+      "prompt": "tilted corridor-level perspective of an abandoned subterranean research escape route, smashed observation window glass, flashing red alarm lamp, discarded access card just before the last heavy door standing ajar, interrupted light trail on dusty floor. No people or readable signage.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-be3f7f7e-4068-40af-8216-3e2431b5d827.png",
+      "source_sha256": "c109d8fd97ea14ea80e6013ba2fafdc027f657fb00ba8fec14ceb3604f6f244b",
+      "references": []
+    },
+    {
+      "id": "subject_3",
+      "title": "13번과의 약속",
+      "prompt": "close still life of a Korean bakery paper bag containing a distinctive fried soboro bread beside a thin concrete dividing wall bearing tiny tapped dents; through the bakery window a distant EMPTY sidewalk. Warm bread versus cold remembered institution, no human silhouette or printed brand.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_3.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-d0b8c7e9-9b1e-4377-b5f0-cb1331086771.png",
+      "source_sha256": "8cfd3064c95894fc493e60d5fcd6e136a9d95bc615c8f4e5a2a3a4cb96178f75",
+      "references": []
+    },
+    {
+      "id": "subject_8",
+      "title": "잃어버린 일기장",
+      "prompt": "top-down composition of a small child's worn diary opened in a foster-facility storage carton, simple colorful crayon drawing of a science museum and stage magician, old pencil and paper keepsakes, dust in an oblique narrow beam. No readable names or text.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_8.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-e3ffca1d-a494-4869-9280-846416f7183e.png",
+      "source_sha256": "e1bcf80315f9a281742f0ad8eaa757c9d88c876f2f91d838c5fd4b8e35f4ffc8",
+      "references": []
+    },
+    {
+      "id": "student_10",
+      "title": "각성 준비반",
+      "prompt": "close view of an amateur student hunter aptitude-testing desk in a campus club room, inexpensive ether scanner with an ambiguous blank result slip, several other neatly sorted colored result slips, training club gear and books at edges. No enormous lab chamber, no people, no text.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/student_10.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-0a6878cc-a6f6-4af9-8d81-4c36fea7da92.png",
+      "source_sha256": "6e5ef19b348dbe1d38c18d86ac74b0143edc5d581efa2616867804cfc110afee",
+      "references": []
+    },
+    {
+      "id": "idle_1",
+      "title": "취준 3년 차의 오후",
+      "prompt": "overhead cramped Korean studio floor at two in afternoon: unmade FLOOR futon, cold leftover instant noodle bowl, phone with unread rejection notifications rendered as simple blank rectangles, scattered CV folders. Strong slanted afternoon light. NOT generic view toward bed/window.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-f02c8e74-d4ee-430b-af34-3853806fde61.png",
+      "source_sha256": "ba4f432c73fd8cc2d618014f229ad7d064e25968b34d127f6805fa5d570add0b",
+      "references": []
+    },
+    {
+      "id": "idle_4",
+      "title": "퇴사 첫 주",
+      "prompt": "quiet early-morning still life at 7am, switched-off alarm clock beside an old employee lanyard and a resignation folder, phone showing a mute group chat via blank message shapes, plain house slippers on clean floor. Cool dawn light, absence of routine, no people.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_4.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-03a432a3-d899-4cae-ab23-ad0805737821.png",
+      "source_sha256": "8f6c43c6b8e63139ace93c95b22333e1eec8ba8d6fdf5eec12b9932b19eabb12",
+      "references": []
+    },
+    {
+      "id": "nap_1",
+      "title": "낮잠에서 깨어나니",
+      "prompt": "first-person upward view lying in a simple room, ceiling dominates image with a fresh finger-width hairline crack and a very subtle static arc; lower corner shows folded electric blanket and open household breaker panel by doorway. No hands, people or generic bed-centered shot.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/nap_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-70636a07-4095-4089-9bdb-27d7d41f018e.png",
+      "source_sha256": "85bb6e109fadb64d3d23e188ecb906d569cc4f81eef8282a447a6422561010e5",
+      "references": []
+    },
+    {
+      "id": "game_1",
+      "title": "부서진 마우스",
+      "prompt": "macro oblique view of a modern gaming desk: shattered wired mouse with plastic fragments, keyboard bearing a faint scorched palm-shaped mark but NO actual hand, dark voice-chat screen as small unfocused background, spare gaming headset. Destructive awakening trace, no gore, no readable UI.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/game_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-9bbb8792-8050-4b3f-9601-547e61c74858.png",
+      "source_sha256": "276effde69360871729184402aa5e8dcecd60cf888558ee6f45ecc3c7e3cffec",
+      "references": []
+    },
+    {
+      "id": "game_odd",
+      "title": "그날 이후 이상한 일",
+      "prompt": "wide side view of a home gaming desk with THREE broken mice arranged beside a mundane unplugged keyboard; small objects subtly hovering a few millimeters above the desk, curtains unnaturally still. Surreal quiet everyday anomaly, daylight, no PC cafe, no people.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/game_odd.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-c84c7a16-177c-4698-9835-88833662efa6.png",
+      "source_sha256": "885f76829e7508b2d559cd3d27a426c3a3cbd078997ecc71d39f409f6a44b16d",
+      "references": []
+    },
+    {
+      "id": "crime_1",
+      "title": "은행 창구 번호표 47번",
+      "prompt": "bank robbery onset represented ONLY by environment and props: foreground queue-number ticket on a waiting chair, entrance glass softened and sagging from unnatural heat, metal shutter halfway descending, overturned small queue divider. Afternoon bank, no robbers, people, weapons or readable text.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/crime_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-dbf1f0d8-99de-451b-875a-de8edc24995b.png",
+      "source_sha256": "b9e73d64ed4c7e66c324eb10b25c92fad8b42b178665ae65a8d0b47da990fd91",
+      "references": []
+    },
+    {
+      "id": "crime_2",
+      "title": "셔터 안쪽",
+      "prompt": "inside-bank trapped view of fully lowered steel shutter at left, close-up open red emergency-button protective cover behind teller glass at right, closed vault visible deeper in frame, tense red alarm reflection. No people or blood, different from bank lobby establishing view.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/crime_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-f57df492-c52a-401e-9207-c67ff0f105b8.png",
+      "source_sha256": "fb8d45d1bb31278943f9bbc13b13232cc8c21207ca57206e0a982869c9920646",
+      "references": []
+    },
+    {
+      "id": "crime_3",
+      "title": "터진 금고",
+      "prompt": "very low close-angle view of bank vault door whose steel seam glows molten orange under supernatural heat, heat distortion over tiled floor and sharply contrasted cool reflected light, vault contents unseen. Not technical cutaway, no human hands or figures.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/crime_3.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-2eb4ca20-0068-499d-b920-4ad3abe112ed.png",
+      "source_sha256": "4a040db4678afa9fb92a5eff7036dc0830d5be538757a1b214ed6ad94ea9263d",
+      "references": []
+    },
+    {
+      "id": "crime_4",
+      "title": "진압팀보다 먼저",
+      "prompt": "interior bank floor-level view toward the steel shutter beginning to rise only a narrow gap, alternating blue/red emergency lights leaking underneath, fallen smoke haze, tipped waiting chair and scattered blank forms, suspense before intervention. No figures, no bodies, no weapons.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/crime_4.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-f613cd5d-c467-46ce-956e-786fde8f861b.png",
+      "source_sha256": "bdf88ea02848f3bffdbe6241f9734aef54cde0ffd5f0b40f75cff82a2bb2b904",
+      "references": []
+    },
+    {
+      "id": "dream_4",
+      "title": "첫 손님",
+      "prompt": "small child's ordinary bedroom seen just inside doorway at predawn, simple clean bed with a dark supernatural mist curled ONLY at the pillow area, small night lamp and schoolbag distinguish lived-in child room. Mattress is visibly flat with no sleeper-shaped bump. Restrained eerie violet against dawn blue; no people, no ghosts with faces.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/dream_4.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-8c3be33b-790d-4851-a13f-742c77f8c3eb.png",
+      "source_sha256": "2555df45b775554d1f82d7ef616a62876c842707efd48f35c290d4144b00dc8b",
+      "references": []
+    },
+    {
+      "id": "chaebol_6",
+      "title": "재단 봉사",
+      "prompt": "Low view of a pediatric charity donation cart beside a hospital window: wrapped toy animals, a plain donation ribbon, a compact publicity camera resting on the cart, small burn-care supplies visible at distant bedside. Focus charity photo opportunity versus hospital reality, warm restrained afternoon; no patients, people, portraits or dolls with realistic human faces.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/chaebol_6.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-875214d6-ab32-4b29-81e3-71eecd61f5ed.png",
+      "source_sha256": "c3cbc149928ce2d66284354e0adbd5c6fd4e476aa82a2f598e46ae3bab1a96c8",
+      "references": []
+    },
+    {
+      "id": "chaebol_10",
+      "title": "창업주의 유언",
+      "prompt": "Intimate close view of a worn traditional Korean protective paper amulet in a plain cloth pouch on a luxurious hospital bedside table, unused oxygen mask and old family-business fountain pen behind; doorway reveals a closed legal briefcase outside. Quiet late evening, no person or human-shaped bedding, no readable text.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/chaebol_10.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-b4c0cf80-eac9-46d2-b4f4-c40126c46291.png",
+      "source_sha256": "5f74ef778a500e50642f20303e6f422de9158367aa839806b403bad572657879",
+      "references": []
+    },
+    {
+      "id": "orphan_6",
+      "title": "친부모의 소식",
+      "prompt": "Tight view of an unoccupied hospital social-worker consultation booth, generic phone with an unanswered-call screen and a folded intercity bus timetable beside a simple envelope. An empty chair separates near and far sides of a small desk, pale winter daylight. No readable text or numbers, no faces or human silhouettes.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/orphan_6.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-a05c697b-9b7d-4309-9b54-395fdb693329.png",
+      "source_sha256": "fa721323a1637df8fee243bbfd936942eb10a4d3752eea802dcd5654ef082d92",
+      "references": []
+    },
+    {
+      "id": "orphan_8",
+      "title": "병원비",
+      "prompt": "Overhead close view of an emergency corridor bench: unopened convenience-store gimbap, a tall medical bill, a passbook with sparse blank entries, and an expensive sealed medicine vial. Harsh but softened fluorescent light; modest objects tell financial distress, not a generic furnished hospital bed. No readable text, no people.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/orphan_8.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-b02be651-858b-4c38-b3ef-eaf1029d9e7e.png",
+      "source_sha256": "73b71e9f036c821fd1119e8e9c483021434961781182a3e268510073774b9525",
+      "references": []
+    },
+    {
+      "id": "soldier_4",
+      "title": "의무 부사관",
+      "prompt": "Equipment-only still life on emergency-room trauma trolley, neatly rolled tourniquets, combat medic trauma pouch, worn plain dog tags and clean surgical gloves laid out. Open ambulance bay softly lit red far behind. Duty and memory through objects, no blood, wounds, people or hands.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/soldier_4.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-d93f9a0d-669f-489a-b07a-9b7f2edd5e68.png",
+      "source_sha256": "cda4f5d7984c4a9c666c1ba88307b1e269a444a8e4baf9233f09de61b74e0777",
+      "references": []
+    },
+    {
+      "id": "subject_4",
+      "title": "도와준 연구원",
+      "prompt": "Neurology consulting desk viewed diagonally: an old scuffed emergency access keycard partly tucked beneath a contemporary medical chart, closed diagnostic penlight, small ether-measurement trace on a neutral monitor, private consultation-room glass behind. Past escape connected to present doctor, no human or readable text.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_4.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-c712a2ac-401e-492b-a595-898e8ea5b5d2.png",
+      "source_sha256": "410f329be1f0c72613d392e607029545d40227851511280cac71bf66a29b9485",
+      "references": []
+    },
+    {
+      "id": "student_7",
+      "title": "간호 실습",
+      "prompt": "View across a nursing-training preparation counter into a hunter ward: student nurse practice checklist with blank boxes, folded fresh bandages, clipped plain trainee badge and unused hospital uniform; behind glass, empty beds with protective ether-treatment tubing. Soft clinical green-white, no patients or staff.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/student_7.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-ef764eda-b7e1-4dc3-a10e-bd924f5f4d3b.png",
+      "source_sha256": "068912ab4acf7d33879cbc9d6294eadcc682225a06f608177e0b794a63147bfa",
+      "references": []
+    },
+    {
+      "id": "dsleep_2",
+      "title": "수면 클리닉",
+      "prompt": "Quiet ether sleep-study room viewed from foot-end at an oblique angle: empty flat bed, clearly visible electrode cap resting on pillow and organized thin wires leading to a monitoring console behind an observation window; waveform subtly resembles flowing river curves. Night blue, no figures or faces, not a giant experiment capsule.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/dsleep_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-56544f34-fa75-4e11-be70-28eb331f8738.png",
+      "source_sha256": "6a3849c72b27116dd67b998459cf1e3a7fb8725ea743e3599516cb007bf7448f",
+      "references": []
+    },
+    {
+      "id": "drug_5",
+      "title": "블루의 뒤끝",
+      "prompt": "Empty hospital detoxification observation corner at 5am: used IV stand beside a flat unoccupied bed, blue-stained sample tube sealed inside a clear evidence pouch on a trolley and a closed investigative folder, cool predawn light with one subtle blue reflection. No identifiable patient, human silhouettes or body parts.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/drug_5.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-2cd9f06e-56e1-4d75-9fbd-d09d189d03d8.png",
+      "source_sha256": "981cb0e19da677fce2a7d91b292383d4e3f485e5f2adc7d25ca41f651f5aa004",
+      "references": []
+    },
+    {
+      "id": "late_1",
+      "title": "국민 에테르 정기 검진",
+      "prompt": "A modest Korean public health center second-floor waiting area, empty rows of practical chairs and ticket dispenser, official registered-mail envelope and a numbered waiting slip in foreground but no legible numbers or text. Spring daytime, inexpensive screening equipment behind a half-open door. No people or portal.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/late_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-56320f27-ebed-4ed2-b546-bf115e6472ab.png",
+      "source_sha256": "3a0415be9c4cae5b469682fd2335c3a1922e66ac6f2b36c2d42bd79219e89db8",
+      "references": []
+    },
+    {
+      "id": "eve_checkup",
+      "title": "관리국 의무실",
+      "prompt": "Close side view of a routine authority medical examination station: open blood-pressure cuff on a chair arm, stethoscope, health-clearance sheet with an empty final box, small ether scanner, plain clinic curtain. Calm sage and ivory daytime palette, no people, hands or grand scientific laboratory.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_checkup.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-b9bc0303-831b-42e4-ba96-085f3a1d4ca8.png",
+      "source_sha256": "84fb850872086d2d165e708253279ea8b4d97bfacc5d3df167f5ddc3b1fd8aab",
+      "references": []
+    },
+    {
+      "id": "subject_5",
+      "title": "위탁 가정",
+      "prompt": "First private bedroom in a modest Korean foster-family apartment: simple small bed hovering only a few centimeters above floor with visible shadow separation, newly folded spare blanket, a child's crayon welcome drawing on desk and hallway nightlight through ajar door. Early dawn, warm domestic belonging, no humans, dolls or readable text.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_5.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-4b0a3d85-9a15-4453-b21b-43e18117752e.png",
+      "source_sha256": "25ca4c438c64e1d9534ea73430655021281193f570c111b8f2a671bd2418df71",
+      "references": []
+    },
+    {
+      "id": "drug_1",
+      "title": "파란 캡슐",
+      "prompt": "Extreme close-up of EXACTLY TWO blue capsules in a small transparent unlabelled zip bag beside an ordinary smartphone with an indistinct blank chat interface, heavy summer rain on a distant apartment window. Quiet morally ambiguous before any consumption; no needles, human hands, dosage instructions or readable messaging.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/drug_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-508be32c-9b62-4d2c-8365-ee08c518a22a.png",
+      "source_sha256": "396ac2646e714b8de8728a3397f2348d9440b98d576878641ea022fd9a230ea6",
+      "references": []
+    },
+    {
+      "id": "friend_1",
+      "title": "먼저 깨어난 쪽",
+      "prompt": "Domestic table viewed near eye level at winter predawn, half-empty celebratory fried-chicken delivery box and two paper cups from yesterday, phone lit with an incoming call in sharp foreground, cold darkness beyond a small apartment kitchen. Only subtle unexplained light reflected on glass, no people, hands or visible phone number.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/friend_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-4f118b68-5e3b-4f90-9356-a31b01af3bb8.png",
+      "source_sha256": "c455a54fbe09d2d1b7ce60fa2a3dd90034fc5387dee9e3eadf1a7aab680cc73f",
+      "references": []
+    },
+    {
+      "id": "idle_7",
+      "title": "방구석 홈트",
+      "prompt": "Floor-height view of a tiny apartment home-workout corner: creased exercise mat, cheap stopwatch stopped mid-count but no legible digits, water bottle and small laptop angled away showing only a simple abstract exercise timer without a human figure. Daylight, cramped ordinary living space, no gym or laboratory.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_7.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-8ac46bb0-fed0-4eaf-a58c-35b0b0bca3e7.png",
+      "source_sha256": "13295ce3101c82f30a022c84ed192571943b708db75ed7dc561ce82ab58482a3",
+      "references": []
+    },
+    {
+      "id": "nap_2",
+      "title": "느긋한 각성자",
+      "prompt": "Morning Korean family dining table, ordinary breakfast dishes pushed aside for official hunter registration forms with a clearly empty job-preference box, ballpoint pen rests untouched, switched-off electric blanket controller sits near chair as a quiet callback. No writing, hands or people. Warm mundane mood, not office.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/nap_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-03361b0a-9c1c-434a-84d7-2fe255faf8a5.png",
+      "source_sha256": "bf4e08d387f016ecf92f27a1fcd27f7a8bbf4dbbb8c1972f947b0c4364088bf6",
+      "references": []
+    },
+    {
+      "id": "nap_odd",
+      "title": "그날 이후 이상한 일",
+      "prompt": "Quiet everyday apartment still life at normal daylight: electric blanket folded beside a household breaker panel, a cup whose surface forms a small improbable standing ripple, curtains hang unnaturally straight. Subtle ambiguous domestic anomaly, no lightning explosion, no forced combat element, no humans or floating bodies.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/nap_odd.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-3691962c-10e8-49dc-a1be-43d3df569f1d.png",
+      "source_sha256": "984bd4eb413714974a0f6cf07c59fdbe6ccd80d8c41b140873a1aa0a3859ce9e",
+      "references": []
+    },
+    {
+      "id": "eve_teacher",
+      "title": "옛 담임의 전화",
+      "prompt": "Close still life of a ringing plain phone on a small home desk next to an old empty school name-tag case and neatly stacked study notebooks, autumn dusk at narrow window. An affectionate yet uneasy call from former teacher conveyed through worn keepsakes, no classroom portrait, no people or legible text.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_teacher.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-d31cbf7e-e32e-4f77-a7e1-e5e9ea483500.png",
+      "source_sha256": "27fa1d3662c963e4a63713bf65301d38d7c70facc42ccf99ad490bc7f63cf37c",
+      "references": []
+    },
+    {
+      "id": "late_2",
+      "title": "잠재 각성자 판정",
+      "prompt": "Overhead institutional screening consultation desk with EXACTLY SEVEN slightly fanned consent-form sheets, a modest ether-residue diagnostic display with an abstract small trace but no numbers, official seal stamp still untouched and a folder for registration. Clinical pale teal with restrained amber desk light; no people, hands or city landmark.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/late_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-ef4a6fac-04fc-468b-b9ce-cdf64405170d.png",
+      "source_sha256": "1789a86c4b9103d271e00796ed0c052ab71f32af0e5099de5220f68073cf75d8",
+      "references": []
+    },
+    {
+      "id": "late_5",
+      "title": "비고란",
+      "prompt": "Macro view of an aptitude evaluation sheet with a small handwritten-looking abstract flourish in the bottom remarks box, incident-report folder beneath it, a capped evaluator pen and plain binder clips beside; shallow diagonal angle and soft afternoon sunlight. No readable language, no names, no human figure. Focus an unexpected marginal note rather than a generic office room.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/late_5.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-4b0ba55a-9f2e-4681-a826-da5188216273.png",
+      "source_sha256": "0871ef778eaa00e0f542bba3b1906ec781657c355571c9c23484ef52c6b71f6e",
+      "references": []
+    },
+    {
+      "id": "chaebol_5",
+      "title": "후계 구도",
+      "location": "이사회 회의실 내부",
+      "moment": "후계 구도를 논의한 회의 직후",
+      "essential": [
+        "회의 테이블과 상석",
+        "상석 앞 안건 폴더"
+      ],
+      "omitted": [
+        "엘리베이터",
+        "경호원",
+        "지하철 귀가",
+        "교통 표지판",
+        "과도한 상징과 소품"
+      ],
+      "review": "공간 혼합 제거 확인. 빈 회의실로 표현하므로 대립 인물의 감정은 본문이 담당. 게임 미적용.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/chaebol_5.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-ce3b7853-2e9e-45fd-a5f8-8a80b17fa2f5.png",
+      "source_sha256": "d4889893979e42754525b835f43decfca20591a029fbdeae9e73f4b67f9d6193",
+      "references": []
+    },
+    {
+      "id": "friend_5",
+      "title": "두 사람의 기록",
+      "location": "관리국 조사실",
+      "moment": "진술을 기록하기 직전",
+      "focus": "조사 보고서와 맞은편 빈 의자",
+      "essential": [
+        "한 장의 사건 보고서",
+        "작은 조사 테이블과 맞은편 의자"
+      ],
+      "omit": [
+        "옆방의 친구",
+        "각성 폭주 재현",
+        "파손 장비 전시",
+        "다른 사무실·복도"
+      ],
+      "prompt": "A small realistic windowless interview room in a Korean civil authority building. View from the interviewee seat, slightly down across ONE plain small table toward ONE empty straight-backed chair. One incident-report sheet and a simple ballpoint pen rest at the far side. Bare pale walls, restrained cool ceiling light. The untouched report is the focus; no evidence exhibits, no damage, no interrogation theatrics.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/friend_5.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-5cce6059-8f7c-4234-b39c-703c631758b8.png",
+      "source_sha256": "def6679fc8e3492c202bdf78754f2618443493824966a21ba1ca6abcefd4e011",
+      "references": []
+    },
+    {
+      "id": "bloom_2",
+      "title": "늦깎이 등록",
+      "location": "관리국 등록 창구 한 칸",
+      "moment": "등록 서류를 다시 확인할 때",
+      "focus": "아직 작성되지 않은 등록 신청서",
+      "essential": [
+        "고객용 낮은 창구 선반",
+        "일부 항목이 빈 신청서"
+      ],
+      "omit": [
+        "다른 지원자들",
+        "신체검사 장비",
+        "휴대폰·음식",
+        "이전 각성 장면"
+      ],
+      "prompt": "A single modest Korean public registration counter bay viewed from the customer side. Focus on a partly completed registration application lying on the low writing shelf, its last job-preference box blank, with an ordinary pen beside it. A simple glass partition and a small document pass-through behind. Narrow framing, no surrounding hall panorama, normal daylight, no readable writing or age digits.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/bloom_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-e64ce102-582e-4e0e-90cb-a9fb849ce73d.png",
+      "source_sha256": "94a2933d9c76f2743f9b3c043696f7a296e4572f3cd559c8082c023e203b8edf",
+      "references": []
+    },
+    {
+      "id": "quest_2",
+      "title": "하루치의 끝",
+      "location": "관리국 소형 에테르 검사실",
+      "moment": "생활형 각성의 측정이 끝난 직후",
+      "focus": "검사를 마친 소형 측정기와 결과지",
+      "essential": [
+        "탁상형 에테르 측정기",
+        "옆에 놓인 결과지"
+      ],
+      "omit": [
+        "홈트 공간",
+        "등록 창구",
+        "운동 기구",
+        "게임 상태창·숫자 알림"
+      ],
+      "prompt": "An ordinary compact ether testing room. Tight three-quarter close-up of ONE modest tabletop detector with a shallow round testing pad, beside ONE freshly issued result slip on the same medical work surface. Small steady amber status light indicates measurement complete. Simple washable cabinetry as an unfocused backdrop, no windows needed. No exercise gear, holographic statistics, cylindrical capsules, registration counter or other room.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/quest_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-75047b62-2849-47f2-a3b3-0eaf5c117777.png",
+      "source_sha256": "dc609a7605c8c1c169afc0393346441dbf7346a7606439b3577e1649122247df",
+      "references": []
+    },
+    {
+      "id": "eve_loan",
+      "title": "각성자 대출 창구",
+      "location": "은행 대출 상담 부스",
+      "moment": "대출 조건을 읽기 직전",
+      "focus": "금리 조건이 강조된 대출 안내서",
+      "essential": [
+        "대출 안내서 한 장",
+        "상담 부스의 테이블"
+      ],
+      "omit": [
+        "장비 실물·무기",
+        "길드 계약서",
+        "은행 금고",
+        "ATM·엘리베이터·지하철"
+      ],
+      "prompt": "A realistic small Korean bank loan-consultation booth, oblique close view of ONE loan terms sheet on a neat consultation table. A small rate-condition field is emphasized with a restrained pale amber underline but has NO legible numbers or text. A plain pen parallel to the page, neutral upholstered booth divider behind. Financial paperwork is the sole focus, no money piles, equipment, weapons, vaults, ATM or lobby signage.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_loan.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-c696275d-f156-4628-9f4e-cce77bf26c5b.png",
+      "source_sha256": "4206e4707231f2fcce419c3d42e1e39afb8e4a9c0e9ddb87a40ab29692db6d9c",
+      "references": []
+    },
+    {
+      "id": "subject_9",
+      "title": "정기 검진",
+      "location": "대학병원 MRI 검사실",
+      "moment": "MRI 장치가 비정상적으로 정지한 순간",
+      "focus": "멈춘 MRI 장치",
+      "essential": [
+        "의료용 MRI 장치",
+        "비어 있는 검사대"
+      ],
+      "omit": [
+        "과거 실험실",
+        "연구원",
+        "유리 실험 캡슐",
+        "실내 책상·전자기기·금속 소품"
+      ],
+      "prompt": "A plausible uncluttered modern hospital MRI scanner room, low oblique view emphasizing the circular MRI bore and its EMPTY patient table, machine unexpectedly idle. A tiny amber machine warning lamp, otherwise soft neutral clinical illumination. All blankets lie flat; no patient, humanoid shape or accessories. Smooth plain walls and ample operating clearance. No control desk, freestanding electronics or ferromagnetic clutter inside the scanner room, no sci-fi capsule, no portal.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_9.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-b0f97de8-7edc-4a20-83fb-c72f092f82a0.png",
+      "source_sha256": "dfa7513a8ca3015cd1cfe6f7b57ed517987bc45a9568d33bce26cad76a96c4e7",
+      "references": []
+    },
+    {
+      "id": "student_4",
+      "title": "에테르 공학 동아리",
+      "location": "대학 공학 동아리 작업실",
+      "moment": "소형 발전기의 전구가 켜지고 천장등이 고장 난 직후",
+      "focus": "작은 자작 발전기에 켜진 전구",
+      "essential": [
+        "작업대의 소형 폐코어 발전기와 전구",
+        "같은 방 천장의 꺼진 형광등"
+      ],
+      "omit": [
+        "차단기 위치",
+        "선배의 반응",
+        "거대 에테르 연구시설",
+        "불필요한 실험 장비"
+      ],
+      "prompt": "A believable modest university engineering club workshop at night, single low diagonal composition anchored on ONE tiny homemade ether generator on a workbench, a dim salvaged core in a simple protective bracket powering ONE small incandescent bulb. Overhead in the SAME room one fluorescent fixture is now dark with a cracked tube still safely in its housing. Warm bulb is the focus, matte tools minimally at the edge. No explosion, large laboratory chamber, control-room console, people or added breaker panel.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/student_4.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-fba0a2ed-776a-4b30-a181-a1327e725ad9.png",
+      "source_sha256": "cf0ca5c1213791f4ab8d89c9cd16bbf99594cd30cd662a18f27f5f34588b9d71",
+      "references": []
+    },
+    {
+      "id": "orphan_2",
+      "title": "배달 라이더",
+      "location": "비 오는 시장 골목",
+      "moment": "잠시 받은 국물",
+      "essential": "젖은 배달 오토바이, 국물 한 그릇",
+      "omit": "다음 장소, 주방 내부, 초현상",
+      "prompt": "One narrow rainy Korean market alley outside a modest soup shop. A wet delivery motorbike parked parallel to curb; ONE steaming broth bowl on small exterior ledge at reachable height. Oblique street-level view along alley under eaves, grey afternoon rain. No spectacular sky, city panorama, other vehicles or piled delivery props.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/orphan_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-69955b9e-d1d4-4430-b4c7-12355c97fee5.png",
+      "source_sha256": "da14d7a6175f6f94275340e43c6d3588605c39e330f75b603188bea16ea3b32f"
+    },
+    {
+      "id": "storm_2",
+      "title": "정전된 도시",
+      "location": "정전된 교차로",
+      "moment": "정전 직후",
+      "essential": "꺼진 신호등, 어두운 거리",
+      "omit": "사고, 엘리베이터, 지하철, 발전소",
+      "prompt": "One realistic Korean urban intersection during storm blackout, sidewalk eye level. Unlit traffic signals above empty wet road; all building windows dark, enough ambient blue grey twilight to read street. Quiet darkness not an explosion. No people, cars, crash, subway, elevator, tunnel, ether wall or lightning bolts.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/storm_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-8fb08110-41d5-40b7-a85e-e13976fd2349.png",
+      "source_sha256": "228d6aa2d26b4fc8805745c356d290efe0c5779ccd5f973ac876739ba233dd04"
+    },
+    {
+      "id": "soldier_9",
+      "title": "저격 교관",
+      "location": "야외 사격장",
+      "moment": "청소 후 하늘 균열 발견",
+      "essential": "긴 사격 레인, 작은 하늘 균열",
+      "omit": "무기 소품 배치, 미래 환영, 거대 포털",
+      "prompt": "Outdoor marksman range from cleared firing line, looking down long safe lanes toward small targets and earthen backstop. A slim hairline crack occupies very small part of ordinary sky. No rifle closeup, ammunition layouts, diagrams, battle, people, giant portal, glowing mountain, green dome or holograms. Muted natural greens, grey light.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/soldier_9.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-fc3c9e65-bd4b-47aa-928a-669641735d00.png",
+      "source_sha256": "4bca5777b49a34cf70a3ccb606b9bae70e64e8cd120885702c5ef567d533dda8"
+    },
+    {
+      "id": "wild_1",
+      "title": "지리산 종주",
+      "location": "안개 낀 숲속 갈림길",
+      "moment": "지나온 길이 안개로 가려진 때",
+      "essential": "푸른 이끼 덮인 나무 표지, 안개 속 길",
+      "omit": "산장, 휴대전화, 인물, 구조대",
+      "prompt": "Tight autumn forest trail junction at walking eye level, asymmetrical. ONE weathered wooden trail sign partly covered in subtly blue luminous moss; leaf path disappears into dense mist. No readable letters, backpacks, binoculars, phones, tents, people or visible monsters. Localized moss glow, no sky beam or dome.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/prologue/mountain.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/wild_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-2ec82662-60db-422b-aa64-712fc4eb2486.png",
+      "source_sha256": "037269b480fae88ab3eb5ee8dc2775fd7a90cced7540199447bbc82b20303f1c"
+    },
+    {
+      "id": "wild_4",
+      "title": "하산",
+      "location": "좁은 하산 숲길",
+      "moment": "멧돼지가 길을 막음",
+      "essential": "푸른 눈 멧돼지 세 마리",
+      "omit": "호랑이, 인물, 전투 결과, 헬리콥터",
+      "prompt": "Narrow descending forest trail in lingering daytime mist. THREE sturdy wild boars at middle distance blocking path, one center two behind, slightly blue eyes. Grounded quadrupeds, matte dark brown fur, restrained tusks, no crystal armor or invented appendages. Natural walking eye height, animals not attacking yet. No gore, defeated animals, tiger, hikers, rescue vehicles or camp gear.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/prologue/mountain.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/wild_4.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-c269565a-6c59-4edb-9ba7-c20988a734fa.png",
+      "source_sha256": "6b52b3ea446e541d23ee67d87a13fd7ec776169f086d39f5a1bcd9e58439c0c7"
+    },
+    {
+      "id": "wild_5",
+      "title": "닷새 만의 귀환",
+      "location": "아침 등산로 입구",
+      "moment": "안개 밖 입구 도착",
+      "essential": "소박한 나무 입구틀, 아침빛",
+      "omit": "은빛 존재, 휴대전화, 구조대",
+      "prompt": "Modest Korean hiking trailhead early morning, from inside forest looking OUT toward ordinary daylight. Simple wooden entry frame, short gravel apron, thinning mist. Crossing from fog into safe trail entrance. No text, people, vehicles, helicopters, phones, backpacks, silver animal, huge panorama or supernatural sky.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/prologue/mountain.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/wild_5.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-b84e0271-352b-4568-98a4-c70d151e0773.png",
+      "source_sha256": "70af0ef3492bfa4122cd1c939266120b8e729695593ece9bf4678e5307336c02"
+    },
+    {
+      "id": "idle_14",
+      "title": "주말 등산",
+      "location": "동네 뒷산 숲길",
+      "moment": "새 오솔길 발견",
+      "essential": "정비된 산책로, 덤불 사이 작은 샛길",
+      "omit": "정상 비석, 등산객, 발광, 파노라마",
+      "prompt": "Believable low neighborhood hill in Korea, weekend morning. Compacted dirt walking path with low timber edging, and a narrow new footpath branching through bushes. Medium wide ground-focused view, gentle slopes. No signs, summit stones, backpacks, binoculars, people, animals, magic or ominous portal.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/prologue/mountain.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_14.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-ba8fabed-4450-49a9-b9e5-4e666b5e029e.png",
+      "source_sha256": "c3c8acf326c504ccdc39f687f1bfaa9e54deb4ec7a01ef41dde18ec9116cd1a1"
+    },
+    {
+      "id": "eve_rooftop",
+      "title": "밤의 뒷산",
+      "location": "작은 야외 운동 공터",
+      "moment": "능력 시험 직전",
+      "essential": "운동기구 한 개, 가장자리 쓰러진 소나무",
+      "omit": "약수터 시설, 야경, 가로등, 능력 발동",
+      "prompt": "Small UNLIT neighborhood hill exercise clearing at eleven PM. Ambient overcast moonlight keeps scene readable. ONE ordinary pullup exercise frame on level dirt, ONE fallen pine trunk at edge. Sheltered trees background, no sweeping skyline. No lamps, signs, spring shrine, people, hands, weapons, portal, beam or completed magical action. Anticipatory silence.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/prologue/mountain.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_rooftop.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-cdf2f091-be60-4798-973b-201fc058e639.png",
+      "source_sha256": "34808c97280a0cb9e394781e4acca2b3462aac4e415f52121582f9675fa00904"
+    },
+    {
+      "id": "late_3",
+      "title": "유도 시술실",
+      "location": "지하 의료 시술실",
+      "moment": "주입 직전",
+      "essential": "원통형 의료 캡슐, 주입 라인",
+      "omit": "연구원·팔·숫자 계기판",
+      "prompt": "A single clean underground medical procedure room in modern Korean hunter setting. ONE upright cylindrical medical induction capsule, empty and partly open, with a realistically mounted infusion tube running from a small medical pump beside its base into capsule side port. Focus on capsule and line, three quarter medium view. Plain functional walls, restrained cyan indicator light. No people, hands, bodies, desks, elevator, subway symbols, floating screens, massive machinery or giant glowing portal. Medical equipment looks purpose-built and physically connected.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/late_3.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-45878a9c-07d2-4b05-a253-f6bf3d994831.png",
+      "source_sha256": "2c329db874122a7f5257926e7da32f603771af1c5fe42d80309bf7ffcc5b588d"
+    },
+    {
+      "id": "idle_2",
+      "title": "편의점 야간",
+      "location": "새벽 편의점 계산대",
+      "moment": "한가한 야간 근무",
+      "essential": "작은 폐기 바구니와 삼각김밥 네 개",
+      "omit": "TV 속 사건 장면, 외부 괴수",
+      "prompt": "One ordinary Korean convenience store checkout at three AM. Camera from employee side, waist-level medium close view. Focus on a small basket beside checkout holding exactly FOUR separately wrapped triangular rice balls with plain unlettered packaging. Modest till behind, shelves softly recede, dark shopfront beyond. Fluorescent indoor light, quiet fatigue. No TV, news screens, supernatural objects, people, text or logos. Basket actually sits on counter; believable checkout not office desk.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-7c58b8bb-4729-4629-967a-cc62d55c9792.png",
+      "source_sha256": "b1c83a023f8eaba7a945e7d32d5e9b7b776cd22b6925ca450e8177fc3060f689"
+    },
+    {
+      "id": "cvs_1",
+      "title": "삼각김밥의 다음 날",
+      "location": "편의점 출입문",
+      "moment": "새 측정기 경보",
+      "essential": "출입구 한쪽의 소형 에테르 측정기",
+      "omit": "앓던 방, 주방, 통행인",
+      "prompt": "One ordinary Korean convenience store entrance viewed from inside toward daylight. A compact waist high ether screening device installed at ONE SIDE of sliding glass doorway, not blocking accessible walking space. A single small amber warning indicator glows on top. Background only normal sidewalk through glass; frame foreground with modest shop shelves. Device resembles simple radiation sensor pedestal with plain blank panel, no hologram or scanner arch. No people, text, logos, office desk, subway symbols or elevator. This moment is new detector alert, not aftermath of illness.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/cvs_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-e5d76858-d668-41de-b2c1-eb86f39773fc.png",
+      "source_sha256": "c63f292050d71440b5fa9c131c8a2b592b5d8d11871135b6f911930226a5b7dc"
+    },
+    {
+      "id": "cvs_2",
+      "title": "야간 알바 헌터",
+      "location": "편의점 직원 휴게 구석",
+      "moment": "등록 서류를 작성하려는 때",
+      "essential": "등록 신청서와 볼펜",
+      "omit": "퇴치 장면, 괴수, 계산대와 사무실 혼합",
+      "prompt": "Small believable convenience store employee break nook. Close oblique view of tiny laminate table holding ONE registration application form with understated empty ruled fields and a pen resting beside it. No readable letters or numbers. A plain store work apron folded on chair at back is enough context; plain wall and shelf edge. Morning after long shift. Focus on blank form awaiting decision. No cashier till, monsters, action scene, elaborate office furniture, transport symbols or unrelated food.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/cvs_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-9dbb4f6c-683c-40aa-8e48-5f2d7c605aca.png",
+      "source_sha256": "c18be533e795a5d57b76ea86d6b3b5514c6a2d2735b0093a85a5ff24096bd0c5"
+    },
+    {
+      "id": "student_9",
+      "title": "밴드 공연",
+      "location": "거리 축제 무대 뒤",
+      "moment": "기타 줄을 교체하던 때",
+      "essential": "기타와 앰프",
+      "omit": "손·피·사건 결과·다른 축제 장면",
+      "prompt": "Backstage corner of small Korean street festival music stage. ONE electric guitar resting securely in padded floor stand beside ONE compact guitar amplifier, connected by a plausible cable. A single loose broken guitar string visible near bridge, not floating decorative wire. Side stage curtain and glimpse of daylight beyond stage edge give context, no panoramic festival crowd. Slightly uncanny dim amplifier indicator, no magical beam. No people, hands, blood, logos, letters, drum kit or piles of instruments. Simple intimate composition centered on guitar and amplifier.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/student_9.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-c0b96930-63d2-4d6b-96cc-a1ddd7f7e431.png",
+      "source_sha256": "53c04152b79990df1706eaaeb3e44392b013dadce8bef364eb1a883cabff41ea"
+    },
+    {
+      "id": "friend_2",
+      "title": "봉쇄선",
+      "location": "원룸 건물 앞 골목",
+      "moment": "봉쇄 직후",
+      "essential": "노란 봉쇄선과 흰빛 새는 창문",
+      "omit": "요원·차량 세 대·총기",
+      "prompt": "One narrow Korean residential alley facing modest low rise studio apartment building. Plain yellow barrier tape in foreground attached realistically between two temporary posts; a single second-floor window emits pulsing pale white glow, subtly illuminating its frame. This is ONE apartment exterior, not city panorama. Ordinary doors, facade and drainpipe. No people, cars, weapons, legible tape text, signs, emergency command center or giant sky effects. Foreground tape and luminous window both readable, tense restrained evening.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/friend_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-107ab7a1-5327-4bde-8483-8c655377466e.png",
+      "source_sha256": "5f254563f8bf4eee6ac827b71efa6cfe25db0aa3da67e98ecb5570e8d3365096"
+    },
+    {
+      "id": "dsleep_3",
+      "title": "깨어나지 않는 밤",
+      "location": "정전된 수면 검사실",
+      "moment": "바닥에 물이 번지는 때",
+      "essential": "검사 침대와 얕게 번진 물",
+      "omit": "강 풍경·환자·다른 검사실",
+      "prompt": "ONE small clinical sleep study room during blackout. An empty narrow medical bed and attached bedside monitor with a single tiny red standby indicator. A shallow irregular pool of water spreads naturally across the floor from beneath bed toward foreground; not a river landscape and not a magical portal. Dim blue ambient light through high frosted window, enough midtones to read bed and water edge. No people, bodies, electrodes on absent patient, faces, furniture from unrelated office, glowing floor runes or readable monitor graph. Fine hand drawn reflections minimal.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/dsleep_3.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-8730fc4d-4897-4196-8bac-a5cd2f395468.png",
+      "source_sha256": "75c07fa5edf3b979f406113497684951d909164873986f5cd862c7e8dd8cfc41"
+    },
+    {
+      "id": "dream_1",
+      "title": "같은 꿈",
+      "location": "안개 낀 강가",
+      "moment": "꿈속 강을 바라보는 순간",
+      "essential": "강가 나무의 붉은 천",
+      "omit": "손짓하는 인물·침실·손바닥 모래",
+      "prompt": "ONE still dream riverbank in spring mist. An ordinary mature riverside tree slightly off center has ONE narrow red cloth tied naturally around a low branch, end hanging in soft breeze. Quiet water and distant opposite bank disappearing into fog. Focus on red cloth and tree beside river; intimate medium wide eye level, not huge landscape. No people or human silhouettes, no bed, pillow, sand-covered hands, altars, shrines, gate, giant glowing sky or magical tree roots. Muted grey green with red cloth as only clear accent.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/prologue/mountain.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/dream_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-2ec023fd-8a76-4a97-9e7a-2e5896b433f5.png",
+      "source_sha256": "bc95c1dfb02f460ef8d1f1a76ecb7ca90d7e82bc4ab846fc56624de782e198bb"
+    },
+    {
+      "id": "chaebol_9",
+      "title": "압류 딱지",
+      "location": "펜트하우스 거실",
+      "moment": "압류 표식이 붙은 뒤",
+      "essential": "소파와 낮은 탁자의 붉은 압류 표식",
+      "omit": "부도 회사·짐 싸는 집사·전화·라면",
+      "prompt": "One once luxurious but now emptied Korean penthouse living room. Medium wide, slightly low oblique camera focuses on an ordinary sofa and low side table each bearing ONE small matte red rectangular impound sticker with no letters. Bare patches where decorations removed, dull overcast window light. No corporate boardroom, office desk, elevator, subway sign, people, bags, telephone, noodles or readable text. Understated material, no marble mirror floor or extravagant decorative clutter.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/chaebol_9.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-4b1727f8-55cb-4d15-8526-50763194e643.png",
+      "source_sha256": "ffaeb142fc878ab327244e6077b8d5592ddaf791a252472cf2f05c390c60eac7"
+    },
+    {
+      "id": "soldier_6",
+      "title": "경비업체",
+      "location": "아파트 경비실 택배 보관 구석",
+      "moment": "택배 정리 중",
+      "essential": "분류 선반의 택배 상자",
+      "omit": "고장 엘리베이터·주차 단속 장면·군장",
+      "prompt": "One small ordinary apartment security office parcel-storage corner. A modest utilitarian shelving unit with neatly sorted plain cardboard parcels, one parcel resting on short sorting counter. Slightly high view toward shelf, window at edge looks onto apartment courtyard only. Everyday unglamorous work, morning soft light. No elevator door, subway, parking garage, military kit, weapons, people, surveillance command screens, shipping labels or readable words. Parcels have no readable addresses, sensible sizes and shelf support.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/soldier_6.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-8bcc4676-d392-49c6-b505-c988c5e68b8f.png",
+      "source_sha256": "aad0dacff4736793316433677eb6098b978dbc73b61c282457b4f40c1bde6a63"
+    },
+    {
+      "id": "soldier_10",
+      "title": "징계",
+      "location": "게이트 봉쇄 현장의 철문",
+      "moment": "명령을 어기고 철문을 다시 연 때",
+      "essential": "다시 열린 철제 방호문",
+      "omit": "지하철·감사 인사·징계 서류·민간인",
+      "prompt": "ONE field containment checkpoint at a modern hunter gate site, viewed at eye height from safe side. Focus on heavy industrial steel double barrier doors reopened with a clear narrow passage between them. A small amber work light beside door frame; rough concrete approach, blank safety posts receding. Suggest a recently reopened evacuation passage, NOT a fantasy castle gate. No people, bodies, wounded, vehicles, subway, home interior, paperwork, giant portal or sky dome. Restrained grey and amber, functional hinges and doors physically coherent.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/soldier_10.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-9e91f117-7efa-499c-b4af-780d0354b7f9.png",
+      "source_sha256": "e0ee1f52fe1eae37c360706acfd282a06d621977fe8ba8cf31432721349030a2"
+    },
+    {
+      "id": "student_5",
+      "title": "복학생",
+      "location": "대학 강의실 맨 뒷줄",
+      "moment": "강의 전 낯선 자리에 앉은 때",
+      "essential": "맨 뒷줄 책상과 열린 가방",
+      "omit": "지하철·옆자리 코피·군대 장면",
+      "prompt": "One ordinary Korean university lecture room seen from very back row, camera focused close on near desk and open practical backpack resting on adjacent chair, with a partially crumpled blank tuition paper visible inside bag. Rows of empty desks recede toward plain board out of focus. Overcast midday light. Strong near/far composition makes last-row isolation clear. No people, uniforms, subway, blood, station signs, futuristic holograms or readable letters. No fancy office or boardroom, just classroom.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/student_5.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-e2e83018-5093-4386-9b01-63e307c91f39.png",
+      "source_sha256": "32a80e9305dbd6175461784fe97bfb115a3ee9e9fef9a5df2dffc53020708340"
+    },
+    {
+      "id": "relic_1",
+      "title": "벼룩시장",
+      "location": "야외 벼룩시장 좌판",
+      "moment": "상자를 열어 구슬을 발견한 때",
+      "essential": "작은 상자 속 녹슨 금속 구슬",
+      "omit": "고물상 인물·각성 효과·신전",
+      "prompt": "Close oblique tabletop view at modest outdoor Korean flea market stall. ONE opened battered little wooden box on coarse cloth contains ONE rusted metal sphere about golf ball size, matte oxidized surface with subtle warm brown tone. Only two mundane out-of-focus secondhand objects at edge, such as old mug and small clock, enough context without clutter. Natural weekend daylight. No hands, people, floating sphere, runes, glowing portal, ancient temple, jewelry heap, text or price tags. Sphere sits physically inside box, not levitating.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/relic_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-cd90d744-6be6-463c-b68a-a2fa97bc061e.png",
+      "source_sha256": "6f13508fa273c0ded0cebc2a10797280d632c3e00ae79b074b7d708166fcae90"
+    },
+    {
+      "id": "idle_6",
+      "title": "치킨집 뒷주방",
+      "location": "작은 치킨집 주방",
+      "moment": "배달을 나가기 직전",
+      "essential": "상업용 튀김기와 준비된 배달 봉투",
+      "omit": "오토바이·손님·아버지·거리",
+      "prompt": "One compact Korean fried-chicken shop back kitchen. Practical commercial fryer with basket safely resting in draining position; next to it on a SEPARATE clean stainless packing counter ONE plain tied takeout paper bag ready for delivery. Medium close oblique view, modest functional tiled wall, realistic separation of hot oil and packaging area. Soft warm task lighting. No rider, motorcycle, street, phones, people, hands, readable numbers, branded packaging, flames or excessive clutter. Objects actually supported on appropriate surfaces.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_6.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-b4c61c12-bbb3-4260-8730-84134bf7a6cc.png",
+      "source_sha256": "00ace67867706d0f78b0b3ea324fad50b47ae82521d3935623ce220d8a6dab21"
+    },
+    {
+      "id": "eve_dinner",
+      "title": "등록 전날 저녁",
+      "location": "문 닫은 분식집 식탁",
+      "moment": "저녁 식사가 차려진 때",
+      "essential": "밥과 반찬이 차려진 작은 식탁",
+      "omit": "TV 뉴스 화면·인물·각성 효과",
+      "prompt": "One small Korean snack restaurant after closing, intimate view of a modest dining table set for a comforting homemade dinner. Two rice bowls, soup bowls and a small restrained group of banchan dishes, one extra side dish near viewer conveys care. Closed simple roller blind in background, ordinary chairs. Camera table height slightly above dishes, warm evening room light. No people, actual hands, TV news screen, portals, weapons, fancy banquet, office furniture or readable signs. Simple grounded meal, not overcrowded food advertisement.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_dinner.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-218aba6b-6c8f-4ce7-b869-bde118f0a1bb.png",
+      "source_sha256": "693391960343155e576269a9ac7efe01d56ae3c6d628e0222ed635749c2c9970"
+    },
+    {
+      "id": "eve_shop",
+      "title": "장비점 대장간 김씨",
+      "location": "재래시장 중고 장비점",
+      "moment": "시험 장비를 살펴보는 때",
+      "essential": "수리 흔적 있는 중고 방어구",
+      "omit": "주인 인물·가격표·지갑·실제 대장간 불꽃",
+      "prompt": "One cramped but orderly used hunter equipment shop at Korean market. Medium eye-level view focused on a practical rack holding THREE worn utilitarian protective vests with visible stitched repairs and a small sturdy counter below. Dim shelves recede, soft daylight from off-frame doorway. Modern hunter gear, not medieval armor, no magical crystals or fantasy weapons. No forge, fire, blacksmith, shopkeeper, people, wallets, price labels, sign lettering, subway or elevator. Clear restrained composition where repaired secondhand armor is central.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_shop.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-93b94ae5-b767-43d3-8e38-d7893ad8cdf0.png",
+      "source_sha256": "6a9de62e79740d41d0d76eed93e5de300a5f4dfd9e77bfafaec6c087ea8806b9"
+    },
+    {
+      "id": "eve_line",
+      "title": "봉쇄선 앞",
+      "location": "사거리 봉쇄선",
+      "moment": "소형 게이트를 발견한 때",
+      "essential": "작은 게이트와 노란 테이프",
+      "omit": "구경꾼·헌터·본부·간판",
+      "prompt": "ONE ordinary Korean urban intersection isolated by plain yellow barrier tape on temporary posts. Behind tape at center of closed street ONE small vertical spatial rift about human height, narrow oval violet edge with dark blue interior, strong enough to identify but no huge sky dome. Street level camera outside tape. No people, vehicles, letters, signs, command screens or extra portals. This is an unexplained small gate in everyday street, not a giant fantasy landscape.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_line.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-495e989c-49ea-43c0-b478-2278fa207702.png",
+      "source_sha256": "c192e640726b340b0941824fad24e9c487e2a3c2d131f4e4de72e1319d5397fa"
+    },
+    {
+      "id": "orphan_7",
+      "title": "태권도장",
+      "location": "동네 태권도장",
+      "moment": "시범 연습을 준비한 때",
+      "essential": "정확히 다섯 장 쌓은 기왓장",
+      "omit": "학교 운동장·사람·격파 결과",
+      "prompt": "ONE ordinary neighborhood Korean taekwondo practice hall. Low floor-level medium close view of EXACTLY FIVE individual ceramic roof tiles stacked horizontally on two low sturdy breaking supports at center on blue practice mats. Keep five tile layers visually distinguishable, intact and not yet broken. A few plain training pads at distant wall only, no people, limbs, martial arts uniforms on bodies, trophies, labels, flags, school sports field or crowd. Soft afternoon light, restrained focus on prepared demonstration.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/orphan_7.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-201483f0-b2a4-4e9f-bbc8-e1f90e0027c3.png",
+      "source_sha256": "45c2463de4ef0eb3ad8f99630584dfe8bab2ce52fd468862cbd78cea219aa605"
+    },
+    {
+      "id": "late_4",
+      "title": "적성 실기",
+      "location": "관리국 체육관",
+      "moment": "힘이 새어 나온 순간",
+      "essential": "떠오른 샌드백과 더미",
+      "omit": "아이·평가관·인체·시술실·캡슐",
+      "prompt": "ONE modern hunter assessment gym lane with padded floor. A single heavy punching bag and ONE headless faceless cylindrical padded striking dummy are lifting a SHORT distance off floor, directly above displaced contact shadows. Bag mounting chain visibly broken and hanging from top, makes levitation obvious; no magical ropes. A plain closed gym door in distant wall. Grounded normal gym with only these two objects violating gravity. No people, actual bodies, human face mannequins, medical capsules, desks, runes, floating UI or readable text. Strong clear midtones.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/late_4.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-881cedab-01a3-4715-ac95-c60f12206adc.png",
+      "source_sha256": "40cbd0ed0a61c5ce2cb35269ae6767c2764fe4e2cd78b4ae52a4742cf0d68dc0"
+    },
+    {
+      "id": "idle_8",
+      "title": "서른둘의 동창회",
+      "location": "평범한 고깃집 식탁",
+      "moment": "동창회 자리",
+      "essential": "내려놓은 소주잔과 흐린 건너편 자리",
+      "omit": "사람·캐릭터 얼굴·헌터 등급·파티 풍경",
+      "prompt": "ONE modest Korean barbecue restaurant table at a school reunion, no people visible. Intimate shallow oblique table-level composition focusing ONE small soju glass set down in foreground beside plain green bottle. Opposite side table settings recede softly, unused chairs subtly imply conversation outside frame. A built-in circular tabletop grill with no excessive food pile gives location. Warm ordinary evening light, understated lonely mood. No banquet, rice-and-banchan dinner spread, portraits, fantasy equipment, letters, logos, hands or bodies.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_8.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-84df5319-a889-4af7-a3f7-989d158788d6.png",
+      "source_sha256": "71c9003546c7669e378266d39980568d5ec01aa99d3912538e5551072da2462e"
+    },
+    {
+      "id": "dream_3",
+      "title": "굿판",
+      "location": "신당 마당",
+      "moment": "보름밤 굿 의식을 앞둔 때",
+      "essential": "장구와 방울",
+      "omit": "꿈속 강·존재·인체·신의 얼굴",
+      "prompt": "ONE modest Korean traditional shrine courtyard under full moon. Close to medium view of ONE janggu hourglass drum resting properly on wooden low stand and ONE small cluster of brass ritual bells set on plain cloth beside it. Weathered courtyard stones and low traditional eaves in background, moonlit blue with soft amber light from off-frame shrine doorway. No ritual performers, bodies, hands, visible spirits, river, bladed platform, faces, text, prayer banners or magical sky portals. Respectful quiet preparatory moment, sparse composition.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/dream_3.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-91031319-2c1e-4494-bc14-7b1aa41e3e4a.png",
+      "source_sha256": "e44a6816fe29162488a883c57ea8b4de629cce2b81364c0d3c90d25ddece0086"
+    },
+    {
+      "id": "eve_fortune",
+      "title": "골목 점집",
+      "location": "작은 점집의 상담 탁자",
+      "moment": "쌀알을 흩뿌린 직후",
+      "essential": "낮은 탁자 위 드문 쌀알",
+      "omit": "무당·친구·거리·신당 마당",
+      "prompt": "ONE tiny Korean fortune teller consultation room viewed down at low wooden table from sitting eye level. Small sparse scattering of uncooked white rice grains across dark tabletop, with ONE small plain ceramic rice bowl at upper edge. Simple floor cushion and dim wall create enclosed humble interior. Quiet amber light, believable scale: rice grains are tiny, not large pebbles. No people, hands, faces, cards, crystal ball, ritual drum, magic symbols, readable papers, street scene or shrine courtyard. Tight intimate composition.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_fortune.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-f821b4bd-46fc-4e79-b759-f72c2bc8a235.png",
+      "source_sha256": "7b183a0249c95086104510bbd4d83492902dd1916f0a02980ba0aa0e9cddb60e"
+    },
+    {
+      "id": "dseer_2",
+      "title": "꿈이 먼저 본다",
+      "location": "육교 아래 보행로",
+      "moment": "꿈의 장소를 미리 찾아온 때",
+      "essential": "멀리 보이는 시계탑과 육교",
+      "omit": "추락하는 아이·화재·뉴스·집안 컵",
+      "prompt": "ONE believable modern Korean pedestrian overpass in an ordinary neighborhood, seen from safe sidewalk at early afternoon. The overpass railing and steps lead eye toward ONE modest civic clock tower visible beyond it in SAME continuous street space. Clock face has plain hands and tick marks, no readable digits. Railing still intact at this premonition moment. No people, child, falling body, rescue action, fire, screens, broken cups, double exposure, surreal clocks, portal or apocalypse sky. Medium wide, natural lines and restrained suspense.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/dseer_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-f0a4d179-24a8-47b2-8e60-7e1aa6461a57.png",
+      "source_sha256": "6459f3c534fca908a5ba4aa4dec9b1c08b0350881010c840a7e7c9a26fcec75a"
+    },
+    {
+      "id": "subject_6",
+      "title": "감시 요원",
+      "location": "시장 국밥집",
+      "moment": "요원이 자리를 뜬 직후",
+      "essential": "반쯤 남은 국밥과 빈 맞은편 의자",
+      "omit": "요원 인물·감시 화면·서류·다른 장소",
+      "prompt": "ONE modest Korean market soup restaurant. Close three-quarter view from one seat toward opposite EMPTY chair, one half-finished bowl of broth with a few rice remnants and a spoon set beside it at opposite place. The opposite chair pushed back slightly as if interview just ended. Plain tabletop and modest wall, muted cool daytime light with quiet unease. No banquet spread, many bowls, people, silhouettes, hands, surveillance screens, documents, military equipment, signs or other location. Composition emphasizes abruptly vacated place, not food advertisement.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/subject_6.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-abf4f8cb-d1be-447e-8eaa-ccbf45c74d1c.png",
+      "source_sha256": "5d3ca2d83f83de4f37ab97f8adeb322a7f38ceec02666fd4379a782bf7dc08e3"
+    },
+    {
+      "id": "wild_3",
+      "title": "산신",
+      "location": "지리산 바위 아래",
+      "moment": "은빛 호랑이가 내려온 순간",
+      "essential": "다가온 은빛 호랑이",
+      "omit": "사람·가슴 접촉·계곡·고목·기억 몽타주",
+      "reference": "tiger",
+      "prompt": "Use the supplied silver tiger image ONLY for exact animal identity: huge silver white tiger with black stripes, golden thoughtful eyes, substantial mane. New composition: close low eye level below one mossy boulder in Korean autumn forest at night. The tiger has climbed DOWN and is standing on forest ground facing near viewer, ONE huge front paw gently lifted a little toward camera, all anatomy feline and grounded. Calm solemn gaze, no attack. Frame tiger face and paw as key, forest behind subordinate. No human recipient or body, no magical hands, no campfire, backpack, panoramic mountain, river, dead tree memories or full moon repeated from reference.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/prologue/tiger.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/wild_3.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-7f801796-9e86-49e3-b473-5ed23d7c945c.png",
+      "source_sha256": "08b3960a483f4eb366f87d66a096177210af2f5431780898d534f33f4167701a"
+    },
+    {
+      "id": "tour_4",
+      "title": "첫 사냥",
+      "location": "청록 안개 숲길",
+      "moment": "괴수가 뿔을 낮춘 때",
+      "essential": "낮춘 뿔과 버틴 앞발",
+      "omit": "관광객·인체·도시·하늘 소용돌이",
+      "reference": "stag",
+      "prompt": "Use supplied stag-monster image for EXACT identity: massive grey dark shaggy wolf-like quadruped, branching deer antlers, yellow eyes, moss on back, clawed feet; NOT an ordinary deer. New view frontal three-quarter at low eye level on NARROW teal mist forest path. Creature lowers antlered head toward camera and braces its forelegs, tense before charge. Medium close, horns/head/forelegs central, not same side profile. No people, flags in mouth, modern buildings, bridge, sky vortex, extra monsters, huge crystals or added weapons. Only enclosed forest and this beast.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/prologue/stag.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/tour_4.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-7271ab02-3457-4a05-b882-f37e41a6c860.png",
+      "source_sha256": "d3116e28a73cf5aa6146d779b57ffa35959121ac835482bb0a695e41e339dac9"
+    },
+    {
+      "id": "tour_5",
+      "title": "구조 헬기",
+      "location": "게이트 체험관 숲 입구",
+      "moment": "구조가 시작된 때",
+      "essential": "열린 출구와 구조용 헬멧",
+      "omit": "헬기·관광객·뉴스 화면·숙소",
+      "reference": "forest",
+      "prompt": "ONE teal mist forest visitor path near restored gate exit. A narrow HUMAN HEIGHT blue spatial opening now stable between two trees, shows an ordinary paved safe landing beyond. In foreground at side ONE plain rescue helmet sits on a small folded rescue blanket, supports are natural ground. Thin rope safety fence along path only if needed. Focus on restored way out, not trophy scenery. No helicopters squeezed under canopy, people, bodies, faces, broken legs, TVs, news headlines, accommodation room, massive enchanted tree, crystal garden, floating icons or multiple portals. No flag.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/prologue/forest.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/tour_5.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-a83f9f7f-77e4-451e-bf83-ba7642b15459.png",
+      "source_sha256": "c6d7a60491df177fe0d7f09145c277ba181fb4449c8b43655b401b1030f85880"
+    },
+    {
+      "id": "nest_3",
+      "title": "어미",
+      "location": "둥지 동굴 출구",
+      "moment": "어미가 출구를 막은 때",
+      "essential": "출구를 가린 날개·끈 끊어진 배낭",
+      "omit": "포터 인체·부상자·알 줄지어 배치·장비 더미",
+      "reference": "cave",
+      "prompt": "Use supplied cave image for giant winged INSECT identity only: dark segmented body, six jointed insect legs, translucent veined wings, NOT dragon or bat. New composition from cave inside toward small daylight mouth, ONE huge insect mother blocks exit in dark middle distance, wings partly open. Foreground lower center ONE heavy backpack has fallen onto rock with visibly snapped shoulder strap, no other equipment. A single tiny acid droplet erodes a small mark under insect mouth, subtle not gore. No people, humans, corpses, eggs lining every ledge, green sky, river waterfalls, crystals or rescue vehicles. Clear exit silhouette and bag, restrained cave midtones.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/prologue/cave.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/nest_3.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-b1e90e8d-750a-4bcc-9d93-da783cb538fa.png",
+      "source_sha256": "040ff08cc96501476fe1aab18cc52b72f72cfc4251c2a36ff44070953d86ab1d"
+    },
+    {
+      "id": "nest_4",
+      "title": "짐꾼의 싸움",
+      "location": "둥지 동굴 안쪽",
+      "moment": "어미가 날개를 펼친 때",
+      "essential": "가까운 어미 괴수와 펼친 날개",
+      "omit": "인체·파티원·배낭·탈출구 파노라마",
+      "reference": "cave",
+      "prompt": "Same giant winged INSECT identity as supplied cave original: dark segmented body, SIX articulated insect legs, translucent veined wings, no mammalian limbs. New dramatic medium side three-quarter view IN THE CAVE, from low dry rock ledge, mother insect turns toward camera and fully spreads wings across frame in tense confrontation. Body and wing attachment readable, insect feet contact rock, clear anatomy and enough muted cool light. No foreground backpack, humans, party members, blood, eggs crowded along shelves, waterfalls, river panorama, crystals, city or huge exit silhouette. One creature and local rock wall, distinguish from exit-blocking composition.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/prologue/cave.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/nest_4.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-9fd9d5b2-851d-48ae-90d2-9bcf216c166a.png",
+      "source_sha256": "a39f708e0e8d176eff899f1078ad38a90a532dbb94e0c350768b70b6b4423b5d"
+    },
+    {
+      "id": "nest_5",
+      "title": "귀환한 짐꾼",
+      "location": "휴게소 주차장",
+      "moment": "해질녘 구조차가 기다리는 때",
+      "essential": "구조차와 열린 뒷문",
+      "omit": "인체·게이트 동굴·의료 처치·팀장",
+      "reference": "city",
+      "prompt": "ONE mundane Korean highway rest stop parking bay at sunset. A single practical bureau rescue van parked in marked bay, rear doors open to show a simple empty stretcher inside; believable vehicle geometry and visible rear wheels. Camera rear three-quarter eye level. Modest rest stop building far background, warm low sunlight and calm relief. No people, bodies, injured faces, backpacks or fighting, glowing portal, cave opening, helicopters, medical operation or city subway signs. No readable logos, letters, number plates or vehicle symbols. Restrained drawn metal highlights.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/nest_5.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-3909cf57-8340-4bf6-9b81-8eeea26ee923.png",
+      "source_sha256": "c120ed88b9a7080d8b2468fd75508fa030634afc4b68c78e4dad98007bef153d"
+    },
+    {
+      "id": "eve_subway",
+      "title": "막차",
+      "location": "심야 지하철 객실",
+      "moment": "터널에서 열차가 멈춘 때",
+      "essential": "비어 있는 좌석과 꺼져가는 조명",
+      "omit": "승객·역사·사무실·엘리베이터",
+      "reference": "city",
+      "prompt": "ONE ordinary modern Korean subway carriage interior stopped inside tunnel at midnight. Diagonal medium wide view from aisle toward normal bench seats and closed paired sliding train doors; long familiar grab poles and hanging straps physically attached to overhead rail. One ceiling light dimming while adjacent fixture remains weakly on, black tunnel beyond windows. Empty seats imply late hour, no people or silhouettes. No platform, office desk, elevator lobby, station entrance, floating pictograms, unreadable pseudoletter ads, maps, UI, magical sky or monsters. Keep functional plausible interior and readable dark midtones.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_subway.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-4950804e-4401-463f-9377-bf6ee1c7c4a4.png",
+      "source_sha256": "b16d513991d8b5af07ed55290dc10117cd20a92d2390a9305e0339c411c0ad54"
+    },
+    {
+      "id": "eve_cat",
+      "title": "길고양이 밥 주기",
+      "location": "밤의 주택가 골목",
+      "moment": "고양이가 사료에 다가오지 않는 때",
+      "essential": "사료 그릇과 멀리 경계하는 고양이",
+      "omit": "사람·현실에 없는 발광·괴수·여러 장소",
+      "reference": "city",
+      "prompt": "ONE quiet narrow Korean residential alley at night. One small bowl of dry cat food on pavement in near foreground left-of-center, THREE ordinary stray cats in middle distance refuse to approach, slightly arched wary postures and raised fur, feline anatomy normal. Compositional EMPTY GAP between bowl and cats clearly communicates unusual distance. Soft neutral streetlight from off-frame, readable midtones, no bright neon. No humans, hands, giant cats, mutant anatomy, glowing eyes, supernatural beams, animal injury, magical symbols, excessive trash or unrelated props.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_cat.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-6471a0b2-670e-4dce-95d0-6f42e4c62e03.png",
+      "source_sha256": "4bc2500f2fb68034fe8c8d2b59eb24ddddd0ab4ca6b9b6bfd230d493cfb7c6b7"
+    },
+    {
+      "id": "duel_1",
+      "title": "보호비",
+      "location": "시장 떡볶이집 앞",
+      "moment": "떡볶이 판이 엎어진 직후",
+      "essential": "엎어진 조리 판과 구겨진 봉투",
+      "omit": "인물·폭행 순간·배지·초현상",
+      "prompt": "ONE modest Korean market tteokbokki stall frontage in winter. A shallow stainless food tray has fallen upside-down at an angle on the ground beside stall base, a SMALL amount of rice cakes and red sauce spilled nearby. On plain stall counter ONE wrinkled closed paper envelope. Focus on aftermath of intimidation, not gore or big mess. Medium low oblique view with shop shutter edge, no restaurant dining room. No people, hands, gangs, badges, weapons, body parts, readable labels or magical effects. Food spill not blood, and no fire.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/duel_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-84e84d18-5862-402d-9265-0ba2bd12b68e.png",
+      "source_sha256": "42c42a95749ed18c892b25b7da110107a7987d6c5cbac65fee09de2a0951dd84"
+    },
+    {
+      "id": "idle_11",
+      "title": "장례식장 야간 알바",
+      "location": "비어 있는 빈소",
+      "moment": "새벽 조문객이 끊긴 때",
+      "essential": "조용히 타는 향과 빈 방석",
+      "omit": "영정 얼굴·사람·귀신·시계 숫자",
+      "prompt": "ONE modest Korean funeral mourning room at two AM. Close low oblique composition focused on small incense burner with a thin thread of smoke and orderly empty floor cushions receding toward simple white chrysanthemum altar. The memorial portrait is deliberately OUTSIDE frame above, never show a face or blank pseudo-portrait. Quiet dim warm indirect light and readable cool shadows. No ghost, silhouette, people, body, coffin, text, funeral banners, elaborate palace ornament, lavish flowers everywhere or giant moon. Respectful restrained lived-in room.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_11.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-c176d910-bf69-4fed-a57a-4b48964f07b1.png",
+      "source_sha256": "6afaf0b72afce8a1bb74470a7dda23c3e76ad9a8616de578c86c1e8bb8b657c1"
+    },
+    {
+      "id": "idle_13",
+      "title": "할머니 약초밭",
+      "location": "시골집 뒤 약초밭",
+      "moment": "김매기를 하다 멈춘 때",
+      "essential": "서로 다른 약초와 잡초",
+      "omit": "할머니 인물·손·발광·모든 시골 소품",
+      "prompt": "ONE small overgrown medicinal herb plot behind ordinary Korean rural home in summer. Ground-close medium view distinguishes a neat surviving row of broad-leaf medicinal plants from taller untidy weeds, with ONE simple hand hoe resting on soil beside row. Rustic porch edge soft far background only, no tools collection. Lush but clean drawn leaf masses, natural morning light. No hands, people, grandmother, magical plants, portals, luminous veins, text labels, exotic giant flowers, mountain panorama or farm machinery.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/idle_13.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-b76ac17d-27b1-40a0-a9a3-7611003a42c8.png",
+      "source_sha256": "fb1c417409af72746921e4f84fbb6719f3c5eafdbe6560509b1c8c919eb99f61"
+    },
+    {
+      "id": "eve_lastshift",
+      "title": "알바 마지막 날",
+      "location": "문 닫은 김밥집 조리대",
+      "moment": "앞치마를 반납한 때",
+      "essential": "접어 놓은 낡은 앞치마",
+      "omit": "주인 인물·신체·새 출근·등록 서류",
+      "prompt": "ONE small ordinary Korean gimbap shop kitchen after last shift. Intimate medium close view of a well-worn clean practical apron neatly folded on a clear laminate packing counter beside ONE rolled bamboo gimbap mat. Background a couple of plain empty ingredient trays put away, soft late-evening light. Quiet farewell conveyed through apron, not action. No people, hands, faces, elaborate meal, fryer, delivery motorcycle, office paperwork, text, shop logo or magical effect. Distinct from fried chicken kitchen: no commercial fryer.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_lastshift.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-8bae37b5-22ae-465e-9b41-63842e1b046d.png",
+      "source_sha256": "45ed7338a1c4ddfc6b47d7d836f99a4f0c923dbb99948c15396d3caa72e79b67"
+    },
+    {
+      "id": "eve_run",
+      "title": "강변 새벽 러닝",
+      "location": "도시 강변 러닝 길",
+      "moment": "새벽 다섯 시 달리던 때",
+      "essential": "앞으로 이어지는 강변 트랙",
+      "omit": "러너 인물·운동 기록 UI·달리기 신체",
+      "prompt": "ONE Korean urban riverside running path at five AM, low forward-facing running eye view but no human visible. A curving clean rubberized path with subtle unlettered lane lines leads from near center toward pale dawn horizon. Simple river railing at side and actual calm river beyond, distant city faint, no skyline spectacle. Light morning mist, cool blue with slim dawn warm strip. No runners, silhouettes, body parts, shoes in foreground, stopwatch, text, distance digits, traffic, magical trails or portal. Feeling of unbroken effortless forward route.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_run.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-05e116ed-305d-4af6-89fc-1472694768a6.png",
+      "source_sha256": "832491709d85dd6a66bced0eb6f5b2a5945f01954221af52f406258b3c3079bb"
+    },
+    {
+      "id": "eve_secondhand",
+      "title": "중고 거래",
+      "location": "지하철역 출구 바깥",
+      "moment": "게임기 상자를 연 때",
+      "essential": "열린 게임기 상자",
+      "omit": "구매자·헌터 조끼·전화 앱·가격 숫자",
+      "prompt": "ONE ordinary outdoor meeting spot beside Korean subway entrance. Camera close at public bench height: ONE open plain cardboard box on bench reveals a neatly packed generic handheld gaming console, screen OFF, controls simple and physically plausible. Station staircase and handrail are SUBORDINATE rear context, no office or elevator. Daylight, clear safe pedestrian space. No people, hands, body parts, logos, readable station signs, route maps, numbers, price tags or smartphone app screens. Tight focus on console being sold, not futuristic transit terminal.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_secondhand.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-044328d2-f6f7-4e5b-aecd-a66d35670ae5.png",
+      "source_sha256": "08d7f9a397236bb3a0f7cde49241ca4d3383d77d46164dd1802c02e0b38c56f2"
+    },
+    {
+      "id": "storm_1",
+      "title": "폭풍 예보",
+      "location": "길모퉁이 카페",
+      "moment": "오후 폭풍이 다가온 때",
+      "essential": "창밖의 검붉은 먹구름",
+      "omit": "휴대전화 화면·친구·변전소·구조 사건",
+      "prompt": "ONE ordinary Korean corner cafe interior looking OUT large street-facing window at four PM. A plain coffee cup on small near windowsill table anchors cafe; outside above ordinary street facades dark RED-BLACK cumulonimbus clouds gather and afternoon abruptly darkens. One coherent viewpoint, clouds dominate upper window and feel threatening yet hand drawn. No lightning strike yet, no ruined buildings, ocean, flood, power station, phone UI, TV news, subway, elevator, people or giant glowing portal. Restrained storm colors, no photo cloud texture.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/storm_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-66b5e1e4-09be-4436-8f56-b4b1c0153bb7.png",
+      "source_sha256": "c8e1dfd7a3e1e4a2bfb3206e33a80a3f8a1f8ae97ff54db51596596b27f4d59a"
+    },
+    {
+      "id": "eve_pcbang",
+      "title": "PC방 밤샘",
+      "location": "PC방의 이어진 다섯 좌석",
+      "moment": "등록 축하 모임의 자정",
+      "essential": "다섯 컵라면과 PC 좌석",
+      "omit": "친구 얼굴·게임 캐릭터·레벨 UI·자막",
+      "prompt": "ONE ordinary Korean PC gaming cafe, diagonal medium-wide view along EXACTLY FIVE consecutive empty gaming seats with five computer stations. At each station ONE opened cup noodle, total EXACTLY FIVE cups, sparse steam; screens dim plain dark blue without game characters, UI or text. Functional desks, mice, keyboards, headphones hung normally, not giant command screens. Cool midnight room light with small warm steam highlights. No people, silhouettes, logos, legible packaging, neon lettering, future weapons or fantasy portals. Clearly social celebration implied by five neighboring places, not food piled on one desk.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_pcbang.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-d9eebd4a-92a2-4709-aec2-b2736a3a9577.png",
+      "source_sha256": "cb408dc0fe1b95f4e38a61d83598f9d77e56b96910b48a01ab74522982e65b08"
+    },
+    {
+      "id": "night_dream",
+      "title": "병실의 밤",
+      "location": "꿈속 끝없는 벌판",
+      "moment": "꿈을 꾸기 시작한 때",
+      "essential": "끝이 보이지 않는 벌판",
+      "omit": "병실·간호사·정체 불명 존재의 임의 외형",
+      "prompt": "An endless quiet open plain in a dream at night, ONE continuous place. Low eye-level camera just above wind-bent short grasses, extremely distant level horizon fading into dense pale night haze. An unsettling empty interval in grass near center suggests presence WITHOUT depicting any figure or inventing its identity. Restrained desaturated indigo and grey, gentle diffuse moonlit midtones. No hospital, bed, human, silhouette, giant god, animal, tree, letter, altar, portal, glowing sky dome, star spectacle or symbolic props. Simple spacious lonely ground-level composition.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/night_dream.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-ca1b2c2b-7ea9-4bbe-9a57-b65792987359.png",
+      "source_sha256": "5d9c74b1788b2a1143edcc2402baf08bbde8043286f644f3bde92f832c4ced8b"
+    },
+    {
+      "id": "dream_5",
+      "title": "강 건너의 이름",
+      "location": "꿈속 강가",
+      "moment": "강 건너의 말을 듣는 순간",
+      "essential": "잔잔한 강과 안개 속 맞은편 기슭",
+      "omit": "존재의 외형·병실·할머니·이름 글자",
+      "prompt": "A quiet dream river at night, close low view from rocky water's edge ACROSS narrow still water to opposite reeds emerging from mist. Focus on shallow overlapping circular ripples near near bank, continuous believable river space. Night silver blue reflections drawn simply, enough midtones to see opposite bank. No red cloth tree from earlier dream, no people, spirits, silhouettes, lettering, spoken name symbols, shrines, beds, moon disc, portals, floating letters or grand skyline. Intimate horizontal water-level framing, distinct from earlier daytime wide riverbank with red cloth.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/dream_5.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-9766f610-893d-4da2-b2c1-54fbde6e79a2.png",
+      "source_sha256": "56be41fdb0fd16d7fb44cb1fd312c6a24edf8f5fae172049a6c404d23f1579eb"
+    },
+    {
+      "id": "relic_3",
+      "title": "스며들다",
+      "location": "한밤중 침실 머리맡",
+      "moment": "구슬이 갈라진 직후",
+      "essential": "빛이 새는 갈라진 금속 구슬",
+      "omit": "손·가슴·혈관·각성 결과·다른 기억",
+      "prompt": "ONE modest modern bedroom at night, tight oblique view of a plain bedside surface beside edge of rumpled bed. ONE small rusted metal sphere has a single deep jagged crack leaking restrained pale warm light, illuminating ONLY nearby wood. Preserve golf ball-sized matte grey sphere with simple rust patches. Sphere rests on surface, not floating; tiny nearby ordinary cup trembling suggested by slight displaced ring mark, no exaggerated motion lines. No actual hands, bodies, people, glowing veins, anatomy, open chest, memory collage, magic circles, readable books, UI or giant room-filling beam.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/relic_3.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-4c2cf63c-9447-4ee5-a70c-623f0d7805d6.png",
+      "source_sha256": "17f96882eccd30f108f8328fd802b7e89bc70b5bc604bb7b4c00f8d169529084"
+    },
+    {
+      "id": "storm_3",
+      "title": "낙뢰",
+      "location": "폭풍 속 도시 거리",
+      "moment": "머리 위가 하얗게 번쩍인 순간",
+      "essential": "좁은 거리 위의 낙뢰 섬광",
+      "omit": "인체·부상·옥상과 터널 합성·구조 결과",
+      "prompt": "ONE narrow modern Korean city street during heavy summer storm, low ground-looking-up oblique camera. A single sudden white lightning flash in the limited strip of sky between buildings briefly washes wet pavement and facades pale. No visible strike on person, no bodies, no injuries. A quiet ordinary street only: no rooftop furniture, tunnel, cafe interior, elevator, helicopter, fire, ruined skyline or massive portal all combined. Keep lightning localized as fleeting event, not giant branching fantasy weapon. Draw rain and water with spare lines and matte color planes, no photographic reflections.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/storm_3.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-31bda469-01b5-4f8b-81fd-9130c1af425e.png",
+      "source_sha256": "d5e8b99eabccf606a31ccd218d7a648deb1754a4c9f12bf983d853309b407e42"
+    },
+    {
+      "id": "crime_5",
+      "title": "뉴스 속보",
+      "location": "은행 바깥 대기 자리",
+      "moment": "인질극이 끝난 직후",
+      "essential": "빈 대기 의자 위 구조 담요",
+      "omit": "팀장·군중·뉴스·밤의 휴대전화",
+      "prompt": "ONE bank entrance exterior immediately after incident, close medium view of ordinary temporary folding chair near plain glass entrance. A simple grey emergency blanket draped over EMPTY chair, one small paper cup beside it on low utility stool. Faint out-of-frame emergency light casts tiny muted red-blue accent on glass, no vehicles in frame. Bank entrance only indicated by orderly generic interior counters behind glass, no logo, letters, gunfight, people, bodies, faces, phones, news screens, badges, police tape web, office elevator or subway. Quiet aftermath, understated grounded composition.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/crime_5.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-42257a65-8b07-41b0-8178-a669adfbf870.png",
+      "source_sha256": "04bc01c42356f9b7f23cc37964e78de46c7ad51130753decb56ded5d91ee48cf"
+    },
+    {
+      "id": "friend_4",
+      "title": "진압탄",
+      "location": "원룸 안 현관",
+      "moment": "현관문이 부서진 직후",
+      "essential": "부서진 현관문과 가까운 파편",
+      "omit": "요원·총구·친구 인체·원소별 각성 효과",
+      "prompt": "ONE small Korean studio apartment entrance viewed FROM INSIDE room at low eye level just after forced entry. Plain metal entry door hangs askew from damaged latch side; a couple of broken door trim pieces on entry floor. Door hinges and frame physically plausible; only local entry alcove with shoe step, plain corridor faintly visible through opening. No people, silhouettes, hands, guns, boots, bodies, exploding fire, ice, elemental magic, hospital, outside city, paper files or text. Subdued blue-grey room light, clear breached-door focal point, tense ordinary space.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/friend_4.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-5a5df69b-a7d7-4ab6-9a4d-7b2dd8800b9a.png",
+      "source_sha256": "97fe3ba8d48761e7df01c63072c61f218866e990f20237e7339791c3ce74a67f"
+    },
+    {
+      "id": "eve_net",
+      "title": "헌터넷 첫 로그인",
+      "location": "집 안 작은 컴퓨터 책상",
+      "moment": "등록 뒤 처음 접속한 밤",
+      "essential": "켜진 모니터와 키보드",
+      "omit": "PC방·친구·게임 화면·읽히는 게시글",
+      "prompt": "ONE modest home computer desk at night. Close side three-quarter view of ONE monitor and ordinary keyboard, computer screen lit with minimal abstract dim navy-and-teal rectangular webpage blocks and ONE EMPTY input-field rectangle, no characters or readable text, numbers, icons or complex UI. A plain desk chair pulled up, dark home window subordinate. Screen is a real flat monitor on stand, not floating hologram. No gaming cafe row, cup noodles, weapons, registration papers, office cubicle, elevator, fantasy characters or logos. Quiet first-login mood, restrained screen light.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/eve_net.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-9ceb7a07-05fd-4a0e-9049-88c879f157a4.png",
+      "source_sha256": "2100615c5bee7a515bd4d45eaffd0872cdb6962c33c24d4a9b98a3f286a4c2e6"
+    },
+    {
+      "id": "game_2",
+      "title": "현실 랭크전",
+      "location": "작은 방 게임 책상",
+      "moment": "게임을 멈추고 등록 서류를 보는 때",
+      "essential": "꺼진 게임기 옆의 등록 서류",
+      "omit": "게임 길드 인물·가상 전투·현실 무기",
+      "prompt": "ONE small home gaming desk viewed close TOP-DOWN OBLIQUE rather than frontal monitor. A single blank ruled registration form with an empty larger field and plain pen lies in central desk space; a powered-OFF generic controller and part of folded mousepad remain at far corner. Monitor entirely OUT OF FRAME. Subtle morning light, decision to move from games into hunter life implied by placement. No readable letters/digits, screen UI, computer rows, other documents, guns, swords, people, hands, badges, magical effects, office or school. Minimal three-object composition with paper dominant.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/game_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-0c4a7aa6-11ed-4d3c-b747-5ce5138ed08e.png",
+      "source_sha256": "4430a245afd490eafbc211816b24d798c5dcc43b5dbf45d47a06389b3245c3f2"
+    },
+    {
+      "id": "duel_2",
+      "title": "공터로 나와",
+      "location": "겨울 시장 뒤 공터",
+      "moment": "대치 직전",
+      "essential": "비어 있는 공터와 좁은 진입로",
+      "omit": "상인·갱단·몸·투기장 장식",
+      "prompt": "One ordinary SMALL vacant lot behind Korean market in winter. Medium wide eye level from narrow alley entering the lot. Packed dirt and uneven concrete, plain shop rear walls, a few stacked empty produce crates at far boundary only. Central open interval deliberately left clear and tense, no arranged fighting ring or invented symbols. Grey winter daylight. No people, silhouettes, body parts, weapons, dramatic damage, graffiti text, cars, fantasy portal or elaborate stage. This is location immediately before confrontation, not result of fight.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/duel_2.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-9fb77f7b-bc4a-42bb-8938-35a1a4d1689c.png",
+      "source_sha256": "96cf89138963233654c32f5688dbb5c53116f28e726fe6c2d65da1e95d09ca47"
+    },
+    {
+      "id": "duel_5",
+      "title": "공터의 소문",
+      "location": "시장 가게 옆 좁은 작업대",
+      "moment": "싸움이 끝난 뒤 국물을 받은 때",
+      "essential": "김 나는 어묵 국물 한 그릇",
+      "omit": "쓰러진 사람·이후 간부 방문·오토바이",
+      "prompt": "One quiet winter Korean market stall side ledge after tense incident. Close eye-level view of ONE plain steaming bowl of fishcake broth on a small clean wooden serving ledge, warm soup light against cold market lane receding at side. Folded simple dish towel only supporting prop. No motorcycle, rain scene, meal spread, fallen people, bodies, weapons, mysterious stranger, gangs, text, hands or fantasy light. Different from rainy delivery soup scene: indoor awning side-counter closeup in dry winter daylight, no vehicle.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/duel_5.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-ba53af78-b7f5-4188-ad10-e6bb82b56c21.png",
+      "source_sha256": "3a77095a9c691cfaf2abc09aaedc1203666cb5dd264f74912e28305155e9d198"
+    },
+    {
+      "id": "drug_3",
+      "title": "깨진 캡슐",
+      "location": "클럽 구석 바닥",
+      "moment": "캡슐이 깨진 직후",
+      "essential": "작은 깨진 캡슐과 흩어진 가루",
+      "omit": "입·혀·손·친구·신체 반응",
+      "prompt": "One secluded back-corner floor in a modest nightclub, tight low oblique close-up. ONE broken small blue medicine capsule with two cracked shell pieces and a TINY scattering of pale powder on plain dark floor. Subdued off-frame blue club light, plain chair leg at edge is sufficient setting. Capsule recognizably medicine-sized, not giant crystal; supported on floor. No hands, mouth, tongue, human body, syringe, drug paraphernalia collection, weapons, injuries, glowing veins, magical explosion, text, logo or abstract floating UI. Uneasy scene, not stylish product advertisement.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/drug_3.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-9a412fa3-6bcf-4b1c-9c63-2102577e1b28.png",
+      "source_sha256": "da1f19d4a6f0464f5c828118fd8ed2a3c00e6482ccf2b185f8d0c0fc7e37fd41"
+    },
+    {
+      "id": "drug_4",
+      "title": "조직의 문",
+      "location": "클럽의 뒷방 문 앞",
+      "moment": "뒷방 문이 열린 때",
+      "essential": "어두운 뒷방으로 열린 평범한 문",
+      "omit": "공급책·혈관·친구·돈·무기 진열",
+      "prompt": "One cramped modern nightclub service corridor leading to ONE ordinary back room door partly opened toward camera. View at seated-height, blue dim corridor light contrasts a restrained warm thin light from within back room. Visible believable door frame, hinges and plain wall, no opulent decor. The opened doorway is focus and threat is IMPLIED by unseen room. No people, human shadows, arms, veins, bodies, drugs spread out, weapons, piles of cash, office executive desk, subway, elevator, giant portal, letters or labels. Quiet closed-space tension.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/drug_4.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-8ea54639-8077-4a10-bcf4-8c85145083ed.png",
+      "source_sha256": "9d3c6d72571b29b9b53864303c1e54fba691f2ac2a9cd2c4dd2b1e0e22cab957"
+    },
+    {
+      "id": "bloom_1",
+      "title": "서른둘의 밤 · 귀갓길",
+      "location": "편의점 앞 파라솔 자리",
+      "moment": "가로등이 깜빡인 순간",
+      "essential": "캔맥주 한 개와 파라솔",
+      "omit": "노래방·사람·능력 종류별 발광",
+      "prompt": "One ordinary convenience store outdoor parasol table on quiet Korean street at night. ONE opened plain unbranded beer can on small plastic table, a simple parasol rising from its center, and ONE streetlight above background flickering weakly while adjacent store window stays steadily lit. Camera table-level medium oblique, believable separate light sources, central can/table. No karaoke room, microphone, people, hands, faces, bent parasol pole, floating symbols, elemental beams, letters, logos or price displays. Just unexpectedly faltering streetlight at quiet ordinary moment.",
+      "variant": "idle_8_go=false",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/bloom_1.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-76c55f9e-144f-4fdf-868c-d8283b973238.png",
+      "source_sha256": "8ae2cbb2440759c1a7fdcbbd5d4bb0af0d38d2e9c1472fb88ce402c2b22cdd1c"
+    },
+    {
+      "id": "cvs_odd",
+      "title": "그날 이후 이상한 일 · 편의점",
+      "location": "편의점 상품 통로",
+      "moment": "달라진 일상을 알아차린 때",
+      "essential": "조용한 상품 통로",
+      "omit": "선택 전 속성 효과·집·측정기 재등장",
+      "prompt": "ONE ordinary Korean convenience store grocery aisle at quiet evening, low medium view along neatly aligned shelves toward back wall. Plain everyday goods in unlettered packages, no featured brand or readable labels. One modest stock carton sits closed at side, not floating or deformed. Quiet clean aisle and restrained empty space evoke routine becoming unfamiliar WITHOUT defining which elemental ability player selects next. No detector pedestal, cashier checkout, bowls, people, hands, magical lights, fire, ice, lightning, growing plants, portals or surreal architecture. Different camera from entrance scene.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/cvs_odd.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-d5274061-43d7-4ca0-a714-487524e24c2e.png",
+      "source_sha256": "b6780942efc40c882fecb2048796e38b2239adb1ce1f7265698e6f81b0d1e285"
+    },
+    {
+      "id": "bloom_odd",
+      "title": "그날 이후 이상한 일 · 늦깎이",
+      "location": "집 안 작은 주방",
+      "moment": "평범한 일상이 낯설어진 때",
+      "essential": "꺼진 가스레인지와 작은 냄비",
+      "omit": "아직 고르지 않은 속성 현상·노래방·편의점",
+      "prompt": "ONE small mundane Korean home kitchenette, early morning. Close oblique view of ONE small lidded saucepan resting on completely OFF stovetop, not steaming or boiling; no stove flame or supernatural effect. Plain backsplash and everyday small counter, restrained soft daylight. Familiar routine before choosing how life has changed. No people, hands, glowing water, charged phone, magical plant, giant kitchen, restaurant fryer, karaoke, street, text, symbols or fantasy props. Keep all ordinary physics intact; do not preselect any elemental outcome.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/bloom_odd.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-5781461d-1d06-4201-9e83-5072e121982c.png",
+      "source_sha256": "59c98cb05c7a918f0728bdb40d81d31aa1f41a1e17708f93b8631e294a6db296"
+    },
+    {
+      "id": "quest_odd",
+      "title": "그날 이후 이상한 일 · 하루치",
+      "location": "방 안 수련 자리",
+      "moment": "하루의 수련을 마친 뒤",
+      "essential": "접힌 운동 매트와 물병",
+      "omit": "퀘스트 창·보상 상징·선택 전 속성 효과",
+      "prompt": "ONE modest home exercise corner after finishing daily routine, ground-close oblique view. A partially rolled exercise mat and ONE half-full plain transparent water bottle beside it on floor, both central. Plain wall, soft evening room light; space tidy and believable, no large gym. No notebook or registration papers, no floating quest UI, achievement badges, progress bars, body parts, people, shoes, weights collection, elemental effects, glowing runes or symbols. Ordinary routine with quiet anticipation before player chooses what strange event occurs.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/quest_odd.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-77df0eb5-8e27-48c4-857b-dfe2720b30bb.png",
+      "source_sha256": "89829f628f5ad73229f2fd8599c14f67ae2f251364e019e21b4cccb3f5888cdc"
+    },
+    {
+      "id": "relic_5",
+      "title": "구슬의 유언",
+      "location": "밤의 작은 방",
+      "moment": "기억이 밀려오기 직전",
+      "essential": "고요한 밤 방의 빈 공간",
+      "omit": "미선택 직업의 무기·유물 재등장·전장 임의 설정·인물",
+      "prompt": "ONE modest modern Korean bedroom at night. Composition focuses on a quiet unoccupied space between plain chair and curtained window, viewed from bed height. A restrained slight heat-haze distortion across central air suggests a remembered presence beginning, WITHOUT forming image, figure, magic symbol or hallucination landscape. No sphere: the relic is already absorbed and must not physically reappear. Soft ordinary moonlit blue-grey light, calm readable midtones. No visible people, silhouettes, hands, faces, weapons, ruins, battlefield, projection screen, floating objects, portal or glowing runes. One physical room, no collage.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/relic_5.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-c91bb1bd-75d9-47ba-bf51-03a3d88be74a.png",
+      "source_sha256": "8c10f5be58b0c26509be7189b440433ba9834740bf41b31239171f14c8bac9f2"
+    },
+    {
+      "id": "duel_3",
+      "title": "세 번째 주먹",
+      "location": "겨울 시장 뒤 공터",
+      "moment": "상대의 세 번째 주먹이 다가온 순간",
+      "essential": "검은 패딩 소매에서 뻗은 주먹",
+      "omit": "주인공 외형·상대 얼굴·피·속성 결과",
+      "prompt": "ONE winter Korean market rear vacant lot, direct first-person low viewpoint as if knees lowered. Show ONLY opponent's ONE bare clenched fist advancing toward camera from a black puffer-jacket sleeve at frame side. Opponent face, head, full body and identifying features OUT OF FRAME; protagonist entirely unseen. Anatomically correct CLOSED fist with thumb wrapped OUTSIDE curled fingers, one wrist joins sleeve naturally. Fist and sleeve main focal area center, lightly suggested ordinary lot behind. No blood, contact injury, teeth, violence aftermath, extra arms, magical fire, ice, lightning or ability outcome. Controlled tense non-graphic action, no comic panel or exaggerated speedline wall.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/duel_3.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-8d6b8fd2-6b49-4c8b-9a5a-52f43f9edc65.png",
+      "source_sha256": "ca2869d9ab03b08adc81293d24f1cb6217dd40d0c1786edc26dfaa1fef879878"
+    },
+    {
+      "id": "duel_4",
+      "title": "흑사회 셋",
+      "location": "겨울 시장 뒤 공터",
+      "moment": "남은 둘이 함께 들어온 순간",
+      "essential": "쇠파이프와 칼을 쥔 서로 다른 상대의 팔",
+      "omit": "주인공·얼굴·쓰러진 사람·전투 결과",
+      "prompt": "ONE Korean market rear vacant lot in winter. Tight first-person medium close composition: TWO DIFFERENT anonymous opponents enter from opposite frame edges. At left one black puffer-sleeved ARM holds ONE short ordinary steel pipe at ready; at right a different black puffer-sleeved ARM holds ONE small plain utility knife at ready. Exactly TWO visible hands, one per opponent, proper grip and wrist/sleeve continuity. Faces, heads and most torsos outside framing; protagonist unseen. Weapons directed inward but no contact or injury. Plain market rear wall and ground subordinate. No corpses, blood, severed limbs, magical effects, firearms, giant swords, symbols or readable labels. Show anticipation not attack outcome.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "latest_revision": "2026-11-19: x67%,y53.6% 여분 손가락 삭제. 엄지1+접힌손가락4 실제 확인.",
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/duel_4.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-63e2f296-668f-4bf3-8474-a2464d31c04c.png",
+      "source_sha256": "3f48d62b04a15407ae4e52cb60fe0bb0f9870219ae340af4325d0c7c423f9f30"
+    },
+    {
+      "id": "dseer_3",
+      "title": "꿈과 같은 시각",
+      "location": "도시 보행 육교",
+      "moment": "난간이 부서진 순간",
+      "essential": "부서진 난간과 멀리 보이는 시계탑",
+      "omit": "추락하는 아이·구조 성공·속성 기술·다른 재난",
+      "prompt": "ONE modern Korean pedestrian overpass seen FROM ON TOP walkway, close oblique view of a single broken section of safety railing. A couple of short metal bars have detached at joint and lean outward over drop; intact adjacent rails maintain clear physically plausible barrier geometry. The same modest civic clock tower is visible naturally beyond, small and secondary. Daylight, tense split second before intervention. No person, falling child, body parts, blood, rescue outcome, ice slide, fire, shadow hand, lightning, ghost, surreal clocks, letters or digits. Frame one railing break clearly at center, not a bridge entirely collapsing.",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "prologue",
+      "path": "artwork/drafts/2026-11-19/prologue/dseer_3.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-da95ed21-b75a-4332-a268-7b0794ac0d18.png",
+      "source_sha256": "63b098953b5878505040fe884eb2e0a5d2f3e339a8487342b4b117625ed063e4"
+    },
+    {
+      "id": "bloom_1__karaoke",
+      "title": "서른둘의 밤 · 노래방",
+      "location": "작은 노래방",
+      "moment": "노래방 화면이 꺼진 순간",
+      "essential": "꺼진 화면과 놓인 마이크",
+      "omit": "편의점·캔맥주·가로등·인물",
+      "prompt": "ONE small ordinary Korean karaoke booth. Medium side view of a single dark powered-OFF wall screen and ONE wireless microphone lying on low table in front of simple bench seat. Only plain remote at edge if necessary; no food or drink clutter. Dim restrained violet ambient light but no laser patterns, text, lyrics, music notes, posters, brand logos, people, silhouettes or faces. No convenience store, umbrella, streetlamp, beer can, exterior sky or magical aura. Screen has just unexpectedly gone dark, clearly NOT office or gaming room.",
+      "scene_id": "bloom_1",
+      "variant": "idle_8_go=true",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp"
+      ],
+      "category": "variants",
+      "path": "artwork/drafts/2026-11-19/variants/bloom_1__karaoke.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-1b517c57-bfae-4878-a58c-ab2b60c2836d.png",
+      "source_sha256": "28b46f920ed72f13bdd5eeef35bbf099d991381ab78d17de5f24c07d2b9afa25"
+    },
+    {
+      "id": "guild_contract",
+      "title": "소속 가입 계약 확인",
+      "prompt": "A top-down oblique close view of a hunter guild contract signing desk in a modest Korean guild workshop office. Salary ledger, insignia badge, neatly arranged pen and sealed equipment case; two anonymous adults' hands on opposite sides of desk, no recognizable reference characters, no legible text. Warm brass accents and cool slate window light. Contract not signed yet, choice remains open.",
+      "category": "events",
+      "path": "artwork/drafts/2026-11-19/events/guild_contract.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-a157343e-5709-4017-8665-a17d1ad4154d.png",
+      "source_sha256": "1e44bd0a8c368dd151eccdb7dc0ab8a932093821af388d2d4b6e9ab9e23ebff9",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/main_cut/cut-36-ridge.webp"
+      ]
+    },
+    {
+      "id": "exam_registration",
+      "title": "헌터 시험 접수",
+      "prompt": "Modern Korean hunter examination registration counter, side-on waist-height view. Anonymous adult candidates in practical jackets queuing holding application forms, a clerk behind safety glass checking an identity card, numbered queue lights without readable letters; distinctly an awakened hunter certification facility with dormant protective training gear behind glass. Crisp daytime ivory and muted teal, not a classroom.",
+      "category": "events",
+      "path": "artwork/drafts/2026-11-19/events/exam_registration.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-f783ebbd-720e-4232-90ac-07b9ff521230.png",
+      "source_sha256": "11d49b64248288f19c4488b459f77260986b357745751f5f16ee54423e73ec87",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/main_cut/cut-36-ridge.webp"
+      ]
+    },
+    {
+      "id": "gate_briefing",
+      "title": "게이트 진입 브리핑",
+      "prompt": "Over-the-shoulder from an anonymous adult field leader's back pointing at a physical map spread over an armored vehicle hood, three adult hunters stand listening at a guarded purple gate at dawn. The MAP and assembled equipment form central focus; no giant hologram, no readable text; hazy apricot sunrise, restrained violet gate glow. Safe briefing before departure, no battle yet.",
+      "category": "events",
+      "path": "artwork/drafts/2026-11-19/events/gate_briefing.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-a1f19950-9800-46da-923f-713edc7e08d9.png",
+      "source_sha256": "de14cc4ea493349e06d82584534bfded63e5ab9a9932d27e9b78751dd9fa8163",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/main_cut/cut-36-ridge.webp"
+      ]
+    },
+    {
+      "id": "city_hospital",
+      "title": "헌터 전문 병원",
+      "prompt": "Hunter-specialist hospital triage room in a modern ruined-and-rebuilt Korean city. Anonymous adult injured hunter sits on examination bed while a medical professional prepares a teal-lit ether treatment instrument; folded jacket, clean gauze trolley, muted daylight. Quiet clinical medium shot from doorway, no gore, clearly healthcare rather than combat.",
+      "category": "events",
+      "path": "artwork/drafts/2026-11-19/events/city_hospital.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-d14b76b5-4965-4f99-969d-54fbc3d39323.png",
+      "source_sha256": "4e849e2ec180f5cb18afa7eb73c81d08ee8f8d5edb4cbb696c27d09d15c572c0",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/main_cut/cut-36-ridge.webp"
+      ]
+    },
+    {
+      "id": "rank_c_scout",
+      "title": "길드 스카우트",
+      "prompt": "Elegant but restrained modern Korean cafe booth viewed at seated eye level; anonymous mature guild recruiter in charcoal business suit extends a business card across a table toward the viewer; card held by anatomically correct hand with five fingers, coffee and closed recruitment folder, city street beyond window. Cool blue late afternoon with warm cup light; not a signing desk.",
+      "category": "events",
+      "path": "artwork/drafts/2026-11-19/events/rank_c_scout.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-d9949ef1-b344-4b26-a893-b329aab15d3d.png",
+      "source_sha256": "8f986eeb1563d3208de1073de09dc2870e995eaa51df75cd79c234960299ce25",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/main_cut/cut-36-ridge.webp"
+      ]
+    },
+    {
+      "id": "reg_busan_market",
+      "title": "부산 항구 야시장",
+      "prompt": "Wide panorama of a rebuilt Korean floating-port night market, narrow wet wooden walkway between anchored boats and compact food stalls, discreet relic seller displays a small dull-glowing artifact among ordinary wares in foreground. Adult anonymous silhouettes, distant cranes and sea dark blue, amber lamps and red awnings, no readable writing. Do not copy foodtent composition.",
+      "category": "events",
+      "path": "artwork/drafts/2026-11-19/events/reg_busan_market.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-9a33abcb-0d2f-45d4-b27f-e8f6c7b63632.png",
+      "source_sha256": "f07595a748c0b0d65d4db8931e3fed0220329fa619ff0a9f543b33780dbf9402",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/main_cut/cut-36-ridge.webp"
+      ]
+    },
+    {
+      "id": "road_merchant",
+      "title": "길가 행상 트럭",
+      "prompt": "Roadside trading discovery, asymmetric wide shot: dust-covered Korean delivery truck parked at a dry mountain-road turnout with side panel opened into a small shop selling neatly packed healing bottles and wrapped cores, anonymous older merchant seated under canvas shade at right, road curves away left. Ocher afternoon, no city market or portal.",
+      "category": "events",
+      "path": "artwork/drafts/2026-11-19/events/road_merchant.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-a5015de8-27d9-4648-be41-b234ef4d53bd.png",
+      "source_sha256": "51fbea103b5cc736aae8bb85fb8158415489826763ce440fc067a284447b1d46",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/main_cut/cut-36-ridge.webp"
+      ]
+    },
+    {
+      "id": "road_storm",
+      "title": "다가오는 에테르 폭풍",
+      "prompt": "Vast open abandoned Korean highway landscape, low viewpoint beside broken roadside guardrail, distant immense violet ether storm wall advancing across horizon, static dust illuminated purple, near road still calm and readable. No people, no gate arch, no building central composition. Restrained violet against golden dry grass, clear looming weather threat, before choosing shelter.",
+      "category": "events",
+      "path": "artwork/drafts/2026-11-19/events/road_storm.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-57efa6b5-ddf0-4466-85d8-bc4f425197b0.png",
+      "source_sha256": "a989818d72baa3fe4cdba3056216a45dddb17413644b269c9d99b1136ffc12d1",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/main_cut/cut-36-ridge.webp"
+      ]
+    },
+    {
+      "id": "road_camp",
+      "title": "헌터 야영 모닥불",
+      "prompt": "Intimate low-angle view of a sheltered roadside hunter camp at night, three anonymous adult hunters in worn modern field jackets sit at a modest campfire under a patched tarp; tin kettle, bedrolls, boots at ground plane, broken highway sign silhouette far behind. Warm orange center against cool navy forest, restful hospitality before deciding to join, no banquet or battle.",
+      "category": "events",
+      "path": "artwork/drafts/2026-11-19/events/road_camp.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-f83342ba-9bcd-4043-90b8-cb5396dca1a1.png",
+      "source_sha256": "dee22bc6adfd190db659a20895409767db2d77c057123ab1285375517c0e57a3",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/main_cut/cut-36-ridge.webp"
+      ]
+    },
+    {
+      "id": "road_wreck",
+      "title": "버려진 협회 장갑차",
+      "prompt": "High diagonal view down into a roadside ditch containing an abandoned association armored rescue van, one door torn open and supply crates visible within, empty front seats, no blood and no corpses. Overgrown Korean service road and bent crash barrier, pale overcast light with olive-grey vehicle panels. Show unanswered discovery rather than outcome.",
+      "category": "events",
+      "path": "artwork/drafts/2026-11-19/events/road_wreck.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-9d85eaa1-a6a9-42e3-b03e-ec9634b10791.png",
+      "source_sha256": "a9890cc61102dcca0bd6216edae94892f1851d710652f1b45fcb2e2de8a4685d",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/main_cut/cut-36-ridge.webp"
+      ]
+    },
+    {
+      "id": "road_checkpoint",
+      "title": "사설 길목 검문",
+      "prompt": "Frontal but slightly offset view of a makeshift checkpoint blocking a ruined Korean intercity road: concrete barricades and striped pole, two anonymous armed adult awakened toll enforcers with plain armbands stand behind cover demanding passage fee. No shooting, no state-police insignia, warm dusty daylight, road narrow between neglected buildings, tension before decision.",
+      "category": "events",
+      "path": "artwork/drafts/2026-11-19/events/road_checkpoint.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-9fae2f20-92ef-42ee-b272-3de6fdaaa28b.png",
+      "source_sha256": "ee4cd8db8fa031b842b0daad7ce0ee999e035ba0dd26b632683d937d69c14214",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/main_cut/cut-36-ridge.webp"
+      ]
+    },
+    {
+      "id": "road_signal",
+      "title": "잡음 속 구조 신호",
+      "prompt": "Extreme foreground close-up of a gloved hunter hand holding an analog field radio with a small red indicator; beyond it, through a rain-streaked ruined service-station window, distant isolated collapsed structures and a thin unstable cyan fissure are visible. Cool rainy dusk with red radio accent. No readable screens, no already rescued survivors, composition centers radio and uncertainty.",
+      "category": "events",
+      "path": "artwork/drafts/2026-11-19/events/road_signal.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "status": "검토 후보 · 게임 미연결",
+      "source_filename": "exec-611f8e39-071a-4488-8c54-49aeaad9f926.png",
+      "source_sha256": "3e6bef6749bc617334774d4d1f9bf9127024d55e05f58ec7f0170019f1966c2b",
+      "references": [
+        "assets/portraits/main/seoyun-suit.png",
+        "assets/portraits/main/jin-unmasked.png",
+        "assets/main_cut/cut-02-foodtent.webp",
+        "assets/main_cut/cut-36-ridge.webp"
+      ]
+    }
+  ],
+  "pending_prologue_variants": [
+    {
+      "id": "gear__subway",
+      "scene_id": "gear",
+      "flag": "gb_subway",
+      "place": "subway",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "awaken__subway",
+      "scene_id": "awaken",
+      "flag": "gb_subway",
+      "place": "subway",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "first_fight__subway",
+      "scene_id": "first_fight",
+      "flag": "gb_subway",
+      "place": "subway",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "gear__school",
+      "scene_id": "gear",
+      "flag": "gb_school",
+      "place": "school",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "awaken__school",
+      "scene_id": "awaken",
+      "flag": "gb_school",
+      "place": "school",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "first_fight__school",
+      "scene_id": "first_fight",
+      "flag": "gb_school",
+      "place": "school",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "gear__market",
+      "scene_id": "gear",
+      "flag": "gb_market",
+      "place": "market",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "awaken__market",
+      "scene_id": "awaken",
+      "flag": "gb_market",
+      "place": "market",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "first_fight__market",
+      "scene_id": "first_fight",
+      "flag": "gb_market",
+      "place": "market",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "gear__hospital",
+      "scene_id": "gear",
+      "flag": "gb_hospital",
+      "place": "hospital",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "awaken__hospital",
+      "scene_id": "awaken",
+      "flag": "gb_hospital",
+      "place": "hospital",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "first_fight__hospital",
+      "scene_id": "first_fight",
+      "flag": "gb_hospital",
+      "place": "hospital",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "gear__festival",
+      "scene_id": "gear",
+      "flag": "gb_festival",
+      "place": "festival",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "awaken__festival",
+      "scene_id": "awaken",
+      "flag": "gb_festival",
+      "place": "festival",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "first_fight__festival",
+      "scene_id": "first_fight",
+      "flag": "gb_festival",
+      "place": "festival",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "gear__apartment",
+      "scene_id": "gear",
+      "flag": "gb_apartment",
+      "place": "apartment",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "awaken__apartment",
+      "scene_id": "awaken",
+      "flag": "gb_apartment",
+      "place": "apartment",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "first_fight__apartment",
+      "scene_id": "first_fight",
+      "flag": "gb_apartment",
+      "place": "apartment",
+      "status": "원문별 명세 작성 후 제작 필요"
+    }
+  ]
+}
