@@ -1,0 +1,645 @@
+{
+  "status": "2026-11-19 사용자 지시로 게임 연결",
+  "images": [
+    {
+      "id": "ill_1",
+      "path": "assets/prologue/scene-ill_1.webp"
+    },
+    {
+      "id": "ill_2",
+      "path": "assets/prologue/scene-ill_2.webp"
+    },
+    {
+      "id": "ill_3",
+      "path": "assets/prologue/scene-ill_3.webp"
+    },
+    {
+      "id": "ill_4",
+      "path": "assets/prologue/scene-ill_4.webp"
+    },
+    {
+      "id": "ill_5",
+      "path": "assets/prologue/scene-ill_5.webp"
+    },
+    {
+      "id": "subject_1",
+      "path": "assets/prologue/scene-subject_1.webp"
+    },
+    {
+      "id": "subject_2",
+      "path": "assets/prologue/scene-subject_2.webp"
+    },
+    {
+      "id": "subject_3",
+      "path": "assets/prologue/scene-subject_3.webp"
+    },
+    {
+      "id": "subject_8",
+      "path": "assets/prologue/scene-subject_8.webp"
+    },
+    {
+      "id": "student_10",
+      "path": "assets/prologue/scene-student_10.webp"
+    },
+    {
+      "id": "idle_1",
+      "path": "assets/prologue/scene-idle_1.webp"
+    },
+    {
+      "id": "idle_4",
+      "path": "assets/prologue/scene-idle_4.webp"
+    },
+    {
+      "id": "nap_1",
+      "path": "assets/prologue/scene-nap_1.webp"
+    },
+    {
+      "id": "game_1",
+      "path": "assets/prologue/scene-game_1.webp"
+    },
+    {
+      "id": "game_odd",
+      "path": "assets/prologue/scene-game_odd.webp"
+    },
+    {
+      "id": "crime_1",
+      "path": "assets/prologue/scene-crime_1.webp"
+    },
+    {
+      "id": "crime_2",
+      "path": "assets/prologue/scene-crime_2.webp"
+    },
+    {
+      "id": "crime_3",
+      "path": "assets/prologue/scene-crime_3.webp"
+    },
+    {
+      "id": "crime_4",
+      "path": "assets/prologue/scene-crime_4.webp"
+    },
+    {
+      "id": "dream_4",
+      "path": "assets/prologue/scene-dream_4.webp"
+    },
+    {
+      "id": "chaebol_6",
+      "path": "assets/prologue/scene-chaebol_6.webp"
+    },
+    {
+      "id": "chaebol_10",
+      "path": "assets/prologue/scene-chaebol_10.webp"
+    },
+    {
+      "id": "orphan_6",
+      "path": "assets/prologue/scene-orphan_6.webp"
+    },
+    {
+      "id": "orphan_8",
+      "path": "assets/prologue/scene-orphan_8.webp"
+    },
+    {
+      "id": "soldier_4",
+      "path": "assets/prologue/scene-soldier_4.webp"
+    },
+    {
+      "id": "subject_4",
+      "path": "assets/prologue/scene-subject_4.webp"
+    },
+    {
+      "id": "student_7",
+      "path": "assets/prologue/scene-student_7.webp"
+    },
+    {
+      "id": "dsleep_2",
+      "path": "assets/prologue/scene-dsleep_2.webp"
+    },
+    {
+      "id": "drug_5",
+      "path": "assets/prologue/scene-drug_5.webp"
+    },
+    {
+      "id": "late_1",
+      "path": "assets/prologue/scene-late_1.webp"
+    },
+    {
+      "id": "eve_checkup",
+      "path": "assets/prologue/scene-eve_checkup.webp"
+    },
+    {
+      "id": "subject_5",
+      "path": "assets/prologue/scene-subject_5.webp"
+    },
+    {
+      "id": "drug_1",
+      "path": "assets/prologue/scene-drug_1.webp"
+    },
+    {
+      "id": "friend_1",
+      "path": "assets/prologue/scene-friend_1.webp"
+    },
+    {
+      "id": "idle_7",
+      "path": "assets/prologue/scene-idle_7.webp"
+    },
+    {
+      "id": "nap_2",
+      "path": "assets/prologue/scene-nap_2.webp"
+    },
+    {
+      "id": "nap_odd",
+      "path": "assets/prologue/scene-nap_odd.webp"
+    },
+    {
+      "id": "eve_teacher",
+      "path": "assets/prologue/scene-eve_teacher.webp"
+    },
+    {
+      "id": "late_2",
+      "path": "assets/prologue/scene-late_2.webp"
+    },
+    {
+      "id": "late_5",
+      "path": "assets/prologue/scene-late_5.webp"
+    },
+    {
+      "id": "chaebol_5",
+      "path": "assets/prologue/scene-chaebol_5.webp"
+    },
+    {
+      "id": "friend_5",
+      "path": "assets/prologue/scene-friend_5.webp"
+    },
+    {
+      "id": "bloom_2",
+      "path": "assets/prologue/scene-bloom_2.webp"
+    },
+    {
+      "id": "quest_2",
+      "path": "assets/prologue/scene-quest_2.webp"
+    },
+    {
+      "id": "eve_loan",
+      "path": "assets/prologue/scene-eve_loan.webp"
+    },
+    {
+      "id": "subject_9",
+      "path": "assets/prologue/scene-subject_9.webp"
+    },
+    {
+      "id": "student_4",
+      "path": "assets/prologue/scene-student_4.webp"
+    },
+    {
+      "id": "orphan_2",
+      "path": "assets/prologue/scene-orphan_2.webp"
+    },
+    {
+      "id": "storm_2",
+      "path": "assets/prologue/scene-storm_2.webp"
+    },
+    {
+      "id": "soldier_9",
+      "path": "assets/prologue/scene-soldier_9.webp"
+    },
+    {
+      "id": "wild_1",
+      "path": "assets/prologue/scene-wild_1.webp"
+    },
+    {
+      "id": "wild_4",
+      "path": "assets/prologue/scene-wild_4.webp"
+    },
+    {
+      "id": "wild_5",
+      "path": "assets/prologue/scene-wild_5.webp"
+    },
+    {
+      "id": "idle_14",
+      "path": "assets/prologue/scene-idle_14.webp"
+    },
+    {
+      "id": "eve_rooftop",
+      "path": "assets/prologue/scene-eve_rooftop.webp"
+    },
+    {
+      "id": "late_3",
+      "path": "assets/prologue/scene-late_3.webp"
+    },
+    {
+      "id": "idle_2",
+      "path": "assets/prologue/scene-idle_2.webp"
+    },
+    {
+      "id": "cvs_1",
+      "path": "assets/prologue/scene-cvs_1.webp"
+    },
+    {
+      "id": "cvs_2",
+      "path": "assets/prologue/scene-cvs_2.webp"
+    },
+    {
+      "id": "student_9",
+      "path": "assets/prologue/scene-student_9.webp"
+    },
+    {
+      "id": "friend_2",
+      "path": "assets/prologue/scene-friend_2.webp"
+    },
+    {
+      "id": "dsleep_3",
+      "path": "assets/prologue/scene-dsleep_3.webp"
+    },
+    {
+      "id": "dream_1",
+      "path": "assets/prologue/scene-dream_1.webp"
+    },
+    {
+      "id": "chaebol_9",
+      "path": "assets/prologue/scene-chaebol_9.webp"
+    },
+    {
+      "id": "soldier_6",
+      "path": "assets/prologue/scene-soldier_6.webp"
+    },
+    {
+      "id": "soldier_10",
+      "path": "assets/prologue/scene-soldier_10.webp"
+    },
+    {
+      "id": "student_5",
+      "path": "assets/prologue/scene-student_5.webp"
+    },
+    {
+      "id": "relic_1",
+      "path": "assets/prologue/scene-relic_1.webp"
+    },
+    {
+      "id": "idle_6",
+      "path": "assets/prologue/scene-idle_6.webp"
+    },
+    {
+      "id": "eve_dinner",
+      "path": "assets/prologue/scene-eve_dinner.webp"
+    },
+    {
+      "id": "eve_shop",
+      "path": "assets/prologue/scene-eve_shop.webp"
+    },
+    {
+      "id": "eve_line",
+      "path": "assets/prologue/scene-eve_line.webp"
+    },
+    {
+      "id": "orphan_7",
+      "path": "assets/prologue/scene-orphan_7.webp"
+    },
+    {
+      "id": "late_4",
+      "path": "assets/prologue/scene-late_4.webp"
+    },
+    {
+      "id": "idle_8",
+      "path": "assets/prologue/scene-idle_8.webp"
+    },
+    {
+      "id": "dream_3",
+      "path": "assets/prologue/scene-dream_3.webp"
+    },
+    {
+      "id": "eve_fortune",
+      "path": "assets/prologue/scene-eve_fortune.webp"
+    },
+    {
+      "id": "dseer_2",
+      "path": "assets/prologue/scene-dseer_2.webp"
+    },
+    {
+      "id": "subject_6",
+      "path": "assets/prologue/scene-subject_6.webp"
+    },
+    {
+      "id": "wild_3",
+      "path": "assets/prologue/scene-wild_3.webp"
+    },
+    {
+      "id": "tour_4",
+      "path": "assets/prologue/scene-tour_4.webp"
+    },
+    {
+      "id": "tour_5",
+      "path": "assets/prologue/scene-tour_5.webp"
+    },
+    {
+      "id": "nest_3",
+      "path": "assets/prologue/scene-nest_3.webp"
+    },
+    {
+      "id": "nest_4",
+      "path": "assets/prologue/scene-nest_4.webp"
+    },
+    {
+      "id": "nest_5",
+      "path": "assets/prologue/scene-nest_5.webp"
+    },
+    {
+      "id": "eve_subway",
+      "path": "assets/prologue/scene-eve_subway.webp"
+    },
+    {
+      "id": "eve_cat",
+      "path": "assets/prologue/scene-eve_cat.webp"
+    },
+    {
+      "id": "duel_1",
+      "path": "assets/prologue/scene-duel_1.webp"
+    },
+    {
+      "id": "idle_11",
+      "path": "assets/prologue/scene-idle_11.webp"
+    },
+    {
+      "id": "idle_13",
+      "path": "assets/prologue/scene-idle_13.webp"
+    },
+    {
+      "id": "eve_lastshift",
+      "path": "assets/prologue/scene-eve_lastshift.webp"
+    },
+    {
+      "id": "eve_run",
+      "path": "assets/prologue/scene-eve_run.webp"
+    },
+    {
+      "id": "eve_secondhand",
+      "path": "assets/prologue/scene-eve_secondhand.webp"
+    },
+    {
+      "id": "storm_1",
+      "path": "assets/prologue/scene-storm_1.webp"
+    },
+    {
+      "id": "eve_pcbang",
+      "path": "assets/prologue/scene-eve_pcbang.webp"
+    },
+    {
+      "id": "night_dream",
+      "path": "assets/prologue/scene-night_dream.webp"
+    },
+    {
+      "id": "dream_5",
+      "path": "assets/prologue/scene-dream_5.webp"
+    },
+    {
+      "id": "relic_3",
+      "path": "assets/prologue/scene-relic_3.webp"
+    },
+    {
+      "id": "storm_3",
+      "path": "assets/prologue/scene-storm_3.webp"
+    },
+    {
+      "id": "crime_5",
+      "path": "assets/prologue/scene-crime_5.webp"
+    },
+    {
+      "id": "friend_4",
+      "path": "assets/prologue/scene-friend_4.webp"
+    },
+    {
+      "id": "eve_net",
+      "path": "assets/prologue/scene-eve_net.webp"
+    },
+    {
+      "id": "game_2",
+      "path": "assets/prologue/scene-game_2.webp"
+    },
+    {
+      "id": "duel_2",
+      "path": "assets/prologue/scene-duel_2.webp"
+    },
+    {
+      "id": "duel_5",
+      "path": "assets/prologue/scene-duel_5.webp"
+    },
+    {
+      "id": "drug_3",
+      "path": "assets/prologue/scene-drug_3.webp"
+    },
+    {
+      "id": "drug_4",
+      "path": "assets/prologue/scene-drug_4.webp"
+    },
+    {
+      "id": "bloom_1",
+      "path": "assets/prologue/scene-bloom_1.webp"
+    },
+    {
+      "id": "cvs_odd",
+      "path": "assets/prologue/scene-cvs_odd.webp"
+    },
+    {
+      "id": "bloom_odd",
+      "path": "assets/prologue/scene-bloom_odd.webp"
+    },
+    {
+      "id": "quest_odd",
+      "path": "assets/prologue/scene-quest_odd.webp"
+    },
+    {
+      "id": "relic_5",
+      "path": "assets/prologue/scene-relic_5.webp"
+    },
+    {
+      "id": "duel_3",
+      "path": "assets/prologue/scene-duel_3.webp"
+    },
+    {
+      "id": "duel_4",
+      "path": "assets/prologue/scene-duel_4.webp"
+    },
+    {
+      "id": "dseer_3",
+      "path": "assets/prologue/scene-dseer_3.webp"
+    },
+    {
+      "id": "bloom_1__karaoke",
+      "path": "assets/prologue/scene-bloom_1__karaoke.webp"
+    },
+    {
+      "id": "guild_contract",
+      "path": "assets/events/guild_contract.webp"
+    },
+    {
+      "id": "exam_registration",
+      "path": "assets/events/exam_registration.webp"
+    },
+    {
+      "id": "gate_briefing",
+      "path": "assets/main_cut/cut-gate-briefing.webp"
+    },
+    {
+      "id": "city_hospital",
+      "path": "assets/events/city_hospital.webp"
+    },
+    {
+      "id": "rank_c_scout",
+      "path": "assets/events/rank_c_scout.webp"
+    },
+    {
+      "id": "reg_busan_market",
+      "path": "assets/events/reg_busan_market.webp"
+    },
+    {
+      "id": "road_merchant",
+      "path": "assets/events/road_merchant.webp"
+    },
+    {
+      "id": "road_storm",
+      "path": "assets/events/road_storm.webp"
+    },
+    {
+      "id": "road_camp",
+      "path": "assets/events/road_camp.webp"
+    },
+    {
+      "id": "road_wreck",
+      "path": "assets/events/road_wreck.webp"
+    },
+    {
+      "id": "road_checkpoint",
+      "path": "assets/events/road_checkpoint.webp"
+    },
+    {
+      "id": "road_signal",
+      "path": "assets/events/road_signal.webp"
+    }
+  ],
+  "pending_variant_scenes": [
+    {
+      "id": "gear__subway",
+      "scene_id": "gear",
+      "flag": "gb_subway",
+      "place": "subway",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "awaken__subway",
+      "scene_id": "awaken",
+      "flag": "gb_subway",
+      "place": "subway",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "first_fight__subway",
+      "scene_id": "first_fight",
+      "flag": "gb_subway",
+      "place": "subway",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "gear__school",
+      "scene_id": "gear",
+      "flag": "gb_school",
+      "place": "school",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "awaken__school",
+      "scene_id": "awaken",
+      "flag": "gb_school",
+      "place": "school",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "first_fight__school",
+      "scene_id": "first_fight",
+      "flag": "gb_school",
+      "place": "school",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "gear__market",
+      "scene_id": "gear",
+      "flag": "gb_market",
+      "place": "market",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "awaken__market",
+      "scene_id": "awaken",
+      "flag": "gb_market",
+      "place": "market",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "first_fight__market",
+      "scene_id": "first_fight",
+      "flag": "gb_market",
+      "place": "market",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "gear__hospital",
+      "scene_id": "gear",
+      "flag": "gb_hospital",
+      "place": "hospital",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "awaken__hospital",
+      "scene_id": "awaken",
+      "flag": "gb_hospital",
+      "place": "hospital",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "first_fight__hospital",
+      "scene_id": "first_fight",
+      "flag": "gb_hospital",
+      "place": "hospital",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "gear__festival",
+      "scene_id": "gear",
+      "flag": "gb_festival",
+      "place": "festival",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "awaken__festival",
+      "scene_id": "awaken",
+      "flag": "gb_festival",
+      "place": "festival",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "first_fight__festival",
+      "scene_id": "first_fight",
+      "flag": "gb_festival",
+      "place": "festival",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "gear__apartment",
+      "scene_id": "gear",
+      "flag": "gb_apartment",
+      "place": "apartment",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "awaken__apartment",
+      "scene_id": "awaken",
+      "flag": "gb_apartment",
+      "place": "apartment",
+      "status": "원문별 명세 작성 후 제작 필요"
+    },
+    {
+      "id": "first_fight__apartment",
+      "scene_id": "first_fight",
+      "flag": "gb_apartment",
+      "place": "apartment",
+      "status": "원문별 명세 작성 후 제작 필요"
+    }
+  ]
+}

@@ -10,7 +10,7 @@
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const row = (name, value) => `<div class="reg-field"><dt>${name}</dt><dd>${value}</dd></div>`;
     const section = (n, title, body) => `<section class="reg-section"><h3><span>${n}</span>${title}</h3>${body}</section>`;
-    return `<div class="st-check registration"><div class="st-scroll reg-paper">
+    return `<div class="st-check registration"><div class="st-scroll reg-paper">${FX.eventArt('exam_registration')}
  <header class="reg-header"><div class="reg-agency">국가 각성자 관리국<span>신규 각성자 접수</span></div><div class="reg-heading"><div><div class="reg-kicker">신규 등록 · 실기 시험 전</div><h2>각성자 등록 신청서</h2></div><div class="reg-stamp">등급<br><b>측정 대기</b></div></div><p class="reg-intro">신청인의 인적 사항 및 각성 현황을 확인합니다.</p></header>
  ${section('01', '신청인 정보', `<div class="reg-applicant"><dl>${row('성명', `<strong>${esc(p.name)}</strong>`)}${row('나이 / 성별', `${G.ageYears()}세 / ${p.gender === 'F' ? '여성' : '남성'}`)}${row('거주 지역', esc(G.region().name))}${row('출신', esc(bg?.name || '미기재'))}</dl><figure class="reg-photo">${this.playerPortrait(180)}<figcaption>신청인 사진</figcaption></figure></div>`)}
  ${section('02', '각성 현황', `<dl class="reg-awakening">${row('각성 직업', `<strong>${esc(className(p.cls, p.clsAdv))}</strong><span>${esc(g.name)} · ${esc(CLASS_RARITY[k.r])} · ${esc(({ tank: '탱커', melee: '근접 딜러', assassin: '암살자', ranged: '원거리 딜러', caster: '마법 딜러', support: '지원', summoner: '소환사', esper: '이능력자' })[k.role] || k.role)}</span>`)}${row('각성 속성', `<strong>${esc(E.name)}</strong><span>${esc(elemVsText(p.element))}</span>`)}</dl>`)}

@@ -42,6 +42,7 @@
       this.renderGateMap(...args);
     };
     this.modal('<div class="eyebrow">게이트 입장</div><h3>공략 브리핑</h3>', 'event-box');
+    lines[0].art = 'cut-gate-briefing';
     lines.push({ choices: [{ text: '브리핑 확인', go: finish }] });
     return this.talk(lines, finish);
   };

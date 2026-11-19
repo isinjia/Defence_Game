@@ -17,6 +17,6 @@
     const overlay=document.getElementById('pl-confirm');if(!overlay)return;
     overlay.classList.add('affiliation-offer');overlay.setAttribute('aria-labelledby','ao-title');
     const box=overlay.querySelector('.plc-box');
-    box.innerHTML=`<header class="ao-header"><div class="ao-eyebrow">소속 가입 · 조건 확인</div><span class="ao-category">${esc(category)}</span><h2 id="ao-title">${esc(name)}</h2><div class="ao-intro">가입 전에 급여와 지원 조건을 확인하세요.</div></header><div class="ao-body">${cards}${rows?`<h3 class="ao-section-title">지원 및 계약 조건</h3><dl class="ao-terms">${rows}</dl>`:''}<div class="ao-notice"><b>가입 후 소속 변경에는 제약이 있습니다.</b><span>조건을 확인한 뒤 결정하세요.</span></div></div><footer class="plc-row ao-actions"><button class="ghost" data-plc="no">취소</button><button class="primary" data-plc="ok">가입한다</button></footer>`;
+    box.innerHTML=`<header class="ao-header"><div class="ao-eyebrow">소속 가입 · 조건 확인</div><span class="ao-category">${esc(category)}</span><h2 id="ao-title">${esc(name)}</h2><div class="ao-intro">가입 전에 급여와 지원 조건을 확인하세요.</div></header><div class="ao-body">${FX.eventArt('guild_contract')}${cards}${rows?`<h3 class="ao-section-title">지원 및 계약 조건</h3><dl class="ao-terms">${rows}</dl>`:''}<div class="ao-notice"><b>가입 후 소속 변경에는 제약이 있습니다.</b><span>조건을 확인한 뒤 결정하세요.</span></div></div><footer class="plc-row ao-actions"><button class="ghost" data-plc="no">취소</button><button class="primary" data-plc="ok">가입한다</button></footer>`;
   };
 }

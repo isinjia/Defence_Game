@@ -156,7 +156,8 @@ Object.assign(UI, {
     G.markSeen(ev.id);
     this.curStory = { ev, c, q };
     const text = G.storyFill(typeof ev.text === 'function' ? ev.text(G, c) : ev.text, c);
-    const art = c.npc ? `<div class="story-portrait">${UI.npcPortrait(c.npc, 130)}<div><b>${c.npc.name}</b><div class="small">${this.rankTag(c.npc.rankIdx, c.npc.stage)} ${this.elemTag(c.npc.element)}</div><div class="small dim">${c.npc.met ? `관계 ${relationLabel(c.npc.relation)} (${c.npc.relation})` : '처음 보는 인물'}</div></div></div>` : FX.eventArt(ev.id.replace(/^base_/, ''));
+    const dedicatedArt = ["city_hospital", "rank_c_scout", "reg_busan_market", "road_merchant", "road_storm", "road_camp", "road_wreck", "road_checkpoint", "road_signal"].includes(ev.id.replace(/^base_/, ''));
+    const art = c.npc ? `${dedicatedArt ? FX.eventArt(ev.id.replace(/^base_/, '')) : ''}<div class="story-portrait">${UI.npcPortrait(c.npc, 130)}<div><b>${c.npc.name}</b><div class="small">${this.rankTag(c.npc.rankIdx, c.npc.stage)} ${this.elemTag(c.npc.element)}</div><div class="small dim">${c.npc.met ? `관계 ${relationLabel(c.npc.relation)} (${c.npc.relation})` : '처음 보는 인물'}</div></div></div>` : FX.eventArt(ev.id.replace(/^base_/, ''));
     const choices = ev.choices.map((ch, i) => ({ ch, i })).filter(({ ch }) => !ch.when || ch.when(G, c));
     this.modal(`${art}<div class="eyebrow">${ev.chain ? '기연' : '사건'} · ${G.fullDate()} · ${G.region().name}</div>
       <p class="event-text">${text.replace(/\n/g, '<br>')}</p>

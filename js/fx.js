@@ -174,6 +174,7 @@ const FX = {
   eventArt(id) {
     // 전용 원화. 없으면 분류별 공용 원화(city·field·gate·people·news·night)
     const scenes = {
+      guild_contract: 'guild_contract', exam_registration: 'exam_registration', city_hospital: 'city_hospital', rank_c_scout: 'rank_c_scout', reg_busan_market: 'reg_busan_market', road_merchant: 'road_merchant', road_storm: 'road_storm', road_camp: 'road_camp', road_wreck: 'road_wreck', road_checkpoint: 'road_checkpoint', road_signal: 'road_signal',
       injured_hunter: 'injured_hunter', black_market: 'black_market', kid_lost: 'kid_lost', ruins: 'ruins',
       duel_challenge: 'duel_challenge', mentor: 'mentor', gate_surge: 'gate_surge', reporter: 'reporter',
     };
