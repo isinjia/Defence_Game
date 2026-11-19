@@ -2342,7 +2342,7 @@
         "assets/portraits/main/jin-unmasked.png",
         "assets/main_cut/cut-02-foodtent.webp"
       ],
-      "latest_revision": "2026-11-19: x67%,y53.6% 여분 손가락 삭제. 엄지1+접힌손가락4 실제 확인.",
+      "latest_revision": "오른손 다섯 손가락 유지, 먼 쪽 파이프 끝의 구멍을 투시에 맞게 가림 (2026-11-19 사용자 승인)",
       "category": "prologue",
       "path": "artwork/drafts/2026-11-19/prologue/duel_4.webp",
       "size": [
@@ -2350,8 +2350,14 @@
         1024
       ],
       "status": "게임 연결 완료 (2026-11-19 사용자 지시)",
-      "source_filename": "exec-63e2f296-668f-4bf3-8474-a2464d31c04c.png",
-      "source_sha256": "3f48d62b04a15407ae4e52cb60fe0bb0f9870219ae340af4325d0c7c423f9f30"
+      "source_filename": "exec-a3cec253-1a96-4d3b-ad60-0c3adef9612e.png",
+      "source_sha256": "ccd02a6097fb278b813c0cf08ac8e539216897d44c2ee6b17296ff4931256442",
+      "revision_history": [
+        {
+          "source_filename": "exec-63e2f296-668f-4bf3-8474-a2464d31c04c.png",
+          "note": "손가락 수정 후 파이프 투시 수정 전"
+        }
+      ]
     },
     {
       "id": "dseer_3",

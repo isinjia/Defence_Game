@@ -220,7 +220,7 @@ const PrologueCinema = (() => {
   const art = (id, state, step = 0) => {
     const image = imageFor(id, state); if (!image) return '';
     const title = PROLOGUE[id] ? PROLOGUE[id].title : '';
-    return `<img class="ec-art pc-art pc-shot-${step}" src="assets/prologue/${image}.webp" width="1536" height="1024" alt="${escapeAttribute(title)} 장면" decoding="async" fetchpriority="high" draggable="false">`;
+    return `<img class="ec-art pc-art pc-shot-${step}" src="assets/prologue/${image}.webp${image === 'scene-duel_4' ? '?v=pipe-1' : ''}" width="1536" height="1024" alt="${escapeAttribute(title)} 장면" decoding="async" fetchpriority="high" draggable="false">`;
   };
   // 그림은 본문·선택지와 함께 한 화면에 정지 이미지로만 보인다 (사용자 요청: 화면을 가리고 눌러 넘기는 컷씬식 연출은 없앰)
   const mount = (state) => {
