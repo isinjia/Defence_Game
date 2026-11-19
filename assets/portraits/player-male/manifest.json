@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "scope": "male_player_only",
+  "bodyTypes": [
+    "normal"
+  ],
+  "faces": [
+    "face-01.webp",
+    "face-02.webp",
+    "face-03.webp"
+  ],
+  "hairs": [
+    "hair-01.webp",
+    "hair-02.webp",
+    "hair-03.webp",
+    "hair-04.webp",
+    "hair-05.webp",
+    "hair-06.webp",
+    "hair-07.webp",
+    "hair-08.webp"
+  ],
+  "outfits": [
+    "look-01.webp",
+    "look-02.webp",
+    "look-03.webp"
+  ],
+  "source_size": [
+    1024,
+    1536
+  ],
+  "encoding": "lossless WebP with alpha",
+  "approved_style_references": [
+    "assets/portraits/main/jin-young.png",
+    "assets/portraits/main/seoyun-suit.png",
+    "assets/main_cut/cut-02-foodtent.webp"
+  ],
+  "approval": "2026-11-19: 머리·목·상체 재제작 3종 승인, 얼굴3·헤어8 전체 조합 요청",
+  "source_images": {
+    "look-01.webp": "exec-1b2a6a2a-5067-4eb8-9013-5d6df9bc0299.png",
+    "look-02.webp": "exec-190abc1d-9a34-4c5e-af56-42b35d5d1900.png",
+    "look-03.webp": "exec-a9d02aa1-0edf-40ae-9157-0cf2ffab0182.png"
+  },
+  "fitting": "js/player_male_art.js: original body/neck proportions, face-specific jaw masks and hair registration"
+}
