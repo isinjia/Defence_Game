@@ -1,13 +1,8 @@
 {
-  "version": 1,
+  "version": 2,
   "scope": "male_player_only",
   "bodyTypes": [
     "normal"
-  ],
-  "faces": [
-    "face-01.webp",
-    "face-02.webp",
-    "face-03.webp"
   ],
   "hairs": [
     "hair-01.webp",
@@ -20,9 +15,9 @@
     "hair-08.webp"
   ],
   "outfits": [
-    "look-01.webp",
-    "look-02.webp",
-    "look-03.webp"
+    "clothes-01.webp",
+    "clothes-02.webp",
+    "clothes-03.webp"
   ],
   "source_size": [
     1024,
@@ -40,5 +35,95 @@
     "look-02.webp": "exec-190abc1d-9a34-4c5e-af56-42b35d5d1900.png",
     "look-03.webp": "exec-a9d02aa1-0edf-40ae-9157-0cf2ffab0182.png"
   },
-  "fitting": "js/player_male_art.js: original body/neck proportions, face-specific jaw masks and hair registration"
+  "fitting": "fixed uniform source registration only; connected head-and-neck behind clothes; no jaw/neck splitting, outfit-dependent head offsets, or face-dependent hair shifts",
+  "heads": [
+    "headneck-01.webp",
+    "headneck-02.webp",
+    "headneck-03.webp"
+  ],
+  "legacy_unused_faces": [
+    "face-01.webp",
+    "face-02.webp",
+    "face-03.webp"
+  ],
+  "registration": {
+    "heads": [
+      [
+        95.62646,
+        -17.76654,
+        832.74708,
+        1249.12062
+      ],
+      [
+        166.8129,
+        36.17419,
+        690.37419,
+        1035.56129
+      ],
+      [
+        171.21019,
+        36.83121,
+        681.57962,
+        1022.36943
+      ]
+    ],
+    "hairs": [
+      [
+        307.2,
+        98.0,
+        409.6,
+        614.4
+      ],
+      [
+        307.2,
+        98.0,
+        409.6,
+        614.4
+      ],
+      [
+        307.2,
+        94.0,
+        409.6,
+        614.4
+      ],
+      [
+        307.2,
+        88.0,
+        409.6,
+        614.4
+      ],
+      [
+        307.2,
+        94.0,
+        409.6,
+        614.4
+      ],
+      [
+        307.2,
+        98.0,
+        409.6,
+        614.4
+      ],
+      [
+        307.2,
+        98.0,
+        409.6,
+        614.4
+      ],
+      [
+        307.2,
+        82.0,
+        409.6,
+        614.4
+      ]
+    ]
+  },
+  "layer_source_images": {
+    "headneck-01.webp": "exec-cc1d5f43-292e-47c7-8250-45efec9b6536.png",
+    "headneck-02.webp": "exec-54ed4659-9287-449b-b21e-7df8f15d7fc6.png",
+    "headneck-03.webp": "exec-c37a337d-b084-4313-94bf-b0cd2eec8625.png",
+    "clothes-01.webp": "exec-f3326f85-4989-4e2c-9c2a-400ef9e7294f.png",
+    "clothes-02.webp": "exec-0ef50293-83e6-427f-b50f-3769c160f0bc.png",
+    "clothes-03.webp": "exec-a7b45131-14f2-4a21-828e-dfc3d3e51891.png"
+  }
 }

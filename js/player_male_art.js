@@ -2,22 +2,8 @@
 // NPC와 여성은 기존 렌더러를 사용한다. 목·어깨는 승인 원화 그대로 유지한다.
 const PlayerMaleArt = (() => {
   const root = 'assets/portraits/player-male/';
-  const jaws = [
-    'M0 0H1024V835H805Q794 945 756 990L603 1138Q580 1158 512 1158Q446 1158 423 1138L280 994Q240 955 223 835H0Z',
-    'M0 0H1024V875H798Q780 955 753 995L613 1161Q580 1196 515 1196Q447 1196 418 1166L272 1021Q247 980 230 875H0Z',
-    'M0 0H1024V840H824Q808 963 778 997L610 1158Q580 1187 515 1187Q447 1187 414 1158L250 1010Q210 970 196 840H0Z'
-  ];
-  // 각 원화의 턱 아래만 남긴다. 목을 가로로 줄이거나 새로 자르지 않는다.
-  const bodies = [
-    'M0 480H420L478 550Q512 565 546 550L614 480H1024V1536H0Z',
-    'M0 482H414L477 557Q512 571 548 557L620 482H1024V1536H0Z',
-    'M0 482H420L478 554Q512 568 547 554L615 482H1024V1536H0Z'
-  ];
-  const hairY = [
-    [0,0,-10,-25,-10,0,0,-40],
-    [0,0,0,0,0,0,0,0],
-    [-10,-10,-25,-40,-25,-10,-10,-55]
-  ];
+  // 원본 파츠를 같은 비율의 공통 캔버스에 놓는 고정 배치. 복장·나이에 따른 변형 없음.
+  const registration = {"heads":[[95.62646,-17.76654,832.74708,1249.12062],[166.8129,36.17419,690.37419,1035.56129],[171.21019,36.83121,681.57962,1022.36943]],"hairs":[[307.2,98.0,409.6,614.4],[307.2,98.0,409.6,614.4],[307.2,94.0,409.6,614.4],[307.2,88.0,409.6,614.4],[307.2,94.0,409.6,614.4],[307.2,98.0,409.6,614.4],[307.2,98.0,409.6,614.4],[307.2,82.0,409.6,614.4]]};
   let uid = 0;
   const file = (kind, n) => root + kind + '-0' + n + '.webp';
   function select(seed, opts = {}) {
@@ -26,19 +12,9 @@ const PlayerMaleArt = (() => {
     return {
       face: valid(opts.maleFace, 3) ? opts.maleFace : pick('face', 3),
       hair: valid(opts.maleHair, 8) ? opts.maleHair : pick('hair', 8),
-      outfit: valid(opts.maleOutfit, 3) ? opts.maleOutfit : outfitFor(opts.outfit) || pick('outfit', 3),
+      outfit: valid(opts.maleOutfit, 3) ? opts.maleOutfit : pick('outfit', 3),
       bodyType: 'normal'
     };
-  }
-  function outfitFor(outfit) {
-    if (outfit === 'casual') return 2;
-    if (['coat','overcoat','hanbok','mandarin'].includes(outfit)) return 3;
-    if (outfit === 'tactical') return 1;
-    if (typeof outfit === 'string' && outfit.startsWith('hunter:')) {
-      const c = typeof classById === 'function' && classById(outfit.slice(7));
-      return c && ['mage','summon','support','esper','east','hidden','shadow'].includes(c.g) ? 3 : 1;
-    }
-    return null;
   }
   function isPlayer(seed, gender, opts = {}) {
     if (gender !== 'M') return false;
@@ -55,18 +31,14 @@ const PlayerMaleArt = (() => {
     return `<filter id="${id}" color-interpolation-filters="sRGB"><feColorMatrix in="SourceGraphic" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 10 0 -10 0 -.7" result="key"/><feComponentTransfer in="key" result="keyed"><feFuncA type="linear" slope="4" intercept="-1.5"/></feComponentTransfer><feComposite in="keyed" in2="SourceGraphic" operator="in" result="skin"/><feComponentTransfer in="SourceGraphic" result="tinted"><feFuncR type="linear" slope="${gains[0]}"/><feFuncG type="linear" slope="${gains[1]}"/><feFuncB type="linear" slope="${gains[2]}"/></feComponentTransfer><feComposite in="tinted" in2="skin" operator="in" result="newSkin"/><feComposite in="SourceGraphic" in2="skin" operator="out" result="rest"/><feMerge><feMergeNode in="rest"/><feMergeNode in="newSkin"/></feMerge></filter>`;
   }
   function render(seed, size = 200, opts = {}, avatar = false) {
-    const s = select(seed, opts), id = 'ppmale' + (++uid), scale = s.face === 2 ? .41 : .4;
-    const x = (1024 - 1024 * scale) / 2;
-    const y = [98,112,102][s.outfit-1] - [0,25,12][s.face-1];
-    const w = 1024 * scale, h = 1536 * scale;
-    const necks = ['M400 470H630V595Q512 646 400 595Z','M400 480H640V650Q512 704 400 650Z','M400 480H630V600Q512 650 400 600Z'];
+    const s = select(seed, opts), id = 'ppmale' + (++uid);
+    const headRect = registration.heads[s.face-1], hairRect = registration.hairs[s.hair-1];
     const filter = toneFilter(id + 'tone', opts.skinTone);
     const skin = filter ? ` filter="url(#${id}tone)"` : '';
-    const head = `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 1024 1536"><defs><clipPath id="${id}jaw"><path d="${jaws[s.face-1]}"/></clipPath></defs><image href="${file('face',s.face)}" width="1024" height="1536" clip-path="url(#${id}jaw)"${skin}/></svg>`;
-    const body = `<image href="${file('look',s.outfit)}" width="1024" height="1536"/>`;
-    const art = `<defs>${filter}<clipPath id="${id}body"><path d="${bodies[s.outfit-1]}"/></clipPath><clipPath id="${id}neck"><path d="${necks[s.outfit-1]}"/></clipPath></defs><g clip-path="url(#${id}body)">${body}${filter ? `<g clip-path="url(#${id}neck)"><image href="${file('look',s.outfit)}" width="1024" height="1536"${skin}/></g>` : ''}</g>${head}<image href="${file('hair',s.hair)}" x="${x}" y="${y+hairY[s.face-1][s.hair-1]*scale}" width="${w}" height="${h}"/>`;
-    // 기존 상반신 크롭과 같은 400×600 좌표로 정규화한다.
-    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="player-male-v1" data-player-male="1" data-body-type="normal" data-face="${s.face}" data-hair="${s.hair}" data-outfit="${s.outfit}" class="${avatar?'avatar':'portrait'}" width="${size}" height="${avatar?size:Math.round(size*1.5)}" viewBox="${avatar?'39 16 322 322':'0 0 400 600'}" role="img" aria-label="${avatar?'초상화':'캐릭터 일러스트'}"><svg width="400" height="600" viewBox="0 0 1024 1536">${art}</svg></svg>`;
+    const image = (src,rect,extra='') => `<image href="${src}" x="${rect[0]}" y="${rect[1]}" width="${rect[2]}" height="${rect[3]}" preserveAspectRatio="xMidYMid meet"${extra}/>`;
+    const art = `<defs>${filter}</defs>` + image(file('headneck',s.face),headRect,skin)
+      + image(file('clothes',s.outfit),[0,0,1024,1536]) + image(file('hair',s.hair),hairRect);
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="player-male-v2" data-player-male="1" data-body-type="normal" data-face="${s.face}" data-hair="${s.hair}" data-outfit="${s.outfit}" class="${avatar?'avatar':'portrait'}" width="${size}" height="${avatar?size:Math.round(size*1.5)}" viewBox="${avatar?'39 16 322 322':'0 0 400 600'}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${avatar?'초상화':'캐릭터 일러스트'}"><svg width="400" height="600" viewBox="0 0 1024 1536" preserveAspectRatio="xMidYMid meet">${art}</svg></svg>`;
   }
   const card = PORTRAIT.card, avatar = PORTRAIT.avatar;
   PORTRAIT.card = function(seed,g,e,r,size=200,opts={}) {
