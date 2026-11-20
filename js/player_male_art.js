@@ -5,7 +5,10 @@ const PlayerMaleArt = (() => {
   // 원본 파츠를 같은 비율의 공통 캔버스에 놓는 고정 배치. 복장·나이에 따른 변형 없음.
   const registration = {"heads":[[95.62646,-17.76654,832.74708,1249.12062],[166.8129,36.17419,690.37419,1035.56129],[171.21019,36.83121,681.57962,1022.36943]],"hairs":[[307.2,98.0,409.6,614.4],[307.2,98.0,409.6,614.4],[307.2,94.0,409.6,614.4],[307.2,88.0,409.6,614.4],[307.2,94.0,409.6,614.4],[307.2,98.0,409.6,614.4],[307.2,98.0,409.6,614.4],[307.2,82.0,409.6,614.4]]};
   let uid = 0;
-  const file = (kind, n) => root + kind + '-0' + n + '.webp';
+  const file = (kind, n) => root + kind + '-0' + n + '.webp'
+    + (kind === 'clothes' || kind === 'collar-back' ? '?v=3' : '');
+  // 목 뒤의 안감만 배치한다. 얼굴·목·헤어 좌표는 의상과 무관하게 유지한다.
+  const rearCollars = [[0,-99,1024,1536],[-76.8,-697,1177.6,3225.6]];
   function select(seed, opts = {}) {
     const pick = (name, count) => FX.hash(String(seed) + '|player-male-v1|' + name) % count + 1;
     const valid = (v, n) => Number.isInteger(v) && v >= 1 && v <= n;
@@ -35,10 +38,11 @@ const PlayerMaleArt = (() => {
     const headRect = registration.heads[s.face-1], hairRect = registration.hairs[s.hair-1];
     const filter = toneFilter(id + 'tone', opts.skinTone);
     const skin = filter ? ` filter="url(#${id}tone)"` : '';
-    const image = (src,rect,extra='') => `<image href="${src}" x="${rect[0]}" y="${rect[1]}" width="${rect[2]}" height="${rect[3]}" preserveAspectRatio="xMidYMid meet"${extra}/>`;
-    const art = `<defs>${filter}</defs>` + image(file('headneck',s.face),headRect,skin)
+    const image = (src,rect,extra='',aspect='xMidYMid meet') => `<image href="${src}" x="${rect[0]}" y="${rect[1]}" width="${rect[2]}" height="${rect[3]}" preserveAspectRatio="${aspect}"${extra}/>`;
+    const rear = s.outfit <= 2 ? image(file('collar-back',s.outfit),rearCollars[s.outfit-1],'','none') : '';
+    const art = `<defs>${filter}</defs>` + rear + image(file('headneck',s.face),headRect,skin)
       + image(file('clothes',s.outfit),[0,0,1024,1536]) + image(file('hair',s.hair),hairRect);
-    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="player-male-v2" data-player-male="1" data-body-type="normal" data-face="${s.face}" data-hair="${s.hair}" data-outfit="${s.outfit}" class="${avatar?'avatar':'portrait'}" width="${size}" height="${avatar?size:Math.round(size*1.5)}" viewBox="${avatar?'39 16 322 322':'0 0 400 600'}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${avatar?'초상화':'캐릭터 일러스트'}"><svg width="400" height="600" viewBox="0 0 1024 1536" preserveAspectRatio="xMidYMid meet">${art}</svg></svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="player-male-v3" data-player-male="1" data-body-type="normal" data-face="${s.face}" data-hair="${s.hair}" data-outfit="${s.outfit}" class="${avatar?'avatar':'portrait'}" width="${size}" height="${avatar?size:Math.round(size*1.5)}" viewBox="${avatar?'39 16 322 322':'0 0 400 600'}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${avatar?'초상화':'캐릭터 일러스트'}"><svg width="400" height="600" viewBox="0 0 1024 1536" preserveAspectRatio="xMidYMid meet">${art}</svg></svg>`;
   }
   const card = PORTRAIT.card, avatar = PORTRAIT.avatar;
   PORTRAIT.card = function(seed,g,e,r,size=200,opts={}) {
