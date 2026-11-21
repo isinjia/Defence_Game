@@ -1,7 +1,7 @@
 // 기본 여성 주인공과 NPC/남성 렌더 경로 분리 검사. 스모크 테스트가 아니다.
 const fs = require('fs'), vm = require('vm'), assert = require('assert');
 const c = vm.createContext({});
-vm.runInContext(`const G={player:{gender:'F',look:'player'}}, UI={pro:{gender:'F',look:'pro'},create:{gender:'F',look:'create'}};const PORTRAIT={card(...a){return JSON.stringify(a)},avatar(...a){return JSON.stringify(a)}};const Wardrobe={controls(){return 'legacy'}};`,c);
+vm.runInContext(`const FX={hash(s){let h=2166136261;for(const x of s){h^=x.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}};const G={player:{gender:'F',look:'player'}}, UI={pro:{gender:'F',look:'pro'},create:{gender:'F',look:'create'}};const PORTRAIT={card(...a){return JSON.stringify(a)},avatar(...a){return JSON.stringify(a)}};const Wardrobe={controls(){return 'legacy'}};`,c);
 vm.runInContext(fs.readFileSync(require('path').join(__dirname,'../js/player_female_art.js'),'utf8'),c);
 for(const seed of ['player','pro','create']) {
   const html=vm.runInContext(`PORTRAIT.card('${seed}','F',null,0,200,{bodyType:'heavy',age:60,outfit:'coat'})`,c);
@@ -16,3 +16,12 @@ assert(vm.runInContext(`PORTRAIT.avatar('player','F').includes('width="56"')`,c)
 assert.equal(vm.runInContext(`Wardrobe.controls({gender:'F',look:'npc'})`,c),'legacy');
 assert(vm.runInContext(`Wardrobe.controls(UI.pro).includes('기본 외형')`,c));
 console.log('PASS: female player/create/prologue, single unmodified portrait, avatar size, NPC/male passthrough');
+
+const selection = vm.runInContext(`(() => {const found=new Set();for(let i=0;i<1000;i++)found.add(PlayerFemaleArt.select('look:'+i));return {count:found.size,stable:PlayerFemaleArt.select('saved')===PlayerFemaleArt.select('saved')};})()`, c);
+assert.equal(selection.count,7);assert(selection.stable);
+for(let n=0;n<7;n++) {
+  const html=vm.runInContext(`PORTRAIT.card('player','F',null,0,200,{femaleVariant:${n}})`,c);
+  const file=html.match(/<image href="([^"]+)"/)[1];
+  assert(fs.existsSync(require('path').join(__dirname,'..',file)), 'missing asset: '+file);
+}
+console.log('PASS: all 7 approved variants reachable, saved seed stable, each asset exists');

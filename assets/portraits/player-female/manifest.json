@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "scope": "female_player_only",
   "source": "default-01.webp",
   "source_image": "exec-bb8835c6-2c78-4548-bb8f-282e5d49e130.png",
@@ -8,12 +8,64 @@
     1536
   ],
   "encoding": "lossless WebP with alpha",
-  "approval": "2026-11-21: 기본 여성 외형 승인, 사선 끈 수정본 푸시·배포 요청",
-  "variants": 1,
+  "approval": "2026-11-21: 얼굴·헤어·복장 각2종 비교 미리보기 승인 후 푸시 요청",
+  "variants": [
+    {
+      "file": "default-01.webp",
+      "face": 1,
+      "hair": 1,
+      "outfit": 1
+    },
+    {
+      "file": "face-02.webp",
+      "face": 2,
+      "hair": 1,
+      "outfit": 1
+    },
+    {
+      "file": "face-03.webp",
+      "face": 3,
+      "hair": 1,
+      "outfit": 1
+    },
+    {
+      "file": "hair-02.webp",
+      "face": 1,
+      "hair": 2,
+      "outfit": 1
+    },
+    {
+      "file": "hair-03.webp",
+      "face": 1,
+      "hair": 3,
+      "outfit": 1
+    },
+    {
+      "file": "outfit-02.webp",
+      "face": 1,
+      "hair": 1,
+      "outfit": 2
+    },
+    {
+      "file": "outfit-03.webp",
+      "face": 1,
+      "hair": 1,
+      "outfit": 3
+    }
+  ],
   "fitting": "complete portrait, no face/neck/hair/outfit transforms",
   "approved_style_references": [
     "assets/portraits/main/seoyun-suit.png",
     "assets/portraits/main/jin-young.png",
     "assets/main_cut/cut-02-foodtent.webp"
-  ]
+  ],
+  "variant_sources": {
+    "face-02.webp": "exec-97df98b9-e8c4-4e1a-a1e0-112e8de99ade.png",
+    "face-03.webp": "exec-63fdee0a-7ae1-4193-9fac-36518b4b4e43.png",
+    "hair-02.webp": "exec-75b2c94d-de70-4d81-9a4c-1f645ea22fdb.png",
+    "hair-03.webp": "exec-fac890cf-7dd4-40b1-8fd9-36240e17a58d.png",
+    "outfit-02.webp": "exec-bf09403f-8022-4439-b176-39f206f35b7a.png",
+    "outfit-03.webp": "exec-1ca4e370-8ba0-4b52-9370-153f45b85916.png"
+  },
+  "combination_policy": "7 approved complete portraits; not independent 27-part combinations"
 }
