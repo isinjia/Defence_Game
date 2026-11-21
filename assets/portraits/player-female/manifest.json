@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "scope": "female_player_only",
+  "source": "default-01.webp",
+  "source_image": "exec-bb8835c6-2c78-4548-bb8f-282e5d49e130.png",
+  "source_size": [
+    1024,
+    1536
+  ],
+  "encoding": "lossless WebP with alpha",
+  "approval": "2026-11-21: 기본 여성 외형 승인, 사선 끈 수정본 푸시·배포 요청",
+  "variants": 1,
+  "fitting": "complete portrait, no face/neck/hair/outfit transforms",
+  "approved_style_references": [
+    "assets/portraits/main/seoyun-suit.png",
+    "assets/portraits/main/jin-young.png",
+    "assets/main_cut/cut-02-foodtent.webp"
+  ]
+}
