@@ -14,8 +14,10 @@ const PlayerFemaleArt = (() => {
       .some(s => s && s.gender === 'F' && s.look === seed);
   }
   function render(size = 200, avatar = false, seed = '', opts = {}) {
-    const variant = select(seed, opts), source = root + variants[variant] + '.webp';
-    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="player-female-v2" data-female-variant="${variant}" data-player-female="1" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size * 1.5)}" viewBox="${avatar ? '45 55 310 310' : '0 0 400 600'}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${avatar ? '초상화' : '캐릭터 일러스트'}"><image href="${source}" x="0" y="0" width="400" height="600" preserveAspectRatio="xMidYMid meet"/></svg>`;
+    const variant = select(seed, opts);
+    const job = typeof HunterOutfits !== 'undefined' ? HunterOutfits.get(opts.outfit, 'F') : null;
+    const source = job ? root + 'jobs/job-' + job.familyId + '.webp' : root + variants[variant] + '.webp';
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-portrait-parts="player-female-v2" data-female-variant="${variant}" data-female-job="${job ? job.familyId : ''}" data-player-female="1" class="${avatar ? 'avatar' : 'portrait'}" width="${size}" height="${avatar ? size : Math.round(size * 1.5)}" viewBox="${avatar ? '45 55 310 310' : '0 0 400 600'}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${avatar ? '초상화' : '캐릭터 일러스트'}"><image href="${source}" x="0" y="0" width="400" height="600" preserveAspectRatio="xMidYMid meet"/></svg>`;
   }
   for (const name of ['card', 'avatar']) {
     const base = PORTRAIT[name];

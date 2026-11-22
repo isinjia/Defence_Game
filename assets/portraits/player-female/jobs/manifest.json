@@ -1,0 +1,237 @@
+{
+  "scope": "female_player_job_outfits",
+  "body": "approved normal female",
+  "face": 1,
+  "hair": 1,
+  "transparent": true,
+  "style_references": [
+    "assets/portraits/main/seoyun-suit.png",
+    "assets/portraits/main/jin-young.png",
+    "assets/main_cut/cut-02-foodtent.webp"
+  ],
+  "items": [
+    {
+      "id": "job-swordsman",
+      "name": "검사",
+      "source": "assets/portraits/outfits/outfit-f-swordsman.webp",
+      "file": "job-swordsman.webp"
+    },
+    {
+      "id": "job-berserker",
+      "name": "광전사",
+      "source": "assets/portraits/outfits/outfit-f-berserker.webp",
+      "file": "job-berserker.webp"
+    },
+    {
+      "id": "job-lancer",
+      "name": "창술사",
+      "source": "assets/portraits/outfits/outfit-f-lancer.webp",
+      "file": "job-lancer.webp"
+    },
+    {
+      "id": "job-monk",
+      "name": "무도가",
+      "source": "assets/portraits/outfits/outfit-f-monk.webp",
+      "file": "job-monk.webp"
+    },
+    {
+      "id": "job-dualblade",
+      "name": "쌍검사",
+      "source": "assets/portraits/outfits/outfit-f-dualblade.webp",
+      "file": "job-dualblade.webp"
+    },
+    {
+      "id": "job-guardian",
+      "name": "방패 기사",
+      "source": "assets/portraits/outfits/outfit-f-guardian.webp",
+      "file": "job-guardian.webp"
+    },
+    {
+      "id": "job-paladin",
+      "name": "성기사",
+      "source": "assets/portraits/outfits/outfit-f-paladin.webp",
+      "file": "job-paladin.webp"
+    },
+    {
+      "id": "job-giant",
+      "name": "거인화 능력자",
+      "source": "assets/portraits/outfits/outfit-f-giant.webp",
+      "file": "job-giant.webp"
+    },
+    {
+      "id": "job-assassin",
+      "name": "암살자",
+      "source": "assets/portraits/outfits/outfit-f-assassin.webp",
+      "file": "job-assassin.webp"
+    },
+    {
+      "id": "job-thief",
+      "name": "도적",
+      "source": "assets/portraits/outfits/outfit-f-thief.webp",
+      "file": "job-thief.webp"
+    },
+    {
+      "id": "job-poisoner",
+      "name": "독술사",
+      "source": "assets/portraits/outfits/outfit-f-poisoner.webp",
+      "file": "job-poisoner.webp"
+    },
+    {
+      "id": "job-archer",
+      "name": "궁수",
+      "source": "assets/portraits/outfits/outfit-f-archer.webp",
+      "file": "job-archer.webp"
+    },
+    {
+      "id": "job-sniper",
+      "name": "저격수",
+      "source": "assets/portraits/outfits/outfit-f-sniper.webp",
+      "file": "job-sniper.webp"
+    },
+    {
+      "id": "job-gunslinger",
+      "name": "총잡이",
+      "source": "assets/portraits/outfits/outfit-f-gunslinger.webp",
+      "file": "job-gunslinger.webp"
+    },
+    {
+      "id": "job-elementalist",
+      "name": "원소술사",
+      "source": "assets/portraits/outfits/outfit-f-elementalist.webp",
+      "file": "job-elementalist.webp"
+    },
+    {
+      "id": "job-warlock",
+      "name": "흑마법사",
+      "source": "assets/portraits/outfits/outfit-f-warlock.webp",
+      "file": "job-warlock.webp"
+    },
+    {
+      "id": "job-warder",
+      "name": "결계사",
+      "source": "assets/portraits/outfits/outfit-f-warder.webp",
+      "file": "job-warder.webp"
+    },
+    {
+      "id": "job-chronomancer",
+      "name": "시공술사",
+      "source": "assets/portraits/outfits/outfit-f-chronomancer.webp",
+      "file": "job-chronomancer.webp"
+    },
+    {
+      "id": "job-summoner",
+      "name": "소환사",
+      "source": "assets/portraits/outfits/outfit-f-summoner.webp",
+      "file": "job-summoner.webp"
+    },
+    {
+      "id": "job-necromancer",
+      "name": "사령술사",
+      "source": "assets/portraits/outfits/outfit-f-necromancer.webp",
+      "file": "job-necromancer.webp"
+    },
+    {
+      "id": "job-tamer",
+      "name": "조련사",
+      "source": "assets/portraits/outfits/outfit-f-tamer.webp",
+      "file": "job-tamer.webp"
+    },
+    {
+      "id": "job-healer",
+      "name": "치유사",
+      "source": "assets/portraits/outfits/outfit-f-healer.webp",
+      "file": "job-healer.webp"
+    },
+    {
+      "id": "job-priest",
+      "name": "사제",
+      "source": "assets/portraits/outfits/outfit-f-priest.webp",
+      "file": "job-priest.webp"
+    },
+    {
+      "id": "job-bard",
+      "name": "음유시인",
+      "source": "assets/portraits/outfits/outfit-f-bard.webp",
+      "file": "job-bard.webp"
+    },
+    {
+      "id": "job-alchemist",
+      "name": "연금술사",
+      "source": "assets/portraits/outfits/outfit-f-alchemist.webp",
+      "file": "job-alchemist.webp"
+    },
+    {
+      "id": "job-telekinetic",
+      "name": "염동력자",
+      "source": "assets/portraits/outfits/outfit-f-telekinetic.webp",
+      "file": "job-telekinetic.webp"
+    },
+    {
+      "id": "job-telepath",
+      "name": "정신 감응자",
+      "source": "assets/portraits/outfits/outfit-f-telepath.webp",
+      "file": "job-telepath.webp"
+    },
+    {
+      "id": "job-teleporter",
+      "name": "순간이동자",
+      "source": "assets/portraits/outfits/outfit-f-teleporter.webp",
+      "file": "job-teleporter.webp"
+    },
+    {
+      "id": "job-seer",
+      "name": "예지자",
+      "source": "assets/portraits/outfits/outfit-f-seer.webp",
+      "file": "job-seer.webp"
+    },
+    {
+      "id": "job-shaman",
+      "name": "무당",
+      "source": "assets/portraits/outfits/outfit-f-shaman.webp",
+      "file": "job-shaman.webp"
+    },
+    {
+      "id": "job-taoist",
+      "name": "도사",
+      "source": "assets/portraits/outfits/outfit-f-taoist.webp",
+      "file": "job-taoist.webp"
+    },
+    {
+      "id": "job-swordmonk",
+      "name": "검무사",
+      "source": "assets/portraits/outfits/outfit-f-swordmonk.webp",
+      "file": "job-swordmonk.webp"
+    },
+    {
+      "id": "job-blackflame",
+      "name": "흑염검사",
+      "source": "assets/portraits/outfits/outfit-f-blackflame.webp",
+      "file": "job-blackflame.webp"
+    },
+    {
+      "id": "job-apostle",
+      "name": "심연의 사도",
+      "source": "assets/portraits/outfits/outfit-f-apostle.webp",
+      "file": "job-apostle.webp"
+    },
+    {
+      "id": "job-machinist",
+      "name": "기계 교감자",
+      "source": "assets/portraits/outfits/outfit-f-machinist.webp",
+      "file": "job-machinist.webp"
+    },
+    {
+      "id": "job-gatekeeper",
+      "name": "문지기",
+      "source": "assets/portraits/outfits/outfit-f-gatekeeper.webp",
+      "file": "job-gatekeeper.webp"
+    },
+    {
+      "id": "job-heir",
+      "name": "대붕괴의 아이",
+      "source": "assets/portraits/outfits/outfit-f-heir.webp",
+      "file": "job-heir.webp"
+    }
+  ],
+  "approval": "2026-11-22: 37벌 시안과 기본 얼굴·단발 기준 적용 승인, 후속 푸시·배포 요청"
+}
