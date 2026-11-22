@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "scope": "player_only",
+  "faces": {
+    "M": 8,
+    "F": 8
+  },
+  "hairs": {
+    "M": 8,
+    "F": 3
+  },
+  "basicOutfits": {
+    "M": 3,
+    "F": 3
+  },
+  "jobOutfits": {
+    "M": 37,
+    "F": 37
+  },
+  "bodyTypes": [
+    "normal"
+  ],
+  "encoding": "lossless WebP with alpha",
+  "assets": {
+    "male-head-1.webp": "male-head-1.png",
+    "male-head-2.webp": "male-head-2.png",
+    "male-head-3.webp": "male-head-3.png",
+    "male-head-4.webp": "male-head-4.png",
+    "male-head-5.webp": "male-head-5.png",
+    "female-head-01.webp": "female-head-01.png",
+    "female-head-02.webp": "female-head-02.png",
+    "female-head-03.webp": "female-head-03.png",
+    "female-head-04.webp": "female-head-04.png",
+    "female-head-05.webp": "female-head-05.png",
+    "female-head-06.webp": "female-head-06.png",
+    "female-head-07.webp": "female-head-07.png",
+    "female-head-08.webp": "female-head-08.png",
+    "female-hair-front-01.webp": "female-hair-01.png",
+    "female-hair-front-02.webp": "female-hair-02.png",
+    "female-hair-front-03.webp": "female-hair-03.png",
+    "female-hair-back-01.webp": "female-hair-back-01.png",
+    "female-hair-back-02.webp": "female-hair-back-02.png",
+    "female-hair-back-03.webp": "female-hair-back-03.png",
+    "female-clothes-01.webp": "female-clothes-01-fixed.png",
+    "female-clothes-02.webp": "female-clothes-02.png",
+    "female-clothes-03.webp": "female-clothes-03.png"
+  },
+  "status": "applied; user approved parts preview and requested push",
+  "source_registration": "static uniform scale and translation per asset; no outfit-dependent face/hair transforms",
+  "jobSource": "existing clothing-only assets/portraits/outfits, NOT flattened player-female/jobs portraits",
+  "approval": "2026-11-23: 독립 파츠 조합 미리보기 확인 후 푸시 요청",
+  "styleReferences": [
+    "assets/portraits/main/seoyun-suit.png",
+    "assets/portraits/main/jin-young.png",
+    "assets/main_cut/cut-02-foodtent.webp"
+  ]
+}
