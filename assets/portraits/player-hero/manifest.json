@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "scope": "player_only",
+  "approval": "2026-11-22: 남녀 얼굴 각5종 시안 후 푸시 요청",
+  "encoding": "lossless WebP with alpha",
+  "rendering": "10 finished portraits with fixed hair and outfit; original 10 approved face closeups preserved; no independent hair/outfit combination",
+  "selection": "deterministic per look seed and gender; 50 percent new portraits, 50 percent legacy portraits",
+  "female_jobs": "existing 37 portraits with base face and bob preserved",
+  "style_references": [
+    "assets/portraits/main/seoyun-suit.png",
+    "assets/portraits/main/jin-young.png",
+    "assets/main_cut/cut-02-foodtent.webp"
+  ],
+  "items": [
+    {
+      "gender": "male",
+      "face": 1,
+      "portrait": "portrait-m-01.webp",
+      "head": "face-m-01.webp",
+      "portrait_source": "exec-e6a626c3-f9b4-4018-87e2-f4e6f0c152d0.png",
+      "head_source": "exec-6df173d4-6d02-4378-9366-b3590ad9bf04.png",
+      "portrait_size": [
+        1024,
+        1536
+      ],
+      "head_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "gender": "male",
+      "face": 2,
+      "portrait": "portrait-m-02.webp",
+      "head": "face-m-02.webp",
+      "portrait_source": "exec-86365ac8-5f8a-43e6-a495-8679c04a4d9b.png",
+      "head_source": "exec-af4198e0-a799-456d-9a76-0456ee5dfd4d.png",
+      "portrait_size": [
+        1024,
+        1536
+      ],
+      "head_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "gender": "male",
+      "face": 3,
+      "portrait": "portrait-m-03.webp",
+      "head": "face-m-03.webp",
+      "portrait_source": "exec-073797d9-8d67-4f15-933b-0b2f733c8500.png",
+      "head_source": "exec-3976a200-05f3-487d-823a-4c3017bd3e29.png",
+      "portrait_size": [
+        1024,
+        1536
+      ],
+      "head_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "gender": "male",
+      "face": 4,
+      "portrait": "portrait-m-04.webp",
+      "head": "face-m-04.webp",
+      "portrait_source": "exec-ad388553-4755-4822-ac02-7345f2389613.png",
+      "head_source": "exec-9c8419d4-b0e3-45c0-88ef-b689d194f5ce.png",
+      "portrait_size": [
+        1024,
+        1536
+      ],
+      "head_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "gender": "male",
+      "face": 5,
+      "portrait": "portrait-m-05.webp",
+      "head": "face-m-05.webp",
+      "portrait_source": "exec-149ab0e7-76cc-4041-a32f-7788f33b85f2.png",
+      "head_source": "exec-75179b51-d5ca-4450-8e19-244d704f8821.png",
+      "portrait_size": [
+        1024,
+        1536
+      ],
+      "head_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "gender": "female",
+      "face": 1,
+      "portrait": "portrait-f-01.webp",
+      "head": "face-f-01.webp",
+      "portrait_source": "exec-c84fb8ea-ae8d-4184-96cd-b65d835236b4.png",
+      "head_source": "exec-a0586aef-f5e1-4de1-8411-0fed077f2b1d.png",
+      "portrait_size": [
+        1024,
+        1536
+      ],
+      "head_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "gender": "female",
+      "face": 2,
+      "portrait": "portrait-f-02.webp",
+      "head": "face-f-02.webp",
+      "portrait_source": "exec-95cdaf49-56cd-4a09-8b2e-76d56b35d4dc.png",
+      "head_source": "exec-e53ab7d5-01f8-4a44-9774-02ab6d1a5f7e.png",
+      "portrait_size": [
+        1024,
+        1536
+      ],
+      "head_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "gender": "female",
+      "face": 3,
+      "portrait": "portrait-f-03.webp",
+      "head": "face-f-03.webp",
+      "portrait_source": "exec-8697c556-c2db-410b-9d6f-729c9c658601.png",
+      "head_source": "exec-67ff4729-cbc4-4c55-9a17-ca82d3c309ae.png",
+      "portrait_size": [
+        1024,
+        1536
+      ],
+      "head_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "gender": "female",
+      "face": 4,
+      "portrait": "portrait-f-04.webp",
+      "head": "face-f-04.webp",
+      "portrait_source": "exec-ab2ae4e8-0159-429f-a956-028befdcbb9c.png",
+      "head_source": "exec-e2d006e9-bab4-404f-b25b-c0cdc7e5cf8b.png",
+      "portrait_size": [
+        1024,
+        1536
+      ],
+      "head_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "gender": "female",
+      "face": 5,
+      "portrait": "portrait-f-05.webp",
+      "head": "face-f-05.webp",
+      "portrait_source": "exec-be8841a6-0a1a-47a1-9290-4b8155ea1fbf.png",
+      "head_source": "exec-273269c0-c426-4d0f-8bd5-4b5dfce38f17.png",
+      "portrait_size": [
+        1024,
+        1536
+      ],
+      "head_size": [
+        1254,
+        1254
+      ]
+    }
+  ]
+}

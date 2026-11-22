@@ -29,7 +29,7 @@ const PlayerFemaleArt = (() => {
   Wardrobe.controls = function(s) {
     if (!s || !isPlayer(s.look, s.gender)) return controls.apply(this, arguments);
     // 승인 완성 원화를 그대로 추첨하며 체형·피부색은 기본을 유지한다.
-    return '<div class="sec"><div class="sec-title">외형</div><div>기본 외형 · 7종</div></div>';
+    return '<div class="sec"><div class="sec-title">외형</div><div>기본 외형 · 12종</div></div>';
   };
   return { render, isPlayer, select };
 })();

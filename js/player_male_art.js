@@ -78,5 +78,5 @@ const PlayerMaleArt = (() => {
       return result;
     };
   }
-  return { select, render, isPlayer };
+  return { select, render, isPlayer, toneFilter };
 })();
