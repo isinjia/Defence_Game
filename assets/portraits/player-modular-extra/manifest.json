@@ -1,0 +1,451 @@
+{
+  "addedFaces": {
+    "M": 17,
+    "F": 17
+  },
+  "addedHairs": {
+    "M": 17,
+    "F": 17
+  },
+  "totalFaces": {
+    "M": 25,
+    "F": 25
+  },
+  "totalHairs": {
+    "M": 25,
+    "F": 20
+  },
+  "encoding": "lossless WebP; source RGBA preserved",
+  "bodyTypes": [
+    "normal"
+  ],
+  "registration": {
+    "M": [
+      113,
+      34,
+      174,
+      261
+    ],
+    "F": [
+      108.8128,
+      48.2,
+      182.3744,
+      273.5616
+    ]
+  },
+  "styleReferences": [
+    "assets/portraits/main/seoyun-suit.png",
+    "assets/portraits/main/jin-young.png",
+    "assets/main_cut/cut-02-foodtent.webp"
+  ],
+  "files": {
+    "f-hair-09-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-09-back.webp"
+    },
+    "f-hair-08-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-08-back.webp"
+    },
+    "f-hair-13-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-13-back.webp"
+    },
+    "m-hair-12-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-12-back.webp"
+    },
+    "m-hair-15-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-15-back.webp"
+    },
+    "f-hair-13-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-13-front.webp"
+    },
+    "m-hair-14-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-14-front.webp"
+    },
+    "f-hair-06-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-06-front.webp"
+    },
+    "f-hair-10-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-10-front.webp"
+    },
+    "m-face-15.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-face-15.webp"
+    },
+    "m-face-18.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-face-18.webp"
+    },
+    "m-hair-10-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-10-front.webp"
+    },
+    "m-hair-09-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-09-back.webp"
+    },
+    "f-face-09.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-face-09.webp"
+    },
+    "m-hair-15-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-15-front.webp"
+    },
+    "f-face-15.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-face-15.webp"
+    },
+    "m-face-10.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-face-10.webp"
+    },
+    "f-hair-04-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-04-back.webp"
+    },
+    "f-face-14.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-face-14.webp"
+    },
+    "f-face-17.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-face-17.webp"
+    },
+    "m-hair-14-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-14-back.webp"
+    },
+    "f-hair-10-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-10-back.webp"
+    },
+    "f-face-10.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-face-10.webp"
+    },
+    "m-face-16.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-face-16.webp"
+    },
+    "f-hair-04-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-04-front.webp"
+    },
+    "m-hair-16-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-16-back.webp"
+    },
+    "m-hair-09-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-09-front.webp"
+    },
+    "f-hair-11-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-11-back.webp"
+    },
+    "m-hair-12-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-12-front.webp"
+    },
+    "m-hair-18-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-18-back.webp"
+    },
+    "f-hair-07-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-07-front.webp"
+    },
+    "f-hair-07-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-07-back.webp"
+    },
+    "f-hair-09-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-09-front.webp"
+    },
+    "f-hair-05-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-05-back.webp"
+    },
+    "m-hair-18-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-18-front.webp"
+    },
+    "f-face-12.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-face-12.webp"
+    },
+    "f-hair-12-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-12-front.webp"
+    },
+    "m-hair-11-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-11-front.webp"
+    },
+    "f-hair-06-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-06-back.webp"
+    },
+    "f-face-13.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-face-13.webp"
+    },
+    "f-hair-12-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-12-back.webp"
+    },
+    "f-face-18.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-face-18.webp"
+    },
+    "m-face-13.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-face-13.webp"
+    },
+    "f-hair-11-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-11-front.webp"
+    },
+    "m-face-11.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-face-11.webp"
+    },
+    "m-face-14.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-face-14.webp"
+    },
+    "m-face-12.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-face-12.webp"
+    },
+    "m-face-09.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-face-09.webp"
+    },
+    "f-hair-08-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-08-front.webp"
+    },
+    "m-hair-13-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-13-front.webp"
+    },
+    "f-hair-05-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-hair-05-front.webp"
+    },
+    "f-face-16.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-face-16.webp"
+    },
+    "m-hair-17-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-17-front.webp"
+    },
+    "m-hair-11-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-11-back.webp"
+    },
+    "m-hair-10-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-10-back.webp"
+    },
+    "m-face-17.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-face-17.webp"
+    },
+    "m-hair-17-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-17-back.webp"
+    },
+    "f-face-11.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/f-face-11.webp"
+    },
+    "m-hair-16-front.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-16-front.webp"
+    },
+    "m-hair-13-back.webp": {
+      "batch": "extra-player-parts-2026-11-23",
+      "source": "extra-player-parts-2026-11-23/candidate/assets/portraits/player-modular-extra/m-hair-13-back.webp"
+    },
+    "m-face-20.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/m-face-20.webp"
+    },
+    "m-hair-21-front.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/m-hair-21-front.webp"
+    },
+    "f-hair-17-front.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/f-hair-17-front.webp"
+    },
+    "m-hair-22-front.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/m-hair-22-front.webp"
+    },
+    "f-hair-15-back.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/f-hair-15-back.webp"
+    },
+    "f-hair-14-front.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/f-hair-14-front.webp"
+    },
+    "f-hair-15-front.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/f-hair-15-front.webp"
+    },
+    "f-face-21.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/f-face-21.webp"
+    },
+    "f-hair-14-back.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/f-hair-14-back.webp"
+    },
+    "m-hair-20-back.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/m-hair-20-back.webp"
+    },
+    "m-hair-19-back.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/m-hair-19-back.webp"
+    },
+    "m-hair-19-front.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/m-hair-19-front.webp"
+    },
+    "m-hair-21-back.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/m-hair-21-back.webp"
+    },
+    "m-face-19.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/m-face-19.webp"
+    },
+    "m-hair-20-front.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/m-hair-20-front.webp"
+    },
+    "f-hair-16-front.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/f-hair-16-front.webp"
+    },
+    "f-hair-17-back.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/f-hair-17-back.webp"
+    },
+    "f-hair-16-back.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/f-hair-16-back.webp"
+    },
+    "m-face-21.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/m-face-21.webp"
+    },
+    "m-hair-22-back.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/m-hair-22-back.webp"
+    },
+    "f-face-19.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/f-face-19.webp"
+    },
+    "f-face-20.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/f-face-20.webp"
+    },
+    "m-face-22.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/m-face-22.webp"
+    },
+    "f-face-22.webp": {
+      "batch": "extra-player-parts-b2-2026-11-23",
+      "source": "extra-player-parts-b2-2026-11-23/candidate/assets/portraits/player-modular-extra2/f-face-22.webp"
+    },
+    "f-hair-18-front.webp": {
+      "batch": "extra-player-parts-b3-2026-11-23",
+      "source": "extra-player-parts-b3-2026-11-23/parts/f-hair-18-front.webp"
+    },
+    "f-hair-18-back.webp": {
+      "batch": "extra-player-parts-b3-2026-11-23",
+      "source": "extra-player-parts-b3-2026-11-23/parts/f-hair-18-back.webp"
+    },
+    "m-hair-23-back.webp": {
+      "batch": "extra-player-parts-b3-2026-11-23",
+      "source": "extra-player-parts-b3-2026-11-23/parts/m-hair-23-back.webp"
+    },
+    "m-hair-23-front.webp": {
+      "batch": "extra-player-parts-b3-2026-11-23",
+      "source": "extra-player-parts-b3-2026-11-23/parts/m-hair-23-front.webp"
+    },
+    "m-face-23.webp": {
+      "batch": "extra-player-parts-b4-2026-11-23",
+      "source": "extra-player-parts-b4-2026-11-23/parts/m-face-23.webp"
+    },
+    "f-face-23.webp": {
+      "batch": "extra-player-parts-b4-2026-11-23",
+      "source": "extra-player-parts-b4-2026-11-23/parts/f-face-23.webp"
+    },
+    "m-hair-24-front.webp": {
+      "batch": "extra-player-parts-b5-2026-11-23",
+      "source": "extra-player-parts-b5-2026-11-23/parts/m-hair-24-front.webp"
+    },
+    "f-hair-19-front.webp": {
+      "batch": "extra-player-parts-b5-2026-11-23",
+      "source": "extra-player-parts-b5-2026-11-23/parts/f-hair-19-front.webp"
+    },
+    "m-hair-25-front.webp": {
+      "batch": "extra-player-parts-b5-2026-11-23",
+      "source": "extra-player-parts-b5-2026-11-23/parts/m-hair-25-front.webp"
+    },
+    "m-face-24.webp": {
+      "batch": "extra-player-parts-b5-2026-11-23",
+      "source": "extra-player-parts-b5-2026-11-23/parts/m-face-24.webp"
+    },
+    "m-hair-25-back.webp": {
+      "batch": "extra-player-parts-b5-2026-11-23",
+      "source": "extra-player-parts-b5-2026-11-23/parts/m-hair-25-back.webp"
+    },
+    "f-face-24.webp": {
+      "batch": "extra-player-parts-b5-2026-11-23",
+      "source": "extra-player-parts-b5-2026-11-23/parts/f-face-24.webp"
+    },
+    "m-face-25.webp": {
+      "batch": "extra-player-parts-b5-2026-11-23",
+      "source": "extra-player-parts-b5-2026-11-23/parts/m-face-25.webp"
+    },
+    "m-hair-24-back.webp": {
+      "batch": "extra-player-parts-b5-2026-11-23",
+      "source": "extra-player-parts-b5-2026-11-23/parts/m-hair-24-back.webp"
+    },
+    "f-hair-20-front.webp": {
+      "batch": "extra-player-parts-b5-2026-11-23",
+      "source": "extra-player-parts-b5-2026-11-23/parts/f-hair-20-front.webp"
+    },
+    "f-face-25.webp": {
+      "batch": "extra-player-parts-b5-2026-11-23",
+      "source": "extra-player-parts-b5-2026-11-23/parts/f-face-25.webp"
+    },
+    "f-hair-20-back.webp": {
+      "batch": "extra-player-parts-b5-2026-11-23",
+      "source": "extra-player-parts-b5-2026-11-23/parts/f-hair-20-back.webp"
+    },
+    "f-hair-19-back.webp": {
+      "batch": "extra-player-parts-b5-2026-11-23",
+      "source": "extra-player-parts-b5-2026-11-23/parts/f-hair-19-back.webp"
+    }
+  }
+}
