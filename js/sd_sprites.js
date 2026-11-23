@@ -18,7 +18,8 @@ const SDSprite = (() => {
   const live = new Set();
 
   const load = (src) => {
-    if (!imgs.has(src)) imgs.set(src, new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => no(new Error(src)); im.src = src; }));
+    // 그림을 다시 내보내면 주소가 바뀌게 내보낸 시각을 붙인다(예전 그림이 브라우저에 남지 않게)
+    if (!imgs.has(src)) imgs.set(src, new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => no(new Error(src)); im.src = src + (data() && data().ver ? '?v=' + data().ver : ''); }));
     return imgs.get(src);
   };
 
