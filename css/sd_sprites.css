@@ -6,7 +6,7 @@
 #modal-box.cu-v2 #allies .ally.fig.sd-fig .sprite,
 #allies .ally.fig.sd-fig .sprite { overflow: visible; border-radius: 0; background: none; position: relative; }
 .ally.fig.sd-fig canvas.sd-char {
-  position: absolute; left: 50%; bottom: -10px; width: 280px; height: 192px; /* 원본 도트를 2배(정수배)로: 도트가 고르다. 발이 이름표 바로 위에 오게 */
+  position: absolute; left: 50%; bottom: -10px; width: 180px; height: 156px; /* 정지 도트를 1배(도트 그대로)로, 발이 이름표 바로 위에 오게 */
   transform: translateX(-50%); image-rendering: pixelated; image-rendering: crisp-edges; pointer-events: none;
 }
 .ally.fig.sd-fig.dead canvas.sd-char { filter: grayscale(0.6) brightness(0.8); }

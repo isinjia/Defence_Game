@@ -1,17 +1,18 @@
-// ===== 전투 SD 도트 캐릭터 (사용자 요청 2026-11-23) =====
-// 전투 아군의 원형 상반신 초상을 64도트 SD 캐릭터로 바꾼다. 아군은 화면 아래에서 위쪽 적을 보므로 뒷모습 줄을 쓴다.
-// 자료(assets/sd/): body/{성별}_{직업}/{동작}.webp (머리를 뺀 몸·옷·무기 시트, 위 줄 정면·아래 줄 뒷면)
-//                  head/{성별}_{머리}.webp (기준 자세 머리 [정면 칸, 뒷면 칸]) — 주인공은 '주'+새 파츠 번호, 일반 헌터는 예전 파츠 번호
-//                  SD_DATA(js/sd_sprite_data.js): 무기 묶음별 동작 칸 크기·프레임 시간·프레임별 머리 변환, 직업 → 무기·역할
-// 헌터마다 몸 시트 위에 머리를 변환해 얹고, 피부색·머리색을 칠한 시트를 한 번 만들어 둔다(외형 키로 캐시).
+// ===== 전투 SD 도트 캐릭터 (사용자 요청 2026-11-23, 정지 도트 방식) =====
+// 전투 아군의 원형 상반신 초상을 SD 도트 캐릭터로 바꾼다. 아군은 화면 아래에서 위쪽 적을 보므로 뒷모습 줄을 쓴다.
+// 프레임 그림을 따로 만들지 않는다: 깨끗한 정지 도트 한 장(몸·옷 + 머리 + 무기)을 겹치고, 동작은 도트 단위 이동·정확한 90도 회전·번쩍임으로만
+// 표현한다(도트를 늘리거나 비틀지 않아 깨지지 않는다). 대기=숨쉬기, 공격=뛰어들기, 스킬=빛·도약, 피격=흰빛·밀려남, 사망=쓰러짐·흐려짐.
+// 자료(assets/sd/): body/{성별}_{직업}.webp, head/{성별}_{머리}.webp, weapon/{무기}.webp — 모두 [정면; 뒷면] 두 줄, 같은 칸 크기
+//                  SD_DATA(js/sd_sprite_data.js): 칸 크기·발 위치·무기 앞뒤·직업 -> 무기·역할
 const SDSprite = (() => {
   const ROOT = 'assets/sd/';
   const MOTIONS = ['대기', '걷기', '달리기', '공격', '스킬', '피격', '사망'];
   const LOOP = { 대기: true, 걷기: true, 달리기: true };
+  const LEN = { 공격: 520, 스킬: 900, 피격: 460, 사망: 1000 };   // 한 번 하고 끝나는 동작의 길이(밀리초)
   const BASE_SKIN = [222, 193, 173];
   const TONES = { fair: [246, 218, 200], medium: [220, 180, 150], tan: [182, 133, 95], deep: [133, 88, 65] };
   const OUTLINE = [34, 20, 30];
-  const BOX_W = 140, BOX_H = 96, FOOT_X = 70, FOOT_Y = 82; // 보이는 칸: 원본 도트 칸 사망 칸(140×96)이 다 들어가는 크기, 발 위치 고정. 화면에는 정수배로만(도트가 고르게)
+  const BOX_W = 180, BOX_H = 156, FOOT_X = 90, FOOT_Y = 146; // 보이는 칸: 쓰러진 모습·도약·빛이 다 들어가는 크기. 화면 1배(도트 그대로)
   const data = () => (typeof SD_DATA !== 'undefined' ? SD_DATA : null);
   const imgs = new Map();
   const sheets = new Map();
@@ -113,59 +114,96 @@ const SDSprite = (() => {
     x.putImageData(im, 0, 0);
   }
 
-  // ---------- 시트 만들기 ----------
-  async function headCanvas(L) {
-    const im = await load(`${ROOT}head/${L.g}_${L.hair}.webp`).catch(() => load(`${ROOT}head/${L.g}_0.webp`));
-    const cv = document.createElement('canvas'); cv.width = im.width; cv.height = im.height;
-    cv.getContext('2d').drawImage(im, 0, 0);
-    if (L.hc) tintHair(cv, L.hc);
-    return cv;
-  }
-  async function buildSheets(L) {
-    const d = data(); const weapon = d.jobs[L.job] ? d.jobs[L.job].무기 : '검';
-    const head = await headCanvas(L);
-    const out = {};
-    await Promise.all(MOTIONS.map(async (m) => {
-      const mt = d.motions[weapon] && d.motions[weapon][m]; if (!mt) return;
-      const body = await load(`${ROOT}body/${L.g}_${L.job}/${m}.webp`);
-      const [cw, ch] = mt.칸, n = mt.시간.length;
-      const cv = document.createElement('canvas'); cv.width = cw * n; cv.height = ch * 2;
-      const x = cv.getContext('2d'); x.imageSmoothingEnabled = false;
-      x.drawImage(body, 0, 0);
-      ['정면', '뒷면'].forEach((dir, r) => {
-        for (let i = 0; i < n; i++) {
-          const M = mt.머리[dir][i]; if (!M) continue;
-          x.save();
-          x.beginPath(); x.rect(i * cw, r * ch, cw, ch); x.clip();
-          x.setTransform(M[0], M[3], M[1], M[4], M[2] + i * cw, M[5] + r * ch);
-          const hc = head.height / 2;   // 머리 그림 칸 크기(정면·뒷면 두 줄)
-          x.drawImage(head, 0, r * hc, hc, hc, 0, 0, hc, hc);
-          x.restore();
-        }
-      });
-      if (L.tone && L.tone !== 'natural') tintSkin(cv, L.tone);
-      out[m] = { cv, cw, ch, n, t: mt.시간, foot: mt.발 };
-    }));
-    return out;
+  // ---------- 한 장 만들기: 무기(뒤) + 몸 + 머리 + 무기(앞), 피부·머리색 칠하기 ----------
+  async function buildSprite(L) {
+    const d = data(); const N = d.칸; const weapon = d.jobs[L.job] ? d.jobs[L.job].무기 : '검';
+    const [body, head, wpn] = await Promise.all([
+      load(`${ROOT}body/${L.g}_${L.job}.webp`),
+      load(`${ROOT}head/${L.g}_${L.hair}.webp`).catch(() => load(`${ROOT}head/${L.g}_0.webp`)),
+      load(`${ROOT}weapon/${weapon}.webp`).catch(() => null),
+    ]);
+    const hc = document.createElement('canvas'); hc.width = head.width; hc.height = head.height;
+    hc.getContext('2d').drawImage(head, 0, 0);
+    if (L.hc) tintHair(hc, L.hc);
+    const cv = document.createElement('canvas'); cv.width = N; cv.height = N * 2;
+    const x = cv.getContext('2d'); x.imageSmoothingEnabled = false;
+    ['정면', '뒷면'].forEach((dir, r) => {
+      const layer = d.무기층[weapon] ? d.무기층[weapon][dir] : '앞';
+      const part = (im) => x.drawImage(im, 0, r * N, N, N, 0, r * N, N, N);
+      if (wpn && layer === '뒤') part(wpn);
+      part(body); part(hc);
+      if (wpn && layer !== '뒤') part(wpn);
+    });
+    if (L.tone && L.tone !== 'natural') tintSkin(cv, L.tone);
+    // 빛·번쩍임용 실루엣(흰색)
+    const sil = document.createElement('canvas'); sil.width = N; sil.height = N * 2;
+    const sx = sil.getContext('2d'); sx.drawImage(cv, 0, 0); sx.globalCompositeOperation = 'source-in'; sx.fillStyle = '#fff'; sx.fillRect(0, 0, N, N * 2);
+    return { cv, sil, N, foot: d.발 };
   }
   function sheetsFor(L) {
     const key = [L.g, L.job, L.hair, L.tone || 'natural', L.hc || ''].join('|');
-    if (!sheets.has(key)) sheets.set(key, buildSheets(L).catch((e) => { sheets.delete(key); throw e; }));
+    if (!sheets.has(key)) sheets.set(key, buildSprite(L).catch((e) => { sheets.delete(key); throw e; }));
     return sheets.get(key);
   }
 
-  // ---------- 보이기·재생 ----------
+  // ---------- 동작: 정수 이동·90도 회전·번쩍임만 ----------
+  const ease = (a, b, t) => Math.round(a + (b - a) * Math.max(0, Math.min(1, t)));
+  // 시간 t(밀리초)에서 [dx, dy, 눕기(0|1), 흰빛(0~1), 빛색|null, 투명도]. 아군은 위쪽(dy<0)이 적 방향
+  function pose(m, t) {
+    switch (m) {
+      case '대기': return [0, Math.floor(t / 480) % 2, 0, 0, null, 1];
+      case '걷기': return [0, -(Math.floor(t / 160) % 2), 0, 0, null, 1];
+      case '달리기': return [0, -2 * (Math.floor(t / 100) % 2), 0, 0, null, 1];
+      case '공격':
+        if (t < 120) return [0, ease(0, 3, t / 120), 0, 0, null, 1];
+        if (t < 240) return [0, ease(3, -12, (t - 120) / 120), 0, 0, null, 1];
+        return [0, ease(-12, 0, (t - 240) / 280), 0, 0, null, 1];
+      case '스킬':
+        if (t < 260) return [0, ease(0, 4, t / 260), 0, 0, '#ffd84a', 1];
+        if (t < 520) return [0, ease(4, -18, (t - 260) / 260), 0, 0, '#ffd84a', 1];
+        return [0, ease(-18, 0, (t - 520) / 380), 0, t < 620 ? 0.6 : 0, '#ffd84a', 1];
+      case '피격': {
+        const k = Math.max(0, 1 - t / 460);
+        return [Math.round(Math.sin(t / 22) * 2 * k), Math.round(6 * k), 0, t < 110 ? 1 : 0, null, 1];
+      }
+      case '사망':
+        if (t < 140) return [0, 0, 0, 1, null, 1];
+        if (t < 360) return [ease(0, -3, (t - 140) / 220), ease(0, 4, (t - 140) / 220), 0, 0, null, 1];
+        return [0, 0, 1, 0, null, t < 600 ? 1 : Math.max(0.55, 1 - (t - 600) / 800)];
+      default: return [0, 0, 0, 0, null, 1];
+    }
+  }
   function draw(s) {
     const x = s.cv.getContext('2d'); x.clearRect(0, 0, BOX_W, BOX_H);
-    const sh = s.sheets && s.sheets[s.motion]; if (!sh) return;
-    const row = s.back ? 1 : 0;
+    const sp = s.sp; if (!sp) return;
+    const N = sp.N, row = s.back ? 1 : 0;
+    const [dx, dy, lie, flash, glow, alpha] = pose(s.motion, s.t);
     x.imageSmoothingEnabled = false;
-    x.drawImage(sh.cv, s.frame * sh.cw, row * sh.ch, sh.cw, sh.ch, Math.round(FOOT_X - sh.foot[0]), Math.round(FOOT_Y - sh.foot[1]) + 1, sh.cw, sh.ch);
+    x.save();
+    x.globalAlpha = alpha;
+    const ox = Math.round(FOOT_X - sp.foot[0]) + dx, oy = Math.round(FOOT_Y - sp.foot[1]) + dy;
+    if (lie) {
+      // 발 쪽을 축으로 옆으로 눕힌다(90도 회전은 도트가 그대로 돈다). 머리가 왼쪽, 발이 가운데 근처
+      // 회전 후 발(fx, fy)이 (FOOT_X+50, FOOT_Y-28)에 오고 머리는 왼쪽, 몸 옆면이 바닥에 닿는다
+      x.translate(FOOT_X + 50 + dx, FOOT_Y - 28 + dy);
+      x.rotate(-Math.PI / 2);
+      x.drawImage(sp.cv, 0, row * N, N, N, -Math.round(sp.foot[0]), -Math.round(sp.foot[1]), N, N);
+    } else {
+      if (glow) {
+        const g = s.glowCv || (s.glowCv = (() => { const c = document.createElement('canvas'); c.width = N; c.height = N * 2; return c; })());
+        const gx = g.getContext('2d'); gx.clearRect(0, 0, N, N * 2); gx.drawImage(sp.sil, 0, 0);
+        gx.globalCompositeOperation = 'source-in'; gx.fillStyle = glow; gx.fillRect(0, 0, N, N * 2); gx.globalCompositeOperation = 'source-over';
+        for (const [a, b] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) x.drawImage(g, 0, row * N, N, N, ox + a, oy + b, N, N);
+      }
+      x.drawImage(sp.cv, 0, row * N, N, N, ox, oy, N, N);
+      if (flash) { x.globalAlpha = alpha * flash; x.drawImage(sp.sil, 0, row * N, N, N, ox, oy, N, N); }
+    }
+    x.restore();
   }
   function play(s, motion, loop) {
-    if (!s.sheets || !s.sheets[motion]) return;
+    if (!s.sp) return;
     if (s.motion === '사망' && motion !== '사망' && motion !== '대기') return; // 쓰러진 뒤엔 되살아날 때만
-    s.motion = motion; s.frame = 0; s.loop = loop != null ? loop : !!LOOP[motion]; s.t = 0;
+    s.motion = motion; s.t = 0; s.loop = loop != null ? loop : !!LOOP[motion];
     draw(s);
   }
   let last = 0, running = false;
@@ -173,17 +211,11 @@ const SDSprite = (() => {
     const dt = last ? Math.min(400, now - last) : 16; last = now; // 화면 갱신이 느려져도(배경 탭 등) 실제 흐른 시간만큼 넘긴다
     for (const s of live) {
       if (!s.cv.isConnected) { live.delete(s); continue; }
-      const sh = s.sheets && s.sheets[s.motion]; if (!sh) continue;
       s.t += dt;
-      let moved = false;
-      while (s.t >= sh.t[s.frame]) {
-        s.t -= sh.t[s.frame];
-        if (s.frame + 1 < sh.n) { s.frame++; moved = true; }
-        else if (s.loop) { s.frame = 0; moved = true; }
-        else if (s.motion === '사망') { s.t = 0; break; }
-        else { s.motion = s.rest || '대기'; s.frame = 0; s.loop = true; moved = true; break; }
-      }
-      if (moved) draw(s);
+      const L = LEN[s.motion];
+      if (!s.loop && L && s.t >= L && s.motion !== '사망') { s.motion = '대기'; s.loop = true; s.t = 0; }
+      if (s.motion === '사망' && s.t > LEN['사망'] + 800) s.t = LEN['사망'] + 800;
+      draw(s);
     }
     if (live.size) requestAnimationFrame(tick); else { running = false; last = 0; }
   }
@@ -195,15 +227,15 @@ const SDSprite = (() => {
     const spr = el.querySelector('.fx-host > .sprite'); if (!spr || spr.dataset.sd) return;
     const L = look(u); if (!L) return;
     spr.dataset.sd = 'wait';
-    sheetsFor(L).then((sh) => {
+    sheetsFor(L).then((sp) => {
       if (!spr.isConnected) return;
       const cv = document.createElement('canvas'); cv.width = BOX_W; cv.height = BOX_H; cv.className = 'sd-char';
       spr.dataset.sd = '1'; spr.dataset.cuBust = '1';
       spr.innerHTML = ''; spr.appendChild(cv);
       el.classList.add('sd-fig');
-      const s = { cv, sheets: sh, motion: '대기', frame: 0, t: Math.random() * 200, loop: true, back: true };
+      const s = { cv, sp, motion: '대기', t: Math.random() * 480, loop: true, back: true };
       el._sd = s; live.add(s);
-      if (el.classList.contains('dead')) { s.motion = '사망'; s.frame = sh['사망'] ? sh['사망'].n - 1 : 0; s.loop = false; }
+      if (el.classList.contains('dead')) { s.motion = '사망'; s.t = LEN['사망'] + 800; s.loop = false; }
       draw(s); run();
     }).catch(() => { delete spr.dataset.sd; });
   }
@@ -224,7 +256,7 @@ const SDSprite = (() => {
     }
   }
 
-  return { attach, onEvent, look, sheetsFor, play, MOTIONS };
+  return { attach, onEvent, look, sheetsFor, play, draw, MOTIONS };
 })();
 
 // 카드 꾸미기 뒤에 캐릭터를 얹고, 전투 사건마다 동작을 바꾼다 (기존 함수는 감싸기로만 확장)
