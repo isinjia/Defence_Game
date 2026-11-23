@@ -11,7 +11,7 @@ const SDSprite = (() => {
   const BASE_SKIN = [222, 193, 173];
   const TONES = { fair: [246, 218, 200], medium: [220, 180, 150], tan: [182, 133, 95], deep: [133, 88, 65] };
   const OUTLINE = [34, 20, 30];
-  const BOX_W = 180, BOX_H = 120, FOOT_X = 90, FOOT_Y = 92; // 보이는 칸: 사망(180×120)이 다 들어가는 크기, 발 위치 고정
+  const BOX_W = 140, BOX_H = 96, FOOT_X = 70, FOOT_Y = 82; // 보이는 칸: 원본 도트 칸 사망 칸(140×96)이 다 들어가는 크기, 발 위치 고정. 화면에는 정수배로만(도트가 고르게)
   const data = () => (typeof SD_DATA !== 'undefined' ? SD_DATA : null);
   const imgs = new Map();
   const sheets = new Map();
@@ -138,7 +138,8 @@ const SDSprite = (() => {
           x.save();
           x.beginPath(); x.rect(i * cw, r * ch, cw, ch); x.clip();
           x.setTransform(M[0], M[3], M[1], M[4], M[2] + i * cw, M[5] + r * ch);
-          x.drawImage(head, 0, r * 96, 96, 96, 0, 0, 96, 96);
+          const hc = head.height / 2;   // 머리 그림 칸 크기(정면·뒷면 두 줄)
+          x.drawImage(head, 0, r * hc, hc, hc, 0, 0, hc, hc);
           x.restore();
         }
       });

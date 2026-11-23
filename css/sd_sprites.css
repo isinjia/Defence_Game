@@ -6,8 +6,11 @@
 #modal-box.cu-v2 #allies .ally.fig.sd-fig .sprite,
 #allies .ally.fig.sd-fig .sprite { overflow: visible; border-radius: 0; background: none; position: relative; }
 .ally.fig.sd-fig canvas.sd-char {
-  position: absolute; left: 50%; bottom: -10px; width: 225px; height: 150px; /* 1.25배: 키 80px, 발이 이름표 바로 위에 오게 */
+  position: absolute; left: 50%; bottom: -10px; width: 280px; height: 192px; /* 원본 도트를 2배(정수배)로: 도트가 고르다. 발이 이름표 바로 위에 오게 */
   transform: translateX(-50%); image-rendering: pixelated; image-rendering: crisp-edges; pointer-events: none;
 }
 .ally.fig.sd-fig.dead canvas.sd-char { filter: grayscale(0.6) brightness(0.8); }
 
+/* 캐릭터가 2배로 커서 뒷줄 캐릭터가 앞줄 이름·막대를 가리지 않게 이름표·막대를 캐릭터보다 위에 */
+#allies .ally.fig.sd-fig canvas.sd-char { z-index: 0; }
+#allies .ally.fig .fig-name, #allies .ally.fig > .bar-row, #allies .ally.fig > .bar, #allies .ally.fig > .status, #allies .ally.fig .tag { position: relative; z-index: 5; }
