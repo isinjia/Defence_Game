@@ -1,0 +1,110 @@
+{
+  "maps": [
+    {
+      "id": "training",
+      "theme": "협회 훈련용 게이트",
+      "file": "training.webp",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "subway",
+      "theme": "폐지하철역",
+      "file": "subway.webp",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "mall",
+      "theme": "침수된 쇼핑몰",
+      "file": "mall.webp",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "apartments",
+      "theme": "붕괴 아파트 단지",
+      "file": "apartments.webp",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "hospital",
+      "theme": "버려진 병원",
+      "file": "hospital.webp",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "data-center",
+      "theme": "지하 데이터센터",
+      "file": "data-center.webp",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "undersea-tunnel",
+      "theme": "해저 터널",
+      "file": "undersea-tunnel.webp",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "temple",
+      "theme": "고대 신전",
+      "file": "temple.webp",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "forest",
+      "theme": "에테르 숲",
+      "file": "forest.webp",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "factory",
+      "theme": "폐공장",
+      "file": "factory.webp",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "overpass",
+      "theme": "무너진 고가도로",
+      "file": "overpass.webp",
+      "size": [
+        1536,
+        1024
+      ]
+    }
+  ],
+  "styleReferences": [
+    "assets/portraits/main/seoyun-suit.png",
+    "assets/portraits/main/jin-young.png",
+    "assets/main_cut/cut-02-foodtent.webp"
+  ],
+  "encoding": "WebP quality94 from generated PNG originals",
+  "approved": "2026-11-23"
+}

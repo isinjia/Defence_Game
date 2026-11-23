@@ -1,0 +1,17 @@
+/* Map is behind combatants and effects. Keep turn/combat positions unchanged. */
+#modal-box.cu-v2.combat-box.fit .stage.has-battle-map {
+ background-color:#647078;
+ background-image:linear-gradient(#13202c14,#13202c24),var(--battle-map);
+ background-repeat:no-repeat;
+ background-size:cover;
+ background-position:center 40%;
+}
+#modal-box .stage.has-battle-map::before {content:none;}
+#modal-box.cu-v2 .stage.has-battle-map #allies.cu-rows,
+#modal-box.cu-v2 .stage.has-battle-map #allies.ally-rows {background:none;}
+#modal-box.cu-v2 .stage.has-battle-map .foe-name,
+#modal-box.cu-v2 .stage.has-battle-map .fig-name {background:#081421bb;border-radius:4px;padding:1px 4px;text-shadow:0 1px 2px #000;}
+
+@media(max-width:600px){
+ #modal-box.cu-v2.combat-box.fit .stage.has-battle-map {background-position:var(--battle-mobile-position,50% 40%);}
+}
