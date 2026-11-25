@@ -18,6 +18,7 @@ const NAMES = { slash: '검기', cleave: '내려찍기', thrust: '창 찌르기'
     await page.addScriptTag({ path: path.join(__dirname, '..', 'js', 'fx_pixelfx.js') });
     await page.addScriptTag({ path: path.join(__dirname, '..', 'js', 'fx_concept.js') });
     await page.addScriptTag({ path: path.join(__dirname, '..', 'js', 'vendor_pixelfx.js') });
+    await page.addScriptTag({ path: path.join(__dirname, '..', 'js', 'fx_gc_pixel.js') });
     await page.addScriptTag({ path: path.join(__dirname, '..', 'js', 'fx_pixel_bridge.js') });
     const bad = await page.evaluate(({ rows, cols, CW, CH, LW, TH, W, H, title, moments }) => {
       const acc = document.getElementById('acc').getContext('2d'); const G = FXG;
