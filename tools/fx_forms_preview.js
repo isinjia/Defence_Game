@@ -16,6 +16,7 @@ const NAMES = { slash: '검기', cleave: '내려찍기', thrust: '창 찌르기'
     await page.addScriptTag({ path: path.join(__dirname, '..', 'js', 'fx_gl.js') });
     await page.addScriptTag({ path: path.join(__dirname, '..', 'js', 'fx_forms.js') });
     await page.addScriptTag({ path: path.join(__dirname, '..', 'js', 'fx_pixelfx.js') });
+    await page.addScriptTag({ path: path.join(__dirname, '..', 'js', 'fx_concept.js') });
     const bad = await page.evaluate(({ rows, cols, CW, CH, LW, TH, W, H, title, moments }) => {
       const acc = document.getElementById('acc').getContext('2d'); const G = FXG;
       G.S.manual = true; if (!G.init()) return 'WebGL 초기화 실패'; G.resize(CW, CH, 1); G.S.cv.style.display = 'none'; // 칸 크기 캔버스에 그려 칸마다 옮겨 붙인다(큰 캔버스는 느리다)

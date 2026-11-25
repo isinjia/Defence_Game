@@ -1,6 +1,6 @@
 // ===== 스킬 이펙트 연출 (엔진: js/fx_gl.js) =====
 // 스킬 한 번의 연출 = 모양(form: 검기·화살·주먹…) + 속성(염·뇌·수·목·성·암) + 스킬 종류(치명·연속·관통·전체…) + 이름에서 읽은 꾸밈(비·폭풍·용·달·꽃…).
-// 다른 게임에서 같은 종류의 스킬이 흔히 보이는 방식을 따랐다: 검기는 초승달 칼바람, 발도는 한 줄 섬광 뒤 늦게 터지는 베기,
+// 다른 게임에서 같은 종류의 스킬이 흔히 보이는 방식을 따랐다: 검기는 칼날 호 궤적, 발도는 한 줄 섬광 뒤 늦게 터지는 베기,
 // 화염구는 불덩이와 폭발, 화살비는 하늘에서 쏟아지는 화살, 심판은 하늘에서 내리꽂는 빛기둥, 회복은 솟는 빛과 십자,
 // 보호막은 육각 판이 맞물리는 막, 부활은 빛기둥과 날개, 시간 정지는 시계 문양이 깨지는 식.
 // 어떤 스킬이 무엇을 쓰는지는 js/fx_forms_map.js 가 스킬 이름과 직업으로 고른다.
@@ -110,21 +110,88 @@ const FXF = (() => {
 
   // ---------- 공격 모양 ----------
   // from/to: {x, y, w, h}. o: { el, pal(색만 바꿀 때: blood·ice·poison), type, big, then, 꾸밈… }
-  // 초승달 칼바람 한 줄을 날린다
+  // 칼날 호 궤적 (pixelfx sword-slash): 칼끝이 시전자→대상 베지어를 빠르게 쓸고, 뒤는 가늘어지며 남는 스미어.
+  // 반달(crescent) 스프라이트를 날리지 않는다 — 궤적 자체로 검기를 읽게 한다.
   function crescentFly(from, to, o, size, tilt, delay, T, onHit) {
-    const E = el(o.pal || o.el), a = dirOf(from, to); const st = { x: from.x, y: from.y };
-    add({ delay, life: T, end: () => onHit && onHit(), draw(k) {
-      const x = from.x + (to.x - from.x) * k, y = from.y + (to.y - from.y) * k, s = size * (0.75 + 0.45 * k), al = k < 0.12 ? k / 0.12 : 1; st.x = x; st.y = y;
-      G.spr('glow', x, y, s * 1.3, s * 1.3, 0, rgb(E.main), 0.18 * al, true);
-      G.spr('crescent', x, y, s * 1.12, s * 1.12, a + tilt, rgb(E.lo), 0.4 * al, o.el === 'dark' ? false : true);
-      G.spr('crescent', x, y, s, s, a + tilt, rgb(E.main), 0.6 * al, true); G.spr('crescent', x + Math.cos(a) * s * 0.06, y + Math.sin(a) * s * 0.06, s * 0.74, s * 0.74, a + tilt, rgb(E.hi), 0.6 * al, true);
-      if (Math.random() < 0.4) p('crescent', x, y, { rot: a + tilt, s: [s * 0.9, s * 0.7], c: [E.main, E.lo], a: 0.12, life: 0.09 });
-      for (const sd of [-1, 1]) if (Math.random() < 0.7) p('spark', x + Math.cos(a + tilt + sd * 1.3) * s * 0.42, y + Math.sin(a + tilt + sd * 1.3) * s * 0.42, { vx: -Math.cos(a) * R(60, 200) + R(-40, 40), vy: -Math.sin(a) * R(60, 200) + R(-40, 40), s: [14, 2], asp: 0.3, face: true, c: [E.hi, E.main], life: 0.3 });
-      trail(o.pal || o.el, x, y, 0.8);
+    const E = el(o.pal || o.el), aim = dirOf(from, to), L = Math.max(48, dist(from, to));
+    const nx = Math.cos(aim + Math.PI / 2), ny = Math.sin(aim + Math.PI / 2);
+    const bulge = (Math.abs(tilt) < 0.05 ? 0.7 : tilt) * Math.max(size * 0.5, L * 0.35);
+    const start = { x: from.x + Math.cos(aim) * 8, y: from.y + Math.sin(aim) * 8 };
+    const end = { x: to.x + Math.cos(aim) * 36, y: to.y + Math.sin(aim) * 36 };
+    const ctrl = { x: (start.x + end.x) * 0.5 + nx * bulge, y: (start.y + end.y) * 0.5 + ny * bulge };
+    const bez = (u) => {
+      const v = 1 - u;
+      return [v * v * start.x + 2 * v * u * ctrl.x + u * u * end.x, v * v * start.y + 2 * v * u * ctrl.y + u * u * end.y];
+    };
+    const tangAt = (u) => {
+      // 베지어 접선 (칼날 진행 방향)
+      const tx = 2 * (1 - u) * (ctrl.x - start.x) + 2 * u * (end.x - ctrl.x);
+      const ty = 2 * (1 - u) * (ctrl.y - start.y) + 2 * u * (end.y - ctrl.y);
+      const len = Math.hypot(tx, ty) || 1;
+      return [tx / len, ty / len];
+    };
+    const sweep = Math.max(0.06, Math.min(0.14, (T || 0.2) * 0.6));
+    const hold = 0.05;
+    const trail = Math.max(0.18, Math.min(0.34, (T || 0.2) * 1.0));
+    const life = sweep + hold + trail;
+    const outExpo = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 4);
+    let hitDone = false;
+    const fireHit = () => { if (hitDone || !onHit) return; hitDone = true; try { onHit(); } catch (e) { /* 무시 */ } };
+    add({ delay, life, end: fireHit, draw(k) {
+      const t = k * life;
+      const headU = outExpo(t / sweep);
+      let tailU = 0;
+      if (t > hold * 0.5) {
+        const u = Math.max(0, (t - hold * 0.5) / (sweep + trail));
+        tailU = Math.min(headU, Math.pow(u, 1.35));
+      }
+      // 칼끝이 대상 근처(0.72~)에 닿을 때 타격
+      if (!hitDone && headU >= 0.72) fireHit();
+      const fade = t > sweep + hold ? Math.max(0, 1 - (t - sweep - hold) / trail) : 1;
+      if (fade <= 0.02 || headU <= tailU + 0.008) return;
+      const segs = 26;
+      const tip = bez(headU);
+      const [tdx, tdy] = tangAt(headU);
+      for (let i = 0; i < segs; i++) {
+        const u0 = tailU + (headU - tailU) * (i / segs);
+        const u1 = tailU + (headU - tailU) * ((i + 1) / segs);
+        const [x0, y0] = bez(u0);
+        const [x1, y1] = bez(u1);
+        const along = (i + 0.5) / segs; // 0 꼬리 → 1 칼끝
+        const wShape = Math.pow(Math.sin(Math.PI * Math.pow(Math.max(0.02, along), 1.9)), 0.5);
+        const w = Math.max(3, size * (0.09 + 0.11 * wShape) * (0.55 + 0.45 * along)) * fade;
+        const al = Math.min(1, 0.25 + along * 0.9) * fade;
+        G.seg(x0, y0, x1, y1, w * 2.6, w * 2.4, rgb(E.lo), 0.4 * al, o.el === 'dark' ? false : true);
+        G.seg(x0, y0, x1, y1, w * 1.5, w * 1.35, rgb(E.main), 0.85 * al, true);
+        G.seg(x0, y0, x1, y1, w * 0.65, w * 0.55, rgb(E.hi), al, true);
+        if (along > 0.72) G.seg(x0, y0, x1, y1, w * 0.32, w * 0.22, [1, 1, 1], al, true);
+      }
+      // 칼끝 + 짧은 검신 (궤적 끝의 칼날)
+      if (t < sweep + hold + 0.08) {
+        G.spr('glow', tip[0], tip[1], 56, 56, 0, rgb(E.hi), 0.5 * fade, true);
+        G.spr('core', tip[0], tip[1], 14, 14, 0, [1, 1, 1], 0.9 * fade, true);
+        G.seg(tip[0] - tdx * 10, tip[1] - tdy * 10, tip[0] + tdx * 34, tip[1] + tdy * 34, 4, 1.4, [1, 1, 1], 0.9 * fade, true);
+        G.seg(tip[0] - tdx * 8, tip[1] - tdy * 8, tip[0] + tdx * 28, tip[1] + tdy * 28, 7, 2.4, rgb(E.main), 0.55 * fade, true);
+        // 칼날 앞쪽 얇은 절삭선
+        G.seg(tip[0] + tdx * 6, tip[1] + tdy * 6, tip[0] + tdx * 48, tip[1] + tdy * 48, 2.2, 0.6, rgb(E.hi), 0.7 * fade, true);
+      }
+      if (tailU > 0.04) {
+        for (let u = tailU; u < headU; u += 0.06) {
+          const [x, y] = bez(u);
+          G.spr('glow', x, y, 12, 12, 0, rgb(E.main), 0.16 * fade * (u / headU), true);
+        }
+      }
+      if (Math.random() < 0.65 * (G.S.quality ? G.S.quality() : 1)) {
+        const u = tailU + (headU - tailU) * Math.random();
+        const [x, y] = bez(u);
+        const [sx, sy] = tangAt(u);
+        p('spark', x, y, { vx: sx * R(120, 280) + R(-50, 50), vy: sy * R(120, 280) + R(-50, 50), s: [14, 2], asp: 0.28, face: true, c: ['#ffffff', E.hi], life: 0.24 });
+        trail(o.pal || o.el, x, y, 0.7);
+      }
     } });
   }
   const FORM = {
-    // 검기: 초승달 칼바람이 날아가 베고 지나간다. 치명=X자, 연속=세 줄, 관통=발도(한 줄 섬광 뒤 늦게 터지는 베기)
+    // 검기: 칼날 호가 쓸고 지나간다. 치명=X자, 연속=세 줄, 관통=발도(한 줄 섬광 뒤 늦게 터지는 베기)
     slash(from, to, o) {
       const E = el(o.pal || o.el), a = dirOf(from, to), sc = o.big ? 1.25 : 1, T = Math.max(0.13, dist(from, to) / 1500);
       if (o.type === 'pierce') { // 발도·일섬: 화면을 가르는 가는 선 → 잠깐 멈춤 → 세 갈래 베기가 한꺼번에
@@ -133,11 +200,11 @@ const FXF = (() => {
         p('spark', (sx + ex) / 2, (sy + ey) / 2, { rot: a, s: [200, 500], asp: 0.14, c: [E.main, E.lo], a: 0.6, life: 0.3, pop: true, fout: 0.3 }); flash(from.x, from.y, E, 0.5);
         at(0.24, () => { for (let i = 0; i < 3; i++) cut(to.x + R(-6, 6), to.y + R(-6, 6), a + 1.57 + (i - 1) * 0.75, 190 * sc, E, i * 0.03, 1.2); flash(to.x, to.y, E, 1.1); hitAt(o, to.x, to.y, 1.1); }); return;
       }
-      const tilts = o.type === 'multi' ? [[0, 0.55, 0.85], [0.1, -0.6, 0.85], [0.2, 0.1, 1]] : (o.type === 'crit' || o.big) ? [[0, 0.62, 1.15], [0.06, -0.62, 1.15]] : [[0, R(-0.3, 0.3), 1]];
+      const tilts = o.type === 'multi' ? [[0, 0.55, 0.85], [0.1, -0.6, 0.85], [0.2, 0.1, 1]] : (o.type === 'crit' || o.big) ? [[0, 0.62, 1.15], [0.06, -0.62, 1.15]] : [[0, R(-0.25, 0.25), 1]];
       tilts.forEach(([dl, tilt, sz], i) => crescentFly(from, to, o, 150 * sz * sc, tilt, dl, T, () => { cut(to.x, to.y, a + tilt + 1.57, 210 * sz * sc, E, 0, 1.1); if (i === tilts.length - 1) hitAt(o, to.x, to.y, tilts.length > 1 ? 1.1 : 1); else accent(o.pal || o.el, to.x, to.y, 0.5); }));
       flash(from.x + Math.cos(a) * 20, from.y + Math.sin(a) * 20, E, 0.45);
     },
-    // 내려찍기: 머리 위에서 큰 칼바람이 떨어지고 바닥이 갈라진다
+    // 내려찍기: 머리 위에서 큰 칼날 호가 떨어지고 바닥이 갈라진다
     cleave(from, to, o) {
       const E = el(o.pal || o.el), sc = o.big ? 1.25 : 1, by = to.y + (to.h || 60) * 0.42;
       crescentFly({ x: to.x - 16, y: to.y - 190 }, { x: to.x, y: to.y + 6 }, o, 250 * sc, 0, 0, 0.15, () => {
@@ -381,8 +448,8 @@ const FXF = (() => {
   // from 시전자, area {x, y, w, h} 상대 진영, spots 실제 대상 자리
   const each = (spots, gap, fn) => spots.forEach((s, i) => at(i * gap, () => fn({ x: s.x, y: s.y, w: s.w || 50, h: s.h || 60 }, i)));
   const AOE = {
-    // 검기 폭풍: 진영 폭만 한 칼바람 두 줄이 쓸고 지나간다
-    slash(from, area, spots, o) { const E = el(o.pal || o.el), a = Math.atan2(area.y - from.y, area.x - from.x), far = { x: area.x + Math.cos(a) * 40, y: area.y + Math.sin(a) * 40 }, sz = Math.max(260, area.w * 1.15); flash(from.x, from.y, E, 0.6); crescentFly(from, far, o, sz, 0, 0, 0.26); crescentFly(from, far, o, sz * 0.8, 0, 0.08, 0.26); each(spots, 0.02, (s) => at(0.2, () => { cut(s.x, s.y, a + 1.57 + R(-0.4, 0.4), 190, E, 0, 1.1); accent(o.pal || o.el, s.x, s.y, 0.7); })); },
+    // 검기 폭풍: 진영 폭만 한 칼날 호 두 줄이 쓸고 지나간다
+    slash(from, area, spots, o) { const E = el(o.pal || o.el), a = Math.atan2(area.y - from.y, area.x - from.x), far = { x: area.x + Math.cos(a) * 40, y: area.y + Math.sin(a) * 40 }, sz = Math.max(260, area.w * 1.15); flash(from.x, from.y, E, 0.6); crescentFly(from, far, o, sz, 0.35, 0, 0.26); crescentFly(from, far, o, sz * 0.85, -0.4, 0.08, 0.26); each(spots, 0.02, (s) => at(0.2, () => { cut(s.x, s.y, a + 1.57 + R(-0.4, 0.4), 190, E, 0, 1.1); accent(o.pal || o.el, s.x, s.y, 0.7); })); },
     // 화살비: 하늘에서 비스듬히 쏟아진다
     arrow(from, area, spots, o) { const E = el(o.pal || o.el), all = spots.map((s) => ({ ...s, real: true })); for (let i = 0; i < N(14); i++) all.push({ x: area.x + R(-area.w / 2, area.w / 2), y: area.y + R(-area.h / 2, area.h / 2) }); p('ring', from.x, from.y, { s: [60, 20], c: [E.hi, E.main], life: 0.2 }); all.forEach((s) => fly({ from: { x: s.x - 130 + R(-14, 14), y: s.y - 440 }, to: s, dur: 0.2, delay: 0.1 + R(0, 0.34), el: o.el, pal: o.pal, hero: 'arrow', hs: s.real ? 104 : 84, rw: 6, rlen: 12, gs: 30, noTrail: !s.real, hit: (x, y, ang) => { p(G.hero('arrow', o.pal || o.el), x - Math.cos(ang) * 14, y - Math.sin(ang) * 14, { s: [s.real ? 104 : 84, s.real ? 104 : 84], rot: ang, c: ['#ffffff'], add: false, life: 0.5, fout: 0.6 }); if (s.real) accent(o.pal || o.el, x, y, 0.65); else ringThin(x, y + 8, E, 20, 0.34); } })); },
     // 난사: 진영 전체에 예광탄을 흩뿌린다
