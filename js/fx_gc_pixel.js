@@ -33,24 +33,73 @@
     return { meta: { name, desc, tags: ['gc', 'combat', 'one-shot'], size, origin, duration, loop: false, fps: 30, options }, create };
   }
 
-  // ---------- 공통: 히트 십자( hit-spark 기법 ) ----------
-  function hitCross(p, x, y, aim, C, t, sc = 1) {
-    if (t < 0 || t > 0.12) return;
-    const L = (t < 0.03 ? 28 : t < 0.06 ? 34 : 18) * sc;
-    const arms = [[aim, 1], [aim + Math.PI, 0.35], [aim + 1.57, 0.55], [aim - 1.57, 0.45]];
-    for (const [a, k] of arms) {
-      const c = Math.cos(a), s = Math.sin(a);
-      for (let d = 0; d <= L * k; d += 0.5) {
-        const u = d / (L * k || 1);
-        const col = u < 0.25 ? WHITE : u < 0.55 ? C[5] : C[3];
-        p.px(x + c * d, y + s * d, col);
-        if (u < 0.35) p.px(x + c * d - s, y + s * d + c, C[5]);
+  // ---------- 공통: hit-spark 풀레시피 (비대칭 ray · 다이아 · 히어로프레임) ----------
+  function hitRay(p, x, y, a, L, w, C, from = 0) {
+    const c = Math.cos(a), s = Math.sin(a);
+    for (let d = from * L; d <= L; d += 0.5) {
+      const u = d / (L || 1), hw = w * Math.pow(1 - u, 1.6);
+      const col = u < 0.3 ? WHITE : u < 0.62 ? C[5] : u < 0.88 ? C[4] : C[3];
+      p.px(x + c * d, y + s * d, col);
+      if (hw > 0.45) for (let o = 0.5; o <= hw; o += 0.5)
+        for (const e of [-o, o]) p.px(x + c * d - s * e, y + s * d + c * e, u < 0.3 && o < 1 ? C[5] : C[4]);
+    }
+  }
+  function hitDiamond(p, x, y, r, C) {
+    for (let dy = -r - 1; dy <= r + 1; dy++)
+      for (let dx = -r - 1; dx <= r + 1; dx++) {
+        const m = Math.abs(dx) + Math.abs(dy);
+        if (m <= r) p.px(x + dx, y + dy, WHITE);
+        else if (m === r + 1) p.px(x + dx, y + dy, C[3]);
       }
+  }
+  /** 히트 순간 연출. t=히트 후 경과, crit=강타/크리 히어로프레임 */
+  function hitCross(p, x, y, aim, C, t, sc = 1, crit = false) {
+    if (t < 0 || t > 0.14) return;
+    const A = aim, k = sc * (crit ? 1.22 : 1);
+    const rays = [
+      { a: A, L: 35 * k, w: 2.2 },
+      { a: A + Math.PI, L: 9 * k, w: 2.2 },
+      { a: A - Math.PI / 2, L: 16 * k, w: 2.5 },
+      { a: A + Math.PI / 2, L: 11 * k, w: 2.2 },
+      { a: A - Math.PI / 4, L: 6 * k, w: 1 },
+    ];
+    const whiteRamp = [WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE];
+    if (crit && t < 0.028) {
+      for (const r of rays) hitRay(p, x, y, r.a, r.L * 1.12, r.w * 1.15, whiteRamp);
+      hitDiamond(p, x, y, Math.round(5 * k), C);
+      flare(p, x, y, 30 * k, 0.95, C);
+    } else if (t < 0.028) {
+      for (const r of rays) hitRay(p, x, y, r.a, r.L, r.w, C);
+      hitDiamond(p, x, y, Math.round(4 * k), C);
+    } else if (t < 0.06) {
+      for (const r of rays) hitRay(p, x, y, r.a, r.L * 1.2, r.w * 0.55, C, 0.12);
+      hitDiamond(p, x, y, Math.round(3 * k), C);
+      if (crit) flare(p, x, y, 22 * k, 0.5, C);
+    } else if (t < 0.1) {
+      hitRay(p, x, y, rays[0].a, rays[0].L * 1.3, 0.6, [C[0], C[1], C[2], C[3], C[3], C[4]], 0.4);
     }
-    for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) {
-      if (Math.abs(dx) + Math.abs(dy) <= 3) p.px(x + dx, y + dy, WHITE);
+    const pop = Math.exp(-t / 0.045);
+    if (pop > 0.02) {
+      p.glow(x, y, 22 * k, C[4], (crit ? 0.42 : 0.3) * pop);
+      p.glow(x, y, 7 * k, WHITE, (crit ? 0.4 : 0.16) * pop);
+      p.glowLine(x, y, x + Math.cos(A) * 26 * k, y + Math.sin(A) * 26 * k, 4, C[5], 0.25 * pop);
     }
-    p.glow(x, y, 18 * sc, C[4], 0.35 * (1 - t / 0.12));
+  }
+  /** 히트 1회: SPARK 원뿔 + GRIT + Lights (update에서) */
+  function hitBurst(ps, lights, x, y, aim, C, Rg, sc = 1, crit = false) {
+    const A = aim, nSp = crit ? 16 : 9, nGr = crit ? 10 : 6;
+    if (lights) {
+      lights.add(x, y, 38 * sc, C[4], crit ? 0.5 : 0.35, 0.18);
+      lights.add(x + Math.cos(A) * 10, y + Math.sin(A) * 10, 22 * sc, C[5], 0.45, 0.1);
+    }
+    for (let i = 0; i < nSp; i++) {
+      const a = A + Rg.range(-0.6, 0.6) - 0.15, v = Rg.range(170, 360) * sc;
+      ps.spawn(P.SPARK, x + 1, y, Math.cos(a) * v, Math.sin(a) * v - 40, Rg.range(0.25, 0.45), WHITE, 1, i > nSp - 3 ? Rg.range(0.01, 0.03) : 0);
+    }
+    for (let i = 0; i < nGr; i++) {
+      const a = A + Rg.range(-1.1, 0.5) - 0.3, v = Rg.range(70, 170) * sc;
+      ps.spawn(P.GRIT, x + 1, y, Math.cos(a) * v, Math.sin(a) * v - Rg.range(30, 80), Rg.range(0.35, 0.45), Rg.pick([C[5], C[4], C[4], C[3]]), 1);
+    }
   }
 
   // ---------- 검기: 시전자→대상 칼끝 궤적 (베지어 스미어, 하드램프) ----------
@@ -124,6 +173,8 @@
       t0, path: makeSlashPath(reach * sc, kind === 'pierce' ? 2 : 22 * sc, tilt),
       W: kind === 'pierce' ? 1.8 : 3.8 * sc, sweep: kind === 'pierce' ? 0.05 : 0.1, hold: 0.08, trail: 0.32,
     }));
+    const lights = new Lights();
+    const isCrit = !!(o.big || kind === 'crit');
     let t = 0, landed = false;
     return {
       update(dt) {
@@ -131,16 +182,13 @@
         if (!landed && t >= 0.1) {
           landed = true;
           const tip = paths[paths.length - 1].path(1);
-          for (let i = 0; i < 12; i++) {
-            const a = Rg.range(-0.9, 0.9), sp = Rg.range(140, 380);
-            ps.spawn(P.SPARK, tip.x, tip.y, Math.cos(a) * sp, Math.sin(a) * sp, Rg.range(0.12, 0.32));
-          }
-          for (let i = 0; i < 14; i++) {
+          hitBurst(ps, lights, tip.x, tip.y, 0, C, Rg, isCrit ? 1.15 : 1, isCrit);
+          for (let i = 0; i < 10; i++) {
             const u = Rg.range(0.35, 1), q = paths[0].path(u), sp = Rg.range(30, 100);
             ps.spawn(P.MOTE, q.x, q.y, Rg.range(-50, 50), -sp, Rg.range(0.25, 0.55), C[4 + Rg.int(0, 1)], 0.6);
           }
         }
-        ps.update(dt);
+        ps.update(dt); lights.update(dt);
       },
       draw(p) {
         for (const s of paths) {
@@ -164,8 +212,8 @@
           }
         }
         // 히트 십자는 짧게만 — 검기 궤적이 주인공
-        if (landed && t - 0.1 < 0.07) hitCross(p, paths[0].path(1).x, paths[0].path(1).y, 0, C, t - 0.1, o.big ? 1.1 : 0.85);
-        ps.draw(p);
+        if (landed && t - 0.1 < 0.12) hitCross(p, paths[0].path(1).x, paths[0].path(1).y, 0, C, t - 0.1, o.big ? 1.1 : 0.85, isCrit);
+        ps.draw(p); lights.draw(p);
       },
     };
   });
@@ -188,12 +236,8 @@
         t += dt;
         if (!struck && t >= OUT) {
           struck = true;
-          lights.add(TX, TY, 40, C[4], 0.45, 0.25);
+          hitBurst(ps, lights, TX, TY, 0, C, Rg, o.big ? 1.2 : 1, !!o.big);
           lights.add(TX, TY, 12, WHITE, 0.55, 0.06);
-          for (let i = 0; i < 12; i++) {
-            const a = Rg.range(-0.55, 0.45), sp = Rg.range(150, 340);
-            ps.spawn(P.SPARK, TX, TY, Math.cos(a) * sp, Math.sin(a) * sp - 20, Rg.range(0.12, 0.32));
-          }
         }
         ps.update(dt); lights.update(dt);
       },
@@ -214,16 +258,17 @@
           }
         }
         const q = t - OUT;
+        if (q >= 0 && q < 0.14) hitCross(p, TX, TY, 0, C, q, o.big ? 1.2 : 1, !!o.big);
         if (q >= 0 && q < 0.35) {
           const g = ease.outBack(clamp(q / 0.04), 2.2) * (1 - smooth(0.08, 0.35, q));
-          const L = 22 * g;
-          for (const [dx, dy, k] of [[1, 0, 1], [-1, 0, 0.65], [0, -1, 0.4], [0, 1, 0.4]]) {
+          const L = 18 * g;
+          for (const [dx, dy, k] of [[1, 0, 1], [-1, 0, 0.55]]) {
             for (let d = 1; d <= L * k; d += 0.5) {
               const u = d / (L * k); p.px(TX + dx * d, TY + dy * d, u < 0.3 ? WHITE : u < 0.65 ? C[5] : C[4]);
             }
           }
           p.px(TX, TY, WHITE);
-          p.glow(TX, TY, 8 + L, C[4], 0.3 * (1 - q / 0.35));
+          p.glow(TX, TY, 8 + L, C[4], 0.28 * (1 - q / 0.35));
         }
         ps.draw(p); lights.draw(p);
       },
@@ -285,7 +330,7 @@
             const L = 18 + (Math.abs(ang) < 0.4 ? 14 : 0);
             for (let d = 2; d < L * (1 - q * 0.5); d++) p.dot(X + Math.cos(ang) * d, BOT + Math.sin(ang) * d * 0.35, C[2], 0.8 - q);
           }
-          hitCross(p, X, BOT - 8, -1.57, C, q, 1.1);
+          hitCross(p, X, BOT - 8, -1.57, C, q, o.big ? 1.25 : 1.1, !!o.big);
         }
         ps.draw(p); lights.draw(p);
       },
@@ -306,11 +351,7 @@
         t += dt;
         if (!hit && t >= DUR) {
           hit = true;
-          lights.add(TX, TY, 44, C[4], 0.5, 0.2);
-          for (let i = 0; i < 14; i++) {
-            const a = Rg.range(0, TAU), sp = Rg.range(120, 360);
-            ps.spawn(P.SPARK, TX, TY, Math.cos(a) * sp, Math.sin(a) * sp, Rg.range(0.15, 0.35));
-          }
+          hitBurst(ps, lights, TX, TY, 0, C, Rg, o.big ? 1.25 : 1.05, !!o.big);
           for (let i = 0; i < 7; i++) ps.spawn(P.DUST, TX, TY, Rg.range(-50, 50), Rg.range(-40, -10), Rg.range(0.35, 0.6), C[1], 1.1);
         }
         ps.update(dt); lights.update(dt);
@@ -329,7 +370,7 @@
         }
         if (hit) {
           const q = t - DUR;
-          hitCross(p, TX, TY, 0, C, q, o.big ? 1.3 : 1.1);
+          hitCross(p, TX, TY, 0, C, q, o.big ? 1.3 : 1.1, !!o.big);
           // 충격 링
           const r = 4 + 22 * ease.outCubic(clamp(q / 0.1));
           for (let a = 0; a < TAU; a += 0.12) p.dot(TX + Math.cos(a) * r, TY + Math.sin(a) * r * 0.7, q < 0.06 ? WHITE : C[4], Math.max(0, 1 - q / 0.28));
@@ -360,10 +401,7 @@
         t += dt;
         if (!doneHit && t >= 0.04 + (n - 1) * 0.045) {
           doneHit = true;
-          for (let i = 0; i < 10; i++) {
-            const a = Rg.range(0, TAU), sp = Rg.range(100, 280);
-            ps.spawn(P.SPARK, cuts[n - 1].ox, -16 + cuts[n - 1].oy, Math.cos(a) * sp, Math.sin(a) * sp, Rg.range(0.12, 0.28));
-          }
+          hitBurst(ps, null, cuts[n - 1].ox, -16 + cuts[n - 1].oy, 0.4, C, Rg, o.big ? 1.1 : 0.9, !!(o.big || o.kind === 'crit'));
         }
         ps.update(dt);
       },
@@ -377,12 +415,14 @@
           const x0 = c.ox - cs * c.len * 0.35, y0 = -16 + c.oy - sn * c.len * 0.35;
           for (let d = 0; d <= c.len * head; d += 0.5) {
             const v = d / c.len;
-            const col = v > 0.75 ? WHITE : v > 0.4 ? C[5] : C[3];
-            p.dot(x0 + cs * d, y0 + sn * d, col, fade);
+            const col = v > 0.7 ? WHITE : v > 0.35 ? C[5] : C[3];
+            const x = x0 + cs * d, y = y0 + sn * d;
+            p.px(x, y, col);
+            if (v > 0.2 && v < 0.85) { p.px(x - sn, y + cs, C[4]); p.px(x + sn, y - cs, fade > 0.5 ? C[3] : C[2]); }
           }
-          if (u < 0.08) p.px(x0 + cs * c.len * head, y0 + sn * c.len * head, WHITE);
+          if (u < 0.1) hitDiamond(p, x0 + cs * c.len * head, y0 + sn * c.len * head, 2, C);
         }
-        if (doneHit) hitCross(p, 0, -16, 0.4, C, t - (0.04 + (n - 1) * 0.045), 0.9);
+        if (doneHit) hitCross(p, 0, -16, 0.4, C, t - (0.04 + (n - 1) * 0.045), 0.9, !!(o.big || o.kind === 'crit'));
         ps.draw(p);
       },
     };
@@ -477,7 +517,7 @@
           const g = t / FLY, x = HX + (TX - HX) * g;
           for (let d = 0; d < 18; d++) p.dot(x - d, HY, d < 2 ? WHITE : C[4], 1 - d / 18);
         }
-        if (hit) hitCross(p, TX, TY, 0, C, t - FLY, snipe ? 1.3 : 0.9);
+        if (hit) hitCross(p, TX, TY, 0, C, t - FLY, snipe ? 1.3 : 0.9, !!(o.big || snipe));
         ps.draw(p);
       },
     };
@@ -612,7 +652,7 @@
             // 십자 섬광
             for (let d = -16; d <= 16; d++) { p.px(TX + d, TY, Math.abs(d) < 3 ? WHITE : C[5]); p.px(TX, TY + d, Math.abs(d) < 3 ? WHITE : C[5]); }
             p.glow(TX, TY, 24, C[4], 0.4 * Math.exp(-q / 0.15));
-          } else hitCross(p, TX, TY, 0, C, q, 1.1);
+          } else hitCross(p, TX, TY, 0, C, q, o.big ? 1.25 : 1.1, !!o.big);
         }
         ps.draw(p); lights.draw(p);
       },
@@ -704,19 +744,25 @@
       },
       draw(p) {
         const al = t > 0.45 ? 1 - (t - 0.45) / 0.2 : Math.min(1, t * 6);
-        const r = 14 + 12 * clamp(t / 0.2);
+        if (al <= 0) { ps.draw(p); return; }
+        const r = 16 + 14 * clamp(t / 0.18);
         for (let i = 0; i < 5; i++) {
-          const a0 = t * 16 + i * TAU / 5, a1 = a0 + 0.95;
-          for (let s = 0; s < 12; s++) {
-            const u = s / 12, ang = a0 + (a1 - a0) * u;
-            const x = Math.cos(ang) * r, y = Math.sin(ang) * r * 0.65 - 10;
+          const a0 = t * 16 + i * TAU / 5, a1 = a0 + 1.05;
+          for (let s = 0; s <= 16; s++) {
+            const u = s / 16, ang = a0 + (a1 - a0) * u;
             const w = Math.sin(u * Math.PI);
-            const c = w > 0.7 ? WHITE : w > 0.35 ? C[5] : C[3];
-            p.dot(x, y, c, al * (0.5 + 0.5 * w));
-            if (w > 0.5) p.dot(x * 0.92, y * 0.92, C[4], al * 0.6);
+            if (w < 0.12) continue;
+            const x = Math.cos(ang) * r, y = Math.sin(ang) * r * 0.62 - 10;
+            const col = w > 0.75 ? WHITE : w > 0.4 ? C[5] : C[4];
+            p.px(x, y, col);
+            p.px(x * 0.9, y * 0.9 - 1, w > 0.5 ? C[5] : C[3]);
+            if (w > 0.55) p.px(Math.cos(ang) * (r + 1), Math.sin(ang) * (r + 1) * 0.62 - 10, WHITE);
           }
         }
-        p.glow(0, -10, 18, C[3], 0.3 * al);
+        // 중심 흰 코어 한 곳
+        hitDiamond(p, 0, -10, t < 0.2 ? 3 : 2, C);
+        p.glow(0, -10, 16, C[3], 0.28 * al);
+        if (landed && t - 0.15 < 0.12) hitCross(p, 0, -10, t * 2, C, t - 0.15, 0.9, !!o.big);
         ps.draw(p);
       },
     };
@@ -732,13 +778,21 @@
       update(dt) { t += dt; if (t > 0.08 && t < 0.1) for (let i = 0; i < 8; i++) ps.spawn(P.SPARK, 20, -12, Rg.range(-40, 160), Rg.range(-120, 40), 0.25); ps.update(dt); },
       draw(p) {
         for (let i = 0; i < 3; i++) {
-          const delay = i * 0.03, u = t - delay; if (u < 0 || u > 0.22) continue;
-          const head = ease.outExpo(clamp(u / 0.06)), fade = u > 0.12 ? 1 - (u - 0.12) / 0.1 : 1;
-          const ang = -0.9 + i * 0.15, cs = Math.cos(ang), sn = Math.sin(ang);
-          for (let d = 0; d < 36 * head; d += 0.5) {
-            const v = d / 36; p.dot(cs * d, -20 + sn * d + (i - 1) * 5, v > 0.7 ? WHITE : C[5], fade);
+          const delay = i * 0.03, u = t - delay; if (u < 0 || u > 0.24) continue;
+          const head = ease.outExpo(clamp(u / 0.06)), fade = u > 0.12 ? 1 - (u - 0.12) / 0.12 : 1;
+          if (fade <= 0) continue;
+          const ang = -0.95 + i * 0.18, cs = Math.cos(ang), sn = Math.sin(ang);
+          const oy = -20 + (i - 1) * 6;
+          for (let d = 0; d < 38 * head; d += 0.5) {
+            const v = d / 38;
+            const col = v > 0.72 ? WHITE : v > 0.35 ? C[5] : C[3];
+            const x = cs * d, y = oy + sn * d;
+            p.px(x, y, col);
+            if (v > 0.15 && v < 0.9) p.px(x - sn * 1.2, y + cs * 1.2, C[4]);
           }
+          if (u < 0.08) hitDiamond(p, cs * 38 * head, oy + sn * 38 * head, 2, C);
         }
+        if (t > 0.08 && t < 0.2) hitCross(p, 22, -12, 0.2, C, t - 0.08, 0.85, !!o.big);
         ps.draw(p);
       },
     };
@@ -767,7 +821,7 @@
             if (x % 3 < 1) p.px(x, -14, C[3]);
           }
           p.glowLine(0, -12, TX, -12, 5, C[4], 0.35 * fade);
-          hitCross(p, TX, -12, 0, C, t - 0.12, 1);
+          hitCross(p, TX, -12, 0, C, t - 0.12, 1, !!o.big);
         }
         ps.draw(p);
       },
@@ -814,16 +868,18 @@
       },
       draw(p) {
         const r = 28 - 10 * ease.outCubic(clamp(t / 0.35));
-        for (let a = 0; a < TAU; a += 0.2) {
-          const x = Math.cos(a + t) * r, y = Math.sin(a + t) * r * 0.8 - 10;
-          p.dot(x, y, C[4], 0.85);
-          if (a % 1 < 0.2) p.px(x, y, C[5]);
+        for (let a = 0; a < TAU; a += 0.1) {
+          const x = Math.cos(a + t * 1.2) * r, y = Math.sin(a + t * 1.2) * r * 0.78 - 10;
+          p.px(x, y, C[4]);
+          if ((a * 5) % 1 < 0.35) { p.px(x, y, C[5]); p.px(x * 0.85, y * 0.85 - 1.5, C[3]); }
         }
-        // 눈
-        if (t > 0.1) {
-          p.px(0, -18, C[5]); p.px(-2, -18, C[3]); p.px(2, -18, C[3]); p.px(0, -17, WHITE);
+        // 눈 — 포컬 포인트
+        if (t > 0.08) {
+          hitDiamond(p, 0, -16, 2, C);
+          p.px(-3, -16, C[5]); p.px(3, -16, C[5]);
+          p.px(-3, -15, WHITE); p.px(3, -15, WHITE);
         }
-        p.glow(0, -10, 16, C[2], 0.3 * (1 - t / 0.7));
+        p.glow(0, -10, 14, C[2], 0.28 * (1 - t / 0.7));
         ps.draw(p);
       },
     };
@@ -876,7 +932,7 @@
             p.px(x, yOpen + side * h, C[3]);
           }
         }
-        if (bit) hitCross(p, 0, -12, 0, C, t - 0.12, 0.95);
+        if (bit) hitCross(p, 0, -12, 0, C, t - 0.12, 0.95, !!o.big);
         ps.draw(p);
       },
     };
@@ -908,17 +964,27 @@
       },
       draw(p) {
         if (t < 0.35) {
-          for (let i = 0; i < 4; i++) {
-            const r = 36 - t * 70 + i * 3;
-            if (r < 4) continue;
-            for (let a = 0; a < TAU; a += 0.25) p.dot(Math.cos(a + t * 3) * r, Math.sin(a + t * 3) * r * 0.75 - 12, i % 2 ? C[5] : C[3], 0.7);
+          for (let i = 0; i < 3; i++) {
+            const r = 34 - t * 68 + i * 4;
+            if (r < 3) continue;
+            for (let a = 0; a < TAU; a += 0.12) {
+              const x = Math.cos(a + t * 2.5) * r, y = Math.sin(a + t * 2.5) * r * 0.72 - 12;
+              p.px(x, y, i === 0 ? C[5] : C[3]);
+              if (i === 0) p.px(x * 0.92, y * 0.92 + (-12) * 0.08, C[4]);
+            }
           }
+          hitDiamond(p, 0, -12, 3, C);
           p.glow(0, -12, 14, C[3], 0.35);
         } else {
           const q = t - 0.35;
-          hitCross(p, 0, -12, 0.3, C, q, 1.15);
+          hitCross(p, 0, -12, 0.3, C, q, 1.15, !!o.big);
           const r = 6 + 28 * ease.outCubic(clamp(q / 0.12));
-          for (let a = 0; a < TAU; a += 0.12) p.dot(Math.cos(a) * r, Math.sin(a) * r * 0.7 - 12, q < 0.08 ? WHITE : C[4], Math.max(0, 1 - q / 0.3));
+          for (let a = 0; a < TAU; a += 0.1) {
+            const x = Math.cos(a) * r, y = Math.sin(a) * r * 0.7 - 12;
+            p.px(x, y, q < 0.08 ? WHITE : C[4]);
+            if (q < 0.1) p.px(x * 0.85, y * 0.85 - 2, C[5]);
+          }
+          if (q < 0.06) hitDiamond(p, 0, -12, 4, C);
         }
         ps.draw(p); lights.draw(p);
       },
@@ -1210,14 +1276,19 @@
       draw(p) {
         const g = ease.outBack(clamp(t / 0.14));
         const fade = t > 0.35 ? 1 - (t - 0.35) / 0.2 : 1;
+        if (fade <= 0) return;
         const R = 26 * g;
-        for (let a = -Math.PI; a <= 0; a += 0.08) {
-          p.dot(Math.cos(a) * R, Math.sin(a) * R - 4, C[5], fade);
-          p.dot(Math.cos(a) * R * 0.85, Math.sin(a) * R * 0.85 - 4, C[3], fade * 0.5);
+        for (let a = -Math.PI; a <= 0; a += 0.06) {
+          const x = Math.cos(a) * R, y = Math.sin(a) * R - 4;
+          p.px(x, y, C[5]);
+          p.px(Math.cos(a) * R * 0.88, Math.sin(a) * R * 0.88 - 4, C[3]);
+          if (a > -2.2 && a < -0.9) p.px(x, y - 1, WHITE);
         }
-        for (let x = -R; x <= R; x += 2) p.dot(x, -4, C[4], fade * 0.6);
-        p.glow(0, -16, 16, C[3], 0.3 * fade);
-        if (t < 0.18) sparkle(p, 0, -22, 9 * (1 - t / 0.18), C[5], C[3], 0.5);
+        for (let x = -R; x <= R; x += 1) p.px(x, -4, C[4]);
+        // 꼭대기 흰 코어
+        hitDiamond(p, 0, -4 - R, 2, C);
+        p.glow(0, -16, 16, C[3], 0.28 * fade);
+        if (t < 0.18) sparkle(p, 0, -4 - R, 10 * (1 - t / 0.18), C[5], C[3], 0.55);
       },
     };
   });
