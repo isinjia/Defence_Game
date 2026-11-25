@@ -101,7 +101,12 @@ const FXF = (() => {
     return (o.delay || 0) + dur;
   }
   // 맞는 순간: 속성 타격 + 피해 표시와 맞물리게 넘겨받은 것을 부른다
-  const hitAt = (o, x, y, sc = 1) => { accent(o.pal || o.el, x, y, sc * (o.big ? 1.3 : 1)); if (o.then) { const f = o.then; o.then = null; try { f(); } catch (e) { /* 무시 */ } } };
+  // pixelfx 타격감(흰 프레임·십자 섬광·히트스톱)은 js/fx_pixelfx.js 가 onHit 으로 얹는다
+  const hitAt = (o, x, y, sc = 1) => {
+    accent(o.pal || o.el, x, y, sc * (o.big ? 1.3 : 1));
+    try { if (typeof FXPX !== 'undefined' && FXPX.onHit) FXPX.onHit(o, x, y, sc); } catch (e) { /* 무시 */ }
+    if (o.then) { const f = o.then; o.then = null; try { f(); } catch (e) { /* 무시 */ } }
+  };
 
   // ---------- 공격 모양 ----------
   // from/to: {x, y, w, h}. o: { el, pal(색만 바꿀 때: blood·ice·poison), type, big, then, 꾸밈… }
@@ -503,9 +508,9 @@ const FXF = (() => {
     forms: Object.keys(FORM),
     ready: () => G.init(),
     // 단일 대상
-    play(form, from, to, o = {}) { if (!from || !to || !G.init()) return false; const t = { w: 50, h: 60, ...to }, f = { w: 50, h: 60, ...from }; (FORM[form] || FORM.orb)(f, t, o); return true; },
+    play(form, from, to, o = {}) { if (!from || !to || !G.init()) return false; const t = { w: 50, h: 60, ...to }, f = { w: 50, h: 60, ...from }; (FORM[form] || FORM.orb)(f, t, { ...o, from: f, to: t }); return true; },
     // 전체 대상
-    playAoe(form, from, area, spots, o = {}) { if (!area || !G.init()) return false; const fn = AOE[form] || AOE[AOE_ALIAS[form]] || AOE.orb; fn(from || { x: area.x, y: area.y + 260 }, area, spots && spots.length ? spots : [{ x: area.x, y: area.y }], o); return true; },
+    playAoe(form, from, area, spots, o = {}) { if (!area || !G.init()) return false; const f = from || { x: area.x, y: area.y + 260 }; const fn = AOE[form] || AOE[AOE_ALIAS[form]] || AOE.orb; fn(f, area, spots && spots.length ? spots : [{ x: area.x, y: area.y }], { ...o, from: f }); return true; },
     // 보조
     support(kind, t, e, o) { if (!t || !G.init()) return false; const tt = { w: 50, h: 60, ...t }; (SUP[kind] || SUP.buff)(tt, e, o); return true; },
     drain(from, to, e) { if (!from || !to || !G.init()) return false; SUP.drain(from, to, e); return true; },

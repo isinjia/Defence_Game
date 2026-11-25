@@ -13,7 +13,9 @@ const NAMES = { slash: '검기', cleave: '내려찍기', thrust: '창 찌르기'
     const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
     const errs = []; page.on('pageerror', (e) => errs.push(e.message));
     await page.setContent(`<body style="margin:0;background:#0a0f18;overflow:hidden"><canvas id="acc" width="${W}" height="${H}" style="position:fixed;left:0;top:0"></canvas></body>`);
-    await page.addScriptTag({ path: path.join(__dirname, '..', 'js', 'fx_gl.js') }); await page.addScriptTag({ path: path.join(__dirname, '..', 'js', 'fx_forms.js') });
+    await page.addScriptTag({ path: path.join(__dirname, '..', 'js', 'fx_gl.js') });
+    await page.addScriptTag({ path: path.join(__dirname, '..', 'js', 'fx_forms.js') });
+    await page.addScriptTag({ path: path.join(__dirname, '..', 'js', 'fx_pixelfx.js') });
     const bad = await page.evaluate(({ rows, cols, CW, CH, LW, TH, W, H, title, moments }) => {
       const acc = document.getElementById('acc').getContext('2d'); const G = FXG;
       G.S.manual = true; if (!G.init()) return 'WebGL 초기화 실패'; G.resize(CW, CH, 1); G.S.cv.style.display = 'none'; // 칸 크기 캔버스에 그려 칸마다 옮겨 붙인다(큰 캔버스는 느리다)
