@@ -91,10 +91,10 @@
       out.c = C[n - 1 - clamp(ci, 0, n - 1)];
       out.a = Math.min(1, v / 0.35);
     });
-    // 칼끝 빛
+    // 칼끝 빛 (가늘게 — 스미어를 덮지 않게)
     const tip = path(head);
-    p.glow(tip.x, tip.y, 6 + W * 0.5, C[n - 3], 0.35 * (1 - age));
-    p.glow(tip.x, tip.y, 3, WHITE, 0.25 * (1 - age));
+    p.glow(tip.x, tip.y, 3 + W * 0.35, C[n - 3], 0.22 * (1 - age));
+    p.glow(tip.x, tip.y, 2, WHITE, 0.18 * (1 - age));
   }
 
   function makeSlashPath(reach, bulge, tilt) {
@@ -121,8 +121,8 @@
       : (kind === 'crit' || o.big) ? [[0, 0.85, 1.15], [0.05, -0.75, 1.1]]
         : kind === 'pierce' ? [[0, 0.05, 0.7]] : [[0, 0.55 + Rg.range(-0.1, 0.1), 1]];
     const paths = cuts.map(([t0, tilt, sc]) => ({
-      t0, path: makeSlashPath(reach * sc, kind === 'pierce' ? 3 : 26 * sc, tilt),
-      W: kind === 'pierce' ? 2.5 : 6.5 * sc, sweep: kind === 'pierce' ? 0.05 : 0.1, hold: 0.08, trail: 0.32,
+      t0, path: makeSlashPath(reach * sc, kind === 'pierce' ? 2 : 22 * sc, tilt),
+      W: kind === 'pierce' ? 1.8 : 3.8 * sc, sweep: kind === 'pierce' ? 0.05 : 0.1, hold: 0.08, trail: 0.32,
     }));
     let t = 0, landed = false;
     return {
