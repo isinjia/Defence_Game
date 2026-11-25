@@ -121,8 +121,8 @@
       : (kind === 'crit' || o.big) ? [[0, 0.85, 1.15], [0.05, -0.75, 1.1]]
         : kind === 'pierce' ? [[0, 0.05, 0.7]] : [[0, 0.55 + Rg.range(-0.1, 0.1), 1]];
     const paths = cuts.map(([t0, tilt, sc]) => ({
-      t0, path: makeSlashPath(reach * sc, kind === 'pierce' ? 4 : 32 * sc, tilt),
-      W: kind === 'pierce' ? 4.5 : 14 * sc, sweep: kind === 'pierce' ? 0.05 : 0.1, hold: 0.08, trail: 0.32,
+      t0, path: makeSlashPath(reach * sc, kind === 'pierce' ? 3 : 26 * sc, tilt),
+      W: kind === 'pierce' ? 2.5 : 6.5 * sc, sweep: kind === 'pierce' ? 0.05 : 0.1, hold: 0.08, trail: 0.32,
     }));
     let t = 0, landed = false;
     return {
