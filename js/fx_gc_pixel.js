@@ -851,29 +851,520 @@
     };
   });
 
-  // 간단 위임 형태
-  const bite = claw;
-  const psychic = curse;
-  const spirit = orb;
-  const note = beam;
-  const rift = curse;
-  const talisman = shield;
-  const nova = whirl;
-  const rain = smite;
-  const burst = fist;
+  // ---------- 이빨: 위·아래 송곳니가 맞물림 ----------
+  const bite = mod('GC 이빨', '위아래 송곳니가 맞물려 깨묾', [110, 90], [55, 55], 0.5, {
+    palette: PAL.blood, sparks: sparksOf('blood'), seed: 18,
+  }, (o) => {
+    const C = fit(o.palette, 7), Rg = new Rng(o.seed), ps = new Particles({ rng: Rg, ground: () => 0, sparks: o.sparks || sparksOf('blood') });
+    let t = 0, bit = false;
+    return {
+      update(dt) {
+        t += dt;
+        if (!bit && t >= 0.12) {
+          bit = true;
+          for (let i = 0; i < 10; i++) ps.spawn(P.SPARK, Rg.range(-8, 8), -12, Rg.range(-120, 120), Rg.range(-80, 120), 0.25);
+          for (let i = 0; i < 6; i++) ps.spawn(P.MOTE, 0, -12, Rg.range(-40, 40), Rg.range(-30, 40), 0.35, C[4], 0.6);
+        }
+        ps.update(dt);
+      },
+      draw(p) {
+        const g = ease.outBack(clamp(t / 0.12));
+        for (const side of [-1, 1]) {
+          for (let i = 0; i < 5; i++) {
+            const x = (i - 2) * 7, yOpen = side * (28 - 22 * g), h = i === 2 ? 14 : (i === 0 || i === 4 ? 8 : 11);
+            for (let y = 0; y < h; y++) p.px(x, yOpen + side * y, y < 2 ? WHITE : C[5]);
+            p.px(x, yOpen + side * h, C[3]);
+          }
+        }
+        if (bit) hitCross(p, 0, -12, 0, C, t - 0.12, 0.95);
+        ps.draw(p);
+      },
+    };
+  });
+
+  // ---------- 염동: 파동이 모였다가 터짐 ----------
+  const psychic = mod('GC 염동', '파동이 죄어들었다 파열', [120, 110], [60, 70], 0.65, {
+    palette: PAL.dark, sparks: sparksOf('dark'), seed: 19,
+  }, (o) => {
+    const C = fit(o.palette, 7), Rg = new Rng(o.seed), ps = new Particles({ rng: Rg, ground: () => 0, sparks: o.sparks || sparksOf('dark') });
+    const lights = new Lights();
+    let t = 0, popped = false;
+    return {
+      update(dt) {
+        t += dt;
+        if (t < 0.35 && Rg.chance(0.4)) {
+          const a = Rg.range(0, TAU), r = 34 - t * 40;
+          ps.spawn(P.STREAK, Math.cos(a) * r, Math.sin(a) * r - 12, -Math.cos(a) * 80, -Math.sin(a) * 80, 0.2, C[4], 1);
+        }
+        if (!popped && t >= 0.35) {
+          popped = true;
+          lights.add(0, -12, 40, C[4], 0.5, 0.25);
+          for (let i = 0; i < 16; i++) {
+            const a = Rg.range(0, TAU), sp = Rg.range(160, 380);
+            ps.spawn(P.SPARK, 0, -12, Math.cos(a) * sp, Math.sin(a) * sp, 0.3);
+          }
+        }
+        ps.update(dt); lights.update(dt);
+      },
+      draw(p) {
+        if (t < 0.35) {
+          for (let i = 0; i < 4; i++) {
+            const r = 36 - t * 70 + i * 3;
+            if (r < 4) continue;
+            for (let a = 0; a < TAU; a += 0.25) p.dot(Math.cos(a + t * 3) * r, Math.sin(a + t * 3) * r * 0.75 - 12, i % 2 ? C[5] : C[3], 0.7);
+          }
+          p.glow(0, -12, 14, C[3], 0.35);
+        } else {
+          const q = t - 0.35;
+          hitCross(p, 0, -12, 0.3, C, q, 1.15);
+          const r = 6 + 28 * ease.outCubic(clamp(q / 0.12));
+          for (let a = 0; a < TAU; a += 0.12) p.dot(Math.cos(a) * r, Math.sin(a) * r * 0.7 - 12, q < 0.08 ? WHITE : C[4], Math.max(0, 1 - q / 0.3));
+        }
+        ps.draw(p); lights.draw(p);
+      },
+    };
+  });
+
+  // ---------- 정령: 위습이 날아가 스며듦 ----------
+  const spirit = mod('GC 정령', '위습이 날아가 스며듦', [150, 90], [24, 55], 0.65, {
+    palette: PAL.holy, sparks: sparksOf('holy'), reach: 78, seed: 20, el: 'holy',
+  }, (o) => {
+    const C = fit(o.palette, 7), Rg = new Rng(o.seed), ps = new Particles({ rng: Rg, ground: () => 0, sparks: o.sparks || sparksOf(o.el || 'holy') });
+    const TX = o.reach || 78, n = o.kind === 'multi' ? 3 : 1;
+    let t = 0, hit = false;
+    return {
+      update(dt) {
+        t += dt;
+        if (!hit && t >= 0.28) {
+          hit = true;
+          for (let i = 0; i < 10; i++) ps.spawn(P.STAR, TX + Rg.range(-8, 8), -16 + Rg.range(-8, 8), 0, -20, 0.4, C[5], 1.2);
+          for (let i = 0; i < 8; i++) ps.spawn(P.MOTE, TX, -16, Rg.range(-50, 50), Rg.range(-60, 20), 0.4, C[4], 0.7);
+        }
+        if (t < 0.28 && Rg.chance(0.45)) {
+          const g = t / 0.28, x = (TX) * g;
+          ps.spawn(P.MOTE, x, -16 + Math.sin(t * 14) * 6, -10, -15, 0.25, C[4], 0.5);
+        }
+        ps.update(dt);
+      },
+      draw(p) {
+        for (let i = 0; i < n; i++) {
+          const delay = i * 0.08, u = t - delay; if (u < 0) continue;
+          const g = ease.outQuad(clamp(u / 0.28));
+          const x = TX * Math.min(1, g), y = -16 + Math.sin((u + i) * 12) * 8 + (i - (n - 1) / 2) * 10;
+          if (u < 0.32) {
+            p.px(x, y, WHITE); p.px(x - 1, y - 1, C[5]); p.px(x + 1, y + 1, C[4]);
+            p.dot(x - 3, y, C[3], 0.7); p.glow(x, y, 10, C[3], 0.35);
+          }
+        }
+        if (hit) {
+          const q = t - 0.28;
+          for (let a = 0; a < TAU; a += 0.4) p.dot(TX + Math.cos(a) * (5 + q * 25), -16 + Math.sin(a) * (5 + q * 25), C[5], Math.max(0, 1 - q / 0.35));
+          sparkle(p, TX, -16, 8 * Math.exp(-q / 0.2), C[5], C[3], 0.5);
+        }
+        ps.draw(p);
+      },
+    };
+  });
+
+  // ---------- 음표: 음표가 튀며 날아감 ----------
+  const note = mod('GC 음표', '음표가 튀며 날아가 울림', [150, 80], [20, 50], 0.6, {
+    palette: PAL.bolt, sparks: sparksOf('bolt'), reach: 85, seed: 21,
+  }, (o) => {
+    const C = fit(o.palette, 7), Rg = new Rng(o.seed), ps = new Particles({ rng: Rg, ground: () => 0, sparks: o.sparks || sparksOf('bolt') });
+    const TX = o.reach || 85;
+    const notes = [0, 1, 2, 3, 4].map((i) => ({ i, delay: i * 0.06, side: (i % 2 ? 1 : -1) * (8 + i * 3) }));
+    let t = 0, hit = false;
+    return {
+      update(dt) {
+        t += dt;
+        if (!hit && t >= 0.32) {
+          hit = true;
+          for (let i = 0; i < 8; i++) ps.spawn(P.STAR, TX, -14, Rg.range(-40, 40), Rg.range(-60, 20), 0.35, C[5], 1);
+        }
+        ps.update(dt);
+      },
+      draw(p) {
+        // 음파 줄기
+        if (t < 0.4) for (let j = -1; j <= 1; j++) {
+          for (let x = 0; x < TX * clamp(t / 0.28); x += 2) p.dot(x, -14 + j * 5 + Math.sin(x * 0.2 + t * 8) * 2, C[3], 0.45);
+        }
+        for (const n of notes) {
+          const u = t - n.delay; if (u < 0 || u > 0.4) continue;
+          const g = ease.outQuad(clamp(u / 0.28));
+          const x = TX * Math.min(1, g), y = -14 + n.side * Math.sin(g * Math.PI) * 0.8 + Math.sin(u * 16) * 3;
+          // 간단한 음표: 머리 + 줄기
+          p.px(x, y, C[5]); p.px(x + 1, y, WHITE); p.px(x - 1, y + 1, C[4]);
+          for (let h = 0; h < 6; h++) p.px(x + 2, y - h, C[4]);
+          p.px(x + 3, y - 6, C[5]); p.px(x + 4, y - 5, C[3]);
+        }
+        if (hit) {
+          const q = t - 0.32;
+          for (let a = 0; a < TAU; a += 0.3) p.dot(TX + Math.cos(a) * (8 + q * 20), -14 + Math.sin(a) * (8 + q * 20), C[4], Math.max(0, 1 - q / 0.28));
+        }
+        ps.draw(p);
+      },
+    };
+  });
+
+  // ---------- 균열: 세로로 찢기는 차원 틈 ----------
+  const rift = mod('GC 균열', '세로로 찢기는 차원 틈', [100, 130], [50, 90], 0.6, {
+    palette: PAL.dark, sparks: sparksOf('dark'), seed: 22,
+  }, (o) => {
+    const C = fit(o.palette, 7), Rg = new Rng(o.seed), ps = new Particles({ rng: Rg, ground: () => 0, sparks: o.sparks || sparksOf('dark') });
+    const lights = new Lights();
+    let t = 0, torn = false;
+    return {
+      update(dt) {
+        t += dt;
+        if (!torn && t >= 0.14) {
+          torn = true;
+          lights.add(0, -20, 36, C[3], 0.4, 0.3);
+          for (let i = 0; i < 14; i++) {
+            const side = i % 2 ? 1 : -1, sp = Rg.range(80, 260);
+            ps.spawn(P.SPARK, side * 2, -20 + Rg.range(-30, 30), side * sp, Rg.range(-80, 80), 0.3);
+          }
+        }
+        ps.update(dt); lights.update(dt);
+      },
+      draw(p) {
+        const h = 70 * ease.outCubic(clamp(t / 0.14));
+        const w = t < 0.14 ? 1 + t * 8 : 3 + 6 * (1 - clamp((t - 0.14) / 0.4));
+        for (let y = -h; y <= h * 0.15; y += 0.5) {
+          const u = Math.abs(y) / h;
+          p.px(0, y - 10, u < 0.15 ? WHITE : C[0]);
+          for (let x = 1; x <= w; x++) {
+            p.px(x, y - 10, C[2]); p.px(-x, y - 10, C[2]);
+          }
+          if (u < 0.3) { p.px(1, y - 10, C[5]); p.px(-1, y - 10, C[5]); }
+        }
+        p.glow(0, -10, 12, C[3], 0.35 * (1 - t / 0.6));
+        // 가장자리 톱니
+        if (t > 0.1) for (let i = 0; i < 8; i++) {
+          const y = -h + i * (h / 4);
+          p.dot(w + 2, y - 10, C[4], 0.7); p.dot(-w - 2, y - 8, C[4], 0.7);
+        }
+        ps.draw(p); lights.draw(p);
+      },
+    };
+  });
+
+  // ---------- 부적: 부적이 날아가 팔괘가 펼쳐짐 ----------
+  const talisman = mod('GC 부적', '부적이 날아가 팔괘가 펼쳐짐', [140, 100], [28, 60], 0.65, {
+    palette: PAL.holy, sparks: sparksOf('holy'), reach: 70, seed: 23,
+  }, (o) => {
+    const C = fit(o.palette, 7), Rg = new Rng(o.seed), ps = new Particles({ rng: Rg, ground: () => 0, sparks: o.sparks || sparksOf('holy') });
+    const TX = o.reach || 70, n = o.kind === 'multi' ? 3 : 1;
+    let t = 0, hit = false;
+    return {
+      update(dt) {
+        t += dt;
+        if (!hit && t >= 0.24) {
+          hit = true;
+          for (let i = 0; i < 10; i++) ps.spawn(P.STAR, TX, -16, Rg.range(-30, 30), Rg.range(-40, 20), 0.35, C[5], 1);
+        }
+        ps.update(dt);
+      },
+      draw(p) {
+        for (let i = 0; i < n; i++) {
+          const delay = i * 0.07, u = t - delay; if (u < 0) continue;
+          const g = ease.outQuad(clamp(u / 0.22));
+          const x = TX * Math.min(1, g), y = -16 + Math.sin(g * Math.PI) * ((i % 2 ? 1 : -1) * 12);
+          if (u < 0.28) {
+            // 세로 부적
+            for (let h = -5; h <= 5; h++) { p.px(x, y + h, C[5]); p.px(x - 1, y + h, C[2]); p.px(x + 1, y + h, C[2]); }
+            p.px(x, y - 2, WHITE); p.px(x, y + 1, C[4]); p.px(x, y + 3, C[3]);
+          }
+        }
+        if (hit) {
+          const q = t - 0.24, r = 10 + 22 * ease.outBack(clamp(q / 0.12));
+          const fade = Math.max(0, 1 - q / 0.4);
+          for (let i = 0; i < 8; i++) {
+            const a = i * TAU / 8 + q * 2;
+            p.line(TX + Math.cos(a) * 6, -16 + Math.sin(a) * 6, TX + Math.cos(a) * r, -16 + Math.sin(a) * r, C[5], fade);
+          }
+          for (let a = 0; a < TAU; a += 0.2) p.dot(TX + Math.cos(a) * r, -16 + Math.sin(a) * r, C[4], fade * 0.8);
+          p.glow(TX, -16, 16, C[3], 0.3 * fade);
+        }
+        ps.draw(p);
+      },
+    };
+  });
+
+  // ---------- 노바: 중심에서 퍼지는 폭발 링 (회오리와 다름) ----------
+  const nova = mod('GC 노바', '중심에서 퍼지는 폭발 링', [130, 110], [65, 70], 0.55, {
+    palette: PAL.fire, sparks: sparksOf('fire'), seed: 24,
+  }, (o) => {
+    const C = fit(o.palette, 7), Rg = new Rng(o.seed), ps = new Particles({ rng: Rg, ground: () => 0, sparks: o.sparks || sparksOf('fire') });
+    const lights = new Lights();
+    let t = 0, fired = false;
+    return {
+      update(dt) {
+        t += dt;
+        if (!fired && t >= 0.06) {
+          fired = true;
+          lights.add(0, -8, 50, C[4], 0.55, 0.28);
+          for (let i = 0; i < 20; i++) {
+            const a = i * TAU / 20 + Rg.range(-0.05, 0.05), sp = Rg.range(180, 400);
+            ps.spawn(P.SPARK, 0, -8, Math.cos(a) * sp, Math.sin(a) * sp, 0.35);
+          }
+        }
+        ps.update(dt); lights.update(dt);
+      },
+      draw(p) {
+        if (t < 0.08) {
+          for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) if (Math.abs(dx) + Math.abs(dy) <= 4) p.px(dx, dy - 8, WHITE);
+          p.glow(0, -8, 20, C[4], 0.5);
+        }
+        const r1 = 4 + 36 * ease.outCubic(clamp(t / 0.18));
+        const r2 = 2 + 24 * ease.outCubic(clamp((t - 0.04) / 0.2));
+        const fade = Math.max(0, 1 - t / 0.5);
+        for (let a = 0; a < TAU; a += 0.08) {
+          p.dot(Math.cos(a) * r1, Math.sin(a) * r1 * 0.65 - 8, t < 0.1 ? WHITE : C[5], fade);
+          if (t > 0.05) p.dot(Math.cos(a + 0.1) * r2, Math.sin(a + 0.1) * r2 * 0.65 - 8, C[3], fade * 0.7);
+        }
+        ps.draw(p); lights.draw(p);
+      },
+    };
+  });
+
+  // ---------- 비: 위에서 쏟아지는 줄기가 꽂힘 ----------
+  const rain = mod('GC 비', '위에서 쏟아지는 줄기가 꽂힘', [120, 140], [60, 120], 0.6, {
+    palette: PAL.water, sparks: sparksOf('water'), seed: 25, el: 'water',
+  }, (o) => {
+    const el = o.el || 'water';
+    const C = fit(o.palette || PAL[el] || PAL.water, 7), Rg = new Rng(o.seed);
+    const ps = new Particles({ rng: Rg, ground: () => 0, sparks: o.sparks || sparksOf(el) });
+    const drops = [];
+    for (let i = 0; i < 9; i++) drops.push({ x: Rg.range(-28, 28), delay: Rg.range(0, 0.18), len: Rg.range(18, 36) });
+    let t = 0, landed = false;
+    return {
+      update(dt) {
+        t += dt;
+        if (!landed && t >= 0.28) {
+          landed = true;
+          for (let i = 0; i < 12; i++) ps.spawn(P.SPARK, Rg.range(-20, 20), 0, Rg.range(-60, 60), Rg.range(-160, -40), 0.28);
+        }
+        ps.update(dt);
+      },
+      draw(p) {
+        for (const d of drops) {
+          const u = t - d.delay; if (u < 0) continue;
+          const g = clamp(u / 0.22), y = -110 + 110 * ease.inQuad(g);
+          const fade = g > 0.85 ? (1 - g) / 0.15 : 1;
+          for (let i = 0; i < d.len * Math.min(1, g * 2); i++) {
+            p.dot(d.x, y - i, i < 2 ? WHITE : (el === 'bolt' ? C[5] : C[4]), fade * (1 - i / d.len));
+          }
+        }
+        if (landed) {
+          const q = t - 0.28;
+          for (let a = 0; a < TAU; a += 0.15) p.dot(Math.cos(a) * (8 + q * 30), Math.sin(a) * (3 + q * 10), C[4], Math.max(0, 1 - q / 0.3));
+        }
+        ps.draw(p);
+      },
+    };
+  });
+
+  // ---------- 버스트: 제자리 만화 폭발 (주먹 돌진과 다름) ----------
+  const burst = mod('GC 버스트', '제자리 만화식 방사 폭발', [110, 100], [55, 60], 0.45, {
+    palette: PAL.volt, sparks: sparksOf('volt'), seed: 26,
+  }, (o) => {
+    const C = fit(o.palette, 7), Rg = new Rng(o.seed), ps = new Particles({ rng: Rg, ground: () => 0, sparks: o.sparks || sparksOf('volt') });
+    const lights = new Lights();
+    let t = 0, boomed = false;
+    return {
+      update(dt) {
+        t += dt;
+        if (!boomed && t >= 0.02) {
+          boomed = true;
+          lights.add(0, -10, 44, C[4], 0.55, 0.2);
+          for (let i = 0; i < 18; i++) {
+            const a = Rg.range(0, TAU), sp = Rg.range(200, 480);
+            ps.spawn(P.SPARK, 0, -10, Math.cos(a) * sp, Math.sin(a) * sp, 0.28);
+          }
+        }
+        ps.update(dt); lights.update(dt);
+      },
+      draw(p) {
+        const q = t;
+        if (q < 0.1) {
+          for (let i = 0; i < 10; i++) {
+            const a = i * TAU / 10, L = 18 + (q < 0.04 ? 10 : 4);
+            for (let d = 0; d < L; d++) p.px(Math.cos(a) * d, Math.sin(a) * d - 10, d < 4 ? WHITE : C[5]);
+          }
+          for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) if (Math.abs(dx) + Math.abs(dy) <= 4) p.px(dx, dy - 10, WHITE);
+        }
+        p.glow(0, -10, 22, C[3], 0.4 * Math.exp(-q / 0.12));
+        ps.draw(p); lights.draw(p);
+      },
+    };
+  });
+
+  // ---------- 배리어: 반구 돔 ----------
+  const barrier = mod('GC 배리어', '반구 돔 보호막', [110, 100], [55, 70], 0.55, {
+    palette: PAL.holy, sparks: sparksOf('holy'), seed: 27,
+  }, (o) => {
+    const C = fit(o.palette, 7);
+    let t = 0;
+    return {
+      update(dt) { t += dt; },
+      draw(p) {
+        const g = ease.outBack(clamp(t / 0.14));
+        const fade = t > 0.35 ? 1 - (t - 0.35) / 0.2 : 1;
+        const R = 26 * g;
+        for (let a = -Math.PI; a <= 0; a += 0.08) {
+          p.dot(Math.cos(a) * R, Math.sin(a) * R - 4, C[5], fade);
+          p.dot(Math.cos(a) * R * 0.85, Math.sin(a) * R * 0.85 - 4, C[3], fade * 0.5);
+        }
+        for (let x = -R; x <= R; x += 2) p.dot(x, -4, C[4], fade * 0.6);
+        p.glow(0, -16, 16, C[3], 0.3 * fade);
+        if (t < 0.18) sparkle(p, 0, -22, 9 * (1 - t / 0.18), C[5], C[3], 0.5);
+      },
+    };
+  });
+
+  // ---------- 필드: 바닥 마법진 ----------
+  const field = mod('GC 필드', '바닥 마법진이 펼쳐짐', [120, 80], [60, 55], 0.6, {
+    palette: PAL.bolt, sparks: sparksOf('bolt'), seed: 28,
+  }, (o) => {
+    const C = fit(o.palette, 7), Rg = new Rng(o.seed), ps = new Particles({ rng: Rg, ground: () => 0, sparks: o.sparks || sparksOf('bolt') });
+    let t = 0;
+    return {
+      update(dt) {
+        t += dt;
+        if (t < 0.4 && Rg.chance(0.25)) ps.spawn(P.STAR, Rg.range(-20, 20), Rg.range(-8, 4), 0, -10, 0.35, C[5], 0.8);
+        ps.update(dt);
+      },
+      draw(p) {
+        const g = ease.outCubic(clamp(t / 0.15)), fade = Math.max(0, 1 - t / 0.55);
+        const rx = 34 * g, ry = 12 * g;
+        for (let a = 0; a < TAU; a += 0.1) p.dot(Math.cos(a) * rx, Math.sin(a) * ry, C[5], fade);
+        for (let a = 0; a < TAU; a += 0.2) p.dot(Math.cos(a + t) * rx * 0.55, Math.sin(a + t) * ry * 0.55, C[3], fade * 0.7);
+        // 룬 점
+        for (let i = 0; i < 6; i++) {
+          const a = i * TAU / 6 + t * 0.5;
+          p.px(Math.cos(a) * rx * 0.75, Math.sin(a) * ry * 0.75, C[4]);
+        }
+        p.glow(0, 0, 14, C[3], 0.25 * fade);
+        ps.draw(p);
+      },
+    };
+  });
+
+  // ---------- 함정: 바닥에서 가시가 튀어오름 ----------
+  const trap = mod('GC 함정', '바닥 예고 후 가시가 튀어오름', [110, 90], [55, 70], 0.55, {
+    palette: PAL.poison, sparks: sparksOf('poison'), seed: 29,
+  }, (o) => {
+    const C = fit(o.palette, 7), Rg = new Rng(o.seed), ps = new Particles({ rng: Rg, ground: () => 0, sparks: o.sparks || sparksOf('poison') });
+    let t = 0, sprung = false;
+    return {
+      update(dt) {
+        t += dt;
+        if (!sprung && t >= 0.18) {
+          sprung = true;
+          for (let i = 0; i < 10; i++) ps.spawn(P.GRIT, Rg.range(-16, 16), 0, Rg.range(-80, 80), Rg.range(-220, -60), 0.35, C[2], 1);
+        }
+        ps.update(dt);
+      },
+      draw(p) {
+        if (t < 0.18) {
+          // 예고 점멸
+          const blink = Math.sin(t * 40) > 0;
+          if (blink) for (let a = 0; a < TAU; a += 0.3) p.dot(Math.cos(a) * 16, Math.sin(a) * 5, C[4], 0.7);
+        } else {
+          const g = ease.outBack(clamp((t - 0.18) / 0.1));
+          for (let i = -3; i <= 3; i++) {
+            const h = (12 + (3 - Math.abs(i)) * 6) * g;
+            for (let y = 0; y < h; y++) p.px(i * 5, -y, y > h - 2 ? WHITE : C[3]);
+            p.px(i * 5 - 1, -h + 1, C[4]); p.px(i * 5 + 1, -h + 1, C[4]);
+          }
+        }
+        ps.draw(p);
+      },
+    };
+  });
+
+  // ---------- 벽: 돌벽이 올라옴 ----------
+  const wall = mod('GC 벽', '돌벽이 가로로 솟아오름', [130, 100], [65, 80], 0.55, {
+    palette: PAL.none, sparks: sparksOf('none'), seed: 30,
+  }, (o) => {
+    const C = fit(o.palette, 7), Rg = new Rng(o.seed), ps = new Particles({ rng: Rg, ground: () => 0, sparks: o.sparks || sparksOf('none') });
+    let t = 0;
+    return {
+      update(dt) {
+        t += dt;
+        if (t > 0.08 && t < 0.12) for (let i = 0; i < 8; i++) ps.spawn(P.GRIT, Rg.range(-30, 30), 0, Rg.range(-40, 40), Rg.range(-160, -40), 0.4, C[2], 1);
+        ps.update(dt);
+      },
+      draw(p) {
+        const g = ease.outCubic(clamp(t / 0.16));
+        for (let i = -4; i <= 4; i++) {
+          const h = (20 + (i % 2 ? 6 : 2) + Math.abs(i) * 1.5) * g;
+          for (let y = 0; y < h; y++) {
+            p.px(i * 7, -y, y > h - 3 ? C[5] : (y % 4 < 2 ? C[2] : C[1]));
+            p.px(i * 7 + 1, -y, C[1]); p.px(i * 7 - 1, -y, C[0]);
+          }
+        }
+        const fade = Math.max(0, 1 - t / 0.5);
+        for (let x = -32; x <= 32; x += 2) p.dot(x, 1, C[3], fade * 0.5);
+        ps.draw(p);
+      },
+    };
+  });
+
+  // ---------- 소환: 마법진에서 입자가 모임 ----------
+  const summon = mod('GC 소환', '마법진에서 입자가 모여 솟음', [120, 110], [60, 80], 0.7, {
+    palette: PAL.holy, sparks: sparksOf('holy'), seed: 31,
+  }, (o) => {
+    const C = fit(o.palette, 7), Rg = new Rng(o.seed), ps = new Particles({ rng: Rg, ground: () => 0, sparks: o.sparks || sparksOf('holy') });
+    const lights = new Lights();
+    let t = 0, risen = false;
+    return {
+      update(dt) {
+        t += dt;
+        if (t < 0.35) {
+          const a = Rg.range(0, TAU), r = 28;
+          if (Rg.chance(0.5)) ps.spawn(P.STREAK, Math.cos(a) * r, Math.sin(a) * r * 0.35, -Math.cos(a) * 60, -Math.sin(a) * 20 - 40, 0.25, C[4], 1);
+        }
+        if (!risen && t >= 0.35) {
+          risen = true;
+          lights.add(0, -20, 40, C[4], 0.5, 0.3);
+          for (let i = 0; i < 12; i++) ps.spawn(P.STAR, Rg.range(-10, 10), -20 + Rg.range(-10, 10), 0, -30, 0.45, C[5], 1.2);
+        }
+        ps.update(dt); lights.update(dt);
+      },
+      draw(p) {
+        const g = ease.outCubic(clamp(t / 0.2)), fade = Math.max(0, 1 - t / 0.65);
+        const rx = 30 * g, ry = 10 * g;
+        for (let a = 0; a < TAU; a += 0.12) p.dot(Math.cos(a) * rx, Math.sin(a) * ry, C[5], fade);
+        for (let i = 0; i < 5; i++) {
+          const a = i * TAU / 5 + t;
+          p.line(0, 0, Math.cos(a) * rx * 0.7, Math.sin(a) * ry * 0.7, C[3], fade * 0.7);
+        }
+        if (risen) {
+          const q = t - 0.35, h = 40 * ease.outCubic(clamp(q / 0.15));
+          for (let y = 0; y < h; y++) p.px(0, -y, y < 3 ? WHITE : C[4]);
+          p.glow(0, -h, 14, C[3], 0.4 * Math.max(0, 1 - q / 0.35));
+          sparkle(p, 0, -h, 8 * Math.max(0, 1 - q / 0.3), C[5], C[3], 0.5);
+        }
+        ps.draw(p); lights.draw(p);
+      },
+    };
+  });
 
   const FORM = {
     slash, cleave, thrust, fist, stab, arrow, bullet, bomb, orb, beam, smite,
     whirl, claw, bite, ground, curse, psychic, spirit, note, rift, shield, talisman,
-    nova, rain, burst,
-    barrier: shield, field: shield, trap: curse, wall: ground, summon: talisman,
+    nova, rain, burst, barrier, field, trap, wall, summon,
   };
 
   // hit 시각(초) — 브릿지 히트스톱·피해 동기화
   const HIT_AT = {
     slash: 0.1, thrust: 0.07, cleave: 0.22, fist: 0.09, stab: 0.2,
     arrow: 0.14, bullet: 0.1, bomb: 0.28, orb: 0.22, beam: 0.12, smite: 0.12,
-    whirl: 0.15, claw: 0.1, ground: 0.08, curse: 0.25, shield: 0.12, burst: 0.09,
+    whirl: 0.15, claw: 0.1, bite: 0.12, ground: 0.08, curse: 0.25,
+    psychic: 0.35, spirit: 0.28, note: 0.32, rift: 0.14, shield: 0.12,
+    talisman: 0.24, nova: 0.06, rain: 0.28, burst: 0.02,
+    barrier: 0.12, field: 0.15, trap: 0.18, wall: 0.12, summon: 0.35,
   };
 
   globalThis.FXGC = { FORM, PAL, HIT_AT, ramp, sparksOf, mod };

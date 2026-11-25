@@ -51,7 +51,9 @@
     const form = o.form || '';
     const atTarget = form === 'cleave' || form === 'bomb' || form === 'smite' || form === 'ground'
       || form === 'nova' || form === 'curse' || form === 'psychic' || form === 'whirl'
-      || form === 'shield' || form === 'barrier' || form === 'burst';
+      || form === 'shield' || form === 'barrier' || form === 'burst' || form === 'bite'
+      || form === 'rift' || form === 'field' || form === 'trap' || form === 'wall'
+      || form === 'summon' || form === 'rain';
     const ang = atTarget ? 0 : Math.atan2(to.y - from.y, to.x - from.x);
     const el = elKey(o);
     const dist = Math.hypot(to.x - from.x, to.y - from.y) / SCALE;
